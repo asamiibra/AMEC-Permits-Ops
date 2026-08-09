@@ -64,9 +64,16 @@ def health():
     database_configured = bool(os.getenv("DATABASE_URL"))
     database_dialect = engine.dialect.name
     connection_valid = False
+    migration_versions: list[str] = []
+    migration_state = "unknown"
     try:
         with engine.connect() as db:
             db.exec_driver_sql("select 1")
+            try:
+                migration_versions = list(db.exec_driver_sql("select version_num from alembic_version").scalars())
+                migration_state = "present"
+            except Exception:
+                migration_state = "missing"
         connection_valid = True
     except Exception:
         connection_valid = False
@@ -80,6 +87,8 @@ def health():
         "database_durable": database_dialect == "postgresql",
         "sqlite_fallback_active": not database_configured and database_dialect == "sqlite",
         "database_connection_valid": connection_valid,
+        "alembic_versions": migration_versions,
+        "alembic_state": migration_state,
     }
 
 
