@@ -26,6 +26,7 @@ from backend.app.fixtures.canonical import (  # noqa: E402
 )
 from backend.app.models import (  # noqa: E402
     Base,
+    AuditEvent,
     PermitApplication,
     Project,
     SyntheticFixtureSet,
@@ -103,7 +104,12 @@ def main() -> None:
 
     counts_before = table_counts()
     nonempty_tables = {name: count for name, count in counts_before.items() if count}
-    if nonempty_tables:
+    audit_only = set(nonempty_tables) == {AuditEvent.__tablename__}
+    if audit_only:
+        with SessionLocal() as db:
+            audit_events = list(db.scalars(select(AuditEvent)).all())
+            audit_only = bool(audit_events) and all(event.actor_type == "DEV_USER" and event.event_type == "ROLE_FILTER_APPLIED" for event in audit_events)
+    if nonempty_tables and not audit_only:
         raise RuntimeError(f"Non-empty database without canonical fixture; refusing reset tables={sorted(nonempty_tables)}")
 
     migration_action = ensure_current_schema()
