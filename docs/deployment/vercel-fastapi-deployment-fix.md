@@ -3,9 +3,9 @@
 ## Required Vercel project settings
 
 - Root Directory: `backend`
-- Framework preset: Other
+- Framework preset: FastAPI, pinned in `backend/vercel.json`
 - Build/install source: `requirements.txt`
-- Entrypoint: resolved explicitly as `app.main:app` from `backend/pyproject.toml`; `backend/index.py` is the zero-configuration detection shim and re-exports that same object
+- Entrypoint: resolved explicitly as `app.main:app` from `backend/pyproject.toml`; no wrapper or static Python entrypoint is retained
 - Environment variables: provide the deployment-specific `DATABASE_URL`, `APP_ENV`, and `SYNTHETIC_ONLY`; do not commit their values
 
 ## Expected URLs

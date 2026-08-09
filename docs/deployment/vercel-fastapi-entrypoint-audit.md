@@ -4,17 +4,27 @@ The backend deployment root is `backend/`. The application exports a FastAPI ins
 
 The authoritative backend dependency file is `backend/requirements.txt`. There was no backend-specific `vercel.json`, no backend static rewrite, and no frontend fallback rewrite that could serve the API. The branded Vercel 404 was therefore treated as an ambiguous/missing backend entrypoint configuration issue; this audit does not claim a live Vercel deployment was independently changed or verified.
 
-The deployment configuration is explicit in `backend/pyproject.toml`:
+The deployment configuration is explicit in `backend/vercel.json` and
+`backend/pyproject.toml`:
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "fastapi"
+}
+```
 
 ```toml
 [tool.vercel]
 entrypoint = "app.main:app"
 ```
 
-Because the live project was still returning Vercel's `404: NOT_FOUND` after the
-explicit configuration was pushed, `backend/index.py` also re-exports the same
-verified object as Vercel's standard root `index.py` FastAPI detection path. It
-contains no second application instance and no route logic.
+An attempted root `backend/index.py` compatibility wrapper was removed after
+`vercel dev` proved that Vercel served it as a downloadable static Python file
+instead of executing the FastAPI application. The deployment therefore uses
+the real `app.main:app` object directly. A local `vercel build` before the
+framework pin reported `framework: null`, skipped detection, and selected only
+`@vercel/static`; the explicit framework pin addresses that confirmed failure.
 
 The backend exposes both `/` and `/health`. Runtime configuration remains environment-driven through the existing settings (`DATABASE_URL`, `APP_ENV`, and `SYNTHETIC_ONLY`). No secret or credential is stored in the repository. No migration or seed operation was added to an import or request path; the existing application lifespan only initializes the configured database schema.
 
