@@ -18,10 +18,10 @@ The existing relative-path client remains in place. An optional `VITE_API_URL` i
 
 ## Verification results
 
-The pre-fix production probes demonstrated the failure: `/api/dashboard`, `/mock-authority/applications`, `/issues`, `/notifications`, and `/about` returned Vercel `404 text/plain; charset=utf-8`. The direct backend probes and post-deployment proxy/SPA results are recorded in `artifacts/deployment/frontend-backend-proxy-result.json`.
+The pre-fix production probes demonstrated the failure: `/api/dashboard`, `/mock-authority/applications`, `/issues`, `/notifications`, and `/about` returned Vercel `404 text/plain; charset=utf-8`. After deployment of commit `01d4839`, `/api/dashboard` returned `200 application/json` with JSON-equivalent semantics to the direct backend route, `/mock-authority/applications` returned `200 application/json`, and all four SPA routes returned the React HTML shell without a branded 404. The complete direct, proxy, SPA, and browser network results are recorded in `artifacts/deployment/frontend-backend-proxy-result.json`.
 
-The local configuration validation confirms valid JSON and the required rule order. Frontend unit tests cover successful JSON, JSON FastAPI errors, and non-JSON Vercel responses. The production build and routing smoke tests are part of the release verification.
+The local configuration validation confirms valid JSON and the required rule order. Frontend unit tests cover successful JSON, JSON FastAPI errors, and non-JSON Vercel responses. The production build, browser smoke tests, and live deployed network audit passed. The live My Work page made seven material API requests; all were `200 application/json`, with zero failed requests, zero `API unavailable` banners, zero `Work signals unavailable` banners, and zero `Unexpected token` errors.
 
 ## Database boundary
 
-This change does not initialize or seed the database. A JSON `500` from the backend `/api/dashboard` route is evidence that the request reached FastAPI; it remains a downstream Neon/database setup matter and is not masked by the proxy.
+This change does not initialize or seed the database. The current backend returned successful JSON for the tested routes, but `/api/projects` and `/api/applications` returned empty arrays, so no seeded business-record load is claimed. Database migration/seed readiness remains a separate boundary and is not masked by the proxy.

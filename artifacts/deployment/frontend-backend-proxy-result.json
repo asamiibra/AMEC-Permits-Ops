@@ -1,7 +1,7 @@
 {
   "frontend_domain": "https://amec-permits-ops.vercel.app",
   "backend_domain": "https://amec-permits-ops-backend.vercel.app",
-  "status": "verification_pending_deployment",
+  "status": "pass",
   "before_fix": {
     "frontend_api_dashboard": {"status": 404, "content_type": "text/plain; charset=utf-8", "body_prefix": "The page could not be found"},
     "frontend_mock_authority": {"status": 404, "content_type": "text/plain; charset=utf-8", "body_prefix": "The page could not be found"},
@@ -15,11 +15,30 @@
     "/mock-authority/applications": {"status": 200, "content_type": "application/json", "body_shape": "array"}
   },
   "after_fix": {
-    "frontend_api_dashboard": "to be populated after frontend deployment",
-    "frontend_mock_authority": "to be populated after frontend deployment",
-    "frontend_spa_routes": "to be populated after frontend deployment",
-    "browser_network_audit": "to be populated after frontend deployment"
+    "frontend_api_dashboard": {"status": 200, "content_type": "application/json", "semantics": "JSON-equivalent to direct backend /api/dashboard; no Vercel 404 or HTML"},
+    "frontend_mock_authority": {"status": 200, "content_type": "application/json", "body_shape": "array", "semantics": "JSON-equivalent to direct backend /mock-authority/applications"},
+    "frontend_spa_routes": {"status": 200, "content_type": "text/html; charset=utf-8", "routes": ["/", "/issues", "/notifications", "/about"], "react_title": "PermitOps · Permit Integrity & Workflow", "branded_404": false},
+    "browser_network_audit": {
+      "page": "/work",
+      "api_requests": [
+        "/api/projects",
+        "/api/notifications",
+        "/api/findings",
+        "/api/reconciliation/governance",
+        "/api/applications",
+        "/api/tasks",
+        "/api/my-work"
+      ],
+      "all_status": 200,
+      "all_content_type": "application/json",
+      "failed_requests": 0,
+      "api_unavailable_banner": false,
+      "work_signals_unavailable_banner": false,
+      "unexpected_token_errors": 0
+    }
   },
-  "deployment_commit": null,
-  "deployment_url": null
+  "deployment_commit": "01d4839",
+  "deployment_url": "https://amec-permits-mtyqiy2np-ahmed-samis-projects-c4276939.vercel.app",
+  "deployment_id": "dpl_5QqFHcuo4i1D2PsBmX1v6jMBwsGw",
+  "deployment_ready_state": "READY"
 }
