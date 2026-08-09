@@ -1,0 +1,25 @@
+{
+  "frontend_domain": "https://amec-permits-ops.vercel.app",
+  "backend_domain": "https://amec-permits-ops-backend.vercel.app",
+  "status": "verification_pending_deployment",
+  "before_fix": {
+    "frontend_api_dashboard": {"status": 404, "content_type": "text/plain; charset=utf-8", "body_prefix": "The page could not be found"},
+    "frontend_mock_authority": {"status": 404, "content_type": "text/plain; charset=utf-8", "body_prefix": "The page could not be found"},
+    "frontend_spa_routes": {"status": 404, "content_type": "text/plain; charset=utf-8", "routes": ["/issues", "/notifications", "/about"]}
+  },
+  "direct_backend": {
+    "/": {"status": 200, "content_type": "application/json", "body_shape": "service/status/environment"},
+    "/health": {"status": 200, "content_type": "application/json", "body_shape": "status/service/environment/synthetic_only"},
+    "/openapi.json": {"status": 200, "content_type": "application/json", "body_shape": "OpenAPI 3.1 document"},
+    "/api/dashboard": {"status": 500, "content_type": "application/json", "body_shape": "detail/correlation_id; downstream database/environment error"},
+    "/mock-authority/applications": {"status": 200, "content_type": "application/json", "body_shape": "array"}
+  },
+  "after_fix": {
+    "frontend_api_dashboard": "to be populated after frontend deployment",
+    "frontend_mock_authority": "to be populated after frontend deployment",
+    "frontend_spa_routes": "to be populated after frontend deployment",
+    "browser_network_audit": "to be populated after frontend deployment"
+  },
+  "deployment_commit": null,
+  "deployment_url": null
+}

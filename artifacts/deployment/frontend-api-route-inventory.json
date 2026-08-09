@@ -1,0 +1,44 @@
+{
+  "frontend_domain": "https://amec-permits-ops.vercel.app",
+  "backend_domain": "https://amec-permits-ops-backend.vercel.app",
+  "source_of_truth": "frontend/src and frontend/vite.config.ts",
+  "route_families": [
+    {
+      "family": "/api/*",
+      "used_by_frontend": true,
+      "examples": [
+        "/api/projects",
+        "/api/applications",
+        "/api/reconciliation/governance",
+        "/api/findings",
+        "/api/tasks",
+        "/api/notifications",
+        "/api/preparation-revisions/{id}/portal-snapshots"
+      ],
+      "proxy": "https://amec-permits-ops-backend.vercel.app/api/:path*",
+      "prefix_preserved": true
+    },
+    {
+      "family": "/mock-authority/*",
+      "used_by_frontend": true,
+      "examples": ["/mock-authority/applications/{id}/draft"],
+      "proxy": "https://amec-permits-ops-backend.vercel.app/mock-authority/:path*",
+      "prefix_preserved": true
+    },
+    {
+      "family": "frontend-only SPA routes",
+      "used_by_frontend": true,
+      "examples": ["/", "/issues", "/notifications", "/about"],
+      "proxy": "/index.html"
+    },
+    {
+      "family": "static assets",
+      "used_by_frontend": true,
+      "examples": ["/assets/*"],
+      "proxy": "/index.html",
+      "note": "Vercel serves existing static assets before the fallback rewrite."
+    }
+  ],
+  "material_backend_route_family_without_proxy": 0,
+  "active_stale_backend_domain_references": 0
+}

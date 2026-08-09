@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://amec-permits-ops-backend.vercel.app/api/:path*"
+    },
+    {
+      "source": "/mock-authority/:path*",
+      "destination": "https://amec-permits-ops-backend.vercel.app/mock-authority/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
