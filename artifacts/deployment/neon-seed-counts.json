@@ -41,7 +41,10 @@
     "blocked_packages": 4
   },
   "idempotency_probe": {
-    "status": "pending_final_noop_redeploy",
-    "expected_behavior": "Existing canonical fixture is verified without reset"
+    "status": "pass",
+    "deployment_url": "https://amec-permits-ops-backend-oy7q0xyji.vercel.app",
+    "commit": "5cbfe39",
+    "observed_log": "synthetic_bootstrap=noop fixture=PermitOps_Synthetic_MVP_Dataset_v1 migration=upgrade_head",
+    "reset_performed": false
   }
 }

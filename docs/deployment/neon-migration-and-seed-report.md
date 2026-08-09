@@ -41,6 +41,6 @@ The live application status distribution is DRAFT 1, RETURNED 1, UNDER_REVIEW 1,
 
 ## Safety and idempotency
 
-The bootstrap refuses to reset any non-empty database except the explicitly allow-listed synthetic browse-audit residue. Once the canonical fixture row exists, it verifies the manifest and core counts and performs no seed reset. It runs as a Vercel build command, not on each serverless cold start. The first seeded deployment was `dpl_vG889VrShs6Mqf2LXyvP3KgFPkUS` from commit `54ea216`; a subsequent deployment is used as the no-op idempotency probe for the final verification.
+The bootstrap refuses to reset any non-empty database except the explicitly allow-listed synthetic browse-audit residue. Once the canonical fixture row exists, it verifies the manifest and core counts and performs no seed reset. It runs as a Vercel build command, not on each serverless cold start. The first seeded deployment was `dpl_vG889VrShs6Mqf2LXyvP3KgFPkUS` from commit `54ea216`. The subsequent Ready deployment `https://amec-permits-ops-backend-oy7q0xyji.vercel.app` cloned commit `5cbfe39` and logged `synthetic_bootstrap=noop fixture=PermitOps_Synthetic_MVP_Dataset_v1 migration=upgrade_head`, proving repeat deployment is idempotent.
 
 Two build failures were resolved with the smallest scoped changes: the Vercel Python builder required `reportlab` in `backend/pyproject.toml` (`71a51ec`), and the bootstrap was narrowed to allow only the known synthetic audit residue (`54ea216`). No feature behavior was redesigned.
