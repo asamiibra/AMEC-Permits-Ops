@@ -2,7 +2,12 @@
 
 The backend deployment root is `backend/`. The application exports a FastAPI instance named `app` from `backend/app/main.py`, so the explicit Vercel entrypoint is `app.main:app` when Vercel runs from that root.
 
-The authoritative backend dependency file is `backend/requirements.txt`. There was no backend-specific `vercel.json`, no backend static rewrite, and no frontend fallback rewrite that could serve the API. The branded Vercel 404 was therefore treated as an ambiguous/missing backend entrypoint configuration issue; this audit does not claim a live Vercel deployment was independently changed or verified.
+The complete tested backend dependency file is `backend/requirements.txt`. The
+Vercel build also requires a valid PEP 621 `[project]` table, so
+`backend/pyproject.toml` now declares the runtime subset derived from that
+tested manifest; test-only packages remain in `requirements.txt`. There was no
+backend static rewrite and no frontend fallback rewrite that could serve the
+API. The original branded Vercel 404 was caused by skipped framework detection.
 
 The deployment configuration is explicit in `backend/vercel.json` and
 `backend/pyproject.toml`:

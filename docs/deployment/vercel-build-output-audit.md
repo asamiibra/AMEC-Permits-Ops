@@ -1,18 +1,21 @@
 # Vercel build output audit
 
-The audit was run from `backend/` with Vercel CLI 58.9.0 and `uv` 0.12.3:
+The final audit was run from `backend/` with Vercel CLI 58.9.0 and `uv` 0.12.3:
 
 ```text
-npx vercel build --yes --output .vercel-output-audit-2
+npx vercel build --yes --output .vercel-output-audit-3
 status: ok
 message: Build completed successfully.
 ```
 
+The build detected FastAPI, used Python 3.14 from `pyproject.toml`, and
+installed the declared runtime dependencies successfully.
+
 The Build Output API emitted:
 
 ```text
-.vercel-output-audit-2/functions/fastapi.func/.vc-config.json
-.vercel-output-audit-2/functions/fastapi.func/vc__handler__python.py
+.vercel-output-audit-3/functions/fastapi.func/.vc-config.json
+.vercel-output-audit-3/functions/fastapi.func/vc__handler__python.py
 ```
 
 The function configuration resolved to:
@@ -28,7 +31,7 @@ The function configuration resolved to:
 ```
 
 The generated handler identifies `app.main` and the `app` variable. No `.py`
-files were emitted under `.vercel-output-audit-2/static/`; the only generated
+files were emitted under `.vercel-output-audit-3/static/`; the only generated
 Python handler is inside the Python function bundle.
 
 The pre-fix build is also documented by its generated `builds.json`: framework
