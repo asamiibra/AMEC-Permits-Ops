@@ -1,4 +1,5 @@
 from functools import lru_cache
+import os
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -21,6 +22,11 @@ class Settings(BaseSettings):
             raise ValueError("DEV and TEST require SYNTHETIC_ONLY=true")
         if self.app_env.upper() != "PROD" and any(token in self.database_url.lower() for token in ("ministry", "qatar.gov", "municipality.gov")):
             raise ValueError("Non-PROD environments cannot use a production authority URL")
+        if os.getenv("VERCEL") and self.app_env.upper() in {"TEST", "PROD"}:
+            if not os.getenv("DATABASE_URL"):
+                raise ValueError("Vercel TEST/PROD runtime requires DATABASE_URL")
+            if self.database_url.lower().startswith("sqlite"):
+                raise ValueError("Vercel TEST/PROD runtime requires PostgreSQL, not SQLite")
 
 
 @lru_cache

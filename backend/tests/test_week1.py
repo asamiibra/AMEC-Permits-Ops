@@ -7,7 +7,13 @@ from backend.app.adapters.municipality.adapter import MockMunicipalityAdapter
 def test_health_and_correlation(client):
     response = client.get("/health", headers={"X-Correlation-ID": "test-correlation-001"})
     assert response.status_code == 200
-    assert response.json()["synthetic_only"] is True
+    body = response.json()
+    assert body["synthetic_only"] is True
+    assert body["database_configured"] is True
+    assert body["database_dialect"] == "sqlite"
+    assert body["database_durable"] is False
+    assert body["sqlite_fallback_active"] is False
+    assert body["database_connection_valid"] is True
     assert response.headers["X-Correlation-ID"] == "test-correlation-001"
 
 

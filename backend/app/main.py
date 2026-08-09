@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import uuid
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -7,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from .config.settings import get_settings
-from .db import SessionLocal, init_db
+from .db import SessionLocal, engine, init_db
 from .models import ConsultancyOffice
 from .api.routers import router
 from .api.week2_routers import router as week2_router, mock_router as week2_mock_router
@@ -59,7 +60,27 @@ async def safe_error_handler(request: Request, exc: Exception):
 
 
 @app.get("/health")
-def health(): return {"status": "ok", "service": "permitops", "environment": settings.app_env, "synthetic_only": settings.synthetic_only}
+def health():
+    database_configured = bool(os.getenv("DATABASE_URL"))
+    database_dialect = engine.dialect.name
+    connection_valid = False
+    try:
+        with engine.connect() as db:
+            db.exec_driver_sql("select 1")
+        connection_valid = True
+    except Exception:
+        connection_valid = False
+    return {
+        "status": "ok",
+        "service": "permitops",
+        "environment": settings.app_env,
+        "synthetic_only": settings.synthetic_only,
+        "database_configured": database_configured,
+        "database_dialect": database_dialect,
+        "database_durable": database_dialect == "postgresql",
+        "sqlite_fallback_active": not database_configured and database_dialect == "sqlite",
+        "database_connection_valid": connection_valid,
+    }
 
 
 @app.get("/")
