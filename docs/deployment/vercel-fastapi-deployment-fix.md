@@ -5,7 +5,7 @@
 - Root Directory: `backend`
 - Framework preset: Other
 - Build/install source: `requirements.txt`
-- Entrypoint: resolved explicitly as `app.main:app` from `backend/pyproject.toml`
+- Entrypoint: resolved explicitly as `app.main:app` from `backend/pyproject.toml`; `backend/index.py` is the zero-configuration detection shim and re-exports that same object
 - Environment variables: provide the deployment-specific `DATABASE_URL`, `APP_ENV`, and `SYNTHETIC_ONLY`; do not commit their values
 
 ## Expected URLs
