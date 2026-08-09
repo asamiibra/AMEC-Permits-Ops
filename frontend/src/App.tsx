@@ -57,7 +57,7 @@ const stageFromPath = (): WorkflowStage => {
 };
 
 function App() {
-  const { locale, setLocale, t } = useLocale();
+  const { locale } = useLocale();
   const [page,setPage] = useState(pageFromPath); const [selected,setSelected] = useState<Project|null>(null); const [selectedStage,setSelectedStage] = useState<WorkflowStage>(stageFromPath); const [projects,setProjects] = useState<Project[]>([]); const [apps,setApps] = useState<Application[]>([]); const [governance,setGovernance] = useState<any>(null); const [error,setError] = useState(""); const [role,setRole] = useState(() => sessionStorage.getItem("permitops-role") || "PERMIT_PREPARER");
   useEffect(()=>{ Promise.all([api<Project[]>("/api/projects"),api<Application[]>("/api/applications"),api<any>("/api/reconciliation/governance")]).then(([p,a,g])=>{setProjects(p);setApps(a);setGovernance(g); const parts = window.location.pathname.split("/"); if (page === "permit-workspace" && parts[2]) { const project = p.find((item) => item.id === parts[2]); if (project) setSelected(project); } }).catch(e=>setError(e.message)); },[]);
   useEffect(() => { sessionStorage.setItem("permitops-role", role); }, [role]);

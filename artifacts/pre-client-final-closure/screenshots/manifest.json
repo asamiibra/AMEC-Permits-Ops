@@ -5,7 +5,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/work-en-desktop.png",
     "width": 1280,
-    "height": 1923,
+    "height": 2056,
     "horizontal_overflow": false
   },
   {
@@ -14,7 +14,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/work-ar-desktop.png",
     "width": 1280,
-    "height": 1874,
+    "height": 2002,
     "horizontal_overflow": false
   },
   {
@@ -23,7 +23,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/permits-en-desktop.png",
     "width": 1280,
-    "height": 803,
+    "height": 886,
     "horizontal_overflow": false
   },
   {
@@ -32,7 +32,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/permits-ar-desktop.png",
     "width": 1280,
-    "height": 733,
+    "height": 878,
     "horizontal_overflow": false
   },
   {
@@ -113,7 +113,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/notifications-en-desktop.png",
     "width": 1280,
-    "height": 740,
+    "height": 1288,
     "horizontal_overflow": false
   },
   {
@@ -122,7 +122,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/notifications-ar-desktop.png",
     "width": 1280,
-    "height": 733,
+    "height": 1271,
     "horizontal_overflow": false
   },
   {
@@ -203,7 +203,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/admin-documents-en-desktop.png",
     "width": 1280,
-    "height": 1449,
+    "height": 1955,
     "horizontal_overflow": false
   },
   {
@@ -212,7 +212,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/admin-documents-ar-desktop.png",
     "width": 1280,
-    "height": 1427,
+    "height": 1921,
     "horizontal_overflow": false
   },
   {
@@ -248,7 +248,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/admin-lineage-ar-desktop.png",
     "width": 1280,
-    "height": 880,
+    "height": 3777,
     "horizontal_overflow": false
   },
   {
@@ -275,7 +275,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/admin-control-diagnostics-en-desktop.png",
     "width": 1280,
-    "height": 6426,
+    "height": 4837,
     "horizontal_overflow": false
   },
   {
@@ -284,7 +284,7 @@
     "viewport": "desktop",
     "file": "../artifacts/pre-client-final-closure/screenshots/admin-control-diagnostics-ar-desktop.png",
     "width": 1280,
-    "height": 6148,
+    "height": 4721,
     "horizontal_overflow": false
   },
   {

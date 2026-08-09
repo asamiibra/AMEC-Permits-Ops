@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import "./about.css";
-import { useLocale } from "./i18n";
+import { AppLocale, useLocale } from "./i18n";
 
 export type AboutStatus = "IMPLEMENTED" | "IMPLEMENTED_PROTOTYPE" | "FOUNDATION_ONLY" | "PLANNED_PENDING_SCOPE" | "EXCLUDED" | "NOT_APPLICABLE";
 
@@ -107,26 +107,23 @@ const currentStatuses = ["IMPLEMENTED", "IMPLEMENTED_PROTOTYPE"];
 const groups = [...new Set(features.filter((feature) => currentStatuses.includes(feature.status)).map((feature) => feature.group))];
 const implementedCount = features.filter((feature) => currentStatuses.includes(feature.status)).length;
 
-function StatusBadge({ status, lang }: { status: AboutStatus; lang: "en" | "ar" }) {
-  return <span className={`about-status about-status-${status.toLowerCase()}`}><BidiText>{statusLabels[status][lang]}</BidiText></span>;
+function StatusBadge({ status, lang }: { status: AboutStatus; lang: AppLocale }) {
+  return <span className={`about-status about-status-${status.toLowerCase()}`}><BidiText>{statusLabels[status][lang === "ar-EG" ? "ar" : "en"]}</BidiText></span>;
 }
 
-function SectionHeading({ number, en, arTitle, lang }: { number: string; en: string; arTitle: ReactNode; lang: "en" | "ar" }) {
+function SectionHeading({ number, en, arTitle, lang }: { number: string; en: string; arTitle: ReactNode; lang: AppLocale }) {
   return <div className="about-section-heading"><span className="about-number">{number}</span><div><span className="eyebrow">{lang === "en" ? `SECTION ${number}` : `القسم ${number}`}</span><h2>{lang === "en" ? en : <BidiText>{arTitle}</BidiText>}</h2></div></div>;
 }
 
 export function AboutPermitOpsPage({ onNavigate }: { onNavigate: (page: string) => void }) {
-  const { locale: globalLocale, setLocale } = useLocale();
-  const [localLang, setLocalLang] = useState<"en" | "ar">(() => (window.localStorage.getItem("permitops-about-language") === "ar" ? "ar" : globalLocale));
-  const lang = localLang;
-  useEffect(() => setLocalLang(globalLocale), [globalLocale]);
+  const { locale: lang, setLocale } = useLocale();
   const [openGroups, setOpenGroups] = useState<string[]>([groups[0]]);
-  const rtl = lang === "ar";
-  const changeLanguage = (next: "en" | "ar") => { setLocalLang(next); setLocale(next); window.localStorage.setItem("permitops-about-language", next); };
+  const rtl = lang === "ar-EG";
+  const changeLanguage = (next: AppLocale) => setLocale(next);
   const toggleGroup = (group: string) => setOpenGroups((current) => current.includes(group) ? current.filter((item) => item !== group) : [...current, group]);
   const visibleFeatures = useMemo(() => features.filter((feature) => currentStatuses.includes(feature.status)), []);
   return <main className="about-page" lang={rtl ? "ar-EG" : "en"} dir={rtl ? "rtl" : "ltr"}>
-    <div className="about-toolbar"><div><span className="eyebrow">{rtl ? "دليل التشغيل" : "OPERATING GUIDE"}</span><p>{rtl ? "شرح بسيط للمستخدمين الجدد" : "A business guide for first-time users"}</p></div><div className="about-toolbar-actions"><button className="about-back" onClick={() => onNavigate("my-work")}>{rtl ? <>الرجوع لـ{ar.myWork}</> : "← Back to My Work"}</button><div className="about-language" role="group" aria-label="Language"><button className={lang === "en" ? "active" : ""} onClick={() => changeLanguage("en")} aria-pressed={lang === "en"}>English</button><button className={lang === "ar" ? "active" : ""} onClick={() => changeLanguage("ar")} aria-pressed={lang === "ar"}>العربي</button></div></div></div>
+    <div className="about-toolbar"><div><span className="eyebrow">{rtl ? "دليل التشغيل" : "OPERATING GUIDE"}</span><p>{rtl ? "شرح بسيط للمستخدمين الجدد" : "A business guide for first-time users"}</p></div><div className="about-toolbar-actions"><button className="about-back" onClick={() => onNavigate("my-work")}>{rtl ? <>الرجوع لـ{ar.myWork}</> : "← Back to My Work"}</button><div className="about-language" role="group" aria-label="Language"><button className={lang === "en" ? "active" : ""} onClick={() => changeLanguage("en")} aria-pressed={lang === "en"}>English</button><button className={lang === "ar-EG" ? "active" : ""} onClick={() => changeLanguage("ar-EG")} aria-pressed={lang === "ar-EG"}>العربي</button></div></div></div>
     <section className="about-hero"><div className="about-hero-copy"><span className="about-kicker">{rtl ? <BidiText>Permit workflow · AMEC</BidiText> : "PERMIT WORKFLOW · AMEC"}</span><h1>{rtl ? <>PermitOps بيساعد {ar.amec} تجهّز وتراجع وتتحكم وتتابع شغل التراخيص من أول تجهيز المشروع لحد مراجعة البلدية.</> : "PermitOps helps AMEC prepare, verify, control, and track permit work from project setup through Municipality review."}</h1><p className="about-lead">{rtl ? <>النظام بيربط المستندات وبيانات المشروع والـ{ar.forms} و{ar.excel} والموافقات وتجهيز الـ{ar.package} وشغل البلدية في {ar.workflow} واحد واضح — علشان الفريق يعرف إيه الصح، إيه الناقص، إيه اللي موقف الشغل، ومين مسؤول عن الخطوة اللي بعدها.</> : "It brings documents, project data, forms, Excel, approvals, package preparation, and Municipality work into one controlled workflow — so the team can see what is correct, what is missing, what is blocked, who owns the next action, and what needs to happen next."}</p><div className="about-control-callout"><span className="about-control-icon">✓</span><p>{rtl ? <>الـ{<LtrTerm>AI</LtrTerm>} بيساعد في قراءة المعلومات ومقارنتها وتجهيزها. لكن الـ{<LtrTerm>Controls</LtrTerm>} الواضحة والأشخاص المخوّلين بيفضلوا مسؤولين عن القرارات المهمة.</> : "AI helps read, compare, and prepare information. Deterministic controls and authorized people remain responsible for consequential decisions."}</p></div></div><div className="about-hero-visual" aria-label={rtl ? "مسار المعلومات من المصدر لحد التقديم" : "Information moves from source to controlled output"}><div className="about-visual-orbit"><span>01</span><b>{rtl ? "مصدر" : "SOURCE"}</b><small>{rtl ? <BidiText>Evidence</BidiText> : "Evidence"}</small></div><div className="about-visual-arrow">→</div><div className="about-visual-orbit accent"><span>02</span><b>{rtl ? "حقيقة متراجعة" : "VERIFIED FACT"}</b><small>{rtl ? <BidiText>Human check</BidiText> : "Human check"}</small></div><div className="about-visual-arrow">→</div><div className="about-visual-orbit dark"><span>03</span><b>{rtl ? "Output متحكم فيه" : "CONTROLLED OUTPUT"}</b><small>{rtl ? <BidiText>Ready to review</BidiText> : "Ready to review"}</small></div></div></section>
 
     <section className="about-section"><SectionHeading number="01" en="Why PermitOps exists" arTitle={<>ليه {ar.product} موجود؟</>} lang={lang}/><div className="about-why-grid"><article><span className="about-card-icon">01</span><h3>{rtl ? "مشروع واحد، مصادر كتير" : "One project, many sources"}</h3><p>{rtl ? <>بيانات المشروع ممكن تبقى موزعة بين عقود الملكية والرسومات والمستندات و{ar.synology} و{ar.excel} والإيميلات والـ{ar.portal}.</> : "Project information can be spread across title deeds, drawings, other documents, Synology folders, Excel, emails, and the Municipality portal."}</p><small>{rtl ? <>{ar.product} بيربط الصورة كلها من غير ما يفترض إن كل مصدر له نفس درجة الاعتماد.</> : "PermitOps connects the context without pretending every source is equally authoritative."}</small></article><article><span className="about-card-icon">02</span><h3>{rtl ? "منع البيانات الغلط أو القديمة" : "Prevent wrong or stale information"}</h3><p>{rtl ? <>{ar.product} بيقارن المصادر، يوضح التعارض، يتابع الـ{<LtrTerm>Versions</LtrTerm>}، ويمنع إن بيانات قديمة تكمل في الـ{ar.package} من غير مراجعة.</> : "PermitOps compares sources, shows conflicts, tracks versions, and prevents stale information from quietly continuing into a package."}</p><small>{rtl ? "التغيير المؤثر بيخلّي الشغل اللي بيعتمد عليه محتاج مراجعة تاني." : "Material changes make dependent work visible and revalidatable."}</small></article><article><span className="about-card-icon">03</span><h3>{rtl ? "خلي سير الشغل واضح" : "Make the workflow visible"}</h3><p>{rtl ? <>النظام بيوضح إيه الجاهز، إيه اللي موقف الشغل، مين مسؤول، وإيه المطلوب قبل ما الترخيص يتحرك.</> : "The system shows what is ready, what is blocked, who owns the next action, and what must happen before the permit can move forward."}</p><small>{rtl ? <>ابدأ من {ar.myWork} عشان تعرف الخطوة اللي بعدها.</> : "Start in My Work to see the next action."}</small></article></div></section>

@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "mission": "PermitOps language toggle persistence fix",
+  "canonical_locale": {
+    "type": "AppLocale",
+    "values": ["en", "ar-EG"],
+    "storage_key": "permitops.locale",
+    "direction": {
+      "en": "ltr",
+      "ar-EG": "rtl"
+    }
+  },
+  "verification": {
+    "backend_tests": {"status": "PASS", "passed": 72},
+    "frontend_tests": {"status": "PASS", "files": 8, "passed": 23},
+    "focused_locale_tests": {"status": "PASS", "passed": 7},
+    "frontend_typecheck": {"status": "PASS", "command": "npx tsc -b --pretty false"},
+    "frontend_build": {"status": "PASS", "command": "npm run build"},
+    "browser_e2e": {"status": "PASS", "passed": 112},
+    "real_stack_postgresql": {"status": "PASS", "passed": 6, "backend": "FastAPI + seeded PostgreSQL clone"},
+    "edge_real_stack": {"status": "PASS", "passed": 6, "browser": "Microsoft Edge"},
+    "golden_path_v1": "PASS",
+    "golden_path_v2": "PASS",
+    "acceptance_rehearsal": "PASS",
+    "canonical_fixture_check": "PASS",
+    "diff_check": "PASS"
+  },
+  "tested_routes": [
+    "/work",
+    "/permits",
+    "/permits/p-0142/verify-data",
+    "/notifications",
+    "/issues",
+    "/opportunities",
+    "/engineering-closeout",
+    "/admin/discovery",
+    "/admin/municipality",
+    "/admin/go-live-readiness",
+    "/about"
+  ],
+  "toggle_cycles": [
+    "en -> ar-EG -> en",
+    "ar-EG -> en -> ar-EG",
+    "en -> ar-EG -> en -> ar-EG -> en"
+  ],
+  "preserved_state": [
+    "current route",
+    "permit workspace stage",
+    "open Inputs & Go-Live drawer",
+    "role selection",
+    "business data"
+  ],
+  "screenshots": [
+    "artifacts/bugfixes/language-toggle-notifications-en-before.png",
+    "artifacts/bugfixes/language-toggle-notifications-ar-after.png",
+    "artifacts/bugfixes/language-toggle-notifications-en-restored.png"
+  ],
+  "backend_source_changed": false,
+  "blockers": []
+}

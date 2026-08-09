@@ -5,7 +5,8 @@
       "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/node_modules/.bin/playwright",
       "test",
       "-c",
-      "playwright.edge.config.ts"
+      "playwright.edge.config.ts",
+      "--workers=1"
     ],
     "configFile": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/playwright.edge.config.ts",
     "rootDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
@@ -19,7 +20,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 3
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "projects": [
@@ -28,7 +29,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 1
         },
         "id": "",
         "name": "",
@@ -62,7 +63,7 @@
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.62.1",
-    "workers": 5,
+    "workers": 1,
     "webServer": {
       "command": "npm run dev -- --host 127.0.0.1",
       "url": "http://127.0.0.1:5173",
@@ -92,12 +93,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 11923,
+                  "duration": 6814,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-08T20:47:10.256Z",
+                  "startTime": "2026-08-09T01:23:38.250Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -126,12 +127,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 320,
+                  "duration": 297,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-08T20:47:23.509Z",
+                  "startTime": "2026-08-09T01:23:45.977Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -172,15 +173,15 @@
                   "projectName": "",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1811,
+                      "duration": 518,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-08T20:47:10.184Z",
+                      "startTime": "2026-08-09T01:23:46.284Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -206,15 +207,15 @@
                   "projectName": "",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2656,
+                      "duration": 868,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-08T20:47:13.405Z",
+                      "startTime": "2026-08-09T01:23:46.807Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -240,15 +241,15 @@
                   "projectName": "",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1038,
+                      "duration": 470,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-08-08T20:47:16.080Z",
+                      "startTime": "2026-08-09T01:23:47.680Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -284,15 +285,15 @@
               "projectName": "",
               "results": [
                 {
-                  "workerIndex": 2,
-                  "parallelIndex": 2,
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 15724,
+                  "duration": 11376,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-08T20:47:10.173Z",
+                  "startTime": "2026-08-09T01:23:48.162Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -310,8 +311,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-08-08T20:47:09.778Z",
-    "duration": 17768.068,
+    "startTime": "2026-08-09T01:23:37.598Z",
+    "duration": 23218.415,
     "expected": 6,
     "skipped": 0,
     "unexpected": 0,

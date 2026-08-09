@@ -183,9 +183,8 @@ export function ReadinessDrawer({ screenId, role, onNavigate }: { screenId: stri
   const screen = screenReadinessRegistry.find((item) => item.screenId === screenId) || screenReadinessRegistry[0];
   const [open, setOpen] = useState(false);
   const { locale: globalLocale, setLocale } = useLocale();
-  const [lang, setLang] = useState<ReadinessLocale>(globalLocale);
-  useEffect(() => setLang(globalLocale), [globalLocale]);
-  const changeLang = (next: ReadinessLocale) => { setLang(next); setLocale(next); };
+  const lang: ReadinessLocale = globalLocale === "ar-EG" ? "ar" : "en";
+  const changeLang = (next: ReadinessLocale) => setLocale(next === "ar" ? "ar-EG" : "en");
   const [showDetails, setShowDetails] = useState(false);
   useEffect(() => { if (open) document.querySelector<HTMLElement>(".readiness-drawer")?.focus(); }, [open]);
   const requirements = screen.customerRequirementIds.map((id) => customerProductionRequirements.find((item) => item.id === id)).filter(Boolean) as ProductionRequirement[];

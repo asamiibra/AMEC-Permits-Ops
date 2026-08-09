@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
+import { useLocale } from "./i18n";
 import "./week7.css";
 
 const ar: Record<string, string> = {
@@ -17,7 +18,8 @@ export function FindingsConsolePage() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [selected, setSelected] = useState<any>(null);
   const [filter, setFilter] = useState("OPEN");
-  const [rtl, setRtl] = useState(false);
+  const { locale, setLocale } = useLocale();
+  const rtl = locale === "ar-EG";
   const [message, setMessage] = useState("");
   const load = async () => {
     const [f, t, n] = await Promise.all([api<any>(`/api/findings${filter ? `?status=${filter}` : ""}`), api<any>("/api/tasks"), api<any>("/api/notifications")]);
@@ -30,7 +32,7 @@ export function FindingsConsolePage() {
   const selectedTask = selected?.task;
   return <div className="week7-page" dir={rtl ? "rtl" : "ltr"}>
     <PageIntro title="Findings & work console" arabicTitle="لوحة الملاحظات والمهام" description="Every consequential authority issue is preserved as source evidence, owned work, SLA, and notification." />
-    <div className="week7-toolbar"><div className="week45-actions"><button className="button-secondary" onClick={() => setRtl(!rtl)}>{rtl ? "English layout" : "العربية · RTL"}</button><button className="button-secondary" onClick={() => load()}>Refresh</button></div><span className="synthetic-note week7-note">DEMONSTRATION BASELINE · SYNTHETIC DATA · NO AUTHORITY POLLING</span></div>
+    <div className="week7-toolbar"><div className="week45-actions"><button className="button-secondary" onClick={() => setLocale(rtl ? "en" : "ar-EG")}>{rtl ? "English layout" : "العربية · RTL"}</button><button className="button-secondary" onClick={() => load()}>Refresh</button></div><span className="synthetic-note week7-note">DEMONSTRATION BASELINE · SYNTHETIC DATA · NO AUTHORITY POLLING</span></div>
     {message && <div className="inline-message">{message}</div>}
     <div className="metric-grid"><div className="metric red"><span>Open findings / الملاحظات المفتوحة</span><strong>{openCount}</strong><small>Blocking work remains visible</small></div><div className="metric teal"><span>My tasks / مهامي</span><strong>{tasks.length}</strong><small>PermitOps-owned durable tasks</small></div><div className="metric orange"><span>Notifications / الإشعارات</span><strong>{notifications.length}</strong><small>{notifications.filter(n => n.status === "FAILED").length} failed · retry available</small></div><div className="metric blue"><span>Safety / السلامة</span><strong>NO CLOSE</strong><small>No unrestricted finding closure</small></div></div>
     <div className="week7-layout"><section className="panel week7-list"><div className="panel-head"><div><span className="eyebrow">FINDINGS LIST · قائمة الملاحظات</span><h3>Visible consequential work</h3></div><select value={filter} onChange={e => setFilter(e.target.value)}><option value="">All</option><option value="OPEN">Open / مفتوح</option><option value="BLOCKING">Blocking / مانع</option><option value="OVERDUE">Overdue</option><option value="AUTHORITY_PRECHECK">Authority precheck</option><option value="OFFICIAL_MUNICIPALITY_COMMENT">Official comment</option><option value="PORTAL_VALIDATION">Portal validation</option><option value="UNASSIGNED">Unassigned</option></select></div>{findings.map(f => <button className={`week7-finding-row ${selected?.id === f.id ? "selected" : ""}`} key={f.id} onClick={() => api<any>(`/api/findings/${f.id}`).then(setSelected)}><div className="finding-severity">{f.severity === "BLOCKING" ? "!" : "•"}</div><div className="finding-main"><b>{f.title}</b><small><span className="ltr-id">{f.id.slice(0, 12)}…</span> · {f.source_type} · {f.finding_code?.code || "UNKNOWN_REVIEW"}</small><small>{f.project_id.slice(0, 10)}… · {f.discipline} · {f.owner?.display_name || f.assignee_role || "UNASSIGNED"}</small></div><div className="finding-side">{badge(f.severity)}{badge(f.sla_state)}{badge(f.status)}</div></button>)}{!findings.length && <p className="muted">No findings match this filter.</p>}</section>

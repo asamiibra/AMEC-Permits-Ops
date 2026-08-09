@@ -31,7 +31,7 @@
   },
   "restore": "PASS",
   "formal_g10_restore": false,
-  "acceptance_run_id": "f0cf3ac1-cc89-4b32-8621-07c005092a5d",
+  "acceptance_run_id": "e554bf37-d3de-4e17-96e5-2594c4a69d0a",
   "acceptance": "PASS",
   "acceptance_checks": {
     "variants": true,
