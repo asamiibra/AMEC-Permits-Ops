@@ -1,0 +1,31 @@
+{
+  "verification_date_utc": "2026-08-09",
+  "frontend_url": "https://amec-permits-ops.vercel.app",
+  "fixture_project": "GHCE-2026-0142",
+  "fixture_project_name": "Al Noor Villa",
+  "office": "QEC-DOHA / AMEC Engineering",
+  "role": "Permit Preparer",
+  "screens": [
+    {"name": "My Work", "route": "/work", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Permits", "route": "/permits", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Issues", "route": "/issues", "status": 200, "fixture_visible": true, "observed": {"open_findings": 0, "blocking_findings": 0, "blocked_packages": 4, "permits_in_scope": 4}, "api_failures": 0},
+    {"name": "Notifications", "route": "/notifications", "status": 200, "fixture_visible": true, "observed": {"unread_visible": 0, "failed_delivery": 0, "failure_rate_percent": 0}, "api_failures": 0},
+    {"name": "Project & Sources", "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Verify Data", "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Prepare Package", "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/prepare-package", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Municipality Preparation", "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Final Review", "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Authority Review", "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/authority-review", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "History", "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "About", "route": "/about", "status": 200, "fixture_visible": true, "api_failures": 0},
+    {"name": "Inputs & Go-Live", "route": "/work", "status": 200, "fixture_visible": true, "drawer_visible": true, "api_failures": 0}
+  ],
+  "refresh_and_new_session": {
+    "reload_status": 200,
+    "reload_fixture_visible": true,
+    "new_context_status": 200,
+    "new_context_fixture_visible": true,
+    "error_banners": 0
+  },
+  "ui_api_fixture_fidelity": true
+}

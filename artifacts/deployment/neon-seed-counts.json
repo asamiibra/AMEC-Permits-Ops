@@ -1,0 +1,47 @@
+{
+  "verification_date_utc": "2026-08-09",
+  "backend_url": "https://amec-permits-ops-backend.vercel.app",
+  "environment": "TEST",
+  "synthetic_only": true,
+  "database": {
+    "configured": true,
+    "dialect": "postgresql",
+    "durable": true,
+    "sqlite_fallback_active": false,
+    "connection_valid": true
+  },
+  "alembic": {
+    "repository_head": "0021_e7_unified_task_context",
+    "live_versions": ["0021_e7_unified_task_context"],
+    "migration_action": "stamp_head_existing_current_schema"
+  },
+  "fixture": {
+    "fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "fixture_version": "1.1.1",
+    "fixture_manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb",
+    "office_code": "QEC-DOHA",
+    "office_name": "AMEC Engineering",
+    "project_numbers": ["GHCE-2026-0142", "GHCE-2026-0187", "GHCE-2026-0210", "GHCE-2026-0244"],
+    "application_numbers": ["GHCE-APP-0142", "GHCE-APP-0187", "GHCE-APP-0210", "GHCE-APP-0244"]
+  },
+  "counts": {
+    "projects": 4,
+    "applications": 4,
+    "applications_by_status": {"DRAFT": 1, "PREPARING": 0, "SUBMITTED": 0, "UNDER_REVIEW": 1, "RETURNED": 1, "APPROVED": 1},
+    "active_projects": 3,
+    "documents_by_project": {"GHCE-2026-0142": 7, "GHCE-2026-0187": 5, "GHCE-2026-0210": 4, "GHCE-2026-0244": 0},
+    "conflicts_by_project": {"GHCE-2026-0142": 1, "GHCE-2026-0187": 3, "GHCE-2026-0210": 1, "GHCE-2026-0244": 0},
+    "findings": 0,
+    "workflow_tasks": 0,
+    "notifications": 0,
+    "open_raid_items": 10,
+    "pending_decisions": 6,
+    "inquiries_not_asked": 7,
+    "mock_authority_applications": 4,
+    "blocked_packages": 4
+  },
+  "idempotency_probe": {
+    "status": "pending_final_noop_redeploy",
+    "expected_behavior": "Existing canonical fixture is verified without reset"
+  }
+}

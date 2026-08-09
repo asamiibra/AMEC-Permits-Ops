@@ -1,0 +1,34 @@
+{
+  "verification_date_utc": "2026-08-09",
+  "backend_url": "https://amec-permits-ops-backend.vercel.app",
+  "frontend_url": "https://amec-permits-ops.vercel.app",
+  "health": {
+    "status": 200,
+    "database_dialect": "postgresql",
+    "database_durable": true,
+    "sqlite_fallback_active": false,
+    "database_connection_valid": true,
+    "alembic_versions": ["0021_e7_unified_task_context"]
+  },
+  "fixture": {
+    "fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "fixture_version": "1.1.1",
+    "fixture_manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb",
+    "project_numbers": ["GHCE-2026-0142", "GHCE-2026-0187", "GHCE-2026-0210", "GHCE-2026-0244"],
+    "application_numbers": ["GHCE-APP-0142", "GHCE-APP-0187", "GHCE-APP-0210", "GHCE-APP-0244"]
+  },
+  "direct_vs_proxy": [
+    {"path": "/api/projects", "direct_status": 200, "proxy_status": 200, "json_equivalent": true, "count": 4},
+    {"path": "/api/applications", "direct_status": 200, "proxy_status": 200, "json_equivalent": true, "count": 4},
+    {"path": "/api/dashboard", "direct_status": 200, "proxy_status": 200, "json_equivalent": true, "active_projects": 3, "returned_applications": 1, "open_raid_items": 10, "pending_decisions": 6, "inquiries_not_asked": 7},
+    {"path": "/api/findings", "direct_status": 200, "proxy_status": 200, "json_equivalent": true, "count": 0},
+    {"path": "/api/tasks", "direct_status": 200, "proxy_status": 200, "json_equivalent": true, "count": 0},
+    {"path": "/api/notifications", "direct_status": 200, "proxy_status": 200, "json_equivalent": true, "count": 0},
+    {"path": "/mock-authority/applications", "direct_status": 200, "proxy_status": 200, "json_equivalent": true, "count": 4}
+  ],
+  "serverless_durability": {
+    "request_count": 5,
+    "all_status_200": true,
+    "same_canonical_project_numbers": true
+  }
+}
