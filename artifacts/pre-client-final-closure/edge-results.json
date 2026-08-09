@@ -1,0 +1,7 @@
+{
+  "channel": "msedge",
+  "passed": 6,
+  "runtime": "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+  "status": "PASS",
+  "tests": 6
+}

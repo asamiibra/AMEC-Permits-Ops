@@ -1,0 +1,14 @@
+{
+  "acceptance_depth": "SYNTHETIC_ASSISTED_RUNTIME",
+  "assertion_count": 70,
+  "backend_contract_assertions": 122,
+  "browser_evidence": "recorded by full evidence run",
+  "external_conditions": [
+    "client workflow approval",
+    "production security evidence",
+    "live authority permissions",
+    "formal governance sign-off"
+  ],
+  "result": "PASS",
+  "timestamp": "2026-08-08T20:14:47.275760+00:00"
+}

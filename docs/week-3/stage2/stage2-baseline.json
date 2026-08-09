@@ -1,0 +1,14 @@
+{
+  "banner": "DEMONSTRATION BASELINE — SYNTHETIC DATA — NOT CLIENT APPROVED",
+  "phase": "STAGE_2",
+  "version": "1.0",
+  "status": "DRAFT",
+  "source": "PermitOps Phase 0 Week 3 synthetic decision layer",
+  "supported_scenario": "Synthetic documents, human adjudication, and local municipality simulator",
+  "thresholds": "PROPOSED_ONLY",
+  "delivery_mode": "HYBRID_APPROVED",
+  "municipality_submission": "EXCLUDED",
+  "real_data": false,
+  "credentials_or_otps": false,
+  "checksum": "956cacf6488d737d82a4f65189e06b22d79c30d2149bf157fccfd05f0fbe8513"
+}

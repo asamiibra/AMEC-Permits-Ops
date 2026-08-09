@@ -1,0 +1,10 @@
+{
+  "suite": "frontend/browser-e2e/readiness-drawer.spec.ts",
+  "routeGroupsCovered": ["business navigation", "About", "Administration", "permit workspace stages"],
+  "checks": ["shared trigger", "purpose", "runtime inputs", "runtime outputs", "AMEC setup items", "safe boundary", "Go-Live Setup view", "friendly CSV export", "Arabic RTL/BiDi", "forbidden-language scan", "human-control preservation"],
+  "result": "PASS",
+  "readinessSuite": "5 passed",
+  "fullFrontendSuite": "108 passed with --workers=1",
+  "brandingScreenshots": ["artifacts/production-readiness-ui/amec-my-work-desktop.png", "artifacts/production-readiness-ui/amec-my-work-mobile.png", "artifacts/production-readiness-ui/amec-about-desktop.png", "artifacts/production-readiness-ui/amec-about-ar-eg-mobile.png", "artifacts/production-readiness-ui/amec-permit-workspace-desktop.png"],
+  "screenshots": ["artifacts/production-readiness-ui/drawer-en.png", "artifacts/production-readiness-ui/drawer-ar-eg.png", "artifacts/production-readiness-ui/admin-readiness.png"]
+}

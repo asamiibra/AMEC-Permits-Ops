@@ -1,0 +1,32 @@
+{
+  "blockers": [
+    {
+      "evidence": "Global ar-EG/RTL switch and 10-route axe/RTL checks pass, but visual review of My Work shows English body cards and several operational sentences remain untranslated.",
+      "exit": "Translate and browser-verify all owner/client operational routes, dynamic messages, errors, forms, tables, modals, and expansion screens; re-run the 36+ screenshot review.",
+      "id": "P1-AR-001",
+      "severity": "P1",
+      "title": "Whole-app Arabic body copy remains incomplete"
+    },
+    {
+      "evidence": "Static source inventory contains 130 controls (37 material candidates: 8 Risk A, 29 Risk B); the real browser run covers the core owner path but not every material legacy/expansion control and state combination.",
+      "exit": "Complete the control/state matrix with browser evidence for every Risk A/B control, including loading, empty, error, retry, stale, unauthorized, double-action, and recovery states.",
+      "id": "P2-COVERAGE-001",
+      "severity": "P2",
+      "title": "100% material control/state coverage is not yet proven"
+    }
+  ],
+  "labels": [
+    "NOT_READY_FOR_OWNER_CLIENT_MVP_TEST",
+    "REAL_SEEDED_BROWSER_INTEGRATION_PASS",
+    "NO_MATERIAL_API_INTERCEPTION_ON_OWNER_REHEARSAL",
+    "VISUAL_QA_REVIEW_PASS_FOR_REVIEWED_SET",
+    "EDGE_COMPATIBILITY_SMOKE_PASS",
+    "ACCESSIBILITY_CLIENT_READINESS_PASS",
+    "SAME_BUILD_FINAL_SMOKE_PASS"
+  ],
+  "not_ready_reason": "Whole-app Arabic body copy and 100% material control/state coverage are not proven.",
+  "p0": 0,
+  "p1": 1,
+  "status": "NOT_READY_FOR_OWNER_CLIENT_MVP_TEST",
+  "unaccepted_p2": 1
+}

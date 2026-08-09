@@ -1,0 +1,121 @@
+{
+  "routes": [
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/",
+      "status": "PASS"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/work",
+      "status": "PASS"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/permits",
+      "status": "PASS"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/permits/:projectId/:stage",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/opportunities",
+      "status": "PASS"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/engineering-closeout",
+      "status": "PASS"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/reviews",
+      "status": "PASS"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/issues",
+      "status": "PASS"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/notifications",
+      "status": "PASS"
+    },
+    {
+      "evidence": "frontend/browser-e2e/pre-client-shell.spec.ts",
+      "route": "/about",
+      "status": "PASS"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/how-permitops-works",
+      "status": "PASS"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/go-live-readiness",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/package",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/municipality",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/findings",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/lineage",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/attachments-grids",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/documents",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/conflicts",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/config",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/control-diagnostics",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "service/backend or existing browser suite",
+      "route": "/admin/* legacy",
+      "status": "PARTIAL"
+    }
+  ],
+  "status": "PARTIAL",
+  "unknown_route_behavior": "PASS: controlled fallback to /work without blank screen"
+}

@@ -1,0 +1,5 @@
+# E1 shared AMEC domain model
+
+E1 adds semantic foundation tables only. The new domain covers Opportunity/RFQ/TenderDocument, ClientAccount/ClientContact, Quotation/QuotationRevision/CommercialTerm/QuotationApproval, Contract/ContractRevision/ContractMilestone/ContractApproval, ChecklistItem/DocumentRequest, ReferenceNumber/ProjectAdministrationRecord, CommunicationDraft/CommunicationApproval/CommunicationDelivery, Invoice/InvoiceRevision/InvoiceMilestone/InvoiceApproval/AccountingHandoff, ProjectHandover, EngineeringReview/EngineeringReviewRun/RegulationSource/RegulationVersion/RegulationApplicability/EngineeringComment/DrawingReviewCycle, TemplateDefinition/TemplateVersion/RenderedArtifact, AssistantCapabilityDefinition, and ExpansionFixtureResource.
+
+The model pins exact shared `DocumentVersion` records for RFQ, drawings, and engineering runs; uses shared `Approval` associations; and records generic `LineageEdge` links. Drafts, revisions, rendered artifacts, invoices, handovers, and engineering comments do not imply approval, release, professional disposition, accounting write, communication send, or government action.

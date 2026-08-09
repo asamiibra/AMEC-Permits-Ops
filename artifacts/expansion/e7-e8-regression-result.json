@@ -1,0 +1,11 @@
+{
+  "backend": "focused E7/E8 contract passed",
+  "e7_assertion_count": 52,
+  "e8_assertion_count": 70,
+  "formal_g10": "NOT_GRANTED",
+  "frontend": "recorded by full evidence run",
+  "frontend_build": "recorded by full evidence run",
+  "result": "PASS",
+  "scope": "E0-E6 plus unified E7/E8 reconciliation",
+  "timestamp": "2026-08-08T20:14:47.275760+00:00"
+}

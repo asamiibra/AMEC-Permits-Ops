@@ -1,0 +1,9 @@
+{
+  "about_language_persistence": "PASS",
+  "core_routes": 10,
+  "popstate": "PASS",
+  "role_filtering": "PASS",
+  "status": "PASS_FOR_CORE_SHELL",
+  "unknown_route_fallback": "PASS",
+  "whole_app_arabic": "OPEN"
+}

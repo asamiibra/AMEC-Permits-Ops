@@ -1,0 +1,12 @@
+{
+  "label": "SYNTHETIC / NOT CLIENT APPROVED / NOT PRODUCTION",
+  "fixture": "PermitOps_Synthetic_MVP_Dataset_v1",
+  "version": "1.2.0",
+  "purpose": "Stage 1 v2.6 owner-session E1 foundation",
+  "scenarios": [
+    "EXPANSION_A_HAPPY_UPSTREAM_HANDOFF",
+    "EXPANSION_B_MISSING_EXPIRED_DOCUMENT",
+    "EXPANSION_C_ENGINEERING_REVIEW_FOUNDATION"
+  ],
+  "note": "This resource contains synthetic placeholders and no real client data, credentials, or authoritative regulatory text."
+}

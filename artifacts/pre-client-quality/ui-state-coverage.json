@@ -1,0 +1,141 @@
+{
+  "matrix": [
+    {
+      "risk": "A/B",
+      "screen": "Global shell",
+      "states_tested": [
+        "populated",
+        "unauthorized",
+        "route fallback",
+        "error banner"
+      ],
+      "states_unverified": [
+        "render exception before boundary test",
+        "timeout retry"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "risk": "B",
+      "screen": "My Work",
+      "states_tested": [
+        "populated",
+        "blocked",
+        "reviews",
+        "deep links",
+        "role lens"
+      ],
+      "states_unverified": [
+        "loading",
+        "empty with seeded backend",
+        "retry",
+        "reassignment",
+        "stale item"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "risk": "A/B",
+      "screen": "Permit portfolio/workspace",
+      "states_tested": [
+        "populated",
+        "returned",
+        "stage navigation",
+        "human handoff boundary"
+      ],
+      "states_unverified": [
+        "loading",
+        "empty",
+        "server error",
+        "concurrent edit",
+        "save/reopen end-to-end"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "risk": "A",
+      "screen": "Documents/verification/conflicts",
+      "states_tested": [
+        "candidate vs verified",
+        "manual fallback",
+        "conflict",
+        "drawing mismatch"
+      ],
+      "states_unverified": [
+        "browser integrated correction path",
+        "timeout retry",
+        "unauthorized UI action"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "risk": "A",
+      "screen": "Package/municipality/read-back",
+      "states_tested": [
+        "blocked",
+        "stale",
+        "portal mismatch",
+        "no final submit"
+      ],
+      "states_unverified": [
+        "seeded browser happy path",
+        "persisted save/reopen",
+        "double action",
+        "external mutation recovery"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "risk": "A/B",
+      "screen": "Findings/notifications/monitoring",
+      "states_tested": [
+        "failed notification",
+        "retry visible",
+        "NO_CHANGE",
+        "drift fallback",
+        "returned comments"
+      ],
+      "states_unverified": [
+        "browser closure/resubmission path",
+        "empty/timeout",
+        "recurrence UI"
+      ],
+      "status": "PARTIAL"
+    },
+    {
+      "risk": "C",
+      "screen": "About explainer",
+      "states_tested": [
+        "English",
+        "Arabic",
+        "RTL",
+        "BiDi",
+        "mobile",
+        "accessibility smoke",
+        "status taxonomy"
+      ],
+      "states_unverified": [
+        "visual screenshot review"
+      ],
+      "status": "PASS_WITH_SCREENSHOT_GAP"
+    },
+    {
+      "risk": "A/B",
+      "screen": "Expansion workspaces",
+      "states_tested": [
+        "bounded prototype render",
+        "human approval boundary",
+        "HUMAN_SEND",
+        "four assistant lenses"
+      ],
+      "states_unverified": [
+        "full client workflow browser path",
+        "error/retry",
+        "persistence",
+        "complete role matrix"
+      ],
+      "status": "PARTIAL"
+    }
+  ],
+  "status": "PARTIAL"
+}

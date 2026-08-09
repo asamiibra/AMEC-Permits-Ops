@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "frontend tests",
+    "frontend build",
+    "real-stack browser",
+    "Edge browser",
+    "axe accessibility",
+    "visual screenshots"
+  ],
+  "revision": "UNVERSIONED_WORKSPACE",
+  "status": "PASS_FOR_EXECUTED_SAME_BUILD_SMOKE"
+}

@@ -1,0 +1,22 @@
+{
+  "conditions": [],
+  "decision": "G10_NOT_RUN",
+  "decision_date": null,
+  "decision_evidence_status": "G10_DECISION_EVIDENCE_MISSING",
+  "decision_makers": [],
+  "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+  "evidence_pack_hash": null,
+  "evidence_pack_version": "E9-0.1",
+  "exceptions_or_waivers": [],
+  "expiry_or_review_date": null,
+  "formal_g10_go": false,
+  "production_mode": null,
+  "residual_risks": [
+    "Stage 2 baseline is DRAFT.",
+    "Sign-off C is unsigned.",
+    "Production permission/security/RBAC/adoption evidence is absent.",
+    "No approved live pilot candidate exists."
+  ],
+  "scope_authorized": [],
+  "signature_or_approved_decision_evidence_reference": null
+}

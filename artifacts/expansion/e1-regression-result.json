@@ -1,0 +1,197 @@
+{
+  "a12_count": 20,
+  "a12b_count": 40,
+  "a15_count": 18,
+  "commands": [
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m alembic -c alembic.ini upgrade head",
+      "label": "SQLite migration",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "16_stage1_v2_6_expansion_foundation, Stage 1 v2.6 E1 shared AMEC domain and synthetic fixture foundation.\nINFO  [alembic.runtime.migration] Running upgrade 0016_stage1_v2_6_expansion_foundation -> 0017_expansion_recovery_runtime, E2 shared runtime and E3/E4 synthetic recovery controls.\nINFO  [alembic.runtime.migration] Running upgrade 0017_expansion_recovery_runtime -> 0018_e2_shared_runtime_contracts, E2 shared template, capability, lineage, and unified-work metadata.\nINFO  [alembic.runtime.migration] Running upgrade 0018_e2_shared_runtime_contracts -> 0019_e3_e4_traceability, E3/E4 contract rendering and admin-comment traceability metadata.\nINFO  [alembic.runtime.migration] Running upgrade 0019_e3_e4_traceability -> 0020_e5_e6_bounded_workflows, E5/E6 bounded engineering and commercial-closeout contracts.\nINFO  [alembic.runtime.migration] Running upgrade 0020_e5_e6_bounded_workflows -> 0021_e7_unified_task_context, Allow shared WorkflowTask records to represent opportunity handoffs.\n",
+      "stdout_tail": ""
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m alembic -c alembic.ini upgrade head",
+      "label": "PostgreSQL migration",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.\nINFO  [alembic.runtime.migration] Will assume transactional DDL.\n",
+      "stdout_tail": ""
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m backend.app.seed.cli seed",
+      "label": "PostgreSQL clean synthetic seed",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ""
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m pytest -q backend/tests --ignore=backend/tests/test_expansion_e0_e1.py",
+      "label": "permit-core SQLite regression",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "...................................................................      [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_amec_rebrand.py::test_active_synthetic_consultancy_is_amec_and_ids_are_preserved\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n67 passed, 1 warning in 7.69s\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m pytest -q backend/tests",
+      "label": "full SQLite regression",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "........................................................................ [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_amec_rebrand.py::test_active_synthetic_consultancy_is_amec_and_ids_are_preserved\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n72 passed, 1 warning in 8.82s\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m pytest -q backend/tests",
+      "label": "PostgreSQL regression",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "........................................................................ [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_amec_rebrand.py::test_active_synthetic_consultancy_is_amec_and_ids_are_preserved\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n72 passed, 1 warning in 9.01s\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/expansion_fixture_check.py",
+      "label": "expanded fixture check",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "{\n  \"checks\": {\n    \"a12_count\": true,\n    \"a12b_count\": true,\n    \"a15_count\": true,\n    \"assistant_ids\": true,\n    \"manifest_hash\": true,\n    \"no_prohibited_content\": true,\n    \"predecessor\": true,\n    \"required_source_families\": true,\n    \"resource_exists\": true,\n    \"safe_regulation\": true,\n    \"seeded_capabilities\": true,\n    \"seeded_opportunity\": true,\n    \"seeded_resources\": true,\n    \"synthetic_only\": true,\n    \"three_scenarios\": true\n  },\n  \"fixture\": {\n    \"fixture_manifest_hash\": \"b91e8377a06ffa96733a66361b3228b1114c7f4a7a687a198cce65fc22d436b7\",\n    \"fixture_set\": \"PermitOps_Synthetic_MVP_Dataset_v1\",\n    \"fixture_version\": \"1.2.0\",\n    \"predecessor\": {\n      \"manifest_hash\": \"b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb\",\n      \"name\": \"PermitOps_Synthetic_MVP_Dataset_v1\",\n      \"version\": \"1.1.1\"\n    }\n  },\n  \"scenarios\": [\n    \"EXPANSION_A_HAPPY_UPSTREAM_HANDOFF\",\n    \"EXPANSION_B_MISSING_EXPIRED_DOCUMENT\",\n    \"EXPANSION_C_ENGINEERING_REVIEW_FOUNDATION\"\n  ],\n  \"source_families\": [\n    \"BD_COMMERCIAL\",\n    \"CONTRACT_ADMIN\",\n    \"PROJECT_REFERENCE\",\n    \"ENGINEERING\",\n    \"FINANCE\",\n    \"HANDOVER\",\n    \"COMMUNICATION\",\n    \"PERMIT_CORE\"\n  ],\n  \"status\": \"PASS\",\n  \"synthetic_only\": true\n}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/canonical_fixture_check_runner.py",
+      "label": "canonical permit fixture",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "16_stage1_v2_6_expansion_foundation, Stage 1 v2.6 E1 shared AMEC domain and synthetic fixture foundation.\nINFO  [alembic.runtime.migration] Running upgrade 0016_stage1_v2_6_expansion_foundation -> 0017_expansion_recovery_runtime, E2 shared runtime and E3/E4 synthetic recovery controls.\nINFO  [alembic.runtime.migration] Running upgrade 0017_expansion_recovery_runtime -> 0018_e2_shared_runtime_contracts, E2 shared template, capability, lineage, and unified-work metadata.\nINFO  [alembic.runtime.migration] Running upgrade 0018_e2_shared_runtime_contracts -> 0019_e3_e4_traceability, E3/E4 contract rendering and admin-comment traceability metadata.\nINFO  [alembic.runtime.migration] Running upgrade 0019_e3_e4_traceability -> 0020_e5_e6_bounded_workflows, E5/E6 bounded engineering and commercial-closeout contracts.\nINFO  [alembic.runtime.migration] Running upgrade 0020_e5_e6_bounded_workflows -> 0021_e7_unified_task_context, Allow shared WorkflowTask records to represent opportunity handoffs.\n",
+      "stdout_tail": "{'status': 'PASS', 'fixture_set': 'PermitOps_Synthetic_MVP_Dataset_v1', 'fixture_version': '1.1.1', 'manifest_hash': 'b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb', 'canonical_projects': ['GHCE-2026-0142', 'GHCE-2026-0187', 'GHCE-2026-0210', 'GHCE-2026-0244'], 'canonical_applications': ['GHCE-APP-0142', 'GHCE-APP-0187', 'GHCE-APP-0210', 'GHCE-APP-0244'], 'workbook': 'mock-systems/excel/permit_tracker.xlsx', 'synology_root': 'mock-systems/synology'}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/golden_path_v1.py",
+      "label": "Golden Path v1",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "-443d4038a96e/reconcile \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/preparation-revisions/6bf4d6a1-ee35-47a3-a702-443d4038a96e/precheck/capture\", \"correlation_id\": \"badfbe1e-c080-4b0d-9d96-78f94c760118\"}\nHTTP Request: POST http://testserver/api/preparation-revisions/6bf4d6a1-ee35-47a3-a702-443d4038a96e/precheck/capture \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/preparation-revisions/6bf4d6a1-ee35-47a3-a702-443d4038a96e/session/attendance\", \"correlation_id\": \"c7bc930a-b8d5-44b6-ada9-963ce8ad166a\"}\nHTTP Request: POST http://testserver/api/preparation-revisions/6bf4d6a1-ee35-47a3-a702-443d4038a96e/session/attendance \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/preparation-revisions/6bf4d6a1-ee35-47a3-a702-443d4038a96e/handoff\", \"correlation_id\": \"9f86bb15-0204-404d-b104-48ce699916a7\"}\nHTTP Request: POST http://testserver/api/preparation-revisions/6bf4d6a1-ee35-47a3-a702-443d4038a96e/handoff \"HTTP/1.1 200 OK\"\n",
+      "stdout_tail": "39bd8f3e0e133bde8b0afc4f2e5f516813e6a2769090\",\n  \"package_id\": \"3f4914d0-b40e-4033-a1b4-cd6660fe52a2\",\n  \"portal_snapshot_ids\": [\n    \"559b7255-18f8-4391-a591-5fa7f639bc07\"\n  ],\n  \"precheck_run_id\": \"360d91d1-ef76-4727-9fcc-7b749c009e7b\",\n  \"preparation_revision_id\": \"6bf4d6a1-ee35-47a3-a702-443d4038a96e\",\n  \"project_bootstrap_event_ids\": [\n    \"eb6a2345-cbc3-43ad-b93c-60ec23f345ba\",\n    \"fced36f7-3fe2-4cb5-a5e2-c60bb3083a94\",\n    \"3388492a-2c63-484e-9878-992b2fdd049e\",\n    \"059efd8d-3a3f-4272-aa3f-7837074f1c21\",\n    \"da47b24b-b447-427a-8e4e-4b2ed7a42735\",\n    \"53d37e77-467d-47cf-8ffb-c964130c63cf\",\n    \"13cc745b-c3db-494c-a11e-791c8a95b24d\",\n    \"76dacd9e-f098-416a-8f88-cc6609024d55\",\n    \"d49147d0-b871-4a88-a540-3c0819a7064d\",\n    \"07eb0c13-d3bc-4a4a-864a-211cb8483909\",\n    \"8b468de7-799f-44c5-a203-55fd24feb3c8\",\n    \"a71290ab-8fb0-4c63-857c-81504f1d218a\",\n    \"c9e44f43-59a8-4cb9-9eb6-a9fa31712ab9\",\n    \"139078b8-aa07-4121-9783-38663b37d20a\",\n    \"812aecec-511f-4936-8476-a441e0e9f304\",\n    \"28d0a1fa-6a78-44fa-aa1c-34f83323e1fa\",\n    \"0580d8ba-2846-4823-8a21-535d7c87bbd3\",\n    \"0c1ee08d-0b8c-4772-9b2a-74adb21300f1\",\n    \"69518090-2068-4b80-a708-437d5816e23d\",\n    \"835088af-27ae-4574-87f8-4c4916ff88a3\",\n    \"33724955-2346-4d5e-bb61-8c14651f9717\",\n    \"9e2aac92-b16f-46c1-b5a6-63649ea70f8e\",\n    \"7f30577b-b84b-4469-b177-f15dbf83c289\",\n    \"2cb33a04-357c-4c8b-94a3-59067f95d941\"\n  ],\n  \"project_id\": \"GHCE-2026-0142\",\n  \"ready_readiness\": \"READY\",\n  \"reconciliation\": \"VERIFIED_DRAFT\",\n  \"status\": \"PASS\",\n  \"verified_assertion_ids\": [\n    \"46a3acda-a713-40cd-be66-6721cec4550b\",\n    \"57cce6ac-e95b-44b8-936c-6c0ce9b41aab\",\n    \"5318406a-5694-48c9-9ba9-96b172ed863e\",\n    \"20abb7c4-ccbc-438a-a592-20073174b2c6\",\n    \"c2a82601-4229-4664-8fd6-3e2cca7979ea\",\n    \"2d1a7f7b-27d0-447a-9b68-acf68f8d115e\",\n    \"f92ef7ea-69ce-44b3-b5d1-d816906ca7f4\",\n    \"586a47e3-8bcb-40d2-8617-ce90bd4b5ced\",\n    \"b1b5b128-d630-432e-89aa-2090aa08c696\",\n    \"2c64afc4-84b8-4658-860a-e0b7a052622b\"\n  ]\n}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/golden_path_v2.py",
+      "label": "Golden Path v2",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "ddaf-d48b-41e8-a143-965c170deafe/evidence \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/finding-resolutions/f32dddaf-d48b-41e8-a143-965c170deafe/evidence\", \"correlation_id\": \"9efcc6e7-5ad0-43a9-b35b-9c10759d6fa1\"}\nHTTP Request: POST http://testserver/api/finding-resolutions/f32dddaf-d48b-41e8-a143-965c170deafe/evidence \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/finding-resolutions/f32dddaf-d48b-41e8-a143-965c170deafe/verify\", \"correlation_id\": \"9a414283-fb8b-463d-a788-a6611787f750\"}\nHTTP Request: POST http://testserver/api/finding-resolutions/f32dddaf-d48b-41e8-a143-965c170deafe/verify \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/applications/58b578ce-30dd-4ce5-a698-5f090d309571/resubmission-readiness/evaluate\", \"correlation_id\": \"08f3ea49-8a4a-4827-8e72-99c008d42990\"}\nHTTP Request: POST http://testserver/api/applications/58b578ce-30dd-4ce5-a698-5f090d309571/resubmission-readiness/evaluate \"HTTP/1.1 200 OK\"\n",
+      "stdout_tail": "\": \"7938bbad-2405-4d25-94bf-85f00ef91b2c\",\n    \"application_id\": \"58b578ce-30dd-4ce5-a698-5f090d309571\",\n    \"submission_cycle_id\": null,\n    \"preparation_revision_id\": \"ca1329ff-6f66-4e5c-a043-17678c7b23cf\",\n    \"package_id\": \"11b1805a-d188-4269-b117-145d1a85f691\",\n    \"evaluated_at\": \"2026-08-08T20:14:20.083935+00:00\",\n    \"overall_status\": \"RESUBMISSION_BLOCKED\",\n    \"blocking_finding_count\": 1,\n    \"allowed_dispute_count\": 0,\n    \"package_status\": \"APPROVED\",\n    \"precheck_status\": \"CLEAR\",\n    \"dependency_validity_status\": \"VALID\",\n    \"approval_status\": \"APPROVED\",\n    \"portal_reconciliation_status\": \"PASS\",\n    \"reasons\": [\n      {\n        \"condition\": \"PRIOR_OFFICIAL_FINDINGS\",\n        \"status\": \"BLOCK\",\n        \"reason\": \"Applicable blocking official findings remain unresolved.\",\n        \"evidence\": [\n          \"e78b0a41-d2e1-465b-9164-0ed4e404ddea\"\n        ]\n      }\n    ],\n    \"evaluation_hash\": \"576e475ae630c0de321420432cfb93b2904ab3e961c78258605682feee232dc2\"\n  },\n  \"resubmission\": {\n    \"id\": \"e688e7e6-eef2-4725-9170-b6d3e36e167c\",\n    \"application_id\": \"58b578ce-30dd-4ce5-a698-5f090d309571\",\n    \"submission_cycle_id\": null,\n    \"preparation_revision_id\": \"ca1329ff-6f66-4e5c-a043-17678c7b23cf\",\n    \"package_id\": \"11b1805a-d188-4269-b117-145d1a85f691\",\n    \"evaluated_at\": \"2026-08-08T20:14:20.096386+00:00\",\n    \"overall_status\": \"RESUBMISSION_READY\",\n    \"blocking_finding_count\": 0,\n    \"allowed_dispute_count\": 0,\n    \"package_status\": \"APPROVED\",\n    \"precheck_status\": \"CLEAR\",\n    \"dependency_validity_status\": \"VALID\",\n    \"approval_status\": \"APPROVED\",\n    \"portal_reconciliation_status\": \"PASS\",\n    \"reasons\": [\n      {\n        \"condition\": \"ALL_G9_CONDITIONS\",\n        \"status\": \"PASS\",\n        \"reason\": \"All configured resubmission conditions pass.\",\n        \"evidence\": []\n      }\n    ],\n    \"evaluation_hash\": \"2454b5ad9833829a70ddce91f21fd8c41e0fb57604c6fd4db81546092cd4ce2a\"\n  },\n  \"machine_submit_operation\": false,\n  \"live_ministry_write\": false\n}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/acceptance_rehearsal.py",
+      "label": "Weeks 13-14 acceptance rehearsal",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "_id\": \"a6f1edd7-afc8-43a6-a875-b7ddb38de91c\"}\nHTTP Request: POST http://testserver/api/workflow-safety-holds/8d792d53-16f4-4c33-a8ab-2e4d10678b2c/release \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/recovery/test-restore\", \"correlation_id\": \"61a483b2-4d30-4504-a4ac-b46df2db81a4\"}\nHTTP Request: POST http://testserver/api/recovery/test-restore \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/acceptance-rehearsal\", \"correlation_id\": \"f5bed43d-c19b-41bd-b93a-9213bc650715\"}\nHTTP Request: POST http://testserver/api/acceptance-rehearsal \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"GET\", \"path\": \"/api/g10/evidence\", \"correlation_id\": \"8da5bd9a-5574-4f29-a324-8e144f9c5dae\"}\nHTTP Request: GET http://testserver/api/g10/evidence \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"GET\", \"path\": \"/api/production-mode\", \"correlation_id\": \"63dfc1ae-3151-4ed4-a356-749b84e87d25\"}\nHTTP Request: GET http://testserver/api/production-mode \"HTTP/1.1 200 OK\"\n",
+      "stdout_tail": "{\n  \"status\": \"PASS\",\n  \"evidence_class\": \"SYNTHETIC_IMPLEMENTATION_EVIDENCE\",\n  \"fixture\": {\n    \"fixture_set\": \"PermitOps_Synthetic_MVP_Dataset_v1\",\n    \"fixture_version\": \"1.1.1\",\n    \"fixture_manifest_hash\": \"b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb\"\n  },\n  \"golden_path_v1\": \"PASS\",\n  \"canonical_fixture_check\": \"PASS\",\n  \"golden_path_v2\": \"PASS\",\n  \"browser_e2e\": \"PASS\",\n  \"monitoring\": {\n    \"first\": \"MATERIAL_CHANGE\",\n    \"second\": \"NO_CHANGE\",\n    \"drift\": \"DRIFT_DETECTED\"\n  },\n  \"recurrence\": {\n    \"finding_count\": 6,\n    \"first_occurrences\": 1,\n    \"repeated_open\": 1,\n    \"recurrence_after_verified_closure\": 1,\n    \"reopened\": 0,\n    \"possible_recurrence_review\": 0\n  },\n  \"preventive_checks\": 2,\n  \"incident\": {\n    \"severity\": \"P1\",\n    \"hold_applied\": true,\n    \"impact_entities\": 1\n  },\n  \"restore\": \"PASS\",\n  \"formal_g10_restore\": false,\n  \"acceptance_run_id\": \"f0cf3ac1-cc89-4b32-8621-07c005092a5d\",\n  \"acceptance\": \"PASS\",\n  \"acceptance_checks\": {\n    \"variants\": true,\n    \"rendering_missing\": true,\n    \"edge_cases\": true,\n    \"operator_assistance_required\": true,\n    \"safety\": true\n  },\n  \"g10_evidence_items\": 5,\n  \"production_mode\": \"ASSISTED\",\n  \"wave3_decision\": \"ASSISTED_G10_REVIEW_READY\",\n  \"machine_final_submit\": false,\n  \"live_ministry_write\": false,\n  \"optional_automation_branch\": \"NOT_AUTHORIZED_NOT_BLOCKING\",\n  \"client_workflow_approval\": \"BLOCKED_EXTERNAL\"\n}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/e3_e4_golden_path.py",
+      "label": "E3/E4 Golden Path 0",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "ies/b64026b6-41ad-4bb8-afd5-daa90816226a/reference/assign \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/opportunities/b64026b6-41ad-4bb8-afd5-daa90816226a/project-bootstrap\", \"correlation_id\": \"e07c6529-9ba6-4ada-a993-53accd46b9be\"}\nHTTP Request: POST http://testserver/api/opportunities/b64026b6-41ad-4bb8-afd5-daa90816226a/project-bootstrap \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"GET\", \"path\": \"/api/projects/bcc75237-288d-48e6-9e3e-85c4fc33bb89/project-status-projection\", \"correlation_id\": \"df7d94a9-e54d-4ed3-8c0d-182080591a98\"}\nHTTP Request: GET http://testserver/api/projects/bcc75237-288d-48e6-9e3e-85c4fc33bb89/project-status-projection \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/projects/bcc75237-288d-48e6-9e3e-85c4fc33bb89/handoff-to-permit\", \"correlation_id\": \"52885643-fc00-45e8-8dca-e78af7e7e180\"}\nHTTP Request: POST http://testserver/api/projects/bcc75237-288d-48e6-9e3e-85c4fc33bb89/handoff-to-permit \"HTTP/1.1 200 OK\"\n",
+      "stdout_tail": "{\"result\": \"PASS\", \"assertion_count\": 88, \"labels\": [\"E3_BD_ASSISTANT_READY\", \"GOLDEN_PATH_0A_PASS\", \"E4_ADMIN_PROJECT_COORDINATION_READY\", \"GOLDEN_PATH_0_PASS\", \"READY_FOR_EXPANSION_GATE_E5\"], \"execution_authority\": \"PROTOTYPE_DEV_ONLY\", \"real_external_actions\": false, \"failed_assertions\": []}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/e5_e6_golden_paths.py",
+      "label": "E5/E6 bounded Golden Paths",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "912d87c2-2cd1-4694-a48a-9c235fe4d9a7/render \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/project-handovers/912d87c2-2cd1-4694-a48a-9c235fe4d9a7/approval\", \"correlation_id\": \"d55e09ba-1eb7-438e-a655-b460f7ab2e76\"}\nHTTP Request: POST http://testserver/api/project-handovers/912d87c2-2cd1-4694-a48a-9c235fe4d9a7/approval \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/project-handovers/912d87c2-2cd1-4694-a48a-9c235fe4d9a7/release-evidence\", \"correlation_id\": \"a994c5c2-7f6f-4abe-8999-c1ff57d0dc4b\"}\nHTTP Request: POST http://testserver/api/project-handovers/912d87c2-2cd1-4694-a48a-9c235fe4d9a7/release-evidence \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"POST\", \"path\": \"/api/project-handovers/912d87c2-2cd1-4694-a48a-9c235fe4d9a7/communication-draft\", \"correlation_id\": \"7d458bec-493c-4b28-98ac-79ed2f817a71\"}\nHTTP Request: POST http://testserver/api/project-handovers/912d87c2-2cd1-4694-a48a-9c235fe4d9a7/communication-draft \"HTTP/1.1 200 OK\"\n",
+      "stdout_tail": "{\"e5\": {\"result\": \"PASS\", \"assertion_count\": 22, \"scenario\": \"Drawing V1 \\u2192 controlled applicable regulation \\u2192 advisory comments \\u2192 Authorized Engineer \\u2192 sheets \\u2192 Drawing V2 \\u2192 stale/re-review\", \"labels\": [\"E5_ENGINEERING_REVIEW_ASSISTANT_READY\", \"ENGINEERING_ADVISORY_GOLDEN_PATH_PASS\"], \"execution_authority\": \"PROTOTYPE_DEV_ONLY\", \"evidence_class\": \"SYNTHETIC_IMPLEMENTATION_EVIDENCE\", \"synthetic_only\": true, \"real_external_actions\": false}, \"e6\": {\"result\": \"PASS\", \"assertion_count\": 28, \"scenario\": \"Contract milestone \\u2192 human invoice decision \\u2192 draft/render \\u2192 finance handoff \\u2192 issue evidence \\u2192 follow-up \\u2192 bounded handover \\u2192 human release\", \"labels\": [\"E6_FINANCE_INVOICE_HANDOVER_READY\", \"COMMERCIAL_CLOSEOUT_GOLDEN_PATH_PASS\"], \"execution_authority\": \"PROTOTYPE_DEV_ONLY\", \"evidence_class\": \"SYNTHETIC_IMPLEMENTATION_EVIDENCE\", \"synthetic_only\": true, \"real_external_actions\": false}}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m pytest -q backend/tests/test_e5_e6_bounded_workflows.py",
+      "label": "E5/E6 focused contract tests",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "..                                                                       [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_e5_e6_bounded_workflows.py::test_e5_engineering_advisory_contract_has_depth\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n2 passed, 1 warning in 0.92s\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/e7_e8_acceptance.py",
+      "label": "E7/E8 unified acceptance",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "p://testserver/api/assistant-handoffs/02b38726-c8f9-407f-9a02-af915c1d7054/accept \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"GET\", \"path\": \"/api/role-context\", \"correlation_id\": \"bf76a636-89f3-4a73-b40e-55ef6f779ce9\"}\nHTTP Request: GET http://testserver/api/role-context?mode=SYNTHETIC&requested_role=AUTHORIZED_ENGINEER \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"GET\", \"path\": \"/api/role-context\", \"correlation_id\": \"29b4cf0a-b663-43b3-a83c-98a09ce9a760\"}\nHTTP Request: GET http://testserver/api/role-context?mode=PRODUCTION&requested_role=AUTHORIZED_ENGINEER \"HTTP/1.1 403 Forbidden\"\n{\"event\": \"request\", \"method\": \"GET\", \"path\": \"/api/issues/unified\", \"correlation_id\": \"8272042f-7f1f-48f5-8364-1043321e8c4b\"}\nHTTP Request: GET http://testserver/api/issues/unified \"HTTP/1.1 200 OK\"\n{\"event\": \"request\", \"method\": \"GET\", \"path\": \"/api/communications\", \"correlation_id\": \"2b0a4296-cde0-487d-aebe-8a857056c7eb\"}\nHTTP Request: GET http://testserver/api/communications \"HTTP/1.1 200 OK\"\n",
+      "stdout_tail": "{\n  \"e7_assertions\": 52,\n  \"e8_assertions\": 70,\n  \"fixture\": {\n    \"fixture_manifest_hash\": \"b91e8377a06ffa96733a66361b3228b1114c7f4a7a687a198cce65fc22d436b7\",\n    \"fixture_set\": \"PermitOps_Synthetic_MVP_Dataset_v1\",\n    \"fixture_version\": \"1.2.0\",\n    \"predecessor\": {\n      \"manifest_hash\": \"b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb\",\n      \"name\": \"PermitOps_Synthetic_MVP_Dataset_v1\",\n      \"version\": \"1.1.1\"\n    }\n  },\n  \"safety_counters\": 31,\n  \"status\": \"PASS\"\n}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m pytest -q backend/tests/test_e7_e8_unified_acceptance.py",
+      "label": "E7/E8 focused contract tests",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "..                                                                       [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_e7_e8_unified_acceptance.py::test_e7_unified_queue_context_handoffs_and_role_boundary\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n2 passed, 1 warning in 1.12s\n"
+    },
+    {
+      "command": "npm test -- --run",
+      "label": "frontend component tests",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "\n> permitops-web@0.1.0 test\n> vitest --run\n\n\n RUN  v4.1.10 /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend\n\n\n Test Files  5 passed (5)\n      Tests  12 passed (12)\n   Start at  15:14:50\n   Duration  1.20s (transform 799ms, setup 648ms, import 1.01s, tests 603ms, environment 2.77s)\n\n"
+    },
+    {
+      "command": "npm run build",
+      "label": "frontend production build",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "\n> permitops-web@0.1.0 build\n> tsc -b && vite build\n\nvite v8.2.1 building client environment for production...\n\u001b[2K\ntransforming...\u2713 45 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.16 kB \u2502 gzip:   0.14 kB\ndist/assets/index-B00VgplW.css   75.82 kB \u2502 gzip:  14.28 kB\ndist/assets/index-BDjB1Gd-.js   481.04 kB \u2502 gzip: 128.73 kB\n\n\u2713 built in 78ms\n"
+    },
+    {
+      "command": "npm run browser-e2e",
+      "label": "browser E2E",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": " http proxy error: /api/reconciliation/governance\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:15:05 PM [vite] http proxy error: /api/raid\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:15:05 PM [vite] http proxy error: /api/projects\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:15:05 PM [vite] http proxy error: /api/applications\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:15:05 PM [vite] http proxy error: /api/reconciliation/governance\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n",
+      "stdout_tail": "explainer.spec.ts:135:1 \u203a mobile Arabic About page retains RTL and no overflow (549ms)\n  \u2713   90 browser-e2e/pre-g10-control-paths.spec.ts:82:1 \u203a E2E-05 stale package and stale revision deny escape (739ms)\n  \u2713   92 browser-e2e/e7-e8-expanded.spec.ts:50:1 \u203a HUMAN_SEND communication state is visible (446ms)\n  \u2713   93 browser-e2e/about-explainer.spec.ts:144:1 \u203a About page keeps prototype and external-boundary messaging visible (524ms)\n  \u2713   95 browser-e2e/e7-e8-expanded.spec.ts:51:1 \u203a existing Opportunities navigation remains reachable (507ms)\n  \u2713   94 browser-e2e/pre-g10-control-paths.spec.ts:88:1 \u203a E2E-06 Arabic control path preserves RTL text and LTR IDs (636ms)\n  \u2713   96 browser-e2e/e7-e8-expanded.spec.ts:52:1 \u203a existing Engineering and Closeout navigation remains reachable (402ms)\n  \u2713   97 browser-e2e/pre-g10-control-paths.spec.ts:94:1 \u203a E2E-07 no final-submit capability is rendered (535ms)\n  \u2713   98 browser-e2e/e7-e8-expanded.spec.ts:53:1 \u203a issues source-family panel is visible (365ms)\n  \u2713   91 browser-e2e/readiness-drawer.spec.ts:44:1 \u203a every implemented admin route keeps the shared drawer available (2.1s)\n  \u2713  100 browser-e2e/e7-e8-expanded.spec.ts:54:1 \u203a communications source panel is visible (305ms)\n  \u2713   99 browser-e2e/pre-g10-control-paths.spec.ts:101:1 \u203a E2E-08 Week 11 monitoring exposes durable NO_CHANGE evidence (471ms)\n  \u2713  101 browser-e2e/e7-e8-expanded.spec.ts:55:1 \u203a production role switching is not implied by the synthetic UI (267ms)\n  \u2713  102 browser-e2e/pre-g10-control-paths.spec.ts:108:1 \u203a E2E-09 Week 11 drift fails closed to assisted fallback (401ms)\n  \u2713  103 browser-e2e/pre-g10-control-paths.spec.ts:114:1 \u203a E2E-10 Week 12 attended MFA and handoff preserve role boundaries (342ms)\n  \u2713  104 browser-e2e/pre-g10-control-paths.spec.ts:121:1 \u203a E2E-11 Week 13 recurrence context is deterministic (305ms)\n  \u2713  105 browser-e2e/pre-g10-control-paths.spec.ts:128:1 \u203a E2E-12 Week 14 acceptance keeps G10 separate from assisted readiness (293ms)\n\n  105 passed (14.3s)\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 backend/scripts/registry_and_safety_check.py",
+      "label": "registry and safety",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "{\n  \"registry\": {\n    \"count\": 20,\n    \"exact_1_to_20\": true,\n    \"numbers\": [\n      1,\n      2,\n      3,\n      4,\n      5,\n      6,\n      7,\n      8,\n      9,\n      10,\n      11,\n      12,\n      13,\n      14,\n      15,\n      16,\n      17,\n      18,\n      19,\n      20\n    ],\n    \"status\": \"PASS\",\n    \"titles_present\": true,\n    \"unique_numbers\": true\n  },\n  \"safety\": {\n    \"counters\": {\n      \"accepted_attachment_misfiles\": 0,\n      \"escaped_critical_false_accepts\": 0,\n      \"machine_final_submissions\": 0,\n      \"open_blocker_resubmission_escapes\": 0,\n      \"silent_readback_mismatch_accepts\": 0,\n      \"stale_package_final_review_escapes\": 0,\n      \"stale_precheck_final_review_escapes\": 0,\n      \"stored_otp_password_secrets\": 0,\n      \"synthetic_evidence_mislabeled_client_or_live\": 0,\n      \"trusted_parses_after_detected_drift\": 0,\n      \"unauthorized_production_reads\": 0,\n      \"unauthorized_production_writes\": 0,\n      \"unauthorized_professional_closures\": 0,\n      \"wrong_application_consequential_actions\": 0\n    },\n    \"false_positive_terms\": [\n      \"payment plan in draft Sign-off C\",\n      \"human submission confirmation/handoff\",\n      \"MFA metadata-only controls\"\n    ],\n    \"forbidden_routes\": [],\n    \"machine_final_submit_capability\": \"ABSENT\",\n    \"secret_hits\": [],\n    \"source_hits\": [],\n    \"status\": \"PASS\"\n  }\n}\n"
+    },
+    {
+      "command": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3 -m alembic heads",
+      "label": "Alembic head",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "0021_e7_unified_task_context (head)\n"
+    }
+  ],
+  "fixture_hash": "b91e8377a06ffa96733a66361b3228b1114c7f4a7a687a198cce65fc22d436b7",
+  "fixture_name": "PermitOps_Synthetic_MVP_Dataset_v1",
+  "fixture_version": "1.2.0",
+  "migration_head": "0021_e7_unified_task_context",
+  "safety": {
+    "accepted_attachment_misfiles": 0,
+    "escaped_critical_false_accepts": 0,
+    "machine_final_submissions": 0,
+    "open_blocker_resubmission_escapes": 0,
+    "silent_readback_mismatch_accepts": 0,
+    "stale_package_final_review_escapes": 0,
+    "stale_precheck_final_review_escapes": 0,
+    "stored_otp_password_secrets": 0,
+    "synthetic_evidence_mislabeled_client_or_live": 0,
+    "trusted_parses_after_detected_drift": 0,
+    "unauthorized_production_reads": 0,
+    "unauthorized_production_writes": 0,
+    "unauthorized_professional_closures": 0,
+    "wrong_application_consequential_actions": 0
+  },
+  "status": "PASS",
+  "timestamp": "2026-08-08T20:15:08.650738+00:00"
+}

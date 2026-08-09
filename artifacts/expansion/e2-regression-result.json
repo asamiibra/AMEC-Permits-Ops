@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "focused_backend_assertions": 80,
+  "backend_regression": "68 passed",
+  "frontend_regression": "6 passed",
+  "frontend_build": "PASS",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "real_side_effects": false
+}

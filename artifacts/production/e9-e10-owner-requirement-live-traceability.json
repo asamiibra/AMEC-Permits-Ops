@@ -1,0 +1,521 @@
+{
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "g10_status": "G10_NOT_RUN",
+  "live_pilot_status": "LIVE_PILOT_NOT_EXECUTED",
+  "original_a12": [
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-01",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-02",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-03",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-04",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-05",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-06",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-07",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-08",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-09",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-10",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-11",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-12",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-13",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-14",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-15",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-16",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-17",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-18",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-19",
+      "live_status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "evidence_class": "NO_LIVE_EXECUTION",
+      "id": "A12-20",
+      "live_status": "BLOCKED_EXTERNAL"
+    }
+  ],
+  "owner_image_live_fidelity": [
+    {
+      "concept": "RFQ",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Quotation",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Contract",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Checklist",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Reference",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Project Status",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Engineering Review",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Invoice",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Handover",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    },
+    {
+      "concept": "Communications",
+      "live_status": "NOT_IN_LIVE_PILOT",
+      "reason": "No G10 authorization or pilot candidate"
+    }
+  ],
+  "selected_own_new": [
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-01",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-02",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-03",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-04",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-05",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-06",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-07",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-08",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-09",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-10",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-11",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-12",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-13",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-14",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-15",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-16",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-17",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-18",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-19",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-20",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-21",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-22",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-23",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-24",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-25",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-26",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-27",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-28",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-29",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-30",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-31",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-32",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-33",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-34",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-35",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-36",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-37",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-38",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-39",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    },
+    {
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "g10_authorization": "NOT_AUTHORIZED",
+      "id": "OWN-NEW-40",
+      "live_use": "NO",
+      "safe_default_active": true,
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "status": "IMPLEMENTED_BUT_NOT_IN_LIVE_PILOT"
+    }
+  ]
+}

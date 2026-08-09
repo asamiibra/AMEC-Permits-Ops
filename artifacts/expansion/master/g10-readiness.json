@@ -1,0 +1,30 @@
+{
+  "all_safety_counters_zero": true,
+  "browser_tests": 95,
+  "decision_label": "NOT_FORMAL_G10_GO",
+  "e2_to_e8": "PASS",
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "final_status": "ALL_KNOWN_TECHNICAL_GAPS_CLOSED_AT_PROTOTYPE_DEPTH",
+  "formal_g10_go": false,
+  "formal_g10_review": "READY_FOR_FORMAL_G10_REVIEW",
+  "four_assistants": [
+    "BD_ASSISTANT",
+    "ADMIN_ASSISTANT",
+    "ENGINEERING_REVIEW_ASSISTANT",
+    "PROJECT_PERMIT_COORDINATION_ASSISTANT"
+  ],
+  "governance_blockers": [
+    "Stage 2 is DRAFT / UNDECIDED_STAGE2",
+    "Sign-off C is draft and unsigned",
+    "production credentials, data, routes, training, and live event are external dependencies"
+  ],
+  "migration_head": "0021_e7_unified_task_context",
+  "original_permit_core_regression": "PASS",
+  "registry_counts": {
+    "A12": 20,
+    "A12B": 40,
+    "A15": 18
+  },
+  "status": "TECHNICAL_READY_FOR_G10_REVIEW"
+}

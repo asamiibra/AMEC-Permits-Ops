@@ -1,0 +1,7 @@
+{
+  "source": "frontend/src/ProductionReadiness.tsx#appliesToScreenIds",
+  "rule": "Every setup item is crosswalked from its customerRequirementIds references; every screen drawer is rendered from the same registry.",
+  "orphanRequirementIds": [],
+  "screensWithoutRequirementRefs": [],
+  "crosswalkComputedAtBuild": true
+}

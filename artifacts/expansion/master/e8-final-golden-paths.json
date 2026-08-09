@@ -1,0 +1,38 @@
+{
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "paths": [
+    {
+      "evidence": "artifacts/expansion/e3-golden-path-0a-result.json",
+      "id": "GOLDEN_PATH_0A",
+      "scope": "RFQ \u2192 quotation \u2192 human commercial approval \u2192 client acceptance"
+    },
+    {
+      "evidence": "artifacts/expansion/e4-golden-path-0-result.json",
+      "id": "GOLDEN_PATH_0",
+      "scope": "accepted quotation \u2192 contract/admin/project coordination \u2192 permit handoff"
+    },
+    {
+      "evidence": "artifacts/expansion/e5-engineering-advisory-golden-path.json",
+      "id": "ENGINEERING_GOLDEN_PATH",
+      "scope": "drawing revision \u2192 controlled regulation metadata \u2192 advisory comments \u2192 Authorized Engineer re-review"
+    },
+    {
+      "evidence": "artifacts/expansion/e6-commercial-closeout-golden-path.json",
+      "id": "COMMERCIAL_CLOSEOUT_GOLDEN_PATH",
+      "scope": "milestone \u2192 human invoice decision \u2192 draft/render \u2192 bounded handover \u2192 human release"
+    },
+    {
+      "evidence": "artifacts/expansion/e7-cross-role-workflow-result.json",
+      "id": "UNIFIED_CROSS_ROLE_GOLDEN_PATH",
+      "scope": "shared queue \u2192 deterministic NextAction \u2192 explicit handoff \u2192 human authority"
+    },
+    {
+      "evidence": "artifacts/expansion/e8-expanded-reconciliation.json",
+      "id": "INTEGRATED_E2_E8_REHEARSAL",
+      "scope": "shared runtime \u2192 four assistants \u2192 bilingual About \u2192 final reconciliation"
+    }
+  ],
+  "real_external_actions": false,
+  "status": "PASS"
+}

@@ -1,0 +1,17 @@
+{
+  "sourceReference": "supplied attachment codex-clipboard-f2e1d308-202f-42ec-ba8e-7e82bee31293.png",
+  "sourceDimensions": "200x200",
+  "sourceColorMode": "RGB",
+  "sourceTransparency": false,
+  "repositoryOfficialHigherResolutionAssetFound": false,
+  "selectedMaster": "frontend/public/brand/amec-logo-master.png",
+  "derivatives": ["frontend/public/brand/amec-logo@1x.png", "frontend/public/brand/amec-logo@2x.png", "frontend/public/brand/amec-logo@3x.png"],
+  "artworkRedrawn": false,
+  "artworkRecolored": false,
+  "artworkStretched": false,
+  "artworkCropped": false,
+  "artworkRtlMirrored": false,
+  "englishCompanyNamePreserved": true,
+  "arabicCompanyNamePreserved": true,
+  "productionDependency": "OFFICIAL_HIGH_RES_LOGO_REQUIRED_FROM_AMEC"
+}

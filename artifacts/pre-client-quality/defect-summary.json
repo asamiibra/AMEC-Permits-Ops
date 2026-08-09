@@ -1,0 +1,43 @@
+{
+  "defect_loop": "New shell defects fixed and focused-tested; remaining items are evidence/product-scope blockers, not silently accepted defects.",
+  "open_defect_count": 4,
+  "p0": [],
+  "p1": [
+    {
+      "evidence": "Only /about and /how-permitops-works expose the language switch; My Work, permit workspace, issues, notifications, and expansion routes remain English-only.",
+      "exit": "Add and browser-verify a whole-app language switch and Arabic rendering for the owner rehearsal scope.",
+      "id": "PCQ-P1-001",
+      "owner": "Product/Frontend",
+      "severity": "P1",
+      "title": "Whole-app ar-EG operational experience is not implemented"
+    },
+    {
+      "evidence": "The current browser suite intercepts /api/** for its integrated UI checks; service-level Golden Paths and backend tests pass, but the required real application path against seeded TEST data has not been executed in a browser.",
+      "exit": "Run the owner rehearsal against a started seeded TEST backend with API interception disabled for the material permit path.",
+      "id": "PCQ-P1-002",
+      "owner": "Engineering/Test",
+      "severity": "P1",
+      "title": "Seeded backend browser rehearsal is not evidenced"
+    }
+  ],
+  "p2": [
+    {
+      "evidence": "Static inventory contains 130 interactive source controls; Risk A and many legacy/expansion controls have partial or service-only coverage.",
+      "exit": "Map every material control to a browser/integration test and close loading, empty, error, retry, stale, unauthorized, and recovery gaps.",
+      "id": "PCQ-P2-001",
+      "owner": "Engineering/Test",
+      "severity": "P2",
+      "title": "Complete material-control and state coverage is not yet proven"
+    },
+    {
+      "evidence": "No controlled screenshot set was captured for the required owner rehearsal screens in this run.",
+      "exit": "Capture and review the required English/Arabic representative screenshots without secrets.",
+      "id": "PCQ-P2-002",
+      "owner": "Engineering/Test",
+      "severity": "P2",
+      "title": "Required visual screenshot evidence is absent"
+    }
+  ],
+  "p3": [],
+  "status": "FAIL_EXIT_CONDITIONS"
+}

@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.pyc
+
+# Frontend dependencies / generated build
+frontend/node_modules/
+frontend/dist/
+frontend/test-results/
+*.tsbuildinfo
+
+# Vercel local metadata
+.vercel/
+
+# Logs / coverage
+*.log
+coverage/
+htmlcov/
+
+# Temporary runtime files
+tmp/

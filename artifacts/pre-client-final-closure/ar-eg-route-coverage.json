@@ -1,0 +1,8 @@
+{
+  "body_copy_complete": false,
+  "global_locale_attributes": "PASS",
+  "note": "Core route shell/RTL is verified; whole-app Arabic body-copy closure is not proven.",
+  "route_count": 23,
+  "rtl_routes_exercised": 10,
+  "status": "PARTIAL"
+}

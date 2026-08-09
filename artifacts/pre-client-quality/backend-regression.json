@@ -1,0 +1,41 @@
+{
+  "audit_lineage": "PASS in backend test suite and E2-E8 artifacts",
+  "fixture": {
+    "label": "expanded fixture check",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": " \"resource_exists\": true,\n    \"safe_regulation\": true,\n    \"seeded_capabilities\": true,\n    \"seeded_opportunity\": true,\n    \"seeded_resources\": true,\n    \"synthetic_only\": true,\n    \"three_scenarios\": true\n  },\n  \"fixture\": {\n    \"fixture_manifest_hash\": \"b91e8377a06ffa96733a66361b3228b1114c7f4a7a687a198cce65fc22d436b7\",\n    \"fixture_set\": \"PermitOps_Synthetic_MVP_Dataset_v1\",\n    \"fixture_version\": \"1.2.0\",\n    \"predecessor\": {\n      \"manifest_hash\": \"b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb\",\n      \"name\": \"PermitOps_Synthetic_MVP_Dataset_v1\",\n      \"version\": \"1.1.1\"\n    }\n  },\n  \"scenarios\": [\n    \"EXPANSION_A_HAPPY_UPSTREAM_HANDOFF\",\n    \"EXPANSION_B_MISSING_EXPIRED_DOCUMENT\",\n    \"EXPANSION_C_ENGINEERING_REVIEW_FOUNDATION\"\n  ],\n  \"source_families\": [\n    \"BD_COMMERCIAL\",\n    \"CONTRACT_ADMIN\",\n    \"PROJECT_REFERENCE\",\n    \"ENGINEERING\",\n    \"FINANCE\",\n    \"HANDOVER\",\n    \"COMMUNICATION\",\n    \"PERMIT_CORE\"\n  ],\n  \"status\": \"PASS\",\n  \"synthetic_only\": true\n}\n"
+  },
+  "migration": {
+    "label": "Alembic head",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "0021_e7_unified_task_context (head)\n"
+  },
+  "postgresql": {
+    "label": "PostgreSQL regression",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "........................................................................ [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_amec_rebrand.py::test_active_synthetic_consultancy_is_amec_and_ids_are_preserved\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n72 passed, 1 warning in 9.01s\n"
+  },
+  "safety": "PASS_FOR_EXECUTED_EVIDENCE",
+  "seed": {
+    "label": "PostgreSQL clean synthetic seed",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": ""
+  },
+  "sqlite_core": {
+    "label": "permit-core SQLite regression",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "...................................................................      [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_amec_rebrand.py::test_active_synthetic_consultancy_is_amec_and_ids_are_preserved\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n67 passed, 1 warning in 7.69s\n"
+  },
+  "sqlite_full": {
+    "label": "full SQLite regression",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "........................................................................ [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_amec_rebrand.py::test_active_synthetic_consultancy_is_amec_and_ids_are_preserved\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n72 passed, 1 warning in 8.82s\n"
+  },
+  "status": "PASS"
+}

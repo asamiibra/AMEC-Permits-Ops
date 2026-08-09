@@ -1,0 +1,9 @@
+{
+  "api_interception": false,
+  "artifact": "real-stack-playwright.json",
+  "browser_path": "Browser \u2192 React/Vite proxy \u2192 FastAPI \u2192 PostgreSQL 16 \u2192 seeded synthetic fixture \u2192 persisted municipality revision/reconciliation",
+  "passed": 3,
+  "seed_bootstrap": "Golden Path v1 synthetic bootstrap",
+  "status": "PASS",
+  "tests": 3
+}

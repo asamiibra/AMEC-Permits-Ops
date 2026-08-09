@@ -1,0 +1,8 @@
+{
+  "final_g10_status": "READY_FOR_FORMAL_G10_REVIEW",
+  "formal_g10_go": false,
+  "governance": "GOVERNANCE_BLOCKED",
+  "live_external": "LIVE_BLOCKED",
+  "technical": "TECHNICAL_READY_FOR_G10_REVIEW",
+  "timestamp": "2026-08-08T20:14:47.275760+00:00"
+}

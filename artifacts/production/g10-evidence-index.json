@@ -1,0 +1,216 @@
+{
+  "created_at": "2026-08-08T19:36:02.362032+00:00",
+  "formal_g10_status": "G10_NOT_RUN",
+  "index_version": "E9-0.1",
+  "items": [
+    {
+      "blocker": "Stage 2 and Sign-off C are unsigned/draft",
+      "category": "SCOPE",
+      "criterion_id": "E9-SCOPE",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "artifacts/production/g10-production-scope-manifest.json",
+      "next_action": "Obtain signed scope authority",
+      "owner": "Delivery/Governance",
+      "requirement": "Exact production scope manifest frozen",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "No production accounts, paths, workbook, or AI route supplied",
+      "category": "PERMISSION",
+      "criterion_id": "E9-PERMISSION",
+      "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+      "evidence_path": "docs/production/g10-permission-authority-review.md",
+      "next_action": "Provide permission evidence or remove capability",
+      "owner": "Client/Platform Owner",
+      "requirement": "Production permissions for enabled capabilities",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "Production environment evidence absent",
+      "category": "SECURITY",
+      "criterion_id": "E9-SECURITY",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-security-data-review.md",
+      "next_action": "Complete production security review",
+      "owner": "Security Owner",
+      "requirement": "Production secrets, data, access, retention, incident controls",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "No approved production data location",
+      "category": "DATA",
+      "criterion_id": "E9-DATA",
+      "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+      "evidence_path": "docs/production/g10-security-data-review.md",
+      "next_action": "Approve location/classification/route",
+      "owner": "Data Owner",
+      "requirement": "Approved data locations and AI-route eligibility",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "TEST evidence is not production evidence",
+      "category": "RELIABILITY",
+      "criterion_id": "E9-RELIABILITY",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-reliability-review.md",
+      "next_action": "Run/evidence production-like review",
+      "owner": "Responsible Engineer",
+      "requirement": "Production-like recovery and fail-closed controls",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "Production restore was not run",
+      "category": "RECOVERY",
+      "criterion_id": "E9-RECOVERY",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "artifacts/production/g10-recovery-evidence.json",
+      "next_action": "Provide approved recovery evidence",
+      "owner": "Platform Owner",
+      "requirement": "Backup, restore, safe restart, and rollback evidence",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "Runbooks exist but actual contacts/response are absent",
+      "category": "OPERATIONS",
+      "criterion_id": "E9-OPERATIONS",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-operations-review.md",
+      "next_action": "Name owners and validate support",
+      "owner": "Operations Owner",
+      "requirement": "Runbooks, support, on-call, incident, and daily operations",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "Synthetic rehearsal is not client training",
+      "category": "ADOPTION",
+      "criterion_id": "E9-ADOPTION",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-adoption-review.md",
+      "next_action": "Collect actual training acknowledgements",
+      "owner": "Client Process Owner",
+      "requirement": "Training and human readiness for live users",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "No production identities supplied",
+      "category": "RBAC",
+      "criterion_id": "E9-RBAC",
+      "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+      "evidence_path": "docs/production/g10-rbac-review.md",
+      "next_action": "Complete role assignment review",
+      "owner": "System Administrator",
+      "requirement": "Actual production role assignments and separation",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "Only synthetic stand-ins are evidenced",
+      "category": "TEMPLATES",
+      "criterion_id": "E9-TEMPLATES",
+      "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+      "evidence_path": "docs/production/g10-template-configuration-freeze.md",
+      "next_action": "Approve and hash production versions",
+      "owner": "Configuration Owner",
+      "requirement": "Authoritative production templates/configuration freeze",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "Engineering is disabled in proposed live scope",
+      "category": "ENGINEERING",
+      "criterion_id": "E9-ENGINEERING",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-engineering-review.md",
+      "next_action": "Keep disabled or provide authority evidence",
+      "owner": "Authorized Engineer",
+      "requirement": "Engineering authority, discipline, regulation, and route",
+      "status": "NOT_IN_SCOPE"
+    },
+    {
+      "blocker": "Commercial capabilities are not enabled",
+      "category": "COMMERCIAL",
+      "criterion_id": "E9-COMMERCIAL",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-commercial-contract-review.md",
+      "next_action": "Keep disabled or provide authority evidence",
+      "owner": "Commercial Approver",
+      "requirement": "Commercial approval and client master authority",
+      "status": "NOT_IN_SCOPE"
+    },
+    {
+      "blocker": "No accounting write or payment processing authorized",
+      "category": "FINANCE",
+      "criterion_id": "E9-FINANCE",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-finance-handover-review.md",
+      "next_action": "Keep track/draft/handoff only",
+      "owner": "Finance Owner",
+      "requirement": "Finance/accounting/payment boundaries",
+      "status": "NOT_IN_SCOPE"
+    },
+    {
+      "blocker": "Live telemetry endpoints and contacts absent",
+      "category": "OBSERVABILITY",
+      "criterion_id": "E9-OBSERVABILITY",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-observability-review.md",
+      "next_action": "Validate production observability",
+      "owner": "Operations Owner",
+      "requirement": "Live identifiers, dashboards, logs, and monitoring",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "No approved production candidate defect disposition",
+      "category": "DEFECTS",
+      "criterion_id": "E9-DEFECTS",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "docs/production/g10-defect-disposition.md",
+      "next_action": "Review current candidate defect ledger",
+      "owner": "Responsible Engineer",
+      "requirement": "P0/P1/P2/P3 classified defect ledger",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "No approved candidate supplied",
+      "category": "PILOT",
+      "criterion_id": "E9-PILOT",
+      "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+      "evidence_path": "artifacts/production/live-pilot-candidate.json",
+      "next_action": "Nominate candidate and approve access",
+      "owner": "Client Owner",
+      "requirement": "Approved live pilot candidate and data access",
+      "status": "BLOCKED_EXTERNAL"
+    },
+    {
+      "blocker": "No signed decision evidence exists",
+      "category": "SCOPE",
+      "criterion_id": "E9-DECISION",
+      "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+      "evidence_path": "artifacts/production/g10-formal-decision.json",
+      "next_action": "Conduct formal human G10 review",
+      "owner": "Authorized G10 Decision Makers",
+      "requirement": "Authorized human G10 decision",
+      "status": "G10_NOT_RUN"
+    },
+    {
+      "blocker": "Counters cover this repository run only",
+      "category": "SECURITY",
+      "criterion_id": "E9-SAFETY",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "artifacts/production/g10-zero-tolerance-counters.json",
+      "next_action": "Reconfirm against the exact production candidate",
+      "owner": "Responsible Engineer",
+      "requirement": "E9 zero-tolerance counters remain zero",
+      "status": "PASS_WITH_G10_BOUNDARY"
+    },
+    {
+      "blocker": "Candidate is not approved for production",
+      "category": "SCOPE",
+      "criterion_id": "E9-REGRESSION",
+      "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+      "evidence_path": "artifacts/production/g10-pre-g10-regression-result.json",
+      "next_action": "Re-run against approved release candidate",
+      "owner": "Responsible Engineer",
+      "requirement": "Frozen candidate pre-G10 regression",
+      "status": "PASS_WITH_G10_BOUNDARY"
+    }
+  ]
+}

@@ -1,0 +1,562 @@
+{
+  "active_supported_fields": [
+    {
+      "criticality": "CRITICAL",
+      "field_code": "DRAWING.PROJECT_NUMBER",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "DRAWING.REVISION",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "OWNER.CR_NUMBER",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "OWNER.NAME_AR",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "OWNER.NAME_EN",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "OWNER.QID",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "OWNER.TYPE",
+      "field_type": "CODE",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PERMIT.TYPE",
+      "field_type": "CODE",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PROPERTY.LAND_AREA",
+      "field_type": "NUMBER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PROPERTY.MUNICIPALITY",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "property",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "PROPERTY.PIN",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "PROPERTY.PLOT_NUMBER",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "property",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PROPERTY.ZONE",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "REPRESENTATIVE.FLAG",
+      "field_type": "BOOLEAN",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    }
+  ],
+  "active_supported_grids": [
+    {
+      "columns": [
+        "building_ref",
+        "building_type",
+        "floors",
+        "use"
+      ],
+      "grid_code": "buildings",
+      "identity_rule": "building_ref",
+      "parent_rule": "NONE",
+      "persistence": "PortalGridRowIntent + GridPersistenceEvidence",
+      "reconciliation": "GridReconciliationRun",
+      "rendering": "CONFIGURED_MUNICIPALITY_GRID",
+      "required_fields": [
+        "building_ref",
+        "building_type",
+        "floors",
+        "use"
+      ]
+    },
+    {
+      "columns": [
+        "area",
+        "building_ref",
+        "floor_ref",
+        "floor_type"
+      ],
+      "grid_code": "floors",
+      "identity_rule": "building_ref + floor_ref",
+      "parent_rule": "building_ref",
+      "persistence": "PortalGridRowIntent + GridPersistenceEvidence",
+      "reconciliation": "GridReconciliationRun",
+      "rendering": "CONFIGURED_MUNICIPALITY_GRID",
+      "required_fields": [
+        "area",
+        "building_ref",
+        "floor_ref",
+        "floor_type"
+      ]
+    }
+  ],
+  "client_approved": false,
+  "config_checksum": "22289785290fca3dab57c0b609b5414562706d457d14a36c332ca50ec52645a7",
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "extra_fields": [],
+  "extra_grids": [],
+  "field_counts": {
+    "active_supported": 14,
+    "critical": 6,
+    "dropdowns": 2,
+    "excel_required": 14,
+    "form_required": 14,
+    "human_decision": 0,
+    "matrix": 14,
+    "municipality_required": 14,
+    "portal_derived": 0
+  },
+  "field_matrix_rows": [
+    {
+      "criticality": "CRITICAL",
+      "field_code": "DRAWING.PROJECT_NUMBER",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "DRAWING.REVISION",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "OWNER.CR_NUMBER",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "OWNER.NAME_AR",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "OWNER.NAME_EN",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "OWNER.QID",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "OWNER.TYPE",
+      "field_type": "CODE",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PERMIT.TYPE",
+      "field_type": "CODE",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PROPERTY.LAND_AREA",
+      "field_type": "NUMBER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PROPERTY.MUNICIPALITY",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "property",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "PROPERTY.PIN",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "CRITICAL",
+      "field_code": "PROPERTY.PLOT_NUMBER",
+      "field_type": "IDENTIFIER",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "property",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "PROPERTY.ZONE",
+      "field_type": "STRING",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    },
+    {
+      "criticality": "MAJOR",
+      "field_code": "REPRESENTATIVE.FLAG",
+      "field_type": "BOOLEAN",
+      "rendering_required": true,
+      "requiredness": "CONFIGURED_FIELD",
+      "scenario_id": "DEMO_BUILDING_PERMIT_V1",
+      "source_mode": "OFFICE_SUPPLIED",
+      "tab_section": "configured-domain",
+      "target_system": "SUPPORTED_SCENARIO"
+    }
+  ],
+  "fixture": {
+    "fixture_manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb",
+    "fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "fixture_version": "1.1.1"
+  },
+  "grid_counts": {
+    "active_supported": 2,
+    "matrix": 2
+  },
+  "grid_matrix_rows": [
+    {
+      "columns": [
+        "building_ref",
+        "building_type",
+        "floors",
+        "use"
+      ],
+      "grid_code": "buildings",
+      "identity_rule": "building_ref",
+      "parent_rule": "NONE",
+      "persistence": "PortalGridRowIntent + GridPersistenceEvidence",
+      "reconciliation": "GridReconciliationRun",
+      "rendering": "CONFIGURED_MUNICIPALITY_GRID",
+      "required_fields": [
+        "building_ref",
+        "building_type",
+        "floors",
+        "use"
+      ]
+    },
+    {
+      "columns": [
+        "area",
+        "building_ref",
+        "floor_ref",
+        "floor_type"
+      ],
+      "grid_code": "floors",
+      "identity_rule": "building_ref + floor_ref",
+      "parent_rule": "building_ref",
+      "persistence": "PortalGridRowIntent + GridPersistenceEvidence",
+      "reconciliation": "GridReconciliationRun",
+      "rendering": "CONFIGURED_MUNICIPALITY_GRID",
+      "required_fields": [
+        "area",
+        "building_ref",
+        "floor_ref",
+        "floor_type"
+      ]
+    }
+  ],
+  "missing_fields": [],
+  "missing_grids": [],
+  "rendering": {
+    "coverage_percent": 100,
+    "missing": [],
+    "rows": [
+      {
+        "field_code": "DRAWING.PROJECT_NUMBER",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "DRAWING.REVISION",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "OWNER.CR_NUMBER",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "OWNER.NAME_AR",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "OWNER.NAME_EN",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "OWNER.QID",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "OWNER.TYPE",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "PERMIT.TYPE",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "PROPERTY.LAND_AREA",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "PROPERTY.MUNICIPALITY",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "PROPERTY.PIN",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "PROPERTY.PLOT_NUMBER",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "PROPERTY.ZONE",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      },
+      {
+        "field_code": "REPRESENTATIVE.FLAG",
+        "missing_targets": [],
+        "targets": [
+          "EXCEL",
+          "FORM",
+          "MUNICIPALITY"
+        ]
+      }
+    ]
+  },
+  "scenario": {
+    "code": "DEMO_BUILDING_PERMIT_V1",
+    "version": "DEMO_BUILDING_PERMIT_V1.0"
+  },
+  "status": "PASS"
+}

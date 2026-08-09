@@ -1,0 +1,16 @@
+{
+  "about": "PASS at 390px English and Arabic",
+  "blocker": "PCQ-P2-001",
+  "operational_routes": "PARTIAL; current browser suite does not cover required full viewport matrix",
+  "overflow_findings": 0,
+  "status": "PARTIAL",
+  "tested_viewports": [
+    390
+  ],
+  "viewports": [
+    1440,
+    1280,
+    768,
+    390
+  ]
+}

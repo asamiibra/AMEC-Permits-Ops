@@ -1,0 +1,17 @@
+{
+  "blocker": "PCQ-P2-001",
+  "not_run": [
+    "axe/full scan",
+    "modal focus trap across all consequential modals",
+    "all primary operational routes",
+    "color contrast review"
+  ],
+  "smoke": [
+    "named headings",
+    "language group",
+    "button names",
+    "pressed state",
+    "keyboard-oriented locator coverage"
+  ],
+  "status": "PARTIAL"
+}

@@ -1,0 +1,7 @@
+{
+  "document_dir": "rtl",
+  "document_lang": "ar-EG",
+  "ltr_isolation": "bdi/dir=ltr present for identifiers and technical terms",
+  "routes": 10,
+  "status": "PASS_FOR_EXERCISED_ROUTES"
+}

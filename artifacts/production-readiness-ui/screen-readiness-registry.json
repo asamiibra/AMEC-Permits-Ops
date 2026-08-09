@@ -1,0 +1,10 @@
+{
+  "source": "frontend/src/ProductionReadiness.tsx#screenReadinessRegistry",
+  "drawerTitle": "Inputs & Go-Live",
+  "drawerSections": ["What this screen uses", "What this screen produces", "What we need from AMEC"],
+  "consolidatedView": "Go-Live Setup",
+  "contract": ["screenId", "pageKey", "routePatterns", "title", "purpose", "runtimeInputs", "runtimeOutputs", "customerRequirementIds", "implementationStatus", "roleContext"],
+  "screenCount": 49,
+  "allScreensHavePurposeInputsOutputsAndRequirementRefs": true,
+  "allRouteEntriesResolveToRenderedAppPages": true
+}

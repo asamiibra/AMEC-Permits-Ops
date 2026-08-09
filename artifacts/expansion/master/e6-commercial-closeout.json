@@ -1,0 +1,16 @@
+{
+  "assertion_count": 28,
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "labels": [
+    "E6_FINANCE_INVOICE_HANDOVER_READY",
+    "COMMERCIAL_CLOSEOUT_GOLDEN_PATH_PASS",
+    "E6_COMMERCIAL_CLOSEOUT_COMPLETE"
+  ],
+  "real_external_actions": false,
+  "real_side_effects": false,
+  "result": "PASS",
+  "scenario": "Contract milestone \u2192 human invoice decision \u2192 draft/render \u2192 finance handoff \u2192 issue evidence \u2192 follow-up \u2192 bounded handover \u2192 human release",
+  "status": "PASS",
+  "synthetic_only": true
+}

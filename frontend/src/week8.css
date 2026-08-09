@@ -1,0 +1,12 @@
+.week8-page { max-width: 1440px; margin: 0 auto; }
+.week8-page .page-intro { display:flex; justify-content:space-between; gap:24px; align-items:end; }
+.week8-page .page-intro select { min-width:260px; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+.week8-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
+.week8-row, .lineage-row, .validity-row { border-top:1px solid var(--line); padding:12px 0; display:flex; justify-content:space-between; gap:16px; align-items:center; }
+.week8-row small, .week8-row p, .validity-row small { display:block; color:var(--muted); margin-top:5px; }
+.lineage-row span { display:flex; flex-direction:column; gap:4px; font-size:12px; }
+.lineage-row b { color:var(--teal); }
+.validity-panel { margin-top:18px; }
+.validity-columns { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.corpus-result { margin-top:18px; }
+@media (max-width: 900px) { .week8-grid, .validity-columns { grid-template-columns:1fr; } .week8-page .page-intro { align-items:stretch; flex-direction:column; } }

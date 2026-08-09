@@ -1,0 +1,46 @@
+{
+  "checks": {
+    "a12_count": true,
+    "a12b_count": true,
+    "a15_count": true,
+    "assistant_ids": true,
+    "manifest_hash": true,
+    "no_prohibited_content": true,
+    "predecessor": true,
+    "required_source_families": true,
+    "resource_exists": true,
+    "safe_regulation": true,
+    "seeded_capabilities": true,
+    "seeded_opportunity": true,
+    "seeded_resources": true,
+    "synthetic_only": true,
+    "three_scenarios": true
+  },
+  "fixture": {
+    "fixture_manifest_hash": "b91e8377a06ffa96733a66361b3228b1114c7f4a7a687a198cce65fc22d436b7",
+    "fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "fixture_version": "1.2.0",
+    "predecessor": {
+      "manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb",
+      "name": "PermitOps_Synthetic_MVP_Dataset_v1",
+      "version": "1.1.1"
+    }
+  },
+  "scenarios": [
+    "EXPANSION_A_HAPPY_UPSTREAM_HANDOFF",
+    "EXPANSION_B_MISSING_EXPIRED_DOCUMENT",
+    "EXPANSION_C_ENGINEERING_REVIEW_FOUNDATION"
+  ],
+  "source_families": [
+    "BD_COMMERCIAL",
+    "CONTRACT_ADMIN",
+    "PROJECT_REFERENCE",
+    "ENGINEERING",
+    "FINANCE",
+    "HANDOVER",
+    "COMMUNICATION",
+    "PERMIT_CORE"
+  ],
+  "status": "PASS",
+  "synthetic_only": true
+}

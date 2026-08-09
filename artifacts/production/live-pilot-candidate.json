@@ -1,0 +1,15 @@
+{
+  "authorized_users": [],
+  "client_or_account": null,
+  "data_access_approval": null,
+  "evidence_class": "MISSING_EXTERNAL_EVIDENCE",
+  "expected_start_window": null,
+  "fallback_manual_process": "Use the approved manual business process; do not begin PermitOps live work.",
+  "permit_or_application_type": null,
+  "production_source_locations": [],
+  "project_or_opportunity_reference": null,
+  "risk_classification": null,
+  "sensitive_values_included": false,
+  "status": "NO_APPROVED_CANDIDATE",
+  "supported_scenario_match": null
+}

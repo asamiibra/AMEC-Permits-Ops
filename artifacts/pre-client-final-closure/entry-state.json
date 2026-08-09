@@ -1,0 +1,10 @@
+{
+  "database": "PostgreSQL 16",
+  "environment": "SYNTHETIC TEST / DEVELOPMENT",
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "fixture": "PermitOps_Synthetic_MVP_Dataset_v1",
+  "generated_at": "2026-08-08T20:47:40.699477+00:00",
+  "known_blockers": 4,
+  "repository_revision": "UNVERSIONED_WORKSPACE",
+  "starting_gate": "NOT_READY_FOR_OWNER_CLIENT_MVP_TEST"
+}

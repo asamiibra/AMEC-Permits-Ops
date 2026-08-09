@@ -1,0 +1,13 @@
+{
+  "all_zero": true,
+  "boundary": "Synthetic-only; human Municipality submission remains outside product capability.",
+  "counters": {
+    "critical_ui_control_unreachable": 0,
+    "cross_project_data_leak": 0,
+    "machine_final_submission": 0,
+    "real_payment_processing": 0,
+    "stored_password_or_otp": 0,
+    "unauthorized_government_write": 0
+  },
+  "status": "PASS"
+}

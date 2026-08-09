@@ -1,0 +1,22 @@
+{
+  "blocked_external": 0,
+  "browser_matrix": [
+    "Chromium current"
+  ],
+  "command": "npm run browser-e2e",
+  "edge": "NOT_RUN",
+  "failed": 0,
+  "passed": 105,
+  "skipped_not_applicable": 0,
+  "source": "artifacts/expansion/e8-final-browser-acceptance.json",
+  "status": "PASS_FOR_CURRENT_BROWSER_SUITE",
+  "total_scenarios": 105,
+  "workflow_breakdown": {
+    "Arabic/responsive/About": "About suite and existing Arabic control path",
+    "My Work": "existing workflow-first and E7 coverage",
+    "RBAC/negative": "existing boundary tests plus new role-filter test",
+    "expansion": "existing E3-E8 suites",
+    "global/navigation": "6 new shell scenarios plus existing controls",
+    "permit core": "existing canonical/control-path coverage; seeded backend browser gap remains"
+  }
+}

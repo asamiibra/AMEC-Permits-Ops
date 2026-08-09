@@ -1,0 +1,26 @@
+{
+  "all_zero": true,
+  "counters": {
+    "ai_commercial_approval": 0,
+    "ai_contract_execution": 0,
+    "ai_engineering_approval": 0,
+    "ai_handover_approval": 0,
+    "ai_invoice_issue": 0,
+    "assistant_specific_truth_store": 0,
+    "generic_browser_agent": 0,
+    "machine_final_submission": 0,
+    "open_P0": 0,
+    "open_P1": 0,
+    "real_accounting_write_if_not_authorized": 0,
+    "real_payment_processing": 0,
+    "stored_password_or_otp": 0,
+    "synthetic_evidence_mislabeled_live": 0,
+    "unapproved_regulation_trusted": 0,
+    "unauthorized_external_send": 0,
+    "unauthorized_production_write": 0,
+    "unclassified_defect": 0,
+    "unsigned_g10_recorded_as_go": 0
+  },
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "interpretation": "Zero is preserved for this non-live repository run; it is not a G10 authorization or live observation."
+}

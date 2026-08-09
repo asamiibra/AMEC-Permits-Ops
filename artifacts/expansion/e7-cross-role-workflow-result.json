@@ -1,0 +1,21 @@
+{
+  "assertion_count": 52,
+  "canonical_assistants": [
+    "BD_ASSISTANT",
+    "ADMIN_ASSISTANT",
+    "ENGINEERING_REVIEW_ASSISTANT",
+    "PROJECT_PERMIT_COORDINATION_ASSISTANT"
+  ],
+  "handoff": "EXPLICIT_ACCEPTANCE_AND_AUDIT",
+  "labels": [
+    "E7_UNIFIED_ASSISTANT_EXPERIENCE_READY",
+    "E7_CROSS_ROLE_WORKFLOW_PASS",
+    "READY_FOR_EXPANSION_GATE_E8"
+  ],
+  "mode": "SYNTHETIC_DEMO_AS",
+  "next_action": "DETERMINISTIC",
+  "real_external_actions": false,
+  "result": "PASS",
+  "shared_queue": "WorkflowTask",
+  "timestamp": "2026-08-08T20:14:47.275760+00:00"
+}

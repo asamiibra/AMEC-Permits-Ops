@@ -1,0 +1,46 @@
+{
+  "interpretation": "Current service-level Golden Paths pass; the requested owner/client browser integration condition remains open.",
+  "paths": [
+    {
+      "evidence": "artifacts/expansion/e1-regression-result.json",
+      "name": "Golden Path v1",
+      "status": "PASS"
+    },
+    {
+      "evidence": "artifacts/expansion/e1-regression-result.json",
+      "name": "Golden Path v2",
+      "status": "PASS"
+    },
+    {
+      "evidence": "artifacts/expansion/e3-golden-path-0a-result.json",
+      "name": "Golden Path 0A",
+      "status": "PASS"
+    },
+    {
+      "evidence": "artifacts/expansion/e4-golden-path-0-result.json",
+      "name": "Golden Path 0",
+      "status": "PASS"
+    },
+    {
+      "evidence": "artifacts/expansion/e5-engineering-advisory-golden-path.json",
+      "name": "Engineering Advisory",
+      "status": "PASS"
+    },
+    {
+      "evidence": "artifacts/expansion/e6-commercial-closeout-golden-path.json",
+      "name": "Commercial Closeout",
+      "status": "PASS"
+    },
+    {
+      "evidence": "artifacts/expansion/e7-cross-role-workflow-result.json and artifacts/expansion/e8-expanded-reconciliation.json",
+      "name": "Integrated expanded rehearsal",
+      "status": "PASS_SERVICE_ONLY"
+    },
+    {
+      "evidence": "No current artifact proves this exact run.",
+      "name": "Browser owner rehearsal against seeded TEST backend",
+      "status": "BLOCKED_COVERAGE_GAP"
+    }
+  ],
+  "status": "PASS_SERVICE_PARTIAL_BROWSER"
+}

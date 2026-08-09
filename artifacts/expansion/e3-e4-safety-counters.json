@@ -1,0 +1,20 @@
+{
+  "machine_final_submission": 0,
+  "real_government_writes": 0,
+  "real_email_sends": 0,
+  "real_accounting_writes": 0,
+  "ai_commercial_release": 0,
+  "ai_price_authorization": 0,
+  "ai_payment_term_authorization": 0,
+  "ai_contract_execution": 0,
+  "unapproved_contract_transition": 0,
+  "client_acceptance_revision_mismatch_escape": 0,
+  "stale_quotation_release_escape": 0,
+  "stale_contract_escape": 0,
+  "ambiguous_project_auto_link": 0,
+  "human_owned_excel_overwrite": 0,
+  "assistant_specific_truth_store": 0,
+  "generic_browser_agent": 0,
+  "stored_credentials_or_otp": 0,
+  "all_zero": true
+}

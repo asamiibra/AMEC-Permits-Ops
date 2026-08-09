@@ -1,0 +1,8 @@
+{
+  "source": "frontend/src/App.tsx + frontend/src/ProductionReadiness.tsx",
+  "readinessView": "Go-Live Setup",
+  "coveragePercent": 100,
+  "renderedRouteFamilies": ["/work", "/opportunities", "/engineering-closeout", "/permits", "/reviews", "/issues", "/notifications", "/about", "/admin", "/admin/*", "/permits/:projectId/*"],
+  "undefinedRenderedRoutes": [],
+  "orphanRegistryRoutes": []
+}

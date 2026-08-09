@@ -1,0 +1,8 @@
+{
+  "source": "frontend/src/ProductionReadiness.tsx#customerProductionRequirements",
+  "requirementCount": 38,
+  "userFacingSection": "What we need from AMEC",
+  "statusVocabulary": ["Needed", "Requested", "Provided", "Configured", "Tested", "Ready", "Not Needed"],
+  "categoryVocabulary": ["DATA_SOURCE", "SYSTEM_ACCESS", "PERMISSION", "ROLE", "BUSINESS_RULE", "TEMPLATE", "DATA_MAPPING", "SECURITY_PRIVACY", "REGULATION", "COMMUNICATION", "OPERATING_MODEL", "VOLUME_SCALE", "ACCEPTANCE", "SUPPORT"],
+  "ids": ["PR-BRAND-01", "PR-SUP-01", "PR-SUP-02", "PR-DATA-01", "PR-DATA-02", "PR-DATA-03", "PR-DATA-04", "PR-DATA-05", "PR-ACC-01", "PR-ACC-02", "PR-ACC-03", "PR-ACC-04", "PR-ACC-05", "PR-ID-01", "PR-ID-02", "PR-ID-03", "PR-ID-04", "PR-ID-05", "PR-SEC-01", "PR-RULE-01", "PR-RULE-02", "PR-RULE-03", "PR-RULE-04", "PR-RULE-05", "PR-RULE-06", "PR-TPL-01", "PR-TPL-02", "PR-TPL-03", "PR-MAP-01", "PR-REG-01", "PR-REG-02", "PR-COM-01", "PR-OPS-01", "PR-OPS-02", "PR-OPS-03", "PR-ACCPT-01", "PR-ACCPT-02", "PR-FIN-01"]
+}

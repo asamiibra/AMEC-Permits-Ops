@@ -1,0 +1,16 @@
+{
+  "passed": [
+    "populated",
+    "Arabic/RTL",
+    "role restriction",
+    "persisted save/reopen",
+    "human-submit boundary",
+    "error banner",
+    "render recovery"
+  ],
+  "real_stack_tests": 3,
+  "status": "PARTIAL",
+  "unverified": [
+    "every material route loading/empty/timeout/retry/stale/double-action/recovery combination"
+  ]
+}

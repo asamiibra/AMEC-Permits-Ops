@@ -1,0 +1,18 @@
+{
+  "about": "PASS",
+  "about_labels": [
+    "ABOUT_PERMITOPS_HOME_EXPLAINER_COMPLETE",
+    "ENGLISH_EXPERIENCE_COMPLETE",
+    "AR_EG_EXPERIENCE_COMPLETE",
+    "RTL_BIDI_RENDERING_VERIFIED"
+  ],
+  "bidi_css": "PASS for About bdi[dir=ltr] terms",
+  "blocker": "PCQ-P1-001",
+  "locales": [
+    "en",
+    "ar-EG"
+  ],
+  "operational_routes": "NOT_VERIFIED / no whole-app language switch",
+  "status": "PARTIAL",
+  "visual_screenshot_review": "NOT_RUN"
+}

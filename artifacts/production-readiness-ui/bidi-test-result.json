@@ -1,0 +1,8 @@
+{
+  "locale": "ar-EG",
+  "direction": "rtl",
+  "triggerAccessibleName": "المدخلات والتشغيل",
+  "latinTokenIsolation": "bdi/LtrTerm",
+  "mobileTriggerRetainsAccessibleName": true,
+  "result": "PASS"
+}

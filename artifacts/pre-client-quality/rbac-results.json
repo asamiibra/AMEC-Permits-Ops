@@ -1,0 +1,263 @@
+{
+  "actions": [
+    {
+      "action": "view permit",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "edit project source",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "verify field",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "approve package",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "prepare Municipality draft",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "attended portal action",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "engineering disposition",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "ALLOW",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "ALLOW",
+        "SYSTEM_ADMIN": "DENY"
+      }
+    },
+    {
+      "action": "commercial approval",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "ALLOW",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "DENY"
+      }
+    },
+    {
+      "action": "approve communication for HUMAN_SEND",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "ALLOW_CONFIGURED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "ALLOW_CONFIGURED"
+      }
+    },
+    {
+      "action": "finance handoff",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "ALLOW",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "DENY"
+      }
+    },
+    {
+      "action": "handover approval",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "ALLOW",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "DENY"
+      }
+    },
+    {
+      "action": "final human submit handoff",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "ALLOW_HANDOFF",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "DENY_BY_BOUNDARY",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "DENY_BY_BOUNDARY"
+      }
+    },
+    {
+      "action": "close authority Finding",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "change configuration",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    },
+    {
+      "action": "view audit",
+      "evidence_status": "PARTIAL",
+      "roles": {
+        "AUTHORIZED_ENGINEER": "UNVERIFIED",
+        "COMMERCIAL_APPROVER": "UNVERIFIED",
+        "DATA_VERIFIER": "UNVERIFIED",
+        "FINAL_SUBMITTER": "UNVERIFIED",
+        "FINANCE_ACCOUNTANT": "UNVERIFIED",
+        "PACKAGE_APPROVER": "UNVERIFIED",
+        "PERMIT_PREPARER": "UNVERIFIED",
+        "PROJECT_OWNER": "UNVERIFIED",
+        "RESPONSIBLE_ENGINEER": "UNVERIFIED",
+        "SYSTEM_ADMIN": "UNVERIFIED"
+      }
+    }
+  ],
+  "direct_api_negative_checks": "PARTIAL; role-specific backend tests exist, but not every candidate action has a dedicated unauthorized API assertion",
+  "roles": [
+    "PERMIT_PREPARER",
+    "DATA_VERIFIER",
+    "RESPONSIBLE_ENGINEER",
+    "PACKAGE_APPROVER",
+    "FINAL_SUBMITTER",
+    "SYSTEM_ADMIN",
+    "AUTHORIZED_ENGINEER",
+    "COMMERCIAL_APPROVER",
+    "FINANCE_ACCOUNTANT",
+    "PROJECT_OWNER"
+  ],
+  "source": [
+    "backend/tests/test_e7_e8_unified_acceptance.py",
+    "backend/tests/test_e5_e6_bounded_workflows.py",
+    "backend/app/expansion/execution.py"
+  ],
+  "status": "PARTIAL"
+}

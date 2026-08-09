@@ -1,0 +1,12 @@
+{
+  "expected": 36,
+  "horizontal_overflow_files": [],
+  "human_review": "PASS_WITH_ARABIC_RESIDUAL_COPY_BLOCKER",
+  "locales": [
+    "en",
+    "ar-EG"
+  ],
+  "routes": 18,
+  "screenshots": 36,
+  "status": "PASS_FOR_REVIEWED_SET"
+}

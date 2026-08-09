@@ -1,0 +1,382 @@
+{
+  "material_candidates": 37,
+  "risk_counts": {
+    "Risk A": 8,
+    "Risk B": 29
+  },
+  "rows": [
+    {
+      "element": "select",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/App.tsx",
+      "id": "App:86:4",
+      "line": 86,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<select value={role} onChange={(event) =>"
+    },
+    {
+      "element": "input",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/App.tsx",
+      "id": "App:92:9",
+      "line": 92,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<input placeholder=\"Filter projects\"/>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/App.tsx",
+      "id": "App:101:18",
+      "line": 101,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-primary\" onClick={add}>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/EngineeringCloseout.tsx",
+      "id": "EngineeringCloseout:16:1",
+      "line": 16,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select aria-label=\"Project context\" value={projectId} onChange={e =>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:196:1",
+      "line": 196,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<button className={`readiness-trigger ${unresolved ? \"has-unresolved\" : \"validated\"}`} onClick={() =>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:197:3",
+      "line": 197,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<button className=\"readiness-close\" onClick={() =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:207:6",
+      "line": 207,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={filter} onChange={(event) =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:207:7",
+      "line": 207,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={category} onChange={(event) =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/UnifiedWork.tsx",
+      "id": "UnifiedWork:24:1",
+      "line": 24,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select aria-label=\"Assistant lens\" className=\"unified-filter\" value={assistant} onChange={e =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/UnifiedWork.tsx",
+      "id": "UnifiedWork:24:2",
+      "line": 24,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<select aria-label=\"Queue owner\" className=\"unified-filter\" value={role} onChange={e =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:18:1",
+      "line": 18,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={state.project?.id||\"\"} onChange={e=>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:24:2",
+      "line": 24,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className={selected?.id===doc.id?\"doc-row selected\":\"doc-row\"} key={doc.id} onClick={()=>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:5",
+      "line": 38,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={manualField} onChange={e=>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:15",
+      "line": 67,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={form.application_id} onChange={e=>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:16",
+      "line": 67,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={form.visible_status} onChange={e=>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:19",
+      "line": 67,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<button className=\"button-primary\" onClick={save}>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:1",
+      "line": 20,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className={selected?.id===item.id?\"w3-case selected\":\"w3-case\"} key={item.id} onClick={()=>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:2",
+      "line": 20,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={correction||selected.expected_class||\"\"} onChange={e=>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:32:14",
+      "line": 32,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-primary\" onClick={add} disabled={!title}>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:40:19",
+      "line": 40,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<button className=\"button-secondary\" onClick={approve}>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:29:1",
+      "line": 29,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={projectId} onChange={e =>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:29:3",
+      "line": 29,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<button className=\"button-secondary\" onClick={approveEvidence}>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:43:6",
+      "line": 43,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={projectId} onChange={e =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:36:3",
+      "line": 36,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={filter} onChange={e =>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:36:4",
+      "line": 36,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className={`week7-finding-row ${selected?.id === f.id ? \"selected\" : \"\"}`} key={f.id} onClick={() =>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:37:5",
+      "line": 37,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-secondary\" disabled={!selectedTask} onClick={() =>"
+    },
+    {
+      "element": "button",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:37:6",
+      "line": 37,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-secondary\" disabled={!selectedTask} onClick={() =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week8.tsx",
+      "id": "Week8:14:1",
+      "line": 14,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={selected} onChange={e =>"
+    },
+    {
+      "element": "select",
+      "evidence": "existing-browser-or-service",
+      "file": "frontend/src/Week9.tsx",
+      "id": "Week9:13:1",
+      "line": 13,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<select value={projectId} onChange={e =>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:108:2",
+      "line": 108,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-primary\" onClick={onOpen}>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:119:3",
+      "line": 119,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-primary\" onClick={openAbout}>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:129:7",
+      "line": 129,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-secondary\" onClick={onOpen}>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:8",
+      "line": 136,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className={filter === \"ALL\" ? \"filter active\" : \"filter\"} onClick={() =>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:9",
+      "line": 136,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className={filter === \"RETURNED\" ? \"filter active\" : \"filter\"} onClick={() =>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:10",
+      "line": 136,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className={filter === \"REVIEW\" ? \"filter active\" : \"filter\"} onClick={() =>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:11",
+      "line": 136,
+      "material": true,
+      "risk": "Risk A",
+      "snippet": "<button className={filter === \"CLOSED\" ? \"filter active\" : \"filter\"} onClick={() =>"
+    },
+    {
+      "element": "button",
+      "evidence": "real-seeded-browser",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:183:18",
+      "line": 183,
+      "material": true,
+      "risk": "Risk B",
+      "snippet": "<button className=\"button-primary\" onClick={onOpen}>"
+    }
+  ],
+  "status": "PARTIAL",
+  "total_source_controls": 130,
+  "uncovered_reason": "No 100% browser proof for all legacy/expansion controls and state combinations."
+}

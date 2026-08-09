@@ -1,0 +1,123 @@
+{
+  "browser_acceptance": "PASS",
+  "candidate_build_approved": false,
+  "candidate_build_hash": "60eb021e340c63fe16b16d0501b9d1b8c7c9827448d9db5fcd291e90b5d61557",
+  "commands": [
+    {
+      "label": "SQLite migration",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "PostgreSQL migration",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "PostgreSQL clean synthetic seed",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "permit-core SQLite regression",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "full SQLite regression",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "PostgreSQL regression",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "expanded fixture check",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "canonical permit fixture",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Golden Path v1",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Golden Path v2",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Weeks 13-14 acceptance rehearsal",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "E3/E4 Golden Path 0",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "E5/E6 bounded Golden Paths",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "E5/E6 focused contract tests",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "E7/E8 unified acceptance",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "E7/E8 focused contract tests",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "frontend component tests",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "frontend production build",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "browser E2E",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "registry and safety",
+      "returncode": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Alembic head",
+      "returncode": 0,
+      "status": "PASS"
+    }
+  ],
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "fixture": {
+    "manifest_hash": "b91e8377a06ffa96733a66361b3228b1114c7f4a7a687a198cce65fc22d436b7",
+    "synthetic_only": true,
+    "version": "1.2.0"
+  },
+  "formal_g10": false,
+  "interpretation": "Green pre-G10 regression supports review readiness only; it cannot create a human G10 decision or live authorization.",
+  "live_execution": false,
+  "migration_head": "0021_e7_unified_task_context",
+  "status": "PASS"
+}

@@ -1,0 +1,326 @@
+[
+  {
+    "route": "/work",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/work-en-desktop.png",
+    "width": 1280,
+    "height": 1923,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/work",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/work-ar-desktop.png",
+    "width": 1280,
+    "height": 1874,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/permits",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/permits-en-desktop.png",
+    "width": 1280,
+    "height": 803,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/permits",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/permits-ar-desktop.png",
+    "width": 1280,
+    "height": 733,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/opportunities",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/opportunities-en-desktop.png",
+    "width": 1280,
+    "height": 740,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/opportunities",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/opportunities-ar-desktop.png",
+    "width": 1280,
+    "height": 733,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/engineering-closeout",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/engineering-closeout-en-desktop.png",
+    "width": 1280,
+    "height": 1218,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/engineering-closeout",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/engineering-closeout-ar-desktop.png",
+    "width": 1280,
+    "height": 1203,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/reviews",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/reviews-en-desktop.png",
+    "width": 1280,
+    "height": 740,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/reviews",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/reviews-ar-desktop.png",
+    "width": 1280,
+    "height": 733,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/issues",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/issues-en-desktop.png",
+    "width": 1280,
+    "height": 740,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/issues",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/issues-ar-desktop.png",
+    "width": 1280,
+    "height": 733,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/notifications",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/notifications-en-desktop.png",
+    "width": 1280,
+    "height": 740,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/notifications",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/notifications-ar-desktop.png",
+    "width": 1280,
+    "height": 733,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/about",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/about-en-desktop.png",
+    "width": 1280,
+    "height": 7080,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/about",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/about-ar-desktop.png",
+    "width": 1280,
+    "height": 6849,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/how-permitops-works",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/how-permitops-works-en-desktop.png",
+    "width": 1280,
+    "height": 7080,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/how-permitops-works",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/how-permitops-works-ar-desktop.png",
+    "width": 1280,
+    "height": 6849,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-en-desktop.png",
+    "width": 1280,
+    "height": 827,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-ar-desktop.png",
+    "width": 1280,
+    "height": 803,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/go-live-readiness",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-go-live-readiness-en-desktop.png",
+    "width": 1280,
+    "height": 6179,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/go-live-readiness",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-go-live-readiness-ar-desktop.png",
+    "width": 1280,
+    "height": 5798,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/documents",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-documents-en-desktop.png",
+    "width": 1280,
+    "height": 1449,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/documents",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-documents-ar-desktop.png",
+    "width": 1280,
+    "height": 1427,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/conflicts",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-conflicts-en-desktop.png",
+    "width": 1280,
+    "height": 886,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/conflicts",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-conflicts-ar-desktop.png",
+    "width": 1280,
+    "height": 874,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/lineage",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-lineage-en-desktop.png",
+    "width": 1280,
+    "height": 911,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/lineage",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-lineage-ar-desktop.png",
+    "width": 1280,
+    "height": 880,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/attachments-grids",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-attachments-grids-en-desktop.png",
+    "width": 1280,
+    "height": 2226,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/attachments-grids",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-attachments-grids-ar-desktop.png",
+    "width": 1280,
+    "height": 2194,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/control-diagnostics",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-control-diagnostics-en-desktop.png",
+    "width": 1280,
+    "height": 6426,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/control-diagnostics",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-control-diagnostics-ar-desktop.png",
+    "width": 1280,
+    "height": 6148,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/expansion-foundation",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-expansion-foundation-en-desktop.png",
+    "width": 1280,
+    "height": 884,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/expansion-foundation",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-expansion-foundation-ar-desktop.png",
+    "width": 1280,
+    "height": 850,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/municipality",
+    "locale": "en",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-municipality-en-desktop.png",
+    "width": 1280,
+    "height": 740,
+    "horizontal_overflow": false
+  },
+  {
+    "route": "/admin/municipality",
+    "locale": "ar",
+    "viewport": "desktop",
+    "file": "../artifacts/pre-client-final-closure/screenshots/admin-municipality-ar-desktop.png",
+    "width": 1280,
+    "height": 733,
+    "horizontal_overflow": false
+  }
+]

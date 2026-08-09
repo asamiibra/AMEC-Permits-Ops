@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "foundation_label": "E2_SHARED_RUNTIME_COMPLETE",
+  "note": "Shared synthetic contracts only; downstream business scopes are not selected here.",
+  "downstream": {
+    "E3_BD": ["QUOTATION", "RFQ_FOLLOWUP", "RFQ_INTAKE"],
+    "E4_ADMIN_PROJECT_COORDINATION": ["CONTRACT", "MISSING_DOCUMENT", "MUNICIPALITY_FORM", "PROJECT_STATUS_EXCEL"],
+    "E5_ENGINEERING": ["ENGINEERING_COMMENT", "COMPLIANCE_REFERENCE"],
+    "E6_FINANCE_HANDOVER": ["INVOICE", "HANDOVER", "PAYMENT_FOLLOWUP"]
+  },
+  "all_use_shared_template_render_communication_capability_audit_lineage": true
+}

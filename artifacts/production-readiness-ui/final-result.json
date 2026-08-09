@@ -1,0 +1,17 @@
+{
+  "feature": "Every user-facing screen / runtime input / output / AMEC setup item",
+  "registry": "frontend/src/ProductionReadiness.tsx",
+  "screenCount": 49,
+  "customerRequirementCount": 38,
+  "routeCoveragePercent": 100,
+  "unmappedCustomerAsks": 0,
+  "brandAssetDependency": "OFFICIAL_HIGH_RES_LOGO_REQUIRED_FROM_AMEC",
+  "setupView": "Go-Live Setup",
+  "formalGovernanceOnlyCustomerAsks": 0,
+  "screensWithOldReadinessLanguage": 0,
+  "currentMode": "Synthetic Prototype",
+  "humanOnlyBoundaries": ["Municipality final submission", "Professional engineering decision", "Finance/payment", "Contract review and execution", "External communication send"],
+  "result": "IMPLEMENTED",
+  "tests": {"vitest": "16 passed", "readinessBrowserE2E": "5 passed", "fullFrontendBrowserE2E": "108 passed with --workers=1", "frontendBuild": "passed", "artifactJSON": "valid"},
+  "screenshots": ["artifacts/production-readiness-ui/drawer-en.png", "artifacts/production-readiness-ui/drawer-ar-eg.png", "artifacts/production-readiness-ui/admin-readiness.png", "artifacts/production-readiness-ui/amec-my-work-desktop.png", "artifacts/production-readiness-ui/amec-my-work-mobile.png", "artifacts/production-readiness-ui/amec-about-desktop.png", "artifacts/production-readiness-ui/amec-about-ar-eg-mobile.png", "artifacts/production-readiness-ui/amec-permit-workspace-desktop.png"]
+}

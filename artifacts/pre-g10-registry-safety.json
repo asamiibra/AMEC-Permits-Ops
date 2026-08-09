@@ -1,0 +1,59 @@
+{
+  "registry": {
+    "count": 20,
+    "exact_1_to_20": true,
+    "numbers": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "status": "PASS",
+    "titles_present": true,
+    "unique_numbers": true
+  },
+  "safety": {
+    "counters": {
+      "accepted_attachment_misfiles": 0,
+      "escaped_critical_false_accepts": 0,
+      "machine_final_submissions": 0,
+      "open_blocker_resubmission_escapes": 0,
+      "silent_readback_mismatch_accepts": 0,
+      "stale_package_final_review_escapes": 0,
+      "stale_precheck_final_review_escapes": 0,
+      "stored_otp_password_secrets": 0,
+      "synthetic_evidence_mislabeled_client_or_live": 0,
+      "trusted_parses_after_detected_drift": 0,
+      "unauthorized_production_reads": 0,
+      "unauthorized_production_writes": 0,
+      "unauthorized_professional_closures": 0,
+      "wrong_application_consequential_actions": 0
+    },
+    "false_positive_terms": [
+      "payment plan in draft Sign-off C",
+      "human submission confirmation/handoff",
+      "MFA metadata-only controls"
+    ],
+    "forbidden_routes": [],
+    "machine_final_submit_capability": "ABSENT",
+    "secret_hits": [],
+    "source_hits": [],
+    "status": "PASS"
+  }
+}

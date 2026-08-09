@@ -1,0 +1,46 @@
+{
+  "accessibility": [
+    "heading structure",
+    "language control pressed state",
+    "named language group",
+    "CTA keyboard targets"
+  ],
+  "assertion_count": 19,
+  "bidi": {
+    "css": "direction:ltr; unicode-bidi:isolate",
+    "registered_terms": "bdi[dir=ltr]",
+    "unisolated_terms": 0
+  },
+  "browser_test_file": "frontend/browser-e2e/about-explainer.spec.ts",
+  "direction": {
+    "ar-EG": "rtl",
+    "en": "ltr"
+  },
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "labels": [
+    "ABOUT_PERMITOPS_HOME_EXPLAINER_COMPLETE",
+    "ENGLISH_EXPERIENCE_COMPLETE",
+    "AR_EG_EXPERIENCE_COMPLETE",
+    "RTL_BIDI_RENDERING_VERIFIED"
+  ],
+  "locales": [
+    "en",
+    "ar-EG"
+  ],
+  "real_side_effects": false,
+  "responsive": [
+    "desktop",
+    "mobile 390px",
+    "mobile Arabic 390px"
+  ],
+  "status": "PASS",
+  "visuals": [
+    "8-stage lifecycle",
+    "correction loop",
+    "source-to-output flow",
+    "architecture",
+    "AI versus human",
+    "broader AMEC flow"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "browser": {
+    "blocked_external": 0,
+    "browser_matrix": [
+      "Chromium current"
+    ],
+    "command": "npm run browser-e2e",
+    "edge": "NOT_RUN",
+    "failed": 0,
+    "passed": 105,
+    "skipped_not_applicable": 0,
+    "source": "artifacts/expansion/e8-final-browser-acceptance.json",
+    "status": "PASS_FOR_CURRENT_BROWSER_SUITE",
+    "total_scenarios": 105,
+    "workflow_breakdown": {
+      "Arabic/responsive/About": "About suite and existing Arabic control path",
+      "My Work": "existing workflow-first and E7 coverage",
+      "RBAC/negative": "existing boundary tests plus new role-filter test",
+      "expansion": "existing E3-E8 suites",
+      "global/navigation": "6 new shell scenarios plus existing controls",
+      "permit core": "existing canonical/control-path coverage; seeded backend browser gap remains"
+    }
+  },
+  "build": {
+    "label": "frontend production build",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "\n> permitops-web@0.1.0 build\n> tsc -b && vite build\n\nvite v8.2.1 building client environment for production...\n\u001b[2K\ntransforming...\u2713 45 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.16 kB \u2502 gzip:   0.14 kB\ndist/assets/index-B00VgplW.css   75.82 kB \u2502 gzip:  14.28 kB\ndist/assets/index-BDjB1Gd-.js   481.04 kB \u2502 gzip: 128.73 kB\n\n\u2713 built in 78ms\n"
+  },
+  "component_tests": {
+    "label": "frontend component tests",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "\n> permitops-web@0.1.0 test\n> vitest --run\n\n\n RUN  v4.1.10 /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend\n\n\n Test Files  5 passed (5)\n      Tests  12 passed (12)\n   Start at  15:14:50\n   Duration  1.20s (transform 799ms, setup 648ms, import 1.01s, tests 603ms, environment 2.77s)\n\n"
+  },
+  "new_shell_suite": {
+    "file": "frontend/browser-e2e/pre-client-shell.spec.ts",
+    "scenarios": 6,
+    "status": "PASS"
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,184 @@
+registry: recording_fidelity_requirements_v2_5
+source: Stage 1 v2.5 A12 / Implementation Plan v1.2
+version: 1.0.0
+requirements:
+  - number: 1
+    canonical_title: "Project-start trigger → project number → standard Synology project/template creation"
+    canonical_description: "A configured trigger produces a unique project identity and standard project/template structure."
+    scheduled_weeks: "foundation / close by W4 entry"
+    completion_evidence_definition: "Trigger, reservation, project, Synology bootstrap, and audit chain are linked."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/app/models/week4_entities.py, backend/app/api/reconciliation_routers.py, backend/app/seed/cli.py]
+    tests: [backend/tests/test_week4_reconciliation.py, backend/scripts/golden_path_v1.py]
+    remaining_hardening_week: null
+  - number: 2
+    canonical_title: "One canonical synthetic fixture universe"
+    canonical_description: "All integration and golden-path evidence uses one versioned synthetic fixture authority."
+    scheduled_weeks: "W4 entry then continuous"
+    completion_evidence_definition: "One active authority, manifest hash, canonical IDs, links, and invariant check pass."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/app/fixtures/canonical.py, backend/app/models/week4_entities.py, backend/scripts/canonical_fixture_check.py]
+    tests: [backend/tests/test_integrity_reconciliation.py]
+    remaining_hardening_week: null
+  - number: 3
+    canonical_title: "Synology ↔ PermitOps ↔ Excel operating loop"
+    canonical_description: "Canonical project truth is linked to mock Synology and controlled Excel projection."
+    scheduled_weeks: "W4, exercised W6"
+    completion_evidence_definition: "Project, Synology root, workbook row, and safe projection are linked and auditable."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/app/services/canonical_workbook.py, backend/app/api/reconciliation_routers.py]
+    tests: [backend/tests/test_week4_reconciliation.py, backend/scripts/canonical_fixture_check.py]
+    remaining_hardening_week: null
+  - number: 4
+    canonical_title: "Recording-derived Excel structure"
+    canonical_description: "Required tabs, row identity, ownership boundaries, and system projection are explicit."
+    scheduled_weeks: "W4 entry / W4"
+    completion_evidence_definition: "Workbook contract and human-owned-cell protection pass."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/app/services/canonical_workbook.py, docs/reconciliation/excel-ownership-matrix.md]
+    tests: [backend/tests/test_week4_reconciliation.py]
+    remaining_hardening_week: null
+  - number: 5
+    canonical_title: "Multi-owner/property/representation semantics"
+    canonical_description: "Ownership shares, property identity, and representative authority remain distinct."
+    scheduled_weeks: "foundation / W4"
+    completion_evidence_definition: "Two owners sum to one, representation is separate, and source evidence is retained."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/app/models/week4_entities.py, docs/reconciliation/multi-owner-domain-validation.md]
+    tests: [backend/tests/test_week4_reconciliation.py, backend/tests/test_week45.py]
+    remaining_hardening_week: null
+  - number: 6
+    canonical_title: "Forms and undertakings generated from verified facts"
+    canonical_description: "Form outputs are rendered from current VerifiedAssertions and retain truth/output hashes."
+    scheduled_weeks: "W4, demo W6"
+    completion_evidence_definition: "Rendered form records source assertions, template version, rendering versions, and hash."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/app/api/week45_routers.py, backend/app/models/week45_entities.py]
+    tests: [backend/tests/test_week45.py, backend/scripts/golden_path_v1.py]
+    remaining_hardening_week: null
+  - number: 7
+    canonical_title: "Target rendering rules"
+    canonical_description: "Target-specific form, Excel, and municipality presentation remains separate from canonical truth."
+    scheduled_weeks: "critical W4–5, edges W12"
+    completion_evidence_definition: "Versioned target render rules drive distinct output targets without changing semantic truth."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/models/week4_entities.py, backend/app/services/rendering.py]
+    tests: [backend/tests/test_week4_reconciliation.py, backend/tests/test_week45.py]
+    remaining_hardening_week: 12
+  - number: 8
+    canonical_title: "Minimum package definition + readiness + locked manifest"
+    canonical_description: "Package eligibility, exact approved versions, and approval immutability are deterministic."
+    scheduled_weeks: "foundation W4, staleness W8, hardening W9–10"
+    completion_evidence_definition: "BLOCKED/READY evaluation, exact manifest hash, human approval, and stale invalidation are evidenced."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/services/week45.py, backend/app/models/week45_entities.py, backend/app/services/week8.py]
+    tests: [backend/tests/test_week45.py, backend/tests/test_week8.py]
+    remaining_hardening_week: 9
+  - number: 9
+    canonical_title: "Internal human review gates"
+    canonical_description: "Required verification and technical review approvals are attributable and role-scoped."
+    scheduled_weeks: "W4–W6"
+    completion_evidence_definition: "Package approval cannot proceed without the configured human gates."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/app/api/week45_routers.py, backend/app/models/week45_entities.py]
+    tests: [backend/tests/test_week45.py, backend/scripts/golden_path_v1.py]
+    remaining_hardening_week: null
+  - number: 10
+    canonical_title: "Assisted municipality operator surface"
+    canonical_description: "Portal-ordered preparation is attended and evidence-backed."
+    scheduled_weeks: "W5, optimize W11–12"
+    completion_evidence_definition: "Fields, dropdowns, grids, attachments, save/reopen, and visible human handoff are present."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [frontend/src/Week45.tsx, backend/app/api/week45_routers.py]
+    tests: [backend/tests/test_week45.py, backend/scripts/golden_path_v1.py]
+    remaining_hardening_week: 11
+  - number: 11
+    canonical_title: "Complete synthetic portal-preparation chain"
+    canonical_description: "The full synthetic preparation and reconciliation chain is explicit without official portal writes."
+    scheduled_weeks: "W5–W6, harden W9/W12"
+    completion_evidence_definition: "Intended state, observed snapshot, mismatch correction, and MATCH are recorded."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/models/week45_entities.py, backend/app/api/week45_routers.py]
+    tests: [backend/tests/test_week45.py, backend/scripts/golden_path_v1.py]
+    remaining_hardening_week: 9
+  - number: 12
+    canonical_title: "Human submission handoff + authority-state confirmation"
+    canonical_description: "Final Submitter handoff and evidence-backed status confirmation are human-owned."
+    scheduled_weeks: "W5–W6, runbook W12, live proof W16"
+    completion_evidence_definition: "Handoff explicitly requires a Final Submitter and contains no machine submission operation."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/api/week45_routers.py, docs/week-4-5/submission-handoff-contract.md]
+    tests: [backend/tests/test_week45.py, backend/tests/test_integrity_reconciliation.py]
+    remaining_hardening_week: 12
+  - number: 13
+    canonical_title: "Status/repetition/comment monitoring"
+    canonical_description: "Read-only status and comment monitoring is a later controlled capability."
+    scheduled_weeks: "W11, runbook W13"
+    completion_evidence_definition: "No scheduled polling is claimed through Week 8."
+    current_status: SCHEDULED_LATER
+    implementation_artifacts: [docs/week-7/week7-delivery-report.md]
+    tests: [backend/tests/test_week7.py]
+    remaining_hardening_week: 11
+  - number: 14
+    canonical_title: "Finding lifecycle and resubmission gate"
+    canonical_description: "Finding ownership and blocking visibility are implemented; closure/resubmission remains later."
+    scheduled_weeks: "core W7, closure/resubmission W10"
+    completion_evidence_definition: "Blocking Finding → owner → task → notification is durable; no silent close exists."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/models/week7_entities.py, backend/app/services/week7.py]
+    tests: [backend/tests/test_week7.py]
+    remaining_hardening_week: 10
+  - number: 15
+    canonical_title: "Notification delivery"
+    canonical_description: "Notification outbox and failure/retry evidence are durable."
+    scheduled_weeks: "W7, tune W11"
+    completion_evidence_definition: "Delivered and failed/retried notification states remain visible and linked to the Finding."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/services/week7.py, backend/app/models/week7_entities.py]
+    tests: [backend/tests/test_week7.py]
+    remaining_hardening_week: 11
+  - number: 16
+    canonical_title: "Historical finding reuse / recurrence prevention"
+    canonical_description: "Historical reuse and recurrence analytics are deliberately later work."
+    scheduled_weeks: "foundation W10, recurrence analysis W13"
+    completion_evidence_definition: "No recurrence analytics or automatic reuse is claimed through Week 8."
+    current_status: SCHEDULED_LATER
+    implementation_artifacts: [docs/week-7/week7-delivery-report.md]
+    tests: []
+    remaining_hardening_week: 10
+  - number: 17
+    canonical_title: "Authority AI/precheck correction loop"
+    canonical_description: "Precheck evidence is revision-bound and produces controlled human findings."
+    scheduled_weeks: "capture W5–6, finding W7, closure loop W10"
+    completion_evidence_definition: "Precheck run binds to PreparationRevision and routes findings without auto-closure."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/api/week45_routers.py, backend/app/services/week7.py]
+    tests: [backend/tests/test_week7.py, backend/tests/test_week8.py]
+    remaining_hardening_week: 10
+  - number: 18
+    canonical_title: "Attended authentication and role handoff"
+    canonical_description: "MFA/session state is represented without OTP storage and Final Submitter handoff is explicit."
+    scheduled_weeks: "foundation W5–6, validate W12, optional takeover W13"
+    completion_evidence_definition: "Attendance/session metadata and role-separated handoff are retained."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/models/week45_entities.py, docs/week-4-5/mfa-attended-session-contract.md]
+    tests: [backend/tests/test_week45.py]
+    remaining_hardening_week: 12
+  - number: 19
+    canonical_title: "Complete attachment behavior"
+    canonical_description: "The Week 4–8 base attachment taxonomy/checklist is present; later hardening remains scheduled."
+    scheduled_weeks: "base W4–5, primary W9, edges W12"
+    completion_evidence_definition: "Attachment categories, exact versions, checklist state, and persistence evidence are represented."
+    current_status: FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED
+    implementation_artifacts: [backend/app/models/week45_entities.py, backend/app/models/week9_entities.py]
+    tests: [backend/tests/test_week45.py, backend/tests/test_week9.py]
+    remaining_hardening_week: 9
+  - number: 20
+    canonical_title: "One canonical end-to-end golden path"
+    canonical_description: "One coherent canonical fixture drives the accepted Week 6 v1 chain and later continuity evidence."
+    scheduled_weeks: "W6 v1, W10 v2, W14 rehearsal, W16–18 live"
+    completion_evidence_definition: "Repeatable Golden Path v1 reports canonical identity/hash and all required Week 6 evidence IDs."
+    current_status: COMPLETE_AT_WEEK8_DEPTH
+    implementation_artifacts: [backend/scripts/golden_path_v1.py, docs/week-6/golden-path-v1-report.md]
+    tests: [backend/scripts/golden_path_v1.py, backend/tests/test_integrity_reconciliation.py]
+    remaining_hardening_week: 10

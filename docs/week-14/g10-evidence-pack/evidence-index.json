@@ -1,0 +1,11 @@
+{
+  "evidence_class_boundary": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "formal_g10": false,
+  "items": [
+    {"criterion_id":"G10-PERMISSION","category":"PERMISSION_AUTHORITY","evidence_path":"docs/week-14/g10-evidence-pack/permission-authority.md","status":"READY_WITH_CONDITION"},
+    {"criterion_id":"G10-SECURITY","category":"SECURITY_DATA","evidence_path":"docs/week-14/g10-evidence-pack/security-data.md","status":"BLOCKED_EXTERNAL"},
+    {"criterion_id":"G10-RELIABILITY","category":"RELIABILITY","evidence_path":"docs/week-14/g10-evidence-pack/reliability.md","status":"READY_WITH_CONDITION"},
+    {"criterion_id":"G10-OPERATIONS","category":"OPERATIONS","evidence_path":"docs/week-14/g10-evidence-pack/operations.md","status":"READY"},
+    {"criterion_id":"G10-ADOPTION","category":"ADOPTION","evidence_path":"docs/week-14/g10-evidence-pack/adoption.md","status":"READY_WITH_CONDITION"}
+  ]
+}

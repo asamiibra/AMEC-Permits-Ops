@@ -1,0 +1,1164 @@
+{
+  "canonical_a12_requirements": [
+    {
+      "id": "A12-01",
+      "requirement": "Project-start trigger \u2192 project number \u2192 standard Synology project/template creation",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    },
+    {
+      "id": "A12-02",
+      "requirement": "One canonical synthetic fixture universe",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    },
+    {
+      "id": "A12-03",
+      "requirement": "Synology \u2194 PermitOps \u2194 Excel operating loop",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    },
+    {
+      "id": "A12-04",
+      "requirement": "Recording-derived Excel structure",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    },
+    {
+      "id": "A12-05",
+      "requirement": "Multi-owner/property/representation semantics",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    },
+    {
+      "id": "A12-06",
+      "requirement": "Forms and undertakings generated from verified facts",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    },
+    {
+      "id": "A12-07",
+      "requirement": "Target rendering rules",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-08",
+      "requirement": "Minimum package definition + readiness + locked manifest",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-09",
+      "requirement": "Internal human review gates",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    },
+    {
+      "id": "A12-10",
+      "requirement": "Assisted municipality operator surface",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-11",
+      "requirement": "Complete synthetic portal-preparation chain",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-12",
+      "requirement": "Human submission handoff + authority-state confirmation",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-13",
+      "requirement": "Status/repetition/comment monitoring",
+      "status": "SCHEDULED_LATER"
+    },
+    {
+      "id": "A12-14",
+      "requirement": "Finding lifecycle and resubmission gate",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-15",
+      "requirement": "Notification delivery",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-16",
+      "requirement": "Historical finding reuse / recurrence prevention",
+      "status": "SCHEDULED_LATER"
+    },
+    {
+      "id": "A12-17",
+      "requirement": "Authority AI/precheck correction loop",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-18",
+      "requirement": "Attended authentication and role handoff",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-19",
+      "requirement": "Complete attachment behavior",
+      "status": "FOUNDATION_COMPLETE_LATER_HARDENING_SCHEDULED"
+    },
+    {
+      "id": "A12-20",
+      "requirement": "One canonical end-to-end golden path",
+      "status": "COMPLETE_AT_WEEK8_DEPTH"
+    }
+  ],
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "formal_g10_go": false,
+  "image_refinement_count": 14,
+  "labels": [
+    "E8_FINAL_REQUIREMENTS_RECONCILED",
+    "E8_ZERO_TOLERANCE_PASS",
+    "READY_FOR_FORMAL_G10_REVIEW",
+    "NOT_FORMAL_G10_GO"
+  ],
+  "owner_requirement_count": 40,
+  "registry_counts": {
+    "A12": 20,
+    "A12B": 40,
+    "A15": 18
+  },
+  "requirements": [
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-01",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-01",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-02",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-02",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-03",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-03",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-04",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-04",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-05",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-05",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-06",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-06",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-07",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-07",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-08",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-08",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-09",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-09",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-10",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-10",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-11",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-11",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-12",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-12",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-13",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-13",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-14",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-14",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-15",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-15",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-16",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-16",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-17",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-17",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-18",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-18",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-19",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-19",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-20",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-20",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-21",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-21",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-22",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-22",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-23",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-23",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-24",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-24",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-25",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-25",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-26",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-26",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-27",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-27",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-28",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-28",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-29",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-29",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-30",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-30",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-31",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-31",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-32",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-32",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-33",
+      "implementation_depth": "GOVERNANCE_CONTROLLED",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-33",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-34",
+      "implementation_depth": "GOVERNANCE_CONTROLLED",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-34",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-35",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-35",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-36",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-36",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-37",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-37",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-38",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-38",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-39",
+      "implementation_depth": "REQUIREMENT_EXISTS",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-39",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    },
+    {
+      "audit": "shared audit and lineage evidence",
+      "backend_evidence": [
+        "shared WorkflowTask/runtime",
+        "governed capability registry"
+      ],
+      "execution_authority": "PROTOTYPE_DEV_ONLY",
+      "final_status": "PASS_AT_SYNTHETIC_DEPTH",
+      "fixture": "PermitOps_Synthetic_MVP_Dataset_v1@1.2.0",
+      "frontend_evidence": [
+        "My Work / role-aware lens"
+      ],
+      "golden_path": [
+        "integrated expanded rehearsal"
+      ],
+      "id": "OWN-NEW-40",
+      "implementation_depth": "GOVERNANCE_CONTROLLED",
+      "owner_dependency": "Stage 2 / owner approval remains external",
+      "requirement": "Owner-session scope requirement OWN-NEW-40",
+      "safety": "all E2-E8 safety counters zero",
+      "stage2_disposition": "UNDECIDED_STAGE2",
+      "tests": [
+        "focused E7/E8 contract",
+        "full regression"
+      ]
+    }
+  ],
+  "stage2_disposition": "UNDECIDED_STAGE2",
+  "status": "PASS"
+}

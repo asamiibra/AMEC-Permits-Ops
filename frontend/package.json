@@ -1,0 +1,31 @@
+{
+  "name": "permitops-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "test": "vitest",
+    "browser-e2e": "playwright test",
+    "browser-real-stack": "playwright test -c playwright.real-stack.config.ts",
+    "browser-edge": "playwright test -c playwright.edge.config.ts"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.55.0",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "latest",
+    "jsdom": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest",
+    "vitest": "latest"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1"
+  }
+}

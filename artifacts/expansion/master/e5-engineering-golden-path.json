@@ -1,0 +1,16 @@
+{
+  "assertion_count": 22,
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "labels": [
+    "E5_ENGINEERING_REVIEW_ASSISTANT_READY",
+    "ENGINEERING_ADVISORY_GOLDEN_PATH_PASS",
+    "E5_ENGINEERING_ADVISORY_COMPLETE"
+  ],
+  "real_external_actions": false,
+  "real_side_effects": false,
+  "result": "PASS",
+  "scenario": "Drawing V1 \u2192 controlled applicable regulation \u2192 advisory comments \u2192 Authorized Engineer \u2192 sheets \u2192 Drawing V2 \u2192 stale/re-review",
+  "status": "PASS",
+  "synthetic_only": true
+}

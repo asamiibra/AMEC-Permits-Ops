@@ -1,0 +1,21 @@
+{
+  "checks": {
+    "configuration_restore": "PASS_IN_TEST_ONLY",
+    "database_recovery": "PASS_IN_TEST_ONLY",
+    "evidence_recovery": "PASS_IN_TEST_ONLY",
+    "human_takeover": "PASS_IN_SYNTHETIC_REHEARSAL",
+    "kill_switch": "PASS_IN_SYNTHETIC_REHEARSAL",
+    "portal_drift_fallback": "PASS_IN_SYNTHETIC_REHEARSAL",
+    "safe_restart": "PASS_IN_TEST_REHEARSAL",
+    "test_restore": "PASS",
+    "workflow_rollback": "NOT_RUN_IN_PRODUCTION"
+  },
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "formal_g10_restore": false,
+  "limitations": [
+    "No production backup or restore evidence was supplied.",
+    "No destructive database rollback is promised; production change recovery must use a controlled forward fix unless an approved rollback is separately evidenced."
+  ],
+  "production_backup_status": "NOT_PROVIDED",
+  "production_restore_status": "NOT_RUN"
+}

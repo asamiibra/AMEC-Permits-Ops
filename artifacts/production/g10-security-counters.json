@@ -1,0 +1,22 @@
+{
+  "all_zero": true,
+  "counters": {
+    "credentials_in_source_or_fixture": 0,
+    "production_data_processed": 0,
+    "sensitive_secret_in_log": 0,
+    "stored_password_or_otp": 0,
+    "unapproved_ai_route": 0,
+    "unauthorized_production_read": 0,
+    "unauthorized_production_write": 0
+  },
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "interpretation": "Zero synthetic counters do not substitute for production security approval.",
+  "verification": {
+    "approved_data_location": "NOT_PROVIDED",
+    "incident_contacts": "NOT_PROVIDED",
+    "production_access_review": "NOT_PROVIDED",
+    "production_secret_mechanism": "NOT_PROVIDED",
+    "repository_secret_scan": "PASS_FOR_SYNTHETIC_REPOSITORY",
+    "retention_configuration": "NOT_PROVIDED"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "fixture": {
+    "fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "fixture_version": "1.1.1",
+    "fixture_manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb"
+  },
+  "golden_path_v1": "PASS",
+  "canonical_fixture_check": "PASS",
+  "golden_path_v2": "PASS",
+  "browser_e2e": "PASS",
+  "monitoring": {
+    "first": "MATERIAL_CHANGE",
+    "second": "NO_CHANGE",
+    "drift": "DRIFT_DETECTED"
+  },
+  "recurrence": {
+    "finding_count": 6,
+    "first_occurrences": 1,
+    "repeated_open": 1,
+    "recurrence_after_verified_closure": 1,
+    "reopened": 0,
+    "possible_recurrence_review": 0
+  },
+  "preventive_checks": 2,
+  "incident": {
+    "severity": "P1",
+    "hold_applied": true,
+    "impact_entities": 1
+  },
+  "restore": "PASS",
+  "formal_g10_restore": false,
+  "acceptance_run_id": "f0cf3ac1-cc89-4b32-8621-07c005092a5d",
+  "acceptance": "PASS",
+  "acceptance_checks": {
+    "variants": true,
+    "rendering_missing": true,
+    "edge_cases": true,
+    "operator_assistance_required": true,
+    "safety": true
+  },
+  "g10_evidence_items": 5,
+  "production_mode": "ASSISTED",
+  "wave3_decision": "ASSISTED_G10_REVIEW_READY",
+  "machine_final_submit": false,
+  "live_ministry_write": false,
+  "optional_automation_branch": "NOT_AUTHORIZED_NOT_BLOCKING",
+  "client_workflow_approval": "BLOCKED_EXTERNAL"
+}

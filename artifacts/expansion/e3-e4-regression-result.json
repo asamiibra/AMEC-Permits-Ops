@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "focused_e3_e4_assertions": 88,
+  "sqlite_backend": "68 passed",
+  "postgresql_backend": "68 passed",
+  "migration_head": "0019_e3_e4_traceability",
+  "golden_path_0a": "PASS",
+  "golden_path_0": "PASS",
+  "golden_path_v1": "PASS",
+  "golden_path_v2": "PASS",
+  "week14_rehearsal": "PASS",
+  "browser_e2e_total": 30,
+  "browser_e3_e4_scenarios": 14,
+  "real_external_actions": false
+}

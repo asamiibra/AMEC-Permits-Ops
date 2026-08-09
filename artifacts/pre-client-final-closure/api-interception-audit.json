@@ -1,0 +1,6 @@
+{
+  "business_api_interception": false,
+  "existing_mock_suite_separate": true,
+  "route_handlers_in_real_spec": 0,
+  "status": "PASS"
+}

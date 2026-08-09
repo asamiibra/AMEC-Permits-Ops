@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "assertion_count": 88,
+  "labels": [
+    "E3_BD_ASSISTANT_READY",
+    "GOLDEN_PATH_0A_PASS",
+    "E4_ADMIN_PROJECT_COORDINATION_READY",
+    "GOLDEN_PATH_0_PASS",
+    "READY_FOR_EXPANSION_GATE_E5"
+  ],
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "real_external_actions": false,
+  "scope": "RFQ \u2192 quotation \u2192 human commercial approval \u2192 release \u2192 client acceptance \u2192 READY_FOR_CONTRACT"
+}

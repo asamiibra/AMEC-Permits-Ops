@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: permitops
+      POSTGRES_USER: permitops
+      POSTGRES_PASSWORD: permitops_dev_only
+    ports:
+      - "5432:5432"
+    volumes:
+      - permitops_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U permitops -d permitops"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+  backend:
+    build: ./backend
+    environment:
+      APP_ENV: DEV
+      DATABASE_URL: postgresql+psycopg://permitops:permitops_dev_only@db:5432/permitops
+      FRONTEND_ORIGINS: http://localhost:5173
+      MOCK_SYSTEMS_ROOT: /workspace/mock-systems
+      SYNTHETIC_ONLY: "true"
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: sh -c "python -m backend.app.seed.cli && uvicorn backend.app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+volumes:
+  permitops_pgdata:

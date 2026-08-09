@@ -1,0 +1,1309 @@
+{
+  "coverage_rule": "100% material controls and 100% Risk A controls require browser/integration evidence before readiness.",
+  "generated_at": "2026-08-08T20:15:23.210811+00:00",
+  "inventory_method": "All button/select/input/textarea/anchor source controls extracted from frontend/src/*.tsx; materiality requires final reviewer confirmation.",
+  "material_controls": [
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/AboutPermitOps.tsx",
+      "id": "AboutPermitOps:131:1",
+      "line": 131,
+      "material_candidate": true,
+      "snippet": "<button className=\"about-back\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/AboutPermitOps.tsx",
+      "id": "AboutPermitOps:131:2",
+      "line": 131,
+      "material_candidate": true,
+      "snippet": "<button className={lang === \"en\" ? \"active\" : \"\"} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/AboutPermitOps.tsx",
+      "id": "AboutPermitOps:131:3",
+      "line": 131,
+      "material_candidate": true,
+      "snippet": "<button className={lang === \"ar\" ? \"active\" : \"\"} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/AboutPermitOps.tsx",
+      "id": "AboutPermitOps:140:4",
+      "line": 140,
+      "material_candidate": true,
+      "snippet": "<button className=\"about-group-toggle\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/AboutPermitOps.tsx",
+      "id": "AboutPermitOps:140:5",
+      "line": 140,
+      "material_candidate": true,
+      "snippet": "<button className=\"about-inline-link\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/AboutPermitOps.tsx",
+      "id": "AboutPermitOps:158:6",
+      "line": 158,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/AboutPermitOps.tsx",
+      "id": "AboutPermitOps:158:7",
+      "line": 158,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:83:1",
+      "line": 83,
+      "material_candidate": true,
+      "snippet": "<button key={item.id} className={page===item.id?\"nav-item active\":\"nav-item\"} onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:83:2",
+      "line": 83,
+      "material_candidate": true,
+      "snippet": "<button className={page === \"administration\" ? \"nav-item active\" : \"nav-item\"} onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:83:3",
+      "line": 83,
+      "material_candidate": true,
+      "snippet": "<button className={page === \"about\" ? \"nav-item active\" : \"nav-item\"} onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/App.tsx",
+      "id": "App:83:4",
+      "line": 83,
+      "material_candidate": true,
+      "snippet": "<select value={role} onChange={(event) =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:83:5",
+      "line": 83,
+      "material_candidate": true,
+      "snippet": "<button className=\"avatar\" aria-label=\"Current user\">",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:87:6",
+      "line": 87,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:87:7",
+      "line": 87,
+      "material_candidate": true,
+      "snippet": "<button key={p.id} onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:87:8",
+      "line": 87,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/App.tsx",
+      "id": "App:89:9",
+      "line": 89,
+      "material_candidate": true,
+      "snippet": "<input placeholder=\"Filter projects\"/>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:90:10",
+      "line": 90,
+      "material_candidate": true,
+      "snippet": "<button className=\"back-button\" onClick={back}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:93:11",
+      "line": 93,
+      "material_candidate": true,
+      "snippet": "<button className={`decision-status ${i.status.toLowerCase()}`} onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/App.tsx",
+      "id": "App:94:12",
+      "line": 94,
+      "material_candidate": true,
+      "snippet": "<input type=\"number\" value={v[k]} step={k==='return_rate'?0.05:1} onChange={e=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:94:13",
+      "line": 94,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/App.tsx",
+      "id": "App:96:14",
+      "line": 96,
+      "material_candidate": true,
+      "snippet": "<input value={String(val)} onChange={e=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:96:15",
+      "line": 96,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:97:16",
+      "line": 97,
+      "material_candidate": true,
+      "snippet": "<button className={`decision-status ${i.status.toLowerCase()}`} onClick={()=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/App.tsx",
+      "id": "App:98:17",
+      "line": 98,
+      "material_candidate": true,
+      "snippet": "<input value={title} onChange={e=>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/App.tsx",
+      "id": "App:98:18",
+      "line": 98,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={add}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/EngineeringCloseout.tsx",
+      "id": "EngineeringCloseout:16:1",
+      "line": 16,
+      "material_candidate": true,
+      "snippet": "<select aria-label=\"Project context\" value={projectId} onChange={e =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Opportunities.tsx",
+      "id": "Opportunities:17:1",
+      "line": 17,
+      "material_candidate": true,
+      "snippet": "<button className=\"back-button\" onClick={back}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:192:1",
+      "line": 192,
+      "material_candidate": true,
+      "snippet": "<button className={`readiness-trigger ${unresolved ? \"has-unresolved\" : \"validated\"}`} onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:193:2",
+      "line": 193,
+      "material_candidate": true,
+      "snippet": "<button className=\"readiness-lang\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:193:3",
+      "line": 193,
+      "material_candidate": true,
+      "snippet": "<button className=\"readiness-close\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:193:4",
+      "line": 193,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:193:5",
+      "line": 193,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:204:6",
+      "line": 204,
+      "material_candidate": true,
+      "snippet": "<select value={filter} onChange={(event) =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:204:7",
+      "line": 204,
+      "material_candidate": true,
+      "snippet": "<select value={category} onChange={(event) =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:204:8",
+      "line": 204,
+      "material_candidate": true,
+      "snippet": "<input type=\"checkbox\" checked={workshop} onChange={(event) =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:204:9",
+      "line": 204,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/ProductionReadiness.tsx",
+      "id": "ProductionReadiness:204:10",
+      "line": 204,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "a",
+      "file": "frontend/src/ReconciliationControls.tsx",
+      "id": "ReconciliationControls:34:1",
+      "line": 34,
+      "material_candidate": true,
+      "snippet": "<a href=\"#evidence\">",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/UnifiedWork.tsx",
+      "id": "UnifiedWork:24:1",
+      "line": 24,
+      "material_candidate": true,
+      "snippet": "<select aria-label=\"Assistant lens\" className=\"unified-filter\" value={assistant} onChange={e =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/UnifiedWork.tsx",
+      "id": "UnifiedWork:24:2",
+      "line": 24,
+      "material_candidate": true,
+      "snippet": "<select aria-label=\"Queue owner\" className=\"unified-filter\" value={role} onChange={e =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "a",
+      "file": "frontend/src/UnifiedWork.tsx",
+      "id": "UnifiedWork:26:3",
+      "line": 26,
+      "material_candidate": true,
+      "snippet": "<a className=\"button-secondary\" href={item.next_action_details?.deep_link || item.deep_link || `/work/${item.context_id || item.id}`}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week11.tsx",
+      "id": "Week11:10:1",
+      "line": 10,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:18:1",
+      "line": 18,
+      "material_candidate": true,
+      "snippet": "<select value={state.project?.id||\"\"} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:24:2",
+      "line": 24,
+      "material_candidate": true,
+      "snippet": "<button className={selected?.id===doc.id?\"doc-row selected\":\"doc-row\"} key={doc.id} onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:3",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={classify}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:4",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={extract}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:5",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<select value={manualField} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:6",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<input value={manualValue} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:7",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" disabled={!manualValue} onClick={manual}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:8",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<input value={corrections[observation.id]??\"\"} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:9",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:10",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:38:11",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:51:12",
+      "line": 51,
+      "material_candidate": true,
+      "snippet": "<button className={tab===item?\"active\":\"\"} onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:60:13",
+      "line": 60,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={run} disabled={busy}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:60:14",
+      "line": 60,
+      "material_candidate": true,
+      "snippet": "<button className=\"run-row\" key={r.id} onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:15",
+      "line": 67,
+      "material_candidate": true,
+      "snippet": "<select value={form.application_id} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:16",
+      "line": 67,
+      "material_candidate": true,
+      "snippet": "<select value={form.visible_status} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:17",
+      "line": 67,
+      "material_candidate": true,
+      "snippet": "<input value={form.request_reference} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:18",
+      "line": 67,
+      "material_candidate": true,
+      "snippet": "<input value={form.second_verifier} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week2.tsx",
+      "id": "Week2:67:19",
+      "line": 67,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={save}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:1",
+      "line": 20,
+      "material_candidate": true,
+      "snippet": "<button className={selected?.id===item.id?\"w3-case selected\":\"w3-case\"} key={item.id} onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:2",
+      "line": 20,
+      "material_candidate": true,
+      "snippet": "<select value={correction||selected.expected_class||\"\"} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:3",
+      "line": 20,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:4",
+      "line": 20,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:5",
+      "line": 20,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:6",
+      "line": 20,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:20:7",
+      "line": 20,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:26:8",
+      "line": 26,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:26:9",
+      "line": 26,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:30:10",
+      "line": 30,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:30:11",
+      "line": 30,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:32:12",
+      "line": 32,
+      "material_candidate": true,
+      "snippet": "<input value={title} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "input",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:32:13",
+      "line": 32,
+      "material_candidate": true,
+      "snippet": "<input value={owner} onChange={e=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:32:14",
+      "line": 32,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={add} disabled={!title}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:36:15",
+      "line": 36,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={()=>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:38:16",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={authorize}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:40:17",
+      "line": 40,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={generate}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:40:18",
+      "line": 40,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={acknowledge}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:40:19",
+      "line": 40,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={approve}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week3.tsx",
+      "id": "Week3:42:20",
+      "line": 42,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={generate}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:29:1",
+      "line": 29,
+      "material_candidate": true,
+      "snippet": "<select value={projectId} onChange={e =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:29:2",
+      "line": 29,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={evaluate}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:29:3",
+      "line": 29,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={approveEvidence}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:29:4",
+      "line": 29,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" disabled={readiness?.evaluation?.overall_status === \"BLOCKED\"} onClick={buildPackage}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:32:5",
+      "line": 32,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:43:6",
+      "line": 43,
+      "material_candidate": true,
+      "snippet": "<select value={projectId} onChange={e =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:43:7",
+      "line": 43,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={start}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:43:8",
+      "line": 43,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week45.tsx",
+      "id": "Week45:43:9",
+      "line": 43,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={prepare}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:33:1",
+      "line": 33,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:33:2",
+      "line": 33,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:36:3",
+      "line": 36,
+      "material_candidate": true,
+      "snippet": "<select value={filter} onChange={e =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:36:4",
+      "line": 36,
+      "material_candidate": true,
+      "snippet": "<button className={`week7-finding-row ${selected?.id === f.id ? \"selected\" : \"\"}`} key={f.id} onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:37:5",
+      "line": 37,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" disabled={!selectedTask} onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:37:6",
+      "line": 37,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" disabled={!selectedTask} onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:37:7",
+      "line": 37,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:37:8",
+      "line": 37,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:37:9",
+      "line": 37,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week7.tsx",
+      "id": "Week7:38:10",
+      "line": 38,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week8.tsx",
+      "id": "Week8:14:1",
+      "line": 14,
+      "material_candidate": true,
+      "snippet": "<select value={selected} onChange={e =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week8.tsx",
+      "id": "Week8:17:2",
+      "line": 17,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week8.tsx",
+      "id": "Week8:19:3",
+      "line": 19,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={runCorpus}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "select",
+      "file": "frontend/src/Week9.tsx",
+      "id": "Week9:13:1",
+      "line": 13,
+      "material_candidate": true,
+      "snippet": "<select value={projectId} onChange={e =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week9.tsx",
+      "id": "Week9:15:2",
+      "line": 15,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/Week9.tsx",
+      "id": "Week9:16:3",
+      "line": 16,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={drift}>",
+      "test_status": "PARTIAL"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:101:1",
+      "line": 101,
+      "material_candidate": true,
+      "snippet": "<button key={item.code} className={`workflow-step ${item.code === activeStage ? \"active\" : \"\"} ${item.code === currentStage ? \"current\" : \"\"} ${index < current ? \"complete\" : \"\"}`} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:108:2",
+      "line": 108,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={onOpen}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:119:3",
+      "line": 119,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={openAbout}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:122:4",
+      "line": 122,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:123:5",
+      "line": 123,
+      "material_candidate": true,
+      "snippet": "<button className=\"text-button\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:123:6",
+      "line": 123,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:129:7",
+      "line": 129,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={onOpen}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:8",
+      "line": 136,
+      "material_candidate": true,
+      "snippet": "<button className={filter === \"ALL\" ? \"filter active\" : \"filter\"} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:9",
+      "line": 136,
+      "material_candidate": true,
+      "snippet": "<button className={filter === \"RETURNED\" ? \"filter active\" : \"filter\"} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:10",
+      "line": 136,
+      "material_candidate": true,
+      "snippet": "<button className={filter === \"REVIEW\" ? \"filter active\" : \"filter\"} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:11",
+      "line": 136,
+      "material_candidate": true,
+      "snippet": "<button className={filter === \"CLOSED\" ? \"filter active\" : \"filter\"} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:136:12",
+      "line": 136,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={(event) =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:141:13",
+      "line": 141,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:148:14",
+      "line": 148,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:161:15",
+      "line": 161,
+      "material_candidate": true,
+      "snippet": "<button className=\"back-button\" onClick={backToPermits}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:180:16",
+      "line": 180,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:180:17",
+      "line": 180,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:183:18",
+      "line": 183,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={onOpen}>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:185:19",
+      "line": 185,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:185:20",
+      "line": 185,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:187:21",
+      "line": 187,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:189:22",
+      "line": 189,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-secondary\" onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/WorkflowFirst.tsx",
+      "id": "WorkflowFirst:201:23",
+      "line": 201,
+      "material_candidate": true,
+      "snippet": "<button key={id} onClick={() =>",
+      "test_status": "COVERED"
+    },
+    {
+      "client_test_relevance": "MATERIAL_UNTIL_REVIEWED",
+      "element": "button",
+      "file": "frontend/src/main.tsx",
+      "id": "main:19:1",
+      "line": 19,
+      "material_candidate": true,
+      "snippet": "<button className=\"button-primary\" onClick={() =>",
+      "test_status": "PARTIAL"
+    }
+  ],
+  "status": "PARTIAL",
+  "total_source_interactive_controls": 130
+}

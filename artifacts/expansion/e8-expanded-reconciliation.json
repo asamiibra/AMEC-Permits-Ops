@@ -1,0 +1,22 @@
+{
+  "formal_g10_go": false,
+  "four_assistant_invariant": true,
+  "labels": [
+    "E8_EXPANDED_RECONCILIATION_COMPLETE",
+    "E8_EXPANDED_ACCEPTANCE_PASS",
+    "EXPANDED_ASSISTED_G10_REVIEW_READY",
+    "READY_FOR_FORMAL_G10_REVIEW",
+    "NOT_FORMAL_G10_GO"
+  ],
+  "reconciled_business_scopes": [
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "E7"
+  ],
+  "result": "PASS",
+  "shared_truth_approval_audit_stores": true,
+  "stage2_disposition_preserved": true,
+  "timestamp": "2026-08-08T20:14:47.275760+00:00"
+}

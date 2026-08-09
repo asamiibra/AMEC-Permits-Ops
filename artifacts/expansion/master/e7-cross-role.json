@@ -1,0 +1,27 @@
+{
+  "assertion_count": 52,
+  "canonical_assistants": [
+    "BD_ASSISTANT",
+    "ADMIN_ASSISTANT",
+    "ENGINEERING_REVIEW_ASSISTANT",
+    "PROJECT_PERMIT_COORDINATION_ASSISTANT"
+  ],
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "handoff": "EXPLICIT_ACCEPTANCE_AND_AUDIT",
+  "labels": [
+    "E7_UNIFIED_ASSISTANT_EXPERIENCE_READY",
+    "E7_CROSS_ROLE_WORKFLOW_PASS",
+    "READY_FOR_EXPANSION_GATE_E8",
+    "E7_UNIFIED_OPERATING_EXPERIENCE_COMPLETE"
+  ],
+  "mode": "SYNTHETIC_DEMO_AS",
+  "next_action": "DETERMINISTIC",
+  "real_external_actions": false,
+  "real_side_effects": false,
+  "result": "PASS",
+  "shared_queue": "WorkflowTask",
+  "status": "PASS",
+  "synthetic_only": true,
+  "timestamp": "2026-08-08T20:00:43.314778+00:00"
+}

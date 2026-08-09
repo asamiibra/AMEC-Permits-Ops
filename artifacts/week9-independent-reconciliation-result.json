@@ -1,0 +1,40 @@
+{
+  "attachment_categories": {
+    "active": 17,
+    "manifest_trace": "category \u2192 Document \u2192 DocumentVersion \u2192 SHA256 \u2192 approval/current state",
+    "order": "deterministic portal_order"
+  },
+  "attachment_persistence": [
+    "MATCH",
+    "MISSING",
+    "WRONG_CATEGORY",
+    "DUPLICATE",
+    "EXTRA",
+    "structure drift"
+  ],
+  "evidence_class": "RETROACTIVE_EXECUTION_EVIDENCE",
+  "fixture": {
+    "manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb",
+    "name": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "version": "1.1.1"
+  },
+  "grid_identity": [
+    "building_ref",
+    "building_ref + floor_ref",
+    "stable canonical row id",
+    "parent identity"
+  ],
+  "grid_persistence": [
+    "reorder",
+    "missing",
+    "duplicate key",
+    "parent mismatch",
+    "MATCH persistence evidence"
+  ],
+  "portal_derived": "difference preserves office truth and records LEGITIMATE_SOURCE_DIFFERENCE",
+  "remaining_live_proof": "approved TEST/live authority behavior remains external",
+  "status": "PASS",
+  "test_command": "PYTHONPATH=. python3 -m pytest -q backend/tests/test_week9.py",
+  "test_output_tail": "....                                                                     [100%]\n=============================== warnings summary ===============================\nbackend/tests/test_week9.py::test_attachment_manifest_exact_versions_and_idempotent_persistence\n  /Users/ahmedsami/Library/Python/3.14/lib/python/site-packages/pytest_asyncio/plugin.py:1216: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16\n    return asyncio.get_event_loop_policy()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n4 passed, 1 warning in 1.04s",
+  "week8_staleness_integration": "reused current PreparationRevision/package staleness gate"
+}

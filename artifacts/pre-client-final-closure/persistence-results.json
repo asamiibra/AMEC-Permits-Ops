@@ -1,0 +1,5 @@
+{
+  "result": "Persisted simulator state matches intended state.",
+  "scenario": "Create preparation revision \u2192 load portal contract \u2192 save/reopen/reconcile \u2192 reload",
+  "status": "PASS"
+}

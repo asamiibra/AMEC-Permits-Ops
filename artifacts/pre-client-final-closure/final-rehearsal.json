@@ -1,0 +1,10 @@
+{
+  "accessibility": "PASS",
+  "arabic_shell_rtl": "PASS",
+  "arabic_whole_app_body": "BLOCKED",
+  "edge": "PASS",
+  "material_control_coverage": "BLOCKED",
+  "real_seeded_owner_path": "PASS",
+  "status": "PARTIAL",
+  "visual_set": "PASS_WITH_COPY_BLOCKER"
+}

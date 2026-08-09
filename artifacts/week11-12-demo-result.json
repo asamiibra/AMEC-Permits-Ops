@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "fixture": {
+    "fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "fixture_version": "1.1.1",
+    "fixture_manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb"
+  },
+  "monitoring": {
+    "first": "MATERIAL_CHANGE",
+    "second": "NO_CHANGE",
+    "material_change": "MATERIAL_CHANGE",
+    "drift": "DRIFT_DETECTED",
+    "manual_fallback": "HUMAN_EVIDENCE",
+    "external_mutation": true
+  },
+  "drift_revalidation": "PASS",
+  "attended_auth": "AUTHENTICATED",
+  "ergonomics": {
+    "SYNTHETIC_BASELINE": {
+      "sample_count": 1,
+      "median_duration_ms": 120000,
+      "p95_duration_ms": 120000,
+      "median_correction_count": 3
+    },
+    "WEEK11_OPTIMIZED": {
+      "sample_count": 1,
+      "median_duration_ms": 70000,
+      "p95_duration_ms": 70000,
+      "median_correction_count": 1
+    }
+  },
+  "variants": [
+    "COMPANY_OWNER",
+    "INDIVIDUAL_OWNER"
+  ],
+  "rendering_missing": 0,
+  "edge_cases": {
+    "passed": 32,
+    "total": 32
+  },
+  "machine_final_submit": false,
+  "optional_automation_branch": "NOT_AUTHORIZED_NOT_BLOCKING",
+  "secrets_persisted": false
+}

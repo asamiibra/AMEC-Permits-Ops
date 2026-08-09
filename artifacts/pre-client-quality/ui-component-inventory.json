@@ -1,0 +1,650 @@
+{
+  "backend_test_files": [
+    "backend/tests/test_amec_rebrand.py",
+    "backend/tests/test_e2_shared_runtime.py",
+    "backend/tests/test_e5_e6_bounded_workflows.py",
+    "backend/tests/test_e7_e8_unified_acceptance.py",
+    "backend/tests/test_expansion_e0_e1.py",
+    "backend/tests/test_integrity_reconciliation.py",
+    "backend/tests/test_week1.py",
+    "backend/tests/test_week2.py",
+    "backend/tests/test_week3.py",
+    "backend/tests/test_week45.py",
+    "backend/tests/test_week4_reconciliation.py",
+    "backend/tests/test_week7.py",
+    "backend/tests/test_week8.py",
+    "backend/tests/test_week9.py"
+  ],
+  "browser_test_files": [
+    "frontend/browser-e2e/about-explainer.spec.ts",
+    "frontend/browser-e2e/about-permitops.spec.ts",
+    "frontend/browser-e2e/canonical-controls.spec.ts",
+    "frontend/browser-e2e/control-boundary.spec.ts",
+    "frontend/browser-e2e/e7-e8-expanded.spec.ts",
+    "frontend/browser-e2e/expansion-e3-e4.spec.ts",
+    "frontend/browser-e2e/expansion-e5-e6.spec.ts",
+    "frontend/browser-e2e/pre-client-shell.spec.ts",
+    "frontend/browser-e2e/pre-g10-control-paths.spec.ts",
+    "frontend/browser-e2e/readiness-drawer.spec.ts",
+    "frontend/browser-e2e/workflow-first.spec.ts"
+  ],
+  "component_source_files": [
+    "frontend/src/AboutPermitOps.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/EngineeringCloseout.tsx",
+    "frontend/src/ExpansionFoundation.tsx",
+    "frontend/src/Opportunities.tsx",
+    "frontend/src/ProductionReadiness.tsx",
+    "frontend/src/ReconciliationControls.tsx",
+    "frontend/src/UnifiedWork.tsx",
+    "frontend/src/Week10.tsx",
+    "frontend/src/Week11.tsx",
+    "frontend/src/Week12.tsx",
+    "frontend/src/Week13.tsx",
+    "frontend/src/Week14.tsx",
+    "frontend/src/Week2.tsx",
+    "frontend/src/Week3.tsx",
+    "frontend/src/Week45.tsx",
+    "frontend/src/Week7.tsx",
+    "frontend/src/Week8.tsx",
+    "frontend/src/Week9.tsx",
+    "frontend/src/WorkflowFirst.tsx",
+    "frontend/src/main.tsx"
+  ],
+  "environment": "SYNTHETIC TEST / DEVELOPMENT",
+  "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE",
+  "execution_authority": "PROTOTYPE_DEV_ONLY",
+  "feature_statuses": {
+    "EXCLUDED": 1,
+    "FOUNDATION_ONLY": 1,
+    "IMPLEMENTED": 1,
+    "IMPLEMENTED_PROTOTYPE": 30,
+    "PLANNED": 0,
+    "source": "frontend/src/AboutPermitOps.tsx",
+    "status_taxonomy_consistent_with_about": true
+  },
+  "fixture": {
+    "manifest_hash": "b91e8377a06ffa96733a66361b3228b1114c7f4a7a687a198cce65fc22d436b7",
+    "name": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "version": "1.2.0"
+  },
+  "generated_at": "2026-08-08T20:15:23.210811+00:00",
+  "migration_head": "0021_e7_unified_task_context",
+  "repository_revision": "UNVERSIONED_WORKSPACE",
+  "routes": [
+    {
+      "business_purpose": "My Work landing",
+      "client_test_relevance": "MATERIAL",
+      "component": "MyWorkPage",
+      "implemented_status": "IMPLEMENTED",
+      "important_actions": [
+        "open permit",
+        "open About",
+        "next action"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk B",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Prioritized work queue",
+      "client_test_relevance": "MATERIAL",
+      "component": "MyWorkPage",
+      "implemented_status": "IMPLEMENTED",
+      "important_actions": [
+        "role lens",
+        "deep link",
+        "blocked/review cards"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk B",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/work",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Permit portfolio",
+      "client_test_relevance": "MATERIAL",
+      "component": "PermitsPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "open permit",
+        "status display"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk B",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/permits",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Eight-stage permit workspace",
+      "client_test_relevance": "MATERIAL",
+      "component": "PermitWorkspacePage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "stage navigation",
+        "package/handoff routes"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/permits/:projectId/:stage",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "BD opportunities and RFQ context",
+      "client_test_relevance": "MATERIAL",
+      "component": "OpportunitiesPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "select opportunity"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk B",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/opportunities",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Engineering advisory and commercial closeout",
+      "client_test_relevance": "MATERIAL",
+      "component": "EngineeringCloseoutPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "lens selection",
+        "bounded closeout context"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/engineering-closeout",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Review queue",
+      "client_test_relevance": "MATERIAL",
+      "component": "ReviewsPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "open permit"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/reviews",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Issues and findings",
+      "client_test_relevance": "MATERIAL",
+      "component": "IssuesPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "open finding",
+        "status/filter"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/issues",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Notification evidence",
+      "client_test_relevance": "MATERIAL",
+      "component": "NotificationsPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "deep link"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk B",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/notifications",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "English/Arabic explainer",
+      "client_test_relevance": "MATERIAL",
+      "component": "AboutPermitOpsPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "language switch",
+        "status taxonomy",
+        "CTAs"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk C",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/about",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Explainer alias",
+      "client_test_relevance": "MATERIAL",
+      "component": "AboutPermitOpsPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "route alias"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk C",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/how-permitops-works",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Privileged administration",
+      "client_test_relevance": "MATERIAL",
+      "component": "AdministrationPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "configuration links"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Customer-owned go-live requirement overview",
+      "client_test_relevance": "MATERIAL",
+      "component": "ReadinessOverviewPage",
+      "implemented_status": "IMPLEMENTED",
+      "important_actions": [
+        "filter",
+        "category",
+        "CSV export",
+        "return to administration"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/go-live-readiness",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Package readiness",
+      "client_test_relevance": "MATERIAL",
+      "component": "PackageReadinessPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "readiness",
+        "render"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/package",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Assisted municipality preparation",
+      "client_test_relevance": "MATERIAL",
+      "component": "MunicipalityPreparationPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "create revision",
+        "read-back boundary"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/municipality",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Findings/tasks/notifications",
+      "client_test_relevance": "MATERIAL",
+      "component": "FindingsConsolePage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "assign",
+        "retry",
+        "dispute"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/findings",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Lineage, validity, and staleness",
+      "client_test_relevance": "MATERIAL",
+      "component": "LineageValidityPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "refresh",
+        "corpus"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/lineage",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Attachment and grid integrity",
+      "client_test_relevance": "MATERIAL",
+      "component": "AttachmentGridPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "refresh",
+        "drift simulation"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/attachments-grids",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Document evidence and verification",
+      "client_test_relevance": "MATERIAL",
+      "component": "DocumentsPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "classify",
+        "extract",
+        "verify",
+        "correct"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/documents",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Source conflicts and drawing checks",
+      "client_test_relevance": "MATERIAL",
+      "component": "ConflictsPage",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "review conflict"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/conflicts",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Provisional requirement/configuration",
+      "client_test_relevance": "DO_NOT_PRESENT_AS_COMPLETE",
+      "component": "ConfigurationPage",
+      "implemented_status": "FOUNDATION_ONLY",
+      "important_actions": [
+        "inspect tabs"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/config",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Control diagnostics",
+      "client_test_relevance": "MATERIAL",
+      "component": "ReconciliationControls",
+      "implemented_status": "IMPLEMENTED_PROTOTYPE",
+      "important_actions": [
+        "read-only safety evidence"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk A",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/control-diagnostics",
+      "test_coverage": "service/backend evidence or unverified"
+    },
+    {
+      "business_purpose": "Historical development/admin surfaces",
+      "client_test_relevance": "DO_NOT_PRESENT_AS_COMPLETE",
+      "component": "Week2/Week3/Week8-14 pages",
+      "implemented_status": "FOUNDATION_ONLY",
+      "important_actions": [
+        "admin-only navigation"
+      ],
+      "important_states": [
+        "loading",
+        "empty",
+        "populated",
+        "blocked",
+        "error",
+        "unauthorized"
+      ],
+      "linked_api_or_service": "frontend/src/api.ts and route component APIs",
+      "risk_class": "Risk B",
+      "roles": [
+        "synthetic demo role"
+      ],
+      "route": "/admin/* legacy",
+      "test_coverage": "service/backend evidence or unverified"
+    }
+  ]
+}

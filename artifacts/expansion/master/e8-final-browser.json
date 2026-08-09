@@ -1,0 +1,22 @@
+{
+  "about_assertions": 19,
+  "actual_browser_test_count": 95,
+  "browser_run": {
+    "command": "npm run browser-e2e",
+    "label": "browser E2E",
+    "returncode": 0,
+    "status": "PASS",
+    "stderr_tail": "oxy error: /api/applications\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:00:50 PM [vite] http proxy error: /api/reconciliation/governance\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:00:50 PM [vite] http proxy error: /api/projects\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:00:50 PM [vite] http proxy error: /api/applications\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n[WebServer] 3:00:50 PM [vite] http proxy error: /api/reconciliation/governance\n[WebServer] Error: connect ECONNREFUSED 127.0.0.1:8000\n[WebServer]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)\n",
+    "stdout_tail": "pec.ts:115:1 \u203a About page preserves the My Work call to action (350ms)\n  \u2713  81 browser-e2e/e7-e8-expanded.spec.ts:47:1 \u203a Engineering assistant lens is selectable (308ms)\n  \u2713  80 browser-e2e/workflow-first.spec.ts:49:1 \u203a privileged role exposes Administration without changing the business shell (355ms)\n  \u2713  79 browser-e2e/pre-g10-control-paths.spec.ts:114:1 \u203a E2E-10 Week 12 attended MFA and handoff preserve role boundaries (449ms)\n  \u2713  82 browser-e2e/about-explainer.spec.ts:121:1 \u203a About page preserves the permit navigation call to action (340ms)\n  \u2713  83 browser-e2e/e7-e8-expanded.spec.ts:48:1 \u203a shared evidence revision is shown (229ms)\n  \u2713  85 browser-e2e/about-explainer.spec.ts:127:1 \u203a mobile About page has no horizontal overflow (250ms)\n  \u2713  86 browser-e2e/e7-e8-expanded.spec.ts:49:1 \u203a human authority badge remains visible (195ms)\n  \u2713  84 browser-e2e/pre-g10-control-paths.spec.ts:121:1 \u203a E2E-11 Week 13 recurrence context is deterministic (410ms)\n  \u2713  88 browser-e2e/e7-e8-expanded.spec.ts:50:1 \u203a HUMAN_SEND communication state is visible (226ms)\n  \u2713  87 browser-e2e/about-explainer.spec.ts:135:1 \u203a mobile Arabic About page retains RTL and no overflow (337ms)\n  \u2713  90 browser-e2e/e7-e8-expanded.spec.ts:51:1 \u203a existing Opportunities navigation remains reachable (223ms)\n  \u2713  89 browser-e2e/pre-g10-control-paths.spec.ts:128:1 \u203a E2E-12 Week 14 acceptance keeps G10 separate from assisted readiness (410ms)\n  \u2713  91 browser-e2e/about-explainer.spec.ts:144:1 \u203a About page keeps prototype and external-boundary messaging visible (268ms)\n  \u2713  92 browser-e2e/e7-e8-expanded.spec.ts:52:1 \u203a existing Engineering and Closeout navigation remains reachable (198ms)\n  \u2713  93 browser-e2e/e7-e8-expanded.spec.ts:53:1 \u203a issues source-family panel is visible (138ms)\n  \u2713  94 browser-e2e/e7-e8-expanded.spec.ts:54:1 \u203a communications source panel is visible (150ms)\n  \u2713  95 browser-e2e/e7-e8-expanded.spec.ts:55:1 \u203a production role switching is not implied by the synthetic UI (164ms)\n\n  95 passed (9.3s)\n"
+  },
+  "command": "npm run browser-e2e",
+  "labels": [
+    "E8_BROWSER_ACCEPTANCE_PASS",
+    "ABOUT_PERMITOPS_HOME_EXPLAINER_COMPLETE",
+    "RTL_BIDI_RENDERING_VERIFIED"
+  ],
+  "meaningful_scenarios": 95,
+  "meaningful_scenarios_minimum": 24,
+  "status": "PASS",
+  "timestamp": "2026-08-08T20:00:58.938529+00:00"
+}

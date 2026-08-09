@@ -1,0 +1,11 @@
+{
+  "critical_serious_violations": 0,
+  "keyboard_primary_paths": "PASS",
+  "locales": [
+    "en",
+    "ar-EG"
+  ],
+  "routes": 10,
+  "scanner": "axe-core/playwright",
+  "status": "PASS"
+}
