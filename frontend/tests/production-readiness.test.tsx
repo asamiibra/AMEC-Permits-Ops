@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { ReadinessDrawer, customerProductionRequirements, getScreenDefinition, getScreenUnresolvedCount, screenReadinessRegistry, statusLabel } from "../src/ProductionReadiness";
-import { LocaleProvider } from "../src/i18n";
 
 describe("central production-readiness registry", () => {
   it("covers every screen with unique identity, inputs, outputs, and valid requirement references", () => {
@@ -27,19 +26,17 @@ describe("central production-readiness registry", () => {
 });
 
 describe("contextual readiness drawer", () => {
-  it("shows purpose, inputs, outputs, customer asks, boundary, and Arabic RTL/BiDi", () => {
-    render(<LocaleProvider><ReadinessDrawer screenId="S10" role="PERMIT_PREPARER" onNavigate={vi.fn()} /></LocaleProvider>);
+  it("shows English purpose, inputs, outputs, customer asks, and the fixed LTR boundary", () => {
+    render(<ReadinessDrawer screenId="S10" role="PERMIT_PREPARER" onNavigate={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: "Inputs & Go-Live" }));
+    expect(screen.getByRole("dialog")).toHaveAttribute("lang", "en");
     expect(screen.getByRole("dialog")).toHaveAttribute("dir", "ltr");
     expect(screen.getByText("What this screen uses")).toBeTruthy();
     expect(screen.getByText("What this screen produces")).toBeTruthy();
     expect(screen.getByText("What we need from AMEC")).toBeTruthy();
     expect(screen.getAllByText(/human-only|human/i).length).toBeGreaterThan(0);
-    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Switch to Arabic" }));
-    expect(screen.getByRole("dialog")).toHaveAttribute("lang", "ar-EG");
-    expect(screen.getByRole("dialog")).toHaveAttribute("dir", "rtl");
-    expect(within(screen.getByRole("dialog")).getByRole("button", { name: "Switch to English" })).toBeTruthy();
-    expect(document.querySelector('bdi[dir="ltr"]')).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Switch to Arabic" })).toBeNull();
+    expect(document.body.textContent).not.toMatch(/[\u0600-\u06FF]/);
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(screen.queryByRole("dialog")).toBeNull();
   });

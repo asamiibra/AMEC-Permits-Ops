@@ -23,9 +23,10 @@ describe("Weeks 1–8 control evidence", () => {
     expect(screen.getByTestId("no-final-submit")).toBeInTheDocument();
   });
 
-  it("renders Arabic RTL while keeping mixed identifiers readable", () => {
-    render(<ReconciliationControls state={{ rtl: true, findingOwner: "مسؤول هندسي", precheckRun: "PRECHECK-AR-01" }} />);
-    expect(screen.getByRole("region")).toHaveAttribute("dir", "rtl");
-    expect(screen.getByText("GHCE-2026-0142")).toHaveAttribute("dir", "ltr");
+  it("keeps the operational control surface English and LTR", () => {
+    render(<ReconciliationControls state={{ findingOwner: "Responsible Engineer", precheckRun: "PRECHECK-01" }} />);
+    expect(screen.getByRole("region")).toHaveAttribute("lang", "en");
+    expect(screen.getByRole("region")).toHaveAttribute("dir", "ltr");
+    expect(screen.getByText("Responsible Engineer")).toBeInTheDocument();
   });
 });

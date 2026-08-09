@@ -62,6 +62,11 @@ async def safe_error_handler(request: Request, exc: Exception):
 def health(): return {"status": "ok", "service": "permitops", "environment": settings.app_env, "synthetic_only": settings.synthetic_only}
 
 
+@app.get("/")
+def api_root():
+    return {"service": "PermitOps API", "status": "ok", "environment": "synthetic"}
+
+
 @app.get("/api/office")
 def office():
     with SessionLocal() as db:

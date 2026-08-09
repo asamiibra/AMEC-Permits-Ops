@@ -4,19 +4,18 @@ Status: PASS
 
 ## Root cause
 
-The global locale provider persisted `permitops-locale` and updated document direction, but its DOM localizer translated text and attributes in place without retaining a reversible English source. A return to English could therefore leave Arabic text or attributes behind. `AboutPermitOpsPage`, `ReadinessDrawer`, and `Week7` also carried independent language state, allowing a page-level value to diverge from the global provider.
+The prior global locale implementation could leave Arabic text or attributes behind after returning to English. The completed boundary fix removes that global state: operational UI is fixed English/LTR, while `AboutPermitOpsPage` alone owns the bilingual guide preference.
 
 The detailed finding is recorded in [language-toggle-root-cause.md](language-toggle-root-cause.md).
 
 ## Corrective implementation
 
-- Added the single application locale type `AppLocale = "en" | "ar-EG"`.
-- Added the canonical persistence key `permitops.locale`.
-- Normalized `en`, `en-US`, `english`, `ar`, `ar-EG`, and `arabic`; unknown values fall back to English.
+- Removed the global application locale and global language switch.
+- Added guide-local `GuideLocale = "en" | "ar-EG"` with `permitops.operatingGuide.locale`.
 - Migrated known legacy keys once, wrote the canonical key, and removed the legacy keys.
 - Made DOM localization reversible so English restores the original English text and attributes.
-- Derived `lang`, `dir`, body direction, root direction, and RTL shell placement from the global locale.
-- Removed duplicate mutable language state from About, the readiness drawer, and Week 7; the readiness drawer keeps only a derived content label for its existing bilingual copy map.
+- Fixed operational document and shell direction to English/LTR.
+- Removed Arabic UI resources and toggles from readiness, Week 7, Week 8, and Week 9; Arabic remains confined to the Operating Guide.
 - Preserved route, permit stage, drawer state, role, and business data while toggling.
 - No backend source files were changed.
 

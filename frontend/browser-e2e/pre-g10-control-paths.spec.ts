@@ -85,10 +85,12 @@ test("E2E-05 stale package and stale revision deny escape", async ({ page }) => 
   await expect(page.getByText("STALE PREPARATION REVISION — current state is not reusable")).toBeVisible();
 });
 
-test("E2E-06 Arabic control path preserves RTL text and LTR IDs", async ({ page }) => {
+test("E2E-06 control path stays English and LTR with readable IDs", async ({ page }) => {
   await page.goto("/admin/control-diagnostics");
-  await expect(page.getByText("ملاحظة فنية")).toBeVisible();
-  await expect(page.locator("bdi[dir='ltr']").filter({ hasText: "GHCE-2026-0142" })).toBeVisible();
+  const controls = page.getByRole("region", { name: "Weeks 1–8 control evidence" });
+  await expect(controls).toHaveAttribute("lang", "en");
+  await expect(controls).toHaveAttribute("dir", "ltr");
+  await expect(controls).toContainText("Responsible Engineer");
 });
 
 test("E2E-07 no final-submit capability is rendered", async ({ page }) => {

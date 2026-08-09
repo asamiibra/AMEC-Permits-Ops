@@ -1,6 +1,18 @@
 import { ReactNode, useMemo, useState } from "react";
 import "./about.css";
-import { AppLocale, useLocale } from "./i18n";
+
+export type GuideLocale = "en" | "ar-EG";
+export const OPERATING_GUIDE_LOCALE_STORAGE_KEY = "permitops.operatingGuide.locale";
+
+function readGuideLocale(): GuideLocale {
+  if (typeof window === "undefined") return "en";
+  try {
+    const value = window.localStorage.getItem(OPERATING_GUIDE_LOCALE_STORAGE_KEY);
+    return value === "ar-EG" || value === "ar" ? "ar-EG" : "en";
+  } catch {
+    return "en";
+  }
+}
 
 export type AboutStatus = "IMPLEMENTED" | "IMPLEMENTED_PROTOTYPE" | "FOUNDATION_ONLY" | "PLANNED_PENDING_SCOPE" | "EXCLUDED" | "NOT_APPLICABLE";
 
@@ -107,19 +119,26 @@ const currentStatuses = ["IMPLEMENTED", "IMPLEMENTED_PROTOTYPE"];
 const groups = [...new Set(features.filter((feature) => currentStatuses.includes(feature.status)).map((feature) => feature.group))];
 const implementedCount = features.filter((feature) => currentStatuses.includes(feature.status)).length;
 
-function StatusBadge({ status, lang }: { status: AboutStatus; lang: AppLocale }) {
+function StatusBadge({ status, lang }: { status: AboutStatus; lang: GuideLocale }) {
   return <span className={`about-status about-status-${status.toLowerCase()}`}><BidiText>{statusLabels[status][lang === "ar-EG" ? "ar" : "en"]}</BidiText></span>;
 }
 
-function SectionHeading({ number, en, arTitle, lang }: { number: string; en: string; arTitle: ReactNode; lang: AppLocale }) {
+function SectionHeading({ number, en, arTitle, lang }: { number: string; en: string; arTitle: ReactNode; lang: GuideLocale }) {
   return <div className="about-section-heading"><span className="about-number">{number}</span><div><span className="eyebrow">{lang === "en" ? `SECTION ${number}` : `القسم ${number}`}</span><h2>{lang === "en" ? en : <BidiText>{arTitle}</BidiText>}</h2></div></div>;
 }
 
 export function AboutPermitOpsPage({ onNavigate }: { onNavigate: (page: string) => void }) {
-  const { locale: lang, setLocale } = useLocale();
+  const [lang, setLang] = useState<GuideLocale>(readGuideLocale);
   const [openGroups, setOpenGroups] = useState<string[]>([groups[0]]);
   const rtl = lang === "ar-EG";
-  const changeLanguage = (next: AppLocale) => setLocale(next);
+  const changeLanguage = (next: GuideLocale) => {
+    setLang(next);
+    try {
+      window.localStorage.setItem(OPERATING_GUIDE_LOCALE_STORAGE_KEY, next);
+    } catch {
+      // The guide remains usable when storage is unavailable.
+    }
+  };
   const toggleGroup = (group: string) => setOpenGroups((current) => current.includes(group) ? current.filter((item) => item !== group) : [...current, group]);
   const visibleFeatures = useMemo(() => features.filter((feature) => currentStatuses.includes(feature.status)), []);
   return <main className="about-page" lang={rtl ? "ar-EG" : "en"} dir={rtl ? "rtl" : "ltr"}>

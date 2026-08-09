@@ -16,7 +16,7 @@ Before this fix, `frontend/src/i18n.tsx` held a global `Locale` state of `"en" |
 - `FindingsConsolePage` held an independent `rtl` boolean and exposed a page-local layout toggle.
 - `permitops-role` in `sessionStorage` is unrelated role state and was preserved.
 
-The locale-related keys found in the frontend were `permitops-locale` and `permitops-about-language`. The fix uses only `localStorage["permitops.locale"]`. Known legacy keys are read once for migration, normalized, written to the canonical key, and removed so they cannot reapply stale Arabic.
+The earlier global-locale investigation is superseded by the operating-guide-only boundary. Operational UI now ignores and clears `permitops.locale` and related legacy keys. Only `/about` persists a local guide preference in `localStorage["permitops.operatingGuide.locale"]`.
 
 ## Why Arabic activated but English did not fully reset
 
@@ -24,10 +24,9 @@ Arabic activation changed the provider state, set the document to `ar-EG`/`rtl`,
 
 ## Corrective design
 
-- The authoritative application state is now `AppLocale = "en" | "ar-EG"` in `LocaleProvider`.
-- The canonical persistence key is `permitops.locale`.
-- Legacy values are normalized as `ar`/`arabic → ar-EG`, `en-US`/`english → en`, and unknown values → `en`.
-- Direction is derived only from locale: `ar-EG → rtl`; `en → ltr`.
+- Operational application state is fixed to English/LTR; there is no global locale provider.
+- The only persisted language state is the guide-local `permitops.operatingGuide.locale` key.
+- The guide derives direction locally: `ar-EG → rtl`; `en → ltr`.
 - The document, body, application root, and known locale classes are synchronized on every change.
 - DOM localization tracks original text and attributes and restores them when English is selected.
 - About, Inputs & Go-Live, and Findings now read and change the shared provider state; none owns application language independently.

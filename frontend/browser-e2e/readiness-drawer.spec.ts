@@ -16,15 +16,14 @@ test("shared readiness drawer exposes inputs, outputs, customer asks, and safe b
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
-test("Arabic readiness mode is ar-EG RTL and keeps technical terms isolated", async ({ page }) => {
+test("readiness drawer stays English/LTR and has no Arabic toggle", async ({ page }) => {
   await page.goto("/about");
   await page.getByRole("button", { name: "Inputs & Go-Live" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Switch to Arabic" }).click();
-  await expect(page.getByRole("dialog")).toHaveAttribute("lang", "ar-EG");
-  await expect(page.getByRole("dialog")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByRole("dialog").getByRole("button", { name: "Switch to English" })).toBeVisible();
-  await expect(page.locator('bdi[dir="ltr"]').first()).toBeVisible();
-  await page.screenshot({ path: "../artifacts/production-readiness-ui/drawer-ar-eg.png", fullPage: true });
+  await expect(page.getByRole("dialog")).toHaveAttribute("lang", "en");
+  await expect(page.getByRole("dialog")).toHaveAttribute("dir", "ltr");
+  await expect(page.getByRole("dialog").getByRole("button", { name: "Switch to Arabic" })).toHaveCount(0);
+  await expect(page.getByRole("dialog")).not.toContainText(/[\u0600-\u06FF]/);
+  await page.screenshot({ path: "../artifacts/production-readiness-ui/drawer-english-ltr.png", fullPage: true });
 });
 
 test("admin can open the consolidated readiness view and export the filtered checklist", async ({ page }) => {

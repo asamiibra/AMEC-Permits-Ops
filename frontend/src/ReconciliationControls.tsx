@@ -16,7 +16,6 @@ export type ReconciliationControlState = {
   dropdownCode?: string;
   dropdownLabel?: string;
   portalMismatch?: boolean;
-  rtl?: boolean;
   findingOwner?: string;
   taskLabel?: string;
   notificationStatus?: "DELIVERED" | "FAILED";
@@ -27,14 +26,13 @@ export type ReconciliationControlState = {
 
 export function ReconciliationControls({ state = {} }: { state?: ReconciliationControlState }) {
   const blocked = state.packageStatus === "BLOCKED";
-  return <><section aria-label="Weeks 1–8 control evidence" dir={state.rtl ? "rtl" : "ltr"} className="panel reconciliation-controls">
+  return <><section aria-label="Weeks 1–8 control evidence" lang="en" dir="ltr" className="panel reconciliation-controls">
     <div data-testid="package-control"><strong>Package: {state.packageStatus || "BLOCKED"}</strong>{blocked && <ul aria-label="Package blocked reasons">{(state.blockedReasons || ["Evidence approval required"]).map(reason => <li key={reason}>{reason}</li>)}</ul>}{state.packageStatus === "READY" && <span>READY — eligible for human approval</span>}</div>
     {state.packageStale && <div role="alert">STALE PACKAGE — re-evaluation required</div>}
     {state.revisionStale && <div role="alert">STALE PREPARATION REVISION — current state is not reusable</div>}
     <div>{state.currentRevision === false ? <span>Historical revision</span> : <span>Current revision</span>} · <a href="#evidence">{state.evidenceLabel || "View evidence"}</a></div>
     <div>Assisted municipality value: <strong>{state.municipalityValue || "—"}</strong> <span>({state.dropdownCode || "CODE"} · {state.dropdownLabel || "Label"})</span></div>
     {state.portalMismatch && <div role="alert">PORTAL MISMATCH — exception requires correction</div>}
-    {state.rtl && <p lang="ar">ملاحظة فنية — <bdi dir="ltr">GHCE-2026-0142</bdi></p>}
     <div>Finding owner: <strong>{state.findingOwner || "—"}</strong> · Task: <strong>{state.taskLabel || "—"}</strong></div>
     {state.notificationStatus === "FAILED" && <div role="alert">Notification FAILED — retry remains visible</div>}
     {state.notificationStatus === "DELIVERED" && <div>Notification DELIVERED</div>}

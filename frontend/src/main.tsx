@@ -2,7 +2,6 @@ import React, { Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./styles.css";
-import { LocaleProvider } from "./i18n";
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
@@ -23,4 +22,4 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
   }
 }
 
-createRoot(document.getElementById("root")!).render(<React.StrictMode><LocaleProvider><AppErrorBoundary><App /></AppErrorBoundary></LocaleProvider></React.StrictMode>);
+createRoot(document.getElementById("root")!).render(<React.StrictMode><AppErrorBoundary><App /></AppErrorBoundary></React.StrictMode>);

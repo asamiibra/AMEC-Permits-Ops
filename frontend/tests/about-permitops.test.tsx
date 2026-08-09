@@ -1,13 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { AboutPermitOpsPage } from "../src/AboutPermitOps";
-import { LocaleProvider } from "../src/i18n";
 
 beforeEach(() => localStorage.clear());
 
 describe("About PermitOps explainer", () => {
   it("renders the English explainer with the complete lifecycle and evidence-aware catalog", () => {
-    render(<LocaleProvider><AboutPermitOpsPage onNavigate={vi.fn()} /></LocaleProvider>);
+    render(<AboutPermitOpsPage onNavigate={vi.fn()} />);
     expect(screen.getByRole("heading", { name: /How PermitOps works/i })).toBeTruthy();
     expect(screen.getByText("Capabilities available in the current MVP")).toBeTruthy();
     expect(document.querySelectorAll(".about-lifecycle-step")).toHaveLength(8);
@@ -18,7 +17,7 @@ describe("About PermitOps explainer", () => {
   });
 
   it("switches to ar-EG with a true RTL root and isolated English terms", () => {
-    render(<LocaleProvider><AboutPermitOpsPage onNavigate={vi.fn()} /></LocaleProvider>);
+    render(<AboutPermitOpsPage onNavigate={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: "العربي" }));
     const root = document.querySelector(".about-page");
     expect(root?.getAttribute("lang")).toBe("ar-EG");
@@ -26,10 +25,11 @@ describe("About PermitOps explainer", () => {
     expect(screen.getByRole("heading", { name: "PermitOps بيشتغل إزاي؟" })).toBeTruthy();
     expect(document.querySelector('bdi[dir="ltr"]')?.textContent).toBeTruthy();
     expect(document.querySelectorAll('bdi[dir="ltr"]').length).toBeGreaterThan(10);
+    expect(localStorage.getItem("permitops.operatingGuide.locale")).toBe("ar-EG");
   });
 
   it("keeps the lifecycle in semantic order while allowing the feature groups to collapse", () => {
-    render(<LocaleProvider><AboutPermitOpsPage onNavigate={vi.fn()} /></LocaleProvider>);
+    render(<AboutPermitOpsPage onNavigate={vi.fn()} />);
     const steps = [...document.querySelectorAll(".about-lifecycle-step .about-step-number")].map((node) => node.textContent);
     expect(steps).toEqual(["1", "2", "3", "4", "5", "6", "7", "8"]);
     const group = screen.getByRole("button", { name: /Project & source control/i });

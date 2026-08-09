@@ -2,7 +2,7 @@
 
 Status: **PASS at current Week 7 synthetic depth**.
 
-Delivered: controlled finding source taxonomy; versioned FindingCode; durable AuthorityEvent; conservative deduplication; Finding; WorkflowTask; routing rules with unassigned fallback; provisional synthetic SLA policy; NotificationEvent/outbox/channel abstraction; precheck conversion; manual official-comment capture; configured portal-validation conversion; open-blocking gates; retryable delivery; atomic rollback behavior; bilingual/RTL findings console; My Tasks; Notification Outbox; and deterministic weekly shadow report.
+Delivered: controlled finding source taxonomy; versioned FindingCode; durable AuthorityEvent; conservative deduplication; Finding; WorkflowTask; routing rules with unassigned fallback; provisional synthetic SLA policy; NotificationEvent/outbox/channel abstraction; precheck conversion; manual official-comment capture; configured portal-validation conversion; open-blocking gates; retryable delivery; atomic rollback behavior; English/LTR findings console; My Tasks; Notification Outbox; and deterministic weekly shadow report. Arabic/RTL is reserved for the Operating Guide.
 
 The core safety chain is durable: `RAW EVIDENCE → AUTHORITY EVENT → FINDING → OWNER → TASK → SLA → NOTIFICATION → DELIVERY/FAILURE EVIDENCE`. No machine submission, polling, professional closure, resubmission engine, or recurrence analytics was added.
 
