@@ -1,0 +1,14 @@
+{
+  "status": "DASHBOARD_FULL_REAL_STACK_BROWSER_E2E_PASS",
+  "base_url": "https://amec-permits-ops.vercel.app",
+  "frontend": "real Vercel frontend",
+  "backend": "real FastAPI Vercel backend",
+  "database": "PostgreSQL durable",
+  "sor": "MockSynologyAdapter synthetic TEST",
+  "tests": 21,
+  "passed": 21,
+  "skipped": 0,
+  "unexpected": 0,
+  "cleanup": "owner_test_cleanup=PASS",
+  "focused_download_fix": "2/2 passed"
+}

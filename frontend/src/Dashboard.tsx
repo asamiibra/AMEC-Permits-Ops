@@ -490,12 +490,13 @@ function MasterSection({
                   </td>
                   <td>{formatDate(item.updated)}</td>
                   <td className="dashboard-actions">
-                    <button
+                    <a
                       className="table-action action-view"
-                      onClick={() => void downloadMaster(item.id)}
+                      href={`/api/master-content/${item.id}/download`}
+                      download
                     >
                       View
-                    </button>
+                    </a>
                     {canWrite && (
                       <button
                         className="table-action action-edit"
@@ -1019,19 +1020,13 @@ function HistoryDrawer({
                   ? "Preview PDF available"
                   : "Source document"}
               </span>
-              <button
+              <a
                 className="table-action action-view"
-                onClick={() =>
-                  history.itemId &&
-                  void downloadVersion(
-                    history.itemId,
-                    version.id,
-                    version.file_name,
-                  )
-                }
+                href={`/api/master-content/${history.itemId}/versions/${version.id}/download`}
+                download={version.file_name}
               >
                 Download
-              </button>
+              </a>
             </div>
           </article>
         ))}

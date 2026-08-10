@@ -1,0 +1,12 @@
+{
+  "status": "DASHBOARD_MATERIAL_CHANGE_TRACE_E2E_PASS",
+  "source": {"master_content_id":"5045faa7-5349-4c38-b2b8-fd41bc1fb5ad","ref":"E-0004","version_1_id":"942c35f3-9ea0-42e5-bda2-ee5ec7fa7cf8","version_2_id":"77670c54-72f9-4a37-a7df-6d6af63ee3e9"},
+  "material_event": {"id":"a3e3f4f3-7cfc-4a52-beb7-5c5055495202","materiality":"MATERIAL","old_version_id":"942c35f3-9ea0-42e5-bda2-ee5ec7fa7cf8","new_version_id":"77670c54-72f9-4a37-a7df-6d6af63ee3e9","propagation":{"dependencies":1,"lineage":1,"findings":1,"tasks":1,"notifications":4}},
+  "dependency": {"id":"4c2c3810-64fc-42ad-aa55-6074148858a7","downstream_type":"EngineeringReview","status":"NEEDS_REVALIDATION","bound_version_id":"942c35f3-9ea0-42e5-bda2-ee5ec7fa7cf8","expected_current_version_id":"77670c54-72f9-4a37-a7df-6d6af63ee3e9"},
+  "lineage_edges": ["81fb73df-3dc9-4be0-a952-2f7864d04bc9","4429aa82-1513-4282-8b15-d70351488a1a"],
+  "issue_id":"45b422fc-52e7-46a7-b2a1-adf17b80b8d7",
+  "workflow_task_id":"WORKFLOW_TASK:366b6219-7b4e-4d2e-b0b9-ec5064f20705",
+  "notification_id":"cf14f55e-8b86-474d-885e-1eed3a72d399",
+  "historical_version_preserved": true,
+  "fixture_cleanup": "archived after capture"
+}

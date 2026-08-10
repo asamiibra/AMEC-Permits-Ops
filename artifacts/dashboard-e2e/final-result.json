@@ -1,0 +1,8 @@
+{
+  "overall": "DASHBOARD_MASTER_CONTENT_V2_FULL_E2E_CONNECTED_EXCEPT_REAL_SYNOLOGY",
+  "external_exception": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
+  "connection_matrix": {"total":24,"connected_and_e2e_verified":9,"no_current_consumer_seam_verified":15,"not_applicable":0,"broken":0,"unknown":0},
+  "software_gates": "GREEN",
+  "working_tree_before_commit": "only intended source, migration, docs, evidence, and screenshots",
+  "truth_rule": "No current-consumer absence is represented as a fabricated module PASS; each is a verified seam classification."
+}

@@ -2,7 +2,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
-from sqlalchemy import JSON, Boolean, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, Float, String, Text
+from sqlalchemy import JSON, Boolean, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, Float, LargeBinary, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, utcnow
 
@@ -82,6 +82,10 @@ class DocumentVersion(Base):
     ingested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     superseded_by: Mapped[str | None] = mapped_column(String(36))
     metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    # Synthetic Vercel TEST storage is DB-backed so a serverless invocation
+    # can read a verified source uploaded by a previous invocation. Real SOR
+    # deployments continue to use source_path_or_reference exclusively.
+    synthetic_content: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     rendition_status: Mapped[str] = mapped_column(String(40), nullable=False, default="RENDITION_NOT_AVAILABLE")
     rendition_path_or_reference: Mapped[str | None] = mapped_column(String(500))
     rendition_sha256: Mapped[str | None] = mapped_column(String(64))

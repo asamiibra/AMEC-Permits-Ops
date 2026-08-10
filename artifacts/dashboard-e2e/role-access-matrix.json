@@ -1,0 +1,8 @@
+{
+  "status": "USED_IN_PLUS_RBAC_COMBINED_GATE_PASS",
+  "owner": {"master_write":"ALLOW","binding_write":"ALLOW","version_history":"VIEW","archive":"ALLOW"},
+  "business_development": {"applicable_read":"ALLOW","global_master_write":"DENY","binding_write":"DENY","administration":"DENY"},
+  "engineering": {"applicable_read":"ALLOW","global_master_write":"DENY","binding_write":"DENY","administration":"DENY"},
+  "direct_api_unauthorized_write_count": 0,
+  "tokens": ["OWNER_MASTER_CONTENT_WRITE_PASS","BD_APPLICABLE_MASTER_READ_PASS","BD_MASTER_CONTENT_WRITE_DENIED_PASS","ENGINEERING_APPLICABLE_MASTER_READ_PASS","ENGINEERING_MASTER_CONTENT_WRITE_DENIED_PASS","DIRECT_API_UNAUTHORIZED_WRITE_ZERO","BINDING_IS_NOT_AUTHORIZATION_PASS","ROLE_IS_NOT_APPLICABILITY_PASS"]
+}

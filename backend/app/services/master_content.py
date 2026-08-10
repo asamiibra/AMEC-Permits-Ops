@@ -115,6 +115,17 @@ def _adapter() -> MockSynologyAdapter:
     return MockSynologyAdapter(str(root / "synology"))
 
 
+def _deployed_synthetic() -> bool:
+    return bool(os.getenv("VERCEL")) and get_settings().synthetic_only
+
+
+def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
+    """Read verified master bytes, retaining a durable synthetic TEST fallback."""
+    if _deployed_synthetic() and version.synthetic_content is not None:
+        return version.synthetic_content
+    return _adapter().read_configured_artifact(version.source_path_or_reference)
+
+
 def _mapping() -> dict[str, str]:
     try:
         mapping = json.loads(get_settings().master_sor_mapping_json)
@@ -572,6 +583,8 @@ def _verify_and_promote(
             raise _error("SOR_HASH_MISMATCH", 502)
         if sor_metadata.get("path", "").startswith("/") or target is None:
             raise _error("SOR_READBACK_FAILED", 502)
+        if _deployed_synthetic():
+            version.synthetic_content = content
         if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
             version.rendition_status = "SOURCE_PDF"
             version.rendition_path_or_reference = version.source_path_or_reference
@@ -701,7 +714,7 @@ def create_master_content_version(
         return item_projection(db, item, include_history=True)
     metadata_only = content is None
     if content is None:
-        content = _adapter().read_configured_artifact(current.source_path_or_reference)
+        content = read_master_content_bytes(db, current)
     _allowed_file(filename or current.source_filename, content)
     category = _category(db, category_id, item.content_type) if category_id else db.get(ContentCategory, item.category_id) if item.category_id else None
     prior_category_id = item.category_id
@@ -740,7 +753,13 @@ def reconcile_item(db: Session, item_id: str, correlation_id: str) -> dict[str, 
     if not item or not item.current_document_version_id:
         raise _error("CONTENT_NOT_FOUND", 404)
     version = db.get(DocumentVersion, item.current_document_version_id)
-    actual = _adapter().verify_artifact(version.source_path_or_reference, version.sha256, version.file_size)
+    try:
+        actual = _adapter().verify_artifact(version.source_path_or_reference, version.sha256, version.file_size)
+    except (FileNotFoundError, ValueError, OSError):
+        if _deployed_synthetic() and version.synthetic_content is not None:
+            actual = {"verified": hashlib.sha256(version.synthetic_content).hexdigest() == version.sha256 and len(version.synthetic_content) == version.file_size}
+        else:
+            raise
     if not actual.get("verified"):
         audit(db, correlation_id=correlation_id, event_type="EXTERNAL_MUTATION_DETECTED", entity_type="MasterContentItem", entity_id=item.id, after={"ref": item.ref, "version": version.version_number}, metadata={"code": "SOR_EXTERNAL_MUTATION"})
         db.commit()

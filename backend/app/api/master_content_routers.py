@@ -29,6 +29,7 @@ from ..services.master_content import (
     archive_master_content,
     item_projection,
     eligible_master_content,
+    read_master_content_bytes,
     register_dependency,
     revalidate_dependency,
     reconcile_item,
@@ -327,7 +328,7 @@ def download_current(item_id: str, db: Session = Depends(get_db), role: Role = D
     if not item or not item.current_document_version_id:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
     version = db.get(DocumentVersion, item.current_document_version_id)
-    return _download(version)
+    return _download(db, version)
 
 
 @router.get("/master-content/{item_id}/versions/{version_id}/download")
@@ -336,7 +337,7 @@ def download_version(item_id: str, version_id: str, db: Session = Depends(get_db
     version = db.get(DocumentVersion, version_id) if item else None
     if not item or not version or version.document_id != item.document_id:
         raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
-    return _download(version)
+    return _download(db, version)
 
 
 @router.get("/master-content/{item_id}/versions/{version_id}/rendition")
@@ -347,12 +348,12 @@ def download_rendition(item_id: str, version_id: str, db: Session = Depends(get_
         raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
     if version.rendition_status != "SOURCE_PDF" or not version.rendition_path_or_reference:
         raise HTTPException(409, {"code": "RENDITION_NOT_AVAILABLE"})
-    return _download(version, path_override=version.rendition_path_or_reference, mime_override=version.rendition_mime_type or "application/pdf")
+    return _download(db, version, path_override=version.rendition_path_or_reference, mime_override=version.rendition_mime_type or "application/pdf")
 
 
-def _download(version: DocumentVersion, path_override: str | None = None, mime_override: str | None = None):
+def _download(db: Session, version: DocumentVersion, path_override: str | None = None, mime_override: str | None = None):
     try:
-        data = _adapter().read_configured_artifact(path_override or version.source_path_or_reference)
+        data = read_master_content_bytes(db, version) if not path_override or path_override == version.source_path_or_reference else _adapter().read_configured_artifact(path_override)
     except (FileNotFoundError, ValueError, OSError) as exc:
         raise HTTPException(502, {"code": "SOR_UNAVAILABLE"}) from exc
     return StreamingResponse(iter([data]), media_type=mime_override or version.mime_type, headers={"Content-Disposition": f'attachment; filename="{version.source_filename}"'})

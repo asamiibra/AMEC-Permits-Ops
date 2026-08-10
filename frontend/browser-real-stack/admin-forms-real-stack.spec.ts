@@ -19,15 +19,14 @@ async function saveVersion(page: import("@playwright/test").Page, row: import("@
 }
 
 async function downloadHistoryVersion(page: import("@playwright/test").Page, index: number) {
-  const download = page.getByRole("button", { name: "Download" }).nth(index);
-  const event = page.waitForEvent("download");
-  await download.click();
-  const file = await event;
-  const stream = await file.createReadStream();
-  if (!stream) throw new Error("Download stream unavailable");
-  const chunks: Buffer[] = [];
-  for await (const chunk of stream) chunks.push(Buffer.from(chunk));
-  return Buffer.concat(chunks);
+  const download = page.getByRole("link", { name: "Download" }).nth(index);
+  const href = await download.getAttribute("href");
+  if (!href) throw new Error("Download target unavailable");
+  const response = await page.request.get(new URL(href, page.url()).toString(), {
+    headers: { "X-Dev-Role": "SYSTEM_ADMIN" },
+  });
+  if (!response.ok()) throw new Error(`Download target returned ${response.status()}: ${await response.text()}`);
+  return response.body();
 }
 
 test("Administration Forms and Dashboard are two doors into one canonical library", async ({ page }) => {
@@ -62,7 +61,7 @@ test("Administration Forms and Dashboard are two doors into one canonical librar
   await expect(finalRow).toContainText("Version 3");
   await finalRow.getByRole("button", { name: "History" }).click();
   await expect(page.getByText("IMMUTABLE HISTORY")).toBeVisible();
-  expect(await page.getByRole("button", { name: "Download" }).count()).toBe(3);
+  expect(await page.getByRole("link", { name: "Download" }).count()).toBe(3);
   expect(await downloadHistoryVersion(page, 2)).toEqual(Buffer.from("admin-v1"));
   expect(await downloadHistoryVersion(page, 1)).toEqual(Buffer.from("dashboard-v2"));
 });

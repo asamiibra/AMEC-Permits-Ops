@@ -280,12 +280,13 @@ function FormTable({
               </td>
               <td>{formatDate(form.updated)}</td>
               <td className="dashboard-actions">
-                <button
+                <a
                   className="table-action action-view"
-                  onClick={() => void downloadForm(form.id)}
+                  href={`/api/master-content/${form.id}/download`}
+                  download
                 >
                   View
-                </button>
+                </a>
                 {canWrite && (
                   <button
                     className="table-action action-edit"
@@ -527,18 +528,13 @@ function FormHistory({
                     ? "Preview PDF available"
                     : "Source document"}
                 </span>
-                <button
-                  className="table-action action-view"
-                  onClick={() =>
-                    void downloadFormVersion(
-                      history.itemId,
-                      version.id,
-                      version.file_name,
-                    )
-                  }
-                >
-                  Download
-                </button>
+              <a
+                className="table-action action-view"
+                href={`/api/master-content/${history.itemId}/versions/${version.id}/download`}
+                download={version.file_name}
+              >
+                Download
+              </a>
               </div>
             </article>
           ))

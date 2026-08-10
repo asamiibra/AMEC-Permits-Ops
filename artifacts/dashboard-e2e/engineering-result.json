@@ -1,0 +1,1 @@
+{"status":"ENGINEERING_REVALIDATION_E2E_PASS","reference_pattern":"E-xxxx","material_revision":"v2 current; v1 superseded and preserved","downstream":{"issue":1,"workflow_task":1,"notifications":4,"dependency":"NEEDS_REVALIDATION"},"normal_upload_noise":{"issue":0,"workflow_task":0},"dedupe":{"issue":0,"workflow_task":0,"notification":0}}

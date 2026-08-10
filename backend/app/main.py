@@ -55,6 +55,10 @@ async def correlation_middleware(request: Request, call_next):
     request.state.correlation_id = correlation_id
     response = await call_next(request)
     response.headers["X-Correlation-ID"] = correlation_id
+    # API projections include mutable operational state. Vercel must not
+    # serve a cached GET after an Owner writes the same configuration.
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store, max-age=0"
     logger.info(json.dumps({"event": "request", "method": request.method, "path": request.url.path, "correlation_id": correlation_id}))
     return response
 
@@ -85,7 +89,7 @@ def health():
         connection_valid = False
     master_content_sor = {
         "mode": "SYNTHETIC_TEST" if settings.synthetic_only else "REAL_CONFIGURED",
-        "status": "SYNTHETIC_EPHEMERAL" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",
+        "status": "SYNTHETIC_DURABLE_DB_BACKED" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",
         "real_synology": "NOT_CONFIGURED" if settings.synthetic_only else "CONFIGURED_NOT_VERIFIED",
     }
     return {
@@ -143,7 +147,7 @@ def adapter_health():
         "synology": MockSynologyAdapter(str(root / "synology")).health_check(),
         "master_content_sor": {
             "mode": "SYNTHETIC_TEST" if settings.synthetic_only else "REAL_CONFIGURED",
-            "status": "SYNTHETIC_EPHEMERAL" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",
+            "status": "SYNTHETIC_DURABLE_DB_BACKED" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",
             "real_synology": "NOT_CONFIGURED" if settings.synthetic_only else "CONFIGURED_NOT_VERIFIED",
         },
         "excel": MockExcelAdapter(str(root / "excel/permit_tracker.xlsx")).health_check(),

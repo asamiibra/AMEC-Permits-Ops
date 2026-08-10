@@ -1,0 +1,11 @@
+{
+  "status": "DASHBOARD_E2E_ENTRY_BASELINE_PASS",
+  "branch": "main",
+  "commit_before": "22f45d02c28b1ad7fbd792996ce27b9b9e4bd976",
+  "alembic_before": "0030_dashboard_master_content_inputs",
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "database_before": "deployed PostgreSQL durable",
+  "test_sor": "MockSynologyAdapter / synthetic-only",
+  "real_synology": "NOT_CONFIGURED"
+}
