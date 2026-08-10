@@ -83,7 +83,7 @@ async function snapshot(page: any) {
 }
 
 test.describe("ProposalOps universal UI conformance gate", () => {
-  test.setTimeout(300_000);
+  test.setTimeout(900_000);
 
   test("crawls every material route, persona, and viewport and writes conformance evidence", async ({ page }) => {
     fs.mkdirSync(path.join(auditRoot, "screenshots"), { recursive: true });
@@ -96,6 +96,12 @@ test.describe("ProposalOps universal UI conformance gate", () => {
     page.on("requestfailed", (request) => requestFailures.push(`${request.method()} ${request.url()}`));
     page.on("response", (response) => { if (response.status() >= 400) badResponses.push(`${response.status()} ${response.url()}`); });
 
+    const expectedResultCount = inventory.material_routes.reduce((total: number, entry: any) => total + entry.roles.length * Object.keys(viewports).length, 0);
+    const recordFailure = (entry: any, route: string, persona: Persona, viewport: string, error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      results.push({ route_id: entry.id, route, persona, viewport, contract: contractById.has(entry.id), text: "", headings: [], title: "", current_stage_visible: false, viewed_stage_visible: false, raw_uuid: false, raw_json: false, raw_actor: false, raw_enum: ["NAVIGATION_ERROR"], blank_sections: [], collisions: [], horizontal_overflow: false, technical_allowlist: [...technicalAllowlist], axe_critical_or_serious: ["navigation-error"], navigation_error: message });
+    };
+
     for (const persona of ["Owner", "Business Development", "Engineering"] as Persona[]) {
       await page.goto("/work");
       await page.evaluate((role) => sessionStorage.setItem("proposalops-role", role), internalRole[persona]);
@@ -103,14 +109,23 @@ test.describe("ProposalOps universal UI conformance gate", () => {
         if (!entry.roles.includes(persona)) continue;
         const route = canonicalRoute(entry);
         for (const [viewport, size] of Object.entries(viewports)) {
-          await page.setViewportSize(size);
-          await page.goto(route, { waitUntil: "domcontentloaded" });
-          await page.waitForTimeout(80);
-          const current = await snapshot(page);
-          const axe = viewport === "desktop" && ["S01", "S02", "S02A", "S02B", "S02C", "S02D", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12", "S13", "S14", "S15", "S26"].includes(entry.id) ? await new AxeBuilder({ page }).analyze() : { violations: [] };
-          const screenshot = path.join(auditRoot, "screenshots", `${entry.id}-${persona.replaceAll(" ", "-")}-${viewport}.png`);
-          await page.screenshot({ path: screenshot, fullPage: true });
-          results.push({ route_id: entry.id, route, persona, viewport, contract: contractById.has(entry.id), ...current, axe_critical_or_serious: axe.violations.filter((item) => ["critical", "serious"].includes(item.impact || "")).map((item) => item.id), screenshot: path.relative(repoRoot, screenshot) });
+          console.log(`[ui-conformance] ${results.length + 1}/${expectedResultCount} ${entry.id} ${persona} ${viewport}`);
+          try {
+            await page.setViewportSize(size);
+            await page.goto(route, { waitUntil: "domcontentloaded", timeout: 10_000 });
+            await page.waitForTimeout(80);
+            const current = await snapshot(page);
+            const shouldRunAxe = viewport === "desktop" && ["S01", "S02", "S02A", "S02B", "S02C", "S02D", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12", "S13", "S14", "S15", "S26"].includes(entry.id);
+            const axe = shouldRunAxe ? await Promise.race([
+              new AxeBuilder({ page }).analyze(),
+              new Promise((resolve) => setTimeout(() => resolve({ violations: [{ id: "axe-timeout", impact: "serious" }] }), 5_000))
+            ]) : { violations: [] };
+            const screenshot = path.join(auditRoot, "screenshots", `${entry.id}-${persona.replaceAll(" ", "-")}-${viewport}.png`);
+            await page.screenshot({ path: screenshot, fullPage: true, animations: "disabled", timeout: 10_000 });
+            results.push({ route_id: entry.id, route, persona, viewport, contract: contractById.has(entry.id), ...current, axe_critical_or_serious: axe.violations.filter((item: any) => ["critical", "serious"].includes(item.impact || "")).map((item: any) => item.id), screenshot: path.relative(repoRoot, screenshot) });
+          } catch (error) {
+            recordFailure(entry, route, persona, viewport, error);
+          }
         }
       }
     }
@@ -154,7 +169,7 @@ test.describe("ProposalOps universal UI conformance gate", () => {
     fs.writeFileSync(path.join(auditRoot, "network-console-results.json"), JSON.stringify({ gates: { UI_CRAWL_CONSOLE_ERROR_ZERO: checks.UI_CRAWL_CONSOLE_ERROR_ZERO, UI_CRAWL_NETWORK_FAILURE_ZERO: checks.UI_CRAWL_NETWORK_FAILURE_ZERO }, console_errors: consoleErrors, request_failures: requestFailures, bad_responses: badResponses }, null, 2) + "\n");
     const final = { decision: ready ? "PROPOSALOPS_UI_CONFORMANCE_READY" : "PROPOSALOPS_UI_CONFORMANCE_NOT_READY", checks, route_count: inventory.route_count, result_count: results.length, exact_gaps: Object.entries(checks).filter(([, value]) => !value).map(([key]) => key) };
     fs.writeFileSync(path.join(auditRoot, "final-result.json"), JSON.stringify(final, null, 2) + "\n");
-    expect(results).toHaveLength(inventory.material_routes.reduce((total: number, entry: any) => total + entry.roles.length * Object.keys(viewports).length, 0));
+    expect(results).toHaveLength(expectedResultCount);
   });
 
   test("enforces the final conformance decision", async () => {

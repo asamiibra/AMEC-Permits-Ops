@@ -115,4 +115,34 @@ test.describe("ProposalOps universal design and functional audit", () => {
     fs.writeFileSync(path.join(auditRoot, "api-failure-result.json"), JSON.stringify({ cases: results, fake_success_or_empty: results.some((item) => !item.error_copy), status: results.every((item) => item.error_copy && item.retry > 0) ? "PASS" : "FAIL" }, null, 2) + "\n");
     expect(results).toHaveLength(cases.length);
   });
+
+  test("role matrix and current-stage authority evidence", async ({ page }) => {
+    fs.mkdirSync(auditRoot, { recursive: true });
+    await page.goto("/work", { waitUntil: "domcontentloaded" });
+    const ids = await fixtureIds(page);
+    const checks = [
+      { role: "Owner" as Role, route: "/admin", expectedUrl: "/admin", expected: /Administration|People & Access/i, name: "owner-admin-access" },
+      { role: "Business Development" as Role, route: "/admin", expectedUrl: "/work", expected: /AMEC Work|Action required/i, name: "bd-admin-denied" },
+      { role: "Engineering" as Role, route: "/admin", expectedUrl: "/work", expected: /AMEC Work|Action required/i, name: "engineering-admin-denied" },
+      { role: "Owner" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "owner-commercial" },
+      { role: "Business Development" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "bd-commercial" },
+      { role: "Engineering" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "engineering-commercial" },
+      { role: "Owner" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "owner-permit-context" },
+      { role: "Business Development" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "bd-permit-context" },
+      { role: "Engineering" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "engineering-permit-context" },
+    ];
+    const results = [];
+    for (const item of checks) {
+      await page.addInitScript((value: string) => sessionStorage.setItem("proposalops-role", value), roleStorage[item.role]);
+      await page.goto(item.route, { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(260);
+      const body = await page.locator("body").innerText();
+      const url = new URL(page.url()).pathname;
+      const result = { name: item.name, role: item.role, route: item.route, observed_url: url, url_ok: url.startsWith(item.expectedUrl), copy_ok: item.expected.test(body), body_excerpt: body.replace(/\s+/g, " ").slice(0, 280) };
+      results.push(result);
+    }
+    const summary = { generated_at: new Date().toISOString(), checks: results, status: results.every((item) => item.url_ok && item.copy_ok) ? "PASS" : "FAIL" };
+    fs.writeFileSync(path.join(auditRoot, "role-matrix-result.json"), JSON.stringify(summary, null, 2) + "\n");
+    expect(summary.status).toBe("PASS");
+  });
 });
