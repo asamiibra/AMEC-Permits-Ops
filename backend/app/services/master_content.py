@@ -1,0 +1,539 @@
+"""Governed master-content commands over the configured AMEC SOR.
+
+The service deliberately keeps SOR locators and hashes server-side. The API
+returns business projections; file bytes are read through this service only.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from ..adapters.synology.adapter import MockSynologyAdapter
+from ..audit.service import audit
+from ..config.settings import get_settings, repo_root
+from ..models import (
+    ContentCategory,
+    Document,
+    DocumentApprovalState,
+    DocumentType,
+    DocumentVersion,
+    DefinitionEntry,
+    DefinitionRevision,
+    MasterContentChangeEvent,
+    MasterContentDependency,
+    MasterContentEventDelivery,
+    MasterContentIdempotency,
+    MasterContentItem,
+    MaterialChangeEvent,
+    Finding,
+    FindingStatus,
+    NotificationEvent,
+    PermitApplication,
+    WorkflowTask,
+    WorkflowTaskStatus,
+    LineageEdge,
+)
+
+CONTENT_TYPES = {"FORM", "REPORT", "ENGINEERING_WORK"}
+SEMANTIC_DESTINATION = {
+    "FORM": "MASTER_FORM",
+    "REPORT": "MASTER_REPORT",
+    "ENGINEERING_WORK": "MASTER_ENGINEERING_WORK",
+}
+DEFAULT_CATEGORIES = [
+    {"code": "DESIGN", "label": "Design", "description": "Design-related reference content", "allowed_content_types": ["FORM", "REPORT", "ENGINEERING_WORK"], "sort_order": 10},
+    {"code": "DC", "label": "DC", "description": "Synthetic example category", "allowed_content_types": ["FORM", "REPORT"], "sort_order": 20},
+    {"code": "REGULATION", "label": "Regulation", "description": "Regulatory reference content", "allowed_content_types": ["ENGINEERING_WORK"], "sort_order": 30},
+    {"code": "ARCH", "label": "Arch", "description": "Architectural reference content", "allowed_content_types": ["ENGINEERING_WORK"], "sort_order": 40},
+]
+
+
+def _error(code: str, status: int = 422, **details: Any) -> HTTPException:
+    return HTTPException(status_code=status, detail={"code": code, **details})
+
+
+def _actor(role: Any) -> str:
+    return getattr(role, "value", str(role))
+
+
+def _adapter() -> MockSynologyAdapter:
+    settings = get_settings()
+    if os.getenv("VERCEL") and settings.synthetic_only:
+        # Vercel's bundled filesystem is read-only. Keep the synthetic SOR
+        # contract executable for deployed TEST builds in an explicitly
+        # ephemeral /tmp root; production must provide a real Synology SOR.
+        root = Path(os.getenv("SYNTHETIC_SOR_ROOT", "/tmp/permitops-synology"))
+        for folder in ("master-content/forms", "master-content/reports", "master-content/engineering-works"):
+            (root / "synology" / folder).mkdir(parents=True, exist_ok=True)
+    else:
+        root = Path(settings.mock_systems_root)
+        if not root.is_absolute():
+            root = repo_root() / root
+    return MockSynologyAdapter(str(root / "synology"))
+
+
+def _mapping() -> dict[str, str]:
+    try:
+        mapping = json.loads(get_settings().master_sor_mapping_json)
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise _error("SOR_DESTINATION_UNRESOLVED") from exc
+    if not isinstance(mapping, dict):
+        raise _error("SOR_DESTINATION_UNRESOLVED")
+    return {str(key): str(value) for key, value in mapping.items()}
+
+
+def _safe_filename(filename: str, ref: str, version_number: int) -> str:
+    suffix = Path(filename or "source.bin").suffix.lower()
+    if not suffix:
+        suffix = ".bin"
+    stem = re.sub(r"[^A-Za-z0-9._ -]", "_", Path(filename or "source").stem).strip(" .") or "document"
+    return f"{ref}-v{version_number}-{stem[:180]}{suffix}"
+
+
+def _allowed_file(filename: str, content: bytes) -> None:
+    settings = get_settings()
+    extension = Path(filename or "").suffix.lower()
+    allowed = {item.strip().lower() for item in settings.master_sor_allowed_extensions.split(",") if item.strip()}
+    if extension not in allowed:
+        raise _error("FILE_TYPE_NOT_ALLOWED", extension=extension)
+    if not content:
+        raise _error("FILE_REQUIRED")
+    if len(content) > settings.master_sor_max_file_size:
+        raise _error("FILE_TOO_LARGE", max_bytes=settings.master_sor_max_file_size)
+
+
+def _category(db: Session, category_id: str | None, content_type: str) -> ContentCategory | None:
+    if not category_id:
+        return None
+    category = db.get(ContentCategory, category_id)
+    if not category or not category.active:
+        raise _error("CATEGORY_NOT_FOUND")
+    if category.allowed_content_types and content_type not in category.allowed_content_types:
+        raise _error("CATEGORY_CONTENT_TYPE_NOT_ALLOWED")
+    return category
+
+
+def seed_categories(db: Session) -> None:
+    for data in DEFAULT_CATEGORIES:
+        if not db.scalar(select(ContentCategory).where(ContentCategory.code == data["code"])):
+            db.add(ContentCategory(**data))
+    db.flush()
+
+
+def _status(version: DocumentVersion) -> str:
+    return str((version.metadata_json or {}).get("master_status", "PENDING_WRITE"))
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _materiality(item: MasterContentItem, previous: DocumentVersion | None, version: DocumentVersion, category_changed: bool = False) -> str:
+    if not previous or previous.sha256 != version.sha256 or category_changed or item.content_type == "ENGINEERING_WORK":
+        return "MATERIAL"
+    return "NON_MATERIAL"
+
+
+def _delivery_exists(db: Session, event_id: str, delivery_type: str, target_type: str, target_id: str, recipient_role: str = "-") -> bool:
+    return bool(db.scalar(select(MasterContentEventDelivery).where(MasterContentEventDelivery.event_id == event_id, MasterContentEventDelivery.delivery_type == delivery_type, MasterContentEventDelivery.target_type == target_type, MasterContentEventDelivery.target_id == target_id, MasterContentEventDelivery.recipient_role == recipient_role)))
+
+
+def _record_delivery(db: Session, event_id: str, delivery_type: str, target_type: str, target_id: str, recipient_role: str = "-") -> None:
+    if not _delivery_exists(db, event_id, delivery_type, target_type, target_id, recipient_role):
+        db.add(MasterContentEventDelivery(event_id=event_id, delivery_type=delivery_type, target_type=target_type, target_id=target_id, recipient_role=recipient_role))
+
+
+def _lineage_once(db: Session, *, project_id: str, source_version: DocumentVersion, downstream_type: str, downstream_id: str, dependency_kind: str, correlation_id: str) -> None:
+    if not db.scalar(select(LineageEdge).where(LineageEdge.project_id == project_id, LineageEdge.upstream_type == "DocumentVersion", LineageEdge.upstream_id == source_version.id, LineageEdge.downstream_type == downstream_type, LineageEdge.downstream_id == downstream_id, LineageEdge.dependency_kind == dependency_kind)):
+        db.add(LineageEdge(project_id=project_id, upstream_type="DocumentVersion", upstream_id=source_version.id, upstream_version_or_hash=source_version.sha256, downstream_type=downstream_type, downstream_id=downstream_id, downstream_version_or_hash=source_version.sha256, dependency_kind=dependency_kind, correlation_id=correlation_id))
+
+
+def _project_finding(db: Session, *, item: MasterContentItem, event: MasterContentChangeEvent, dependency: MasterContentDependency, current: DocumentVersion, correlation_id: str) -> Finding | None:
+    if not dependency.project_id:
+        return None
+    application = db.scalar(select(PermitApplication).where(PermitApplication.project_id == dependency.project_id).order_by(PermitApplication.created_at))
+    if not application:
+        return None
+    key = f"MASTER_CONTENT_REVALIDATION:{dependency.id}:{current.id}"
+    existing = db.scalar(select(Finding).where(Finding.source_type == "MASTER_CONTENT", Finding.source_reference == key))
+    if existing:
+        return existing
+    finding = Finding(project_id=dependency.project_id, application_id=application.id, source_type="MASTER_CONTENT", source_reference=key, source_timestamp=event.occurred_at, captured_by=event.actor_or_system, title=f"{item.ref} requires review", raw_text=f"Current {item.content_type} version changed while {dependency.downstream_type} {dependency.downstream_id} remained bound to an older version.", normalized_summary=f"Revalidate {dependency.downstream_type} against {item.ref} v{current.version_number}.", language="en", discipline="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "MASTER_CONTENT", affected_object_type=dependency.downstream_type, affected_object_id=dependency.id, requirement_code="MASTER_CONTENT_REVALIDATION", severity="MAJOR" if item.content_type == "ENGINEERING_WORK" else "ADVISORY", blocking=False, status="OPEN", assignee_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", correlation_id=correlation_id, domain="MASTER_CONTENT", owner_persona="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "OWNER", deep_link=f"/dashboard?content={item.id}")
+    db.add(finding)
+    db.flush()
+    return finding
+
+
+def _project_task(db: Session, *, dependency: MasterContentDependency, finding: Finding | None, item: MasterContentItem, current: DocumentVersion, correlation_id: str) -> WorkflowTask | None:
+    if not finding or dependency.status != "NEEDS_REVALIDATION":
+        return None
+    existing = db.scalar(select(WorkflowTask).where(WorkflowTask.context_type == "MASTER_CONTENT_DEPENDENCY", WorkflowTask.context_id == dependency.id, WorkflowTask.status.in_((WorkflowTaskStatus.OPEN, WorkflowTaskStatus.IN_PROGRESS))))
+    if existing:
+        return existing
+    task = WorkflowTask(project_id=dependency.project_id, application_id=finding.application_id, finding_id=finding.id, task_type="MASTER_CONTENT_REVALIDATION", title=f"Revalidate {item.ref} v{current.version_number}", description=f"Review the changed {item.content_type} source for {dependency.downstream_type} {dependency.downstream_id}.", owner_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", status=WorkflowTaskStatus.OPEN, priority="HIGH" if item.content_type == "ENGINEERING_WORK" else "NORMAL", correlation_id=correlation_id, task_family="MASTER_CONTENT", context_type="MASTER_CONTENT_DEPENDENCY", context_id=dependency.id, blocking=False, next_action_code="MASTER_CONTENT_REVALIDATION", deep_link=f"/dashboard?content={item.id}", evidence_summary={"master_content_id": item.id, "bound_version_id": dependency.bound_document_version_id, "current_version_id": current.id})
+    db.add(task)
+    db.flush()
+    return task
+
+
+def _project_notifications(db: Session, *, event: MasterContentChangeEvent, item: MasterContentItem, finding: Finding | None, task: WorkflowTask | None, correlation_id: str) -> None:
+    roles = ["OWNER", "ENGINEERING"] if item.content_type == "ENGINEERING_WORK" else ["OWNER", "BUSINESS_DEVELOPMENT"]
+    for role in roles:
+        target_id = f"{event.id}:{role}"
+        if _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
+            continue
+        db.add(NotificationEvent(finding_id=finding.id if finding else None, workflow_task_id=task.id if task else None, recipient_role=role, channel="IN_APP", event_type=event.event_type, status="PENDING", subject=f"{item.ref} updated", body_preview=f"{item.content_type.replace('_', ' ').title()} {item.ref} v{event.metadata_json.get('version_number')} is now current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=event.actor_or_system, deep_link=f"/dashboard?content={item.id}"))
+        _record_delivery(db, event.id, "NOTIFICATION", "ROLE", role, role)
+
+
+def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: MasterContentItem, current: DocumentVersion) -> dict[str, int]:
+    """Evaluate explicit dependencies and project deterministic platform actions."""
+    dependencies = db.scalars(select(MasterContentDependency).where(MasterContentDependency.master_content_id == item.id)).all()
+    impacts = {"dependencies": len(dependencies), "lineage": 0, "findings": 0, "tasks": 0, "notifications": 0}
+    for dependency in dependencies:
+        if dependency.project_id:
+            _lineage_once(db, project_id=dependency.project_id, source_version=current, downstream_type=dependency.downstream_type, downstream_id=dependency.downstream_id, dependency_kind="MASTER_CONTENT_CURRENT_VERSION", correlation_id=event.correlation_id)
+            impacts["lineage"] += 1
+        needs_revalidation = event.materiality == "MATERIAL" and dependency.policy == "REVALIDATE_ON_CURRENT_CHANGE" and dependency.expected_current_version_id != current.id and dependency.status not in {"COMPLETED", "HISTORICAL"}
+        if needs_revalidation:
+            dependency.status = "NEEDS_REVALIDATION"
+            dependency.expected_current_version_id = current.id
+            finding = _project_finding(db, item=item, event=event, dependency=dependency, current=current, correlation_id=event.correlation_id)
+            task = _project_task(db, dependency=dependency, finding=finding, item=item, current=current, correlation_id=event.correlation_id)
+            if finding:
+                impacts["findings"] += 1
+                _record_delivery(db, event.id, "FINDING", "Finding", finding.id)
+            if task:
+                impacts["tasks"] += 1
+                _record_delivery(db, event.id, "WORKFLOW_TASK", "WorkflowTask", task.id)
+        else:
+            finding = None
+            task = None
+    if dependencies and event.materiality == "MATERIAL":
+        before_notifications = len(db.new)
+        _project_notifications(db, event=event, item=item, finding=None, task=None, correlation_id=event.correlation_id)
+        impacts["notifications"] = len(db.new) - before_notifications
+    event.status = "PROCESSED"
+    event.metadata_json = {**(event.metadata_json or {}), "propagation": impacts, "processed_at": _now().isoformat()}
+    db.flush()
+    return impacts
+
+
+def register_dependency(db: Session, *, item_id: str, downstream_type: str, downstream_id: str, project_id: str | None, dependency_kind: str, actor: str, correlation_id: str) -> dict[str, Any]:
+    item = db.get(MasterContentItem, item_id)
+    if not item or not item.current_document_version_id:
+        raise _error("CONTENT_NOT_FOUND", 404)
+    allowed = {"EngineeringReview", "EngineeringReviewRun", "RenderedArtifact", "GeneratedReport", "Proposal", "Contract", "PermitApplication", "Workflow", "Requirement", "FormTemplate", "ReportDefinition"}
+    if downstream_type not in allowed:
+        raise _error("DEPENDENCY_TYPE_NOT_ALLOWED")
+    current = db.get(DocumentVersion, item.current_document_version_id)
+    dependency = db.scalar(select(MasterContentDependency).where(MasterContentDependency.master_content_id == item.id, MasterContentDependency.downstream_type == downstream_type, MasterContentDependency.downstream_id == downstream_id, MasterContentDependency.dependency_kind == dependency_kind))
+    if not dependency:
+        dependency = MasterContentDependency(master_content_id=item.id, bound_document_version_id=current.id, expected_current_version_id=current.id, downstream_type=downstream_type, downstream_id=downstream_id, project_id=project_id, dependency_kind=dependency_kind, created_by=actor)
+        db.add(dependency)
+        db.flush()
+        if project_id:
+            _lineage_once(db, project_id=project_id, source_version=current, downstream_type=downstream_type, downstream_id=downstream_id, dependency_kind="MASTER_CONTENT_DEPENDENCY", correlation_id=correlation_id)
+    db.commit()
+    return {"id": dependency.id, "master_content_id": item.id, "bound_version_id": dependency.bound_document_version_id, "expected_current_version_id": dependency.expected_current_version_id, "downstream_type": dependency.downstream_type, "downstream_id": dependency.downstream_id, "status": dependency.status, "policy": dependency.policy}
+
+
+def revalidate_dependency(db: Session, *, dependency_id: str, actor: str, correlation_id: str) -> dict[str, Any]:
+    dependency = db.get(MasterContentDependency, dependency_id)
+    if not dependency:
+        raise _error("DEPENDENCY_NOT_FOUND", 404)
+    dependency.bound_document_version_id = dependency.expected_current_version_id
+    dependency.status = "CURRENT"
+    audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_DEPENDENCY_REVALIDATED", entity_type="MasterContentDependency", entity_id=dependency.id, actor_id=actor, after={"bound_version_id": dependency.bound_document_version_id})
+    db.commit()
+    return {"id": dependency.id, "bound_version_id": dependency.bound_document_version_id, "expected_current_version_id": dependency.expected_current_version_id, "status": dependency.status}
+
+
+def eligible_master_content(db: Session, *, use: str = "ENGINEERING_AI") -> list[dict[str, Any]]:
+    rows = []
+    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE").order_by(MasterContentItem.ref)).all():
+        version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+        if not version or _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
+            continue
+        if use == "ENGINEERING_AI" and item.content_type != "ENGINEERING_WORK":
+            continue
+        rows.append({"master_content_id": item.id, "ref": item.ref, "content_type": item.content_type, "title": item.title, "document_version_id": version.id, "version": version.version_number, "source_hash": version.sha256, "eligibility": "CURRENT_VERIFIED"})
+    return rows
+
+
+def definition_lookup(db: Session, term: str) -> dict[str, Any] | None:
+    definition = db.scalar(select(DefinitionEntry).where(DefinitionEntry.term == term, DefinitionEntry.status == "ACTIVE"))
+    return definition_projection(db, definition, include_history=False) if definition else None
+
+
+def _version_projection(version: DocumentVersion) -> dict[str, Any]:
+    metadata = version.metadata_json or {}
+    return {
+        "id": version.id,
+        "version": version.version_number,
+        "status": _status(version),
+        "file_name": version.source_filename,
+        "mime_type": version.mime_type,
+        "size_bytes": version.file_size,
+        "updated_by": metadata.get("uploaded_by", "Unknown"),
+        "updated_at": version.ingested_at.isoformat(),
+        "change_reason": metadata.get("change_reason"),
+        "change_kind": metadata.get("change_kind", "CREATE"),
+        "downloadable": _status(version) in {"CURRENT", "SUPERSEDED"},
+    }
+
+
+def item_projection(db: Session, item: MasterContentItem, include_history: bool = False) -> dict[str, Any]:
+    current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+    category = db.get(ContentCategory, item.category_id) if item.category_id else None
+    result: dict[str, Any] = {
+        "id": item.id,
+        "ref": item.ref,
+        "content_type": item.content_type,
+        "title": item.title,
+        "category": {"id": category.id, "code": category.code, "label": category.label} if category else None,
+        "description": item.description,
+        "status": item.status,
+        "version": current.version_number if current else None,
+        "version_status": _status(current) if current else "NO_VERSION",
+        "updated": item.updated_at.isoformat() if item.updated_at else None,
+        "storage_status": "Storage verified" if current and _status(current) == "CURRENT" else "Storage unavailable",
+        "current_version_id": current.id if current else None,
+    }
+    if include_history:
+        versions = db.scalars(select(DocumentVersion).where(DocumentVersion.document_id == item.document_id).order_by(DocumentVersion.version_number.desc())).all()
+        result["versions"] = [_version_projection(version) for version in versions]
+    return result
+
+
+def _verify_and_promote(
+    db: Session,
+    *,
+    item: MasterContentItem,
+    document: Document,
+    version: DocumentVersion,
+    content: bytes,
+    configured_destination: str,
+    actor: str,
+    correlation_id: str,
+    source_surface: str = "DASHBOARD",
+    previous: DocumentVersion | None,
+) -> None:
+    adapter = _adapter()
+    try:
+        target = adapter.resolve_configured_path(configured_destination)
+        existing_same_hash = None
+        if previous and previous.sha256 == version.sha256 and previous.source_path_or_reference:
+            try:
+                existing_same_hash = adapter.verify_artifact(previous.source_path_or_reference, version.sha256, version.file_size)
+            except (FileNotFoundError, ValueError, OSError):
+                existing_same_hash = None
+        if existing_same_hash and existing_same_hash.get("verified"):
+            sor_metadata = existing_same_hash
+            version.source_path_or_reference = previous.source_path_or_reference
+        else:
+            stored = adapter.put_configured_artifact(configured_destination, version.source_filename, content)
+            version.source_path_or_reference = stored["path"]
+            sor_metadata = adapter.verify_artifact(stored["path"], version.sha256, version.file_size)
+        if not sor_metadata.get("verified"):
+            version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_HASH_MISMATCH"}
+            db.commit()
+            raise _error("SOR_HASH_MISMATCH", 502)
+        if sor_metadata.get("path", "").startswith("/") or target is None:
+            raise _error("SOR_READBACK_FAILED", 502)
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "verified_at": version.ingested_at.isoformat()}
+        db.flush()
+    except HTTPException:
+        raise
+    except (FileNotFoundError, ValueError, OSError, RuntimeError) as exc:
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_WRITE_FAILED", "failure": str(exc)}
+        db.commit()
+        raise _error("SOR_UNAVAILABLE" if isinstance(exc, FileNotFoundError) else "SOR_WRITE_FAILED", 502) from exc
+
+    if previous:
+        previous.metadata_json = {**(previous.metadata_json or {}), "master_status": "SUPERSEDED"}
+        previous.approval_state = DocumentApprovalState.SUPERSEDED
+        previous.superseded_by = version.id
+    version.approval_state = DocumentApprovalState.REVIEWED
+    version.metadata_json = {**(version.metadata_json or {}), "master_status": "CURRENT", "uploaded_by": actor}
+    document.current_version_id = version.id
+    item.current_document_version_id = version.id
+    category = db.get(ContentCategory, item.category_id) if item.category_id else None
+    change_reason = (version.metadata_json or {}).get("change_reason")
+    event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=previous.id if previous else None, new_version_id=version.id, change_type="MASTER_CONTENT_VERSION_PROMOTED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"content_type": item.content_type, "ref": item.ref, "version_number": version.version_number, "source_surface": source_surface}, event_type="MASTER_CONTENT_CREATED" if previous is None else "MASTER_CONTENT_VERSION_PROMOTED", content_type=item.content_type, business_ref=item.ref, category_snapshot={"id": category.id, "code": category.code, "label": category.label} if category else {}, change_kind=(version.metadata_json or {}).get("change_kind", "MODIFY"), change_reason=change_reason, materiality=_materiality(item, previous, version, False), source_hash=version.sha256)
+    db.add(event)
+    db.flush()
+    propagate_master_change(db, event, item, version)
+    audit(db, correlation_id=correlation_id, event_type="SOR_READBACK_VERIFIED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, metadata={"ref": item.ref, "version": version.version_number, "source_surface": source_surface})
+    audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_VERSION_PROMOTED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, before={"version": previous.version_number if previous else None}, after={"version": version.version_number, "status": "CURRENT"}, metadata={"ref": item.ref, "source_surface": source_surface})
+
+
+def create_master_content(
+    db: Session,
+    *,
+    content_type: str,
+    ref: str,
+    title: str,
+    category_id: str | None,
+    description: str | None,
+    filename: str,
+    mime_type: str,
+    content: bytes,
+    actor: str,
+    idempotency_key: str,
+    correlation_id: str,
+    source_surface: str = "DASHBOARD",
+) -> dict[str, Any]:
+    content_type = content_type.upper().strip()
+    ref = ref.strip()
+    title = title.strip()
+    if content_type not in CONTENT_TYPES or not ref or not title:
+        raise _error("MASTER_CONTENT_METADATA_INVALID")
+    _allowed_file(filename, content)
+    _category(db, category_id, content_type)
+    prior_idempotency = db.scalar(select(MasterContentIdempotency).where(MasterContentIdempotency.idempotency_key == idempotency_key))
+    if prior_idempotency:
+        item = db.get(MasterContentItem, prior_idempotency.master_content_id)
+        return item_projection(db, item, include_history=True)
+    if db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == content_type, MasterContentItem.ref == ref)):
+        raise _error("MASTER_CONTENT_REF_CONFLICT", 409, ref=ref)
+    mapping = _mapping()
+    destination = mapping.get(SEMANTIC_DESTINATION[content_type])
+    if not destination:
+        raise _error("SOR_DESTINATION_UNRESOLVED", 503)
+    digest = hashlib.sha256(content).hexdigest()
+    document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=title, language="en", source_system="MASTER_CONTENT")
+    item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, status="ACTIVE", document=document, created_by=actor)
+    db.add(item)
+    db.flush()
+    version = DocumentVersion(document_id=document.id, version_number=1, source_filename=_safe_filename(filename, ref, 1), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or "application/octet-stream", file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": content_type, "business_ref": ref, "title": title, "description": description, "change_kind": "CREATE", "change_reason": "Initial version"})
+    db.add(version)
+    db.flush()
+    try:
+        _verify_and_promote(db, item=item, document=document, version=version, content=content, configured_destination=destination, actor=actor, correlation_id=correlation_id, source_surface=source_surface, previous=None)
+        db.add(MasterContentIdempotency(idempotency_key=idempotency_key, master_content_id=item.id, document_version_id=version.id, result_json={"master_content_id": item.id, "document_version_id": version.id}))
+        audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_CREATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": ref, "content_type": content_type, "version": 1}, metadata={"change_reason": "Initial version", "source_surface": source_surface})
+        db.commit()
+    except HTTPException:
+        db.rollback() if db.in_transaction() and version.metadata_json.get("master_status") == "PENDING_WRITE" else None
+        raise
+    return item_projection(db, item, include_history=True)
+
+
+def create_master_content_version(
+    db: Session,
+    *,
+    item_id: str,
+    expected_current_version: int,
+    filename: str | None,
+    mime_type: str | None,
+    content: bytes | None,
+    title: str | None,
+    category_id: str | None,
+    description: str | None,
+    change_reason: str,
+    actor: str,
+    idempotency_key: str,
+    correlation_id: str,
+    source_surface: str = "DASHBOARD",
+) -> dict[str, Any]:
+    item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
+    if not item:
+        raise _error("CONTENT_NOT_FOUND", 404)
+    if item.status != "ACTIVE":
+        raise _error("CONTENT_ARCHIVED", 409)
+    current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+    if not current or current.version_number != expected_current_version:
+        raise _error("VERSION_CONFLICT", 409, current_version=current.version_number if current else None)
+    existing = db.scalar(select(MasterContentIdempotency).where(MasterContentIdempotency.idempotency_key == idempotency_key))
+    if existing:
+        return item_projection(db, item, include_history=True)
+    if content is None:
+        content = _adapter().read_configured_artifact(current.source_path_or_reference)
+    _allowed_file(filename or current.source_filename, content)
+    category = _category(db, category_id, item.content_type) if category_id else db.get(ContentCategory, item.category_id) if item.category_id else None
+    mapping = _mapping()
+    destination = mapping.get(SEMANTIC_DESTINATION[item.content_type])
+    if not destination:
+        raise _error("SOR_DESTINATION_UNRESOLVED", 503)
+    next_version = current.version_number + 1
+    digest = hashlib.sha256(content).hexdigest()
+    document = db.get(Document, item.document_id)
+    item.title = (title or item.title).strip()
+    item.category_id = category.id if category else item.category_id
+    if description is not None:
+        item.description = description
+    version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=_safe_filename(filename or current.source_filename, item.ref, next_version), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or current.mime_type, file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": item.content_type, "business_ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "change_kind": "MODIFY", "change_reason": change_reason, "uploaded_by": actor})
+    db.add(version)
+    db.flush()
+    try:
+        _verify_and_promote(db, item=item, document=document, version=version, content=content, configured_destination=destination, actor=actor, correlation_id=correlation_id, source_surface=source_surface, previous=current)
+        db.add(MasterContentIdempotency(idempotency_key=idempotency_key, master_content_id=item.id, document_version_id=version.id, result_json={"master_content_id": item.id, "document_version_id": version.id}))
+        audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_VERSION_UPLOADED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": item.ref, "version": next_version}, metadata={"change_reason": change_reason, "source_surface": source_surface})
+        db.commit()
+    except HTTPException:
+        raise
+    return item_projection(db, item, include_history=True)
+
+
+def reconcile_item(db: Session, item_id: str, correlation_id: str) -> dict[str, Any]:
+    item = db.get(MasterContentItem, item_id)
+    if not item or not item.current_document_version_id:
+        raise _error("CONTENT_NOT_FOUND", 404)
+    version = db.get(DocumentVersion, item.current_document_version_id)
+    actual = _adapter().verify_artifact(version.source_path_or_reference, version.sha256, version.file_size)
+    if not actual.get("verified"):
+        audit(db, correlation_id=correlation_id, event_type="EXTERNAL_MUTATION_DETECTED", entity_type="MasterContentItem", entity_id=item.id, after={"ref": item.ref, "version": version.version_number}, metadata={"code": "SOR_EXTERNAL_MUTATION"})
+        db.commit()
+        raise _error("SOR_EXTERNAL_MUTATION", 409)
+    return item_projection(db, item, include_history=True)
+
+
+def archive_master_content(db: Session, *, item_id: str, actor: str, correlation_id: str) -> dict[str, Any]:
+    item = db.get(MasterContentItem, item_id)
+    if not item:
+        raise _error("CONTENT_NOT_FOUND", 404)
+    item.status = "ARCHIVED"
+    current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+    event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=current.id if current else None, new_version_id=current.id if current else item.id, change_type="MASTER_CONTENT_ARCHIVED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"ref": item.ref, "version_number": current.version_number if current else None}, event_type="MASTER_CONTENT_ARCHIVED", content_type=item.content_type, business_ref=item.ref, change_kind="ARCHIVE", change_reason="Owner archived content", materiality="MATERIAL", source_hash=current.sha256 if current else None)
+    db.add(event)
+    audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_ARCHIVED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": item.ref, "status": "ARCHIVED"})
+    db.commit()
+    return item_projection(db, item, include_history=True)
+
+
+def definition_projection(db: Session, definition: DefinitionEntry, include_history: bool = False) -> dict[str, Any]:
+    current = db.get(DefinitionRevision, definition.current_revision_id) if definition.current_revision_id else None
+    result: dict[str, Any] = {"id": definition.id, "ref": definition.ref, "term": definition.term, "description": current.description if current else None, "revision": current.revision_number if current else None, "status": definition.status, "updated": definition.updated_at.isoformat() if definition.updated_at else None, "aliases": current.aliases if current else [], "notes": current.notes if current else None}
+    if include_history:
+        revisions = db.scalars(select(DefinitionRevision).where(DefinitionRevision.definition_id == definition.id).order_by(DefinitionRevision.revision_number.desc())).all()
+        result["revisions"] = [{"id": r.id, "revision": r.revision_number, "term": r.term, "description": r.description, "aliases": r.aliases, "notes": r.notes, "status": r.status, "changed_by": r.changed_by, "changed_at": r.changed_at.isoformat(), "change_reason": r.change_reason} for r in revisions]
+    return result
+
+
+def emit_definition_revision_event(db: Session, *, definition: DefinitionEntry, revision: DefinitionRevision, previous: DefinitionRevision | None, actor: str, correlation_id: str) -> MasterContentChangeEvent:
+    digest = hashlib.sha256(json.dumps({"term": revision.term, "description": revision.description, "aliases": revision.aliases}, sort_keys=True).encode()).hexdigest()
+    event = MasterContentChangeEvent(definition_id=definition.id, previous_version_id=previous.id if previous else None, new_version_id=revision.id, change_type="DEFINITION_REVISION_PROMOTED", status="PROCESSED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"term": revision.term, "revision": revision.revision_number, "version_number": revision.revision_number}, event_type="DEFINITION_REVISION_PROMOTED", content_type="DEFINITION", business_ref=definition.ref or revision.term, change_kind="CREATE" if previous is None else "MODIFY", change_reason=revision.change_reason, materiality="MATERIAL", source_hash=digest)
+    db.add(event)
+    db.flush()
+    for role in ("OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"):
+        if not _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
+            db.add(NotificationEvent(recipient_role=role, channel="IN_APP", event_type="DEFINITION_REVISION_PROMOTED", status="PENDING", subject=f"Definition updated: {revision.term}", body_preview=f"Definition revision {revision.revision_number} is current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=actor, deep_link="/dashboard"))
+            _record_delivery(db, event.id, "NOTIFICATION", "ROLE", role, role)
+    audit(db, correlation_id=correlation_id, event_type="DEFINITION_REVISION_PROMOTED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=actor, after={"revision": revision.revision_number, "term": revision.term})
+    return event
+
+
+def definition_lookup(db: Session, term: str) -> dict[str, Any] | None:
+    definition = db.scalar(select(DefinitionEntry).where(DefinitionEntry.term == term, DefinitionEntry.status == "ACTIVE"))
+    return definition_projection(db, definition, include_history=False) if definition else None

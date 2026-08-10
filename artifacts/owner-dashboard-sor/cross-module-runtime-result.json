@@ -1,0 +1,14 @@
+{
+  "event_contract": "PASS",
+  "materiality": ["MATERIAL", "NON_MATERIAL"],
+  "dedupe_ledger": "PASS",
+  "forms": "PASS",
+  "reports": "PASS",
+  "engineering_works": "PASS",
+  "definitions": "PASS",
+  "canonical_issue_finding": "PASS",
+  "amec_work_workflow_task": "PASS",
+  "persona_notifications": "PASS",
+  "eligible_current_verified_query": "PASS",
+  "status": "CROSS_MODULE_PROPAGATION_PASS"
+}

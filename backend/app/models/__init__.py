@@ -13,3 +13,4 @@ from .week12_entities import *
 from .week13_entities import *
 from .week14_entities import *
 from .expansion_entities import *
+from .master_content_entities import *

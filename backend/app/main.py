@@ -30,6 +30,7 @@ from .api.proposals_main_routers import router as proposals_main_router, canonic
 from .api.persona_issues_notifications import router as persona_issues_notifications_router
 from .api.admin_owner_ready import router as admin_owner_ready_router
 from .api.work_routers import router as work_router
+from .api.master_content_routers import router as master_content_router
 
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO), format='%(message)s')
@@ -81,6 +82,11 @@ def health():
         connection_valid = True
     except Exception:
         connection_valid = False
+    master_content_sor = {
+        "mode": "SYNTHETIC_TEST" if settings.synthetic_only else "REAL_CONFIGURED",
+        "status": "SYNTHETIC_EPHEMERAL" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",
+        "real_synology": "NOT_CONFIGURED" if settings.synthetic_only else "CONFIGURED_NOT_VERIFIED",
+    }
     return {
         "status": "ok",
         "service": "permitops",
@@ -93,6 +99,7 @@ def health():
         "database_connection_valid": connection_valid,
         "alembic_versions": migration_versions,
         "alembic_state": migration_state,
+        "master_content_sor": master_content_sor,
     }
 
 
@@ -131,7 +138,16 @@ def adapter_health():
     from .adapters.municipality.adapter import MockMunicipalityAdapter
     from pathlib import Path
     root = Path(settings.mock_systems_root)
-    return {"synology": MockSynologyAdapter(str(root / "synology")).health_check(), "excel": MockExcelAdapter(str(root / "excel/permit_tracker.xlsx")).health_check(), "municipality": MockMunicipalityAdapter({}).health_check()}
+    return {
+        "synology": MockSynologyAdapter(str(root / "synology")).health_check(),
+        "master_content_sor": {
+            "mode": "SYNTHETIC_TEST" if settings.synthetic_only else "REAL_CONFIGURED",
+            "status": "SYNTHETIC_EPHEMERAL" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",
+            "real_synology": "NOT_CONFIGURED" if settings.synthetic_only else "CONFIGURED_NOT_VERIFIED",
+        },
+        "excel": MockExcelAdapter(str(root / "excel/permit_tracker.xlsx")).health_check(),
+        "municipality": MockMunicipalityAdapter({}).health_check(),
+    }
 
 
 @app.get("/mock-authority/applications")
@@ -188,3 +204,4 @@ app.include_router(canonical_proposals_router)
 app.include_router(recovery_router)
 app.include_router(e5_e6_router)
 app.include_router(proposals_main_router)
+app.include_router(master_content_router)

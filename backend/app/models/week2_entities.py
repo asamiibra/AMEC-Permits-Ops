@@ -49,7 +49,9 @@ class ScenarioConfig(Base):
 class Document(Base):
     __tablename__ = "documents"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)
+    # Project scope is optional for AMEC-level master/reference content. Existing
+    # project evidence continues to populate this field.
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), nullable=True, index=True)
     document_type: Mapped[DocumentType] = mapped_column(enum_col(DocumentType), nullable=False)
     logical_name: Mapped[str] = mapped_column(String(240), nullable=False)
     language: Mapped[str] = mapped_column(String(30), nullable=False)

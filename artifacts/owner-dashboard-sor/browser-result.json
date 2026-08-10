@@ -1,0 +1,10 @@
+{
+  "route": "/dashboard",
+  "local_real_stack": "PASS",
+  "local_active_browser_tests": 19,
+  "deployed_real_stack": "PASS",
+  "deployed_active_browser_tests": 19,
+  "golden_path": "Owner create -> modify -> history -> Engineering dependency -> propagation -> definition lookup -> revalidation",
+  "api_interception": false,
+  "status": "DASHBOARD_BROWSER_GOLDEN_PATH_PASS"
+}

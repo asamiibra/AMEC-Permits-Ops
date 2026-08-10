@@ -1,0 +1,12 @@
+{
+  "deployment": "Vercel production aliases",
+  "database_provider": "Neon PostgreSQL as configured by the existing deployment",
+  "provider_identity_exposure": "DATABASE_URL is hidden by Vercel; no secret value is recorded",
+  "runtime_dialect": "postgresql",
+  "database_durable": true,
+  "sqlite_fallback_active": false,
+  "database_connection_valid": true,
+  "deployed_alembic_head": "0028_master_content_propagation",
+  "bootstrap": "PASS",
+  "status": "POSTGRESQL_NEON_RUNTIME_PASS"
+}

@@ -1,5 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "./api";
+import { CanonicalFormsLibrary } from "./MasterContentForms";
+import { readDemoRole } from "./rebrand";
 
 type AdminCategory = { key: string; label: string; route: string; status: string };
 
@@ -7,7 +9,7 @@ const groups = [
   { label: "People & Access", keys: ["people-access"] },
   { label: "Data & Connections", keys: ["data-connections"] },
   { label: "Project & Folder Setup", keys: ["project-folder-setup"] },
-  { label: "Proposals & Contracts", keys: ["proposal-setup", "contract-setup", "templates"] },
+  { label: "Proposals & Contracts", keys: ["proposal-setup", "contract-setup", "forms", "templates"] },
   { label: "Permit Workflow", keys: ["permit-setup"] },
   { label: "Operations", keys: ["notifications"] },
   { label: "System", keys: ["security", "integration-health", "audit"] },
@@ -18,13 +20,14 @@ const endpointFor = (path: string) => {
   const key = path.replace(/^\/admin\/?/, "");
   const apiKeys: Record<string, string> = {
     "data-connections": "connections", "project-folder-setup": "project-setup", "proposal-setup": "proposal-setup",
-    "contract-setup": "contract-setup", "permit-setup": "permit-setup", templates: "templates", notifications: "notifications",
+    "contract-setup": "contract-setup", "permit-setup": "permit-setup", templates: "templates", forms: "master-content-forms", notifications: "notifications",
     security: "security", "integration-health": "integration-health", audit: "audit", "people-access": "users",
   };
   if (key === "advanced-diagnostics" || key.startsWith("advanced-diagnostics/") || key === "control-diagnostics") return "/api/admin/advanced-diagnostics";
   // Retired direct Admin aliases keep a safe, current summary response instead of
   // issuing a dead endpoint request. Navigation remains available through the
   // current Owner Administration groups.
+  if (key === "forms") return "/api/master-content?content_type=FORM";
   return key ? `/api/admin/${apiKeys[key] || "summary"}` : "/api/admin/summary";
 };
 
@@ -61,7 +64,7 @@ function Landing({ data, onNavigate }: { data: any; onNavigate: (route: string) 
 }
 
 function cardCopy(key: string) {
-  const copy: Record<string, string> = { "people-access": "Users, roles, and capability permissions", "data-connections": "Source systems with simulator and production status", "project-folder-setup": "References, folder structure, and semantic mappings", "proposal-setup": "Proposal fields, intake sources, stages, and handoffs", "contract-setup": "Contract rules, fields, and Permit handoff", templates: "Controlled Proposal, Contract, and Permit templates", "permit-setup": "Requirements, applicability, attachments, and Municipality mode", notifications: "Audiences, reminders, and follow-up rules", security: "Data mode, access, MFA, retention, and backups", "integration-health": "Cross-system checks using the canonical status truth", audit: "Owner-readable operational history", "advanced-diagnostics": "Technical evidence and adapter diagnostics" }; return copy[key] || "Configuration and status";
+  const copy: Record<string, string> = { "people-access": "Users, roles, and capability permissions", "data-connections": "Source systems with simulator and production status", "project-folder-setup": "References, folder structure, and semantic mappings", "proposal-setup": "Proposal fields, intake sources, stages, and handoffs", "contract-setup": "Contract rules, fields, and Permit handoff", forms: "Canonical Forms used across AMEC workflows", templates: "Controlled Proposal, Contract, and Permit templates", "permit-setup": "Requirements, applicability, attachments, and Municipality mode", notifications: "Audiences, reminders, and follow-up rules", security: "Data mode, access, MFA, retention, and backups", "integration-health": "Cross-system checks using the canonical status truth", audit: "Owner-readable operational history", "advanced-diagnostics": "Technical evidence and adapter diagnostics" }; return copy[key] || "Configuration and status";
 }
 
 function Section({ path, data, onNavigate, onRefresh }: { path: string; data: any; onNavigate: (route: string) => void; onRefresh: () => void }) {
@@ -71,6 +74,7 @@ function Section({ path, data, onNavigate, onRefresh }: { path: string; data: an
   if (key === "project-folder-setup") return <ProjectSetup data={data} onNavigate={onNavigate} />;
   if (key === "proposal-setup") return <ProposalSetup data={data} onNavigate={onNavigate} />;
   if (key === "contract-setup") return <ContractSetup data={data} onNavigate={onNavigate} />;
+  if (key === "forms") return <CanonicalFormsLibrary role={readDemoRole()} surface="ADMINISTRATION" compact />;
   if (key === "permit-setup") return <PermitSetup data={data} />;
   if (key === "templates") return <Templates data={data} />;
   if (key === "notifications") return <Notifications data={data} onRefresh={onRefresh} />;

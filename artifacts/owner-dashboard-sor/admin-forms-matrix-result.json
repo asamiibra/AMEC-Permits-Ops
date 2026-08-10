@@ -1,0 +1,25 @@
+{
+  "canonical_consumers": {
+    "Dashboard": "canonical Forms access and management",
+    "Administration": "canonical Forms access and management projection",
+    "My Work": "consumes explicit dependency-driven workflow impact",
+    "Business Development": "consumes explicit dependency-driven workflow impact",
+    "Permit": "consumes explicit dependency-driven workflow impact"
+  },
+  "normal_form_upload": {
+    "issue_created": 0,
+    "work_task_created": 0,
+    "notification_created": 0
+  },
+  "dependency_behavior": "existing deterministic propagation remains enabled for explicit material dependencies",
+  "parity_assertions": [
+    "ref",
+    "category",
+    "description",
+    "status",
+    "current_version",
+    "version_history",
+    "historical_download_bytes"
+  ],
+  "parity_result": "PASS"
+}

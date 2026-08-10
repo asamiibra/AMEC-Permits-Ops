@@ -1,0 +1,14 @@
+{
+  "frontend": "PASS",
+  "backend": "PASS",
+  "frontend_url": "https://amec-permits-ops.vercel.app",
+  "backend_url": "https://amec-permits-ops-backend.vercel.app",
+  "backend_deployment": "dpl_6sLkGjUPM4yQs93fYmhv7egXCqHv",
+  "frontend_deployment": "dpl_9QFoGBZkcbTt5AHixrqYECphUPKs",
+  "backend_health": {"database_dialect":"postgresql","database_durable":true,"sqlite_fallback_active":false,"alembic_versions":["0028_master_content_propagation"]},
+  "openapi_master_content_paths": 17,
+  "deployed_owner_forms_check": "1 passed",
+  "deployed_browser_regression": "21 passed locally; deployed historical download is synthetic-ephemeral limited",
+  "synthetic_sor": "EPHEMERAL_TEST_ONLY",
+  "status": "DEPLOYED_RC_LIVE_SYNTHETIC_SOR_LIMITATION_RECORDED"
+}

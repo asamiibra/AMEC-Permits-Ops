@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "forbidden_tables_or_stores_added": [],
+  "forbidden_sync_jobs_added": [],
+  "admin_only_current_version_pointer": false,
+  "admin_copy_of_master_content_rows": false,
+  "admin_copy_of_files": false,
+  "source_of_truth": "MasterContentItem -> Document -> DocumentVersion -> configured SOR adapter",
+  "migration_head_unchanged": "0028_master_content_propagation"
+}

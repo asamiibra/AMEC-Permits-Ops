@@ -10,6 +10,12 @@ class Settings(BaseSettings):
     frontend_origins: str = "http://localhost:5173"
     mock_systems_root: str = "./mock-systems"
     synthetic_only: bool = True
+    # This is deliberately an environment/configuration value. The checked-in
+    # default is a synthetic test mapping; production folders must be supplied
+    # by deployment configuration and are never accepted from the browser.
+    master_sor_mapping_json: str = '{"MASTER_FORM":"master-content/forms","MASTER_REPORT":"master-content/reports","MASTER_ENGINEERING_WORK":"master-content/engineering-works"}'
+    master_sor_max_file_size: int = 10485760
+    master_sor_allowed_extensions: str = ".pdf,.docx,.doc,.xlsx,.xls,.txt,.csv"
     log_level: str = "INFO"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
 

@@ -1,0 +1,10 @@
+{
+  "overall":"FULL_READY_EXCEPT_REAL_SYNOLOGY",
+  "administration_forms":"READY",
+  "administration_forms_evidence":"artifacts/owner-dashboard-sor/admin-forms-result.json",
+  "local_active_browser_regression":"21 passed",
+  "software_p0_p1_blockers":[],
+  "external_blocker":"REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
+  "final_readiness_token":"OWNER_DASHBOARD_MASTER_CONTENT_FULL_READY_EXCEPT_REAL_SYNOLOGY",
+  "blocked_token":"REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+}

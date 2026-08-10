@@ -78,3 +78,34 @@ class MockSynologyAdapter:
 
     def health_check(self) -> dict:
         return {"adapter": "SYNOLOGY", "status": "OK" if self.root.exists() else "UNAVAILABLE", "root": str(self.root), "synthetic": True}
+
+    def resolve_configured_path(self, configured_path: str) -> Path:
+        """Resolve a server-side configured path below the adapter root only."""
+        if not configured_path:
+            raise ValueError("SOR_DESTINATION_UNRESOLVED")
+        candidate = Path(configured_path)
+        if candidate.is_absolute() or ".." in candidate.parts:
+            raise ValueError("SOR_DESTINATION_UNRESOLVED")
+        resolved = (self.root / candidate).resolve()
+        if self.root.resolve() not in resolved.parents and resolved != self.root.resolve():
+            raise ValueError("SOR_DESTINATION_UNRESOLVED")
+        if not resolved.is_dir():
+            raise FileNotFoundError("SOR_DESTINATION_UNAVAILABLE")
+        return resolved
+
+    def put_configured_artifact(self, configured_path: str, filename: str, content: bytes) -> dict:
+        if not re.fullmatch(r"[A-Za-z0-9._ -]+", filename) or filename in {".", ".."}:
+            raise ValueError("INVALID_STORED_FILENAME")
+        folder = self.resolve_configured_path(configured_path)
+        destination = folder / filename
+        destination.write_bytes(content)
+        return self.get_file_metadata(str(destination.relative_to(self.root)))
+
+    def read_configured_artifact(self, path: str) -> bytes:
+        safe = Path(path)
+        if safe.is_absolute() or ".." in safe.parts:
+            raise ValueError("INVALID_SOR_PATH")
+        file_path = (self.root / safe).resolve()
+        if self.root.resolve() not in file_path.parents or not file_path.is_file():
+            raise FileNotFoundError("SOR_FILE_NOT_FOUND")
+        return file_path.read_bytes()

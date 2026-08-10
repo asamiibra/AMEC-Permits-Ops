@@ -1,0 +1,1 @@
+{"adapter":"MockSynologyAdapter","environment":"synthetic test filesystem","write":"PASS","readback":"PASS","hash_verification":"PASS","historical_download":"PASS","semantic_destination":"PASS","external_mutation_detection":"IMPLEMENTED","real_synology":"BLOCKED_EXTERNAL"}

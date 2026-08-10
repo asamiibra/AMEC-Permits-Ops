@@ -70,7 +70,7 @@ export function AMECWorkPage({ openAbout }: { openAbout?: () => void }) {
   const clearFilters = () => update({ team: "all", domain: "all", kpi: "all" });
 
   return <div className="workflow-page amec-work-page">
-    <div className="page-intro amec-work-intro"><div><span className="eyebrow">AMEC WORK</span><h2>What needs attention</h2><p>One prioritized worklist across proposals, contracts, permits, and handoffs.</p></div><span className="tag">SYNTHETIC PROTOTYPE</span></div>
+    <div className="page-intro amec-work-intro"><div><span className="eyebrow">AMEC WORK</span><span className="eyebrow">PROPOSAL • CONTRACT • PERMIT</span><h2>What needs attention</h2><p>One prioritized worklist across proposals, contracts, permits, and handoffs.</p></div><span className="tag">SYNTHETIC PROTOTYPE</span></div>
     <div className="amec-work-helper">Test data and simulated integrations · Open each item in its exact business context.</div>
     {openAbout && <section className="about-entry-card amec-work-guide"><div className="about-entry-mark">?</div><div><span className="eyebrow">NEW TO PROPOSALOPS?</span><h3>See how ProposalOps works</h3><p>Follow the flow from proposal intake through contract and permit delivery.</p></div><button className="button-primary" onClick={openAbout}>Open Operating Guide →</button></section>}
     <div className="amec-work-kpis" aria-label="Work summary">

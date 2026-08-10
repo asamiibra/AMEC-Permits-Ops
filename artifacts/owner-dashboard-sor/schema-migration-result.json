@@ -1,0 +1,1 @@
+{"migration":"0028_master_content_propagation","script_head":"0028_master_content_propagation","clean_sqlite_upgrade":"PASS","clean_postgresql_upgrade":"PASS","postgresql_target_proof":"PASS","destructive_reset":"ZERO"}

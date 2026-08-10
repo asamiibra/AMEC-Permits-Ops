@@ -1,0 +1,10 @@
+{
+  "database": "PostgreSQL 16.14",
+  "database_name": "owner_dashboard_closure_pg3",
+  "clean_alembic_upgrade": "PASS",
+  "alembic_head": "0028_master_content_propagation",
+  "synthetic_seed": "PASS",
+  "backend_regression": "124 passed, 2 warnings",
+  "destructive_reset": 0,
+  "status": "POSTGRESQL_MIGRATION_AND_REGRESSION_PASS"
+}

@@ -1,0 +1,21 @@
+{
+  "local_focused": {
+    "suite": "frontend/browser-real-stack/admin-forms-real-stack.spec.ts",
+    "passed": 2,
+    "failed": 0
+  },
+  "local_active_regression": {
+    "suite": "playwright.real-stack.config.ts",
+    "passed": 21,
+    "failed": 0
+  },
+  "production_aliases": {
+    "frontend": "https://amec-permits-ops.vercel.app",
+    "backend": "https://amec-permits-ops-backend.vercel.app",
+    "backend_deployment": "dpl_6sLkGjUPM4yQs93fYmhv7egXCqHv",
+    "frontend_deployment": "dpl_9QFoGBZkcbTt5AHixrqYECphUPKs",
+    "owner_only_test_passed": true,
+    "history_download_test": "BLOCKED_BY_SYNTHETIC_VERCEL_EPHEMERAL_SOR",
+    "history_download_observation": "PostgreSQL metadata persisted, but a later serverless invocation could not read the prior /tmp synthetic SOR file; no durable production SOR claim is made."
+  }
+}

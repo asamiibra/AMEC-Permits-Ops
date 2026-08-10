@@ -1,0 +1,17 @@
+{
+  "date": "2026-08-10",
+  "branch": "main",
+  "commit": "e7597d81228b009af7188a7a7980357b5dd9ce8b",
+  "migration_script_head": "0026_notification_read_states",
+  "local_database_stamp": "0021_e7_unified_task_context",
+  "backend_test_command": "python3 -m pytest -q backend/tests --disable-warnings --maxfail=1",
+  "backend_test_result": {"passed": 119, "warnings": 2},
+  "frontend_build_command": "cd frontend && npm run build",
+  "frontend_build_result": "PASS",
+  "backend_stack": "FastAPI + SQLAlchemy + Alembic",
+  "frontend_stack": "React + Vite + TypeScript",
+  "sor_adapter": "MockSynologyAdapter (synthetic filesystem only)",
+  "production_synology_verified": false,
+  "observed_primitives": ["Document", "DocumentVersion", "EvidenceArtifact", "LineageEdge", "MaterialChangeEvent", "AuditEvent", "ProjectArtifactRecord"],
+  "entry_token": "OWNER_DASHBOARD_CHANGE_BASELINED"
+}

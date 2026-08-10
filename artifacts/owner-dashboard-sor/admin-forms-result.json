@@ -1,0 +1,20 @@
+{
+  "status": "READY",
+  "canonical_record": "MasterContentItem(content_type=FORM)",
+  "administration_route": "/admin/forms",
+  "administration_placement": "Proposals & Contracts",
+  "shared_query": "GET /api/master-content?content_type=FORM",
+  "shared_commands": [
+    "POST /api/master-content",
+    "POST /api/master-content/{id}/versions",
+    "GET /api/master-content/{id}",
+    "GET /api/master-content/{id}/versions/{version_id}/download"
+  ],
+  "shared_frontend_controller": "frontend/src/MasterContentForms.tsx",
+  "source_surface_audit_context": ["DASHBOARD", "ADMINISTRATION"],
+  "new_migration": false,
+  "duplicate_admin_datastore": false,
+  "duplicate_admin_version_store": false,
+  "normal_form_upload_spurious_issue_work_notification": false,
+  "owner_write_capability_reused": "MASTER_FORM_WRITE"
+}
