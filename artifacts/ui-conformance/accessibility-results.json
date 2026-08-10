@@ -1,6 +1,2179 @@
 {
   "gate": "UI_ACCESSIBILITY_PASS",
-  "status": "PENDING_BROWSER_EXECUTION",
-  "note": "Axe and targeted keyboard/focus checks run during the browser crawl.",
-  "results": []
+  "status": "FAIL",
+  "failures": [
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW Proposals & Contracts ⓘ Inputs & Go-Live 11 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · PROPOSAL • CONTRACT • PERMIT Proposals & Contracts One governed commercial register from source intake to Proposal, Contract, and downstream Permit handoff. Owner Tender Email Email or saved message/PDF Tender Document RFQ, RFP, tender or client brief Tender Photo / Image Manual image or screenshot Client Information Client source or supporting document Client List Client master source Proposal Form Attach to an eligible Proposal Contract Form Attach to an eligible Contract Open Proposals 1 System-derived · click to filter Open Contracts 1 System-derived · click to filter Proposal Handover 0 System-derived · click to filter Contract Handover 0 System-derived · click to filter Proposals in Process 1 System-derived · click to filter Contracts in Process 1 System-derived · click to filter Proposals Contracts All Open ＋ New Proposal PROPOSAL DESCRIPTION PROJECT REF. STAGE / STATUS AMOUNT LAST ACTIVITY ACTIONS Al Noor Villa Proposal CANONICAL · 1 source(s) GHCE-2026-0142 Engineering Proposal Preparation QAR 100,000 Aug 8, 2026, 7:00 AM OpenView Contract Blue shows system-derived state. Orange marks a human-controlled source or lifecycle transition. Original evidence is retained with provenance and read-back verification.",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02-Owner-desktop.png"
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/:proposalId",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02B-Owner-desktop.png"
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/:proposalId/preparation",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02C-Owner-desktop.png"
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/:contractId",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02D-Owner-desktop.png"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW Notifications ⓘ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS OWNER AWARENESS Owner notifications A cross-functional event stream for decisions, commercial changes, engineering updates, and critical alerts. Unread 0 Commercial updates 0 Engineering / permit updates 0 Critical alerts 0 EVENT STREAM Owner notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH No delivery failures Secondary operational evidence",
+      "headings": [
+        "Notifications",
+        "Owner notifications",
+        "Owner notifications"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S05-Owner-desktop.png"
+    },
+    {
+      "route_id": "S07",
+      "route": "/proposals-contracts/:projectId/project-and-sources",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S07-Owner-desktop.png"
+    },
+    {
+      "route_id": "S09",
+      "route": "/proposals-contracts/:projectId/prepare-package",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S09-Owner-desktop.png"
+    },
+    {
+      "route_id": "S10",
+      "route": "/proposals-contracts/:projectId/municipality-preparation",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S10-Owner-desktop.png"
+    },
+    {
+      "route_id": "S15",
+      "route": "/admin",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW Administration ⓘ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · ADMINISTRATION Administration Owner configuration and status; operational work remains in AMEC Work. Owner SYNTHETIC PROTOTYPE · Test data and simulated connections Configure how ProposalOps works for AMEC Manage people, permissions, connections, workflow settings, templates, and system health from one business-facing surface. View Inputs & Go-Live People & Access Data & Connections Project & Folder Setup Proposals & Contracts Permit Workflow Operations System Advanced",
+      "headings": [
+        "Administration",
+        "Administration",
+        "Configure how ProposalOps works for AMEC",
+        "People & Access",
+        "Data & Connections",
+        "Project & Folder Setup",
+        "Proposals & Contracts",
+        "Permit Workflow",
+        "Operations",
+        "System",
+        "Advanced"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [
+        "People & Access",
+        "Data & Connections",
+        "Project & Folder Setup",
+        "Proposals & Contracts",
+        "Permit Workflow",
+        "Operations",
+        "System",
+        "Advanced"
+      ],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S15-Owner-desktop.png"
+    },
+    {
+      "route_id": "S26",
+      "route": "/admin/go-live-readiness",
+      "persona": "Owner",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW Go-Live Setup ⓘ Inputs & Go-Live 37 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA ADMINISTRATION Go-Live Setup A simple setup checklist shared by every screen. See what we use, produce, and still need from AMEC. View All setup items Still needed Needed before go-live Category All categories Data & systems Access & permissions Access & permissions People & roles Rules & decisions Templates Mappings Security / privacy Regulations Communications People & support Setup scale Test data Support Setup Export CSV Back to Administration Setup items 38 Still needed 37 Needed before go-live 35 Current mode Setup checklist ITEM CATEGORY USED ON AMEC CONTACT STATUS GO-LIVE NEED AMEC logo files Send the official high-resolution AMEC logo files for production screens and documents. Templates AMEC Work · Operating Guide · Administration Hub · Go-Live Setup AMEC brand contact Needed Optional for now Main AMEC setup contact Tell us who to contact for project decisions, setup questions, and follow-up. Support AMEC Work · Proposals & Contracts · New Proposal · Reviews · Issues · Notifications / Communications · Operating Guide · Project & Sources · Verify Data · Prepare Package · Municipality Preparation · Final Review & Human Submit · Authority Review · Comments & Corrections · History · Administration Hub · Go-Live Setup · Project Setup · Configuration · System Health / Audit · Go-live setup decision · Ministry inquiry · RAID log Main AMEC contact Needed Needed before go-live People who can confirm setup changes Tell us who can confirm changes to rules, templates, and configuration when questions come up. Support Administration Hub · Go-Live Setup · Project Setup · Configuration · Delivery / data · Test Targets · Tier 2 backlog · Setup baseline · RAID log Main AMEC contact Needed Needed before go-live Synology project location Send the project root, folder template, naming convention, and source owner for project files. Data & systems Proposals & Contracts · Project & Sources · Go-Live Setup · Project register AMEC admin / process contact Needed Needed before go-live Project Excel workbook Send the workbook, tabs, row key, and the cells or ranges ProposalOps can update. Data & systems Project & Sources · Go-Live Setup · Project register AMEC admin / process contact Needed Needed before go-live Owner and property source documents Tell us which sources to use for title deeds, ownership, QID, representation, surveys, drawings, and NOCs. Data & systems Project & Sources · Verify Data · Go-Live Setup · Documents / source evidence AMEC process contact Needed Needed before go-live Real sample documents for testing Send clean, poor-scan, Arabic, stamped, and difficult examples that we can test safely. Data & systems Verify Data · Go-Live Setup · Test Documents · Opportunities · Documents / source evidence · Test extraction · Ground truth AMEC process contact Needed Needed before go-live Municipality status and comment source Tell us where application status, official comments, precheck results, and submission confirmation come from. Data & systems Municipality Preparation · Authority Review · Go-Live Setup · Municipality adapter / portal contract · Submission confirmation · Ministry inquiry Portal contact Needed Needed before go-live Project file and network access Give ProposalOps the repository, network share, file-locking, and service identity access it needs. Access & permissions Project & Sources · Go-Live Setup IT / Security contact Needed Needed before go-live Municipality account and access Tell us which account to use, what it can prepare or read, and which status information it can access. Access & permissions Municipality Preparation · Authority Review · Go-Live Setup · Municipality adapter / portal contract Portal contact Needed Needed before go-live Municipality working mode Choose the working mode: Assisted, official API, or a controlled portal/browser workflow where available. Access & permissions Municipality Preparation · Go-Live Setup · Municipality adapter / portal contract · Ministry inquiry Portal / security contact Needed Needed before go-live AI/provider route and data geography Tell us which project/client data ProposalOps can process, which provider and region to use, and which data should stay outside AI processing. Access & permissions Go-Live Setup · Privacy & data Security / privacy contact Needed Needed before go-live Communication send setup Tell us the channels, sender identity, recipient list, and which messages must stay human-controlled for send. Access & permissions Notifications / Communications · Go-Live Setup Communications contact Needed Needed before go-live Identity and login model Tell us the identity provider, login model, session controls, supported browsers, and network limits. Security / privacy AMEC Work · Proposals & Contracts · New Proposal · Reviews · Issues · Notifications / Communications · Project & Sources · Verify Data · Prepare Package · Municipality Preparation · Final Review & Human Submit · Authority Review · Comments & Corrections · History · Administration Hub · Go-Live Setup · Configuration IT / Security contact Needed Needed before go-live Users and role mapping Name the users and map them to preparer, verifier, engineer, approver, submitter, admin, and support roles. People & roles AMEC Work · Proposals & Contracts · New Proposal · Reviews · Issues · Notifications / Communications · Project & Sources · Verify Data · Prepare Package · Municipality Preparation · Final Review & Human Submit · Authority Review · Comments & Corrections · History · Administration Hub · Go-Live Setup · Configuration · Tier 1 decisions · Opportunities · Conflicts · Ground truth AMEC process contact Needed Needed before go-live Role separation and backup Tell us which roles should be separate and who can cover each step when someone is away. People & roles AMEC Work · Reviews · Final Review & Human Submit · Go-Live Setup AMEC process contact Needed Needed before go-live Final Submitter and Authorized Engineer Name the people who perform the final Municipality submission and professional engineering decisions. People & roles Reviews · Prepare Package · Final Review & Human Submit · Comments & Corrections · Go-Live Setup · Engineering & Closeout · Findings & work · Submission confirmation Engineering / process contact Needed Needed before go-live MFA and attended-session setup Tell us how MFA, OTP handling, re-login, timeout, takeover, and fallback should work. Security / privacy Municipality Preparation · Final Review & Human Submit · Go-Live Setup · Municipality adapter / portal contract IT / portal contact Needed Needed before go-live Data handling and storage setup Tell us where project data can live, who can access it, whether AI can process each document type, retention needs, and incident contacts. Security / privacy AMEC Work · Proposals & Contracts · Reviews · Issues · Notifications / Communications · Project & Sources · Verify Data · Prepare Package · Municipality Preparation · Final Review & Human Submit · Authority Review · Comments & Corrections · History · Administration Hub · Go-Live Setup · Project Setup · Configuration · Test Documents · System Health / Audit · Test extraction · Privacy & data Security / privacy contact Needed Needed before go-live Field authority and conflict rules Tell us the source to trust for each important field, what to do when sources disagree, how fresh data must be, and who verifies it. Rules & decisions New Proposal · Verify Data · Go-Live Setup · Tier 1 decisions · Delivery / data · Documents / source evidence · Conflicts · Lineage & validity · Ground truth Person who confirms permit rules Needed Needed before go-live Requirement and validity rules Tell us which documents and conditions are required, which expire, what depends on what, and what blocks the workflow. Rules & decisions Prepare Package · Go-Live Setup · Tier 1 decisions · Package readiness · Lineage & validity Person who confirms permit rules Needed Needed before go-live Project and reference-number rules Tell us how project numbers, reference numbers, names, folders, and statuses should be created. Rules & decisions Proposals & Contracts · New Proposal · Project & Sources · Go-Live Setup · Project register AMEC process contact Needed Needed before go-live Findings, closure, and escalation rules Tell us the comment types, severity, blockers, closure evidence, Finding closure authority, recurrence, disputes, and escalation path. Rules & decisions AMEC Work · Proposals & Contracts · Reviews · Issues · Final Review & Human Submit · Comments & Corrections · History · Go-Live Setup · Findings & work AMEC process contact Needed Needed before go-live Portal field and attachment mappings Tell us the page sequence, portal values, grid identity, attachment slots, save/read-back steps, and drift fallback. Rules & decisions Municipality Preparation · Authority Review · Go-Live Setup · Attachment Rules · Municipality adapter / portal contract · Submission confirmation Portal contact Needed Needed before go-live Permit type and first project Tell us which Municipality application type and project we should configure first. Rules & decisions AMEC Work · Proposals & Contracts · Reviews · Issues · Notifications / Communications · Project & Sources · Verify Data · Prepare Package · Municipality Preparation · Final Review & Human Submit · Authority Review · Comments & Corrections · History · Administration Hub · Go-Live Setup · Project Setup · Configuration · Tier 1 decisions · Attachment Rules · Test Documents · Setup baseline · Business case AMEC process contact Needed Needed before go-live AMEC forms and templates Send the forms, undertakings, Word/PDF templates, version owner, and rules for replacing an old version. Templates Proposals & Contracts · New Proposal · Prepare Package · Go-Live Setup · Delivery / data · Package readiness AMEC process contact Needed Needed before go-live Excel and output mappings Tell us the field-to-cell/range mappings, Arabic/English output rules, and which cells are system-owned or human-owned. Templates Proposals & Contracts · Prepare Package · Go-Live Setup · Delivery / data · Package readiness AMEC process contact Needed Needed before go-live Communication templates Send the missing-document, reference, review, invoice, handover, channel, and sender wording. Templates Notifications / Communications · Go-Live Setup · Expansion Foundation · Commercial draft Communications contact Needed Needed before go-live Document and attachment matrix Tell us the document identity/version, categories, required or conditional logic, language, format, size, replacement, and deletion rules. Mappings Prepare Package · Go-Live Setup · Attachment Rules · Package readiness Person who confirms permit rules Needed Needed before go-live Regulation sources and editions Tell us which Qatar and discipline-specific regulation sources and editions to use, and where the team can access them. Regulations Go-Live Setup · Engineering & Closeout Authorized Engineer Needed Needed before go-live Engineering disciplines and drawing formats Tell us the disciplines, drawing types, supported formats, DWF need, comment format, severity, and closure authority. Regulations Go-Live Setup · Engineering & Closeout Engineering contact Needed Needed before go-live Communication recipients and delivery follow-up Tell us the client/contact list, channels, delivery evidence, failure handling, and who to contact when a message needs follow-up. Communications Proposals & Contracts · New Proposal · Notifications / Communications · Authority Review · Go-Live Setup · Findings & work Communications contact Needed Needed before go-live Support, incidents, and maintenance Tell us the support contacts, severity levels, escalation path, support hours, and maintenance window. People & support AMEC Work · Issues · Administration Hub · Go-Live Setup · System Health / Audit · RAID log Support contact Needed Needed before go-live Expected volume and concurrency Tell us the expected applications, users, concurrent workflows, document sizes, devices, browsers, and network conditions. Setup scale Go-Live Setup · Legacy control room · Business case · Business baseline · Volume baseline AMEC process contact Needed Optional for now Backup, restore, retention, and handover Tell us the backup/restore expectations, recovery targets, record retention, export needs, and who supports the project after handover. People & support History · Go-Live Setup · System Health / Audit · Lineage & validity IT / Security contact Needed Needed before go-live Test documents and expected results Send permitted real cases, clean and returned flows, redaction rules, and a reviewer who can confirm the important results. Test data Go-Live Setup · Test Documents · Test Targets · Engineering & Closeout · Test extraction · Test analysis AMEC reviewer Needed Needed before go-live Test targets and AMEC reviewer Tell us the critical fields, package checks, read-back checks, time/effort targets, and who will help review test results before go-live. Test data Comments & Corrections · Go-Live Setup · Project Setup · Test Targets · Test analysis · Go-live setup decision AMEC reviewer Needed Needed before go-live Commercial, contract, finance, and handover contacts Only if an expanded module is used: tell us who handles commercial review, contract review, invoice follow-up, client communications, and handover. People & roles Go-Live Setup · Opportunities · Expansion Foundation · Commercial draft AMEC process contact Not Needed Optional for now",
+      "headings": [
+        "Go-Live Setup",
+        "Go-Live Setup"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S26-Owner-desktop.png"
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW Proposals & Contracts ⓘ Inputs & Go-Live 11 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · PROPOSAL • CONTRACT • PERMIT Proposals & Contracts One governed commercial register from source intake to Proposal, Contract, and downstream Permit handoff. Business Development Tender Email Email or saved message/PDF Tender Document RFQ, RFP, tender or client brief Tender Photo / Image Manual image or screenshot Client Information Client source or supporting document Client List Client master source Proposal Form Attach to an eligible Proposal Contract Form Attach to an eligible Contract Open Proposals 1 System-derived · click to filter Open Contracts 1 System-derived · click to filter Proposal Handover 0 System-derived · click to filter Contract Handover 0 System-derived · click to filter Proposals in Process 1 System-derived · click to filter Contracts in Process 1 System-derived · click to filter Proposals Contracts All Open ＋ New Proposal PROPOSAL DESCRIPTION PROJECT REF. STAGE / STATUS AMOUNT LAST ACTIVITY ACTIONS Al Noor Villa Proposal CANONICAL · 1 source(s) GHCE-2026-0142 Engineering Proposal Preparation QAR 100,000 Aug 8, 2026, 7:00 AM OpenView Contract Blue shows system-derived state. Orange marks a human-controlled source or lifecycle transition. Original evidence is retained with provenance and read-back verification.",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/:proposalId",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02B-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/:proposalId/preparation",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02C-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/:contractId",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02D-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW Notifications ⓘ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS COMMERCIAL AWARENESS Business Development notifications Commercial updates, client communication, proposal movement, and contract handoffs. Unread 0 Proposal updates 0 Contract updates 0 Client / handoff updates 0 EVENT STREAM Business Development notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH No delivery failures Secondary operational evidence",
+      "headings": [
+        "Notifications",
+        "Business Development notifications",
+        "Business Development notifications"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S05-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S07",
+      "route": "/proposals-contracts/:projectId/project-and-sources",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S07-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S09",
+      "route": "/proposals-contracts/:projectId/prepare-package",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S09-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S10",
+      "route": "/proposals-contracts/:projectId/municipality-preparation",
+      "persona": "Business Development",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S10-Business-Development-desktop.png"
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "AMEC WORKFLOW Proposals & Contracts ⓘ Inputs & Go-Live 11 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · PROPOSAL • CONTRACT • PERMIT Proposals & Contracts One governed commercial register from source intake to Proposal, Contract, and downstream Permit handoff. Engineering Tender Email Email or saved message/PDF Tender Document RFQ, RFP, tender or client brief Tender Photo / Image Manual image or screenshot Client Information Client source or supporting document Proposal Form Attach to an eligible Proposal Open Proposals 1 System-derived · click to filter Open Contracts 1 System-derived · click to filter Proposal Handover 0 System-derived · click to filter Contract Handover 0 System-derived · click to filter Proposals in Process 1 System-derived · click to filter Contracts in Process 1 System-derived · click to filter Proposals Contracts All Open PROPOSAL DESCRIPTION PROJECT REF. STAGE / STATUS LAST ACTIVITY ACTIONS Al Noor Villa Proposal CANONICAL · 1 source(s) GHCE-2026-0142 Engineering Proposal Preparation Aug 8, 2026, 7:00 AM OpenView Contract Blue shows system-derived state. Orange marks a human-controlled source or lifecycle transition. Original evidence is retained with provenance and read-back verification.",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02-Engineering-desktop.png"
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/:proposalId",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02B-Engineering-desktop.png"
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/:proposalId/preparation",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02C-Engineering-desktop.png"
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/:contractId",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "SAFE RECOVERY ProposalOps could not render this screen The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed. Return to AMEC Work",
+      "headings": [
+        "ProposalOps could not render this screen"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "color-contrast"
+      ],
+      "screenshot": "artifacts/ui-conformance/screenshots/S02D-Engineering-desktop.png"
+    },
+    {
+      "route_id": "S03",
+      "route": "/reviews",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/reviews\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/reviews\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/issues\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/issues\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/issues\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/issues\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/issues\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/issues\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S04D",
+      "route": "/issues/:issueId",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/issues/:issueId\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/issues/:issueId\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S04D",
+      "route": "/issues/:issueId",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/issues/:issueId\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/issues/:issueId\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S04D",
+      "route": "/issues/:issueId",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/issues/:issueId\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/issues/:issueId\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/notifications\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/notifications\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/notifications\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/notifications\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/notifications\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/notifications\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S06",
+      "route": "/operating-guide",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/operating-guide\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/operating-guide\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S06",
+      "route": "/operating-guide",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/operating-guide\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/operating-guide\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S06",
+      "route": "/operating-guide",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/operating-guide\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/operating-guide\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S07",
+      "route": "/proposals-contracts/:projectId/project-and-sources",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/project-and-sources\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/project-and-sources\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S07",
+      "route": "/proposals-contracts/:projectId/project-and-sources",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/project-and-sources\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/project-and-sources\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S07",
+      "route": "/proposals-contracts/:projectId/project-and-sources",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/project-and-sources\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/project-and-sources\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S08",
+      "route": "/proposals-contracts/:projectId/verify-data",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/verify-data\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/verify-data\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S08",
+      "route": "/proposals-contracts/:projectId/verify-data",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/verify-data\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/verify-data\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S08",
+      "route": "/proposals-contracts/:projectId/verify-data",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/verify-data\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/verify-data\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S09",
+      "route": "/proposals-contracts/:projectId/prepare-package",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/prepare-package\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/prepare-package\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S09",
+      "route": "/proposals-contracts/:projectId/prepare-package",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/prepare-package\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/prepare-package\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S09",
+      "route": "/proposals-contracts/:projectId/prepare-package",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/prepare-package\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/prepare-package\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S10",
+      "route": "/proposals-contracts/:projectId/municipality-preparation",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/municipality-preparation\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/municipality-preparation\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S10",
+      "route": "/proposals-contracts/:projectId/municipality-preparation",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/municipality-preparation\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/municipality-preparation\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S10",
+      "route": "/proposals-contracts/:projectId/municipality-preparation",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/municipality-preparation\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/municipality-preparation\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S11",
+      "route": "/proposals-contracts/:projectId/final-review",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/final-review\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/final-review\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S11",
+      "route": "/proposals-contracts/:projectId/final-review",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/final-review\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/final-review\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S11",
+      "route": "/proposals-contracts/:projectId/final-review",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/final-review\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/final-review\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S12",
+      "route": "/proposals-contracts/:projectId/authority-review",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/authority-review\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/authority-review\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S12",
+      "route": "/proposals-contracts/:projectId/authority-review",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/authority-review\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/authority-review\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S12",
+      "route": "/proposals-contracts/:projectId/authority-review",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/authority-review\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/authority-review\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S13",
+      "route": "/proposals-contracts/:projectId/comments-and-corrections",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/comments-and-corrections\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/comments-and-corrections\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S13",
+      "route": "/proposals-contracts/:projectId/comments-and-corrections",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/comments-and-corrections\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/comments-and-corrections\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S13",
+      "route": "/proposals-contracts/:projectId/comments-and-corrections",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/comments-and-corrections\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/comments-and-corrections\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S14",
+      "route": "/proposals-contracts/:projectId/history",
+      "persona": "Engineering",
+      "viewport": "desktop",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/history\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/history\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "route_id": "S14",
+      "route": "/proposals-contracts/:projectId/history",
+      "persona": "Engineering",
+      "viewport": "tablet",
+      "contract": true,
+      "text": "",
+      "headings": [],
+      "title": "",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [
+        "NAVIGATION_ERROR"
+      ],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": false,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [
+        "navigation-error"
+      ],
+      "navigation_error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/proposals-contracts/:projectId/history\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/proposals-contracts/:projectId/history\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    }
+  ]
 }

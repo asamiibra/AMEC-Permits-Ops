@@ -1,20 +1,98 @@
 {
   "gate": "UI_MOBILE_PASS",
-  "status": "PENDING_BROWSER_EXECUTION",
-  "note": "Desktop, tablet, and mobile are rendered for every applicable persona.",
+  "status": "FAIL",
   "viewports": {
-    "desktop": [
-      1440,
-      1000
-    ],
-    "tablet": [
-      834,
-      1112
-    ],
-    "mobile": [
-      390,
-      844
-    ]
+    "desktop": {
+      "width": 1440,
+      "height": 1000
+    },
+    "tablet": {
+      "width": 834,
+      "height": 1112
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844
+    }
   },
-  "results": []
+  "failures": [
+    {
+      "route_id": "S31",
+      "route": "/engineering-closeout",
+      "persona": "Owner",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ 4 DEMO AS Owner Business Development Engineering SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS E5 · E6 BOUNDED WORKFLOW Engineering & Commercial Closeout Project-context views over shared evidence. Synthetic implementation only; professional, finance, send, payment, and release authority remain human-owned. Prototype / development only SYNTHETIC / DEMO / NOT CLIENT APPROVED · NO ACCOUNTING WRITE · HUMAN SEND · NO AUTOMATIC PROJECT CLOSE Project context Canonical project identity anchors both assistants. GHCE-2026-0142 · Al Noor Villa ENGINEERING REVIEW ASSISTANT Engineering Review ADVISORY ONLY Review state CREATED / CONFIGURE SCOPE Drawing version PINNED DOCUMENT VERSION REQUIRED Review scope / regulations SCOPE REQUIRED AI PROPOSED ≠ ENGINEER ACCEPTED Candidate discrepancies must cite the pinned drawing and controlled regulation evidence. AI cannot certify, approve, stamp, or close a professional comment. Compliance Review Sheet Comment Sheet Observed Block-Time Revision history Drawing V1 → numbered comments → corrected drawing V2 → material-change invalidation → re-review. E6 · FINANCE / HANDOVER Commercial Closeout TRACK / DRAFT / HANDOFF Invoice decision Human decision / configured rule Finance route General finance handoff Invoice follow-up Due date unknown / needs review when unconfigured Handover readiness Needs review HUMAN-CONTROLLED SEND · NO ACCOUNTING WRITE Invoice issue/payment evidence is separate from internal readiness. Handover output requires human approval and release evidence; release does not close the project. Invoice Follow-up Sheet Handover Form / Output Client Draft BOUNDARY REGISTER What remains outside this gate DEFERRED — Professional certification / stamping — NFPA or Qatar authority claim without approved edition — DWF/CAD semantic automation — Accounting ledger posting — Payment processing — Autonomous email send — Government final submission — Automatic project closure",
+      "headings": [
+        "ProposalOps",
+        "Engineering & Commercial Closeout",
+        "Engineering Review",
+        "Commercial Closeout",
+        "What remains outside this gate"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": true,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [],
+      "screenshot": "artifacts/ui-conformance/screenshots/S31-Owner-mobile.png"
+    },
+    {
+      "route_id": "S31",
+      "route": "/engineering-closeout",
+      "persona": "Engineering",
+      "viewport": "mobile",
+      "contract": true,
+      "text": "AMEC WORKFLOW ProposalOps ⓘ 4 DEMO AS Owner Business Development Engineering SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS E5 · E6 BOUNDED WORKFLOW Engineering & Commercial Closeout Project-context views over shared evidence. Synthetic implementation only; professional, finance, send, payment, and release authority remain human-owned. Prototype / development only SYNTHETIC / DEMO / NOT CLIENT APPROVED · NO ACCOUNTING WRITE · HUMAN SEND · NO AUTOMATIC PROJECT CLOSE Project context Canonical project identity anchors both assistants. GHCE-2026-0142 · Al Noor Villa ENGINEERING REVIEW ASSISTANT Engineering Review ADVISORY ONLY Review state CREATED / CONFIGURE SCOPE Drawing version PINNED DOCUMENT VERSION REQUIRED Review scope / regulations SCOPE REQUIRED AI PROPOSED ≠ ENGINEER ACCEPTED Candidate discrepancies must cite the pinned drawing and controlled regulation evidence. AI cannot certify, approve, stamp, or close a professional comment. Compliance Review Sheet Comment Sheet Observed Block-Time Revision history Drawing V1 → numbered comments → corrected drawing V2 → material-change invalidation → re-review. E6 · FINANCE / HANDOVER Commercial Closeout TRACK / DRAFT / HANDOFF Invoice decision Human decision / configured rule Finance route General finance handoff Invoice follow-up Due date unknown / needs review when unconfigured Handover readiness Needs review HUMAN-CONTROLLED SEND · NO ACCOUNTING WRITE Invoice issue/payment evidence is separate from internal readiness. Handover output requires human approval and release evidence; release does not close the project. Invoice Follow-up Sheet Handover Form / Output Client Draft BOUNDARY REGISTER What remains outside this gate DEFERRED — Professional certification / stamping — NFPA or Qatar authority claim without approved edition — DWF/CAD semantic automation — Accounting ledger posting — Payment processing — Autonomous email send — Government final submission — Automatic project closure",
+      "headings": [
+        "ProposalOps",
+        "Engineering & Commercial Closeout",
+        "Engineering Review",
+        "Commercial Closeout",
+        "What remains outside this gate"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "current_stage_visible": false,
+      "viewed_stage_visible": false,
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_actor": false,
+      "raw_enum": [],
+      "blank_sections": [],
+      "collisions": [],
+      "horizontal_overflow": true,
+      "technical_allowlist": [
+        "QID",
+        "NOC",
+        "MFA",
+        "RFQ",
+        "RFP",
+        "SOW",
+        "API",
+        "AMEC",
+        "SYN",
+        "AI"
+      ],
+      "axe_critical_or_serious": [],
+      "screenshot": "artifacts/ui-conformance/screenshots/S31-Engineering-mobile.png"
+    }
+  ]
 }
