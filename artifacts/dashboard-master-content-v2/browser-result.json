@@ -1,0 +1,1 @@
+{"status":"FULL_ACTIVE_BROWSER_REGRESSION_PASS","command":"npm run browser-real-stack","tests":21,"passed":21,"failed":0,"stack":"real frontend + real FastAPI + PostgreSQL + test SOR"}

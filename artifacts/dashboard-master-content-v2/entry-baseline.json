@@ -1,0 +1,13 @@
+{
+  "status": "DASHBOARD_V2_ENTRY_BASELINE_PASS",
+  "branch": "main",
+  "commit_before": "135b6c29ed50be0c4821572289d8948bb2c9d790",
+  "working_tree_at_entry": "clean before v2 work",
+  "alembic_before": "0028_master_content_propagation",
+  "alembic_after_verification": "0029_dashboard_master_content_v2",
+  "database": "PostgreSQL owner_dashboard_closure_pg3",
+  "frontend_routes": ["/dashboard", "/admin/forms"],
+  "backend_surface": ["/api/master-content", "/api/master-content/categories", "/api/definitions"],
+  "protected_foundation": ["MasterContentItem", "DocumentVersion", "MasterContentChangeEvent", "MasterContentDependency", "LineageEdge", "MockSynologyAdapter"],
+  "baseline_evidence": ["backend/tests/test_owner_dashboard_master_content.py", "frontend/browser-real-stack/master-content-owner-dashboard.spec.ts"]
+}

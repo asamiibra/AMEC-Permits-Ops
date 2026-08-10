@@ -16,7 +16,7 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
 
   await page.getByRole("button", { name: "New Form" }).click();
   await page.getByLabel("Title / Name").fill("Browser controlled form");
-  await page.getByLabel("Reference").fill(formRef);
+  await page.getByLabel("Reference").first().fill(formRef);
   await page.getByLabel("Description").fill("Created through the Owner Dashboard real-stack path.");
   await page.getByLabel("File").setInputFiles({ name: "browser-form.txt", mimeType: "text/plain", buffer: Buffer.from("browser form v1") });
   await page.getByRole("button", { name: "Save and verify" }).click();
@@ -34,7 +34,7 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
 
   await page.getByRole("button", { name: "New Document" }).click();
   await page.getByLabel("Title / Name").fill("Browser controlled engineering source");
-  await page.getByLabel("Reference").fill(engineeringRef);
+  await page.getByLabel("Reference").first().fill(engineeringRef);
   await page.getByLabel("Description").fill("Synthetic Engineering Works source for propagation proof.");
   await page.getByLabel("File").setInputFiles({ name: "browser-engineering.txt", mimeType: "text/plain", buffer: Buffer.from("engineering v1") });
   await page.getByRole("button", { name: "Save and verify" }).click();

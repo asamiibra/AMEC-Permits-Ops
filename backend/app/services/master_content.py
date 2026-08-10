@@ -32,6 +32,8 @@ from ..models import (
     MasterContentChangeEvent,
     MasterContentDependency,
     MasterContentEventDelivery,
+    MasterContentModuleBinding,
+    MasterContentReferenceSequence,
     MasterContentIdempotency,
     MasterContentItem,
     MaterialChangeEvent,
@@ -50,12 +52,25 @@ SEMANTIC_DESTINATION = {
     "REPORT": "MASTER_REPORT",
     "ENGINEERING_WORK": "MASTER_ENGINEERING_WORK",
 }
+_CATEGORY_GROUPS = {
+    "FORM": ["General", "Administration", "Business Development", "Consultant", "Contract", "Engineering", "Design", "Permit", "Municipality", "Finance", "Handover", "Other"],
+    "REPORT": ["General", "Business Development", "Commercial", "Design", "Engineering", "Permit", "Municipality", "Project", "Finance", "Handover", "Other"],
+    "ENGINEERING_WORK": ["Regulation", "QCS", "Municipality", "Authority Guidance", "Architecture", "Structural", "Civil", "MEP", "Fire & Life Safety", "Design Guide", "Technical Reference", "Authority Comment", "Other"],
+    "DEFINITION": ["Client", "Project", "Proposal", "Contract", "Engineering", "Permit", "Finance", "System", "General", "Other"],
+}
 DEFAULT_CATEGORIES = [
-    {"code": "DESIGN", "label": "Design", "description": "Design-related reference content", "allowed_content_types": ["FORM", "REPORT", "ENGINEERING_WORK"], "sort_order": 10},
-    {"code": "DC", "label": "DC", "description": "Synthetic example category", "allowed_content_types": ["FORM", "REPORT"], "sort_order": 20},
-    {"code": "REGULATION", "label": "Regulation", "description": "Regulatory reference content", "allowed_content_types": ["ENGINEERING_WORK"], "sort_order": 30},
-    {"code": "ARCH", "label": "Arch", "description": "Architectural reference content", "allowed_content_types": ["ENGINEERING_WORK"], "sort_order": 40},
+    {"code": f"{content_type}_{label.upper().replace(' ', '_').replace('&', 'AND')}", "label": label, "description": f"Synthetic/configurable {content_type.replace('_', ' ').title()} category", "allowed_content_types": [content_type], "sort_order": group_index * 100 + index * 10, "source_kind": "SYNTHETIC_CONFIGURABLE"}
+    for group_index, (content_type, labels_for_type) in enumerate(_CATEGORY_GROUPS.items())
+    for index, label in enumerate(labels_for_type, start=1)
 ]
+DEFAULT_REFERENCE_SEQUENCES = [
+    {"content_type": "FORM", "prefix": "F", "padding": 4, "scope": "GLOBAL"},
+    {"content_type": "REPORT", "prefix": "R", "padding": 4, "scope": "GLOBAL"},
+    {"content_type": "ENGINEERING_WORK", "prefix": "E", "padding": 4, "scope": "GLOBAL"},
+    {"content_type": "DEFINITION", "prefix": "D", "padding": 4, "scope": "GLOBAL"},
+]
+ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
+ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE"}
 
 
 def _error(code: str, status: int = 422, **details: Any) -> HTTPException:
@@ -125,9 +140,88 @@ def _category(db: Session, category_id: str | None, content_type: str) -> Conten
 
 def seed_categories(db: Session) -> None:
     for data in DEFAULT_CATEGORIES:
-        if not db.scalar(select(ContentCategory).where(ContentCategory.code == data["code"])):
+        existing = db.scalar(select(ContentCategory).where(ContentCategory.code == data["code"]))
+        if not existing:
             db.add(ContentCategory(**data))
+        elif not getattr(existing, "source_kind", None):
+            existing.source_kind = "SYNTHETIC_CONFIGURABLE"
     db.flush()
+
+
+def seed_reference_sequences(db: Session) -> None:
+    for data in DEFAULT_REFERENCE_SEQUENCES:
+        existing = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == data["content_type"], MasterContentReferenceSequence.scope == data["scope"]))
+        if not existing:
+            db.add(MasterContentReferenceSequence(**data, current_value=0, active=True))
+        else:
+            maximum = 0
+            prefix_pattern = re.compile(rf"^{re.escape(existing.prefix)}-(\d+)$")
+            refs = db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == existing.content_type)).all()
+            for ref in refs:
+                match = prefix_pattern.match(ref or "")
+                if match:
+                    maximum = max(maximum, int(match.group(1)))
+            existing.current_value = max(existing.current_value, maximum)
+    db.flush()
+
+
+def _allocate_reference(db: Session, content_type: str, requested: str | None = None) -> tuple[str, bool]:
+    if requested and requested.strip():
+        return requested.strip(), False
+    sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active.is_(True)).with_for_update())
+    if not sequence:
+        seed_reference_sequences(db)
+        sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active.is_(True)).with_for_update())
+    if not sequence:
+        raise _error("REFERENCE_SEQUENCE_UNAVAILABLE", 503, content_type=content_type)
+    prefix_pattern = re.compile(rf"^{re.escape(sequence.prefix)}-(\d+)$")
+    existing_max = 0
+    for ref in db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == content_type)).all():
+        match = prefix_pattern.match(ref or "")
+        if match:
+            existing_max = max(existing_max, int(match.group(1)))
+    sequence.current_value = max(sequence.current_value, existing_max)
+    sequence.current_value += 1
+    db.flush()
+    return f"{sequence.prefix}-{sequence.current_value:0{sequence.padding}d}", True
+
+
+def _parse_modules(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except json.JSONDecodeError:
+            value = [part.strip() for part in value.split(",") if part.strip()]
+    if not isinstance(value, list):
+        raise _error("MODULE_BINDING_NOT_ALLOWED")
+    modules = [str(module).strip().upper() for module in value if str(module).strip()]
+    if any(module not in ALLOWED_MODULES for module in modules):
+        raise _error("MODULE_BINDING_NOT_ALLOWED", modules=modules)
+    return list(dict.fromkeys(modules))
+
+
+def _sync_module_bindings(db: Session, *, item_id: str, modules: list[str], actor: str) -> None:
+    existing = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item_id)).all()
+    for binding in existing:
+        binding.active = binding.module in modules
+    for module in modules:
+        binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item_id, MasterContentModuleBinding.module == module, MasterContentModuleBinding.usage_type == "AVAILABLE"))
+        if binding:
+            binding.active = True
+        else:
+            db.add(MasterContentModuleBinding(master_content_id=item_id, module=module, usage_type="AVAILABLE", active=True, created_by=actor))
+    db.flush()
+
+
+def _modules_for(db: Session, *, item_id: str | None = None, definition_id: str | None = None) -> list[str]:
+    query = select(MasterContentModuleBinding.module).where(MasterContentModuleBinding.active.is_(True))
+    if item_id:
+        query = query.where(MasterContentModuleBinding.master_content_id == item_id)
+    if definition_id:
+        query = query.where(MasterContentModuleBinding.definition_id == definition_id)
+    return sorted(set(db.scalars(query).all()))
 
 
 def _status(version: DocumentVersion) -> str:
@@ -290,6 +384,12 @@ def _version_projection(version: DocumentVersion) -> dict[str, Any]:
         "change_reason": metadata.get("change_reason"),
         "change_kind": metadata.get("change_kind", "CREATE"),
         "downloadable": _status(version) in {"CURRENT", "SUPERSEDED"},
+        "rendition": {
+            "status": version.rendition_status,
+            "available": version.rendition_status == "SOURCE_PDF",
+            "mime_type": version.rendition_mime_type,
+            "size_bytes": version.rendition_file_size,
+        },
     }
 
 
@@ -303,12 +403,15 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         "title": item.title,
         "category": {"id": category.id, "code": category.code, "label": category.label} if category else None,
         "description": item.description,
+        "used_in": _modules_for(db, item_id=item.id),
+        "engineering_metadata": item.engineering_metadata or {},
         "status": item.status,
         "version": current.version_number if current else None,
         "version_status": _status(current) if current else "NO_VERSION",
         "updated": item.updated_at.isoformat() if item.updated_at else None,
         "storage_status": "Storage verified" if current and _status(current) == "CURRENT" else "Storage unavailable",
         "current_version_id": current.id if current else None,
+        "preview": {"status": current.rendition_status, "available": current.rendition_status == "SOURCE_PDF"} if current else {"status": "RENDITION_NOT_AVAILABLE", "available": False},
     }
     if include_history:
         versions = db.scalars(select(DocumentVersion).where(DocumentVersion.document_id == item.document_id).order_by(DocumentVersion.version_number.desc())).all()
@@ -328,6 +431,8 @@ def _verify_and_promote(
     correlation_id: str,
     source_surface: str = "DASHBOARD",
     previous: DocumentVersion | None,
+    category_changed: bool = False,
+    used_in_changed: bool = False,
 ) -> None:
     adapter = _adapter()
     try:
@@ -351,6 +456,20 @@ def _verify_and_promote(
             raise _error("SOR_HASH_MISMATCH", 502)
         if sor_metadata.get("path", "").startswith("/") or target is None:
             raise _error("SOR_READBACK_FAILED", 502)
+        if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
+            version.rendition_status = "SOURCE_PDF"
+            version.rendition_path_or_reference = version.source_path_or_reference
+            version.rendition_sha256 = version.sha256
+            version.rendition_mime_type = version.mime_type
+            version.rendition_file_size = version.file_size
+        else:
+            # DOCX and other source formats remain authoritative and truthful
+            # when no safe server-side converter is configured.
+            version.rendition_status = "RENDITION_NOT_AVAILABLE"
+            version.rendition_path_or_reference = None
+            version.rendition_sha256 = None
+            version.rendition_mime_type = None
+            version.rendition_file_size = None
         version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "verified_at": version.ingested_at.isoformat()}
         db.flush()
     except HTTPException:
@@ -370,7 +489,7 @@ def _verify_and_promote(
     item.current_document_version_id = version.id
     category = db.get(ContentCategory, item.category_id) if item.category_id else None
     change_reason = (version.metadata_json or {}).get("change_reason")
-    event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=previous.id if previous else None, new_version_id=version.id, change_type="MASTER_CONTENT_VERSION_PROMOTED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"content_type": item.content_type, "ref": item.ref, "version_number": version.version_number, "source_surface": source_surface}, event_type="MASTER_CONTENT_CREATED" if previous is None else "MASTER_CONTENT_VERSION_PROMOTED", content_type=item.content_type, business_ref=item.ref, category_snapshot={"id": category.id, "code": category.code, "label": category.label} if category else {}, change_kind=(version.metadata_json or {}).get("change_kind", "MODIFY"), change_reason=change_reason, materiality=_materiality(item, previous, version, False), source_hash=version.sha256)
+    event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=previous.id if previous else None, new_version_id=version.id, change_type="MASTER_CONTENT_VERSION_PROMOTED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"content_type": item.content_type, "ref": item.ref, "version_number": version.version_number, "source_surface": source_surface, "used_in": item.used_in or []}, event_type="MASTER_CONTENT_CREATED" if previous is None else "MASTER_CONTENT_VERSION_PROMOTED", content_type=item.content_type, business_ref=item.ref, category_snapshot={"id": category.id, "code": category.code, "label": category.label} if category else {}, change_kind=(version.metadata_json or {}).get("change_kind", "MODIFY"), change_reason=change_reason, materiality=_materiality(item, previous, version, category_changed or used_in_changed), source_hash=version.sha256)
     db.add(event)
     db.flush()
     propagate_master_change(db, event, item, version)
@@ -382,7 +501,7 @@ def create_master_content(
     db: Session,
     *,
     content_type: str,
-    ref: str,
+    ref: str | None,
     title: str,
     category_id: str | None,
     description: str | None,
@@ -393,18 +512,20 @@ def create_master_content(
     idempotency_key: str,
     correlation_id: str,
     source_surface: str = "DASHBOARD",
+    used_in: Any = None,
+    engineering_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     content_type = content_type.upper().strip()
-    ref = ref.strip()
     title = title.strip()
-    if content_type not in CONTENT_TYPES or not ref or not title:
+    if content_type not in CONTENT_TYPES or not title:
         raise _error("MASTER_CONTENT_METADATA_INVALID")
-    _allowed_file(filename, content)
-    _category(db, category_id, content_type)
     prior_idempotency = db.scalar(select(MasterContentIdempotency).where(MasterContentIdempotency.idempotency_key == idempotency_key))
     if prior_idempotency:
         item = db.get(MasterContentItem, prior_idempotency.master_content_id)
         return item_projection(db, item, include_history=True)
+    ref, reference_generated = _allocate_reference(db, content_type, ref)
+    _allowed_file(filename, content)
+    _category(db, category_id, content_type)
     if db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == content_type, MasterContentItem.ref == ref)):
         raise _error("MASTER_CONTENT_REF_CONFLICT", 409, ref=ref)
     mapping = _mapping()
@@ -413,16 +534,18 @@ def create_master_content(
         raise _error("SOR_DESTINATION_UNRESOLVED", 503)
     digest = hashlib.sha256(content).hexdigest()
     document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=title, language="en", source_system="MASTER_CONTENT")
-    item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, status="ACTIVE", document=document, created_by=actor)
+    modules = _parse_modules(used_in)
+    item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, status="ACTIVE", document=document, created_by=actor)
     db.add(item)
     db.flush()
-    version = DocumentVersion(document_id=document.id, version_number=1, source_filename=_safe_filename(filename, ref, 1), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or "application/octet-stream", file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": content_type, "business_ref": ref, "title": title, "description": description, "change_kind": "CREATE", "change_reason": "Initial version"})
+    version = DocumentVersion(document_id=document.id, version_number=1, source_filename=_safe_filename(filename, ref, 1), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or "application/octet-stream", file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": content_type, "business_ref": ref, "title": title, "description": description, "used_in": modules, "engineering_metadata": engineering_metadata or {}, "reference_generated": reference_generated, "change_kind": "CREATE", "change_reason": "Initial version"})
     db.add(version)
     db.flush()
     try:
         _verify_and_promote(db, item=item, document=document, version=version, content=content, configured_destination=destination, actor=actor, correlation_id=correlation_id, source_surface=source_surface, previous=None)
+        _sync_module_bindings(db, item_id=item.id, modules=modules, actor=actor)
         db.add(MasterContentIdempotency(idempotency_key=idempotency_key, master_content_id=item.id, document_version_id=version.id, result_json={"master_content_id": item.id, "document_version_id": version.id}))
-        audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_CREATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": ref, "content_type": content_type, "version": 1}, metadata={"change_reason": "Initial version", "source_surface": source_surface})
+        audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_CREATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": ref, "content_type": content_type, "version": 1}, metadata={"change_reason": "Initial version", "source_surface": source_surface, "reference_generated": reference_generated})
         db.commit()
     except HTTPException:
         db.rollback() if db.in_transaction() and version.metadata_json.get("master_status") == "PENDING_WRITE" else None
@@ -446,6 +569,8 @@ def create_master_content_version(
     idempotency_key: str,
     correlation_id: str,
     source_surface: str = "DASHBOARD",
+    used_in: Any = None,
+    engineering_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
     if not item:
@@ -458,10 +583,14 @@ def create_master_content_version(
     existing = db.scalar(select(MasterContentIdempotency).where(MasterContentIdempotency.idempotency_key == idempotency_key))
     if existing:
         return item_projection(db, item, include_history=True)
+    metadata_only = content is None
     if content is None:
         content = _adapter().read_configured_artifact(current.source_path_or_reference)
     _allowed_file(filename or current.source_filename, content)
     category = _category(db, category_id, item.content_type) if category_id else db.get(ContentCategory, item.category_id) if item.category_id else None
+    prior_category_id = item.category_id
+    prior_modules = _modules_for(db, item_id=item.id)
+    modules = _parse_modules(used_in) if used_in is not None else prior_modules
     mapping = _mapping()
     destination = mapping.get(SEMANTIC_DESTINATION[item.content_type])
     if not destination:
@@ -473,11 +602,15 @@ def create_master_content_version(
     item.category_id = category.id if category else item.category_id
     if description is not None:
         item.description = description
-    version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=_safe_filename(filename or current.source_filename, item.ref, next_version), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or current.mime_type, file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": item.content_type, "business_ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "change_kind": "MODIFY", "change_reason": change_reason, "uploaded_by": actor})
+    item.used_in = modules
+    if engineering_metadata is not None:
+        item.engineering_metadata = engineering_metadata
+    version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=_safe_filename(filename or current.source_filename, item.ref, next_version), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or current.mime_type, file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": item.content_type, "business_ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "used_in": modules, "engineering_metadata": item.engineering_metadata or {}, "change_kind": "METADATA" if metadata_only else "MODIFY", "change_reason": change_reason, "uploaded_by": actor})
     db.add(version)
     db.flush()
     try:
-        _verify_and_promote(db, item=item, document=document, version=version, content=content, configured_destination=destination, actor=actor, correlation_id=correlation_id, source_surface=source_surface, previous=current)
+        _verify_and_promote(db, item=item, document=document, version=version, content=content, configured_destination=destination, actor=actor, correlation_id=correlation_id, source_surface=source_surface, previous=current, category_changed=prior_category_id != item.category_id, used_in_changed=sorted(prior_modules) != sorted(modules))
+        _sync_module_bindings(db, item_id=item.id, modules=modules, actor=actor)
         db.add(MasterContentIdempotency(idempotency_key=idempotency_key, master_content_id=item.id, document_version_id=version.id, result_json={"master_content_id": item.id, "document_version_id": version.id}))
         audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_VERSION_UPLOADED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": item.ref, "version": next_version}, metadata={"change_reason": change_reason, "source_surface": source_surface})
         db.commit()
@@ -514,10 +647,10 @@ def archive_master_content(db: Session, *, item_id: str, actor: str, correlation
 
 def definition_projection(db: Session, definition: DefinitionEntry, include_history: bool = False) -> dict[str, Any]:
     current = db.get(DefinitionRevision, definition.current_revision_id) if definition.current_revision_id else None
-    result: dict[str, Any] = {"id": definition.id, "ref": definition.ref, "term": definition.term, "description": current.description if current else None, "revision": current.revision_number if current else None, "status": definition.status, "updated": definition.updated_at.isoformat() if definition.updated_at else None, "aliases": current.aliases if current else [], "notes": current.notes if current else None}
+    result: dict[str, Any] = {"id": definition.id, "ref": definition.ref, "term": definition.term, "category": definition.category, "description": current.description if current else None, "revision": current.revision_number if current else None, "status": definition.status, "updated": definition.updated_at.isoformat() if definition.updated_at else None, "aliases": current.aliases if current else [], "notes": current.notes if current else None, "used_in": _modules_for(db, definition_id=definition.id)}
     if include_history:
         revisions = db.scalars(select(DefinitionRevision).where(DefinitionRevision.definition_id == definition.id).order_by(DefinitionRevision.revision_number.desc())).all()
-        result["revisions"] = [{"id": r.id, "revision": r.revision_number, "term": r.term, "description": r.description, "aliases": r.aliases, "notes": r.notes, "status": r.status, "changed_by": r.changed_by, "changed_at": r.changed_at.isoformat(), "change_reason": r.change_reason} for r in revisions]
+        result["revisions"] = [{"id": r.id, "revision": r.revision_number, "term": r.term, "category": r.category, "description": r.description, "used_in": r.used_in or [], "aliases": r.aliases, "notes": r.notes, "status": r.status, "changed_by": r.changed_by, "changed_at": r.changed_at.isoformat(), "change_reason": r.change_reason} for r in revisions]
     return result
 
 

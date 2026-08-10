@@ -1,0 +1,1 @@
+{"status":"PASS","foundation":"MasterContentChangeEvent + MasterContentDependency + LineageEdge + delivery dedupe ledger","materiality":"source/category/Used In/Engineering Work changes are material","noise_control":"delivery uniqueness and dependency dedupe preserved","consumer_model":"explicit bindings; no copied master bytes"}

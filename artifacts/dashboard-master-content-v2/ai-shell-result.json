@@ -1,0 +1,1 @@
+{"status":"PASS","ui":"visible disabled AI Assist shell with human-acceptance copy","api":"POST /api/master-content/ai-assist returns 409 AI_ASSIST_NOT_ENABLED","future_contract":"request_type + source_version_id payload seam","automation":"none"}

@@ -1,0 +1,1 @@
+{"status":"DEPLOYED_DASHBOARD_V2_PASS","frontend":"https://amec-permits-ops.vercel.app","backend":"https://amec-permits-ops-backend.vercel.app","frontend_http":200,"backend_health":"ok","deployed_database":"PostgreSQL durable","deployed_alembic":["0029_dashboard_master_content_v2"],"deployed_sor":"SYNTHETIC_EPHEMERAL; real Synology remains external"}

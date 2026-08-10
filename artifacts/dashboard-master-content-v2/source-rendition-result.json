@@ -1,0 +1,1 @@
+{"status":"PASS_WITH_TRUTHFUL_UNAVAILABLE","docx":"accepted by allowlist as source; preview remains unavailable","pdf":"source PDF is exact rendition with matching path/hash/size/mime metadata","unsupported_or_non_pdf":"RENDITION_NOT_AVAILABLE, not a fabricated preview","test":"test_v2_auto_references_are_stable_and_sor_preview_is_truthful"}

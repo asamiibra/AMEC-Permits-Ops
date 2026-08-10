@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, utcnow
@@ -24,6 +24,8 @@ class MasterContentItem(Base, TimestampMixin):
     title: Mapped[str] = mapped_column(String(240), nullable=False)
     category_id: Mapped[str | None] = mapped_column(ForeignKey("content_categories.id"), index=True)
     description: Mapped[str | None] = mapped_column(Text)
+    used_in: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    engineering_metadata: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="ACTIVE", index=True)
     document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), nullable=False, unique=True)
     current_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
@@ -43,6 +45,37 @@ class ContentCategory(Base):
     allowed_content_types: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
+    source_kind: Mapped[str] = mapped_column(String(40), default="SYNTHETIC_CONFIGURABLE", nullable=False)
+
+
+class MasterContentReferenceSequence(Base, TimestampMixin):
+    __tablename__ = "master_content_reference_sequences"
+    __table_args__ = (UniqueConstraint("content_type", "scope", name="uq_master_content_reference_sequence"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    content_type: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    prefix: Mapped[str] = mapped_column(String(20), nullable=False)
+    padding: Mapped[int] = mapped_column(Integer, nullable=False, default=4)
+    scope: Mapped[str] = mapped_column(String(80), nullable=False, default="GLOBAL")
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    current_value: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class MasterContentModuleBinding(Base, TimestampMixin):
+    __tablename__ = "master_content_module_bindings"
+    __table_args__ = (
+        UniqueConstraint("master_content_id", "module", "usage_type", name="uq_master_content_module_binding"),
+        UniqueConstraint("definition_id", "module", "usage_type", name="uq_definition_module_binding"),
+        CheckConstraint("master_content_id IS NOT NULL OR definition_id IS NOT NULL", name="ck_binding_source_present"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    master_content_id: Mapped[str | None] = mapped_column(ForeignKey("master_content_items.id"), nullable=True, index=True)
+    definition_id: Mapped[str | None] = mapped_column(ForeignKey("definition_entries.id"), nullable=True, index=True)
+    module: Mapped[str] = mapped_column(String(40), nullable=False)
+    usage_type: Mapped[str] = mapped_column(String(50), nullable=False, default="AVAILABLE")
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_by: Mapped[str] = mapped_column(String(200), nullable=False)
 
 
 class DefinitionEntry(Base, TimestampMixin):
@@ -53,6 +86,7 @@ class DefinitionEntry(Base, TimestampMixin):
     ref: Mapped[str | None] = mapped_column(String(100), index=True)
     term: Mapped[str] = mapped_column(String(240), nullable=False, index=True)
     category: Mapped[str | None] = mapped_column(String(100))
+    used_in: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="ACTIVE", index=True)
     # Nullable pointer avoids a cyclic DDL dependency with DefinitionRevision;
     # the service enforces that it points to a revision of this entry.
@@ -69,6 +103,8 @@ class DefinitionRevision(Base):
     revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
     term: Mapped[str] = mapped_column(String(240), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str | None] = mapped_column(String(100))
+    used_in: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     aliases: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     notes: Mapped[str | None] = mapped_column(Text)
     changed_by: Mapped[str] = mapped_column(String(200), nullable=False)

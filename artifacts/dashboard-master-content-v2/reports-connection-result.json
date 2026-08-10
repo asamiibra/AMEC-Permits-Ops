@@ -1,0 +1,1 @@
+{"status":"PASS","canonical_store":"MasterContentItem content_type REPORT","binding":"REPORTS / REPORT_SOURCE","filter":"GET /api/master-content?content_type=REPORT&module=REPORTS","duplicate_copy_created":false}
