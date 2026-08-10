@@ -1,0 +1,11 @@
+{
+  "workflow_task_owner_visible": 0,
+  "raw_actor": 0,
+  "raw_enum": 0,
+  "raw_uuid": 0,
+  "raw_json": 0,
+  "normal_owner_facing_technical_leakage": 0,
+  "DEPLOYED_OWNER_VISIBLE_WORKFLOWTASK_ZERO": true,
+  "NORMAL_OWNER_FACING_TECHNICAL_LEAKAGE_ZERO": true,
+  "fix": "Admin audit projection maps WorkflowTask to Work item; internal model names remain backend-only."
+}

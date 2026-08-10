@@ -1,0 +1,1 @@
+{"status":"PASS_APPLICABLE_LOCAL_SYNTHETIC","product":"ProposalOps","model":"Proposals -> Contracts -> Permits","backend_compatibility_preserved":true,"backend_tests":"119 passed","frontend_tests":"29 passed","browser_tests":"4 passed","frontend_build":"PASS","material_page_api_500":0,"production_deployment":"NOT_PERFORMED","neon_validation":"NOT_PERFORMED"}

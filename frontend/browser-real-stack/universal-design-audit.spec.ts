@@ -5,9 +5,10 @@ import path from "node:path";
 type Role = "Owner" | "Business Development" | "Engineering";
 const roleStorage: Record<Role, string> = { Owner: "SYSTEM_ADMIN", "Business Development": "COMMERCIAL_APPROVER", Engineering: "RESPONSIBLE_ENGINEER" };
 const root = path.resolve(process.cwd(), "..");
+const registryRoot = path.resolve(root, "artifacts/universal-design-audit");
 const auditRoot = path.resolve(process.env.UNIVERSAL_AUDIT_OUTPUT || path.join(root, "artifacts/universal-design-audit"));
-const inventory = JSON.parse(fs.readFileSync(path.join(auditRoot, "route-inventory.json"), "utf8"));
-const contracts = JSON.parse(fs.readFileSync(path.join(auditRoot, "page-design-contracts.json"), "utf8"));
+const inventory = JSON.parse(fs.readFileSync(path.join(registryRoot, "route-inventory.json"), "utf8"));
+const contracts = JSON.parse(fs.readFileSync(path.join(registryRoot, "page-design-contracts.json"), "utf8"));
 const contractById = new Map(contracts.contracts.map((item: any) => [item.id, item]));
 const technicalTerms = new Set(["QID", "NOC", "MFA", "RFQ", "RFP", "SOW", "API", "SYN", "AMEC", "HUMAN_SEND", "NO_MACHINE_SUBMIT"]);
 const uuidPattern = /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/i;
@@ -127,15 +128,16 @@ test.describe("ProposalOps universal design and functional audit", () => {
       { role: "Owner" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "owner-commercial" },
       { role: "Business Development" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "bd-commercial" },
       { role: "Engineering" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "engineering-commercial" },
-      { role: "Owner" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/proposals-contracts/", expected: /Current stage|Viewing|Project & Sources/i, name: "owner-permit-context" },
-      { role: "Business Development" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/proposals-contracts/", expected: /Current stage|Viewing|Project & Sources/i, name: "bd-permit-context" },
-      { role: "Engineering" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/proposals-contracts/", expected: /Current stage|Viewing|Project & Sources/i, name: "engineering-permit-context" },
+      { role: "Owner" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "owner-permit-context" },
+      { role: "Business Development" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "bd-permit-context" },
+      { role: "Engineering" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "engineering-permit-context" },
     ];
     const results = [];
     for (const item of checks) {
       await page.addInitScript((value: string) => sessionStorage.setItem("proposalops-role", value), roleStorage[item.role]);
       await page.goto(item.route, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(260);
+      if (item.name.includes("permit-context")) await page.getByText("Project & Sources", { exact: true }).first().waitFor({ state: "visible", timeout: 10_000 });
       const body = await page.locator("body").innerText();
       const url = new URL(page.url()).pathname;
       const result = { name: item.name, role: item.role, route: item.route, observed_url: url, url_ok: url.startsWith(item.expectedUrl), copy_ok: item.expected.test(body), body_excerpt: body.replace(/\s+/g, " ").slice(0, 280) };

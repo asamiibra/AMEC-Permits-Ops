@@ -1,0 +1,29 @@
+{
+  "local": {
+    "base_url": "http://127.0.0.1:5173",
+    "routes": 66,
+    "role_combinations": 104,
+    "console_errors": 0,
+    "overflow": 0,
+    "raw_uuid": 0,
+    "raw_json": 0,
+    "internal_actor": 0,
+    "forbidden_terms": 0,
+    "role_matrix": "PASS",
+    "api_failure_states": "PASS"
+  },
+  "deployed": {
+    "base_url": "https://amec-permits-ops.vercel.app",
+    "routes": 66,
+    "role_combinations": 104,
+    "console_errors": 28,
+    "overflow": 0,
+    "raw_uuid": 0,
+    "raw_json": 0,
+    "internal_actor": 0,
+    "forbidden_terms": 1,
+    "role_matrix": "PASS",
+    "api_failure_states": "PASS"
+  },
+  "status": "FAIL_DEPLOYED_RELEASE_BEHIND_LOCAL"
+}

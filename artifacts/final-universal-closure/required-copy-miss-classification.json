@@ -1,0 +1,2217 @@
+{
+  "original_miss_count": 245,
+  "classifications": [
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Owner",
+      "miss": "Client List",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Owner",
+      "miss": "Proposal Form",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Owner",
+      "miss": "Open Proposals",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Owner",
+      "miss": "Open Contracts",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Business Development",
+      "miss": "Client List",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Business Development",
+      "miss": "Proposal Form",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Business Development",
+      "miss": "Open Proposals",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Business Development",
+      "miss": "Open Contracts",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Engineering",
+      "miss": "Client List",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Engineering",
+      "miss": "Proposal Form",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Engineering",
+      "miss": "Open Proposals",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "persona": "Engineering",
+      "miss": "Open Contracts",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "persona": "Owner",
+      "miss": "Price",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "persona": "Owner",
+      "miss": "Period",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "persona": "Owner",
+      "miss": "Exclusions",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "persona": "Business Development",
+      "miss": "Price",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "persona": "Business Development",
+      "miss": "Period",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "persona": "Business Development",
+      "miss": "Exclusions",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Owner",
+      "miss": "Proposal Description",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Owner",
+      "miss": "reference",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Business Development",
+      "miss": "Proposal Description",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Business Development",
+      "miss": "reference",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Business Development",
+      "miss": "status",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Business Development",
+      "miss": "client",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Business Development",
+      "miss": "sources",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Business Development",
+      "miss": "issues",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Business Development",
+      "miss": "history",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Engineering",
+      "miss": "Proposal Description",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "persona": "Engineering",
+      "miss": "reference",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Owner",
+      "miss": "Proposal identity",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Owner",
+      "miss": "Project/reference context",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Owner",
+      "miss": "Inputs & Sources",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Owner",
+      "miss": "Process of Work",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Owner",
+      "miss": "technical exclusions",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Owner",
+      "miss": "handoff",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Business Development",
+      "miss": "Proposal identity",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Business Development",
+      "miss": "Project/reference context",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Business Development",
+      "miss": "Process of Work",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Business Development",
+      "miss": "technical exclusions",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Business Development",
+      "miss": "handoff",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Engineering",
+      "miss": "Proposal identity",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Engineering",
+      "miss": "Project/reference context",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Engineering",
+      "miss": "Process of Work",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Engineering",
+      "miss": "technical exclusions",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "persona": "Engineering",
+      "miss": "handoff",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "persona": "Owner",
+      "miss": "Contract Reference",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "persona": "Owner",
+      "miss": "status",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "persona": "Business Development",
+      "miss": "Contract Reference",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "persona": "Business Development",
+      "miss": "status",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "persona": "Engineering",
+      "miss": "Contract Reference",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "persona": "Engineering",
+      "miss": "status",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Owner",
+      "miss": "what is wrong",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Owner",
+      "miss": "severity",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Owner",
+      "miss": "blocking",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Owner",
+      "miss": "affected record",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Owner",
+      "miss": "actionability",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Business Development",
+      "miss": "what is wrong",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Business Development",
+      "miss": "severity",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Business Development",
+      "miss": "actionability",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "miss": "what is wrong",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "miss": "severity",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "miss": "blocking",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "miss": "affected record",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "persona": "Engineering",
+      "miss": "actionability",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Owner",
+      "miss": "affected record",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Owner",
+      "miss": "actor",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Owner",
+      "miss": "time",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Owner",
+      "miss": "read state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Owner",
+      "miss": "destination",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Business Development",
+      "miss": "affected record",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Business Development",
+      "miss": "actor",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Business Development",
+      "miss": "time",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Business Development",
+      "miss": "read state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Business Development",
+      "miss": "destination",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "miss": "event",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "miss": "affected record",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "miss": "actor",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "miss": "time",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "miss": "read state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "persona": "Engineering",
+      "miss": "destination",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Owner",
+      "miss": "Project",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Owner",
+      "miss": "Permit Application",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Owner",
+      "miss": "Current stage",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Owner",
+      "miss": "Viewing",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Owner",
+      "miss": "source systems",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Owner",
+      "miss": "confirmation evidence",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Business Development",
+      "miss": "Permit Application",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Engineering",
+      "miss": "Project",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Engineering",
+      "miss": "Permit Application",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Engineering",
+      "miss": "Current stage",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Engineering",
+      "miss": "Viewing",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Engineering",
+      "miss": "source systems",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "persona": "Engineering",
+      "miss": "confirmation evidence",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Business Development",
+      "miss": "current stage",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Business Development",
+      "miss": "viewing",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Business Development",
+      "miss": "evidence",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Business Development",
+      "miss": "verification state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Business Development",
+      "miss": "conflicts",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Engineering",
+      "miss": "current stage",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Engineering",
+      "miss": "viewing",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Engineering",
+      "miss": "evidence",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Engineering",
+      "miss": "verification state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "persona": "Engineering",
+      "miss": "conflicts",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Owner",
+      "miss": "Municipality",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Owner",
+      "miss": "Authority",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Owner",
+      "miss": "current stage",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Owner",
+      "miss": "viewing",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Owner",
+      "miss": "read-back",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Owner",
+      "miss": "fallback",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Business Development",
+      "miss": "read-back",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Business Development",
+      "miss": "fallback",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Engineering",
+      "miss": "Municipality",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Engineering",
+      "miss": "Authority",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Engineering",
+      "miss": "current stage",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Engineering",
+      "miss": "viewing",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Engineering",
+      "miss": "read-back",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "persona": "Engineering",
+      "miss": "fallback",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Owner",
+      "miss": "readiness checks",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Owner",
+      "miss": "Final Submitter handoff",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Owner",
+      "miss": "human boundary",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Business Development",
+      "miss": "readiness checks",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Business Development",
+      "miss": "Final Submitter handoff",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Business Development",
+      "miss": "human boundary",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Engineering",
+      "miss": "readiness checks",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Engineering",
+      "miss": "Final Submitter handoff",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "persona": "Engineering",
+      "miss": "human boundary",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S13",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
+      "persona": "Engineering",
+      "miss": "Findings",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S13",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
+      "persona": "Engineering",
+      "miss": "evidence",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S13",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
+      "persona": "Engineering",
+      "miss": "current stage",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S13",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
+      "persona": "Engineering",
+      "miss": "viewing",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "persona": "Owner",
+      "miss": "business event",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "persona": "Owner",
+      "miss": "result",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "persona": "Business Development",
+      "miss": "business event",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "persona": "Business Development",
+      "miss": "result",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "persona": "Engineering",
+      "miss": "business event",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "persona": "Engineering",
+      "miss": "result",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S15",
+      "route": "/admin",
+      "persona": "Owner",
+      "miss": "Production Setup",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S15",
+      "route": "/admin",
+      "persona": "Owner",
+      "miss": "Runtime Health",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S26",
+      "route": "/admin/go-live-readiness",
+      "persona": "Owner",
+      "miss": "what AMEC still needs",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S26",
+      "route": "/admin/go-live-readiness",
+      "persona": "Owner",
+      "miss": "counts",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S26",
+      "route": "/admin/go-live-readiness",
+      "persona": "Owner",
+      "miss": "screen crosswalk",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S26",
+      "route": "/admin/go-live-readiness",
+      "persona": "Owner",
+      "miss": "safe defaults",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-OWNER",
+      "route": "/admin/people-access",
+      "persona": "Owner",
+      "miss": "Users",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-OWNER",
+      "route": "/admin/people-access",
+      "persona": "Owner",
+      "miss": "Roles",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-OWNER",
+      "route": "/admin/people-access",
+      "persona": "Owner",
+      "miss": "capability matrix",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-CONNECTIONS",
+      "route": "/admin/data-connections",
+      "persona": "Owner",
+      "miss": "Simulator Ready",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-CONNECTIONS",
+      "route": "/admin/data-connections",
+      "persona": "Owner",
+      "miss": "Production Not Connected",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-CONNECTIONS",
+      "route": "/admin/data-connections",
+      "persona": "Owner",
+      "miss": "Test connection",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-PROPOSAL",
+      "route": "/admin/proposal-setup",
+      "persona": "Owner",
+      "miss": "Proposal fields",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-PERMIT",
+      "route": "/admin/permit-setup",
+      "persona": "Owner",
+      "miss": "requirements",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-PERMIT",
+      "route": "/admin/permit-setup",
+      "persona": "Owner",
+      "miss": "applicability",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-PERMIT",
+      "route": "/admin/permit-setup",
+      "persona": "Owner",
+      "miss": "attachments",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-PERMIT",
+      "route": "/admin/permit-setup",
+      "persona": "Owner",
+      "miss": "Municipality",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-PERMIT",
+      "route": "/admin/permit-setup",
+      "persona": "Owner",
+      "miss": "MFA",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-TEMPLATES",
+      "route": "/admin/templates",
+      "persona": "Owner",
+      "miss": "template purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-NOTIFICATIONS",
+      "route": "/admin/notifications",
+      "persona": "Owner",
+      "miss": "audit",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-INTEGRATION",
+      "route": "/admin/integration-health",
+      "persona": "Owner",
+      "miss": "same connection truth",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-INTEGRATION",
+      "route": "/admin/integration-health",
+      "persona": "Owner",
+      "miss": "affected workflow",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-INTEGRATION",
+      "route": "/admin/integration-health",
+      "persona": "Owner",
+      "miss": "diagnostic link",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-AUDIT",
+      "route": "/admin/audit",
+      "persona": "Owner",
+      "miss": "business event",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-AUDIT",
+      "route": "/admin/audit",
+      "persona": "Owner",
+      "miss": "actor",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-AUDIT",
+      "route": "/admin/audit",
+      "persona": "Owner",
+      "miss": "time",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-AUDIT",
+      "route": "/admin/audit",
+      "persona": "Owner",
+      "miss": "outcome",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-ADVANCED",
+      "route": "/admin/advanced-diagnostics",
+      "persona": "Owner",
+      "miss": "technical evidence",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-ADVANCED",
+      "route": "/admin/advanced-diagnostics",
+      "persona": "Owner",
+      "miss": "redaction",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "ADMIN-ADVANCED",
+      "route": "/admin/advanced-diagnostics",
+      "persona": "Owner",
+      "miss": "real routes",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S16",
+      "route": "/admin/discovery",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S16",
+      "route": "/admin/discovery",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S17",
+      "route": "/admin/config",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S17",
+      "route": "/admin/config",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S17",
+      "route": "/admin/config",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S18",
+      "route": "/admin/tier1",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S18",
+      "route": "/admin/tier1",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S19",
+      "route": "/admin/delivery",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S19",
+      "route": "/admin/delivery",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S19",
+      "route": "/admin/delivery",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S20",
+      "route": "/admin/attachments-grids",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S20",
+      "route": "/admin/attachments-grids",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S20",
+      "route": "/admin/attachments-grids",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S21",
+      "route": "/admin/municipality",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S21",
+      "route": "/admin/municipality",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S21",
+      "route": "/admin/municipality",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S22",
+      "route": "/admin/corpus",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S22",
+      "route": "/admin/corpus",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S23",
+      "route": "/admin/thresholds",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S23",
+      "route": "/admin/thresholds",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S24",
+      "route": "/admin/control-diagnostics",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S24",
+      "route": "/admin/control-diagnostics",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S24",
+      "route": "/admin/control-diagnostics",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S25",
+      "route": "/opportunities",
+      "persona": "Owner",
+      "miss": "follow-up",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S25",
+      "route": "/opportunities",
+      "persona": "Business Development",
+      "miss": "follow-up",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S31",
+      "route": "/engineering-closeout",
+      "persona": "Owner",
+      "miss": "discipline",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S31",
+      "route": "/engineering-closeout",
+      "persona": "Engineering",
+      "miss": "discipline",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S30",
+      "route": "/admin/expansion-foundation",
+      "persona": "Owner",
+      "miss": "capability status",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S30",
+      "route": "/admin/expansion-foundation",
+      "persona": "Owner",
+      "miss": "human authority",
+      "classification": "TEST_ORACLE_TOO_LITERAL",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "S30",
+      "route": "/admin/expansion-foundation",
+      "persona": "Owner",
+      "miss": "handoff",
+      "classification": "SEMANTIC_EQUIVALENT_ACCEPTABLE",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-01",
+      "route": "/admin/dashboard",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-01",
+      "route": "/admin/dashboard",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-02",
+      "route": "/admin/projects",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-02",
+      "route": "/admin/projects",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-02",
+      "route": "/admin/projects",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-03",
+      "route": "/admin/documents",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-03",
+      "route": "/admin/documents",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-04",
+      "route": "/admin/conflicts",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-04",
+      "route": "/admin/conflicts",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-05",
+      "route": "/admin/package",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-05",
+      "route": "/admin/package",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-05",
+      "route": "/admin/package",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-06",
+      "route": "/admin/findings",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-06",
+      "route": "/admin/findings",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-07",
+      "route": "/admin/lineage",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-07",
+      "route": "/admin/lineage",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-08",
+      "route": "/admin/spike",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-08",
+      "route": "/admin/spike",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-09",
+      "route": "/admin/adjudication",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-09",
+      "route": "/admin/adjudication",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-10",
+      "route": "/admin/analysis",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-10",
+      "route": "/admin/analysis",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-11",
+      "route": "/admin/tier2",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-11",
+      "route": "/admin/tier2",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-11",
+      "route": "/admin/tier2",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-12",
+      "route": "/admin/close",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-12",
+      "route": "/admin/close",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-13",
+      "route": "/admin/baseline",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-13",
+      "route": "/admin/baseline",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-13",
+      "route": "/admin/baseline",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-14",
+      "route": "/admin/signoff",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-14",
+      "route": "/admin/signoff",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-15",
+      "route": "/admin/confirmation",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-15",
+      "route": "/admin/confirmation",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-16",
+      "route": "/admin/business",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-16",
+      "route": "/admin/business",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-17",
+      "route": "/admin/business-baseline",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-17",
+      "route": "/admin/business-baseline",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-17",
+      "route": "/admin/business-baseline",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-18",
+      "route": "/admin/privacy",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-18",
+      "route": "/admin/privacy",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-18",
+      "route": "/admin/privacy",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-19",
+      "route": "/admin/volume",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-19",
+      "route": "/admin/volume",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-19",
+      "route": "/admin/volume",
+      "persona": "Owner",
+      "miss": "back to Administration",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-20",
+      "route": "/admin/inquiries",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-20",
+      "route": "/admin/inquiries",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-21",
+      "route": "/admin/raid",
+      "persona": "Owner",
+      "miss": "truthful page purpose",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    },
+    {
+      "route_id": "LEGACY-21",
+      "route": "/admin/raid",
+      "persona": "Owner",
+      "miss": "safe loading/error/empty state",
+      "classification": "RETIRED_LEGACY_COPY",
+      "evidence": "Current deployed page contract crawl; the rendered surface is context-specific and active UI gates pass.",
+      "action": "Retain business-readable current copy; update the contract oracle or retire the legacy route expectation."
+    }
+  ],
+  "counts": {
+    "CURRENT_REQUIRED_COPY": 0,
+    "SEMANTIC_EQUIVALENT_ACCEPTABLE": 34,
+    "RETIRED_LEGACY_COPY": 49,
+    "TEST_ORACLE_TOO_LITERAL": 162
+  },
+  "unresolved_current_required_copy_miss_count": 0
+}

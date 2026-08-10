@@ -75,12 +75,12 @@ function App() {
   }, []);
   useEffect(() => {
     const path = window.location.pathname;
-    if (path === "/permits" || path.startsWith("/permits/")) {
-      window.history.replaceState({}, "", `/proposals-contracts${path.slice("/permits".length)}`);
+    if (path === "/permits") {
+      window.history.replaceState({}, "", "/proposals-contracts?view=proposals");
     }
     const originalPushState = window.history.pushState.bind(window.history);
     window.history.pushState = ((state: unknown, title: string, url?: string | URL | null) => {
-      const next = url == null ? url : String(url).replace(/^\/permits(?=\/|$)/, "/proposals-contracts");
+      const next = url == null ? url : String(url);
       return originalPushState(state, title, next);
     }) as History["pushState"];
     return () => { window.history.pushState = originalPushState; };
@@ -103,7 +103,7 @@ function App() {
   }, [projects]);
   useEffect(() => { if (window.location.pathname.startsWith("/admin") && !adminRoles.has(role)) { setPage("my-work"); window.history.replaceState({}, "", "/work"); } }, [role]);
   const navigate = (next: string) => { setPage(next); setSelected(null); const path = next === "my-work" ? "/work" : next === "permits" ? "/proposals-contracts" : next === "about" ? "/operating-guide" : next === "administration" ? "/admin" : next === "go-live-readiness" ? "/admin/go-live-readiness" : `/${next}`; window.history.pushState({}, "", path); };
-  const openPermit = (projectId: string, stage: WorkflowStage = "PROJECT_AND_SOURCES") => { const project = projects.find((item) => item.id === projectId) || projects[0]; if (!project) return; setSelected(project); setSelectedStage(stage); setPage("permit-workspace"); window.history.pushState({}, "", `/proposals-contracts/${project.id}/${stage.toLowerCase().replaceAll("_", "-")}`); };
+  const openPermit = (projectId: string, stage: WorkflowStage = "PROJECT_AND_SOURCES") => { const project = projects.find((item) => item.id === projectId) || projects[0]; if (!project) return; setSelected(project); setSelectedStage(stage); setPage("permit-workspace"); window.history.pushState({}, "", `/permits/${project.id}/${stage.toLowerCase().replaceAll("_", "-")}`); };
   const openLegacy = (next: string, projectId?: string) => { if (!adminRoles.has(role) && !projectId) { navigate("my-work"); return; } if (next === "control-loop") { setPage("control-loop"); setSelected(null); window.history.pushState({}, "", "/admin/control-diagnostics"); return; } setPage(next); setSelected(projectId ? projects.find((item) => item.id === projectId) || null : null); window.history.pushState({}, "", projectId ? `/proposals-contracts/${projectId}/${next === "package" ? "package" : next === "municipality" ? "municipality" : next}` : `/admin/${next}`); };
   const openProject=(p:Project)=>openPermit(p.id);
   const visibleBusinessNav = businessNav.filter((item) => {

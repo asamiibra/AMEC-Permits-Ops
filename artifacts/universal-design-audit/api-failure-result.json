@@ -4,7 +4,7 @@
       "route": "/proposals-contracts",
       "error_copy": true,
       "retry": 1,
-      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Proposals & Contracts ⓘ Inputs & Go-Live 11 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Proposals & Contracts unavailable Failed to fetch Retry",
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Proposals & Contracts ⓘ Inputs & Go-Live 11 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Proposals & Contracts could not be loaded Failed to fetch Retry",
       "screenshot": "artifacts/universal-design-audit/screenshots/proposals-contracts-error.png"
     },
     {

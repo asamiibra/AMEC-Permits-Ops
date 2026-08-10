@@ -1,0 +1,55 @@
+{
+  "decision": "PROPOSALS_MAIN_AND_UNIVERSAL_GATES_PASS",
+  "markers": {
+    "PROPOSALS_MAIN_TYPED_RESPONSE_CONTRACT_PASS": true,
+    "PROPOSALS_MAIN_INCOMPLETE_PAYLOAD_TYPEERROR_ZERO": true,
+    "PROPOSALS_MAIN_FAKE_ZERO_ON_SCHEMA_FAILURE_ZERO": true,
+    "PROPOSALS_MAIN_CONTROLLED_ERROR_STATE_PASS": true,
+    "PROPOSALS_MAIN_RETRY_RECOVERY_PASS": true,
+    "ACTIVE_BROWSER_SUITE_FAILURE_ZERO": true,
+    "ACTIVE_REAL_STACK_SUITE_FAILURE_ZERO": true,
+    "REAL_STACK_CRITICAL_INTERACTIONS_PASS": true,
+    "ACTIVE_TEST_SUITE_CONTRACT_CLEAN_PASS": true,
+    "UNRESOLVED_CURRENT_REQUIRED_COPY_MISS_ZERO": true,
+    "DEPLOYED_RELEASE_IDENTITY_MATCH_PASS": true,
+    "DEPLOYED_MIGRATION_PARITY_PASS": true,
+    "DEPLOYED_API_ROUTE_PARITY_PASS": true,
+    "DEPLOYED_FRONTEND_BACKEND_PAIR_PASS": true,
+    "CURRENT_UI_LINK_TO_RETIRED_ADMIN_ALIAS_ZERO": true,
+    "DEPLOYED_MATERIAL_ADMIN_404_ZERO": true,
+    "DEPLOYED_OWNER_VISIBLE_WORKFLOWTASK_ZERO": true,
+    "NORMAL_OWNER_FACING_TECHNICAL_LEAKAGE_ZERO": true,
+    "LOCAL_UNIVERSAL_DESIGN_CRAWL_PASS": true,
+    "LOCAL_UI_CONFORMANCE_PASS": true,
+    "DEPLOYED_DESIGN_CONFORMANCE_PASS": true,
+    "DEPLOYED_UI_CONFORMANCE_PASS": true,
+    "DEPLOYED_MATERIAL_NETWORK_FAILURE_ZERO": true,
+    "DEPLOYED_OWNER_WALKTHROUGH_PASS": true,
+    "DEPLOYED_BD_WALKTHROUGH_PASS": true,
+    "DEPLOYED_ENGINEERING_WALKTHROUGH_PASS": true,
+    "CONTRACT_DETAIL_CONCATENATION_ZERO": true,
+    "CONTRACT_DETAIL_ACTION_STATE_CONSISTENCY_PASS": true,
+    "CONTRACT_DETAIL_OWNER_READABILITY_PASS": true,
+    "PERMIT_CURRENT_VIEWED_STAGE_PARITY_PASS": true,
+    "PERMIT_COMPLETION_ACTOR_READABILITY_PASS": true,
+    "PERMIT_SOURCE_STATUS_SEMANTICS_PASS": true
+  },
+  "remaining_defects": {
+    "P0": [],
+    "P1": [],
+    "P2": [
+      "Vercel build emits a non-blocking large JavaScript chunk warning."
+    ],
+    "warnings": [
+      "Backend tests emit two existing deprecation/SQLAlchemy warnings."
+    ]
+  },
+  "release": {
+    "frontend": "https://amec-permits-ops.vercel.app",
+    "backend": "https://amec-permits-ops-backend.vercel.app",
+    "frontend_deployment": "dpl_42gsvDG763JyguDxcVRuQRezbVvz",
+    "backend_deployment": "dpl_8upwQbhAnbmzfpbet963Ar4tLuHT",
+    "migration": "0026_notification_read_states",
+    "database": "Neon PostgreSQL"
+  }
+}

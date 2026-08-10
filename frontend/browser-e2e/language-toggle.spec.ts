@@ -56,11 +56,12 @@ test("Operating Guide toggles locally without changing the global shell", async 
 test("Operating Guide language control is isolated from Inputs & Go-Live", async ({ page }) => {
   await page.goto("/about");
   await page.getByRole("button", { name: "العربي" }).click();
-  await page.getByRole("button", { name: "Inputs & Go-Live" }).click();
+  await page.getByRole("button", { name: "Inputs & Go-Live" }).first().click();
   await expect(page.getByRole("dialog")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("dialog")).toHaveAttribute("dir", "ltr");
   await expect(page.getByRole("dialog").getByRole("button", { name: "Switch to Arabic" })).toHaveCount(0);
-  await expectEnglishShell(page);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
 });
 
 test("operational route remains English after refresh", async ({ page }) => {
@@ -68,5 +69,5 @@ test("operational route remains English after refresh", async ({ page }) => {
   await expectEnglishShell(page);
   await page.reload();
   await expectEnglishShell(page);
-  await expect(page.getByRole("heading", { name: "Notifications & delivery" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Notifications", exact: true })).toBeVisible();
 });

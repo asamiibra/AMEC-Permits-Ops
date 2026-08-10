@@ -1,0 +1,17 @@
+{
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "frontend_deployment": "dpl_42gsvDG763JyguDxcVRuQRezbVvz",
+  "backend_deployment": "dpl_8upwQbhAnbmzfpbet963Ar4tLuHT",
+  "local_routes": 66,
+  "deployed_routes": 66,
+  "local_roles": 104,
+  "deployed_roles": 104,
+  "migration": "0026_notification_read_states",
+  "database": "Neon PostgreSQL",
+  "api_route_parity": "424 deployed OpenAPI paths; proposals-main schema reference present",
+  "DEPLOYED_RELEASE_IDENTITY_MATCH_PASS": true,
+  "DEPLOYED_MIGRATION_PARITY_PASS": true,
+  "DEPLOYED_API_ROUTE_PARITY_PASS": true,
+  "DEPLOYED_FRONTEND_BACKEND_PAIR_PASS": true
+}

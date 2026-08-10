@@ -20,7 +20,7 @@ test.describe("ProposalOps / AMEC final rebrand", () => {
 
   test("legacy proposal route redirects to the canonical route", async ({ page }) => {
     await page.goto("/permits");
-    await expect(page).toHaveURL(/\/proposals-contracts$/);
+    await expect(page).toHaveURL(/\/proposals-contracts\?view=proposals$/);
     await expect(page.locator("nav button").filter({ hasText: "Proposals & Contracts" })).toBeVisible();
   });
 

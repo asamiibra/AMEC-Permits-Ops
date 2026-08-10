@@ -80,6 +80,7 @@ def _readable(value: Any, fallback: str = "Needs AMEC Input") -> str:
         "RequirementMatrixCoverage": "Requirement matrix coverage",
         "ProposalIntakeArtifact": "Proposal intake",
         "AuditEvent": "Audit event",
+        "WorkflowTask": "Work item",
     }.items():
         text = text.replace(source, target)
     return text.replace("_", " ").replace("QUOTATION", "PROPOSAL").replace("Quotation", "Proposal").replace("quotation", "proposal").replace("commercial approver", "business development").title()

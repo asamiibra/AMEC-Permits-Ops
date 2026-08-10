@@ -1,0 +1,46 @@
+{
+  "verification_date": "2026-08-10",
+  "historical_source": "artifacts/master-realignment/full-browser-regression.json",
+  "historical_failures_documented": 19,
+  "targeted_historical_repair": {
+    "specs": [
+      "frontend/browser-e2e/canonical-controls.spec.ts",
+      "frontend/browser-e2e/e7-e8-expanded.spec.ts"
+    ],
+    "tests_run": 28,
+    "passed": 28,
+    "failed": 0,
+    "disposition": "Only retired labels, the retired Permit Preparer/four-assistant owner model, and superseded navigation expectations were realigned to current AMEC Work / Proposals & Contracts behavior. Coverage and safety assertions were retained."
+  },
+  "full_browser_e2e": {
+    "tests_run": 117,
+    "passed": 84,
+    "failed": 33,
+    "command": "npx playwright test --reporter=list",
+    "remaining_failures": "Broader historical/current contract drift outside the documented 19-target repair; see docs/master-realignment/23-full-suite-reconciliation.md."
+  },
+  "full_real_stack": {
+    "tests_run": 33,
+    "passed": 23,
+    "failed": 10,
+    "command": "npx playwright test --config=playwright.universal-audit.config.ts --workers=1 --reporter=list",
+    "remaining_failures": "Mostly stale Arabic/global-locale, retired Permit Preparer, old heading/status labels, and legacy direct-route assertions; no new failure was treated as fixed by weakening product coverage."
+  },
+  "genuine_product_failures": [
+    {
+      "area": "Proposals & Contracts register robustness",
+      "failure": "An incomplete /api/proposals-main payload can still cause a TypeError while reading the OPEN_PROPOSALS projection.",
+      "source": "artifacts/master-realignment/full-browser-regression-final.json",
+      "status": "OPEN_PRODUCT_FAILURE",
+      "disposition": "Not changed as part of obsolete browser expectation realignment."
+    },
+    {
+      "area": "Deployed release parity",
+      "failure": "https://amec-permits-ops.vercel.app still exposes 28 console 404s on retired Admin aliases and one stale WorkflowTask audit label; local current-stack evidence is clean.",
+      "source": "artifacts/universal-design-audit/deployed/automated-harness-result.json",
+      "status": "OPEN_DEPLOYED_PARITY_FAILURE",
+      "disposition": "Deployment is behind the working tree; requires a release/deploy, not a coverage reduction."
+    }
+  ],
+  "decision": "TARGETED_HISTORICAL_REALIGNMENT_COMPLETE_BROADER_SUITE_OPEN"
+}

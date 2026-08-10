@@ -1,0 +1,15 @@
+{
+  "generated_for": "universal-design-v2",
+  "local": {
+    "route_persona_screenshots": 104,
+    "api_failure_screenshots": 3,
+    "directory": "artifacts/universal-design-audit/screenshots",
+    "manifest_source": "automated-harness-result.json"
+  },
+  "deployed": {
+    "route_persona_screenshots": 104,
+    "api_failure_screenshots": 3,
+    "directory": "artifacts/universal-design-audit/deployed/screenshots",
+    "manifest_source": "deployed/automated-harness-result.json"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "generated_at": "2026-08-10T14:50:59.607Z",
+  "checks": [
+    {
+      "name": "owner-admin-access",
+      "role": "Owner",
+      "route": "/admin",
+      "observed_url": "/admin",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKF"
+    },
+    {
+      "name": "bd-admin-denied",
+      "role": "Business Development",
+      "route": "/admin",
+      "observed_url": "/work",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW AMEC Work ⓘ I"
+    },
+    {
+      "name": "engineering-admin-denied",
+      "role": "Engineering",
+      "route": "/admin",
+      "observed_url": "/work",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW AMEC Work ⓘ I"
+    },
+    {
+      "name": "owner-commercial",
+      "role": "Owner",
+      "route": "/proposals-contracts",
+      "observed_url": "/proposals-contracts",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKF"
+    },
+    {
+      "name": "bd-commercial",
+      "role": "Business Development",
+      "route": "/proposals-contracts",
+      "observed_url": "/proposals-contracts",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Proposals & C"
+    },
+    {
+      "name": "engineering-commercial",
+      "role": "Engineering",
+      "route": "/proposals-contracts",
+      "observed_url": "/proposals-contracts",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Proposals & C"
+    },
+    {
+      "name": "owner-permit-context",
+      "role": "Owner",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "observed_url": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKF"
+    },
+    {
+      "name": "bd-permit-context",
+      "role": "Business Development",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "observed_url": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW GHCE-2026-014"
+    },
+    {
+      "name": "engineering-permit-context",
+      "role": "Engineering",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "observed_url": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW GHCE-2026-014"
+    }
+  ],
+  "status": "PASS"
+}

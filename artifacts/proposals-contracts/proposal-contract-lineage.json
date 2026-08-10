@@ -1,0 +1,1 @@
+{"status":"PASS","relationship":"ReferenceNumber.opportunity_id -> quotation_id -> contract_id","related_proposal_field":"related_proposal_id","same_project_identity":true,"cross_project_contract_links":0}

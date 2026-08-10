@@ -1,0 +1,13 @@
+{
+  "source": "artifacts/universal-design-audit/automated-harness-result.json",
+  "base_url": "http://127.0.0.1:5173",
+  "routes": 66,
+  "role_combinations": 104,
+  "console_errors": 0,
+  "network_failures": 0,
+  "overflow": 0,
+  "technical_leaks": 0,
+  "active_ui_conformance": "PROPOSALOPS_UI_CONFORMANCE_READY",
+  "LOCAL_UNIVERSAL_DESIGN_CRAWL_PASS": true,
+  "LOCAL_UI_CONFORMANCE_PASS": true
+}

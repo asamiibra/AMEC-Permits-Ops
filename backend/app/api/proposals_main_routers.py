@@ -29,6 +29,7 @@ from ..services.backend_realignment import (
     proposal_stage,
     proposal_sources,
 )
+from ..schemas.proposals_main import ProposalMainResponse
 
 router = APIRouter(prefix="/api/proposals-main", tags=["proposals-main"])
 
@@ -62,7 +63,7 @@ def _allowed(action: str, persona: str) -> bool:
     if persona in {"SYSTEM_ADMIN", "OWNER", "OWNER_SPONSOR"}:
         return True
     if persona in {"COMMERCIAL_APPROVER", "BD_USER", "BUSINESS_DEVELOPMENT"}:
-        return action in {"CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL", "TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_IMAGE", "CLIENT_INFORMATION"}
+        return action in {"CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL", "PERMIT_INITIATION", "TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_IMAGE", "CLIENT_INFORMATION"}
     if persona in {"RESPONSIBLE_ENGINEER", "AUTHORIZED_ENGINEER", "ENGINEERING"}:
         return action == "PROPOSAL_FORM"
     return False
@@ -90,6 +91,9 @@ def _row(db: Session, opportunity: Opportunity) -> dict[str, Any]:
     last_activity = max(activity_values) if activity_values else datetime.now(timezone.utc)
     sources = proposal_sources(db, opportunity)
     current_contract = contract
+    linked_permit = db.scalar(select(PermitApplication).where(PermitApplication.controlling_contract_id == current_contract.id)) if current_contract else None
+    if not linked_permit and current_contract and reference and reference.permit_application_id:
+        linked_permit = db.get(PermitApplication, reference.permit_application_id)
     next_action = proposal_next_action(opportunity.status, has_contract=bool(current_contract), contract_id=current_contract.id if current_contract else None, source_count=sum(1 for item in sources if item["current"]), project_id=project.id if project else None)
     return {
         "id": opportunity.id,
@@ -110,11 +114,14 @@ def _row(db: Session, opportunity: Opportunity) -> dict[str, Any]:
         "open_path": f"/proposals/{opportunity.id}",
         "source_count": sum(1 for item in sources if item["current"]),
         "source_types": sorted({item["artifact_class"] for item in sources if item["current"]}),
-        "reference_state": opportunity.reference_state,
+        "reference_state": opportunity.reference_state or "PROVISIONAL",
         "proposal_fields": opportunity.proposal_fields_json or {},
         "next_action": next_action,
         "allowed_actions": ["OPEN", *(["PROCEED"] if next_action["code"] == "PROCEED" and next_action["eligible"] else []), *(["VIEW_CONTRACT"] if current_contract else ["CONTRACT"] if next_action["code"] == "CREATE_CONTRACT" and next_action["eligible"] else [])],
         "related_contract_id": current_contract.id if current_contract else None,
+        "contract_action_eligible": bool(project and (current_contract or quotation)),
+        "contract_action_label": "Open Contract" if current_contract else "Contract",
+        "permit_application_id": linked_permit.id if linked_permit else None,
     }
 
 
@@ -136,10 +143,10 @@ def _persona_payload(persona: str) -> dict[str, Any]:
         actions = ["PROPOSAL_FORM"]
         amount_visible = False
     elif persona in {"COMMERCIAL_APPROVER", "BD_USER", "BUSINESS_DEVELOPMENT"}:
-        actions = ["CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL"]
+        actions = ["CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL", "PERMIT_INITIATION"]
         amount_visible = True
     else:
-        actions = ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "NEW_PROPOSAL"]
+        actions = ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "NEW_PROPOSAL", "PERMIT_INITIATION"]
         amount_visible = True
     source_actions = ["TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_IMAGE", "CLIENT_INFORMATION"]
     if persona in {"RESPONSIBLE_ENGINEER", "AUTHORIZED_ENGINEER", "ENGINEERING"}:
@@ -180,8 +187,10 @@ def _create_handoff_task(db: Session, *, action: str, project_id: str | None, op
     return {"task_id": task.id, "created": True, "next_action_code": next_code}
 
 
-@router.get("")
-def proposals_main(persona: str = "SYSTEM_ADMIN", db: Session = Depends(get_db)):
+@router.get("", response_model=ProposalMainResponse)
+def proposals_main(persona: str = "SYSTEM_ADMIN", view: str = "proposals", db: Session = Depends(get_db)):
+    if view not in {"proposals", "contracts"}:
+        raise HTTPException(422, "REGISTER_VIEW_REQUIRED")
     rows = _rows(db)
     contracts = db.scalars(select(Contract).order_by(Contract.updated_at.desc())).all()
     contract_rows = []
@@ -192,12 +201,16 @@ def proposals_main(persona: str = "SYSTEM_ADMIN", db: Session = Depends(get_db))
         project_id = contract.project_id or (opportunity.project_id if opportunity else None) or (contract_reference.project_id if contract_reference else None)
         project = db.get(Project, project_id) if project_id else None
         proposal = _row(db, opportunity) if opportunity else None
-        permit_count = db.query(PermitApplication).filter(PermitApplication.controlling_contract_id == contract.id).count()
+        linked_permit = db.scalar(select(PermitApplication).where(PermitApplication.controlling_contract_id == contract.id).order_by(PermitApplication.created_at))
+        if not linked_permit and contract_reference and contract_reference.permit_application_id:
+            linked_permit = db.get(PermitApplication, contract_reference.permit_application_id)
+        permit_count = 1 if linked_permit else 0
         contract_detail = contract_projection(db, contract, include_history=False)
-        contract_rows.append({"id": contract.id, "contract_reference": contract.contract_reference, "status": contract.status, "related_proposal_id": opportunity.id if opportunity else None, "related_proposal": opportunity.title if opportunity else "—", "project_id": project.id if project else None, "project_reference": project.project_number if project else (opportunity.opportunity_reference if opportunity else "UNRESOLVED"), "amount": contract_detail["amount"], "proposal_amount": contract_detail["proposal_amount"], "contract_amount": contract_detail["contract_amount"], "last_activity": contract.updated_at.isoformat(), "end_date": contract.end_date.isoformat() if contract.end_date else None, "permit_count": permit_count, "permit_id": next((item["id"] for item in contract_detail["permits"]), None), "permit_eligible": bool(project), "permit_action": contract_detail["next_action"], "proposal_status": proposal["proposal_status"] if proposal else None, "next_action": contract_detail["next_action"]})
+        permit_id = linked_permit.id if linked_permit else next((item["id"] for item in contract_detail["permits"]), None)
+        contract_rows.append({"id": contract.id, "record_type": "CONTRACT", "contract_description": opportunity.title if opportunity else "Contract context pending", "contract_reference": contract.contract_reference, "status": contract.status, "contract_status": contract.status, "related_proposal_id": opportunity.id if opportunity else None, "proposal_id": opportunity.id if opportunity else None, "related_proposal": opportunity.title if opportunity else "—", "project_id": project.id if project else None, "project_reference": project.project_number if project else (opportunity.opportunity_reference if opportunity else "UNRESOLVED"), "project_name": project.project_name if project else "Project context pending", "amount": contract_detail["amount"], "proposal_amount": contract_detail["proposal_amount"], "contract_amount": contract_detail["contract_amount"], "last_activity": contract.updated_at.isoformat(), "end_date": contract.end_date.isoformat() if contract.end_date else None, "permit_count": permit_count, "permit_id": permit_id, "permit_application_id": permit_id, "permit_eligible": bool(project and opportunity), "permit_action_eligible": bool(project and opportunity), "permit_action_label": "Open Permit" if permit_id else "Permit", "permit_action": contract_detail["next_action"], "proposal_status": proposal["proposal_status"] if proposal else None, "next_action": contract_detail["next_action"]})
     kpis = {key: {"label": definition["label"], "count": sum(1 for item in rows if _matches(item, key)) if definition["entity"] == "proposal" else sum(1 for item in contract_rows if (item["status"] in definition["states"])), "states": definition["states"], "entity": definition["entity"]} for key, definition in KPI_DEFINITIONS.items()}
     clients = [{"id": item.id, "reference": item.client_reference, "name": item.display_name, "status": item.status} for item in db.scalars(select(ClientAccount).where(ClientAccount.status == "ACTIVE").order_by(ClientAccount.display_name)).all()]
-    return {"rows": rows, "contract_rows": contract_rows, "clients": clients, "kpis": kpis, "filters": [{"key": "ALL", "label": "All", "entity": "both"}, {"key": "NEEDS_ACTION", "label": "Needs Action", "entity": "proposal", "states": ["PROPOSAL_HANDOVER"]}, {"key": "IN_REVIEW", "label": "In Review", "entity": "proposal", "states": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"]}, {"key": "READY_CLOSED", "label": "Ready / Closed", "entity": "both", "states": ["READY", "CLOSED", "ACCEPTED"]}], "filter_predicates": {"proposal": {"ALL": None, "NEEDS_ACTION": ["PROPOSAL_HANDOVER"], "IN_REVIEW": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}, "contract": {"ALL": None, "NEEDS_ACTION": ["CONTRACT_HANDOVER", "DRAFT"], "IN_REVIEW": ["DRAFT", "CONTRACT_IN_PROGRESS", "CONTRACT_HANDOVER"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}}, "persona": _persona_payload(persona), "sor": {"adapter": "MockSynologyAdapter", "template_version": SOR_TEMPLATE_VERSION, "intake_template_version": "SYN-PROPOSAL-INTAKE-1.0", "semantic_destinations": {**{key: value["label"] for key, value in SEMANTIC_FOLDER_CONFIG.items()}, **{key: value["label"] for key, value in INTAKE_SEMANTIC_CONFIG.items()}}, "database_role": "workflow index, metadata, lineage; not document bytes"}, "synthetic_only": True}
+    return {"rows": rows if view == "proposals" else contract_rows, "proposals": rows, "contracts": contract_rows, "contract_rows": contract_rows, "view": view, "clients": clients, "kpis": kpis, "filters": [{"key": "ALL", "label": "All", "entity": "both"}, {"key": "NEEDS_ACTION", "label": "Needs Action", "entity": "proposal", "states": ["PROPOSAL_HANDOVER"]}, {"key": "IN_REVIEW", "label": "In Review", "entity": "proposal", "states": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"]}, {"key": "READY_CLOSED", "label": "Ready / Closed", "entity": "both", "states": ["READY", "CLOSED", "ACCEPTED"]}], "filter_predicates": {"proposal": {"ALL": None, "NEEDS_ACTION": ["PROPOSAL_HANDOVER"], "IN_REVIEW": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}, "contract": {"ALL": None, "NEEDS_ACTION": ["CONTRACT_HANDOVER", "DRAFT"], "IN_REVIEW": ["DRAFT", "CONTRACT_IN_PROGRESS", "CONTRACT_HANDOVER"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}}, "persona": _persona_payload(persona), "sor": {"adapter": "MockSynologyAdapter", "template_version": SOR_TEMPLATE_VERSION, "intake_template_version": "SYN-PROPOSAL-INTAKE-1.0", "semantic_destinations": {**{key: value["label"] for key, value in SEMANTIC_FOLDER_CONFIG.items()}, **{key: value["label"] for key, value in INTAKE_SEMANTIC_CONFIG.items()}}, "database_role": "workflow index, metadata, lineage; not document bytes"}, "lineage_model": "ReferenceNumber: Proposal/Opportunity → Quotation → Contract → Project → PermitApplication", "synthetic_only": True}
 
 
 @router.get("/target/{project_id}")
@@ -228,6 +241,7 @@ async def proposals_intake(
     actor_role: str | None = Form(default=None),
     idempotency_key: str | None = Form(default=None),
     contract_id: str | None = Form(default=None),
+    permit_application_id: str | None = Form(default=None),
     db: Session = Depends(get_db),
     role: Role = Depends(current_user_role),
     x_synthetic_sor: str | None = Header(default=None),
@@ -242,9 +256,49 @@ async def proposals_intake(
     prior_intake = db.scalar(select(ProposalIntakeArtifact).where(ProposalIntakeArtifact.idempotency_key == idempotency_key)) if idempotency_key else None
     if prior_intake and not opportunity_id:
         opportunity_id = prior_intake.opportunity_id
+    # Contract -> Permit is a controlled transition, but the source bytes are
+    # still manually selected and written through the same project SOR path.
+    if action == "PERMIT_INITIATION":
+        if not contract_id:
+            raise domain_error(409, "CONTROLLING_CONTRACT_REQUIRED")
+        contract = db.get(Contract, contract_id)
+        if not contract:
+            raise domain_error(404, "CONTRACT_NOT_FOUND")
+        quotation = db.get(Quotation, contract.quotation_id)
+        opportunity = db.get(Opportunity, quotation.opportunity_id) if quotation else None
+        reference = db.scalar(select(ReferenceNumber).where(ReferenceNumber.contract_id == contract.id).order_by(ReferenceNumber.reserved_at))
+        resolved_project_id = contract.project_id or (opportunity.project_id if opportunity else None) or (reference.project_id if reference else None)
+        if not resolved_project_id or (project_id and project_id != resolved_project_id):
+            raise domain_error(409, "PERMIT_CONTRACT_PROJECT_MISMATCH", requested_project_id=project_id, canonical_project_id=resolved_project_id)
+        project_id = resolved_project_id
+        project = db.get(Project, project_id)
+        if not project or not opportunity:
+            raise domain_error(409, "CONTRACT_NOT_READY_FOR_PERMIT", blocker="CANONICAL_PROJECT_REFERENCE_REQUIRED")
+        if opportunity.project_id and opportunity.project_id != project_id:
+            raise domain_error(409, "PERMIT_CONTRACT_PROJECT_MISMATCH", proposal_project_id=opportunity.project_id, requested_project_id=project_id)
+        opportunity.project_id = project_id
+        contract.project_id = project_id
+        application = db.get(PermitApplication, permit_application_id) if permit_application_id else db.scalar(select(PermitApplication).where(PermitApplication.controlling_contract_id == contract.id, PermitApplication.project_id == project_id).order_by(PermitApplication.created_at))
+        if application and application.project_id != project_id:
+            raise domain_error(409, "PERMIT_CONTRACT_PROJECT_MISMATCH", permit_project_id=application.project_id, requested_project_id=project_id)
+        if not application:
+            application = db.scalar(select(PermitApplication).where(PermitApplication.project_id == project_id).order_by(PermitApplication.created_at))
+        if not application:
+            application = PermitApplication(project_id=project_id, authority=project.municipality or "Synthetic Municipality Authority", municipality=project.municipality or "Doha", permit_type=project.permit_type or "Building Permit", external_request_number=f"AMEC-SYN-PMT-{db.query(PermitApplication).count() + 1:04d}", application_status=ApplicationStatus.DRAFT, repetition_count=0, last_status_at=datetime.now(timezone.utc), controlling_contract_id=contract.id)
+            db.add(application)
+            db.flush()
+        elif application.controlling_contract_id and application.controlling_contract_id != contract.id:
+            raise domain_error(409, "PERMIT_CONTRACT_PROJECT_MISMATCH", reason="PERMIT_ALREADY_CONTROLLED_BY_DIFFERENT_CONTRACT")
+        else:
+            application.controlling_contract_id = contract.id
+        permit_application_id = application.id
+        if reference:
+            reference.permit_application_id = application.id
+
     # Client List reconciles the Client master/source register. It must not
     # opportunistically bind to a Proposal found under the same Project.
-    opportunity = None if action == "CLIENT_LIST" else (db.get(Opportunity, opportunity_id) if opportunity_id else (_opportunity_for_project(db, project_id) if project_id and not create_new_proposal else None))
+    if action != "PERMIT_INITIATION":
+        opportunity = None if action == "CLIENT_LIST" else (db.get(Opportunity, opportunity_id) if opportunity_id else (_opportunity_for_project(db, project_id) if project_id and not create_new_proposal else None))
     provisional_source = action in {"TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_IMAGE", "CLIENT_INFORMATION", "PROPOSAL_FORM", "CLIENT_LIST"}
     existing_context_required = action in {"PROPOSAL_FORM", "CONTRACT_FORM"}
     if action == "NEW_PROPOSAL" or provisional_source:
@@ -316,7 +370,7 @@ async def proposals_intake(
         contract.status = "CONTRACT_IN_PROGRESS"
     elif action == "NEW_PROPOSAL":
         opportunity.status = "RECEIVED"
-    result = ingest_project_artifact(db, project_id=project_id, action=action, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, actor=actor, actor_role=persona, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), project_reference=project_reference, source_revision=source_revision, idempotency_key=idempotency_key, contract_id=contract_id, opportunity_id=opportunity.id if opportunity else None, simulate_sor=x_synthetic_sor)
+    result = ingest_project_artifact(db, project_id=project_id, action=action, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, actor=actor, actor_role=persona, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), project_reference=project_reference, source_revision=source_revision, idempotency_key=idempotency_key, contract_id=contract_id, opportunity_id=opportunity.id if opportunity else None, permit_application_id=permit_application_id, simulate_sor=x_synthetic_sor)
     if action == "PROPOSAL_FORM" and opportunity and opportunity.status not in {"CONTRACT_HANDOVER", "CLOSED"}:
         opportunity.status = "PROPOSAL_HANDOVER"
     if action == "CLIENT_LIST" and opportunity and opportunity.status == "RECEIVED":
@@ -326,7 +380,7 @@ async def proposals_intake(
     db.commit()
     result["opportunity_id"] = opportunity.id if opportunity else None
     result["proposal_reference"] = opportunity.opportunity_reference if opportunity else None
-    result["workflow"] = {"opportunity_id": opportunity.id if opportunity else None, "proposal_status": opportunity.status if opportunity else None, "contract_id": contract_id}
+    result["workflow"] = {"opportunity_id": opportunity.id if opportunity else None, "proposal_status": opportunity.status if opportunity else None, "contract_id": contract_id, "permit_application_id": permit_application_id}
     result["handoff"] = handoff
     return result
 

@@ -7,6 +7,7 @@ import "./proposal-realignment.css";
 import "./persona-issues-notifications.css";
 import "./admin-owner.css";
 import "./amec-work.css";
+import "./final-closure-accessibility.css";
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };

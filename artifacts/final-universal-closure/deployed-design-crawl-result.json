@@ -1,0 +1,15 @@
+{
+  "source": "artifacts/final-universal-closure/deployed-design-crawl/automated-harness-result.json",
+  "base_url": "https://amec-permits-ops.vercel.app",
+  "routes": 66,
+  "role_combinations": 104,
+  "console_errors": 0,
+  "network_failures": 0,
+  "overflow": 0,
+  "technical_leaks": 0,
+  "admin_material_404s": 0,
+  "workflow_task_owner_leaks": 0,
+  "DEPLOYED_DESIGN_CONFORMANCE_PASS": true,
+  "DEPLOYED_UI_CONFORMANCE_PASS": true,
+  "DEPLOYED_MATERIAL_NETWORK_FAILURE_ZERO": true
+}

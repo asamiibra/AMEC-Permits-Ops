@@ -1,0 +1,20 @@
+{
+  "status": "OPEN_FAILURES_REPORTED_SEPARATELY",
+  "failures": [
+    {
+      "id": "PRODUCT-ROBUSTNESS-001",
+      "area": "Proposals & Contracts register",
+      "failure": "Incomplete /api/proposals-main payloads can trigger a TypeError while reading the OPEN_PROPOSALS projection.",
+      "source": "artifacts/master-realignment/full-browser-regression-final.json",
+      "status": "OPEN_PRODUCT_FAILURE"
+    },
+    {
+      "id": "DEPLOYED-PARITY-001",
+      "area": "Deployed release parity",
+      "failure": "The deployed frontend is stale relative to the local current working tree: 28 console 404s on retired Admin aliases and one WorkflowTask audit label remain in deployed crawl evidence.",
+      "source": "artifacts/universal-design-audit/deployed/automated-harness-result.json",
+      "status": "OPEN_DEPLOYED_PARITY_FAILURE"
+    }
+  ],
+  "not_failures": "The remaining broader browser-suite assertions for Arabic/global locale, Permit Preparer, old headings/status tokens, and legacy navigation are classified as stale test contracts rather than product defects."
+}

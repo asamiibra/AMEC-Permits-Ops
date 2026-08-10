@@ -49,3 +49,6 @@
 .app-shell .about-page .button-primary{color:#0d6258!important}
 @media(max-width:700px){.app-shell .about-page{width:100%;max-width:none;margin:-20px 0 0}}
 .app-shell .about-page .about-language button{color:#4f6875}
+.readiness-trigger b{color:#5b3900}
+@media(max-width:1000px){.main{overflow-x:hidden}.two-col{grid-template-columns:1fr}}
+.app-shell .workflow-step,.app-shell .workflow-step span:not(.workflow-step-dot),.app-shell .stage-context span,.app-shell .breadcrumb{color:#526a76!important}

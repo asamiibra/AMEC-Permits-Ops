@@ -1,9 +1,12 @@
 """Owner-directed Proposals & Contracts main-page contract coverage."""
 
 from pathlib import Path
+from fastapi.testclient import TestClient
 
 from backend.app.db import SessionLocal
 from backend.app.models import ConsultancyOffice, Contract, Document, DocumentVersion, EvidenceArtifact, LineageEdge, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, Quotation
+from backend.app.api import proposals_main_routers
+from backend.app.main import app
 
 
 def _project():
@@ -68,12 +71,37 @@ def test_main_page_kpis_are_derived_and_manual_intake_is_verified(client):
             db.commit()
 
 
+def test_main_page_response_declares_complete_typed_contract(client):
+    response = client.get("/api/proposals-main?persona=SYSTEM_ADMIN&view=proposals")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["view"] == "proposals"
+    assert payload["rows"] == payload["proposals"]
+    assert set(payload["kpis"]) == {"OPEN_PROPOSALS", "OPEN_CONTRACTS", "PROPOSAL_HANDOVER", "CONTRACT_HANDOVER", "PROPOSALS_IN_PROCESS", "CONTRACTS_IN_PROCESS"}
+    for key, kpi in payload["kpis"].items():
+        assert isinstance(kpi["label"], str)
+        assert isinstance(kpi["count"], int) and kpi["count"] >= 0
+        assert isinstance(kpi["states"], list)
+        assert kpi["entity"] in {"proposal", "contract"}
+    openapi = client.get("/openapi.json").json()
+    schema = openapi["paths"]["/api/proposals-main"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+    assert schema["$ref"].endswith("/ProposalMainResponse")
+
+
+def test_incomplete_main_projection_is_a_controlled_server_error(client, monkeypatch):
+    monkeypatch.setattr(proposals_main_routers, "_rows", lambda _db: [{"record_type": "PROPOSAL_WORKSPACE"}])
+    with TestClient(app, raise_server_exceptions=False) as safe_client:
+        response = safe_client.get("/api/proposals-main?persona=SYSTEM_ADMIN&view=proposals")
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Internal server error"
+
+
 def test_persona_action_boundaries_are_explicit(client):
     owner = client.get("/api/proposals-main?persona=SYSTEM_ADMIN").json()["persona"]
     bd = client.get("/api/proposals-main?persona=COMMERCIAL_APPROVER").json()["persona"]
     engineering = client.get("/api/proposals-main?persona=RESPONSIBLE_ENGINEER").json()["persona"]
-    assert owner["allowed_actions"] == ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "NEW_PROPOSAL"]
-    assert bd["allowed_actions"] == ["CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL"]
+    assert owner["allowed_actions"] == ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "NEW_PROPOSAL", "PERMIT_INITIATION"]
+    assert bd["allowed_actions"] == ["CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL", "PERMIT_INITIATION"]
     assert engineering["allowed_actions"] == ["PROPOSAL_FORM"]
     assert engineering["amount_visible"] is False
 

@@ -22,7 +22,10 @@ const endpointFor = (path: string) => {
     security: "security", "integration-health": "integration-health", audit: "audit", "people-access": "users",
   };
   if (key === "advanced-diagnostics" || key.startsWith("advanced-diagnostics/") || key === "control-diagnostics") return "/api/admin/advanced-diagnostics";
-  return key ? `/api/admin/${apiKeys[key] || key}` : "/api/admin/summary";
+  // Retired direct Admin aliases keep a safe, current summary response instead of
+  // issuing a dead endpoint request. Navigation remains available through the
+  // current Owner Administration groups.
+  return key ? `/api/admin/${apiKeys[key] || "summary"}` : "/api/admin/summary";
 };
 
 const human = (value: unknown, fallback = "Needs AMEC Input") => {

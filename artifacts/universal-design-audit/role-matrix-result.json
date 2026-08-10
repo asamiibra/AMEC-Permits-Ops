@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T02:44:52.096Z",
+  "generated_at": "2026-08-10T14:29:14.685Z",
   "checks": [
     {
       "name": "owner-admin-access",
@@ -58,8 +58,8 @@
     {
       "name": "owner-permit-context",
       "role": "Owner",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
-      "observed_url": "/proposals-contracts/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
+      "observed_url": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
       "url_ok": true,
       "copy_ok": true,
       "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKF"
@@ -67,8 +67,8 @@
     {
       "name": "bd-permit-context",
       "role": "Business Development",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
-      "observed_url": "/proposals-contracts/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
+      "observed_url": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
       "url_ok": true,
       "copy_ok": true,
       "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW GHCE-2026-014"
@@ -76,8 +76,8 @@
     {
       "name": "engineering-permit-context",
       "role": "Engineering",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
-      "observed_url": "/proposals-contracts/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
+      "observed_url": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
       "url_ok": true,
       "copy_ok": true,
       "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW GHCE-2026-014"

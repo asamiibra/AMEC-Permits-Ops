@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T02:44:43.960Z",
+  "generated_at": "2026-08-10T14:29:09.872Z",
   "base_url": "http://127.0.0.1:5173",
   "route_count": 66,
   "contract_count": 37,
@@ -22,7 +22,7 @@
     "Contract SetupContract rules, fields, and Permit handoffConfigured for demo→",
     "Templates & DocumentsControlled Proposal, Contract, and Permit templatesSynthetic stand-ins→",
     "Permit Workflow SetupRequirements, applicability, attachments, and Municipality modeConfigured for demo→",
-    "Notifications & Follow-upAudiences, reminders, and follow-up rulesNeeds Setup→",
+    "Notifications & Follow-upAudiences, reminders, and follow-up rulesConfigured→",
     "Data, Security & RetentionData mode, access, MFA, retention, and backupsConfigured for demo→",
     "Integration HealthCross-system checks using the canonical status truthSimulator Ready→",
     "Audit HistoryOwner-readable operational historyAvailable→",
@@ -212,7 +212,11 @@
         "2. Source evidence"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Price",
+        "Period",
+        "Exclusions"
+      ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -240,7 +244,11 @@
         "2. Source evidence"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Price",
+        "Period",
+        "Exclusions"
+      ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -256,7 +264,7 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a",
       "contract_id": "proposal-detail",
       "role": "Owner",
       "http_status": 200,
@@ -267,8 +275,7 @@
         "Proposal fields",
         "Related Contract(s)",
         "Source evidence",
-        "Linked Issues",
-        "Handoff history"
+        "Linked Issues & history"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -290,7 +297,7 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a",
       "contract_id": "proposal-detail",
       "role": "Business Development",
       "http_status": 200,
@@ -301,8 +308,7 @@
         "Proposal fields",
         "Related Contract(s)",
         "Source evidence",
-        "Linked Issues",
-        "Handoff history"
+        "Linked Issues & history"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -324,7 +330,7 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a",
       "contract_id": "proposal-detail",
       "role": "Engineering",
       "http_status": 200,
@@ -335,8 +341,7 @@
         "Proposal fields",
         "Related Contract(s)",
         "Source evidence",
-        "Linked Issues",
-        "Handoff history"
+        "Linked Issues & history"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -358,7 +363,7 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139/preparation",
+      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a/preparation",
       "contract_id": "proposal-preparation",
       "role": "Owner",
       "http_status": 200,
@@ -373,6 +378,8 @@
       "required_missing": [
         "Proposal identity",
         "Project/reference context",
+        "Process of Work",
+        "technical exclusions",
         "handoff"
       ],
       "forbidden_terms": [],
@@ -390,7 +397,7 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139/preparation",
+      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a/preparation",
       "contract_id": "proposal-preparation",
       "role": "Business Development",
       "http_status": 200,
@@ -404,7 +411,10 @@
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "Proposal identity",
-        "Project/reference context"
+        "Project/reference context",
+        "Process of Work",
+        "technical exclusions",
+        "handoff"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -421,7 +431,7 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139/preparation",
+      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a/preparation",
       "contract_id": "proposal-preparation",
       "role": "Engineering",
       "http_status": 200,
@@ -436,6 +446,8 @@
       "required_missing": [
         "Proposal identity",
         "Project/reference context",
+        "Process of Work",
+        "technical exclusions",
         "handoff"
       ],
       "forbidden_terms": [],
@@ -453,7 +465,7 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+      "route": "/contracts/914c06dd-053a-41a1-a5ca-85c474ad4e17",
       "contract_id": "contract-detail",
       "role": "Owner",
       "http_status": 200,
@@ -487,7 +499,7 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+      "route": "/contracts/914c06dd-053a-41a1-a5ca-85c474ad4e17",
       "contract_id": "contract-detail",
       "role": "Business Development",
       "http_status": 200,
@@ -521,7 +533,7 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+      "route": "/contracts/914c06dd-053a-41a1-a5ca-85c474ad4e17",
       "contract_id": "contract-detail",
       "role": "Engineering",
       "http_status": 200,
@@ -568,7 +580,7 @@
         "Confirm project & sources",
         "Confirm project & sources",
         "Confirm project & sources",
-        "Review source integrity conflict"
+        "Contract scope differs from Proposal"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -600,7 +612,7 @@
         "Confirm project & sources",
         "Confirm project & sources",
         "Confirm project & sources",
-        "Review source integrity conflict"
+        "Contract scope differs from Proposal"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -1025,7 +1037,7 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Owner",
       "http_status": 200,
@@ -1055,7 +1067,7 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Business Development",
       "http_status": 200,
@@ -1085,7 +1097,7 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Engineering",
       "http_status": 200,
@@ -1115,7 +1127,7 @@
     },
     {
       "route_id": "S08",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/verify-data",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/verify-data",
       "contract_id": "permit-verify",
       "role": "Owner",
       "http_status": 200,
@@ -1144,7 +1156,7 @@
     },
     {
       "route_id": "S08",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/verify-data",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/verify-data",
       "contract_id": "permit-verify",
       "role": "Business Development",
       "http_status": 200,
@@ -1173,7 +1185,7 @@
     },
     {
       "route_id": "S08",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/verify-data",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/verify-data",
       "contract_id": "permit-verify",
       "role": "Engineering",
       "http_status": 200,
@@ -1202,7 +1214,7 @@
     },
     {
       "route_id": "S09",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/prepare-package",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/prepare-package",
       "contract_id": "permit-package",
       "role": "Owner",
       "http_status": 200,
@@ -1230,7 +1242,7 @@
     },
     {
       "route_id": "S09",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/prepare-package",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/prepare-package",
       "contract_id": "permit-package",
       "role": "Business Development",
       "http_status": 200,
@@ -1258,7 +1270,7 @@
     },
     {
       "route_id": "S09",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/prepare-package",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/prepare-package",
       "contract_id": "permit-package",
       "role": "Engineering",
       "http_status": 200,
@@ -1286,7 +1298,7 @@
     },
     {
       "route_id": "S10",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/municipality-preparation",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Owner",
       "http_status": 200,
@@ -1317,7 +1329,7 @@
     },
     {
       "route_id": "S10",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/municipality-preparation",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Business Development",
       "http_status": 200,
@@ -1348,7 +1360,7 @@
     },
     {
       "route_id": "S10",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/municipality-preparation",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Engineering",
       "http_status": 200,
@@ -1379,7 +1391,7 @@
     },
     {
       "route_id": "S11",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/final-review",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/final-review",
       "contract_id": "permit-final-review",
       "role": "Owner",
       "http_status": 200,
@@ -1412,7 +1424,7 @@
     },
     {
       "route_id": "S11",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/final-review",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/final-review",
       "contract_id": "permit-final-review",
       "role": "Business Development",
       "http_status": 200,
@@ -1445,7 +1457,7 @@
     },
     {
       "route_id": "S11",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/final-review",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/final-review",
       "contract_id": "permit-final-review",
       "role": "Engineering",
       "http_status": 200,
@@ -1478,7 +1490,7 @@
     },
     {
       "route_id": "S12",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/authority-review",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/authority-review",
       "contract_id": "permit-authority",
       "role": "Owner",
       "http_status": 200,
@@ -1506,7 +1518,7 @@
     },
     {
       "route_id": "S12",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/authority-review",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/authority-review",
       "contract_id": "permit-authority",
       "role": "Business Development",
       "http_status": 200,
@@ -1534,7 +1546,7 @@
     },
     {
       "route_id": "S12",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/authority-review",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/authority-review",
       "contract_id": "permit-authority",
       "role": "Engineering",
       "http_status": 200,
@@ -1562,7 +1574,7 @@
     },
     {
       "route_id": "S13",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/comments-and-corrections",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Owner",
       "http_status": 200,
@@ -1590,7 +1602,7 @@
     },
     {
       "route_id": "S13",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/comments-and-corrections",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Business Development",
       "http_status": 200,
@@ -1618,7 +1630,7 @@
     },
     {
       "route_id": "S13",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/comments-and-corrections",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Engineering",
       "http_status": 200,
@@ -1646,7 +1658,7 @@
     },
     {
       "route_id": "S14",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/history",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/history",
       "contract_id": "permit-history",
       "role": "Owner",
       "http_status": 200,
@@ -1678,7 +1690,7 @@
     },
     {
       "route_id": "S14",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/history",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/history",
       "contract_id": "permit-history",
       "role": "Business Development",
       "http_status": 200,
@@ -1710,7 +1722,7 @@
     },
     {
       "route_id": "S14",
-      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/history",
+      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/history",
       "contract_id": "permit-history",
       "role": "Engineering",
       "http_status": 200,
@@ -2161,13 +2173,12 @@
       "headings": [
         "Administration",
         "Discovery",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2177,10 +2188,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S16-Owner.png"
@@ -2195,13 +2203,12 @@
       "headings": [
         "Administration",
         "Config",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2211,10 +2218,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S17-Owner.png"
@@ -2229,13 +2233,12 @@
       "headings": [
         "Administration",
         "Tier1",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2245,10 +2248,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S18-Owner.png"
@@ -2263,13 +2263,12 @@
       "headings": [
         "Administration",
         "Delivery",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2279,10 +2278,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S19-Owner.png"
@@ -2297,13 +2293,12 @@
       "headings": [
         "Administration",
         "Attachments Grids",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2313,10 +2308,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S20-Owner.png"
@@ -2331,13 +2323,12 @@
       "headings": [
         "Administration",
         "Municipality",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2347,10 +2338,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S21-Owner.png"
@@ -2365,13 +2353,12 @@
       "headings": [
         "Administration",
         "Corpus",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2381,10 +2368,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S22-Owner.png"
@@ -2399,13 +2383,12 @@
       "headings": [
         "Administration",
         "Thresholds",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2415,10 +2398,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S23-Owner.png"
@@ -2449,10 +2429,7 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [
-        "READ_CURRENT_STATE",
-        "READ_STATUS"
-      ],
+      "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -2586,7 +2563,7 @@
       "headings": [
         "Administration",
         "Expansion Foundation",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -2602,10 +2579,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S30-Owner.png"
@@ -2620,13 +2594,12 @@
       "headings": [
         "Administration",
         "Dashboard",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2636,10 +2609,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-01-Owner.png"
@@ -2654,13 +2624,12 @@
       "headings": [
         "Administration",
         "Projects",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2670,10 +2639,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-02-Owner.png"
@@ -2688,13 +2654,12 @@
       "headings": [
         "Administration",
         "Documents",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2704,10 +2669,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-03-Owner.png"
@@ -2722,13 +2684,12 @@
       "headings": [
         "Administration",
         "Conflicts",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2738,10 +2699,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-04-Owner.png"
@@ -2756,13 +2714,12 @@
       "headings": [
         "Administration",
         "Package",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2772,10 +2729,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-05-Owner.png"
@@ -2790,13 +2744,12 @@
       "headings": [
         "Administration",
         "Findings",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2806,10 +2759,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-06-Owner.png"
@@ -2824,13 +2774,12 @@
       "headings": [
         "Administration",
         "Lineage",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2840,10 +2789,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-07-Owner.png"
@@ -2858,13 +2804,12 @@
       "headings": [
         "Administration",
         "Spike",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2874,10 +2819,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-08-Owner.png"
@@ -2892,13 +2834,12 @@
       "headings": [
         "Administration",
         "Adjudication",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2908,10 +2849,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-09-Owner.png"
@@ -2926,13 +2864,12 @@
       "headings": [
         "Administration",
         "Analysis",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2942,10 +2879,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-10-Owner.png"
@@ -2960,13 +2894,12 @@
       "headings": [
         "Administration",
         "Tier2",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2976,10 +2909,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-11-Owner.png"
@@ -2994,13 +2924,12 @@
       "headings": [
         "Administration",
         "Close",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3010,10 +2939,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-12-Owner.png"
@@ -3028,13 +2954,12 @@
       "headings": [
         "Administration",
         "Baseline",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3044,10 +2969,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-13-Owner.png"
@@ -3062,13 +2984,12 @@
       "headings": [
         "Administration",
         "Signoff",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3078,10 +2999,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-14-Owner.png"
@@ -3096,13 +3014,12 @@
       "headings": [
         "Administration",
         "Confirmation",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3112,10 +3029,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-15-Owner.png"
@@ -3130,13 +3044,12 @@
       "headings": [
         "Administration",
         "Business",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3146,10 +3059,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-16-Owner.png"
@@ -3164,13 +3074,12 @@
       "headings": [
         "Administration",
         "Business Baseline",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3180,10 +3089,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-17-Owner.png"
@@ -3198,13 +3104,12 @@
       "headings": [
         "Administration",
         "Privacy",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3214,10 +3119,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-18-Owner.png"
@@ -3232,13 +3134,12 @@
       "headings": [
         "Administration",
         "Volume",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3248,10 +3149,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-19-Owner.png"
@@ -3266,13 +3164,12 @@
       "headings": [
         "Administration",
         "Inquiries",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3282,10 +3179,7 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-20-Owner.png"
@@ -3300,13 +3194,12 @@
       "headings": [
         "Administration",
         "Raid",
-        "Administration unavailable"
+        "Administration route unavailable"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "truthful page purpose",
-        "safe loading/error/empty state",
-        "back to Administration"
+        "safe loading/error/empty state"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -3316,23 +3209,20 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [
-        "Failed to load resource: the server responded with a status of 404 (Not Found)",
-        "Failed to load resource: the server responded with a status of 404 (Not Found)"
-      ],
+      "console_errors": [],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-21-Owner.png"
     }
   ],
   "counts": {
-    "console_errors": 30,
+    "console_errors": 0,
     "overflow": 0,
     "raw_uuid": 0,
     "raw_json": 0,
     "internal_actor": 0,
     "forbidden_terms": 0,
-    "missing_required": 70
+    "missing_required": 72
   },
   "gates": {
     "MATERIAL_ROUTE_WITHOUT_DESIGN_CONTRACT_ZERO": true,

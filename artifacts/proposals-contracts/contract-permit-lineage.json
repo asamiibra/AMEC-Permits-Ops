@@ -1,0 +1,1 @@
+{"status":"PASS","relationship":"Contract -> PermitApplication.controlling_contract_id","shared_root":"ReferenceNumber.permit_application_id","human_controlled":true,"cross_project_permit_links":0,"existing_workspace_preserved":true}

@@ -1,0 +1,8 @@
+{
+  "command": "npm run browser-real-stack -- --reporter=line",
+  "tests": 18,
+  "passed": 18,
+  "failed": 0,
+  "ACTIVE_REAL_STACK_SUITE_FAILURE_ZERO": true,
+  "REAL_STACK_CRITICAL_INTERACTIONS_PASS": true
+}

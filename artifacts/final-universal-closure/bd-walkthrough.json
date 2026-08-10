@@ -1,0 +1,34 @@
+{
+  "role": "Business Development",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "bd-admin-denied",
+      "role": "Business Development",
+      "route": "/admin",
+      "observed_url": "/work",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL \u2022 CONTRACT \u2022 PERMIT AMEC Engineering QEC-DOHA \u00b7 SYNTHETIC DEV \u2302 AMEC Work \u25a6 Proposals & Contracts ! Issues \u25cc Notifications ? Operating Guide \u25a3 Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW AMEC Work \u24d8 I"
+    },
+    {
+      "name": "bd-commercial",
+      "role": "Business Development",
+      "route": "/proposals-contracts",
+      "observed_url": "/proposals-contracts",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL \u2022 CONTRACT \u2022 PERMIT AMEC Engineering QEC-DOHA \u00b7 SYNTHETIC DEV \u2302 AMEC Work \u25a6 Proposals & Contracts ! Issues \u25cc Notifications ? Operating Guide \u25a3 Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Proposals & C"
+    },
+    {
+      "name": "bd-permit-context",
+      "role": "Business Development",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "observed_url": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "url_ok": true,
+      "copy_ok": true,
+      "body_excerpt": "ProposalOps PROPOSAL \u2022 CONTRACT \u2022 PERMIT AMEC Engineering QEC-DOHA \u00b7 SYNTHETIC DEV \u2302 AMEC Work \u25a6 Proposals & Contracts ! Issues \u25cc Notifications ? Operating Guide \u25a3 Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW GHCE-2026-014"
+    }
+  ],
+  "deployed_base_url": "https://amec-permits-ops.vercel.app"
+}

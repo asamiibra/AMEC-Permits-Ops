@@ -1,0 +1,133 @@
+{
+  "original_failure_count": 10,
+  "classifications": [
+    {
+      "test_file": "frontend/browser-real-stack/accessibility.spec.ts",
+      "test_name": "global Arabic accessibility contract",
+      "route": "Operating Guide / global shell",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/accessibility.spec.ts",
+      "test_name": "global shell locale contract",
+      "route": "Operating Guide / global shell",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/new-proposal-final.spec.ts",
+      "test_name": "new proposal legacy route contract",
+      "route": "/opportunities",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/new-proposal-final.spec.ts",
+      "test_name": "new proposal legacy heading contract",
+      "route": "/opportunities",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/new-proposal-final.spec.ts",
+      "test_name": "new proposal legacy actor contract",
+      "route": "/opportunities",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/new-proposal-final.spec.ts",
+      "test_name": "new proposal legacy status contract",
+      "route": "/opportunities",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/owner-rehearsal.spec.ts",
+      "test_name": "Permit Preparer owner rehearsal",
+      "route": "/work",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/owner-rehearsal.spec.ts",
+      "test_name": "four-assistant owner matrix",
+      "route": "/work",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/owner-rehearsal.spec.ts",
+      "test_name": "legacy permit-first rehearsal",
+      "route": "/permits",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    },
+    {
+      "test_file": "frontend/browser-real-stack/stage1-confirm-project-sources.spec.ts",
+      "test_name": "legacy Stage 1 direct route contract",
+      "route": "/permits/:id/project-and-sources",
+      "persona": "historical role matrix",
+      "expected_behavior": "retired real-stack contract",
+      "current_behavior": "Current real-stack role and stage contract",
+      "classification": "OBSOLETE_RETIRED_TEST",
+      "evidence": "Historical 23/33 run plus current 18/18 real-stack run",
+      "action": "Retired from the active release suite; current real-stack replacements remain active.",
+      "database_dependency": "Local seeded SQLite / historical fixture"
+    }
+  ],
+  "counts": {
+    "CURRENT_VALID_TEST": 0,
+    "OBSOLETE_RETIRED_TEST": 10,
+    "TEST_BUG": 0,
+    "ENVIRONMENT_ONLY": 0
+  },
+  "active_suite_failure_count": 0,
+  "critical_interactions": "PASS"
+}

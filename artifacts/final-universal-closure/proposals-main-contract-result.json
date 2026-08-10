@@ -1,0 +1,12 @@
+{
+  "markers": {
+    "PROPOSALS_MAIN_TYPED_RESPONSE_CONTRACT_PASS": true,
+    "PROPOSALS_MAIN_INCOMPLETE_PAYLOAD_TYPEERROR_ZERO": true,
+    "PROPOSALS_MAIN_FAKE_ZERO_ON_SCHEMA_FAILURE_ZERO": true,
+    "PROPOSALS_MAIN_CONTROLLED_ERROR_STATE_PASS": true,
+    "PROPOSALS_MAIN_RETRY_RECOVERY_PASS": true
+  },
+  "backend_schema": "ProposalMainResponse",
+  "frontend_behavior": "runtime validation, controlled error, Retry",
+  "evidence": "backend/tests/test_proposals_main.py; backend/tests/test_proposals_contracts_owner_model.py; frontend/tests/proposals-main-contract.test.tsx"
+}
