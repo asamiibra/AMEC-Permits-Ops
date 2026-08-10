@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
+import { IssueFocusBanner, type Persona as IssuePersona } from "./PersonaIssuesNotifications";
 
 type Project = { id: string; project_number: string; project_name: string };
 type Persona = "SYSTEM_ADMIN" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
@@ -13,6 +14,7 @@ const sourceActions: Array<{ key: ActionKey; label: string; helper: string; sema
 ];
 const kpiOrder = ["OPEN_PROPOSALS", "OPEN_CONTRACTS", "PROPOSAL_HANDOVER", "CONTRACT_HANDOVER", "PROPOSALS_IN_PROCESS", "CONTRACTS_IN_PROCESS"];
 const roleLabels: Record<Persona, string> = { SYSTEM_ADMIN: "Owner", COMMERCIAL_APPROVER: "Business Development", RESPONSIBLE_ENGINEER: "Engineering" };
+const issuePersona = (persona: Persona): IssuePersona => persona === "COMMERCIAL_APPROVER" ? "BUSINESS_DEVELOPMENT" : persona === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : "OWNER";
 
 const proposalRowFields = ["id", "record_type", "proposal_id", "contract_id", "proposal_description", "project_id", "project_reference", "project_name", "proposal_status", "contract_status", "current_stage", "status", "amount", "last_activity", "source_count", "source_types", "reference_state", "proposal_fields", "next_action", "allowed_actions", "related_contract_id", "contract_action_eligible", "contract_action_label", "permit_application_id"];
 const contractRowFields = ["id", "record_type", "contract_description", "contract_reference", "status", "contract_status", "related_proposal_id", "proposal_id", "related_proposal", "project_id", "project_reference", "project_name", "amount", "proposal_amount", "contract_amount", "last_activity", "end_date", "permit_count", "permit_id", "permit_application_id", "permit_action_eligible", "permit_action_label", "permit_action", "proposal_status", "next_action"];
@@ -91,9 +93,9 @@ export function ProposalsContractsPage({ projects, persona, openRecord }: { proj
   const changeView = (next: Register) => { setView(next); setFilter("ALL"); window.history.replaceState({}, "", `/proposals-contracts?view=${next}`); };
 
   if (routeNew) return <NewProposalInline persona={persona} onBack={backToRegister} navigateRoute={navigateRoute} />;
-  if (routePreparationId) return <ProposalPreparationInline proposalId={routePreparationId} persona={persona} onClose={backToRegister} />;
-  if (routeProposalId) return <ProposalDetailInline proposalId={routeProposalId} persona={persona} projects={projects} onBack={backToRegister} navigateRoute={navigateRoute} />;
-  if (routeContractId) return <ContractDetailInline contractId={routeContractId} persona={persona} onBack={backToRegister} navigateRoute={navigateRoute} />;
+  if (routePreparationId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalPreparationInline proposalId={routePreparationId} persona={persona} onClose={backToRegister} /></div>;
+  if (routeProposalId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalDetailInline proposalId={routeProposalId} persona={persona} projects={projects} onBack={backToRegister} navigateRoute={navigateRoute} /></div>;
+  if (routeContractId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ContractDetailInline contractId={routeContractId} persona={persona} onBack={backToRegister} navigateRoute={navigateRoute} /></div>;
 
   if (loading && !data) return <div className="workflow-page proposals-main"><section className="panel"><b>Loading Proposals &amp; Contracts…</b></section></div>;
   if (dataError) return <div className="workflow-page proposals-main"><section className="panel error-state" role="alert"><h2>Proposals &amp; Contracts could not be loaded</h2><p>{dataError}</p><button className="button-primary" onClick={() => void load()}>Retry</button></section></div>;
@@ -159,11 +161,13 @@ function ContractDetailInline({ contractId, persona, onBack, navigateRoute }: { 
 }
 
 function ProposalPreparationInline({ proposalId, persona, onClose }: { proposalId: string; persona: Persona; onClose: () => void }) {
-  const [detail, setDetail] = useState<any>(null); const [error, setError] = useState("");
+  const [detail, setDetail] = useState<any>(null); const [error, setError] = useState(""); const [busy, setBusy] = useState(false); const [message, setMessage] = useState("");
   useEffect(() => { api<any>(`/api/proposals-main/proposals/${proposalId}`).then(setDetail).catch((cause) => setError(cause instanceof Error ? cause.message : "Proposal preparation unavailable.")); }, [proposalId]);
+  const engineering = persona === "RESPONSIBLE_ENGINEER" || persona === "SYSTEM_ADMIN";
+  const readyForBd = async () => { if (busy) return; setBusy(true); setMessage(""); setError(""); try { await api(`/api/proposals-main/proposals/${proposalId}/engineering-ready`, { method: "POST", headers: { "X-Dev-Role": persona } }); setMessage("Engineering returned this Proposal to Business Development for commercial review."); setDetail(await api<any>(`/api/proposals-main/proposals/${proposalId}`)); } catch (cause) { setError(cause instanceof Error ? cause.message : "Engineering handoff is blocked."); } finally { setBusy(false); } };
   if (error) return <section className="panel proposal-preparation-panel" role="alert"><button className="text-button" onClick={onClose}>← Proposals &amp; Contracts</button><h2>Proposal preparation unavailable</h2><p>{error}</p></section>;
   if (!detail) return <section className="panel proposal-preparation-panel"><b>Loading Proposal Preparation…</b></section>;
-  return <section className="panel proposal-preparation-panel"><div className="panel-head"><div><span className="eyebrow">PROPOSAL PREPARATION · {roleLabels[persona]}</span><h3>Proposal Preparation</h3><p>{detail.proposal?.proposal_description} · {detail.proposal?.project_reference}</p></div><button className="text-button" onClick={onClose}>Close</button></div><div className="preparation-grid"><div><h3>Inputs &amp; Sources</h3>{(detail.sources || []).map((source: any) => <div className="preparation-source" key={source.id}><span>✓</span><div><b>{readable(source.semantic_class || source.artifact_class || "Source")}</b><small>{source.filename || source.path || "Recorded source"} · {source.verification_status === "READ_BACK_VERIFIED" ? "Verified" : readable(source.verification_status || "Recorded")}</small></div></div>)}</div><div><h3>Technical preparation</h3>{Object.entries(detail.fields || {}).slice(0, 6).map(([key, value]) => <div className="detail-field" key={key}><small>{readable(key)}</small><b>{String(value || "Not recorded")}</b></div>)}</div></div><div className="preparation-handoff"><span>Engineering owns technical preparation; transitions remain human-controlled.</span></div></section>;
+  return <section className="panel proposal-preparation-panel"><div className="panel-head"><div><span className="eyebrow">PROPOSAL PREPARATION · {roleLabels[persona]}</span><h3>Proposal Preparation</h3><p>{detail.proposal?.proposal_description} · {detail.proposal?.project_reference}</p></div><button className="text-button" onClick={onClose}>Close</button></div>{message && <div className="inline-message" role="status">{message}</div>}<div className="preparation-grid"><div><h3>Inputs &amp; Sources</h3>{(detail.sources || []).map((source: any) => <div className="preparation-source" key={source.id}><span>✓</span><div><b>{readable(source.semantic_class || source.artifact_class || "Source")}</b><small>{source.filename || source.path || "Recorded source"} · {source.verification_status === "READ_BACK_VERIFIED" ? "Verified" : readable(source.verification_status || "Recorded")}</small></div></div>)}</div><div><h3>Technical preparation</h3>{Object.entries(detail.fields || {}).slice(0, 6).map(([key, value]) => <div className="detail-field" key={key}><small>{readable(key)}</small><b>{String(value || "Not recorded")}</b></div>)}</div></div><div className="preparation-handoff"><span>{engineering ? "Engineering owns technical preparation; return the Proposal to Business Development when the technical decision is complete." : "Context only: Engineering owns technical preparation. Business Development may review the persisted scope and handoff state."}</span>{engineering && <button className="button-primary" onClick={readyForBd} disabled={busy || detail.proposal?.proposal_status !== "PROPOSAL_PREPARATION"}>{busy ? "Returning…" : "Ready for BD"}</button>}</div></section>;
 }
 
 function NewProposalInline({ persona, onBack, navigateRoute }: { persona: Persona; onBack: () => void; navigateRoute: (route: string) => void }) {

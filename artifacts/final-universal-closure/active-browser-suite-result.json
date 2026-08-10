@@ -1,7 +1,7 @@
 {
   "command": "npx playwright test --reporter=line",
-  "tests": 62,
-  "passed": 62,
+  "tests": 69,
+  "passed": 69,
   "failed": 0,
   "ACTIVE_BROWSER_SUITE_FAILURE_ZERO": true
 }

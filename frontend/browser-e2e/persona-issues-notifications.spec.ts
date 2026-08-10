@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const project = { id: "p-0142", project_number: "GHCE-2026-0142", project_name: "Al Noor Villa", municipality: "Doha", permit_type: "Building Permit", status: "ACTIVE", assigned_engineer: "Omar Haddad" };
-const issue = { id: "issue-1", title: "Proposal SOW needs engineering confirmation", summary: "Engineering evidence is required before commercial review.", domain: "PROPOSAL_TECHNICAL", severity: "BLOCKING", blocking: true, status: "OPEN", owner_persona: "ENGINEERING", actionability: "ACTIONABLE", affected_record: { label: "SYN-OPP-0001" }, deep_link: "/proposals/opp-1/preparation" };
+const issue = { id: "issue-1", title: "Proposal SOW needs engineering confirmation", summary: "Engineering evidence is required before commercial review.", domain: "PROPOSAL_TECHNICAL", severity: "BLOCKING", blocking: true, status: "OPEN", owner_persona: "ENGINEERING", actionability: "ACTIONABLE", affected_record: { label: "SYN-OPP-0001" }, deep_link: "/proposals/opp-1/preparation?issue=issue-1", issue_detail_link: "/proposals/opp-1/preparation?issue=issue-1", cta_label: "Open Preparation" };
 const event = { id: "event-1", subject: "Proposal preparation ready", message: "SYN-OPP-0001 is ready for commercial review.", event_type: "ENGINEERING_PROPOSAL_READY", domain: "PROPOSAL_TECHNICAL", severity: "ADVISORY", unread: true, actor: "Engineering", delivery_status: "DELIVERED", affected_record: { label: "SYN-OPP-0001" }, deep_link: "/proposals/opp-1/preparation", source_event_id: "event-1" };
 
 test.beforeEach(async ({ page }) => {
@@ -25,7 +25,7 @@ test("persona switch changes issue copy, filters, and deep links", async ({ page
   await expect(page.getByRole("heading", { name: "Issues across AMEC work" })).toBeVisible();
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
   await expect(page.getByRole("heading", { name: "Engineering issues" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Open Issue →" })).toHaveAttribute("href", "/issues/issue-1");
+  await expect(page.getByRole("link", { name: "Open Preparation →" })).toHaveAttribute("href", "/proposals/opp-1/preparation?issue=issue-1&return_filter=ALL");
   await page.getByLabel("Persona").selectOption("COMMERCIAL_APPROVER");
   await expect(page.getByRole("heading", { name: "Commercial & project issues" })).toBeVisible();
 });

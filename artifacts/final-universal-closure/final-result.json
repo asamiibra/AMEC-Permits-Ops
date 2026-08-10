@@ -47,9 +47,13 @@
   "release": {
     "frontend": "https://amec-permits-ops.vercel.app",
     "backend": "https://amec-permits-ops-backend.vercel.app",
-    "frontend_deployment": "dpl_42gsvDG763JyguDxcVRuQRezbVvz",
-    "backend_deployment": "dpl_8upwQbhAnbmzfpbet963Ar4tLuHT",
+    "frontend_deployment": "dpl_9VGoNsgYXdpvtr7E4VKQh5AiuGVo",
+    "backend_deployment": "dpl_HG9D1Z7uGwyGEupsFogzTWkejWQk",
     "migration": "0026_notification_read_states",
-    "database": "Neon PostgreSQL"
+    "database": "Neon PostgreSQL",
+    "backend_health": {
+      "database_connection_valid": true,
+      "alembic_state": "present"
+    }
   }
 }

@@ -30,7 +30,7 @@ test.describe("ProposalOps Proposals and Contracts registers", () => {
   });
 
   test("commercial collection root redirects while nested Permit Workspace remains available", async ({ page }) => {
-    const register = await page.request.get("http://127.0.0.1:8000/api/proposals-main?persona=SYSTEM_ADMIN").then((response) => response.json());
+    const register = await page.request.get("/api/proposals-main?persona=SYSTEM_ADMIN").then((response) => response.json());
     const projectId = register.rows[0].project_id;
     await page.goto("/permits");
     await expect(page).toHaveURL(/\/proposals-contracts\?view=proposals/);

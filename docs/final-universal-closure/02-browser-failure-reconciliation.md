@@ -1,3 +1,3 @@
 # Browser failure reconciliation
 
-The historical 33 failures are recorded in `browser-failure-classification.json`. They assert retired expansion routes, retired legacy labels, or superseded role/navigation contracts. They are excluded through the explicit `testIgnore` list and replaced by the current 62-test suite, which passed 62/62.
+The historical 33 failures are recorded individually in `browser-failure-classification.json`. Twenty-nine are obsolete expansion/legacy contracts; the four issue deep-link records are current valid tests and are active after restoring canonical route-level issue focus context. The current 69-test suite passed 69/69 with zero active failures.

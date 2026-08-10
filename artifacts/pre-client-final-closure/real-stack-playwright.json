@@ -6,7 +6,7 @@
       "test",
       "-c",
       "playwright.real-stack.config.ts",
-      "issue-detail-final.spec.ts"
+      "--list"
     ],
     "configFile": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/playwright.real-stack.config.ts",
     "rootDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
@@ -19,22 +19,26 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "projects": [
       {
         "outputDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "",
         "name": "",
         "testDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
-        "testIgnore": [],
+        "testIgnore": [
+          "**/accessibility.spec.ts",
+          "**/issue-detail-final.spec.ts",
+          "**/new-proposal-final.spec.ts",
+          "**/owner-rehearsal.spec.ts",
+          "**/proposals-contracts-final.spec.ts",
+          "**/stage1-confirm-project-sources.spec.ts",
+          "**/visual-qa.spec.ts"
+        ],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
@@ -72,13 +76,13 @@
   },
   "suites": [
     {
-      "title": "issue-detail-final.spec.ts",
-      "file": "issue-detail-final.spec.ts",
+      "title": "admin-owner-ready.spec.ts",
+      "file": "admin-owner-ready.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [
         {
-          "title": "Issue list, detail, and Work share one canonical resolution path",
+          "title": "Owner can navigate the business Administration surface and persist a setting",
           "ok": true,
           "tags": [],
           "tests": [
@@ -88,31 +92,173 @@
               "expectedStatus": "passed",
               "projectId": "",
               "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 5244,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-08-10T01:33:08.962Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
+              "results": [],
+              "status": "skipped"
             }
           ],
-          "id": "f556c46934d8d780b871-5b73df66d91f38e3f936",
-          "file": "issue-detail-final.spec.ts",
+          "id": "8625165b55f60629a651-be68e956c98e68d9db47",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "Owner Administration sections load real backend projections",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8625165b55f60629a651-99b21e19e75bf893d562",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "BD and Engineering cannot retain privileged Administration access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8625165b55f60629a651-bb10a002d3e14581edb5",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "Administration remains usable on a narrow viewport",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "8625165b55f60629a651-279189b3f12fe2f58bfa",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 42,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "administration-final-audit.spec.ts",
+      "file": "administration-final-audit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "every Owner Administration route is directly reachable and uses current business language",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c87752378484a96e6c52-90778386eed8550b0dd1",
+          "file": "administration-final-audit.spec.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "Owner Administration cards and bounded actions remain wired",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c87752378484a96e6c52-5d3d4df77411fcd60102",
+          "file": "administration-final-audit.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "Owner Administration stays usable on mobile and role changes re-evaluate direct routes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c87752378484a96e6c52-229f0f16334dc599456a",
+          "file": "administration-final-audit.spec.ts",
+          "line": 48,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "homepage-owner-ready.spec.ts",
+      "file": "homepage-owner-ready.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner AMEC Work is one canonical business worklist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-9e9c2a91c182e83f6636",
+          "file": "homepage-owner-ready.spec.ts",
           "line": 4,
           "column": 1
         },
         {
-          "title": "Issue detail is role-aware, domain-relevant, accessible, and mobile-safe",
+          "title": "Owner filters compose with KPI and domain filters",
           "ok": true,
           "tags": [],
           "tests": [
@@ -122,38 +268,229 @@
               "expectedStatus": "passed",
               "projectId": "",
               "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 1768,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-08-10T01:33:14.344Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
+              "results": [],
+              "status": "skipped"
             }
           ],
-          "id": "f556c46934d8d780b871-f1db7709302055d45a10",
-          "file": "issue-detail-final.spec.ts",
-          "line": 36,
+          "id": "55d416c5c4f969e45678-844f1d36ced6e71f7fc0",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 23,
           "column": 1
+        },
+        {
+          "title": "Business Development and Engineering receive scoped work without team impersonation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-d80df39a742e13813ffa",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work remains readable on mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-ea67f3ac2ee2d6f2ce1c",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 44,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work shows a controlled error and recovers without a fake empty state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-62aa7a49bcdf7a7f4e2e",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work has one summary row and no legacy duplicate dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-23f914a278d4dec7c101",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 67,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work has no critical or serious accessibility violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-de2b415ca0c6cefc2d74",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 75,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "persona-issues-notifications.spec.ts",
+      "file": "persona-issues-notifications.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real stack serves persona-aware issues and notifications without interception",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2fdf5d7e03b669a82746-bf76cea725f8a320c832",
+          "file": "persona-issues-notifications.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "universal-design-audit.spec.ts",
+      "file": "universal-design-audit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ProposalOps universal design and functional audit",
+          "file": "universal-design-audit.spec.ts",
+          "line": 34,
+          "column": 6,
+          "specs": [
+            {
+              "title": "direct route/persona crawl captures design contracts, leakage, screenshots, and navigation evidence",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "047e2fd0115d8ef63754-d26ee265cf0e9dfc8a72",
+              "file": "universal-design-audit.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "API failure states preserve context and expose retry instead of fake success",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "047e2fd0115d8ef63754-7297cce7d5b4c5cd618e",
+              "file": "universal-design-audit.spec.ts",
+              "line": 98,
+              "column": 3
+            },
+            {
+              "title": "role matrix and current-stage authority evidence",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "047e2fd0115d8ef63754-8d5cfbd8c0103d356a99",
+              "file": "universal-design-audit.spec.ts",
+              "line": 120,
+              "column": 3
+            }
+          ]
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-08-10T01:33:08.437Z",
-    "duration": 7739.061,
-    "expected": 2,
-    "skipped": 0,
+    "startTime": "2026-08-10T14:58:56.303Z",
+    "duration": 66.23500000000001,
+    "expected": 0,
+    "skipped": 18,
     "unexpected": 0,
     "flaky": 0
   }

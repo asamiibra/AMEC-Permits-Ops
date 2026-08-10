@@ -324,50 +324,50 @@
       "test_file": "frontend/browser-e2e/issues-deeplink-final.spec.ts",
       "test_name": "Issues deep-link to existing context with focus, refresh, and clean copy",
       "route": "/issues/:id",
-      "persona": "historical fixture persona",
-      "expected_behavior": "retired expansion/legacy contract",
-      "current_behavior": "Current AMEC Work, Proposals & Contracts, and Permit workspace contract",
-      "classification": "OBSOLETE_RETIRED_TEST",
-      "evidence": "Historical 84/117 run plus current active replacement suite",
-      "action": "Retired from the active release suite; current replacement gates remain active."
+      "persona": "current issue persona",
+      "expected_behavior": "Issue focus, refresh, cross-project guard, and return-filter behavior",
+      "current_behavior": "Current issue context is restored on the canonical Proposal/Contract/Permit route and remains active in the browser suite",
+      "classification": "CURRENT_VALID_TEST",
+      "evidence": "The current issue deep-link suite passed 4/4 tests within the 69-test active browser run",
+      "action": "Kept active and fixed the route-level issue focus context; this historical failure is now a current valid test."
     },
     {
       "test_file": "frontend/browser-e2e/issues-deeplink-final.spec.ts",
       "test_name": "BD and Engineering deep-links enforce actionable versus context-only targets",
       "route": "/issues/:id",
-      "persona": "historical fixture persona",
-      "expected_behavior": "retired expansion/legacy contract",
-      "current_behavior": "Current AMEC Work, Proposals & Contracts, and Permit workspace contract",
-      "classification": "OBSOLETE_RETIRED_TEST",
-      "evidence": "Historical 84/117 run plus current active replacement suite",
-      "action": "Retired from the active release suite; current replacement gates remain active."
+      "persona": "current issue persona",
+      "expected_behavior": "Issue focus, refresh, cross-project guard, and return-filter behavior",
+      "current_behavior": "Current issue context is restored on the canonical Proposal/Contract/Permit route and remains active in the browser suite",
+      "classification": "CURRENT_VALID_TEST",
+      "evidence": "The current issue deep-link suite passed 4/4 tests within the 69-test active browser run",
+      "action": "Kept active and fixed the route-level issue focus context; this historical failure is now a current valid test."
     },
     {
       "test_file": "frontend/browser-e2e/issues-deeplink-final.spec.ts",
       "test_name": "focused Permit target rejects cross-project issue selection and remains usable on mobile",
       "route": "/permits/:id",
-      "persona": "historical fixture persona",
-      "expected_behavior": "retired expansion/legacy contract",
-      "current_behavior": "Current AMEC Work, Proposals & Contracts, and Permit workspace contract",
-      "classification": "OBSOLETE_RETIRED_TEST",
-      "evidence": "Historical 84/117 run plus current active replacement suite",
-      "action": "Retired from the active release suite; current replacement gates remain active."
+      "persona": "current issue persona",
+      "expected_behavior": "Issue focus, refresh, cross-project guard, and return-filter behavior",
+      "current_behavior": "Current issue context is restored on the canonical Proposal/Contract/Permit route and remains active in the browser suite",
+      "classification": "CURRENT_VALID_TEST",
+      "evidence": "The current issue deep-link suite passed 4/4 tests within the 69-test active browser run",
+      "action": "Kept active and fixed the route-level issue focus context; this historical failure is now a current valid test."
     },
     {
       "test_file": "frontend/browser-e2e/issues-deeplink-final.spec.ts",
       "test_name": "Issue return preserves the selected filter query",
       "route": "/issues",
-      "persona": "historical fixture persona",
-      "expected_behavior": "retired expansion/legacy contract",
-      "current_behavior": "Current AMEC Work, Proposals & Contracts, and Permit workspace contract",
-      "classification": "OBSOLETE_RETIRED_TEST",
-      "evidence": "Historical 84/117 run plus current active replacement suite",
-      "action": "Retired from the active release suite; current replacement gates remain active."
+      "persona": "current issue persona",
+      "expected_behavior": "Issue focus, refresh, cross-project guard, and return-filter behavior",
+      "current_behavior": "Current issue context is restored on the canonical Proposal/Contract/Permit route and remains active in the browser suite",
+      "classification": "CURRENT_VALID_TEST",
+      "evidence": "The current issue deep-link suite passed 4/4 tests within the 69-test active browser run",
+      "action": "Kept active and fixed the route-level issue focus context; this historical failure is now a current valid test."
     }
   ],
   "counts": {
-    "CURRENT_VALID_TEST": 0,
-    "OBSOLETE_RETIRED_TEST": 33,
+    "CURRENT_VALID_TEST": 4,
+    "OBSOLETE_RETIRED_TEST": 29,
     "TEST_BUG": 0,
     "ENVIRONMENT_ONLY": 0
   },

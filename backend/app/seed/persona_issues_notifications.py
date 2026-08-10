@@ -63,6 +63,7 @@ def seed_persona_issues_notifications(db) -> bool:
             changed = _ensure_demo_handoffs(db, project, proposal, contract) or changed
             application = db.scalar(select(PermitApplication).where(PermitApplication.project_id == project.id).order_by(PermitApplication.external_request_number))
             changed = _ensure_project_sources_notification(db, project, application) or changed
+            changed = _ensure_proposal_review_issue(db, project, application, proposal) or changed
         return changed
     project = db.scalar(select(Project).order_by(Project.project_number))
     application = db.scalar(select(PermitApplication).where(PermitApplication.project_id == project.id).order_by(PermitApplication.external_request_number)) if project else None
@@ -150,6 +151,67 @@ def _ensure_project_sources_notification(db, project, application) -> bool:
         subject="Project sources confirmed", body_preview="Project sources were confirmed and the Permit is ready for data verification.",
         created_at=happened, delivered_at=happened, correlation_id=FIXTURE_CORRELATION,
         domain="PERMIT_ADMINISTRATIVE", permit_id=application.id, severity="ADVISORY", audience=["OWNER", "ENGINEERING"], actor="System",
+    ))
+    return True
+
+
+def _ensure_proposal_review_issue(db, project, application, proposal) -> bool:
+    """Backfill the canonical Proposal release-review issue for older fixtures."""
+    if not proposal or not application:
+        return False
+    finding_id = _id("finding-proposal-review")
+    if db.get(Finding, finding_id):
+        return False
+    now = datetime.now(timezone.utc)
+    summary = "Review the completed Proposal package before Business Development releases it to the client."
+    finding = Finding(
+        id=finding_id,
+        project_id=project.id,
+        application_id=application.id,
+        source_type="PERSONA_FIXTURE",
+        source_reference="synthetic://persona/proposal-review",
+        source_timestamp=now - timedelta(days=2),
+        captured_at=now - timedelta(days=2),
+        captured_by="synthetic-persona-fixture",
+        title="Review Proposal release",
+        raw_text=summary,
+        normalized_summary=summary,
+        language="en",
+        discipline="COMMERCIAL",
+        severity="ADVISORY",
+        blocking=False,
+        status="OPEN",
+        assignee_role="COMMERCIAL_APPROVER",
+        due_at=now + timedelta(hours=72),
+        evidence_artifact_id="synthetic://evidence/proposal-review",
+        correlation_id=FIXTURE_CORRELATION,
+        domain="PROPOSAL_COMMERCIAL",
+        proposal_id=proposal.id,
+        owner_persona="BUSINESS_DEVELOPMENT",
+        deep_link=f"/proposals/{proposal.id}",
+    )
+    db.add(finding)
+    db.flush()
+    db.add(WorkflowTask(
+        id=_id("task-proposal-review"),
+        project_id=project.id,
+        application_id=application.id,
+        finding_id=finding.id,
+        task_type="PROPOSAL_REVIEW",
+        title=finding.title,
+        description=summary,
+        owner_role="COMMERCIAL_APPROVER",
+        status="OPEN",
+        priority="ADVISORY",
+        due_at=finding.due_at,
+        correlation_id=FIXTURE_CORRELATION,
+        task_family="AMEC_WORK",
+        context_type="PROPOSAL",
+        context_id=proposal.id,
+        blocking=False,
+        next_action_code="REVIEW_ISSUE",
+        deep_link=finding.deep_link,
+        evidence_summary={"source": "synthetic persona fixture", "issue_id": finding.id},
     ))
     return True
 

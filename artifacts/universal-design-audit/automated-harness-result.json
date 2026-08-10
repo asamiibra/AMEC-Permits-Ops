@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-10T14:29:09.872Z",
-  "base_url": "http://127.0.0.1:5173",
+  "generated_at": "2026-08-10T15:20:44.847Z",
+  "base_url": "https://amec-permits-ops.vercel.app",
   "route_count": 66,
   "contract_count": 37,
   "role_combinations": 104,
@@ -13,20 +13,7 @@
     "⚙Administration",
     "?Operating Guide",
     "ⓘInputs & Go-Live8",
-    "SA",
-    "View Inputs & Go-Live",
-    "People & AccessUsers, roles, and capability permissionsConfigured→",
-    "Data & ConnectionsSource systems with simulator and production statusSimulator Ready · Production Not Connected→",
-    "Project & Folder SetupReferences, folder structure, and semantic mappingsConfigured for demo→",
-    "Proposal SetupProposal fields, intake sources, stages, and handoffsConfigured for demo→",
-    "Contract SetupContract rules, fields, and Permit handoffConfigured for demo→",
-    "Templates & DocumentsControlled Proposal, Contract, and Permit templatesSynthetic stand-ins→",
-    "Permit Workflow SetupRequirements, applicability, attachments, and Municipality modeConfigured for demo→",
-    "Notifications & Follow-upAudiences, reminders, and follow-up rulesConfigured→",
-    "Data, Security & RetentionData mode, access, MFA, retention, and backupsConfigured for demo→",
-    "Integration HealthCross-system checks using the canonical status truthSimulator Ready→",
-    "Audit HistoryOwner-readable operational historyAvailable→",
-    "Advanced DiagnosticsTechnical evidence and adapter diagnosticsSecondary→"
+    "SA"
   ],
   "results": [
     {
@@ -98,7 +85,7 @@
         "AMEC Work",
         "What needs attention",
         "See how ProposalOps works",
-        "13 open items",
+        "14 open items",
         "What changed"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -124,11 +111,15 @@
       "http_status": 200,
       "heading": "Proposals & Contracts",
       "headings": [
-        "Proposals & Contracts",
         "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Client List",
+        "Proposal Form",
+        "Open Proposals",
+        "Open Contracts"
+      ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -150,12 +141,14 @@
       "http_status": 200,
       "heading": "Proposals & Contracts",
       "headings": [
-        "Proposals & Contracts",
         "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "Proposal Form"
+        "Client List",
+        "Proposal Form",
+        "Open Proposals",
+        "Open Contracts"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -178,12 +171,14 @@
       "http_status": 200,
       "heading": "Proposals & Contracts",
       "headings": [
-        "Proposals & Contracts",
         "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "Client List"
+        "Client List",
+        "Proposal Form",
+        "Open Proposals",
+        "Open Contracts"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -264,23 +259,23 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
       "contract_id": "proposal-detail",
       "role": "Owner",
       "http_status": 200,
       "heading": "Proposals & Contracts",
       "headings": [
-        "Proposals & Contracts",
-        "Synthetic Engineering Proposal Intake",
-        "Proposal fields",
-        "Related Contract(s)",
-        "Source evidence",
-        "Linked Issues & history"
+        "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "Proposal Description",
-        "reference"
+        "reference",
+        "status",
+        "client",
+        "sources",
+        "issues",
+        "history"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -297,7 +292,7 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
       "contract_id": "proposal-detail",
       "role": "Business Development",
       "http_status": 200,
@@ -330,7 +325,7 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
       "contract_id": "proposal-detail",
       "role": "Engineering",
       "http_status": 200,
@@ -363,7 +358,7 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a/preparation",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
       "contract_id": "proposal-preparation",
       "role": "Owner",
       "http_status": 200,
@@ -397,21 +392,19 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a/preparation",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
       "contract_id": "proposal-preparation",
       "role": "Business Development",
       "http_status": 200,
       "heading": "Proposals & Contracts",
       "headings": [
-        "Proposals & Contracts",
-        "Proposal Preparation",
-        "Inputs & Sources",
-        "Technical preparation"
+        "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "Proposal identity",
         "Project/reference context",
+        "Inputs & Sources",
         "Process of Work",
         "technical exclusions",
         "handoff"
@@ -431,7 +424,7 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/249735be-c3f8-495f-97b8-187ee6cdf08a/preparation",
+      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
       "contract_id": "proposal-preparation",
       "role": "Engineering",
       "http_status": 200,
@@ -465,7 +458,7 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/914c06dd-053a-41a1-a5ca-85c474ad4e17",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
       "contract_id": "contract-detail",
       "role": "Owner",
       "http_status": 200,
@@ -499,7 +492,7 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/914c06dd-053a-41a1-a5ca-85c474ad4e17",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
       "contract_id": "contract-detail",
       "role": "Business Development",
       "http_status": 200,
@@ -533,7 +526,7 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/914c06dd-053a-41a1-a5ca-85c474ad4e17",
+      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
       "contract_id": "contract-detail",
       "role": "Engineering",
       "http_status": 200,
@@ -576,11 +569,11 @@
         "ProposalOps",
         "Reviews waiting for me",
         "Assigned reviews",
+        "Review Proposal release",
+        "Verify project data",
         "Confirm project & sources",
         "Confirm project & sources",
-        "Confirm project & sources",
-        "Confirm project & sources",
-        "Contract scope differs from Proposal"
+        "Confirm project & sources"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -608,11 +601,11 @@
         "ProposalOps",
         "Reviews waiting for me",
         "Assigned reviews",
+        "Review Proposal release",
+        "Verify project data",
         "Confirm project & sources",
         "Confirm project & sources",
-        "Confirm project & sources",
-        "Confirm project & sources",
-        "Contract scope differs from Proposal"
+        "Confirm project & sources"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -641,8 +634,8 @@
         "Issues across AMEC work",
         "Owner actionable and contextual issues",
         "Proposal SOW needs engineering confirmation",
-        "Client pricing clarification required",
         "Review Proposal release",
+        "Client pricing clarification required",
         "Contract scope differs from Proposal",
         "Permit drawing revision requires technical review"
       ],
@@ -674,18 +667,14 @@
       "heading": "Issues",
       "headings": [
         "Issues",
-        "Commercial & project issues",
-        "Business Development actionable and contextual issues",
-        "Proposal SOW needs engineering confirmation",
-        "Client pricing clarification required",
-        "Review Proposal release",
-        "Contract scope differs from Proposal",
-        "Permit drawing revision requires technical review"
+        "Commercial & project issues"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "what is wrong",
         "severity",
+        "blocking",
+        "affected record",
         "actionability"
       ],
       "forbidden_terms": [],
@@ -877,13 +866,11 @@
       "heading": "Notifications",
       "headings": [
         "Notifications",
-        "Business Development notifications",
-        "Business Development notifications",
-        "Proposal preparation completed",
-        "Client information requirement identified"
+        "Business Development notifications"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
+        "event",
         "affected record",
         "actor",
         "time",
@@ -1037,7 +1024,7 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Owner",
       "http_status": 200,
@@ -1045,7 +1032,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1067,7 +1054,7 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Business Development",
       "http_status": 200,
@@ -1075,7 +1062,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1097,7 +1084,7 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/project-and-sources",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Engineering",
       "http_status": 200,
@@ -1105,7 +1092,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1127,7 +1114,7 @@
     },
     {
       "route_id": "S08",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/verify-data",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
       "contract_id": "permit-verify",
       "role": "Owner",
       "http_status": 200,
@@ -1135,9 +1122,8 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
-        "Verify the facts that drive the permit",
-        "Conflicts requiring contextual review"
+        "Verify project data",
+        "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -1156,7 +1142,7 @@
     },
     {
       "route_id": "S08",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/verify-data",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
       "contract_id": "permit-verify",
       "role": "Business Development",
       "http_status": 200,
@@ -1164,9 +1150,8 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
-        "Verify the facts that drive the permit",
-        "Conflicts requiring contextual review"
+        "Verify project data",
+        "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -1185,7 +1170,7 @@
     },
     {
       "route_id": "S08",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/verify-data",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
       "contract_id": "permit-verify",
       "role": "Engineering",
       "http_status": 200,
@@ -1193,9 +1178,8 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
-        "Verify the facts that drive the permit",
-        "Conflicts requiring contextual review"
+        "Verify project data",
+        "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -1214,7 +1198,7 @@
     },
     {
       "route_id": "S09",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/prepare-package",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/prepare-package",
       "contract_id": "permit-package",
       "role": "Owner",
       "http_status": 200,
@@ -1222,7 +1206,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Prepare Package"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1242,7 +1226,7 @@
     },
     {
       "route_id": "S09",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/prepare-package",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/prepare-package",
       "contract_id": "permit-package",
       "role": "Business Development",
       "http_status": 200,
@@ -1250,7 +1234,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Prepare Package"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1270,7 +1254,7 @@
     },
     {
       "route_id": "S09",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/prepare-package",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/prepare-package",
       "contract_id": "permit-package",
       "role": "Engineering",
       "http_status": 200,
@@ -1278,7 +1262,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Prepare Package"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1298,7 +1282,7 @@
     },
     {
       "route_id": "S10",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/municipality-preparation",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Owner",
       "http_status": 200,
@@ -1306,7 +1290,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1329,7 +1313,7 @@
     },
     {
       "route_id": "S10",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/municipality-preparation",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Business Development",
       "http_status": 200,
@@ -1337,7 +1321,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1360,7 +1344,7 @@
     },
     {
       "route_id": "S10",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/municipality-preparation",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Engineering",
       "http_status": 200,
@@ -1368,7 +1352,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1391,7 +1375,7 @@
     },
     {
       "route_id": "S11",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/final-review",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
       "contract_id": "permit-final-review",
       "role": "Owner",
       "http_status": 200,
@@ -1399,7 +1383,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -1424,7 +1408,7 @@
     },
     {
       "route_id": "S11",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/final-review",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
       "contract_id": "permit-final-review",
       "role": "Business Development",
       "http_status": 200,
@@ -1432,7 +1416,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -1457,7 +1441,7 @@
     },
     {
       "route_id": "S11",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/final-review",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
       "contract_id": "permit-final-review",
       "role": "Engineering",
       "http_status": 200,
@@ -1465,7 +1449,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -1490,7 +1474,7 @@
     },
     {
       "route_id": "S12",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/authority-review",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/authority-review",
       "contract_id": "permit-authority",
       "role": "Owner",
       "http_status": 200,
@@ -1498,7 +1482,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1518,7 +1502,7 @@
     },
     {
       "route_id": "S12",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/authority-review",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/authority-review",
       "contract_id": "permit-authority",
       "role": "Business Development",
       "http_status": 200,
@@ -1526,7 +1510,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1546,7 +1530,7 @@
     },
     {
       "route_id": "S12",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/authority-review",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/authority-review",
       "contract_id": "permit-authority",
       "role": "Engineering",
       "http_status": 200,
@@ -1554,7 +1538,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1574,7 +1558,7 @@
     },
     {
       "route_id": "S13",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/comments-and-corrections",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Owner",
       "http_status": 200,
@@ -1582,7 +1566,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Comments & Corrections"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1602,7 +1586,7 @@
     },
     {
       "route_id": "S13",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/comments-and-corrections",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Business Development",
       "http_status": 200,
@@ -1610,7 +1594,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Comments & Corrections"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1630,7 +1614,7 @@
     },
     {
       "route_id": "S13",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/comments-and-corrections",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Engineering",
       "http_status": 200,
@@ -1638,7 +1622,7 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Comments & Corrections"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1658,7 +1642,7 @@
     },
     {
       "route_id": "S14",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/history",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
       "contract_id": "permit-history",
       "role": "Owner",
       "http_status": 200,
@@ -1666,13 +1650,12 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Permit evidence timeline"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "business event",
-        "record",
         "result"
       ],
       "forbidden_terms": [],
@@ -1690,7 +1673,7 @@
     },
     {
       "route_id": "S14",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/history",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
       "contract_id": "permit-history",
       "role": "Business Development",
       "http_status": 200,
@@ -1698,13 +1681,12 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Permit evidence timeline"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "business event",
-        "record",
         "result"
       ],
       "forbidden_terms": [],
@@ -1722,7 +1704,7 @@
     },
     {
       "route_id": "S14",
-      "route": "/permits/319d76fe-a52a-40d4-b014-f576c6ae6f1a/history",
+      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
       "contract_id": "permit-history",
       "role": "Engineering",
       "http_status": 200,
@@ -1730,13 +1712,12 @@
       "headings": [
         "GHCE-2026-0142 · Al Noor Villa",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Confirm project & sources",
+        "Verify project data",
         "Permit evidence timeline"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "business event",
-        "record",
         "result"
       ],
       "forbidden_terms": [],
@@ -1966,12 +1947,16 @@
       "heading": "Administration",
       "headings": [
         "Administration",
-        "Permit Setup",
-        "Requirements and attachments",
-        "Interactionmode.Assisted"
+        "Permit Setup"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "requirements",
+        "applicability",
+        "attachments",
+        "Municipality",
+        "MFA"
+      ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -1994,12 +1979,12 @@
       "heading": "Administration",
       "headings": [
         "Administration",
-        "Templates",
-        "Controlled template catalog"
+        "Templates"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "template purpose"
+        "template purpose",
+        "version"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2079,8 +2064,7 @@
       "heading": "Administration",
       "headings": [
         "Administration",
-        "Integration Health",
-        "Cross-system health"
+        "Integration Health"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -2510,7 +2494,9 @@
         "What remains outside this gate"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "discipline"
+      ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -2539,7 +2525,9 @@
         "What remains outside this gate"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "discipline"
+      ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -3222,7 +3210,7 @@
     "raw_json": 0,
     "internal_actor": 0,
     "forbidden_terms": 0,
-    "missing_required": 72
+    "missing_required": 76
   },
   "gates": {
     "MATERIAL_ROUTE_WITHOUT_DESIGN_CONTRACT_ZERO": true,

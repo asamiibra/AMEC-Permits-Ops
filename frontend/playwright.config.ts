@@ -7,8 +7,6 @@ export default defineConfig({
   testIgnore: [
     "**/expansion-e3-e4.spec.ts",
     "**/expansion-e5-e6.spec.ts",
-    "**/issues-deeplink-final.spec.ts",
-    "**/persona-issues-notifications.spec.ts",
     "**/pre-client-shell.spec.ts",
     "**/pre-g10-control-paths.spec.ts",
     "**/workflow-first.spec.ts",
