@@ -2,7 +2,7 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { PersonaIssuesPage, PersonaNotificationsPage } from "../src/PersonaIssuesNotifications";
 
-const issue = { id: "i-1", title: "SOW needs confirmation", summary: "Technical evidence is required.", domain: "PROPOSAL_TECHNICAL", severity: "BLOCKING", blocking: true, status: "OPEN", owner_persona: "ENGINEERING", actionability: "ACTIONABLE", affected_record: { label: "SYN-OPP-0001" }, deep_link: "/proposals/p-1/preparation" };
+const issue = { id: "i-1", title: "SOW needs confirmation", summary: "Technical evidence is required.", domain: "PROPOSAL_TECHNICAL", severity: "BLOCKING", blocking: true, status: "OPEN", owner_persona: "ENGINEERING", actionability: "ACTIONABLE", affected_record: { label: "SYN-OPP-0001" }, deep_link: "/proposals/p-1/preparation", cta_label: "Open Preparation" };
 const notification = { id: "n-1", subject: "Proposal preparation ready", message: "Proposal is ready for commercial review.", event_type: "ENGINEERING_PROPOSAL_READY", domain: "PROPOSAL_TECHNICAL", severity: "ADVISORY", unread: true, actor: "Engineering", delivery_status: "DELIVERED", affected_record: { label: "SYN-OPP-0001" } };
 
 function response(body: unknown) { return { ok: true, headers: { get: () => "application/json" }, text: async () => JSON.stringify(body) }; }
@@ -15,7 +15,7 @@ describe("persona-aware issue and notification surfaces", () => {
     render(<PersonaIssuesPage persona="ENGINEERING" />);
     expect(await screen.findByText("Engineering issues")).toBeVisible();
     expect(screen.getByText("SOW needs confirmation")).toBeVisible();
-    expect(screen.getByText("Open Issue →")).toHaveAttribute("href", "/issues/i-1");
+    expect(screen.getByText("Open Preparation →")).toHaveAttribute("href", "/proposals/p-1/preparation?return_filter=ALL");
   });
 
   it("keeps notification awareness separate from task completion", async () => {

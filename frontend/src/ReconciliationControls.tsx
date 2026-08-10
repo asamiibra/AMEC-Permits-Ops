@@ -31,7 +31,7 @@ export function ReconciliationControls({ state = {} }: { state?: ReconciliationC
     {state.packageStale && <div role="alert">STALE PACKAGE — re-evaluation required</div>}
     {state.revisionStale && <div role="alert">STALE PREPARATION REVISION — current state is not reusable</div>}
     <div>{state.currentRevision === false ? <span>Historical revision</span> : <span>Current revision</span>} · <a href="#evidence">{state.evidenceLabel || "View evidence"}</a></div>
-    <div>Assisted municipality value: <strong>{state.municipalityValue || "—"}</strong> <span>({state.dropdownCode || "CODE"} · {state.dropdownLabel || "Label"})</span></div>
+    <div>Assisted municipality value: <strong>{state.municipalityValue || "—"}</strong> <span>({state.dropdownLabel || "Configured value"})</span></div>
     {state.portalMismatch && <div role="alert">PORTAL MISMATCH — exception requires correction</div>}
     <div>Finding owner: <strong>{state.findingOwner || "—"}</strong> · Task: <strong>{state.taskLabel || "—"}</strong></div>
     {state.notificationStatus === "FAILED" && <div role="alert">Notification FAILED — retry remains visible</div>}

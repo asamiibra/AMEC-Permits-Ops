@@ -1,0 +1,20 @@
+{
+  "gate": "UI_MOBILE_PASS",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Desktop, tablet, and mobile are rendered for every applicable persona.",
+  "viewports": {
+    "desktop": [
+      1440,
+      1000
+    ],
+    "tablet": [
+      834,
+      1112
+    ],
+    "mobile": [
+      390,
+      844
+    ]
+  },
+  "results": []
+}

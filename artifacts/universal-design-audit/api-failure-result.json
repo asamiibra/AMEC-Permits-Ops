@@ -1,0 +1,27 @@
+{
+  "cases": [
+    {
+      "route": "/proposals-contracts",
+      "error_copy": true,
+      "retry": 1,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Proposals & Contracts ⓘ Inputs & Go-Live 11 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Proposals & Contracts unavailable Failed to fetch Retry",
+      "screenshot": "artifacts/universal-design-audit/screenshots/proposals-contracts-error.png"
+    },
+    {
+      "route": "/issues",
+      "error_copy": true,
+      "retry": 1,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Issues ⓘ Inputs & Go-Live 7 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA SYNTHETIC PROTOTYPE · TEST DATA · SIMULATED INTEGRATIONS OWNER CONTROL Issues across AMEC work Review blockers and exc",
+      "screenshot": "artifacts/universal-design-audit/screenshots/issues-error.png"
+    },
+    {
+      "route": "/admin/data-connections",
+      "error_copy": true,
+      "retry": 1,
+      "body_excerpt": "ProposalOps PROPOSAL • CONTRACT • PERMIT AMEC Engineering QEC-DOHA · SYNTHETIC DEV ⌂ AMEC Work ▦ Proposals & Contracts ! Issues ◌ Notifications ⚙ Administration ? Operating Guide ▣ Synthetic environment Test data only Simulated integrations Human-controlled transitions AMEC WORKFLOW Administration ⓘ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · ADMINISTRATION Data Connections Owner configuration and status; operational work remains in AMEC Work. ",
+      "screenshot": "artifacts/universal-design-audit/screenshots/admin-connections-error.png"
+    }
+  ],
+  "fake_success_or_empty": false,
+  "status": "PASS"
+}

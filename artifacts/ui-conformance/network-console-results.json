@@ -1,0 +1,8 @@
+{
+  "gate": "UI_CRAWL_CONSOLE_ERROR_ZERO",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Network and console listeners run during the browser crawl.",
+  "console_errors": [],
+  "request_failures": [],
+  "bad_responses": []
+}

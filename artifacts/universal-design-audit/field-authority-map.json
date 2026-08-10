@@ -1,0 +1,28 @@
+{
+  "audit_version": "universal-design-v2",
+  "coverage_scope": "Material business fields and cross-surface identity/status fields",
+  "fields": [
+    {"field":"Proposal Description","domain":"Proposal","source_of_truth":"Proposal record","owner_editable":true,"bd_editable":true,"engineering_editable":false,"derived":false,"verified":"human source review","current":true},
+    {"field":"Proposal Reference","domain":"Proposal","source_of_truth":"Proposal record/reference service","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"backend","current":true},
+    {"field":"Project Reference","domain":"Project","source_of_truth":"canonical Project record","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"backend","current":true},
+    {"field":"Proposal stage/status","domain":"Proposal","source_of_truth":"Proposal lifecycle state","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"backend transition rules","current":true},
+    {"field":"SOW / Process of Work / exclusions / period","domain":"Proposal Preparation","source_of_truth":"Proposal preparation fields","owner_editable":false,"bd_editable":false,"engineering_editable":true,"derived":false,"verified":"Engineering handoff","current":true},
+    {"field":"Proposal source evidence","domain":"Proposal","source_of_truth":"provisional/canonical SOR evidence","owner_editable":false,"bd_editable":true,"engineering_editable":false,"derived":false,"verified":"read-back verification","current":true},
+    {"field":"Contract Reference","domain":"Contract","source_of_truth":"Contract record","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"backend","current":true},
+    {"field":"Contract status / amount / dates","domain":"Contract","source_of_truth":"Contract record","owner_editable":false,"bd_editable":true,"engineering_editable":false,"derived":false,"verified":"commercial review","current":true},
+    {"field":"Contract → Permit eligibility","domain":"Contract/Permit","source_of_truth":"contract lifecycle and canonical Project relationship","owner_editable":false,"bd_editable":true,"engineering_editable":false,"derived":true,"verified":"backend command","current":true},
+    {"field":"Permit Application reference","domain":"Permit","source_of_truth":"PermitApplication record","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"backend","current":true},
+    {"field":"Permit current stage","domain":"Permit","source_of_truth":"workflow stage state","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"backend","current":true},
+    {"field":"Permit viewed stage","domain":"Permit","source_of_truth":"route selection","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"navigation","current":true},
+    {"field":"Project & source confirmation","domain":"Permit/Project","source_of_truth":"workflow confirmation command and audit","owner_editable":false,"bd_editable":false,"engineering_editable":true,"derived":false,"verified":"command read-back","current":true},
+    {"field":"Source system status","domain":"Synology/Excel/Municipality","source_of_truth":"adapter health plus ExternalSystemLink","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"adapter/read-back","current":true},
+    {"field":"Permit requirement applicability","domain":"Permit","source_of_truth":"requirement configuration","owner_editable":true,"bd_editable":false,"engineering_editable":true,"derived":true,"verified":"configuration","current":true},
+    {"field":"Authority status/comments","domain":"Municipality/Authority","source_of_truth":"authority read contract or manual capture","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"read-back or human evidence","current":true},
+    {"field":"Issue severity/blocking/owner","domain":"Issue","source_of_truth":"Finding/Issue routing service","owner_editable":false,"bd_editable":false,"engineering_editable":true,"derived":true,"verified":"assignment/closure command","current":true},
+    {"field":"Notification read state","domain":"Notification","source_of_truth":"notification acknowledgement record","owner_editable":true,"bd_editable":true,"engineering_editable":true,"derived":false,"verified":"acknowledgement persistence","current":true},
+    {"field":"Administration setup status","domain":"Administration","source_of_truth":"admin projection plus Inputs & Go-Live registry","owner_editable":true,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"backend projection","current":true},
+    {"field":"Integration health","domain":"Administration/Integrations","source_of_truth":"connection and adapter health projections","owner_editable":false,"bd_editable":false,"engineering_editable":false,"derived":true,"verified":"runtime check","current":true}
+  ],
+  "field_count": 20,
+  "coverage_status": "MATERIAL_FIELD_MAP_DEFINED; LEGACY_TECHNICAL_PAGES_REQUIRE_FOLLOW_UP_FIELD-BY-FIELD_REVIEW"
+}

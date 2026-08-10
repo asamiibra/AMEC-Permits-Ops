@@ -3,6 +3,7 @@
   "command": "npm run browser-real-stack -- --reporter=list",
   "owner_administration": {"tests": 6, "passed": 6, "failed": 0},
   "full_real_stack": {"tests": 30, "passed": 19, "failed": 11},
+  "full_mocked_browser_suite": {"tests": 113, "passed": 87, "failed": 26},
   "scope": "Administration routes, owner authorization, semantic labels, status truth, bounded persistence, direct routes, and mobile layout",
   "remaining_broader_suite_failures": [
     "Accessibility locale switch expectation",
@@ -18,5 +19,8 @@
   "administration_gate": "PASS",
   "broader_suite_gate": "OPEN_OUT_OF_SCOPE",
   "decision": "ADMINISTRATION_FINAL_AUDIT_INCOMPLETE",
-  "genuine_scoped_product_failures": []
+  "genuine_scoped_product_failures": [],
+  "remaining_genuine_product_failures": [
+    "Previously observed (not reproduced with the normal final payload) Proposals & Contracts robustness defect: an incomplete /api/proposals-main payload can throw while the register reads data.kpis. This is outside the requested label/persona/navigation realignment and remains open separately."
+  ]
 }

@@ -1,0 +1,11 @@
+{
+  "mapping": [
+    {"issue_type": "PROPOSAL_TECHNICAL", "entity": "Proposal", "target": "Proposal Detail or Proposal Preparation", "resolution": "Engineering technical preparation and handoff"},
+    {"issue_type": "PROPOSAL_COMMERCIAL", "entity": "Proposal", "target": "Proposal Detail", "resolution": "Business Development commercial clarification"},
+    {"issue_type": "CONTRACT", "entity": "Contract", "target": "Contract Detail", "resolution": "Business Development scope comparison"},
+    {"issue_type": "PERMIT_TECHNICAL", "entity": "PermitApplication", "target": "Permit Workspace / Verify Data", "resolution": "Engineering drawing review"},
+    {"issue_type": "AUTHORITY", "entity": "PermitApplication", "target": "Permit Workspace / Comments & Corrections", "resolution": "Engineering authority comment disposition"}
+  ],
+  "cross_entity_protection": "Finding project and application IDs are validated before focused target data is returned",
+  "result": "PASS"
+}

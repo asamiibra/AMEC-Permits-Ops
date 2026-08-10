@@ -1,0 +1,10 @@
+{
+  "layout": "Structured status grid, proposal field cards, linked issue cards, and handoff history",
+  "commercial_context": ["Client", "Price", "commercial assumption", "stage", "Next Action"],
+  "technical_context": ["SOW", "technical preparation status", "Engineering owner"],
+  "source_copy": "Verified / Current / Source evidence",
+  "internal_jargon_removed": ["PERSONA_FIXTURE", "synthetic://", "CANONICAL_PROJECT_SOR", "READ_BACK_VERIFIED", "raw hashes"],
+  "linked_issues_interactive": true,
+  "handoff_count_matches_history": true,
+  "result": "PASS"
+}

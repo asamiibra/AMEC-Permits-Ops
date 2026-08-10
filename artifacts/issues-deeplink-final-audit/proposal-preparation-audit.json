@@ -1,0 +1,9 @@
+{
+  "technical_fields": ["Scope of work", "Process of Work", "Technical exclusions"],
+  "field_authority": "Engineering owns technical preparation; delivery period is displayed from the canonical proposal without a fabricated edit authority",
+  "business_development": {"mode": "context-only", "ready_for_bd_control": false, "technical_mutation": false},
+  "engineering": {"mode": "actionable", "ready_for_bd_control": true, "technical_mutation": true},
+  "professional_fixture_copy": true,
+  "handoff_state_matches_proposal": true,
+  "result": "PASS"
+}

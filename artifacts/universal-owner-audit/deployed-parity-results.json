@@ -1,0 +1,9 @@
+{
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "deployed_openapi_operations": 450,
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "health": "PASS",
+  "local_openapi_operations": 450,
+  "migration_head": "0026_notification_read_states",
+  "status": "PASS"
+}

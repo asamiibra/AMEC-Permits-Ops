@@ -1,0 +1,11 @@
+{
+  "server_authorization": "PASS",
+  "database": "PostgreSQL 16 / permitops_test",
+  "checks": [
+    {"capability": "engineering_preparation_ready_for_bd", "business_development": 403, "result": "DENIED"},
+    {"capability": "confirm_project_sources", "business_development": 403, "result": "DENIED"},
+    {"capability": "focused_project_issue_cross_entity", "mismatched_issue": 409, "result": "DENIED"},
+    {"capability": "context_only_destination_mutation", "protected_controls": 0, "result": "PASS"}
+  ],
+  "result": "PASS"
+}

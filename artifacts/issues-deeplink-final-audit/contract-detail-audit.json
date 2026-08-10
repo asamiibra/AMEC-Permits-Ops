@@ -1,0 +1,8 @@
+{
+  "layout": "Structured reference, lifecycle, linked proposal, commercial fields, permit handoff, and issue context sections",
+  "fields": ["Contract Reference", "Related Proposal", "Project Reference", "Client", "Amount", "Payment Condition", "Start Date", "End Date", "Status", "Next Action"],
+  "permit_rule": "An existing downstream permit is shown as handover context; the seeded contract is CONTRACT_HANDOVER, not DRAFT",
+  "provenance_empty_state": "No Contract source evidence has been added yet.",
+  "linked_issue_resolution_context": true,
+  "result": "PASS"
+}

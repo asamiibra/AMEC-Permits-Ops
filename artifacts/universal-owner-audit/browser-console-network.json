@@ -1,0 +1,11 @@
+{
+  "deployed_backend": "https://amec-permits-ops-backend.vercel.app",
+  "deployed_frontend": "https://amec-permits-ops.vercel.app",
+  "material_console_errors": 0,
+  "material_network_failures": 0,
+  "notes": [
+    "Initial local 127.0.0.1 run was blocked by missing CORS origin; rerun used FRONTEND_ORIGINS with both localhost and 127.0.0.1.",
+    "Historical tests that expect retired global Arabic/legacy selectors are classified separately."
+  ],
+  "status": "PASS_FOR_CURRENT_SURFACES"
+}

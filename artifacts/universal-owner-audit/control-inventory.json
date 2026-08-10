@@ -1,0 +1,371 @@
+{
+  "controls": [
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Needs Action",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/work",
+      "id": "C001",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "AMEC Work",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Waiting for Review",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/work",
+      "id": "C002",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "AMEC Work",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Blocked",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/work",
+      "id": "C003",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "AMEC Work",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Overdue",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/work",
+      "id": "C004",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "AMEC Work",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Team",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/work",
+      "id": "C005",
+      "roles": [
+        "Owner"
+      ],
+      "route": "AMEC Work",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Work",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/work",
+      "id": "C006",
+      "roles": [
+        "Owner"
+      ],
+      "route": "AMEC Work",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "NAVIGATION",
+      "control_label": "New Proposal",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/proposals/new",
+      "id": "C007",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "Proposals & Contracts",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "FILE_INGESTION",
+      "control_label": "Create Proposal & Save Sources",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/proposals-main/intake",
+      "id": "C008",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "New Proposal",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "DOMAIN_COMMAND",
+      "control_label": "Proceed to Preparation",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/proposals-main/proposals/{id}/proceed",
+      "id": "C009",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "Proposal detail",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "DOMAIN_COMMAND",
+      "control_label": "Ready for BD",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/proposals-main/proposals/{id}/ready-for-bd",
+      "id": "C010",
+      "roles": [
+        "Engineering"
+      ],
+      "route": "Proposal Preparation",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "DOMAIN_COMMAND",
+      "control_label": "Create Contract",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/proposals-main/proposals/{id}/contract",
+      "id": "C011",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "Proposal detail",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "DOMAIN_COMMAND",
+      "control_label": "Initiate Permit",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/proposals-main/contracts/{id}/permit",
+      "id": "C012",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "Contract detail",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Issue domain filters",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/issues",
+      "id": "C013",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "Issues",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "NAVIGATION",
+      "control_label": "Back to Issues",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/issues",
+      "id": "C014",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "Issue detail",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "QUERY_FILTER",
+      "control_label": "Notification filters",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/notifications",
+      "id": "C015",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "Notifications",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "ACKNOWLEDGEMENT",
+      "control_label": "Mark read",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/notifications/{id}/acknowledge",
+      "id": "C016",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "Notifications",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "TEST_ACTION",
+      "control_label": "Test connection",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/admin/connections/test",
+      "id": "C017",
+      "roles": [
+        "Owner"
+      ],
+      "route": "Administration",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "CONFIGURATION_WRITE",
+      "control_label": "Save setting",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/admin/notifications/follow-up",
+      "id": "C018",
+      "roles": [
+        "Owner"
+      ],
+      "route": "Administration",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "DOMAIN_COMMAND",
+      "control_label": "Confirm project & sources",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/projects/{id}/confirm-project-sources",
+      "id": "C019",
+      "roles": [
+        "Owner",
+        "Engineering"
+      ],
+      "route": "Permit · Sources",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "DOMAIN_COMMAND",
+      "control_label": "Verify fact",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/observations/{id}/verify",
+      "id": "C020",
+      "roles": [
+        "Engineering"
+      ],
+      "route": "Permit · Verify",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "DOMAIN_COMMAND",
+      "control_label": "Approve package",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/packages/{id}/approve",
+      "id": "C021",
+      "roles": [
+        "Owner",
+        "Engineering"
+      ],
+      "route": "Permit · Package",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "EXTERNAL_HANDOFF",
+      "control_label": "Human submission handoff",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/api/preparation-revisions/{id}/handoff",
+      "id": "C022",
+      "roles": [
+        "Owner",
+        "Engineering"
+      ],
+      "route": "Permit · Municipality",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "LOCAL_UI",
+      "control_label": "Language switch",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "guide-local-state",
+      "id": "C023",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "Operating Guide",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    },
+    {
+      "authorization": "backend_and_frontend",
+      "classification": "NAVIGATION",
+      "control_label": "Inputs & Go-Live",
+      "expected_feedback": "success or controlled error",
+      "handler_or_target": "/admin/go-live-readiness",
+      "id": "C024",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "Operating Guide",
+      "status": "AUDITED",
+      "test_coverage": "existing regression / focused browser evidence"
+    }
+  ],
+  "material_control_noop": 0,
+  "material_controls_unclassified": 0,
+  "material_controls_unwired": 0
+}

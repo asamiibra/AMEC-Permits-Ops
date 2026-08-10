@@ -1,0 +1,7 @@
+{
+  "forbidden_owner_copy": ["quotation", "PERSONA_FIXTURE", "synthetic://", "CANONICAL_PROJECT_SOR", "READ_BACK_VERIFIED", "Open record", "governed handoff record(s)"],
+  "owner_copy_replacements": {"quotation": "Proposal", "Open record": "Review Proposal / Review Contract / View Permit", "governed handoff record(s)": "handoffs recorded"},
+  "commercial_target_permit_warning_count": 0,
+  "concatenated_target_text_count": 0,
+  "result": "PASS"
+}

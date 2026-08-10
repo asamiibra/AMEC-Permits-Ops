@@ -1,0 +1,743 @@
+{
+  "audit": "universal-owner-audit",
+  "backend_routes": {
+    "openapi_version": "0.8.0",
+    "operation_count": 450,
+    "path_count": 424
+  },
+  "backend_routes_uninventoried": 0,
+  "frontend_route_count": 66,
+  "frontend_routes": [
+    {
+      "contract_id": "amec-work",
+      "direct": true,
+      "domain": "work",
+      "id": "S01",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/work"
+    },
+    {
+      "contract_id": "proposals-contracts",
+      "direct": true,
+      "domain": "commercial",
+      "id": "S02",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/proposals-contracts"
+    },
+    {
+      "contract_id": "new-proposal",
+      "direct": true,
+      "domain": "commercial",
+      "id": "S02A",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "/proposals/new"
+    },
+    {
+      "contract_id": "proposal-detail",
+      "direct": true,
+      "domain": "commercial",
+      "id": "S02B",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/proposals/:proposalId"
+    },
+    {
+      "contract_id": "proposal-preparation",
+      "direct": true,
+      "domain": "commercial",
+      "id": "S02C",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/proposals/:proposalId/preparation"
+    },
+    {
+      "contract_id": "contract-detail",
+      "direct": true,
+      "domain": "commercial",
+      "id": "S02D",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/contracts/:contractId"
+    },
+    {
+      "contract_id": "reviews",
+      "direct": true,
+      "domain": "work",
+      "id": "S03",
+      "roles": [
+        "Owner",
+        "Engineering"
+      ],
+      "route": "/reviews"
+    },
+    {
+      "contract_id": "issues",
+      "direct": true,
+      "domain": "issues",
+      "id": "S04",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/issues"
+    },
+    {
+      "contract_id": "issue-detail",
+      "direct": true,
+      "domain": "issues",
+      "id": "S04D",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/issues/:issueId"
+    },
+    {
+      "contract_id": "notifications",
+      "direct": true,
+      "domain": "notifications",
+      "id": "S05",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/notifications"
+    },
+    {
+      "aliases": [
+        "/about",
+        "/how-permitops-works"
+      ],
+      "contract_id": "operating-guide",
+      "direct": true,
+      "domain": "guide",
+      "id": "S06",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/operating-guide"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/project-and-sources"
+      ],
+      "contract_id": "permit-project-sources",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S07",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/project-and-sources"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/verify-data"
+      ],
+      "contract_id": "permit-verify",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S08",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/verify-data"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/prepare-package"
+      ],
+      "contract_id": "permit-package",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S09",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/prepare-package"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/municipality-preparation"
+      ],
+      "contract_id": "permit-municipality",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S10",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/municipality-preparation"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/final-review"
+      ],
+      "contract_id": "permit-final-review",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S11",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/final-review"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/authority-review"
+      ],
+      "contract_id": "permit-authority",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S12",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/authority-review"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/comments-and-corrections"
+      ],
+      "contract_id": "permit-corrections",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S13",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/comments-and-corrections"
+    },
+    {
+      "aliases": [
+        "/proposals-contracts/:projectId/history"
+      ],
+      "contract_id": "permit-history",
+      "direct": true,
+      "domain": "downstream-permit",
+      "id": "S14",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/history"
+    },
+    {
+      "contract_id": "administration",
+      "direct": true,
+      "domain": "administration",
+      "id": "S15",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin"
+    },
+    {
+      "contract_id": "inputs-go-live",
+      "direct": true,
+      "domain": "administration",
+      "id": "S26",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/go-live-readiness"
+    },
+    {
+      "contract_id": "admin-people",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-OWNER",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/people-access"
+    },
+    {
+      "contract_id": "admin-connections",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-CONNECTIONS",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/data-connections"
+    },
+    {
+      "contract_id": "admin-project",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-PROJECT",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/project-folder-setup"
+    },
+    {
+      "contract_id": "admin-proposal",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-PROPOSAL",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/proposal-setup"
+    },
+    {
+      "contract_id": "admin-contract",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-CONTRACT",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/contract-setup"
+    },
+    {
+      "contract_id": "admin-permit",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-PERMIT",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/permit-setup"
+    },
+    {
+      "contract_id": "admin-templates",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-TEMPLATES",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/templates"
+    },
+    {
+      "contract_id": "admin-notifications",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-NOTIFICATIONS",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/notifications"
+    },
+    {
+      "contract_id": "admin-security",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-SECURITY",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/security"
+    },
+    {
+      "contract_id": "admin-integration",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-INTEGRATION",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/integration-health"
+    },
+    {
+      "contract_id": "admin-audit",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-AUDIT",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/audit"
+    },
+    {
+      "contract_id": "admin-advanced",
+      "direct": true,
+      "domain": "administration",
+      "id": "ADMIN-ADVANCED",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/advanced-diagnostics"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S16",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/discovery"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S17",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/config"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S18",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/tier1"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S19",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/delivery"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S20",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/attachments-grids"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S21",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/municipality"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S22",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/corpus"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S23",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/thresholds"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "S24",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/control-diagnostics"
+    },
+    {
+      "contract_id": "opportunities",
+      "direct": true,
+      "domain": "commercial",
+      "id": "S25",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "/opportunities"
+    },
+    {
+      "contract_id": "engineering-closeout",
+      "direct": true,
+      "domain": "engineering",
+      "id": "S31",
+      "roles": [
+        "Owner",
+        "Engineering"
+      ],
+      "route": "/engineering-closeout"
+    },
+    {
+      "contract_id": "expansion-foundation",
+      "direct": true,
+      "domain": "administration",
+      "id": "S30",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/expansion-foundation"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-01",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/dashboard"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-02",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/projects"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-03",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/documents"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-04",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/conflicts"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-05",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/package"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-06",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/findings"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-07",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/lineage"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-08",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/spike"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-09",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/adjudication"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-10",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/analysis"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-11",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/tier2"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-12",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/close"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-13",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/baseline"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-14",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/signoff"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-15",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/confirmation"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-16",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/business"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-17",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/business-baseline"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-18",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/privacy"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-19",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/volume"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-20",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/inquiries"
+    },
+    {
+      "contract_id": "legacy-admin-family",
+      "direct": true,
+      "domain": "administration",
+      "id": "LEGACY-21",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/raid"
+    }
+  ],
+  "frontend_routes_uninventoried": 0,
+  "source": [
+    "frontend/src/App.tsx",
+    "artifacts/universal-design-audit/route-inventory.json"
+  ]
+}

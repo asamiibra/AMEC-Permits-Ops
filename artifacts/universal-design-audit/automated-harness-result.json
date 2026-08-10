@@ -1,0 +1,4591 @@
+{
+  "generated_at": "2026-08-10T02:36:36.999Z",
+  "base_url": "http://127.0.0.1:5173",
+  "route_count": 66,
+  "contract_count": 37,
+  "role_combinations": 104,
+  "screenshots": 104,
+  "navigation_labels_discovered": [
+    "⌂AMEC Work",
+    "▦Proposals & Contracts",
+    "!Issues",
+    "◌Notifications",
+    "⚙Administration",
+    "?Operating Guide",
+    "ⓘInputs & Go-Live8",
+    "SA",
+    "Retry"
+  ],
+  "results": [
+    {
+      "route_id": "S01",
+      "route": "/work",
+      "contract_id": "amec-work",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "AMEC Work",
+      "headings": [
+        "AMEC Work",
+        "What needs attention",
+        "See how ProposalOps works",
+        "17 open items",
+        "What changed"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [],
+      "request_failures": [],
+      "bad_responses": [],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S01-Owner.png"
+    },
+    {
+      "route_id": "S01",
+      "route": "/work",
+      "contract_id": "amec-work",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "AMEC Work",
+      "headings": [
+        "AMEC Work",
+        "What needs attention",
+        "See how ProposalOps works",
+        "6 open items",
+        "What changed"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [],
+      "request_failures": [],
+      "bad_responses": [],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S01-Business-Development.png"
+    },
+    {
+      "route_id": "S01",
+      "route": "/work",
+      "contract_id": "amec-work",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "AMEC Work",
+      "headings": [
+        "AMEC Work",
+        "What needs attention",
+        "See how ProposalOps works",
+        "13 open items",
+        "What changed"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [],
+      "request_failures": [],
+      "bad_responses": [],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S01-Engineering.png"
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "contract_id": "proposals-contracts",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [],
+      "request_failures": [],
+      "bad_responses": [],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02-Owner.png"
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "contract_id": "proposals-contracts",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal Form"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [],
+      "request_failures": [],
+      "bad_responses": [],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02-Business-Development.png"
+    },
+    {
+      "route_id": "S02",
+      "route": "/proposals-contracts",
+      "contract_id": "proposals-contracts",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Client List"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [],
+      "request_failures": [],
+      "bad_responses": [],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02-Engineering.png"
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "contract_id": "new-proposal",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "New Proposal",
+        "1. Proposal details",
+        "2. Source evidence"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [],
+      "request_failures": [],
+      "bad_responses": [],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02A-Owner.png"
+    },
+    {
+      "route_id": "S02A",
+      "route": "/proposals/new",
+      "contract_id": "new-proposal",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal Description",
+        "Price",
+        "Period",
+        "Exclusions",
+        "source"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02A-Business-Development.png"
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+      "contract_id": "proposal-detail",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposal detail unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal Description",
+        "reference",
+        "status",
+        "client",
+        "sources",
+        "issues",
+        "history"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=SYSTEM_ADMIN",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=SYSTEM_ADMIN",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02B-Owner.png"
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+      "contract_id": "proposal-detail",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposal detail unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal Description",
+        "reference",
+        "status",
+        "client",
+        "sources",
+        "issues",
+        "history"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02B-Business-Development.png"
+    },
+    {
+      "route_id": "S02B",
+      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+      "contract_id": "proposal-detail",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Proposal detail unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal Description",
+        "reference",
+        "status",
+        "client",
+        "sources",
+        "issues",
+        "history"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=RESPONSIBLE_ENGINEER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=RESPONSIBLE_ENGINEER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02B-Engineering.png"
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139/preparation",
+      "contract_id": "proposal-preparation",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal identity",
+        "Project/reference context",
+        "Inputs & Sources",
+        "Process of Work",
+        "technical exclusions",
+        "handoff"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=SYSTEM_ADMIN",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=SYSTEM_ADMIN",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02C-Owner.png"
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139/preparation",
+      "contract_id": "proposal-preparation",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal identity",
+        "Project/reference context",
+        "Inputs & Sources",
+        "Process of Work",
+        "technical exclusions",
+        "handoff"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02C-Business-Development.png"
+    },
+    {
+      "route_id": "S02C",
+      "route": "/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139/preparation",
+      "contract_id": "proposal-preparation",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal identity",
+        "Project/reference context",
+        "Inputs & Sources",
+        "Process of Work",
+        "technical exclusions",
+        "handoff"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=RESPONSIBLE_ENGINEER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/proposals/7eb8110c-4c3d-4624-b71a-10842c13d139",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=RESPONSIBLE_ENGINEER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02C-Engineering.png"
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+      "contract_id": "contract-detail",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Contract detail unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Contract Reference",
+        "status",
+        "Project",
+        "Related Proposal",
+        "amount",
+        "Contract revisions",
+        "Permit handoff"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=SYSTEM_ADMIN",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=SYSTEM_ADMIN",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02D-Owner.png"
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+      "contract_id": "contract-detail",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Contract detail unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Contract Reference",
+        "status",
+        "Project",
+        "Related Proposal",
+        "amount",
+        "Contract revisions",
+        "Permit handoff"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=COMMERCIAL_APPROVER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02D-Business-Development.png"
+    },
+    {
+      "route_id": "S02D",
+      "route": "/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+      "contract_id": "contract-detail",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "Proposals & Contracts",
+      "headings": [
+        "Proposals & Contracts",
+        "Contract detail unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Contract Reference",
+        "status",
+        "Project",
+        "Related Proposal",
+        "amount",
+        "Contract revisions",
+        "Permit handoff"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/proposals-main/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=RESPONSIBLE_ENGINEER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/proposals-main/contracts/e6795457-7a13-488f-92ba-959e22ac46c1",
+        "502 http://127.0.0.1:5173/api/proposals-main?persona=RESPONSIBLE_ENGINEER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S02D-Engineering.png"
+    },
+    {
+      "route_id": "S03",
+      "route": "/reviews",
+      "contract_id": "reviews",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "Reviews waiting for me",
+        "Assigned reviews",
+        "Professional decisions stay human-owned"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "status",
+        "evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/tasks",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/tasks",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S03-Owner.png"
+    },
+    {
+      "route_id": "S03",
+      "route": "/reviews",
+      "contract_id": "reviews",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "Reviews waiting for me",
+        "Assigned reviews",
+        "Professional decisions stay human-owned"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "status",
+        "evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/tasks",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/tasks",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S03-Engineering.png"
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "contract_id": "issues",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Issues",
+      "headings": [
+        "Issues",
+        "Issues across AMEC work"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "what is wrong",
+        "severity",
+        "blocking",
+        "affected record",
+        "actionability"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/issues?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/issues/summary?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/issues?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/issues/summary?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S04-Owner.png"
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "contract_id": "issues",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "Issues",
+      "headings": [
+        "Issues",
+        "Commercial & project issues"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "what is wrong",
+        "severity",
+        "blocking",
+        "affected record",
+        "actionability"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/issues?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/issues/summary?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/issues?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/issues/summary?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S04-Business-Development.png"
+    },
+    {
+      "route_id": "S04",
+      "route": "/issues",
+      "contract_id": "issues",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "Issues",
+      "headings": [
+        "Issues",
+        "Engineering issues"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "what is wrong",
+        "severity",
+        "blocking",
+        "affected record",
+        "actionability"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/issues?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/issues/summary?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/issues?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/issues/summary?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S04-Engineering.png"
+    },
+    {
+      "route_id": "S04D",
+      "route": "/issues/0f219f24-8980-5ef4-aac2-30eff3773c59",
+      "contract_id": "issue-detail",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "What is wrong",
+        "Why it matters",
+        "What needs to happen",
+        "Affected business record",
+        "Activity & history"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/issues/0f219f24-8980-5ef4-aac2-30eff3773c59?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/issues/0f219f24-8980-5ef4-aac2-30eff3773c59?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S04D-Owner.png"
+    },
+    {
+      "route_id": "S04D",
+      "route": "/issues/0f219f24-8980-5ef4-aac2-30eff3773c59",
+      "contract_id": "issue-detail",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "What is wrong",
+        "Why it matters",
+        "What needs to happen",
+        "Affected business record",
+        "Activity & history"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/issues/0f219f24-8980-5ef4-aac2-30eff3773c59?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/issues/0f219f24-8980-5ef4-aac2-30eff3773c59?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S04D-Business-Development.png"
+    },
+    {
+      "route_id": "S04D",
+      "route": "/issues/0f219f24-8980-5ef4-aac2-30eff3773c59",
+      "contract_id": "issue-detail",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "What is wrong",
+        "Why it matters",
+        "What needs to happen",
+        "Affected business record",
+        "Activity & history"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/issues/0f219f24-8980-5ef4-aac2-30eff3773c59?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/issues/0f219f24-8980-5ef4-aac2-30eff3773c59?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S04D-Engineering.png"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "contract_id": "notifications",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Notifications",
+      "headings": [
+        "Notifications",
+        "Owner notifications"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "affected record",
+        "actor",
+        "time",
+        "read state",
+        "destination"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/notifications?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/notifications/summary?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/notifications?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/notifications/summary?persona=OWNER",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S05-Owner.png"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "contract_id": "notifications",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "Notifications",
+      "headings": [
+        "Notifications",
+        "Business Development notifications"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "event",
+        "affected record",
+        "actor",
+        "time",
+        "read state",
+        "destination"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/notifications?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/notifications/summary?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/notifications?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/notifications/summary?persona=BUSINESS_DEVELOPMENT",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S05-Business-Development.png"
+    },
+    {
+      "route_id": "S05",
+      "route": "/notifications",
+      "contract_id": "notifications",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "Notifications",
+      "headings": [
+        "Notifications",
+        "Engineering notifications"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "event",
+        "affected record",
+        "actor",
+        "time",
+        "read state",
+        "destination"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/notifications?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/notifications/summary?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/notifications?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/notifications/summary?persona=ENGINEERING",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S05-Engineering.png"
+    },
+    {
+      "route_id": "S06",
+      "route": "/operating-guide",
+      "contract_id": "operating-guide",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "ProposalOps helps AMEC move work from tender and proposal through contract and permit — with one controlled record of sources, decisions, handoffs, and next actions.",
+        "Why ProposalOps exists",
+        "One opportunity, many sources",
+        "Keep current facts traceable",
+        "Make handoffs and next actions visible",
+        "The AMEC workflow",
+        "Tender / Client Sources"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S06-Owner.png"
+    },
+    {
+      "route_id": "S06",
+      "route": "/operating-guide",
+      "contract_id": "operating-guide",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "ProposalOps helps AMEC move work from tender and proposal through contract and permit — with one controlled record of sources, decisions, handoffs, and next actions.",
+        "Why ProposalOps exists",
+        "One opportunity, many sources",
+        "Keep current facts traceable",
+        "Make handoffs and next actions visible",
+        "The AMEC workflow",
+        "Tender / Client Sources"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S06-Business-Development.png"
+    },
+    {
+      "route_id": "S06",
+      "route": "/operating-guide",
+      "contract_id": "operating-guide",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "ProposalOps helps AMEC move work from tender and proposal through contract and permit — with one controlled record of sources, decisions, handoffs, and next actions.",
+        "Why ProposalOps exists",
+        "One opportunity, many sources",
+        "Keep current facts traceable",
+        "Make handoffs and next actions visible",
+        "The AMEC workflow",
+        "Tender / Client Sources"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S06-Engineering.png"
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "contract_id": "permit-project-sources",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Project",
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S07-Owner.png"
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "contract_id": "permit-project-sources",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Project",
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S07-Business-Development.png"
+    },
+    {
+      "route_id": "S07",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/project-and-sources",
+      "contract_id": "permit-project-sources",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Project",
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S07-Engineering.png"
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/verify-data",
+      "contract_id": "permit-verify",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S08-Owner.png"
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/verify-data",
+      "contract_id": "permit-verify",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S08-Business-Development.png"
+    },
+    {
+      "route_id": "S08",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/verify-data",
+      "contract_id": "permit-verify",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S08-Engineering.png"
+    },
+    {
+      "route_id": "S09",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/prepare-package",
+      "contract_id": "permit-package",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "requirements",
+        "blockers",
+        "evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S09-Owner.png"
+    },
+    {
+      "route_id": "S09",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/prepare-package",
+      "contract_id": "permit-package",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "requirements",
+        "blockers",
+        "evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S09-Business-Development.png"
+    },
+    {
+      "route_id": "S09",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/prepare-package",
+      "contract_id": "permit-package",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "requirements",
+        "blockers",
+        "evidence"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S09-Engineering.png"
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/municipality-preparation",
+      "contract_id": "permit-municipality",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Municipality",
+        "Authority",
+        "current stage",
+        "viewing",
+        "read-back",
+        "fallback"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S10-Owner.png"
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/municipality-preparation",
+      "contract_id": "permit-municipality",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Municipality",
+        "Authority",
+        "current stage",
+        "viewing",
+        "read-back",
+        "fallback"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S10-Business-Development.png"
+    },
+    {
+      "route_id": "S10",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/municipality-preparation",
+      "contract_id": "permit-municipality",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Municipality",
+        "Authority",
+        "current stage",
+        "viewing",
+        "read-back",
+        "fallback"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S10-Engineering.png"
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/final-review",
+      "contract_id": "permit-final-review",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "readiness checks",
+        "Final Submitter handoff",
+        "human boundary"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S11-Owner.png"
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/final-review",
+      "contract_id": "permit-final-review",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "readiness checks",
+        "Final Submitter handoff",
+        "human boundary"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S11-Business-Development.png"
+    },
+    {
+      "route_id": "S11",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/final-review",
+      "contract_id": "permit-final-review",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "readiness checks",
+        "Final Submitter handoff",
+        "human boundary"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S11-Engineering.png"
+    },
+    {
+      "route_id": "S12",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/authority-review",
+      "contract_id": "permit-authority",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Authority status",
+        "last checked",
+        "comments",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S12-Owner.png"
+    },
+    {
+      "route_id": "S12",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/authority-review",
+      "contract_id": "permit-authority",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Authority status",
+        "last checked",
+        "comments",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S12-Business-Development.png"
+    },
+    {
+      "route_id": "S12",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/authority-review",
+      "contract_id": "permit-authority",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Authority status",
+        "last checked",
+        "comments",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S12-Engineering.png"
+    },
+    {
+      "route_id": "S13",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/comments-and-corrections",
+      "contract_id": "permit-corrections",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Findings",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S13-Owner.png"
+    },
+    {
+      "route_id": "S13",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/comments-and-corrections",
+      "contract_id": "permit-corrections",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Findings",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S13-Business-Development.png"
+    },
+    {
+      "route_id": "S13",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/comments-and-corrections",
+      "contract_id": "permit-corrections",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Findings",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S13-Engineering.png"
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/history",
+      "contract_id": "permit-history",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S14-Owner.png"
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/history",
+      "contract_id": "permit-history",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S14-Business-Development.png"
+    },
+    {
+      "route_id": "S14",
+      "route": "/permits/305da69e-cab8-495c-adb9-fe30814e6f13/history",
+      "contract_id": "permit-history",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S14-Engineering.png"
+    },
+    {
+      "route_id": "S15",
+      "route": "/admin",
+      "contract_id": "administration",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Administration",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Production Setup",
+        "Runtime Health",
+        "Audit",
+        "Advanced Diagnostics"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/summary",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/summary",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S15-Owner.png"
+    },
+    {
+      "route_id": "S26",
+      "route": "/admin/go-live-readiness",
+      "contract_id": "inputs-go-live",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Go-Live Setup",
+      "headings": [
+        "Go-Live Setup",
+        "Go-Live Setup"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "what AMEC still needs",
+        "counts",
+        "screen crosswalk",
+        "safe defaults"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S26-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-OWNER",
+      "route": "/admin/people-access",
+      "contract_id": "admin-people",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "People Access",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Roles",
+        "capability matrix"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/users",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/users",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-OWNER-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-CONNECTIONS",
+      "route": "/admin/data-connections",
+      "contract_id": "admin-connections",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Data Connections",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Simulator Ready",
+        "Production Not Connected",
+        "Test connection"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/connections",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/connections",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-CONNECTIONS-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-PROJECT",
+      "route": "/admin/project-folder-setup",
+      "contract_id": "admin-project",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Project Folder Setup",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Canonical Project Reference",
+        "lineage",
+        "folder structure",
+        "Excel"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/project-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/project-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-PROJECT-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-PROPOSAL",
+      "route": "/admin/proposal-setup",
+      "contract_id": "admin-proposal",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Proposal Setup",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Proposal fields",
+        "intake sources",
+        "handoffs",
+        "reference rule"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/proposal-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/proposal-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-PROPOSAL-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-CONTRACT",
+      "route": "/admin/contract-setup",
+      "contract_id": "admin-contract",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Contract Setup",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "Contract fields",
+        "Proposal → Contract",
+        "Contract → Permit"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/contract-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/contract-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-CONTRACT-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-PERMIT",
+      "route": "/admin/permit-setup",
+      "contract_id": "admin-permit",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Permit Setup",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "requirements",
+        "applicability",
+        "attachments",
+        "Municipality",
+        "MFA"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/permit-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/permit-setup",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-PERMIT-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-TEMPLATES",
+      "route": "/admin/templates",
+      "contract_id": "admin-templates",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Templates",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "template purpose",
+        "version"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/templates",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/templates",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-TEMPLATES-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-NOTIFICATIONS",
+      "route": "/admin/notifications",
+      "contract_id": "admin-notifications",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Notifications",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "audiences",
+        "follow-up",
+        "HUMAN_SEND",
+        "audit"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/notifications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/notifications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-NOTIFICATIONS-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-SECURITY",
+      "route": "/admin/security",
+      "contract_id": "admin-security",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Security",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "environment",
+        "production data",
+        "MFA",
+        "access",
+        "retention",
+        "backup"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/security",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/security",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-SECURITY-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-INTEGRATION",
+      "route": "/admin/integration-health",
+      "contract_id": "admin-integration",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Integration Health",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "same connection truth",
+        "affected workflow",
+        "diagnostic link"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/integration-health",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/integration-health",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-INTEGRATION-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-AUDIT",
+      "route": "/admin/audit",
+      "contract_id": "admin-audit",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Audit",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "outcome"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/audit",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/audit",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-AUDIT-Owner.png"
+    },
+    {
+      "route_id": "ADMIN-ADVANCED",
+      "route": "/admin/advanced-diagnostics",
+      "contract_id": "admin-advanced",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Advanced Diagnostics",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "technical evidence",
+        "redaction",
+        "real routes"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/advanced-diagnostics",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/advanced-diagnostics",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/ADMIN-ADVANCED-Owner.png"
+    },
+    {
+      "route_id": "S16",
+      "route": "/admin/discovery",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Discovery",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/discovery",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/discovery",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S16-Owner.png"
+    },
+    {
+      "route_id": "S17",
+      "route": "/admin/config",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Config",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/config",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/config",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S17-Owner.png"
+    },
+    {
+      "route_id": "S18",
+      "route": "/admin/tier1",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Tier1",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/tier1",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/tier1",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S18-Owner.png"
+    },
+    {
+      "route_id": "S19",
+      "route": "/admin/delivery",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Delivery",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/delivery",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/delivery",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S19-Owner.png"
+    },
+    {
+      "route_id": "S20",
+      "route": "/admin/attachments-grids",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Attachments Grids",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/attachments-grids",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/attachments-grids",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S20-Owner.png"
+    },
+    {
+      "route_id": "S21",
+      "route": "/admin/municipality",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Municipality",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/municipality",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/municipality",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S21-Owner.png"
+    },
+    {
+      "route_id": "S22",
+      "route": "/admin/corpus",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Corpus",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/corpus",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/corpus",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S22-Owner.png"
+    },
+    {
+      "route_id": "S23",
+      "route": "/admin/thresholds",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Thresholds",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/thresholds",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/thresholds",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S23-Owner.png"
+    },
+    {
+      "route_id": "S24",
+      "route": "/admin/control-diagnostics",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Control diagnostics",
+      "headings": [
+        "Control diagnostics",
+        "Closure & resubmission control",
+        "Exact current-state conditions",
+        "Evidence-backed lifecycle",
+        "Requirement / field matrices",
+        "Tier 2 disposition",
+        "Structural zero checks"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/configuration/requirement-matrix/coverage",
+        "502 http://127.0.0.1:5173/api/configuration/field-matrix/coverage",
+        "502 http://127.0.0.1:5173/api/week10/kpi-review",
+        "502 http://127.0.0.1:5173/api/week10/tier2-review",
+        "502 http://127.0.0.1:5173/api/submission-cycles",
+        "502 http://127.0.0.1:5173/api/monitoring/policies",
+        "502 http://127.0.0.1:5173/api/monitoring/runs",
+        "502 http://127.0.0.1:5173/api/portal-drift-events"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S24-Owner.png"
+    },
+    {
+      "route_id": "S25",
+      "route": "/opportunities",
+      "contract_id": "opportunities",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "Opportunities"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "follow-up"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/opportunities",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/opportunities",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S25-Owner.png"
+    },
+    {
+      "route_id": "S25",
+      "route": "/opportunities",
+      "contract_id": "opportunities",
+      "role": "Business Development",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "Opportunities"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "follow-up"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/opportunities",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/opportunities",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S25-Business-Development.png"
+    },
+    {
+      "route_id": "S31",
+      "route": "/engineering-closeout",
+      "contract_id": "engineering-closeout",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "Engineering & Commercial Closeout",
+        "Engineering Review",
+        "Commercial Closeout",
+        "What remains outside this gate"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "discipline"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/projects"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S31-Owner.png"
+    },
+    {
+      "route_id": "S31",
+      "route": "/engineering-closeout",
+      "contract_id": "engineering-closeout",
+      "role": "Engineering",
+      "http_status": 200,
+      "heading": "ProposalOps",
+      "headings": [
+        "ProposalOps",
+        "Engineering & Commercial Closeout",
+        "Engineering Review",
+        "Commercial Closeout",
+        "What remains outside this gate"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "discipline"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/projects"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S31-Engineering.png"
+    },
+    {
+      "route_id": "S30",
+      "route": "/admin/expansion-foundation",
+      "contract_id": "expansion-foundation",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Expansion Foundation",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "capability status",
+        "human authority",
+        "handoff"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/expansion-foundation",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/expansion-foundation",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/S30-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-01",
+      "route": "/admin/dashboard",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Dashboard",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/dashboard",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/dashboard",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-01-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-02",
+      "route": "/admin/projects",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Projects",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/projects",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/projects",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-02-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-03",
+      "route": "/admin/documents",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Documents",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/documents",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/documents",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-03-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-04",
+      "route": "/admin/conflicts",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Conflicts",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/conflicts",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/conflicts",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-04-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-05",
+      "route": "/admin/package",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Package",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/package",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/package",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-05-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-06",
+      "route": "/admin/findings",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Findings",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/findings",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/findings",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-06-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-07",
+      "route": "/admin/lineage",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Lineage",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/lineage",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/lineage",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-07-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-08",
+      "route": "/admin/spike",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Spike",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/spike",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/spike",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-08-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-09",
+      "route": "/admin/adjudication",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Adjudication",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/adjudication",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/adjudication",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-09-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-10",
+      "route": "/admin/analysis",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Analysis",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/analysis",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/analysis",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-10-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-11",
+      "route": "/admin/tier2",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Tier2",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/tier2",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/tier2",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-11-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-12",
+      "route": "/admin/close",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Close",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/close",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/close",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-12-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-13",
+      "route": "/admin/baseline",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Baseline",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/baseline",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/baseline",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-13-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-14",
+      "route": "/admin/signoff",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Signoff",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/signoff",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/signoff",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-14-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-15",
+      "route": "/admin/confirmation",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Confirmation",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/confirmation",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/confirmation",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-15-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-16",
+      "route": "/admin/business",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Business",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/business",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/business",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-16-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-17",
+      "route": "/admin/business-baseline",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Business Baseline",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/business-baseline",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/business-baseline",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-17-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-18",
+      "route": "/admin/privacy",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Privacy",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/privacy",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/privacy",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-18-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-19",
+      "route": "/admin/volume",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Volume",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/volume",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/volume",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-19-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-20",
+      "route": "/admin/inquiries",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Inquiries",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/inquiries",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/inquiries",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-20-Owner.png"
+    },
+    {
+      "route_id": "LEGACY-21",
+      "route": "/admin/raid",
+      "contract_id": "legacy-admin-family",
+      "role": "Owner",
+      "http_status": 200,
+      "heading": "Administration",
+      "headings": [
+        "Administration",
+        "Raid",
+        "Administration unavailable"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "forbidden_terms": [],
+      "raw_uuid": false,
+      "raw_json": false,
+      "raw_enums": [],
+      "internal_actor": false,
+      "horizontal_overflow": false,
+      "language": "en",
+      "direction": "ltr",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+        "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+      ],
+      "request_failures": [],
+      "bad_responses": [
+        "502 http://127.0.0.1:5173/api/admin/raid",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications",
+        "502 http://127.0.0.1:5173/api/admin/raid",
+        "502 http://127.0.0.1:5173/api/projects",
+        "502 http://127.0.0.1:5173/api/applications"
+      ],
+      "screenshot": "artifacts/universal-design-audit/screenshots/LEGACY-21-Owner.png"
+    }
+  ],
+  "counts": {
+    "console_errors": 97,
+    "overflow": 0,
+    "raw_uuid": 0,
+    "raw_json": 0,
+    "internal_actor": 0,
+    "forbidden_terms": 0,
+    "missing_required": 96
+  },
+  "gates": {
+    "MATERIAL_ROUTE_WITHOUT_DESIGN_CONTRACT_ZERO": true,
+    "AUTOMATED_OWNER_TECHNICAL_LEAK_DETECTION_PASS": true,
+    "SYNTHETIC_BANNER_CONSISTENCY_PASS": true
+  }
+}

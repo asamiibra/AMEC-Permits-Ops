@@ -1,0 +1,13 @@
+{
+  "canonical_projects": [
+    "GHCE-2026-0142",
+    "GHCE-2026-0187",
+    "GHCE-2026-0210",
+    "GHCE-2026-0244"
+  ],
+  "canonical_reference": "artifacts/golden-path-v1-result.json",
+  "fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1",
+  "fixture_version": "1.1.1",
+  "garbage_text": 0,
+  "status": "PASS"
+}

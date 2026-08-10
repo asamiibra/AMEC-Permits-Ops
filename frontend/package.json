@@ -9,7 +9,9 @@
     "test": "vitest",
     "browser-e2e": "playwright test",
     "browser-real-stack": "playwright test -c playwright.real-stack.config.ts",
-    "browser-edge": "playwright test -c playwright.edge.config.ts"
+    "browser-edge": "playwright test -c playwright.edge.config.ts",
+    "ui-conformance:prepare": "node scripts/ui-conformance-audit.mjs",
+    "ui-conformance": "npm run ui-conformance:prepare && playwright test browser-e2e/ui-conformance.spec.ts"
   },
   "dependencies": {
     "@playwright/test": "^1.55.0",

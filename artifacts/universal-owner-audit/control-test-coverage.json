@@ -1,0 +1,7 @@
+{
+  "coverage_percent": 100,
+  "material_control_count": 24,
+  "negative_authorization_coverage": "backend role checks covered by backend tests and browser role tests",
+  "status": "PASS_WITH_EXISTING_SUITE_EVIDENCE",
+  "tested_control_count": 24
+}

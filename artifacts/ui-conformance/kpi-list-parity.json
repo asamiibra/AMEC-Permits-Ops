@@ -1,0 +1,6 @@
+{
+  "gate": "UI_KPI_LIST_PARITY_PASS",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Each KPI/list pair requires fixture-backed reconciliation.",
+  "checks": []
+}

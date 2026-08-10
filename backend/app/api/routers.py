@@ -36,7 +36,7 @@ def project_detail(project_id: str, issue: str | None = None, db: Session = Depe
     p = db.get(Project, project_id)
     if not p: raise HTTPException(404, "Project not found")
     applications = [ApplicationOut.model_validate(a).model_dump(mode="json") for a in p.applications]
-    application = p.applications[0] if p.applications else None
+    application = db.scalar(select(PermitApplication).where(PermitApplication.project_id == p.id).order_by(PermitApplication.external_request_number))
     if issue:
         finding = db.get(Finding, issue)
         if not finding:

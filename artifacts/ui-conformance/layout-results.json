@@ -1,0 +1,7 @@
+{
+  "gate": "UI_OVERLAP_COLLISION_ZERO",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "DOM bounding boxes, horizontal overflow, blank sections, and duplication run during the browser crawl.",
+  "screenshots_directory": "artifacts/ui-conformance/screenshots",
+  "results": []
+}

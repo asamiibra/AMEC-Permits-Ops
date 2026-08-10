@@ -1,0 +1,12 @@
+{
+  "connections": {
+    "backend_to_postgresql": "PASS",
+    "excel": "PASS",
+    "frontend_to_backend": "PASS",
+    "municipality": "PASS",
+    "notification_delivery": "PASS",
+    "synology": "PASS"
+  },
+  "error_paths": "controlled API error handling and typed non-JSON handling covered by frontend api tests",
+  "status": "PASS"
+}

@@ -1,0 +1,16 @@
+{
+  "audit": "Issues homepage to resolution context deep-link audit v2",
+  "canonical_model": "Issues route to existing business workspaces; no dedicated Issue Detail page",
+  "focus_parameter": "issue",
+  "routes": [
+    {"issue_type": "PROPOSAL_TECHNICAL", "persona": "BUSINESS_DEVELOPMENT", "actionability": "CONTEXT_ONLY", "route": "/proposals/{proposal_id}?issue={issue_id}", "cta": "View Proposal", "capability": "read_proposal"},
+    {"issue_type": "PROPOSAL_TECHNICAL", "persona": "RESPONSIBLE_ENGINEER", "actionability": "ACTIONABLE", "route": "/proposals/{proposal_id}/preparation?issue={issue_id}", "cta": "Open Preparation", "capability": "edit_technical_preparation"},
+    {"issue_type": "PROPOSAL_COMMERCIAL", "persona": "BUSINESS_DEVELOPMENT", "actionability": "ACTIONABLE", "route": "/proposals/{proposal_id}?issue={issue_id}", "cta": "Review Proposal", "capability": "resolve_commercial_proposal"},
+    {"issue_type": "CONTRACT", "persona": "BUSINESS_DEVELOPMENT", "actionability": "ACTIONABLE", "route": "/contracts/{contract_id}?issue={issue_id}", "cta": "Review Contract", "capability": "resolve_contract_scope"},
+    {"issue_type": "PERMIT_TECHNICAL", "persona": "BUSINESS_DEVELOPMENT", "actionability": "CONTEXT_ONLY", "route": "/permits/{project_id}/verify-data?issue={issue_id}", "cta": "View Permit", "capability": "read_permit"},
+    {"issue_type": "PERMIT_TECHNICAL", "persona": "RESPONSIBLE_ENGINEER", "actionability": "ACTIONABLE", "route": "/permits/{project_id}/verify-data?issue={issue_id}", "cta": "Review Drawing", "capability": "resolve_permit_technical"},
+    {"issue_type": "AUTHORITY", "persona": "BUSINESS_DEVELOPMENT", "actionability": "CONTEXT_ONLY", "route": "/permits/{project_id}/comments-and-corrections?issue={issue_id}", "cta": "View Authority Comment", "capability": "read_authority_context"},
+    {"issue_type": "AUTHORITY", "persona": "RESPONSIBLE_ENGINEER", "actionability": "ACTIONABLE", "route": "/permits/{project_id}/comments-and-corrections?issue={issue_id}", "cta": "Review Authority Comment", "capability": "resolve_authority_comment"}
+  ],
+  "invariants": ["No route uses /issues/{id}", "Every visible route carries issue focus", "Context-only destinations expose no protected mutation"]
+}

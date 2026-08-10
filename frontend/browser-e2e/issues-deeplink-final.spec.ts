@@ -43,7 +43,7 @@ test("BD and Engineering deep-links enforce actionable versus context-only targe
   const engineeringIssues = await issuesFor(page, "ENGINEERING");
   const engineeringTechnical = engineeringIssues.find((item) => item.domain === "PROPOSAL_TECHNICAL");
   const permitTechnical = engineeringIssues.find((item) => item.domain === "PERMIT_TECHNICAL");
-  const authority = engineeringIssues.find((item) => item.domain === "AUTHORITY");
+  const authority = engineeringIssues.find((item) => item.title === "Authority returned a technical comment");
   expect(engineeringTechnical?.actionability).toBe("ACTIONABLE");
   await page.goto("/issues");
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
@@ -54,7 +54,7 @@ test("BD and Engineering deep-links enforce actionable versus context-only targe
   await page.goto(permitTechnical!.deep_link);
   await expect(page.getByText("Verify the facts that drive the permit", { exact: true })).toBeVisible();
   await page.goto(authority!.deep_link);
-  await expect(page.getByRole("heading", { name: "Comments & Corrections", exact: true })).toBeVisible();
+  await expect(page.getByText("Comments & Corrections", { exact: true }).last()).toBeVisible();
 });
 
 test("focused Permit target rejects cross-project issue selection and remains usable on mobile", async ({ page }) => {
@@ -70,4 +70,16 @@ test("focused Permit target rejects cross-project issue selection and remains us
   await page.goto(permitIssue!.deep_link);
   await expect(page.getByText("OPENED FROM ISSUE", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+});
+
+test("Issue return preserves the selected filter query", async ({ page }) => {
+  await page.goto("/issues");
+  await page.getByRole("button", { name: "Proposal Technical", exact: true }).click();
+  const issueLink = page.locator('a[href*="issue="]').first();
+  await expect(issueLink).toHaveAttribute("href", /return_filter=PROPOSAL_TECHNICAL/);
+  await issueLink.click();
+  await expect(page.getByText("OPENED FROM ISSUE", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Back to Issues", exact: true }).click();
+  await expect(page).toHaveURL(/\/issues\?filter=PROPOSAL_TECHNICAL/);
+  await expect(page.getByRole("button", { name: "Proposal Technical", exact: true })).toHaveClass(/active/);
 });

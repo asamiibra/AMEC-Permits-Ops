@@ -11,8 +11,8 @@ export function EngineeringCloseoutPage() {
   useEffect(() => { if (!projectId) return; Promise.all([api<any[]>(`/api/projects/${projectId}/engineering-reviews`), api<any>(`/api/projects/${projectId}/handover-readiness`)]).then(([r, h]) => { setReviews(r); setReadiness(h); }).catch(() => setError("Engineering or handover context is unavailable.")); }, [projectId]);
   const review = reviews[0];
   return <div className="workflow-page expansion-workspace">
-    <div className="page-intro"><div><span className="eyebrow">E5 · E6 BOUNDED WORKFLOW</span><h2>Engineering & Commercial Closeout</h2><p>Project-context views over shared evidence. Synthetic implementation only; professional, finance, send, payment, and release authority remain human-owned.</p></div><span className="tag">PROTOTYPE_DEV_ONLY</span></div>
-    <div className="synthetic-note">SYNTHETIC / DEMO / NOT CLIENT APPROVED · NO ACCOUNTING WRITE · HUMAN_SEND · NO AUTO PROJECT CLOSE</div>
+    <div className="page-intro"><div><span className="eyebrow">E5 · E6 BOUNDED WORKFLOW</span><h2>Engineering & Commercial Closeout</h2><p>Project-context views over shared evidence. Synthetic implementation only; professional, finance, send, payment, and release authority remain human-owned.</p></div><span className="tag">Prototype / development only</span></div>
+    <div className="synthetic-note">SYNTHETIC / DEMO / NOT CLIENT APPROVED · NO ACCOUNTING WRITE · HUMAN SEND · NO AUTOMATIC PROJECT CLOSE</div>
     <section className="panel expansion-context"><div><b>Project context</b><small>Canonical project identity anchors both assistants.</small></div><select aria-label="Project context" value={projectId} onChange={e => setProjectId(e.target.value)}>{projects.map(p => <option key={p.id} value={p.id}>{p.project_number} · {p.project_name}</option>)}</select></section>
     {error && <div className="error-banner">{error}</div>}
     <div className="two-col expansion-columns">
@@ -25,10 +25,10 @@ export function EngineeringCloseoutPage() {
         <h4>Revision history</h4><p className="muted">Drawing V1 → numbered comments → corrected drawing V2 → material-change invalidation → re-review.</p>
       </section>
       <section className="panel"><div className="panel-head"><div><span className="eyebrow">E6 · FINANCE / HANDOVER</span><h3>Commercial Closeout</h3></div><span className="tag">TRACK / DRAFT / HANDOFF</span></div>
-        <div className="expansion-status"><span>Invoice decision</span><b>HUMAN_DECISION / CONFIGURED_RULE</b></div>
-        <div className="expansion-status"><span>Finance route</span><b>GENERIC_FINANCE_HANDOFF</b></div>
-        <div className="expansion-status"><span>Invoice follow-up</span><b>DUE_DATE_UNKNOWN / NEEDS_REVIEW when unconfigured</b></div>
-        <div className="expansion-status"><span>Handover readiness</span><b>{readiness?.evaluation?.state || "NEEDS_REVIEW"}</b></div>
+        <div className="expansion-status"><span>Invoice decision</span><b>Human decision / configured rule</b></div>
+        <div className="expansion-status"><span>Finance route</span><b>General finance handoff</b></div>
+        <div className="expansion-status"><span>Invoice follow-up</span><b>Due date unknown / needs review when unconfigured</b></div>
+        <div className="expansion-status"><span>Handover readiness</span><b>{readiness?.evaluation?.state?.replaceAll("_", " ") || "Needs review"}</b></div>
         <div className="expansion-callout"><b>HUMAN_SEND · NO ACCOUNTING WRITE</b><p>Invoice issue/payment evidence is separate from internal readiness. Handover output requires human approval and release evidence; release does not close the project.</p></div>
         <div className="expansion-chip-row"><span className="tag">Invoice Follow-up Sheet</span><span className="tag">Handover Form / Output</span><span className="tag">Client Draft</span></div>
       </section>

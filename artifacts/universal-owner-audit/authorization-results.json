@@ -1,0 +1,11 @@
+{
+  "api_role_denial": "PASS",
+  "capability_escalation": 0,
+  "direct_admin_denial": "PASS",
+  "persona_switch": "PASS",
+  "roles": {
+    "Business Development": "PASS",
+    "Engineering": "PASS",
+    "Owner": "PASS"
+  }
+}

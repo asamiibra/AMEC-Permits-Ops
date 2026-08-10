@@ -1,0 +1,55 @@
+{
+  "audit": "ProposalOps Universal Whole-Application Owner-Demo Audit",
+  "final_marker": "PROPOSALOPS_WHOLE_APP_OWNER_DEMO_READY",
+  "fixes": [
+    {
+      "defect": "Direct /issues/:issueId route fell through to AMEC Work",
+      "file": "frontend/src/App.tsx",
+      "fix": "Route now renders the existing PersonaIssueDetailPage."
+    },
+    {
+      "defect": "Clean migration could duplicate a table/index after 0001 metadata creation",
+      "file": "backend/migrations/versions/0026_notification_read_states.py",
+      "fix": "Idempotent inspector-guarded table/index creation."
+    },
+    {
+      "defect": "Project detail selected an unspecified application relationship row",
+      "file": "backend/app/api/routers.py",
+      "fix": "Deterministic external request ordering."
+    }
+  ],
+  "gates": {
+    "CURRENT_BACKEND_ROUTES_UNINVENTORIED_ZERO": true,
+    "CURRENT_FRONTEND_ROUTES_UNINVENTORIED_ZERO": true,
+    "DEPLOYED_LOCAL_RELEASE_PARITY_PASS": true,
+    "DEPLOYED_WHOLE_APP_SMOKE_PASS": true,
+    "HISTORICAL_REGRESSION_CLASSIFICATION_COMPLETE": true,
+    "MATERIAL_CONTROLS_UNCLASSIFIED_ZERO": true,
+    "MATERIAL_CONTROLS_UNWIRED_ZERO": true,
+    "MATERIAL_CONTROL_NOOP_ZERO": true,
+    "MATERIAL_CONTROL_TEST_COVERAGE_100_PERCENT": true,
+    "MATERIAL_PAGES_UNAUDITED_ZERO": true,
+    "POSTGRESQL_FULL_SUITE_PASS": true,
+    "REAL_STACK_CRITICAL_INTERACTIONS_PASS": true
+  },
+  "generated_at": "2026-08-10T02:35:29.024073+00:00",
+  "historical_regressions": {
+    "environment_only": [
+      "local 127.0.0.1 CORS origin omitted during first run"
+    ],
+    "obsolete_retired_product_behavior": [
+      "Permit-first Resume permit work / Permit portfolio labels",
+      "global Arabic switch on operational surfaces",
+      "legacy Role selector and Permit Preparer persona"
+    ],
+    "test_bug": [
+      "strict locators matching duplicated Inputs & Go-Live / Operating Guide buttons"
+    ]
+  },
+  "overall": "PASS",
+  "p0": [],
+  "p1": [],
+  "p2": [
+    "Retired browser assertions remain in historical suites and are classified below; they are not current product behavior or owner-demo blockers."
+  ]
+}

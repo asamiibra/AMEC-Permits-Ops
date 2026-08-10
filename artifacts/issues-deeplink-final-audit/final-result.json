@@ -1,0 +1,11 @@
+{
+  "audit": "ProposalOps / AMEC Issues list to resolution context deep-link audit v2",
+  "status": "OWNER_DEMO_READY",
+  "canonical_issue_detail_pages_created": 0,
+  "backend_tests": {"passed": 115, "failed": 0, "database": "PostgreSQL 16 / permitops_test"},
+  "frontend_unit_tests": {"passed": 24, "failed": 0},
+  "production_build": "PASS",
+  "browser_tests": {"passed": 4, "failed": 0},
+  "required_gates": "PASS",
+  "final_marker": "ISSUES_CLICKTHROUGH_READY_FOR_OWNER_DEMO"
+}

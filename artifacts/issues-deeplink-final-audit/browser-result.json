@@ -1,0 +1,9 @@
+{
+  "command": "npx playwright test browser-e2e/issues-deeplink-final.spec.ts --reporter=line",
+  "tests": 4,
+  "passed": 4,
+  "failed": 0,
+  "database": "PostgreSQL 16 / permitops_test",
+  "coverage": ["five issue click paths", "persona actionability", "focus context", "reload", "filtered return", "cross-project protection", "mobile overflow", "clean owner copy"],
+  "result": "PASS"
+}

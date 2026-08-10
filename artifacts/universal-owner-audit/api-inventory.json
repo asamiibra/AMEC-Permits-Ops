@@ -1,0 +1,2799 @@
+{
+  "operation_count": 450,
+  "operations": [
+    {
+      "method": "GET",
+      "operation_id": "api_root__get",
+      "path": "/",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "acceptance_rehearsal_api_acceptance_rehearsal_post",
+      "path": "/api/acceptance-rehearsal",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "acceptance_rehearsals_api_acceptance_rehearsals_get",
+      "path": "/api/acceptance-rehearsals",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "acceptance_rehearsal_detail_api_acceptance_rehearsals__run_id__get",
+      "path": "/api/acceptance-rehearsals/{run_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "adapter_health_api_adapters_health_get",
+      "path": "/api/adapters/health",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "update_admin_comment_api_admin_comments__comment_id__update_post",
+      "path": "/api/admin-comments/{comment_id}/update",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_advanced_api_admin_advanced_diagnostics_get",
+      "path": "/api/admin/advanced-diagnostics",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_audit_api_admin_audit_get",
+      "path": "/api/admin/audit",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_connections_api_admin_connections_get",
+      "path": "/api/admin/connections",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "test_admin_connection_api_admin_connections_test_post",
+      "path": "/api/admin/connections/test",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_contract_setup_api_admin_contract_setup_get",
+      "path": "/api/admin/contract-setup",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_integration_health_api_admin_integration_health_get",
+      "path": "/api/admin/integration-health",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_notifications_api_admin_notifications_get",
+      "path": "/api/admin/notifications",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "PUT",
+      "operation_id": "update_admin_follow_up_api_admin_notifications_follow_up_put",
+      "path": "/api/admin/notifications/follow-up",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_permissions_api_admin_permissions_get",
+      "path": "/api/admin/permissions",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_permit_setup_api_admin_permit_setup_get",
+      "path": "/api/admin/permit-setup",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_project_setup_api_admin_project_setup_get",
+      "path": "/api/admin/project-setup",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_proposal_setup_api_admin_proposal_setup_get",
+      "path": "/api/admin/proposal-setup",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_security_api_admin_security_get",
+      "path": "/api/admin/security",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_summary_api_admin_summary_get",
+      "path": "/api/admin/summary",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_templates_api_admin_templates_get",
+      "path": "/api/admin/templates",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "admin_users_api_admin_users_get",
+      "path": "/api/admin/users",
+      "tags": [
+        "owner-administration"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "applications_api_applications_get",
+      "path": "/api/applications",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "application_api_applications__application_id__get",
+      "path": "/api/applications/{application_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "monitor_now_api_applications__application_id__monitor_now_post",
+      "path": "/api/applications/{application_id}/monitor-now",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "monitoring_history_api_applications__application_id__monitoring_history_get",
+      "path": "/api/applications/{application_id}/monitoring-history",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "resubmission_latest_api_applications__application_id__resubmission_readiness_get",
+      "path": "/api/applications/{application_id}/resubmission-readiness",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "resubmission_evaluate_api_applications__application_id__resubmission_readiness_evaluate_post",
+      "path": "/api/applications/{application_id}/resubmission-readiness/evaluate",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "approval_applicability_api_approval_applicability_evaluate_post",
+      "path": "/api/approval-applicability/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "assistant_capabilities_api_assistant_capabilities_get",
+      "path": "/api/assistant-capabilities",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "assistant_capability_api_assistant_capabilities__capability_id__get",
+      "path": "/api/assistant-capabilities/{capability_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "capability_invoke_api_assistant_capabilities__capability_id__invoke_post",
+      "path": "/api/assistant-capabilities/{capability_id}/invoke",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "assistant_capability_map_api_assistant_capability_map_get",
+      "path": "/api/assistant-capability-map",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "assistant_context_packet_api_assistant_context_packets__task_id__get",
+      "path": "/api/assistant-context-packets/{task_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "handoffs_api_assistant_handoffs_get",
+      "path": "/api/assistant-handoffs",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "handoff_create_api_assistant_handoffs_post",
+      "path": "/api/assistant-handoffs",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "handoff_accept_api_assistant_handoffs__handoff_id__accept_post",
+      "path": "/api/assistant-handoffs/{handoff_id}/accept",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "assistant_lens_api_assistant_lenses__assistant_id__work_get",
+      "path": "/api/assistant-lenses/{assistant_id}/work",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attended_auth_session_api_attended_auth_sessions_post",
+      "path": "/api/attended-auth-sessions",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attended_auth_cancel_api_attended_auth_sessions__session_id__cancel_post",
+      "path": "/api/attended-auth-sessions/{session_id}/cancel",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attended_auth_expire_api_attended_auth_sessions__session_id__expire_post",
+      "path": "/api/attended-auth-sessions/{session_id}/expire",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attended_mfa_completed_api_attended_auth_sessions__session_id__mfa_completed_post",
+      "path": "/api/attended-auth-sessions/{session_id}/mfa-completed",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attended_mfa_started_api_attended_auth_sessions__session_id__mfa_started_post",
+      "path": "/api/attended-auth-sessions/{session_id}/mfa-started",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "audit_events_api_audit_get",
+      "path": "/api/audit",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "request_checklist_document_api_checklist_items__item_id__document_request_post",
+      "path": "/api/checklist-items/{item_id}/document-request",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "signoff_c_api_commercial_signoff_c_get",
+      "path": "/api/commercial/signoff-c",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "generate_signoff_api_commercial_signoff_c_generate_post",
+      "path": "/api/commercial/signoff-c/generate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "communication_drafts_api_communication_drafts_get",
+      "path": "/api/communication-drafts",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "communication_draft_api_communication_drafts_post",
+      "path": "/api/communication-drafts",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_communication_draft_api_communication_drafts__draft_id__get",
+      "path": "/api/communication-drafts/{draft_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "approve_communication_api_communication_drafts__draft_id__approve_for_human_send_post",
+      "path": "/api/communication-drafts/{draft_id}/approve-for-human-send",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "communication_lineage_api_communication_drafts__draft_id__lineage_get",
+      "path": "/api/communication-drafts/{draft_id}/lineage",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "submit_communication_review_api_communication_drafts__draft_id__submit_review_post",
+      "path": "/api/communication-drafts/{draft_id}/submit-review",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "unified_communications_api_communications_get",
+      "path": "/api/communications",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_attachments_api_config_scenarios__scenario_code__attachments_get",
+      "path": "/api/config/scenarios/{scenario_code}/attachments",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_documents_api_config_scenarios__scenario_code__documents_get",
+      "path": "/api/config/scenarios/{scenario_code}/documents",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_drawing_api_config_scenarios__scenario_code__drawing_controls_get",
+      "path": "/api/config/scenarios/{scenario_code}/drawing-controls",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_evaluate_drawing_api_config_scenarios__scenario_code__drawing_controls_evaluate__project_id__get",
+      "path": "/api/config/scenarios/{scenario_code}/drawing-controls/evaluate/{project_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_fields_api_config_scenarios__scenario_code__fields_get",
+      "path": "/api/config/scenarios/{scenario_code}/fields",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_municipality_api_config_scenarios__scenario_code__municipality_get",
+      "path": "/api/config/scenarios/{scenario_code}/municipality",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_requirements_api_config_scenarios__scenario_code__requirements_get",
+      "path": "/api/config/scenarios/{scenario_code}/requirements",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "config_evaluate_requirements_api_config_scenarios__scenario_code__requirements_evaluate__project_id__get",
+      "path": "/api/config/scenarios/{scenario_code}/requirements/evaluate/{project_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "field_matrix_coverage_api_configuration_field_matrix_coverage_get",
+      "path": "/api/configuration/field-matrix/coverage",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "requirement_matrix_coverage_api_configuration_requirement_matrix_coverage_get",
+      "path": "/api/configuration/requirement-matrix/coverage",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "resolve_conflict_api_conflicts__conflict_id__resolve_post",
+      "path": "/api/conflicts/{conflict_id}/resolve",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "approve_contract_revision_api_contract_revisions__revision_id__approval_post",
+      "path": "/api/contract-revisions/{revision_id}/approval",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "record_contract_execution_evidence_api_contract_revisions__revision_id__execution_evidence_post",
+      "path": "/api/contract-revisions/{revision_id}/execution-evidence",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_contract_revision_api_contract_revisions__revision_id__render_post",
+      "path": "/api/contract-revisions/{revision_id}/render",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "submit_contract_review_api_contract_revisions__revision_id__submit_review_post",
+      "path": "/api/contract-revisions/{revision_id}/submit-review",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "contract_detail_api_contracts__contract_id__get",
+      "path": "/api/contracts/{contract_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "contract_checklist_api_contracts__contract_id__checklist_get",
+      "path": "/api/contracts/{contract_id}/checklist",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "evaluate_contract_checklist_api_contracts__contract_id__checklist_evaluate_post",
+      "path": "/api/contracts/{contract_id}/checklist/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "invoice_requirement_api_contracts__contract_id__invoice_requirement_get",
+      "path": "/api/contracts/{contract_id}/invoice-requirement",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "decide_invoice_requirement_api_contracts__contract_id__invoice_requirement_decision_post",
+      "path": "/api/contracts/{contract_id}/invoice-requirement/decision",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_invoice_api_contracts__contract_id__invoices_post",
+      "path": "/api/contracts/{contract_id}/invoices",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "canonical_initiate_permit_api_contracts__contract_id__permit_post",
+      "path": "/api/contracts/{contract_id}/permit",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_contract_revision_api_contracts__contract_id__revisions_post",
+      "path": "/api/contracts/{contract_id}/revisions",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "post_control_runs_api_control_runs_post",
+      "path": "/api/control-runs",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "corpus_run_api_corpus_runs_post",
+      "path": "/api/corpus-runs",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "corpus_run_detail_api_corpus_runs__run_id__get",
+      "path": "/api/corpus-runs/{run_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "dashboard_api_dashboard_get",
+      "path": "/api/dashboard",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "dependency_validity_api_dependencies__dependency_id__validity_get",
+      "path": "/api/dependencies/{dependency_id}/validity",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "dependency_validity_evaluate_api_dependencies__dependency_id__validity_evaluate_post",
+      "path": "/api/dependencies/{dependency_id}/validity/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "business_case_api_discovery_business_case_get",
+      "path": "/api/discovery/business-case",
+      "tags": []
+    },
+    {
+      "method": "PUT",
+      "operation_id": "update_business_case_api_discovery_business_case_put",
+      "path": "/api/discovery/business-case",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "decisions_api_discovery_decisions_get",
+      "path": "/api/discovery/decisions",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_decision_api_discovery_decisions__decision_id__patch",
+      "path": "/api/discovery/decisions/{decision_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "volume_api_discovery_volume_get",
+      "path": "/api/discovery/volume",
+      "tags": []
+    },
+    {
+      "method": "PUT",
+      "operation_id": "update_volume_api_discovery_volume_put",
+      "path": "/api/discovery/volume",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "approval_state_api_document_versions__version_id__approval_state_patch",
+      "path": "/api/document-versions/{version_id}/approval-state",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "version_classification_api_document_versions__version_id__classification_get",
+      "path": "/api/document-versions/{version_id}/classification",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "classify_api_document_versions__version_id__classify_post",
+      "path": "/api/document-versions/{version_id}/classify",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "extract_api_document_versions__version_id__extract_post",
+      "path": "/api/document-versions/{version_id}/extract",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "version_observations_api_document_versions__version_id__observations_get",
+      "path": "/api/document-versions/{version_id}/observations",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "document_validity_api_document_versions__version_id__validity_get",
+      "path": "/api/document-versions/{version_id}/validity",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "document_validity_evaluate_api_document_versions__version_id__validity_evaluate_post",
+      "path": "/api/document-versions/{version_id}/validity/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "document_detail_api_documents__document_id__get",
+      "path": "/api/documents/{document_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "document_versions_api_documents__document_id__versions_get",
+      "path": "/api/documents/{document_id}/versions",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_document_version_api_documents__document_id__versions_post",
+      "path": "/api/documents/{document_id}/versions",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "engineer_disposition_api_engineering_comments__comment_id__engineer_disposition_post",
+      "path": "/api/engineering-comments/{comment_id}/engineer-disposition",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "engineering_run_detail_api_engineering_review_runs__run_id__get",
+      "path": "/api/engineering-review-runs/{run_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "analyze_engineering_run_api_engineering_review_runs__run_id__analyze_post",
+      "path": "/api/engineering-review-runs/{run_id}/analyze",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "engineering_comments_api_engineering_review_runs__run_id__comments_get",
+      "path": "/api/engineering-review-runs/{run_id}/comments",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "engineer_no_comment_api_engineering_review_runs__run_id__engineer_no_comment_post",
+      "path": "/api/engineering-review-runs/{run_id}/engineer-no-comment",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_comment_sheet_api_engineering_review_runs__run_id__render_comment_sheet_post",
+      "path": "/api/engineering-review-runs/{run_id}/render-comment-sheet",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_compliance_sheet_api_engineering_review_runs__run_id__render_compliance_sheet_post",
+      "path": "/api/engineering-review-runs/{run_id}/render-compliance-sheet",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "engineering_review_detail_api_engineering_reviews__review_id__get",
+      "path": "/api/engineering-reviews/{review_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "applicable_regulations_api_engineering_reviews__review_id__applicable_regulations_get",
+      "path": "/api/engineering-reviews/{review_id}/applicable-regulations",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "engineering_block_time_api_engineering_reviews__review_id__block_time_get",
+      "path": "/api/engineering-reviews/{review_id}/block-time",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "new_drawing_version_api_engineering_reviews__review_id__new_drawing_version_post",
+      "path": "/api/engineering-reviews/{review_id}/new-drawing-version",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "engineering_re_review_api_engineering_reviews__review_id__re_review_post",
+      "path": "/api/engineering-reviews/{review_id}/re-review",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "review_regulation_applicability_api_engineering_reviews__review_id__regulation_applicability_review_post",
+      "path": "/api/engineering-reviews/{review_id}/regulation-applicability/review",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_engineering_run_api_engineering_reviews__review_id__runs_post",
+      "path": "/api/engineering-reviews/{review_id}/runs",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "configure_engineering_scope_api_engineering_reviews__review_id__scope_post",
+      "path": "/api/engineering-reviews/{review_id}/scope",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "entity_lineage_api_entities__entity_type___entity_id__lineage_get",
+      "path": "/api/entities/{entity_type}/{entity_id}/lineage",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "adjudications_api_evaluation_adjudications_get",
+      "path": "/api/evaluation/adjudications",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "adjudication_detail_api_evaluation_adjudications__case_id__get",
+      "path": "/api/evaluation/adjudications/{case_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "resolve_adjudication_api_evaluation_adjudications__case_id__resolve_post",
+      "path": "/api/evaluation/adjudications/{case_id}/resolve",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "evaluation_analysis_api_evaluation_analysis_get",
+      "path": "/api/evaluation/analysis",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "evaluation_gate_api_evaluation_gate_get",
+      "path": "/api/evaluation/gate",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_evaluation_gate_api_evaluation_gate_patch",
+      "path": "/api/evaluation/gate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "evaluation_metrics_api_evaluation_metrics_get",
+      "path": "/api/evaluation/metrics",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "spikes_api_evaluation_spikes_get",
+      "path": "/api/evaluation/spikes",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_spike_api_evaluation_spikes_post",
+      "path": "/api/evaluation/spikes",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "spike_detail_api_evaluation_spikes__run_id__get",
+      "path": "/api/evaluation/spikes/{run_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "run_spike_endpoint_api_evaluation_spikes__run_id__run_post",
+      "path": "/api/evaluation/spikes/{run_id}/run",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "apply_excel_projection_api_excel_projections__projection_id__apply_post",
+      "path": "/api/excel-projections/{projection_id}/apply",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "execution_policy_api_execution_policy_get",
+      "path": "/api/execution-policy",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "expansion_capabilities_api_expansion_capabilities_get",
+      "path": "/api/expansion/capabilities",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "expansion_clarifications_api_expansion_clarifications_get",
+      "path": "/api/expansion/clarifications",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "expansion_clients_api_expansion_clients_get",
+      "path": "/api/expansion/clients",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "expansion_domain_summary_api_expansion_domain_summary_get",
+      "path": "/api/expansion/domain-summary",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "expansion_fixture_api_expansion_fixture_get",
+      "path": "/api/expansion/fixture",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "expansion_opportunities_api_expansion_opportunities_get",
+      "path": "/api/expansion/opportunities",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "expansion_requirements_api_expansion_requirements_get",
+      "path": "/api/expansion/requirements",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "external_mutations_api_external_mutations_get",
+      "path": "/api/external-mutations",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "finding_codes_api_finding_codes_get",
+      "path": "/api/finding-codes",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "review_dispute_route_api_finding_disputes__dispute_id__review_post",
+      "path": "/api/finding-disputes/{dispute_id}/review",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_resolution_api_finding_resolutions__resolution_id__get",
+      "path": "/api/finding-resolutions/{resolution_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "post_resolution_evidence_api_finding_resolutions__resolution_id__evidence_post",
+      "path": "/api/finding-resolutions/{resolution_id}/evidence",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "reject_resolution_route_api_finding_resolutions__resolution_id__reject_post",
+      "path": "/api/finding-resolutions/{resolution_id}/reject",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "request_resolution_verification_api_finding_resolutions__resolution_id__request_verification_post",
+      "path": "/api/finding-resolutions/{resolution_id}/request-verification",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "verify_resolution_route_api_finding_resolutions__resolution_id__verify_post",
+      "path": "/api/finding-resolutions/{resolution_id}/verify",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "finding_routing_rules_api_finding_routing_rules_get",
+      "path": "/api/finding-routing-rules",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "finding_sla_policies_api_finding_sla_policies_get",
+      "path": "/api/finding-sla-policies",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_findings_api_findings_get",
+      "path": "/api/findings",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "finding_from_portal_validation_api_findings_from_portal_validation__preparation_revision_id__post",
+      "path": "/api/findings/from-portal-validation/{preparation_revision_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "findings_from_precheck_api_findings_from_precheck__precheck_run_id__post",
+      "path": "/api/findings/from-precheck/{precheck_run_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "manual_finding_api_findings_manual_post",
+      "path": "/api/findings/manual",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "manual_official_comment_api_findings_manual_official_comment_post",
+      "path": "/api/findings/manual-official-comment",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_finding_api_findings__finding_id__get",
+      "path": "/api/findings/{finding_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "assign_finding_api_findings__finding_id__assign_post",
+      "path": "/api/findings/{finding_id}/assign",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "dispute_finding_api_findings__finding_id__dispute_post",
+      "path": "/api/findings/{finding_id}/dispute",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "post_dispute_api_findings__finding_id__disputes_post",
+      "path": "/api/findings/{finding_id}/disputes",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "finding_history_api_findings__finding_id__history_get",
+      "path": "/api/findings/{finding_id}/history",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "note_finding_api_findings__finding_id__note_post",
+      "path": "/api/findings/{finding_id}/note",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "reopen_route_api_findings__finding_id__reopen_post",
+      "path": "/api/findings/{finding_id}/reopen",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_resolution_requirements_api_findings__finding_id__resolution_requirements_get",
+      "path": "/api/findings/{finding_id}/resolution-requirements",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "post_resolution_api_findings__finding_id__resolutions_post",
+      "path": "/api/findings/{finding_id}/resolutions",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "g10_evidence_api_g10_evidence_get",
+      "path": "/api/g10/evidence",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "human_takeover_api_human_takeover_post",
+      "path": "/api/human-takeover",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "integrity_incidents_api_incidents_integrity_get",
+      "path": "/api/incidents/integrity",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_incident_api_incidents_integrity_post",
+      "path": "/api/incidents/integrity",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "incident_impact_api_incidents__incident_id__impact_assess_post",
+      "path": "/api/incidents/{incident_id}/impact-assess",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "invalidate_source_api_invalidation_source_post",
+      "path": "/api/invalidation/source",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "finance_decision_api_invoice_revisions__revision_id__finance_decision_post",
+      "path": "/api/invoice-revisions/{revision_id}/finance-decision",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_invoice_api_invoice_revisions__revision_id__render_post",
+      "path": "/api/invoice-revisions/{revision_id}/render",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_invoice_revision_api_invoice_revisions__revision_id__revisions_post",
+      "path": "/api/invoice-revisions/{revision_id}/revisions",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "submit_invoice_finance_review_api_invoice_revisions__revision_id__submit_finance_review_post",
+      "path": "/api/invoice-revisions/{revision_id}/submit-finance-review",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "invoice_detail_api_invoices__invoice_id__get",
+      "path": "/api/invoices/{invoice_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "accounting_handoff_api_invoices__invoice_id__accounting_handoff_post",
+      "path": "/api/invoices/{invoice_id}/accounting-handoff",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "invoice_communication_api_invoices__invoice_id__communication_draft_post",
+      "path": "/api/invoices/{invoice_id}/communication-draft",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "invoice_followup_api_invoices__invoice_id__follow_up_get",
+      "path": "/api/invoices/{invoice_id}/follow-up",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "issue_evidence_api_invoices__invoice_id__issue_evidence_post",
+      "path": "/api/invoices/{invoice_id}/issue-evidence",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_invoice_revision_from_invoice_api_invoices__invoice_id__revisions_post",
+      "path": "/api/invoices/{invoice_id}/revisions",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_persona_issues_api_issues_get",
+      "path": "/api/issues",
+      "tags": [
+        "persona-issues-notifications"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "summarize_persona_issues_api_issues_summary_get",
+      "path": "/api/issues/summary",
+      "tags": [
+        "persona-issues-notifications"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "unified_issues_api_issues_unified_get",
+      "path": "/api/issues/unified",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_persona_issue_api_issues__issue_id__get",
+      "path": "/api/issues/{issue_id}",
+      "tags": [
+        "persona-issues-notifications"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "kill_switch_readiness_api_kill_switch_readiness_get",
+      "path": "/api/kill-switch/readiness",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "material_change_api_material_changes_evaluate_post",
+      "path": "/api/material-changes/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "inquiries_api_ministry_inquiries_get",
+      "path": "/api/ministry-inquiries",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_inquiry_api_ministry_inquiries__inquiry_id__patch",
+      "path": "/api/ministry-inquiries/{inquiry_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "monitoring_manual_capture_api_monitoring_manual_capture_post",
+      "path": "/api/monitoring/manual-capture",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "monitoring_policies_api_monitoring_policies_get",
+      "path": "/api/monitoring/policies",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "pause_policy_api_monitoring_policies__policy_id__pause_post",
+      "path": "/api/monitoring/policies/{policy_id}/pause",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "enable_synthetic_api_monitoring_policies__policy_id__synthetic_enable_post",
+      "path": "/api/monitoring/policies/{policy_id}/synthetic-enable",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "run_due_synthetic_api_monitoring_run_due_synthetic_post",
+      "path": "/api/monitoring/run-due-synthetic",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "monitoring_runs_api_monitoring_runs_get",
+      "path": "/api/monitoring/runs",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "monitoring_run_api_monitoring_runs__run_id__get",
+      "path": "/api/monitoring/runs/{run_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "monitoring_comparison_api_monitoring_runs__run_id__comparison_get",
+      "path": "/api/monitoring/runs/{run_id}/comparison",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "my_work_api_my_work_get",
+      "path": "/api/my-work",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "my_work_next_actions_api_my_work_next_actions_get",
+      "path": "/api/my-work/next-actions",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_notifications_api_notifications_get",
+      "path": "/api/notifications",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "notification_mapping_api_notifications_mapping_get",
+      "path": "/api/notifications/mapping",
+      "tags": [
+        "persona-issues-notifications"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "notification_observability_api_notifications_observability_get",
+      "path": "/api/notifications/observability",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "summarize_persona_notifications_api_notifications_summary_get",
+      "path": "/api/notifications/summary",
+      "tags": [
+        "persona-issues-notifications"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_persona_notification_api_notifications__notification_id__get",
+      "path": "/api/notifications/{notification_id}",
+      "tags": [
+        "persona-issues-notifications"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "acknowledge_persona_notification_api_notifications__notification_id__acknowledge_post",
+      "path": "/api/notifications/{notification_id}/acknowledge",
+      "tags": [
+        "persona-issues-notifications"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "retry_notification_api_notifications__notification_id__retry_post",
+      "path": "/api/notifications/{notification_id}/retry",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "flag_ambiguous_api_observations__observation_id__flag_ambiguous_post",
+      "path": "/api/observations/{observation_id}/flag-ambiguous",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "reject_api_observations__observation_id__reject_post",
+      "path": "/api/observations/{observation_id}/reject",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "verify_api_observations__observation_id__verify_post",
+      "path": "/api/observations/{observation_id}/verify",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "office_api_office_get",
+      "path": "/api/office",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "week13_operations_report_api_operations_report_get",
+      "path": "/api/operations/report",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "record_operator_timing_api_operator_timings_post",
+      "path": "/api/operator-timings",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "opportunities_api_opportunities_get",
+      "path": "/api/opportunities",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_opportunity_api_opportunities_post",
+      "path": "/api/opportunities",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "opportunity_detail_api_opportunities__opportunity_id__get",
+      "path": "/api/opportunities/{opportunity_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_admin_comment_api_opportunities__opportunity_id__admin_comments_post",
+      "path": "/api/opportunities/{opportunity_id}/admin-comments",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "record_client_response_api_opportunities__opportunity_id__client_response_post",
+      "path": "/api/opportunities/{opportunity_id}/client-response",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "contract_transition_readiness_api_opportunities__opportunity_id__contract_transition_readiness_get",
+      "path": "/api/opportunities/{opportunity_id}/contract-transition-readiness",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_contract_api_opportunities__opportunity_id__contracts_post",
+      "path": "/api/opportunities/{opportunity_id}/contracts",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "review_intake_api_opportunities__opportunity_id__intake_review_post",
+      "path": "/api/opportunities/{opportunity_id}/intake/review",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "bootstrap_project_api_opportunities__opportunity_id__project_bootstrap_post",
+      "path": "/api/opportunities/{opportunity_id}/project-bootstrap",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "project_bootstrap_status_api_opportunities__opportunity_id__project_bootstrap_status_get",
+      "path": "/api/opportunities/{opportunity_id}/project-bootstrap-status",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "opportunity_quotation_api_opportunities__opportunity_id__quotation_get",
+      "path": "/api/opportunities/{opportunity_id}/quotation",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_quotation_revision_api_opportunities__opportunity_id__quotation_revisions_post",
+      "path": "/api/opportunities/{opportunity_id}/quotation/revisions",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "opportunity_reference_api_opportunities__opportunity_id__reference_get",
+      "path": "/api/opportunities/{opportunity_id}/reference",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "assign_reference_api_opportunities__opportunity_id__reference_assign_post",
+      "path": "/api/opportunities/{opportunity_id}/reference/assign",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "add_opportunity_source_api_opportunities__opportunity_id__sources_post",
+      "path": "/api/opportunities/{opportunity_id}/sources",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "opportunity_system_blocks_api_opportunities__opportunity_id__system_blocks_get",
+      "path": "/api/opportunities/{opportunity_id}/system-blocks",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "approve_package_api_packages__package_id__approve_post",
+      "path": "/api/packages/{package_id}/approve",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "package_manifest_api_packages__package_id__manifest_get",
+      "path": "/api/packages/{package_id}/manifest",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "rebuild_package_api_packages__package_id__rebuild_post",
+      "path": "/api/packages/{package_id}/rebuild",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "refresh_package_api_packages__package_id__refresh_post",
+      "path": "/api/packages/{package_id}/refresh",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "package_staleness_api_packages__package_id__staleness_get",
+      "path": "/api/packages/{package_id}/staleness",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "canonical_permit_detail_api_permits__permit_id__get",
+      "path": "/api/permits/{permit_id}",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "phase0_close_api_phase0_close_get",
+      "path": "/api/phase0/close",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "phase0_decision_api_phase0_decision_post",
+      "path": "/api/phase0/decision",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "handoff_export_api_phase0_handoff_export_get",
+      "path": "/api/phase0/handoff-export",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "phase0_recommendation_api_phase0_recommendation_post",
+      "path": "/api/phase0/recommendation",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "phase0_status_api_phase0_status_get",
+      "path": "/api/phase0/status",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "pilot_workflow_approvals_api_pilot_workflow_approvals_get",
+      "path": "/api/pilot/workflow-approvals",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "portal_contracts_api_portal_contracts_get",
+      "path": "/api/portal-contracts",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "validate_contract_api_portal_contracts__contract_id__validate_post",
+      "path": "/api/portal-contracts/{contract_id}/validate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "portal_drift_events_api_portal_drift_events_get",
+      "path": "/api/portal-drift-events",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "revalidate_drift_api_portal_drift_events__drift_id__revalidate_post",
+      "path": "/api/portal-drift-events/{drift_id}/revalidate",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "precheck_clearance_api_precheck_runs__run_id__clearance_evaluate_post",
+      "path": "/api/precheck-runs/{run_id}/clearance/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "precheck_run_validity_api_precheck_runs__run_id__validity_get",
+      "path": "/api/precheck-runs/{run_id}/validity",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "revision_open_blocking_api_preparation_revisions__preparation_revision_id__open_blocking_findings_get",
+      "path": "/api/preparation-revisions/{preparation_revision_id}/open-blocking-findings",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_revision_api_preparation_revisions__revision_id__get",
+      "path": "/api/preparation-revisions/{revision_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "attachment_manifest_api_preparation_revisions__revision_id__attachment_manifest_get",
+      "path": "/api/preparation-revisions/{revision_id}/attachment-manifest",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attachment_manifest_refresh_api_preparation_revisions__revision_id__attachment_manifest_refresh_post",
+      "path": "/api/preparation-revisions/{revision_id}/attachment-manifest/refresh",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attachment_associate_api_preparation_revisions__revision_id__attachments_associate_post",
+      "path": "/api/preparation-revisions/{revision_id}/attachments/associate",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attachment_capture_state_api_preparation_revisions__revision_id__attachments_capture_state_post",
+      "path": "/api/preparation-revisions/{revision_id}/attachments/capture-state",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "attachment_intended_api_preparation_revisions__revision_id__attachments_intended_get",
+      "path": "/api/preparation-revisions/{revision_id}/attachments/intended",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "attachment_persistence_api_preparation_revisions__revision_id__attachments_persistence_get",
+      "path": "/api/preparation-revisions/{revision_id}/attachments/persistence",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "attachment_reconcile_api_preparation_revisions__revision_id__attachments_reconcile_post",
+      "path": "/api/preparation-revisions/{revision_id}/attachments/reconcile",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "correction_revision_api_preparation_revisions__revision_id__create_correction_revision_post",
+      "path": "/api/preparation-revisions/{revision_id}/create-correction-revision",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "preparation_exceptions_api_preparation_revisions__revision_id__exceptions_get",
+      "path": "/api/preparation-revisions/{revision_id}/exceptions",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "grids_api_preparation_revisions__revision_id__grids_get",
+      "path": "/api/preparation-revisions/{revision_id}/grids",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "grid_capture_api_preparation_revisions__revision_id__grids__grid_code__capture_post",
+      "path": "/api/preparation-revisions/{revision_id}/grids/{grid_code}/capture",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "grid_intent_api_preparation_revisions__revision_id__grids__grid_code__intent_get",
+      "path": "/api/preparation-revisions/{revision_id}/grids/{grid_code}/intent",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "grid_reconcile_api_preparation_revisions__revision_id__grids__grid_code__reconcile_post",
+      "path": "/api/preparation-revisions/{revision_id}/grids/{grid_code}/reconcile",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_handoff_api_preparation_revisions__revision_id__handoff_get",
+      "path": "/api/preparation-revisions/{revision_id}/handoff",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "handoff_api_preparation_revisions__revision_id__handoff_post",
+      "path": "/api/preparation-revisions/{revision_id}/handoff",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "handoff_readiness_api_preparation_revisions__revision_id__handoff_readiness_get",
+      "path": "/api/preparation-revisions/{revision_id}/handoff-readiness",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "revision_history_context_api_preparation_revisions__revision_id__history_context_get",
+      "path": "/api/preparation-revisions/{revision_id}/history-context",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "human_verification_api_preparation_revisions__revision_id__human_portal_verifications_post",
+      "path": "/api/preparation-revisions/{revision_id}/human-portal-verifications",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "intended_state_api_preparation_revisions__revision_id__intended_state_post",
+      "path": "/api/preparation-revisions/{revision_id}/intended-state",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "municipality_attachments_api_preparation_revisions__revision_id__municipality_attachments_get",
+      "path": "/api/preparation-revisions/{revision_id}/municipality/attachments",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "municipality_fields_api_preparation_revisions__revision_id__municipality_fields_get",
+      "path": "/api/preparation-revisions/{revision_id}/municipality/fields",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "municipality_grids_api_preparation_revisions__revision_id__municipality_grids_get",
+      "path": "/api/preparation-revisions/{revision_id}/municipality/grids",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "portal_derived_fields_api_preparation_revisions__revision_id__portal_derived_fields_get",
+      "path": "/api/preparation-revisions/{revision_id}/portal-derived-fields",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "portal_derived_reconcile_api_preparation_revisions__revision_id__portal_derived_fields_reconcile_post",
+      "path": "/api/preparation-revisions/{revision_id}/portal-derived-fields/reconcile",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "portal_snapshot_api_preparation_revisions__revision_id__portal_snapshots_post",
+      "path": "/api/preparation-revisions/{revision_id}/portal-snapshots",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "structure_fingerprint_api_preparation_revisions__revision_id__portal_structure_fingerprint_get",
+      "path": "/api/preparation-revisions/{revision_id}/portal-structure-fingerprint",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "structure_fingerprint_capture_api_preparation_revisions__revision_id__portal_structure_fingerprint_capture_post",
+      "path": "/api/preparation-revisions/{revision_id}/portal-structure-fingerprint/capture",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "precheck_api_preparation_revisions__revision_id__precheck_get",
+      "path": "/api/preparation-revisions/{revision_id}/precheck",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "capture_precheck_api_preparation_revisions__revision_id__precheck_capture_post",
+      "path": "/api/preparation-revisions/{revision_id}/precheck/capture",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "run_preventive_check_api_preparation_revisions__revision_id__preventive_check_post",
+      "path": "/api/preparation-revisions/{revision_id}/preventive-check",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "preventive_context_api_preparation_revisions__revision_id__preventive_context_get",
+      "path": "/api/preparation-revisions/{revision_id}/preventive-context",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "prior_approvals_api_preparation_revisions__revision_id__prior_approvals_get",
+      "path": "/api/preparation-revisions/{revision_id}/prior-approvals",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "prior_findings_api_preparation_revisions__revision_id__prior_findings_get",
+      "path": "/api/preparation-revisions/{revision_id}/prior-findings",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "reconcile_api_preparation_revisions__revision_id__reconcile_post",
+      "path": "/api/preparation-revisions/{revision_id}/reconcile",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "session_attendance_api_preparation_revisions__revision_id__session_attendance_post",
+      "path": "/api/preparation-revisions/{revision_id}/session/attendance",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_snapshot_api_preparation_revisions__revision_id__snapshot_get",
+      "path": "/api/preparation-revisions/{revision_id}/snapshot",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "revision_staleness_api_preparation_revisions__revision_id__staleness_get",
+      "path": "/api/preparation-revisions/{revision_id}/staleness",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "preparation_confirmation_api_preparation_revisions__revision_id__submission_confirmation_post",
+      "path": "/api/preparation-revisions/{revision_id}/submission-confirmation",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "supersede_revision_api_preparation_revisions__revision_id__supersede_post",
+      "path": "/api/preparation-revisions/{revision_id}/supersede",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "revision_validation_api_preparation_revisions__revision_id__validation_get",
+      "path": "/api/preparation-revisions/{revision_id}/validation",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "selected_production_mode_api_production_mode_get",
+      "path": "/api/production-mode",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "approve_handover_api_project_handovers__handover_id__approval_post",
+      "path": "/api/project-handovers/{handover_id}/approval",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "handover_communication_api_project_handovers__handover_id__communication_draft_post",
+      "path": "/api/project-handovers/{handover_id}/communication-draft",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "release_handover_api_project_handovers__handover_id__release_evidence_post",
+      "path": "/api/project-handovers/{handover_id}/release-evidence",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_handover_api_project_handovers__handover_id__render_post",
+      "path": "/api/project-handovers/{handover_id}/render",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "projects_api_projects_get",
+      "path": "/api/projects",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_project_api_projects_post",
+      "path": "/api/projects",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "project_detail_api_projects__project_id__get",
+      "path": "/api/projects/{project_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "project_administration_status_api_projects__project_id__administration_status_get",
+      "path": "/api/projects/{project_id}/administration-status",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "approvals_api_projects__project_id__approvals_get",
+      "path": "/api/projects/{project_id}/approvals",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "record_approval_api_projects__project_id__approvals_post",
+      "path": "/api/projects/{project_id}/approvals",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "confirm_project_sources_command_api_projects__project_id__confirm_project_sources_post",
+      "path": "/api/projects/{project_id}/confirm-project-sources",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "conflicts_api_projects__project_id__conflicts_get",
+      "path": "/api/projects/{project_id}/conflicts",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_control_runs_api_projects__project_id__control_runs_get",
+      "path": "/api/projects/{project_id}/control-runs",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "dependencies_api_projects__project_id__dependencies_get",
+      "path": "/api/projects/{project_id}/dependencies",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "project_documents_api_projects__project_id__documents_get",
+      "path": "/api/projects/{project_id}/documents",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_document_api_projects__project_id__documents_post",
+      "path": "/api/projects/{project_id}/documents",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "drawing_controls_api_projects__project_id__drawing_controls_get",
+      "path": "/api/projects/{project_id}/drawing-controls",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "engineering_reviews_api_projects__project_id__engineering_reviews_get",
+      "path": "/api/projects/{project_id}/engineering-reviews",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_engineering_review_api_projects__project_id__engineering_reviews_post",
+      "path": "/api/projects/{project_id}/engineering-reviews",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "excel_projections_api_projects__project_id__excel_projections_get",
+      "path": "/api/projects/{project_id}/excel-projections",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_excel_projection_api_projects__project_id__excel_projections_post",
+      "path": "/api/projects/{project_id}/excel-projections",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_links_api_projects__project_id__external_links_get",
+      "path": "/api/projects/{project_id}/external-links",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_link_api_projects__project_id__external_links_post",
+      "path": "/api/projects/{project_id}/external-links",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "forms_api_projects__project_id__forms_get",
+      "path": "/api/projects/{project_id}/forms",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_form_api_projects__project_id__forms__template_code__render_post",
+      "path": "/api/projects/{project_id}/forms/{template_code}/render",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "handoff_to_permit_api_projects__project_id__handoff_to_permit_post",
+      "path": "/api/projects/{project_id}/handoff-to-permit",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "handover_readiness_api_projects__project_id__handover_readiness_get",
+      "path": "/api/projects/{project_id}/handover-readiness",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_handover_api_projects__project_id__handovers_post",
+      "path": "/api/projects/{project_id}/handovers",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "project_lineage_api_projects__project_id__lineage_get",
+      "path": "/api/projects/{project_id}/lineage",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "manual_observation_api_projects__project_id__manual_observations_post",
+      "path": "/api/projects/{project_id}/manual-observations",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "project_open_blocking_api_projects__project_id__open_blocking_findings_get",
+      "path": "/api/projects/{project_id}/open-blocking-findings",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_package_api_projects__project_id__package_get",
+      "path": "/api/projects/{project_id}/package",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_package_api_projects__project_id__package_post",
+      "path": "/api/projects/{project_id}/package",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_revision_api_projects__project_id__preparation_revisions_post",
+      "path": "/api/projects/{project_id}/preparation-revisions",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "project_status_projection_api_projects__project_id__project_status_projection_get",
+      "path": "/api/projects/{project_id}/project-status-projection",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "readiness_api_projects__project_id__readiness_get",
+      "path": "/api/projects/{project_id}/readiness",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "readiness_evaluate_api_projects__project_id__readiness_evaluate_post",
+      "path": "/api/projects/{project_id}/readiness/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "requirements_api_projects__project_id__requirements_get",
+      "path": "/api/projects/{project_id}/requirements",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "revalidate_api_projects__project_id__revalidate_post",
+      "path": "/api/projects/{project_id}/revalidate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "shadow_corrections_api_projects__project_id__shadow_corrections_get",
+      "path": "/api/projects/{project_id}/shadow-corrections",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "shadow_correction_api_projects__project_id__shadow_corrections_post",
+      "path": "/api/projects/{project_id}/shadow-corrections",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "stale_items_api_projects__project_id__stale_items_get",
+      "path": "/api/projects/{project_id}/stale-items",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "confirmations_api_projects__project_id__submission_confirmations_get",
+      "path": "/api/projects/{project_id}/submission-confirmations",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "validity_dashboard_api_projects__project_id__validity_dashboard_get",
+      "path": "/api/projects/{project_id}/validity-dashboard",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "validity_evaluate_api_projects__project_id__validity_evaluate_post",
+      "path": "/api/projects/{project_id}/validity/evaluate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "assertions_api_projects__project_id__verified_assertions_get",
+      "path": "/api/projects/{project_id}/verified-assertions",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "proposals_contracts_capabilities_api_proposals_contracts_capabilities_get",
+      "path": "/api/proposals-contracts/capabilities",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "canonical_contracts_api_proposals_contracts_contracts_get",
+      "path": "/api/proposals-contracts/contracts",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "canonical_proposals_api_proposals_contracts_proposals_get",
+      "path": "/api/proposals-contracts/proposals",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "proposals_contracts_summary_api_proposals_contracts_summary_get",
+      "path": "/api/proposals-contracts/summary",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "proposals_main_api_proposals_main_get",
+      "path": "/api/proposals-main",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "contract_detail_api_proposals_main_contracts__contract_id__get",
+      "path": "/api/proposals-main/contracts/{contract_id}",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "initiate_permit_from_contract_api_proposals_main_contracts__contract_id__permit_post",
+      "path": "/api/proposals-main/contracts/{contract_id}/permit",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "proposals_intake_api_proposals_main_intake_post",
+      "path": "/api/proposals-main/intake",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "proposal_detail_api_proposals_main_proposals__proposal_id__get",
+      "path": "/api/proposals-main/proposals/{proposal_id}",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_contract_from_proposal_api_proposals_main_proposals__proposal_id__contract_post",
+      "path": "/api/proposals-main/proposals/{proposal_id}/contract",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "engineering_ready_api_proposals_main_proposals__proposal_id__engineering_ready_post",
+      "path": "/api/proposals-main/proposals/{proposal_id}/engineering-ready",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "proceed_proposal_api_proposals_main_proposals__proposal_id__proceed_post",
+      "path": "/api/proposals-main/proposals/{proposal_id}/proceed",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "promote_proposal_sources_api_proposals_main_proposals__proposal_id__promote__project_id__post",
+      "path": "/api/proposals-main/proposals/{proposal_id}/promote/{project_id}",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "proposals_target_api_proposals_main_target__project_id__get",
+      "path": "/api/proposals-main/target/{project_id}",
+      "tags": [
+        "proposals-main"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "canonical_proposal_detail_api_proposals__proposal_id__get",
+      "path": "/api/proposals/{proposal_id}",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "canonicalize_proposal_api_proposals__proposal_id__canonicalize__project_id__post",
+      "path": "/api/proposals/{proposal_id}/canonicalize/{project_id}",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "canonical_create_contract_api_proposals__proposal_id__contract_post",
+      "path": "/api/proposals/{proposal_id}/contract",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "canonical_proposal_preparation_api_proposals__proposal_id__preparation_get",
+      "path": "/api/proposals/{proposal_id}/preparation",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "canonical_proceed_api_proposals__proposal_id__proceed_post",
+      "path": "/api/proposals/{proposal_id}/proceed",
+      "tags": [
+        "canonical-proposalops"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "commercial_approval_api_quotation_revisions__revision_id__commercial_approval_post",
+      "path": "/api/quotation-revisions/{revision_id}/commercial-approval",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "extract_quotation_fields_api_quotation_revisions__revision_id__extract_or_propose_post",
+      "path": "/api/quotation-revisions/{revision_id}/extract-or-propose",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "release_quotation_api_quotation_revisions__revision_id__release_post",
+      "path": "/api/quotation-revisions/{revision_id}/release",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_quotation_revision_api_quotation_revisions__revision_id__render_post",
+      "path": "/api/quotation-revisions/{revision_id}/render",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "return_quotation_for_change_api_quotation_revisions__revision_id__return_for_change_post",
+      "path": "/api/quotation-revisions/{revision_id}/return-for-change",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "submit_commercial_review_api_quotation_revisions__revision_id__submit_commercial_review_post",
+      "path": "/api/quotation-revisions/{revision_id}/submit-commercial-review",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "verify_quotation_field_api_quotation_revisions__revision_id__verify_field_post",
+      "path": "/api/quotation-revisions/{revision_id}/verify-field",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "raid_api_raid_get",
+      "path": "/api/raid",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_raid_api_raid_post",
+      "path": "/api/raid",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_raid_api_raid__item_id__patch",
+      "path": "/api/raid/{item_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "configuration_bundle_api_reconciliation_configuration_bundle_get",
+      "path": "/api/reconciliation/configuration-bundle",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "excel_contract_api_reconciliation_excel_contract_get",
+      "path": "/api/reconciliation/excel-contract",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "excel_projection_api_reconciliation_excel_projection__project_id__post",
+      "path": "/api/reconciliation/excel-projection/{project_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "canonical_fixture_api_reconciliation_fixture_get",
+      "path": "/api/reconciliation/fixture",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "golden_path_api_reconciliation_golden_path_get",
+      "path": "/api/reconciliation/golden-path",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "governance_status_api_reconciliation_governance_get",
+      "path": "/api/reconciliation/governance",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "bootstrap_project_api_reconciliation_project_bootstrap_post",
+      "path": "/api/reconciliation/project-bootstrap",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "reconciliation_project_api_reconciliation_projects__project_id__get",
+      "path": "/api/reconciliation/projects/{project_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "property_parties_api_reconciliation_properties__project_id__get",
+      "path": "/api/reconciliation/properties/{project_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "rendering_preview_endpoint_api_reconciliation_rendering_preview_get",
+      "path": "/api/reconciliation/rendering-preview",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "recovery_manifests_api_recovery_manifests_get",
+      "path": "/api/recovery/manifests",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "test_restore_api_recovery_test_restore_post",
+      "path": "/api/recovery/test-restore",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "recurrence_analysis_api_recurrence_analysis_get",
+      "path": "/api/recurrence/analysis",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "recurrence_analyze_api_recurrence_analyze_post",
+      "path": "/api/recurrence/analyze",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_api_render_post",
+      "path": "/api/render",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "render_request_api_render_requests_post",
+      "path": "/api/render-requests",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "rendered_artifact_api_rendered_artifacts__artifact_id__get",
+      "path": "/api/rendered-artifacts/{artifact_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "rendered_artifact_lineage_api_rendered_artifacts__artifact_id__lineage_get",
+      "path": "/api/rendered-artifacts/{artifact_id}/lineage",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "rendering_coverage_api_rendering_coverage_get",
+      "path": "/api/rendering/coverage",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "validate_rendering_api_rendering_validate_supported_variants_post",
+      "path": "/api/rendering/validate-supported-variants",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "role_context_api_role_context_get",
+      "path": "/api/role-context",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "role_readiness_api_role_readiness_get",
+      "path": "/api/role-readiness",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_rule_candidates_api_rule_candidates_get",
+      "path": "/api/rule-candidates",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_rule_candidate_api_rule_candidates_post",
+      "path": "/api/rule-candidates",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "scenario_variants_api_scenario_variants_get",
+      "path": "/api/scenario-variants",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "variant_compatibility_api_scenario_variants__variant_id__compatibility_get",
+      "path": "/api/scenario-variants/{variant_id}/compatibility",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "all_shadow_corrections_api_shadow_corrections_get",
+      "path": "/api/shadow-corrections",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "shadow_defects_api_shadow_defects_get",
+      "path": "/api/shadow-defects",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "acceptance_corpus_api_stage2_acceptance_corpus_get",
+      "path": "/api/stage2/acceptance-corpus",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_acceptance_corpus_api_stage2_acceptance_corpus_patch",
+      "path": "/api/stage2/acceptance-corpus",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "stage2_baseline_api_stage2_baseline_get",
+      "path": "/api/stage2/baseline",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "generate_stage2_api_stage2_baseline_generate_post",
+      "path": "/api/stage2/baseline/generate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "stage2_acknowledgements_api_stage2_baseline__baseline_id__acknowledgements_get",
+      "path": "/api/stage2/baseline/{baseline_id}/acknowledgements",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "acknowledge_stage2_api_stage2_baseline__baseline_id__acknowledgements_post",
+      "path": "/api/stage2/baseline/{baseline_id}/acknowledgements",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "approve_stage2_api_stage2_baseline__baseline_id__approve_post",
+      "path": "/api/stage2/baseline/{baseline_id}/approve",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "business_baseline_api_stage2_business_baseline_get",
+      "path": "/api/stage2/business-baseline",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "delivery_scenarios_api_stage2_delivery_scenarios_get",
+      "path": "/api/stage2/delivery-scenarios",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "select_delivery_api_stage2_delivery_scenarios__scenario_id__patch",
+      "path": "/api/stage2/delivery-scenarios/{scenario_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "municipality_operations_api_stage2_municipality_operations_get",
+      "path": "/api/stage2/municipality-operations",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "pilot_cohort_api_stage2_pilot_cohort_get",
+      "path": "/api/stage2/pilot-cohort",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "precheck_decision_api_stage2_precheck_decision_get",
+      "path": "/api/stage2/precheck-decision",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "thresholds_api_stage2_thresholds_get",
+      "path": "/api/stage2/thresholds",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_threshold_api_stage2_thresholds__threshold_id__patch",
+      "path": "/api/stage2/thresholds/{threshold_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "tier1_decisions_api_stage2_tier1_decisions_get",
+      "path": "/api/stage2/tier1-decisions",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_tier1_api_stage2_tier1_decisions__decision_id__patch",
+      "path": "/api/stage2/tier1-decisions/{decision_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "tier2_backlog_api_stage2_tier2_backlog_get",
+      "path": "/api/stage2/tier2-backlog",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_tier2_api_stage2_tier2_backlog_post",
+      "path": "/api/stage2/tier2-backlog",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_tier2_api_stage2_tier2_backlog__item_id__patch",
+      "path": "/api/stage2/tier2-backlog/{item_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_confirmation_api_submission_confirmations_post",
+      "path": "/api/submission-confirmations",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_submission_cycles_api_submission_cycles_get",
+      "path": "/api/submission-cycles",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "synthetic_capture_api_submission_cycles_synthetic_capture_post",
+      "path": "/api/submission-cycles/synthetic-capture",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "cycle_findings_api_submission_cycles__cycle_id__findings_get",
+      "path": "/api/submission-cycles/{cycle_id}/findings",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "submission_handoff_api_submission_handoffs_post",
+      "path": "/api/submission-handoffs",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "accept_submission_handoff_api_submission_handoffs__handoff_id__accept_post",
+      "path": "/api/submission-handoffs/{handoff_id}/accept",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "return_submission_handoff_api_submission_handoffs__handoff_id__return_for_correction_post",
+      "path": "/api/submission-handoffs/{handoff_id}/return-for-correction",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "support_cases_api_support_cases_get",
+      "path": "/api/support/cases",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_support_case_api_support_cases_post",
+      "path": "/api/support/cases",
+      "tags": []
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "update_support_case_api_support_cases__case_id__patch",
+      "path": "/api/support/cases/{case_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_tasks_api_tasks_get",
+      "path": "/api/tasks",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_task_api_tasks__task_id__get",
+      "path": "/api/tasks/{task_id}",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "acknowledge_task_api_tasks__task_id__acknowledge_post",
+      "path": "/api/tasks/{task_id}/acknowledge",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "block_task_api_tasks__task_id__block_post",
+      "path": "/api/tasks/{task_id}/block",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "complete_task_api_tasks__task_id__complete_post",
+      "path": "/api/tasks/{task_id}/complete",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "start_task_api_tasks__task_id__start_post",
+      "path": "/api/tasks/{task_id}/start",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "templates_api_templates_get",
+      "path": "/api/templates",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "template_detail_api_templates__template_id__get",
+      "path": "/api/templates/{template_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "template_versions_api_templates__template_id__versions_get",
+      "path": "/api/templates/{template_id}/versions",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_template_version_api_templates__template_id__versions_post",
+      "path": "/api/templates/{template_id}/versions",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "supersede_template_version_api_templates__template_id__versions__version_id__supersede_post",
+      "path": "/api/templates/{template_id}/versions/{version_id}/supersede",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "operation_id": "validate_template_version_api_templates__template_id__versions__version_id__validate_post",
+      "path": "/api/templates/{template_id}/versions/{version_id}/validate",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "training_checklists_api_training_checklists_get",
+      "path": "/api/training/checklists",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "kpi_review_api_week10_kpi_review_get",
+      "path": "/api/week10/kpi-review",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "tier2_review_api_week10_tier2_review_get",
+      "path": "/api/week10/tier2-review",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "week11_report_api_week11_report_get",
+      "path": "/api/week11/report",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "week12_edge_coverage_api_week12_edge_coverage_get",
+      "path": "/api/week12/edge-coverage",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "week12_report_api_week12_report_get",
+      "path": "/api/week12/report",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "week7_report_api_week7_report_get",
+      "path": "/api/week7/report",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "week9_report_api_week9_report_get",
+      "path": "/api/week9/report",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "work_api_work_get",
+      "path": "/api/work",
+      "tags": [
+        "amec-work"
+      ]
+    },
+    {
+      "method": "GET",
+      "operation_id": "work_summary_api_work_summary_get",
+      "path": "/api/work/summary",
+      "tags": [
+        "amec-work"
+      ]
+    },
+    {
+      "method": "POST",
+      "operation_id": "release_safety_hold_api_workflow_safety_holds__hold_id__release_post",
+      "path": "/api/workflow-safety-holds/{hold_id}/release",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "health_health_get",
+      "path": "/health",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_authority_applications_mock_authority_applications_get",
+      "path": "/mock-authority/applications",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_authority_application_mock_authority_applications__application_id__get",
+      "path": "/mock-authority/applications/{application_id}",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_comments_mock_authority_applications__application_id__comments_get",
+      "path": "/mock-authority/applications/{application_id}/comments",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_configuration_mock_authority_applications__application_id__configuration_get",
+      "path": "/mock-authority/applications/{application_id}/configuration",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_current_state_mock_authority_applications__application_id__current_state_get",
+      "path": "/mock-authority/applications/{application_id}/current-state",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_draft_mock_authority_applications__application_id__draft_get",
+      "path": "/mock-authority/applications/{application_id}/draft",
+      "tags": []
+    },
+    {
+      "method": "PUT",
+      "operation_id": "mock_save_draft_mock_authority_applications__application_id__draft_put",
+      "path": "/mock-authority/applications/{application_id}/draft",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_precheck_mock_authority_applications__application_id__precheck_results_get",
+      "path": "/mock-authority/applications/{application_id}/precheck-results",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_status_mock_authority_applications__application_id__status_get",
+      "path": "/mock-authority/applications/{application_id}/status",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "operation_id": "mock_validation_mock_authority_applications__application_id__validation_get",
+      "path": "/mock-authority/applications/{application_id}/validation",
+      "tags": []
+    }
+  ],
+  "path_count": 424,
+  "source": "FastAPI OpenAPI generated from current app"
+}

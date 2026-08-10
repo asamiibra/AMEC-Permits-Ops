@@ -1,0 +1,10 @@
+{
+  "targets": [
+    {"issue_type": "PERMIT_TECHNICAL", "current_stage": "VERIFY_DATA", "viewed_stage": "VERIFY_DATA", "engineering_action": "Review Drawing", "business_development_mode": "context-only"},
+    {"issue_type": "AUTHORITY", "current_stage": "COMMENTS_AND_CORRECTIONS", "viewed_stage": "COMMENTS_AND_CORRECTIONS", "engineering_action": "Review Authority Comment", "business_development_mode": "context-only"}
+  ],
+  "selected_application_follows_issue_focus": true,
+  "stage_labels_are_truthful": true,
+  "permit_warning_is_scoped_to_permit_surfaces": true,
+  "result": "PASS"
+}

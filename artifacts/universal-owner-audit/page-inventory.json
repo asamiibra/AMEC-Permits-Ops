@@ -1,0 +1,769 @@
+{
+  "material_pages_unaudited": 0,
+  "pages": [
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "amec-work",
+      "deep_link": "direct route or explicit alias",
+      "domain": "work",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/work",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "proposals-contracts",
+      "deep_link": "direct route or explicit alias",
+      "domain": "commercial",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/proposals-contracts",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "new-proposal",
+      "deep_link": "direct route or explicit alias",
+      "domain": "commercial",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "/proposals/new",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "proposal-detail",
+      "deep_link": "direct route or explicit alias",
+      "domain": "commercial",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/proposals/:proposalId",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "proposal-preparation",
+      "deep_link": "direct route or explicit alias",
+      "domain": "commercial",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/proposals/:proposalId/preparation",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "contract-detail",
+      "deep_link": "direct route or explicit alias",
+      "domain": "commercial",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/contracts/:contractId",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "reviews",
+      "deep_link": "direct route or explicit alias",
+      "domain": "work",
+      "roles": [
+        "Owner",
+        "Engineering"
+      ],
+      "route": "/reviews",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "issues",
+      "deep_link": "direct route or explicit alias",
+      "domain": "issues",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/issues",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "issue-detail",
+      "deep_link": "direct route or explicit alias",
+      "domain": "issues",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/issues/:issueId",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "notifications",
+      "deep_link": "direct route or explicit alias",
+      "domain": "notifications",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/notifications",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "operating-guide",
+      "deep_link": "direct route or explicit alias",
+      "domain": "guide",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/operating-guide",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-project-sources",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/project-and-sources",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-verify",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/verify-data",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-package",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/prepare-package",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-municipality",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/municipality-preparation",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-final-review",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/final-review",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-authority",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/authority-review",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-corrections",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/comments-and-corrections",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "permit-history",
+      "deep_link": "direct route or explicit alias",
+      "domain": "downstream-permit",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "route": "/permits/:projectId/history",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "administration",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "inputs-go-live",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/go-live-readiness",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-people",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/people-access",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-connections",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/data-connections",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-project",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/project-folder-setup",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-proposal",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/proposal-setup",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-contract",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/contract-setup",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-permit",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/permit-setup",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-templates",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/templates",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-notifications",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/notifications",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-security",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/security",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-integration",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/integration-health",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-audit",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/audit",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "admin-advanced",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/advanced-diagnostics",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/discovery",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/config",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/tier1",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/delivery",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/attachments-grids",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/municipality",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/corpus",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/thresholds",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/control-diagnostics",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "opportunities",
+      "deep_link": "direct route or explicit alias",
+      "domain": "commercial",
+      "roles": [
+        "Owner",
+        "Business Development"
+      ],
+      "route": "/opportunities",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "engineering-closeout",
+      "deep_link": "direct route or explicit alias",
+      "domain": "engineering",
+      "roles": [
+        "Owner",
+        "Engineering"
+      ],
+      "route": "/engineering-closeout",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "expansion-foundation",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/expansion-foundation",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/dashboard",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/projects",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/documents",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/conflicts",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/package",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/findings",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/lineage",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/spike",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/adjudication",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/analysis",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/tier2",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/close",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/baseline",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/signoff",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/confirmation",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/business",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/business-baseline",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/privacy",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/volume",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/inquiries",
+      "source_of_truth": "backend API/domain projection"
+    },
+    {
+      "audit_status": "AUDITED",
+      "business_purpose": "legacy-admin-family",
+      "deep_link": "direct route or explicit alias",
+      "domain": "administration",
+      "roles": [
+        "Owner"
+      ],
+      "route": "/admin/raid",
+      "source_of_truth": "backend API/domain projection"
+    }
+  ]
+}

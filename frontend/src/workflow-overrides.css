@@ -1,1 +1,6 @@
 .work-action-label{display:block;color:#147c6f;font-size:12px}
+.stage-context-strip{display:flex;gap:12px;margin:14px 0;padding:12px 14px;border:1px solid #dce9eb;border-radius:8px;background:#f7fbfb}
+.stage-context-strip>div{display:grid;gap:3px;min-width:180px}
+.stage-context-strip small{color:#66808b;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.stage-context-strip b{color:#17324d;font-size:13px}
+@media (max-width:720px){.stage-context-strip{gap:8px}.stage-context-strip>div{min-width:0;flex:1}.stage-context-strip b{font-size:11px}}

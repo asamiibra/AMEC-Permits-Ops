@@ -85,7 +85,7 @@ def confirm_project_sources(db: Session, *, project_id: str, actor_role: Role, a
         raise HTTPException(422, detail={"code": "PROJECT_APPLICATION_MISSING", "project_id": project.id})
     if project_reference and project_reference != project.project_number:
         raise HTTPException(409, detail={"code": "PROJECT_REFERENCE_MISMATCH", "expected": project.project_number, "received": project_reference})
-    allowed = {Role.SYSTEM_ADMIN, Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.REQUIREMENT_STEWARD, Role.RESPONSIBLE_ENGINEER, Role.PERMIT_PREPARER}
+    allowed = {Role.SYSTEM_ADMIN, Role.OWNER_SPONSOR, Role.REQUIREMENT_STEWARD, Role.RESPONSIBLE_ENGINEER, Role.PERMIT_PREPARER}
     if actor_role not in allowed:
         raise HTTPException(403, detail={"code": "CAPABILITY_DENIED", "capability": "CONFIRM_PROJECT_SOURCES"})
     current = inferred_stage(application)

@@ -1,0 +1,18 @@
+{
+  "historical_hits": [
+    {
+      "classification": "TEST_OR_IMPLEMENTATION_COMPATIBILITY",
+      "scope": "legacy source/test artifacts",
+      "term": "PermitOps"
+    },
+    {
+      "classification": "TECHNICAL_DETAIL_ONLY",
+      "scope": "backend evidence / historical test expectation",
+      "term": "READ_BACK_VERIFIED"
+    }
+  ],
+  "legitimate_permit_terms_preserved": true,
+  "normal_owner_facing_internal_jargon": 0,
+  "operating_guide_only_arabic": true,
+  "status": "PASS_WITH_HISTORICAL_CLASSIFICATION"
+}

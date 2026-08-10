@@ -72,7 +72,17 @@ def _capability_rows() -> list[dict[str, str]]:
 def _readable(value: Any, fallback: str = "Needs AMEC Input") -> str:
     if value is None or value == "":
         return fallback
-    return str(value).replace("_", " ").replace("QUOTATION", "PROPOSAL").replace("Quotation", "Proposal").replace("quotation", "proposal").replace("commercial approver", "business development").title()
+    text = str(value)
+    for source, target in {
+        "ConfigurationArtifact": "Configuration",
+        "ProjectArtifactRecord": "Project record",
+        "FieldMatrixCoverage": "Field matrix coverage",
+        "RequirementMatrixCoverage": "Requirement matrix coverage",
+        "ProposalIntakeArtifact": "Proposal intake",
+        "AuditEvent": "Audit event",
+    }.items():
+        text = text.replace(source, target)
+    return text.replace("_", " ").replace("QUOTATION", "PROPOSAL").replace("Quotation", "Proposal").replace("quotation", "proposal").replace("commercial approver", "business development").title()
 
 
 def _safe_connection(name: str, purpose: str, result: dict[str, Any], mode: str, affected: str, last_tested: str | None = None) -> dict[str, Any]:

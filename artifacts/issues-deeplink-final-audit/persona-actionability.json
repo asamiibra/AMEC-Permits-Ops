@@ -1,0 +1,10 @@
+{
+  "personas": {
+    "BUSINESS_DEVELOPMENT": {"proposal_technical": "CONTEXT_ONLY", "proposal_commercial": "ACTIONABLE", "contract": "ACTIONABLE", "permit_technical": "CONTEXT_ONLY", "authority": "CONTEXT_ONLY"},
+    "RESPONSIBLE_ENGINEER": {"proposal_technical": "ACTIONABLE", "proposal_commercial": "CONTEXT_ONLY", "contract": "CONTEXT_ONLY", "permit_technical": "ACTIONABLE", "authority": "ACTIONABLE"},
+    "OWNER": {"proposal_technical": "CONTEXT_ONLY", "proposal_commercial": "ACTIONABLE", "contract": "ACTIONABLE", "permit_technical": "CONTEXT_ONLY", "authority": "CONTEXT_ONLY"}
+  },
+  "result": "PASS",
+  "context_only_mutations": 0,
+  "hidden_rows_exposed": 0
+}

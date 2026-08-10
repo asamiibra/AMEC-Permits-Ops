@@ -19,15 +19,23 @@
     "coverage_disposition": "Retained the canonical bootstrap/safety checks and replaced only retired labels, owner/persona assertions, and superseded navigation expectations with current AMEC Work / Proposals & Contracts behavior."
   },
   "full_current_browser_suite": {
-    "tests_discovered": 110,
-    "passed": 82,
-    "failed": 28,
-    "execution": "All 17 browser-e2e spec files were exercised through the full-suite run and isolated spec reruns against a persistent local Vite server.",
-    "command": "PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npx playwright test --workers=1 --reporter=junit",
+    "tests_discovered": 113,
+    "passed": 87,
+    "failed": 26,
+    "execution": "All current browser-e2e specs were exercised through the full-suite run against the local Vite server.",
+    "command": "npm run browser-e2e -- --reporter=list",
     "remaining_failure_breakdown": {
-      "stale_assertion_contracts": 27,
-      "runner_or_server_lifecycle": 1
+      "stale_or_superseded_assertion_contracts": 26,
+      "runner_or_server_lifecycle": 0
     }
+  },
+  "full_real_stack_suite": {
+    "tests_discovered": 30,
+    "passed": 19,
+    "failed": 11,
+    "command": "npm run browser-real-stack -- --reporter=list",
+    "administration_tests": {"passed": 6, "failed": 0},
+    "remaining_failures": "Non-Administration legacy locale, accessibility, issue, Proposal/Contract, Stage 1, owner-rehearsal, and visual assertions; listed in administration-final-browser-result.json."
   },
   "genuine_product_failures": [
     {

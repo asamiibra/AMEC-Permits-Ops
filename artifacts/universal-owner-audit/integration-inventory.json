@@ -1,0 +1,52 @@
+{
+  "integrations": [
+    {
+      "backend": "FastAPI routers",
+      "dependency": "HTTP/JSON/CORS",
+      "evidence": "frontend tests + deployed OpenAPI",
+      "name": "Frontend → FastAPI",
+      "status": "PASS",
+      "ui": "frontend/src/api.ts"
+    },
+    {
+      "backend": "SQLAlchemy/Alembic",
+      "dependency": "PostgreSQL 16",
+      "evidence": "clean migration + 115-test suite",
+      "name": "PostgreSQL",
+      "status": "PASS",
+      "ui": "Administration / health"
+    },
+    {
+      "backend": "MockSynologyAdapter",
+      "dependency": "mock-systems/synology",
+      "evidence": "canonical fixture check",
+      "name": "Synology",
+      "status": "PASS",
+      "ui": "Project/source surfaces"
+    },
+    {
+      "backend": "MockExcelAdapter",
+      "dependency": "mock-systems/excel/permit_tracker.xlsx",
+      "evidence": "canonical fixture + supported coverage",
+      "name": "Excel",
+      "status": "PASS",
+      "ui": "Project/source surfaces"
+    },
+    {
+      "backend": "MockMunicipalityAdapter",
+      "dependency": "synthetic authority simulator",
+      "evidence": "Golden Path v1/v2 + safety checks",
+      "name": "Municipality",
+      "status": "PASS",
+      "ui": "Permit preparation"
+    },
+    {
+      "backend": "notification projection + read state",
+      "dependency": "synthetic in-app delivery",
+      "evidence": "deployed read-state smoke",
+      "name": "Notification delivery",
+      "status": "PASS",
+      "ui": "Notifications / diagnostics"
+    }
+  ]
+}

@@ -1,0 +1,5142 @@
+{
+  "audit_version": "proposalops-ui-conformance-v1",
+  "design_oracle": "ProposalOps / AMEC universal UI conformance brief",
+  "contracts": [
+    {
+      "id": "S01",
+      "route": "/work",
+      "aliases": [],
+      "business_purpose": "Cross-functional work requiring attention",
+      "domain": "work",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "AMEC Work",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Needs Action",
+        "Waiting for Review",
+        "Blocked",
+        "Overdue",
+        "Proposal",
+        "Contract"
+      ],
+      "expected_fields": [
+        "Needs Action",
+        "Waiting for Review",
+        "Blocked",
+        "Overdue",
+        "Proposal",
+        "Contract"
+      ],
+      "expected_actions": [
+        "Open Proposal",
+        "Open Contract",
+        "Open Permit",
+        "Review issue context"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S02",
+      "route": "/proposals-contracts",
+      "aliases": [],
+      "business_purpose": "One commercial collection from source intake through Contract and downstream Permit handoff",
+      "domain": "commercial",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Proposals & Contracts",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Proposal",
+        "Contract",
+        "Client List",
+        "Proposal Form",
+        "Open Proposals",
+        "Open Contracts"
+      ],
+      "expected_fields": [
+        "Proposal",
+        "Contract",
+        "Client List",
+        "Proposal Form",
+        "Open Proposals",
+        "Open Contracts"
+      ],
+      "expected_actions": [
+        "New Proposal",
+        "Open Proposal",
+        "Open Contract",
+        "Start Permit",
+        "Open Permit"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S02A",
+      "route": "/proposals/new",
+      "aliases": [],
+      "business_purpose": "Source-driven Proposal intake before or alongside final Project setup",
+      "domain": "commercial",
+      "allowed_personas": [
+        "Owner",
+        "Business Development"
+      ],
+      "expected_title": "New Proposal",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Proposal Description",
+        "Price",
+        "SOW",
+        "Period",
+        "Exclusions",
+        "source"
+      ],
+      "expected_fields": [
+        "Proposal Description",
+        "Price",
+        "SOW",
+        "Period",
+        "Exclusions",
+        "source"
+      ],
+      "expected_actions": [
+        "Create Proposal",
+        "Proceed"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S02B",
+      "route": "/proposals/:proposalId",
+      "aliases": [],
+      "business_purpose": "Business-readable Proposal record and next action",
+      "domain": "commercial",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Proposal detail",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Proposal Description",
+        "reference",
+        "status",
+        "client",
+        "sources",
+        "issues",
+        "history"
+      ],
+      "expected_fields": [
+        "Proposal Description",
+        "reference",
+        "status",
+        "client",
+        "sources",
+        "issues",
+        "history"
+      ],
+      "expected_actions": [
+        "Proceed to Preparation",
+        "Create Contract",
+        "View Contract"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S02C",
+      "route": "/proposals/:proposalId/preparation",
+      "aliases": [],
+      "business_purpose": "Engineering-owned technical Proposal preparation and handoff",
+      "domain": "commercial",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Proposal Preparation",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Proposal identity",
+        "Project/reference context",
+        "Inputs & Sources",
+        "SOW",
+        "Process of Work",
+        "technical exclusions",
+        "handoff"
+      ],
+      "expected_fields": [
+        "Proposal identity",
+        "Project/reference context",
+        "Inputs & Sources",
+        "SOW",
+        "Process of Work",
+        "technical exclusions",
+        "handoff"
+      ],
+      "expected_actions": [
+        "Ready for BD"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S02D",
+      "route": "/contracts/:contractId",
+      "aliases": [],
+      "business_purpose": "Contract identity, commercial state, provenance, and downstream Permit handoff",
+      "domain": "commercial",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Contract detail",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Contract Reference",
+        "status",
+        "Project",
+        "Related Proposal",
+        "amount",
+        "Contract revisions",
+        "Permit handoff"
+      ],
+      "expected_fields": [
+        "Contract Reference",
+        "status",
+        "Project",
+        "Related Proposal",
+        "amount",
+        "Contract revisions",
+        "Permit handoff"
+      ],
+      "expected_actions": [
+        "Create Contract",
+        "Start Permit",
+        "Open Permit"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S03",
+      "route": "/reviews",
+      "aliases": [],
+      "business_purpose": "Role-appropriate review queue",
+      "domain": "work",
+      "allowed_personas": [
+        "Owner",
+        "Engineering"
+      ],
+      "expected_title": "Reviews",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "review",
+        "owner",
+        "status",
+        "evidence"
+      ],
+      "expected_fields": [
+        "review",
+        "owner",
+        "status",
+        "evidence"
+      ],
+      "expected_actions": [
+        "Review Proposal",
+        "Open Permit"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S04",
+      "route": "/issues",
+      "aliases": [],
+      "business_purpose": "Owned blockers, mismatches, stale state, and findings",
+      "domain": "issues",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Issues",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "what is wrong",
+        "severity",
+        "blocking",
+        "affected record",
+        "owner",
+        "actionability"
+      ],
+      "expected_fields": [
+        "what is wrong",
+        "severity",
+        "blocking",
+        "affected record",
+        "owner",
+        "actionability"
+      ],
+      "expected_actions": [
+        "Review Proposal preparation",
+        "Open Permit",
+        "View Authority Comment"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S04D",
+      "route": "/issues/:issueId",
+      "aliases": [],
+      "business_purpose": "Issue cause, affected record, evidence, and resolution path",
+      "domain": "issues",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Issue detail",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "What is wrong",
+        "Why it matters",
+        "What needs to happen",
+        "Affected business record",
+        "Evidence",
+        "Activity & history"
+      ],
+      "expected_fields": [
+        "What is wrong",
+        "Why it matters",
+        "What needs to happen",
+        "Affected business record",
+        "Evidence",
+        "Activity & history"
+      ],
+      "expected_actions": [
+        "Review issue context"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S05",
+      "route": "/notifications",
+      "aliases": [],
+      "business_purpose": "Meaningful workflow and authority changes with destinations",
+      "domain": "notifications",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Notifications",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "event",
+        "affected record",
+        "actor",
+        "time",
+        "read state",
+        "destination"
+      ],
+      "expected_fields": [
+        "event",
+        "affected record",
+        "actor",
+        "time",
+        "read state",
+        "destination"
+      ],
+      "expected_actions": [
+        "Open Proposal",
+        "Open Permit",
+        "Mark as read"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S06",
+      "route": "/operating-guide",
+      "aliases": [
+        "/about",
+        "/how-permitops-works"
+      ],
+      "business_purpose": "Explain current ProposalOps lifecycle, capabilities, and safety boundary",
+      "domain": "guide",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Operating Guide",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Proposal intake",
+        "Proposal preparation",
+        "Contract",
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "expected_fields": [
+        "Proposal intake",
+        "Proposal preparation",
+        "Contract",
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "expected_actions": [
+        "Open Inputs & Go-Live"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S07",
+      "route": "/permits/:projectId/project-and-sources",
+      "aliases": [
+        "/proposals-contracts/:projectId/project-and-sources"
+      ],
+      "business_purpose": "Downstream Permit Project & Sources stage",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Project & Sources",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Project",
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
+      ],
+      "expected_fields": [
+        "Project",
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
+      ],
+      "expected_actions": [
+        "Confirm Project & Sources",
+        "View current stage"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S08",
+      "route": "/permits/:projectId/verify-data",
+      "aliases": [
+        "/proposals-contracts/:projectId/verify-data"
+      ],
+      "business_purpose": "Verify source facts driving the Permit",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Verify Data",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
+      "expected_fields": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
+      "expected_actions": [
+        "Review conflicts",
+        "Open evidence detail"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S09",
+      "route": "/permits/:projectId/prepare-package",
+      "aliases": [
+        "/proposals-contracts/:projectId/prepare-package"
+      ],
+      "business_purpose": "Prepare the controlled Permit package",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Prepare Package",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "current stage",
+        "viewing",
+        "requirements",
+        "blockers",
+        "evidence"
+      ],
+      "expected_fields": [
+        "current stage",
+        "viewing",
+        "requirements",
+        "blockers",
+        "evidence"
+      ],
+      "expected_actions": [
+        "Open package preparation"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S10",
+      "route": "/permits/:projectId/municipality-preparation",
+      "aliases": [
+        "/proposals-contracts/:projectId/municipality-preparation"
+      ],
+      "business_purpose": "Bounded Municipality preparation and read-back",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Municipality Preparation",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Municipality",
+        "Authority",
+        "current stage",
+        "viewing",
+        "read-back",
+        "fallback"
+      ],
+      "expected_fields": [
+        "Municipality",
+        "Authority",
+        "current stage",
+        "viewing",
+        "read-back",
+        "fallback"
+      ],
+      "expected_actions": [
+        "Open assisted preparation"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S11",
+      "route": "/permits/:projectId/final-review",
+      "aliases": [
+        "/proposals-contracts/:projectId/final-review"
+      ],
+      "business_purpose": "Final readiness and human submission handoff",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Final Review",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "readiness checks",
+        "Final Submitter handoff",
+        "human boundary"
+      ],
+      "expected_fields": [
+        "readiness checks",
+        "Final Submitter handoff",
+        "human boundary"
+      ],
+      "expected_actions": [
+        "Open readiness",
+        "Record human confirmation"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S12",
+      "route": "/permits/:projectId/authority-review",
+      "aliases": [
+        "/proposals-contracts/:projectId/authority-review"
+      ],
+      "business_purpose": "Read-only authority monitoring and comments",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Authority Review",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Authority status",
+        "last checked",
+        "comments",
+        "current stage",
+        "viewing"
+      ],
+      "expected_fields": [
+        "Authority status",
+        "last checked",
+        "comments",
+        "current stage",
+        "viewing"
+      ],
+      "expected_actions": [
+        "Review comments"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S13",
+      "route": "/permits/:projectId/comments-and-corrections",
+      "aliases": [
+        "/proposals-contracts/:projectId/comments-and-corrections"
+      ],
+      "business_purpose": "Owned Permit corrections and resubmission readiness",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Comments & Corrections",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Findings",
+        "owner",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
+      "expected_fields": [
+        "Findings",
+        "owner",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
+      "expected_actions": [
+        "Open permit issues"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S14",
+      "route": "/permits/:projectId/history",
+      "aliases": [
+        "/proposals-contracts/:projectId/history"
+      ],
+      "business_purpose": "Permit evidence timeline and history",
+      "domain": "downstream-permit",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "History",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
+      ],
+      "expected_fields": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
+      ],
+      "expected_actions": [
+        "View technical lineage"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "Permit",
+        "Municipality",
+        "Authority"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S15",
+      "route": "/admin",
+      "aliases": [],
+      "business_purpose": "Owner-only configuration, production setup, runtime health, audit, and diagnostics",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Administration",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Configuration",
+        "Production Setup",
+        "Runtime Health",
+        "Audit",
+        "Advanced Diagnostics"
+      ],
+      "expected_fields": [
+        "Configuration",
+        "Production Setup",
+        "Runtime Health",
+        "Audit",
+        "Advanced Diagnostics"
+      ],
+      "expected_actions": [
+        "View Inputs & Go-Live"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S26",
+      "route": "/admin/go-live-readiness",
+      "aliases": [],
+      "business_purpose": "Canonical AMEC production setup inputs",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Go-Live Setup",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "what AMEC still needs",
+        "counts",
+        "screen crosswalk",
+        "safe defaults"
+      ],
+      "expected_fields": [
+        "what AMEC still needs",
+        "counts",
+        "screen crosswalk",
+        "safe defaults"
+      ],
+      "expected_actions": [
+        "Export checklist"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-OWNER",
+      "route": "/admin/people-access",
+      "aliases": [],
+      "business_purpose": "Owner users, roles, and capability permissions",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Users & Roles",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Users",
+        "Roles",
+        "capability matrix"
+      ],
+      "expected_fields": [
+        "Users",
+        "Roles",
+        "capability matrix"
+      ],
+      "expected_actions": [
+        "View what we need from AMEC"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-CONNECTIONS",
+      "route": "/admin/data-connections",
+      "aliases": [],
+      "business_purpose": "Source connection configuration and semantic status",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Source Connections",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Simulator Ready",
+        "Production Not Connected",
+        "Test connection"
+      ],
+      "expected_fields": [
+        "Simulator Ready",
+        "Production Not Connected",
+        "Test connection"
+      ],
+      "expected_actions": [
+        "Test connection"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-PROJECT",
+      "route": "/admin/project-folder-setup",
+      "aliases": [],
+      "business_purpose": "Project identity, lineage, folder mappings, and reconciliation",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "References and project identity",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Canonical Project Reference",
+        "lineage",
+        "folder structure",
+        "Excel"
+      ],
+      "expected_fields": [
+        "Canonical Project Reference",
+        "lineage",
+        "folder structure",
+        "Excel"
+      ],
+      "expected_actions": [
+        "View what we need from AMEC"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-PROPOSAL",
+      "route": "/admin/proposal-setup",
+      "aliases": [],
+      "business_purpose": "Proposal fields, sources, stages, and handoffs",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Proposal workflow configuration",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Proposal fields",
+        "intake sources",
+        "handoffs",
+        "reference rule"
+      ],
+      "expected_fields": [
+        "Proposal fields",
+        "intake sources",
+        "handoffs",
+        "reference rule"
+      ],
+      "expected_actions": [
+        "View templates"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-CONTRACT",
+      "route": "/admin/contract-setup",
+      "aliases": [],
+      "business_purpose": "Contract rules, fields, and downstream Permit handoff",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Contract workflow configuration",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Contract fields",
+        "Proposal → Contract",
+        "Contract → Permit"
+      ],
+      "expected_fields": [
+        "Contract fields",
+        "Proposal → Contract",
+        "Contract → Permit"
+      ],
+      "expected_actions": [
+        "View templates"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-PERMIT",
+      "route": "/admin/permit-setup",
+      "aliases": [],
+      "business_purpose": "Downstream Permit requirements, applicability, attachments, and Municipality mode",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Requirements and attachments",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "requirements",
+        "applicability",
+        "attachments",
+        "Municipality",
+        "MFA"
+      ],
+      "expected_fields": [
+        "requirements",
+        "applicability",
+        "attachments",
+        "Municipality",
+        "MFA"
+      ],
+      "expected_actions": [
+        "View requirements"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-TEMPLATES",
+      "route": "/admin/templates",
+      "aliases": [],
+      "business_purpose": "Controlled Proposal, Contract, Permit, and Municipality template catalog",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Controlled template catalog",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "template purpose",
+        "owner",
+        "status",
+        "version"
+      ],
+      "expected_fields": [
+        "template purpose",
+        "owner",
+        "status",
+        "version"
+      ],
+      "expected_actions": [
+        "View template"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-NOTIFICATIONS",
+      "route": "/admin/notifications",
+      "aliases": [],
+      "business_purpose": "Notification audiences, follow-up, and delivery boundary",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Notification audiences and follow-up",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "audiences",
+        "follow-up",
+        "HUMAN_SEND",
+        "audit"
+      ],
+      "expected_fields": [
+        "audiences",
+        "follow-up",
+        "HUMAN_SEND",
+        "audit"
+      ],
+      "expected_actions": [
+        "Save setting"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-SECURITY",
+      "route": "/admin/security",
+      "aliases": [],
+      "business_purpose": "Data security, access, MFA, retention, and recovery",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Safe operating configuration",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "environment",
+        "production data",
+        "MFA",
+        "access",
+        "retention",
+        "backup"
+      ],
+      "expected_fields": [
+        "environment",
+        "production data",
+        "MFA",
+        "access",
+        "retention",
+        "backup"
+      ],
+      "expected_actions": [],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-INTEGRATION",
+      "route": "/admin/integration-health",
+      "aliases": [],
+      "business_purpose": "Cross-system health using the canonical source status truth",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Cross-system health",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "same connection truth",
+        "affected workflow",
+        "diagnostic link"
+      ],
+      "expected_fields": [
+        "same connection truth",
+        "affected workflow",
+        "diagnostic link"
+      ],
+      "expected_actions": [
+        "Manage source connections"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-AUDIT",
+      "route": "/admin/audit",
+      "aliases": [],
+      "business_purpose": "Owner-readable operational history",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner-readable operational history",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "outcome"
+      ],
+      "expected_fields": [
+        "business event",
+        "record",
+        "actor",
+        "time",
+        "outcome"
+      ],
+      "expected_actions": [
+        "Technical detail"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "ADMIN-ADVANCED",
+      "route": "/admin/advanced-diagnostics",
+      "aliases": [],
+      "business_purpose": "Labeled technical diagnostics with secrets redacted",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Technical evidence and diagnostics",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "technical evidence",
+        "redaction",
+        "real routes"
+      ],
+      "expected_fields": [
+        "technical evidence",
+        "redaction",
+        "real routes"
+      ],
+      "expected_actions": [
+        "Open diagnostic"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S16",
+      "route": "/admin/discovery",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S17",
+      "route": "/admin/config",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S18",
+      "route": "/admin/tier1",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S19",
+      "route": "/admin/delivery",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S20",
+      "route": "/admin/attachments-grids",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S21",
+      "route": "/admin/municipality",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S22",
+      "route": "/admin/corpus",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S23",
+      "route": "/admin/thresholds",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S24",
+      "route": "/admin/control-diagnostics",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S25",
+      "route": "/opportunities",
+      "aliases": [],
+      "business_purpose": "Bounded opportunity and BD follow-up surface",
+      "domain": "commercial",
+      "allowed_personas": [
+        "Owner",
+        "Business Development"
+      ],
+      "expected_title": "Opportunities",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "opportunity",
+        "client",
+        "status",
+        "follow-up"
+      ],
+      "expected_fields": [
+        "opportunity",
+        "client",
+        "status",
+        "follow-up"
+      ],
+      "expected_actions": [
+        "Open Opportunity"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S31",
+      "route": "/engineering-closeout",
+      "aliases": [],
+      "business_purpose": "Bounded Engineering review and closeout foundation",
+      "domain": "engineering",
+      "allowed_personas": [
+        "Owner",
+        "Engineering"
+      ],
+      "expected_title": "Engineering & Commercial Closeout",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "drawing",
+        "scope",
+        "discipline",
+        "advisory",
+        "handover"
+      ],
+      "expected_fields": [
+        "drawing",
+        "scope",
+        "discipline",
+        "advisory",
+        "handover"
+      ],
+      "expected_actions": [
+        "Review drawing",
+        "Return to BD"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "S30",
+      "route": "/admin/expansion-foundation",
+      "aliases": [],
+      "business_purpose": "Secondary shared commercial/contract foundation",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Expansion foundation",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "capability status",
+        "human authority",
+        "handoff"
+      ],
+      "expected_fields": [
+        "capability status",
+        "human authority",
+        "handoff"
+      ],
+      "expected_actions": [
+        "View foundation"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-01",
+      "route": "/admin/dashboard",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-02",
+      "route": "/admin/projects",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-03",
+      "route": "/admin/documents",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-04",
+      "route": "/admin/conflicts",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-05",
+      "route": "/admin/package",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-06",
+      "route": "/admin/findings",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-07",
+      "route": "/admin/lineage",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-08",
+      "route": "/admin/spike",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-09",
+      "route": "/admin/adjudication",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-10",
+      "route": "/admin/analysis",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-11",
+      "route": "/admin/tier2",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-12",
+      "route": "/admin/close",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-13",
+      "route": "/admin/baseline",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-14",
+      "route": "/admin/signoff",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-15",
+      "route": "/admin/confirmation",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-16",
+      "route": "/admin/business",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-17",
+      "route": "/admin/business-baseline",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-18",
+      "route": "/admin/privacy",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-19",
+      "route": "/admin/volume",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-20",
+      "route": "/admin/inquiries",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "LEGACY-21",
+      "route": "/admin/raid",
+      "aliases": [],
+      "business_purpose": "Legacy technical/setup pages retained only as explicit Owner-admin secondary evidence",
+      "domain": "administration",
+      "allowed_personas": [
+        "Owner"
+      ],
+      "expected_title": "Owner administration evidence",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_fields": [
+        "truthful page purpose",
+        "safe loading/error/empty state",
+        "back to Administration"
+      ],
+      "expected_actions": [
+        "Back to Administration"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    }
+  ],
+  "contract_count": 66,
+  "coverage_rule": "Every material route, alias, persona, state, and viewport resolves to a contract."
+}

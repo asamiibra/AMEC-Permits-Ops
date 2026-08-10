@@ -1,0 +1,14 @@
+{
+  "audit_version": "universal-design-v2",
+  "entities": [
+    {"entity":"Proposal","identity":"Proposal reference + description","status_stage":"Proposal status and current stage","owner_next_action":"backend next_action projected by role","sources":"source_count and source evidence","surfaces":["AMEC Work","Proposals & Contracts","Proposal Detail","Proposal Preparation","Issues","Notifications"],"status":"PASS_WITH_OWNER_COPY_DEFECTS"},
+    {"entity":"Contract","identity":"Contract reference + related Proposal + Project","status_stage":"Contract status and Permit handoff","owner_next_action":"backend next_action / permit action","sources":"Contract provenance","surfaces":["Proposals & Contracts","Contract Detail","Issues","Notifications"],"status":"PASS_WITH_DETAIL_COPY_DEFECTS"},
+    {"entity":"Permit","identity":"Permit Application reference + Project Reference","status_stage":"current stage plus route viewed stage","owner_next_action":"workflow next_action and role authority","sources":"source links and verification state","surfaces":["AMEC Work","Permit stages","Issues","Notifications","History","Administration Permit Setup"],"status":"FAIL_CURRENT_VIEWED_STAGE_NOT_EXPLICIT"},
+    {"entity":"Work","identity":"work item context reference","status_stage":"work item status/stage","owner_next_action":"deep-link action","sources":"evidence summary","surfaces":["AMEC Work","domain pages","Issues","Notifications"],"status":"FAIL_TECHNICAL_LABEL_LEAKAGE"},
+    {"entity":"Issue","identity":"Issue title + affected record","status_stage":"severity/blocking/status","owner_next_action":"resolution_link and actionability","sources":"evidence/activity/history","surfaces":["Issues","Issue Detail","AMEC Work","Notifications"],"status":"PASS_WITH_ROLE_COPY_REVIEW"},
+    {"entity":"Notification","identity":"event subject + affected record","status_stage":"read/unread and delivery where relevant","owner_next_action":"specific deep link","sources":"event/audit source","surfaces":["Notifications","destination page","AMEC Work"],"status":"PASS_WITH_DOWNSTREAM_COPY_REVIEW"},
+    {"entity":"Administration","identity":"setup category","status_stage":"semantic configuration status","owner_next_action":"Owner-only setup action","sources":"admin projection","surfaces":["Administration","Inputs & Go-Live","Integration Health","Audit"],"status":"FAIL_LEGACY_CHILD_ROUTE_DRIFT"},
+    {"entity":"Inputs & Go-Live","identity":"screen/requirement registry","status_stage":"Needed/Configured/Tested","owner_next_action":"setup input ownership","sources":"canonical setup registry","surfaces":["Administration","Inputs & Go-Live","drawer"],"status":"PASS_WITH_HEADER_DRAWER_REVIEW"}
+  ],
+  "status": "OPEN_DESIGN_DEFECTS_REMAIN"
+}

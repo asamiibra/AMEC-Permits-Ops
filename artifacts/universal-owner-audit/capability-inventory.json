@@ -1,0 +1,18 @@
+{
+  "authorization_status": "PASS",
+  "policy": "frontend visibility is paired with backend X-Dev-Role capability checks in synthetic TEST mode",
+  "roles": {
+    "Business Development": {
+      "admin": false,
+      "runtime": "COMMERCIAL_APPROVER"
+    },
+    "Engineering": {
+      "admin": false,
+      "runtime": "RESPONSIBLE_ENGINEER"
+    },
+    "Owner": {
+      "admin": true,
+      "runtime": "SYSTEM_ADMIN"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "backend": "FastAPI",
+  "cors_setup": "verification environment included localhost and 127.0.0.1",
+  "critical_suite": {
+    "failed_historical_or_obsolete": 10,
+    "passed": 20
+  },
+  "database": "PostgreSQL",
+  "direct_issue_detail_route": "PASS_AFTER_FIX",
+  "frontend": "Vite",
+  "migrations": "0026_notification_read_states",
+  "seed": "canonical synthetic fixture",
+  "status": "PASS_WITH_HISTORICAL_TEST_CLASSIFICATION"
+}

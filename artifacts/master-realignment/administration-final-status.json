@@ -3,8 +3,9 @@
   "administration": "READY_FOR_OWNER_DEMO",
   "admin_tests": "6/6 passed",
   "full_real_stack": "19/30 passed",
+  "full_mocked_browser_suite": "87/113 passed",
   "p0_blockers": [],
   "p1_blockers": ["11 non-Administration browser assertions remain open and are listed separately in administration-final-browser-result.json"],
-  "remaining_genuine_product_failures": "None confirmed within Administration scope",
+  "remaining_genuine_product_failures": "One previously observed Proposals & Contracts incomplete-payload robustness defect remains open outside Administration scope",
   "historical_master_realignment": "The documented 19 historical failures remain repaired in the focused 28/28 evidence run"
 }

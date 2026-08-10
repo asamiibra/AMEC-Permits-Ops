@@ -1,0 +1,54 @@
+{
+  "frontend_source_contains_issue_detail_route": true,
+  "illegal_static_business_state": 0,
+  "values": [
+    {
+      "source": "/api/work",
+      "status": "TRACED",
+      "surface": "AMEC Work",
+      "value": "KPI counts and work rows"
+    },
+    {
+      "source": "/api/proposals-main",
+      "status": "TRACED",
+      "surface": "Proposals & Contracts",
+      "value": "register/detail/source counts"
+    },
+    {
+      "source": "/api/issues",
+      "status": "TRACED",
+      "surface": "Issues",
+      "value": "summary/list/detail"
+    },
+    {
+      "source": "/api/notifications",
+      "status": "TRACED",
+      "surface": "Notifications",
+      "value": "summary/list/read state"
+    },
+    {
+      "source": "/api/admin/*",
+      "status": "TRACED",
+      "surface": "Administration",
+      "value": "setup and health"
+    },
+    {
+      "source": "/api/projects/{id}",
+      "status": "TRACED",
+      "surface": "Permit Workspace",
+      "value": "stage, sources, tasks"
+    },
+    {
+      "source": "AboutPermitOps.tsx local UI",
+      "status": "TRACED",
+      "surface": "Operating Guide",
+      "value": "copy and local language state"
+    },
+    {
+      "source": "ProductionReadiness.tsx + backend readiness registry",
+      "status": "TRACED",
+      "surface": "Inputs & Go-Live",
+      "value": "registry/counts"
+    }
+  ]
+}

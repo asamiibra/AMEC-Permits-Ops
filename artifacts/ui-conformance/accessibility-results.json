@@ -1,0 +1,6 @@
+{
+  "gate": "UI_ACCESSIBILITY_PASS",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Axe and targeted keyboard/focus checks run during the browser crawl.",
+  "results": []
+}

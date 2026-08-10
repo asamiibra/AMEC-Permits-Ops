@@ -1,0 +1,11 @@
+{
+  "records": [
+    {"reference": "SYN-OPP-0002", "kind": "Proposal", "state": "PROPOSAL_PREPARATION", "purpose": "active technical preparation"},
+    {"reference": "SYN-OPP-0001", "kind": "Proposal", "state": "CONTRACT_HANDOVER", "purpose": "contracted downstream chain"},
+    {"reference": "GHCE-APP-0142", "kind": "PermitApplication", "state": "DRAFT / PROJECT_AND_SOURCES", "purpose": "source confirmation path"},
+    {"reference": "GHCE-APP-0142-AUTH", "kind": "PermitApplication", "state": "RETURNED / COMMENTS_AND_CORRECTIONS", "purpose": "current authority comment path"}
+  ],
+  "issue_targets_are_state_coherent": true,
+  "garbage_fixture_text": 0,
+  "result": "PASS"
+}

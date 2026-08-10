@@ -1,0 +1,23 @@
+{
+  "shared_truth": [
+    "Proposal",
+    "Contract",
+    "Permit stage",
+    "Issue",
+    "Work item",
+    "Notification",
+    "connection health",
+    "setup requirement"
+  ],
+  "status": "PASS_WITH_PROJECTED_TRUTH",
+  "surfaces": [
+    "AMEC Work",
+    "Proposals & Contracts",
+    "Issues",
+    "Notifications",
+    "Administration",
+    "Permit Workspace",
+    "Operating Guide",
+    "Inputs & Go-Live"
+  ]
+}

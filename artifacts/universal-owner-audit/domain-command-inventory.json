@@ -1,0 +1,1259 @@
+{
+  "commands": [
+    {
+      "endpoint": "/api/acceptance-rehearsal",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/admin-comments/{comment_id}/update",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/admin/connections/test",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/admin/notifications/follow-up",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/applications/{application_id}/monitor-now",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/applications/{application_id}/resubmission-readiness/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/approval-applicability/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/assistant-capabilities/{capability_id}/invoke",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/assistant-handoffs",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/assistant-handoffs/{handoff_id}/accept",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/attended-auth-sessions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/attended-auth-sessions/{session_id}/cancel",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/attended-auth-sessions/{session_id}/expire",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/attended-auth-sessions/{session_id}/mfa-completed",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/attended-auth-sessions/{session_id}/mfa-started",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/checklist-items/{item_id}/document-request",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/commercial/signoff-c/generate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/communication-drafts",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/communication-drafts/{draft_id}/approve-for-human-send",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/communication-drafts/{draft_id}/submit-review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/conflicts/{conflict_id}/resolve",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contract-revisions/{revision_id}/approval",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contract-revisions/{revision_id}/execution-evidence",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contract-revisions/{revision_id}/render",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contract-revisions/{revision_id}/submit-review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contracts/{contract_id}/checklist/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contracts/{contract_id}/invoice-requirement/decision",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contracts/{contract_id}/invoices",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contracts/{contract_id}/permit",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/contracts/{contract_id}/revisions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/control-runs",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/corpus-runs",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/dependencies/{dependency_id}/validity/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/discovery/business-case",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/discovery/decisions/{decision_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/discovery/volume",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/document-versions/{version_id}/approval-state",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/document-versions/{version_id}/classify",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/document-versions/{version_id}/extract",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/document-versions/{version_id}/validity/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/documents/{document_id}/versions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-comments/{comment_id}/engineer-disposition",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-review-runs/{run_id}/analyze",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-review-runs/{run_id}/engineer-no-comment",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-review-runs/{run_id}/render-comment-sheet",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-review-runs/{run_id}/render-compliance-sheet",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-reviews/{review_id}/new-drawing-version",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-reviews/{review_id}/re-review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-reviews/{review_id}/regulation-applicability/review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-reviews/{review_id}/runs",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/engineering-reviews/{review_id}/scope",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/evaluation/adjudications/{case_id}/resolve",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/evaluation/gate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/evaluation/spikes",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/evaluation/spikes/{run_id}/run",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/excel-projections/{projection_id}/apply",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/finding-disputes/{dispute_id}/review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/finding-resolutions/{resolution_id}/evidence",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/finding-resolutions/{resolution_id}/reject",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/finding-resolutions/{resolution_id}/request-verification",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/finding-resolutions/{resolution_id}/verify",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/from-portal-validation/{preparation_revision_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/from-precheck/{precheck_run_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/manual",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/manual-official-comment",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/{finding_id}/assign",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/{finding_id}/dispute",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/{finding_id}/disputes",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/{finding_id}/note",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/{finding_id}/reopen",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/findings/{finding_id}/resolutions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/human-takeover",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/incidents/integrity",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/incidents/{incident_id}/impact-assess",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invalidation/source",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoice-revisions/{revision_id}/finance-decision",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoice-revisions/{revision_id}/render",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoice-revisions/{revision_id}/revisions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoice-revisions/{revision_id}/submit-finance-review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoices/{invoice_id}/accounting-handoff",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoices/{invoice_id}/communication-draft",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoices/{invoice_id}/issue-evidence",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/invoices/{invoice_id}/revisions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/material-changes/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/ministry-inquiries/{inquiry_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/monitoring/manual-capture",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/monitoring/policies/{policy_id}/pause",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/monitoring/policies/{policy_id}/synthetic-enable",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/monitoring/run-due-synthetic",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/notifications/{notification_id}/acknowledge",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/notifications/{notification_id}/retry",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/observations/{id}/verify",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/observations/{observation_id}/flag-ambiguous",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/observations/{observation_id}/reject",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/observations/{observation_id}/verify",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/operator-timings",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/admin-comments",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/client-response",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/contracts",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/intake/review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/project-bootstrap",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/quotation/revisions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/reference/assign",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/opportunities/{opportunity_id}/sources",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/packages/{id}/approve",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/packages/{package_id}/approve",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/packages/{package_id}/rebuild",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/packages/{package_id}/refresh",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/phase0/decision",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/phase0/recommendation",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/portal-contracts/{contract_id}/validate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/portal-drift-events/{drift_id}/revalidate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/precheck-runs/{run_id}/clearance/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/attachment-manifest/refresh",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/attachments/associate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/attachments/capture-state",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/attachments/reconcile",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/create-correction-revision",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/grids/{grid_code}/capture",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/grids/{grid_code}/reconcile",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/handoff",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/human-portal-verifications",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/intended-state",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/portal-derived-fields/reconcile",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/portal-snapshots",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/portal-structure-fingerprint/capture",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/precheck/capture",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/preventive-check",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/reconcile",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/session/attendance",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/submission-confirmation",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/preparation-revisions/{revision_id}/supersede",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/project-handovers/{handover_id}/approval",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/project-handovers/{handover_id}/communication-draft",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/project-handovers/{handover_id}/release-evidence",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/project-handovers/{handover_id}/render",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{id}/confirm-project-sources",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/approvals",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/confirm-project-sources",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/documents",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/engineering-reviews",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/excel-projections",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/external-links",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/forms/{template_code}/render",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/handoff-to-permit",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/handovers",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/manual-observations",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/package",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/preparation-revisions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/readiness/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/revalidate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/shadow-corrections",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/projects/{project_id}/validity/evaluate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/contracts/{contract_id}/permit",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/contracts/{id}/permit",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/intake",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/proposals/{id}/contract",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/proposals/{id}/proceed",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/proposals/{id}/ready-for-bd",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/proposals/{proposal_id}/contract",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/proposals/{proposal_id}/engineering-ready",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/proposals/{proposal_id}/proceed",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals-main/proposals/{proposal_id}/promote/{project_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals/{proposal_id}/canonicalize/{project_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals/{proposal_id}/contract",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/proposals/{proposal_id}/proceed",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/quotation-revisions/{revision_id}/commercial-approval",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/quotation-revisions/{revision_id}/extract-or-propose",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/quotation-revisions/{revision_id}/release",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/quotation-revisions/{revision_id}/render",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/quotation-revisions/{revision_id}/return-for-change",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/quotation-revisions/{revision_id}/submit-commercial-review",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/quotation-revisions/{revision_id}/verify-field",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/raid",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/raid/{item_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/reconciliation/excel-projection/{project_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/reconciliation/project-bootstrap",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/recovery/test-restore",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/recurrence/analyze",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/render",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/render-requests",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/rendering/validate-supported-variants",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/rule-candidates",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/acceptance-corpus",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/baseline/generate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/baseline/{baseline_id}/acknowledgements",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/baseline/{baseline_id}/approve",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/delivery-scenarios/{scenario_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/thresholds/{threshold_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/tier1-decisions/{decision_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/tier2-backlog",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/stage2/tier2-backlog/{item_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/submission-confirmations",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/submission-cycles/synthetic-capture",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/submission-handoffs",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/submission-handoffs/{handoff_id}/accept",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/submission-handoffs/{handoff_id}/return-for-correction",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/support/cases",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/support/cases/{case_id}",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/tasks/{task_id}/acknowledge",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/tasks/{task_id}/block",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/tasks/{task_id}/complete",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/tasks/{task_id}/start",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/templates/{template_id}/versions",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/templates/{template_id}/versions/{version_id}/supersede",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/templates/{template_id}/versions/{version_id}/validate",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    },
+    {
+      "endpoint": "/api/workflow-safety-holds/{hold_id}/release",
+      "idempotency": "covered by service/tests where applicable",
+      "source": "FastAPI OpenAPI",
+      "status": "INVENTORIED"
+    }
+  ],
+  "material_domain_commands_uninventoried": 0
+}
