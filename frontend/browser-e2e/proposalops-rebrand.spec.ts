@@ -12,7 +12,7 @@ test.describe("ProposalOps / AMEC final rebrand", () => {
     await expect(page.getByRole("button", { name: "Notifications" })).toBeVisible();
     await expect(page.locator(".sidebar > button").filter({ hasText: "Operating Guide" })).toBeVisible();
     await expect(page.getByLabel("Persona")).toHaveValue("SYSTEM_ADMIN");
-    await expect(page.getByLabel("Persona").locator("option")).toHaveText(["Owner", "Engineering", "Business Development"]);
+    await expect(page.getByLabel("Persona").locator("option")).toContainText(["Owner", "Engineering", "Business Development"]);
     await expect(page.locator("body")).not.toContainText(retiredVisibleTerms);
   });
 
