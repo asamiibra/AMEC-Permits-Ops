@@ -76,8 +76,8 @@ def ensure_dashboard_input_registry(db: Session) -> None:
 def _content_state(db: Session, content_type: str) -> dict[str, Any]:
     if content_type == "DEFINITION":
         rows = list(db.scalars(select(DefinitionEntry).where(DefinitionEntry.status == "ACTIVE")).all())
-        confirmed = sum(1 for row in rows if row.current_revision_id and row.used_in)
-        return {"total": len(rows), "starter": len(rows), "confirmed_production": confirmed, "missing_usage": sum(1 for row in rows if not row.used_in), "source": "Master Content Definitions"}
+        confirmed = sum(1 for row in rows if str(row.created_by).startswith("production") or str(row.created_by).startswith("amec-production"))
+        return {"total": len(rows), "starter": len(rows) - confirmed, "confirmed_production": confirmed, "missing_usage": sum(1 for row in rows if not row.used_in), "source": "Master Content Definitions"}
     rows = [row for row in db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == content_type, MasterContentItem.status == "ACTIVE")).all() if not (row.ref or "").startswith(("E2E", "B-F", "B-E", "AF-MSN", "DEPLOY-PROBE"))]
     confirmed = sum(1 for row in rows if str(row.created_by).startswith("production") or str(row.created_by).startswith("amec-production"))
     return {"total": len(rows), "starter": len(rows) - confirmed, "confirmed_production": confirmed, "missing_category": sum(1 for row in rows if not row.category_id), "missing_usage": sum(1 for row in rows if not row.used_in), "source": "Master Content Library"}

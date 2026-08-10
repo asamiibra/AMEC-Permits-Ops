@@ -28,6 +28,8 @@ def test_dashboard_inputs_are_persistent_and_context_specific(client):
     assert {item["key"] for item in payload["items"]} == REQUIRED_KEYS
     assert payload["summary"]["technical_remaining"] == 1
     assert any(item["current"].get("patterns") == ["F-0001", "R-0001", "E-0001", "D-0001"] for item in payload["items"] if item["key"] == "DASHBOARD_REFERENCE_NUMBERING")
+    definitions = next(item for item in payload["items"] if item["key"] == "DASHBOARD_DEFINITIONS_CONTENT_READINESS")
+    assert definitions["current"]["confirmed_production"] == 0
 
     second = client.get("/api/dashboard-inputs").json()
     assert len(second["items"]) == len(payload["items"])
