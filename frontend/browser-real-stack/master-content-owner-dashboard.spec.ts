@@ -4,9 +4,9 @@ const ownerHeaders = { "X-Dev-Role": "SYSTEM_ADMIN" };
 
 test("Owner Dashboard golden paths use the real API and propagate a governed Engineering change", async ({ page }) => {
   const suffix = Date.now().toString(36);
-  const formRef = `B-F-${suffix}`;
-  const engineeringRef = `B-E-${suffix}`;
-  const term = `Browser controlled term ${suffix}`;
+  const formRef = `E2E-F-${suffix}`;
+  const engineeringRef = `E2E-E-${suffix}`;
+  const term = `E2E verification term ${suffix}`;
 
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible();
@@ -15,29 +15,31 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   }
 
   await page.getByRole("button", { name: "New Form" }).click();
-  await page.getByLabel("Title / Name").fill("Browser controlled form");
+  await page.getByLabel("Title / Name").fill("Verification Form");
   await page.getByLabel("Reference").first().fill(formRef);
+  await page.getByRole("dialog").getByLabel("Category").selectOption({ label: "General" });
   await page.getByLabel("Description").fill("Created through the Owner Dashboard real-stack path.");
   await page.getByLabel("File").setInputFiles({ name: "browser-form.txt", mimeType: "text/plain", buffer: Buffer.from("browser form v1") });
-  await page.getByRole("button", { name: "Save and verify" }).click();
+  await page.getByRole("button", { name: "Create Form" }).click();
   await expect(page.getByText(formRef, { exact: true })).toBeVisible();
 
   const formRow = page.getByRole("row").filter({ hasText: formRef });
-  await formRow.getByRole("button", { name: "Modify" }).click();
-  await page.getByLabel("Change reason").fill("Browser metadata revision");
+  await formRow.getByRole("button", { name: "Edit" }).click();
+  await page.getByLabel("Why are you making this change?").fill("Browser metadata revision");
   await page.getByLabel("File").setInputFiles({ name: "browser-form-v2.txt", mimeType: "text/plain", buffer: Buffer.from("browser form v2") });
-  await page.getByRole("button", { name: "Save new version" }).click();
-  await expect(formRow).toContainText("v2");
-  await formRow.getByRole("button", { name: "Version History" }).click();
+  await page.getByRole("button", { name: "Save as New Version" }).click();
+  await expect(formRow).toContainText("Version 2");
+  await formRow.getByRole("button", { name: "History" }).click();
   await expect(page.getByText(/IMMUTABLE HISTORY/)).toBeVisible();
-  await page.getByRole("button", { name: "×" }).click();
+  await page.getByRole("dialog").getByLabel("Close").click();
 
-  await page.getByRole("button", { name: "New Document" }).click();
-  await page.getByLabel("Title / Name").fill("Browser controlled engineering source");
+  await page.getByRole("button", { name: "New Engineering Work" }).click();
+  await page.getByLabel("Title / Name").fill("Verification Engineering Work");
   await page.getByLabel("Reference").first().fill(engineeringRef);
+  await page.getByRole("dialog").getByLabel("Category").selectOption({ label: "Technical Reference" });
   await page.getByLabel("Description").fill("Synthetic Engineering Works source for propagation proof.");
   await page.getByLabel("File").setInputFiles({ name: "browser-engineering.txt", mimeType: "text/plain", buffer: Buffer.from("engineering v1") });
-  await page.getByRole("button", { name: "Save and verify" }).click();
+  await page.getByRole("button", { name: "Create Engineering Work" }).click();
   await expect(page.getByText(engineeringRef, { exact: true })).toBeVisible();
 
   const engineeringRow = page.getByRole("row").filter({ hasText: engineeringRef });
@@ -50,11 +52,11 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   const dependencyResponse = await page.request.post(`/api/master-content/${item.id}/dependencies`, { headers: { ...ownerHeaders, "Content-Type": "application/json" }, data: { downstream_type: "EngineeringReview", downstream_id: `browser-review-${suffix}`, project_id: project.id } });
   expect(dependencyResponse.ok()).toBeTruthy();
 
-  await engineeringRow.getByRole("button", { name: "Modify" }).click();
-  await page.getByLabel("Change reason").fill("Browser material engineering revision");
+  await engineeringRow.getByRole("button", { name: "Edit" }).click();
+  await page.getByLabel("Why are you making this change?").fill("Browser material engineering revision");
   await page.getByLabel("File").setInputFiles({ name: "browser-engineering-v2.txt", mimeType: "text/plain", buffer: Buffer.from("engineering v2") });
-  await page.getByRole("button", { name: "Save new version" }).click();
-  await expect(engineeringRow).toContainText("v2");
+  await page.getByRole("button", { name: "Save as New Version" }).click();
+  await expect(engineeringRow).toContainText("Version 2");
 
   const propagationResponse = await page.request.get(`/api/master-content/${item.id}/propagation`, { headers: ownerHeaders });
   expect(propagationResponse.ok()).toBeTruthy();
@@ -77,8 +79,9 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
 
   await page.getByRole("button", { name: "New Definition" }).click();
   await page.getByLabel("Word / Term").fill(term);
+  await page.getByRole("dialog").getByLabel("Category").selectOption({ label: "Client" });
   await page.getByLabel("Description").fill("Structured definition created through the Owner Dashboard.");
-  await page.getByRole("button", { name: "Save definition" }).click();
+  await page.getByRole("button", { name: "Create Definition" }).click();
   await expect(page.getByText(term, { exact: true })).toBeVisible();
   const lookup = await page.request.get(`/api/definitions/lookup/${encodeURIComponent(term)}`, { headers: ownerHeaders });
   expect(lookup.ok()).toBeTruthy();

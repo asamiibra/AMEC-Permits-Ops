@@ -71,6 +71,24 @@ DEFAULT_REFERENCE_SEQUENCES = [
 ]
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
 ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE"}
+CONTENT_TYPE_MODULES = {
+    "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "PROPOSAL", "CONTRACT"},
+    "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
+    "ENGINEERING_WORK": {"ENGINEERING", "PERMIT", "ISSUES", "REPORTS"},
+    "DEFINITION": {"BD", "ADMIN", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT"},
+}
+MODULE_LABELS = {
+    "MY_WORK": "My Work",
+    "BD": "Business Development",
+    "ADMIN": "Administration",
+    "ENGINEERING": "Engineering",
+    "PERMIT": "Permit",
+    "ISSUES": "Issues",
+    "NOTIFICATIONS": "Notifications",
+    "REPORTS": "Reports",
+    "PROPOSAL": "Proposals",
+    "CONTRACT": "Contracts",
+}
 
 
 def _error(code: str, status: int = 422, **details: Any) -> HTTPException:
@@ -370,6 +388,102 @@ def definition_lookup(db: Session, term: str) -> dict[str, Any] | None:
     return definition_projection(db, definition, include_history=False) if definition else None
 
 
+OWNER_DEMO_SPECS = {
+    "FORM": [
+        {"ref": "F-0001", "title": "Consultant Form", "category": "Consultant", "description": "Consultant appointment / authorization form.", "used_in": ["BD", "ADMIN", "PERMIT"]},
+        {"ref": "F-0002", "title": "Authorization Form", "category": "Administration", "description": "Owner authorization form for ProposalOps workflows.", "used_in": ["ADMIN", "PERMIT", "PROPOSAL"]},
+    ],
+    "REPORT": [
+        {"ref": "R-0001", "title": "Design Review Report", "category": "Design", "description": "Standard design review report template/reference.", "used_in": ["ENGINEERING", "REPORTS"]},
+        {"ref": "R-0002", "title": "Project Status Report", "category": "Project", "description": "Standard project status reporting format.", "used_in": ["REPORTS", "ADMIN"]},
+    ],
+    "ENGINEERING_WORK": [
+        {"ref": "E-0001", "title": "Qatar Regulation Example", "category": "Regulation", "description": "Reference example for Qatar regulatory review.", "used_in": ["ENGINEERING", "PERMIT"]},
+        {"ref": "E-0002", "title": "QCS Example", "category": "QCS", "description": "Reference example for QCS technical review.", "used_in": ["ENGINEERING", "PERMIT", "REPORTS"], "engineering_metadata": {"discipline": "QCS"}},
+        {"ref": "E-0003", "title": "Municipality Comment Reference", "category": "Authority Comment", "description": "Reference example for municipality comments and responses.", "used_in": ["ENGINEERING", "PERMIT", "ISSUES"], "engineering_metadata": {"authority": "Municipality"}},
+    ],
+}
+OWNER_DEFINITION_SPECS = [
+    {"ref": "D-0001", "term": "Client ID", "category": "Client", "description": "Passport Number or National ID used to identify the client.", "used_in": ["BD", "ADMIN", "PERMIT"]},
+    {"ref": "D-0002", "term": "Project Reference", "category": "Project", "description": "The AMEC project reference used to identify a project across ProposalOps.", "used_in": ["BD", "ADMIN", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT"]},
+]
+
+
+def _confirmed_test_text(row: Any) -> str:
+    return " ".join(str(getattr(row, key, "") or "") for key in ("ref", "title", "term", "description")).lower()
+
+
+def _is_confirmed_test_artifact(row: Any) -> bool:
+    text = _confirmed_test_text(row)
+    ref = str(getattr(row, "ref", "") or "").upper()
+    return any(phrase in text for phrase in ("browser controlled", "deployment probe", "e2e verification")) or ref.startswith(("B-F-", "B-E-", "AF-MSN", "DEPLOY-PROBE-", "E2E-"))
+
+
+def _demo_category_id(db: Session, content_type: str, label: str) -> str | None:
+    categories = db.scalars(select(ContentCategory).where(ContentCategory.active.is_(True))).all()
+    matching = [row for row in categories if row.label == label and content_type in (row.allowed_content_types or [])]
+    return (sorted(matching, key=lambda row: (0 if row.code.startswith(f"{content_type}_") else 1, row.sort_order, row.code))[0].id if matching else None)
+
+
+def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed") -> dict[str, Any]:
+    """Archive confirmed browser/probe artifacts and seed a small safe demo set.
+
+    The operation is intentionally conservative: it never deletes rows and
+    never updates an existing non-demo row at a curated reference. Existing
+    owner edits remain authoritative.
+    """
+    seed_categories(db)
+    seed_reference_sequences(db)
+    archived_master: list[dict[str, str]] = []
+    archived_definitions: list[dict[str, str]] = []
+    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE")).all():
+        if _is_confirmed_test_artifact(item):
+            item.status = "ARCHIVED"
+            archived_master.append({"id": item.id, "ref": item.ref, "content_type": item.content_type})
+            audit(db, correlation_id=f"owner-demo-cleanup:{item.id}", event_type="MASTER_CONTENT_TEST_ARTIFACT_ARCHIVED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": item.ref, "status": "ARCHIVED", "reason": "confirmed browser/deployment test artifact"})
+    for definition in db.scalars(select(DefinitionEntry).where(DefinitionEntry.status == "ACTIVE")).all():
+        if _is_confirmed_test_artifact(definition):
+            definition.status = "ARCHIVED"
+            archived_definitions.append({"id": definition.id, "ref": definition.ref or "", "term": definition.term})
+            audit(db, correlation_id=f"owner-demo-cleanup:{definition.id}", event_type="DEFINITION_TEST_ARTIFACT_ARCHIVED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=actor, after={"term": definition.term, "status": "ARCHIVED", "reason": "confirmed browser test artifact"})
+    db.commit()
+
+    created_master: list[str] = []
+    preserved_master: list[str] = []
+    for content_type, specs in OWNER_DEMO_SPECS.items():
+        for spec in specs:
+            existing = db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == content_type, MasterContentItem.ref == spec["ref"]))
+            if existing:
+                preserved_master.append(spec["ref"])
+                continue
+            category_id = _demo_category_id(db, content_type, spec["category"])
+            projection = create_master_content(db, content_type=content_type, ref=spec["ref"], title=spec["title"], category_id=category_id, description=spec["description"], filename=f"{spec['ref']}-owner-demo.txt", mime_type="text/plain", content=f"AMEC owner demo source for {spec['ref']}.".encode(), actor=actor, idempotency_key=f"owner-demo:{content_type}:{spec['ref']}", correlation_id=f"owner-demo:{content_type}:{spec['ref']}", used_in=spec["used_in"], engineering_metadata=spec.get("engineering_metadata"))
+            created_master.append(projection["ref"])
+
+    created_definitions: list[str] = []
+    preserved_definitions: list[str] = []
+    for spec in OWNER_DEFINITION_SPECS:
+        active_by_ref = db.scalar(select(DefinitionEntry).where(DefinitionEntry.ref == spec["ref"], DefinitionEntry.status == "ACTIVE"))
+        active_by_term = db.scalar(select(DefinitionEntry).where(DefinitionEntry.term == spec["term"], DefinitionEntry.status == "ACTIVE"))
+        existing = active_by_ref or active_by_term
+        if existing:
+            preserved_definitions.append(spec["ref"])
+            continue
+        definition = DefinitionEntry(ref=spec["ref"], term=spec["term"], category=spec["category"], used_in=spec["used_in"], status="ACTIVE", created_by=actor)
+        db.add(definition)
+        db.flush()
+        revision = DefinitionRevision(definition_id=definition.id, revision_number=1, term=definition.term, category=definition.category, used_in=definition.used_in, description=spec["description"], aliases=[], notes=None, changed_by=actor, change_reason="Owner demo seed", status="CURRENT")
+        db.add(revision)
+        db.flush()
+        definition.current_revision_id = revision.id
+        emit_definition_revision_event(db, definition=definition, revision=revision, previous=None, actor=actor, correlation_id=f"owner-demo:DEFINITION:{spec['ref']}")
+        for module in definition.used_in:
+            db.add(MasterContentModuleBinding(definition_id=definition.id, module=module, usage_type="SEMANTIC_SOURCE", active=True, created_by=actor))
+        created_definitions.append(definition.ref)
+    db.commit()
+    return {"archived_master": archived_master, "archived_definitions": archived_definitions, "created_master": created_master, "preserved_master": preserved_master, "created_definitions": created_definitions, "preserved_definitions": preserved_definitions}
+
+
 def _version_projection(version: DocumentVersion) -> dict[str, Any]:
     metadata = version.metadata_json or {}
     return {
@@ -408,6 +522,8 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         "status": item.status,
         "version": current.version_number if current else None,
         "version_status": _status(current) if current else "NO_VERSION",
+        "current_source_filename": current.source_filename if current else None,
+        "current_source_mime_type": current.mime_type if current else None,
         "updated": item.updated_at.isoformat() if item.updated_at else None,
         "storage_status": "Storage verified" if current and _status(current) == "CURRENT" else "Storage unavailable",
         "current_version_id": current.id if current else None,

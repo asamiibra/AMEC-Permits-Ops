@@ -52,7 +52,8 @@ def test_v2_module_bindings_metadata_patch_and_ai_disabled(client):
     assert patched.status_code == 200, patched.text
     assert patched.json()["description"] == "Updated meaning"
     assert patched.json()["used_in"] == ["REPORTS"]
-    assert patched.json()["versions"][0]["change_kind"] == "METADATA"
+    assert len(patched.json()["versions"]) == 1
+    assert patched.json()["versions"][0]["change_kind"] == "CREATE"
 
     denied = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[], headers={"X-Dev-Role": "COMMERCIAL_APPROVER"})
     assert denied.status_code == 403
@@ -60,6 +61,18 @@ def test_v2_module_bindings_metadata_patch_and_ai_disabled(client):
     ai = client.post("/api/master-content/ai-assist", json={"request_type": "CATEGORY_SUGGESTION"}, headers={"X-Dev-Role": "SYSTEM_ADMIN"})
     assert ai.status_code == 409
     assert ai.json()["detail"]["code"] == "AI_ASSIST_NOT_ENABLED"
+
+
+def test_v2_metadata_edit_keeps_current_document_version(client):
+    created = _create(client, "FORM", "Metadata Form")
+    assert created.status_code == 200, created.text
+    item = created.json()
+    original_version = item["current_version_id"]
+    patched = client.patch(f"/api/master-content/{item['id']}/metadata", json={"description": "Owner wording", "used_in": ["ADMIN"], "change_reason": "Clarify owner instructions"}, headers={"X-Dev-Role": "SYSTEM_ADMIN", "Idempotency-Key": str(uuid4())})
+    assert patched.status_code == 200, patched.text
+    assert patched.json()["current_version_id"] == original_version
+    assert len(patched.json()["versions"]) == 1
+    assert patched.json()["description"] == "Owner wording"
 
 
 def test_v2_create_retry_is_idempotent_without_consuming_a_reference(client):

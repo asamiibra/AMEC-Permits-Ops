@@ -1,0 +1,8 @@
+{
+  "policy": "archive-only for confirmed synthetic test/probe records; never delete business content by pattern",
+  "confirmed_patterns": ["browser controlled", "deployment probe", "e2e verification", "B-F-*", "B-E-*", "AF-MSN*", "DEPLOY-PROBE-*", "E2E-*"],
+  "production_action": "backend bootstrap reconciled and audited confirmed rows; active library contains no confirmed polluted records",
+  "storage_action": "generated local/mock test files were removed from the worktree after verification; real Synology binaries were not claimed",
+  "endpoint": "/api/test-support/master-content/owner-cleanup",
+  "guard": "APP_ENV=TEST plus MASTER_CONTENT_BINDING_WRITE capability"
+}

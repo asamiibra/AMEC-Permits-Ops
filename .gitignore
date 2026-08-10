@@ -29,3 +29,5 @@ htmlcov/
 
 # Temporary runtime files
 tmp/
+.vercel
+.env*

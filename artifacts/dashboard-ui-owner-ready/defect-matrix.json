@@ -1,0 +1,16 @@
+{
+  "scope": "ProposalOps / AMEC Dashboard v2 Owner UI and data cleanliness",
+  "entries": [
+    {"id":"P0-01","area":"active synthetic probe rows","root_cause":"confirmed browser/deployment test records were left active in the deployed DB","fix":"conservative backend reconciliation archives only confirmed probe records","verification":"production-verification.json"},
+    {"id":"P0-02","area":"curated master content","root_cause":"Owner demo data was not seeded idempotently","fix":"bootstrap reconciliation creates F-0001/F-0002, R-0001/R-0002, E-0001/E-0002/E-0003","verification":"production-verification.json"},
+    {"id":"P0-03","area":"curated definitions","root_cause":"Owner definitions were absent/incomplete","fix":"bootstrap reconciliation creates D-0001/D-0002 with revisions","verification":"production-verification.json"},
+    {"id":"P1-01","area":"category and Used In display","root_cause":"raw backend IDs/enums were rendered directly","fix":"canonical catalog plus shared friendly label/chip components","verification":"dashboard-clean.png"},
+    {"id":"P1-02","area":"status and version display","root_cause":"raw status and NO_VERSION values leaked into tables","fix":"friendly status and version mapping","verification":"dashboard-clean.png"},
+    {"id":"P1-03","area":"editor","root_cause":"legacy inline/modal path was not owner-friendly","fix":"responsive right-side drawer editor","verification":"form-new.png"},
+    {"id":"P1-04","area":"metadata-only edit","root_cause":"PATCH reused version creation","fix":"in-place metadata patch preserves current document version","verification":"backend v2 test"},
+    {"id":"P1-05","area":"source replacement","root_cause":"replacement semantics were not explicit","fix":"file selection uses Save as New Version and immutable version endpoint","verification":"real-stack browser suite"},
+    {"id":"P1-06","area":"history","root_cause":"raw version history lacked readable context","fix":"history drawer with friendly cards and download","verification":"version-history.png"},
+    {"id":"P1-07","area":"Administration parity","root_cause":"Admin and Dashboard had separate Forms presentation paths","fix":"shared canonical Forms library","verification":"admin-forms.png and real-stack browser suite"},
+    {"id":"P1-08","area":"AI shell","root_cause":"legacy AI block consumed excessive editor space","fix":"compact disabled AI Assist shell with human-review notice","verification":"form-new.png"}
+  ]
+}

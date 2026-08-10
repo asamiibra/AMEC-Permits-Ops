@@ -39,6 +39,7 @@ from backend.app.models import (  # noqa: E402
 from backend.app.seed.cli import ensure_primary_proposal_sources, ensure_proposals_contracts_demo_state, seed  # noqa: E402
 from backend.app.seed.persona_issues_notifications import seed_persona_issues_notifications  # noqa: E402
 from backend.app.services.permit_workflow import ensure_project_sources_task  # noqa: E402
+from backend.app.services.master_content import reconcile_owner_demo_dataset  # noqa: E402
 
 
 def alembic_config() -> Config:
@@ -175,7 +176,8 @@ def main() -> None:
                 db.commit()
             ensure_primary_proposal_sources()
             ensure_proposals_contracts_demo_state()
-            print(f"synthetic_bootstrap=noop fixture={CANONICAL_FIXTURE_ID} migration={migration_action}")
+            owner_demo = reconcile_owner_demo_dataset(db)
+            print(f"synthetic_bootstrap=noop fixture={CANONICAL_FIXTURE_ID} migration={migration_action} owner_demo={owner_demo}")
             return
 
     counts_before = table_counts()
@@ -196,7 +198,8 @@ def main() -> None:
         applications = list(db.scalars(select(PermitApplication).where(PermitApplication.external_request_number.in_(CANONICAL_APPLICATION_IDS))).all())
         if not fixture or fixture.manifest_sha256 != CANONICAL_FIXTURE_MANIFEST_HASH or len(projects) != len(CANONICAL_PROJECT_IDS) or len(applications) != len(CANONICAL_APPLICATION_IDS):
             raise RuntimeError("Canonical synthetic bootstrap verification failed")
-    print(f"synthetic_bootstrap=seeded fixture={CANONICAL_FIXTURE_ID} migration={migration_action} projects={len(projects)} applications={len(applications)}")
+        owner_demo = reconcile_owner_demo_dataset(db)
+    print(f"synthetic_bootstrap=seeded fixture={CANONICAL_FIXTURE_ID} migration={migration_action} projects={len(projects)} applications={len(applications)} owner_demo={owner_demo}")
 
 
 if __name__ == "__main__":

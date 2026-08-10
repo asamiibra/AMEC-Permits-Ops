@@ -1,0 +1,13 @@
+{
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "backend_deployment": "dpl_GfPkpmgqB8KeVQAFW4v8EyJeAMZK",
+  "frontend_deployment": "dpl_HreMwuVjgKzCgLrZxNrUbV7iazXd",
+  "health": {"status": 200, "database_dialect": "postgresql", "database_durable": true, "sqlite_fallback_active": false, "alembic_head": "0029_dashboard_master_content_v2", "real_synology": "NOT_CONFIGURED"},
+  "active_counts": {"FORM": 2, "REPORT": 2, "ENGINEERING_WORK": 3, "DEFINITION": 2},
+  "curated_refs": ["F-0001", "F-0002", "R-0001", "R-0002", "E-0001", "E-0002", "E-0003", "D-0001", "D-0002"],
+  "polluted_active_master": [],
+  "polluted_active_definitions": [],
+  "archived_confirmed_test_master_count": 13,
+  "archived_confirmed_test_definition_count": 4
+}

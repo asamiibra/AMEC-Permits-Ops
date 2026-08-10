@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
+from ..config.settings import get_settings
 from ..models import ContentCategory, DefinitionEntry, DefinitionRevision, DocumentVersion, LineageEdge, MasterContentChangeEvent, MasterContentDependency, MasterContentItem, MasterContentModuleBinding, MasterContentReferenceSequence, Role
 from ..services.backend_realignment import require_capability
 from ..services.master_content import (
@@ -38,9 +39,18 @@ from ..services.master_content import (
     _allocate_reference,
     ALLOWED_MODULES,
     ALLOWED_USAGE_TYPES,
+    reconcile_owner_demo_dataset,
 )
 
 router = APIRouter(prefix="/api", tags=["master-content"])
+
+
+@router.post("/test-support/master-content/owner-cleanup")
+def owner_test_cleanup(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    if get_settings().app_env.upper() != "TEST":
+        raise HTTPException(404, {"code": "TEST_SUPPORT_NOT_AVAILABLE"})
+    require_capability(role, "MASTER_CONTENT_BINDING_WRITE")
+    return {"status": "APPLIED", **reconcile_owner_demo_dataset(db, actor="e2e-cleanup")}
 
 
 def _actor(role: Role) -> str:
@@ -121,12 +131,12 @@ def categories(db: Session = Depends(get_db), role: Role = Depends(current_user_
 
 
 @router.get("/master-content")
-def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, status: str | None = None, module: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, module: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     query = select(MasterContentItem).order_by(MasterContentItem.content_type, MasterContentItem.ref)
-    if not include_archived:
-        query = query.where(MasterContentItem.status == "ACTIVE")
     if status:
         query = query.where(MasterContentItem.status == status.upper())
+    elif not include_archived:
+        query = query.where(MasterContentItem.status == "ACTIVE")
     if content_type:
         query = query.where(MasterContentItem.content_type == content_type.upper())
     if category_id:
@@ -135,6 +145,8 @@ def list_master_content(q: str = "", content_type: str | None = None, category_i
         needle = f"%{q.strip()}%"
         query = query.where(or_(MasterContentItem.title.ilike(needle), MasterContentItem.ref.ilike(needle), MasterContentItem.description.ilike(needle)))
     rows = [item_projection(db, item) for item in db.scalars(query).all()]
+    if category_label:
+        rows = [row for row in rows if (row.get("category") or {}).get("label") == category_label]
     if module:
         rows = [row for row in rows if module.upper() in row.get("used_in", [])]
     return [{**row, "serial_number": index + 1} for index, row in enumerate(rows)]
@@ -226,7 +238,26 @@ def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: S
     if not item:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
     require_capability(role, _write_capability(item.content_type))
-    return create_master_content_version(db, item_id=item_id, expected_current_version=db.get(DocumentVersion, item.current_document_version_id).version_number if item.current_document_version_id else 0, filename=None, mime_type=None, content=None, title=payload.title, category_id=payload.category_id, description=payload.description, change_reason=payload.change_reason, actor=_actor(role), idempotency_key=request.headers.get("Idempotency-Key") or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface="DASHBOARD", used_in=json.dumps(payload.used_in) if payload.used_in is not None else None, engineering_metadata=payload.engineering_metadata)
+    current = db.scalar(select(DocumentVersion).where(DocumentVersion.id == item.current_document_version_id)) if item.current_document_version_id else None
+    if not current:
+        raise HTTPException(409, {"code": "METADATA_REQUIRES_CURRENT_VERSION"})
+    if payload.category_id is not None:
+        from ..services.master_content import _category
+        _category(db, payload.category_id, item.content_type)
+        item.category_id = payload.category_id
+    if payload.title is not None:
+        item.title = payload.title.strip()
+    if payload.description is not None:
+        item.description = payload.description
+    if payload.used_in is not None:
+        modules = _parse_modules(payload.used_in)
+        item.used_in = modules
+        _sync_module_bindings(db, item_id=item.id, modules=modules, actor=_actor(role))
+    if payload.engineering_metadata is not None:
+        item.engineering_metadata = payload.engineering_metadata
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_METADATA_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after={"ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "used_in": item.used_in, "current_version_id": current.id}, metadata={"change_reason": payload.change_reason, "document_version_unchanged": True})
+    db.commit()
+    return item_projection(db, item, include_history=True)
 
 
 @router.get("/master-content/{item_id}/module-bindings")
@@ -344,10 +375,10 @@ def reconcile(item_id: str, request: Request, db: Session = Depends(get_db), rol
 @router.get("/definitions")
 def list_definitions(q: str = "", category: str | None = None, status: str | None = None, module: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     query = select(DefinitionEntry).order_by(DefinitionEntry.term)
-    if not include_archived:
-        query = query.where(DefinitionEntry.status == "ACTIVE")
     if status:
         query = query.where(DefinitionEntry.status == status.upper())
+    elif not include_archived:
+        query = query.where(DefinitionEntry.status == "ACTIVE")
     if category:
         query = query.where(DefinitionEntry.category == category)
     if q.strip():

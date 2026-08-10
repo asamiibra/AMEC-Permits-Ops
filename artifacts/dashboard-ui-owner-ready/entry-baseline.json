@@ -1,0 +1,16 @@
+{
+  "branch": "main",
+  "commit_before": "b8c827282d22ca26507b34899ebe8f4f37aac007",
+  "alembic_before": "0029_dashboard_master_content_v2",
+  "alembic_after": "0029_dashboard_master_content_v2",
+  "backend_baseline": {"passed": 130, "skipped": 1, "warnings": 2},
+  "frontend_baseline": {"vitest_passed": 29, "build": "passed"},
+  "real_stack_browser_baseline": {"passed": 21},
+  "deployed_defects_reproduced": [
+    "confirmed synthetic probe rows were active",
+    "curated categories and Used In were missing",
+    "raw controls/status/version labels were visible",
+    "editor/history UI was oversized and difficult to use"
+  ],
+  "real_synology": "NOT_CONFIGURED"
+}

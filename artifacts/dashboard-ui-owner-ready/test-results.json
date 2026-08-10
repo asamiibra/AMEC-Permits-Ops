@@ -1,0 +1,8 @@
+{
+  "backend": "130 passed, 1 skipped, 2 warnings",
+  "frontend_vitest": "29 passed",
+  "frontend_build": "passed",
+  "real_stack_browser": "21 passed",
+  "focused_owner_and_admin_browser": "3 passed",
+  "global_teardown": "owner_test_cleanup=PASS"
+}
