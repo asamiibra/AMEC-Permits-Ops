@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "kpis": ["Needs Action", "Waiting for Review", "Blocked", "Overdue"],
+  "overlap_rule": "Blocked and Overdue are overlapping conditions; summary totals are not forced to add to queue total",
+  "filtered_empty_state": "Showing: Engineering · Permits · Waiting for Review · 0 results with Clear filters",
+  "error_state": "Some work data could not be loaded. Retry",
+  "markers": ["AMEC_WORK_KPI_RECONCILIATION_PASS", "FILTERED_EMPTY_STATE_TRUTHFUL_PASS", "ZERO_RESULT_FILTER_MISLEADING_COPY_ZERO", "AMEC_WORK_FAKE_EMPTY_STATE_ZERO", "RAW_AMEC_WORK_API_ERROR_ZERO"]
+}

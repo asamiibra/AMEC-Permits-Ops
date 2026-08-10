@@ -1,0 +1,22 @@
+{
+  "verification_date": "2026-08-09",
+  "command": "npm run browser-real-stack -- --reporter=list",
+  "owner_administration": {"tests": 6, "passed": 6, "failed": 0},
+  "full_real_stack": {"tests": 30, "passed": 19, "failed": 11},
+  "scope": "Administration routes, owner authorization, semantic labels, status truth, bounded persistence, direct routes, and mobile layout",
+  "remaining_broader_suite_failures": [
+    "Accessibility locale switch expectation",
+    "Keyboard primary-owner control expectation",
+    "Issue detail section-label expectation",
+    "New Proposal raw verification-status expectation",
+    "Owner rehearsal legacy work/role controls (3 tests)",
+    "Persona notifications legacy heading expectation",
+    "Proposal/Contract legacy engineering-workspace expectation",
+    "Stage 1 legacy confirm-project-sources expectation",
+    "Visual QA locale switch expectation"
+  ],
+  "administration_gate": "PASS",
+  "broader_suite_gate": "OPEN_OUT_OF_SCOPE",
+  "decision": "ADMINISTRATION_FINAL_AUDIT_INCOMPLETE",
+  "genuine_scoped_product_failures": []
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "unit_tests": "24 passed",
+  "backend_proposals_tests": "7 passed",
+  "backend_full_suite": "100 passed, 2 warnings",
+  "browser_e2e": "4 passed",
+  "browser_real_stack": "2 passed",
+  "build": "passed with existing Vite chunk-size warning",
+  "routes": ["/proposals-contracts", "/proposals/:id", "/proposals/:id/preparation", "/contracts/:id"]
+}

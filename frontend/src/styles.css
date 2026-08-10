@@ -47,3 +47,5 @@
 .app-shell .about-page .outputs *{color:#f5ffff!important}
 .app-shell .about-page .assists li,.app-shell .about-page .decides li{color:#365866!important}
 .app-shell .about-page .button-primary{color:#0d6258!important}
+@media(max-width:700px){.app-shell .about-page{width:100%;max-width:none;margin:-20px 0 0}}
+.app-shell .about-page .about-language button{color:#4f6875}

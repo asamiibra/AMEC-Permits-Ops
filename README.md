@@ -1,6 +1,6 @@
-# PermitOps Build Weeks 1–9 / Integrity-Reconciled Baseline
+# ProposalOps Build Weeks 1–9 / Integrity-Reconciled Baseline
 
-PermitOps is a modular-monolith foundation for a fictional engineering consultancy managing building-permit work in Qatar. Week 1 establishes canonical projects, explicit links to three separately mocked operational surfaces, discovery baselines, auditability, and a credible internal UI.
+ProposalOps is a modular-monolith foundation for a fictional engineering consultancy managing proposal and contract work in Qatar. The visible product model is AMEC Work, Proposals & Contracts, Issues, Notifications, and Operating Guide; legacy PermitOps identifiers remain compatibility-only implementation details.
 
 > **THIS REPOSITORY CURRENTLY USES SYNTHETIC TEST DATA ONLY.**  
 > **DO NOT ADD REAL QIDs, TITLE DEEDS, OWNER PERSONAL DATA, MINISTRY CREDENTIALS, OTPS, OR CLIENT PROJECT DOCUMENTS UNTIL THE APPROVED DATA-ACCESS / TEST-ENVIRONMENT DECISION EXISTS.**
@@ -105,7 +105,7 @@ The canonical end-to-end fixture is `PermitOps_Synthetic_MVP_Dataset_v1`, contro
 
 Current governance is `TRACK_A = ACTIVE_SYNTHETIC`, `TRACK_B = NOT_AUTHORIZED`, and `TRACK_C = NOT_AUTHORIZED`. Stage 2 and Sign-off C are not signed; synthetic mechanism completion is not client-build or production authorization.
 
-Project bootstrap is explicit: initiation → exact project-number reservation/validation → project creation → standard synthetic Synology root/templates → controlled Excel projection link → municipality simulator application → audit evidence. Synology and Excel remain representations, not canonical truth. The recording-derived workbook uses `GENERAL FOLLOW UP`, `DESIGN`, `Suppervission`, and `Services Provider`; human-owned cells are read-only to PermitOps, while bounded writes target `PERMITOPS SYSTEM PROJECTION` only.
+Project bootstrap is explicit: initiation → exact project-number reservation/validation → project creation → standard synthetic Synology root/templates → controlled Excel projection link → municipality simulator application → audit evidence. Synology and Excel remain representations, not canonical truth. The recording-derived workbook uses `GENERAL FOLLOW UP`, `DESIGN`, `Suppervission`, and `Services Provider`; human-owned cells are read-only to ProposalOps, while bounded writes target the compatibility projection area only.
 
 Property, Party, PropertyOwnership, Representation, and Authorization are relationally modeled. The same verified fact can be inspected as raw observation → canonical target-neutral value → deterministic FORM/EXCEL/MUNICIPALITY rendering through `TargetRenderingRule`.
 

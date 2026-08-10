@@ -1,0 +1,6 @@
+{
+  "personas": ["Owner", "Business Development", "Engineering"],
+  "rules": {"Owner": "meaningful cross-functional visibility; capability-gated mutation", "Business Development": "commercial Proposal/Contract actionability; technical context only", "Engineering": "technical Proposal/Permit actionability; commercial visibility governed by ownership"},
+  "server_authorization": "Capability checks on resolution, evidence, verification, dispute, and reopen mutations",
+  "cross_entity_mutation": "409 ISSUE_ENTITY_MISMATCH"
+}

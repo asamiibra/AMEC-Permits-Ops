@@ -1,0 +1,13 @@
+{
+  "synthetic_only": true,
+  "adapter": "MockSynologyAdapter",
+  "template_version": "SYN-AMEC-PROJECT-FOLDERS-1.0",
+  "configured_template": ["01_Client", "02_Property", "03_Design", "04_Permits", "05_Correspondence"],
+  "semantic_destinations": {
+    "CLIENT_SOURCE": "01_Client",
+    "PROPOSAL_SOURCE": "03_Design",
+    "CONTRACT_SOURCE": "04_Permits",
+    "OPPORTUNITY_SOURCE": "05_Correspondence"
+  },
+  "checks": ["project context required", "reference mismatch blocked", "root resolved from ProjectAdministration/Synology bootstrap", "template drift blocked", "read-back hash and size verified", "same hash retry reused", "cross_project_artifact_write=0"]
+}

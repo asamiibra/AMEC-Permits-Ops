@@ -1,0 +1,10 @@
+{
+  "artifact": "operating-guide-browser-result",
+  "status": "PASS",
+  "direct_route": {"route":"/operating-guide","english":"PASS","arabic":"PASS","refresh":"PASS"},
+  "english": {"full_lifecycle_story":"PASS","hero_updated":"PASS","permit_first_removed":"PASS","role_boundaries":"PASS","proceed_definition":"PASS","proposal_contract_handoff":"PASS","contract_permit_handoff":"PASS","permit_stages":"PASS","work_issue_notification_boundary":"PASS","source_provenance":"PASS","human_submission_boundary":"PASS"},
+  "arabic": {"switch":"PASS","rtl":"PASS","semantic_parity":"PASS","mixed_term_isolation":"PASS","switch_back":"PASS"},
+  "navigation": {"back_to_amec_work":"PASS","proposals_and_contracts":"PASS","existing_routes_only":"PASS"},
+  "mobile": {"english_390px_no_overflow":"PASS","arabic_390px_no_overflow":"PASS"},
+  "tests": {"guide_browser_tests":"9 passed","guide_unit_tests":"3 passed"}
+}

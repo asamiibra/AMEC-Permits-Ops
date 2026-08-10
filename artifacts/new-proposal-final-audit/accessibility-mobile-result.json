@@ -1,0 +1,8 @@
+{
+  "axe": {"violations": 0, "status": "PASS"},
+  "mobile_viewport": "390x844",
+  "horizontal_overflow": false,
+  "hard_refresh": true,
+  "status": "PASS",
+  "markers": ["NEW_PROPOSAL_ACCESSIBILITY_PASS", "NEW_PROPOSAL_MOBILE_PASS"]
+}

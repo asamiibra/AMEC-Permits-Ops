@@ -1,0 +1,47 @@
+{
+  "title": "ProposalOps — Owner Demo RC v2 Lock",
+  "status": "PROPOSALOPS_OWNER_DEMO_RELEASE_CANDIDATE_READY",
+  "locked_at": "2026-08-09T15:04:23-05:00",
+  "local_rc_commit": "3495937b898444ba78f275cbdbb562ff8e23e36e",
+  "deployment_source_note": "Deployed source includes the verified working-tree overlay for migration 0024 naming, bootstrap source reconciliation, and frontend route/source-label fixes; unrelated user worktree changes were not committed.",
+  "frontend": {
+    "deployment_id": "dpl_ES4KvUzAsWcDGEtcDqf7SQJPsYLq",
+    "url": "https://amec-permits-ops.vercel.app"
+  },
+  "backend": {
+    "deployment_id": "dpl_AhTpoekhRAcrZiret6xnQKNv6jbF",
+    "url": "https://amec-permits-ops-backend.vercel.app"
+  },
+  "database": "Neon PostgreSQL",
+  "alembic_head": "0025_permit_workflow_stage_confirmation",
+  "fixture": {
+    "name": "PermitOps_Synthetic_MVP_Dataset_v1",
+    "version": "1.1.1",
+    "manifest_hash": "b3a5fbee1a968e3740801b0b696b31a39a3a907437f2377fcdfdfad3bb3546cb"
+  },
+  "tests": {
+    "backend_sqlite": "99 passed, 2 warnings",
+    "backend_postgresql": "99 passed, 2 warnings",
+    "frontend_vitest": "24 passed",
+    "vite_build": "PASS",
+    "real_stack_browser": "15/15 passed",
+    "final_proposal_preparation_route": "2/2 passed"
+  },
+  "golden_paths": {
+    "owner": "PASS",
+    "business_development": "PASS",
+    "engineering": "PASS"
+  },
+  "production_gates": {
+    "material_500s": 0,
+    "raw_api_errors": 0,
+    "fake_empty_states": 0,
+    "cross_project_violations": 0,
+    "secret_exposure": 0,
+    "remaining_p0": 0,
+    "remaining_p1": 0,
+    "remaining_p2": 0,
+    "remaining_p3": 0
+  },
+  "freeze": "Feature work stops at this lock."
+}

@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "scope": "mounted /work DOM",
+  "forbidden_visible_terms": ["E7", "shared persona", "all personas", "all owner roles", "HUMAN_SEND", "MISSING_DOCUMENT"],
+  "observed_violations": 0,
+  "flag": "HOMEPAGE_INTERNAL_IMPLEMENTATION_JARGON_ZERO"
+}

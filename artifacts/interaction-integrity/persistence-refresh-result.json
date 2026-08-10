@@ -1,0 +1,9 @@
+{
+  "command": "ConfirmProjectAndSources",
+  "same_stack_hard_refresh": true,
+  "persisted_workflow_stage": "VERIFY_DATA",
+  "persisted_confirmation_evidence": true,
+  "persisted_next_action": "VERIFY_PROJECT_DATA",
+  "duplicate_verify_tasks": 0,
+  "status": "PASS"
+}

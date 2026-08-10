@@ -1,0 +1,13 @@
+{
+  "command": "ConfirmProjectAndSources",
+  "project_reference": "GHCE-2026-0142",
+  "first_result": "COMPLETED",
+  "second_result": "IDEMPOTENT",
+  "stage_before": "PROJECT_AND_SOURCES",
+  "stage_after": "VERIFY_DATA",
+  "old_task": "COMPLETED",
+  "next_task": "VERIFY_PROJECT_DATA / OPEN",
+  "audit": "PROJECT_SOURCES_CONFIRMED + WORKFLOW_TASK_COMPLETED",
+  "notification": "PROJECT_SOURCES_CONFIRMED",
+  "status": "PASS"
+}

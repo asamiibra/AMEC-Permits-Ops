@@ -1,0 +1,19 @@
+{
+  "decision": "OWNER_REBRAND_PERSONA_MODEL_INCOMPLETE",
+  "implemented": [
+    "ProposalOps visible branding and public metadata",
+    "AMEC Work and Proposals & Contracts visible naming",
+    "three-persona selector and persona navigation scopes",
+    "Operating Guide role and product terminology updates",
+    "legacy /permits compatibility redirect boundary",
+    "frontend build pass",
+    "frontend unit tests pass (9 files / 22 tests)",
+    "focused ProposalOps browser smoke passes (3 tests)"
+  ],
+  "exact_gaps": [
+    "field-level ownership/control visibility is not fully enforced across all legacy workflow components",
+    "full browser and screenshot visual audit has not yet been run against the real stack",
+    "source-level legacy labels remain in internal compatibility components and historical implementation text"
+  ],
+  "required_next_decision": "Close field-level access and complete browser/visual regression before issuing OWNER_DIRECTION_FULLY_IMPLEMENTED."
+}

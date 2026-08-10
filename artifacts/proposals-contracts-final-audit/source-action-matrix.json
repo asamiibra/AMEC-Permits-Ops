@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "sources": {
+    "TENDER_EMAIL": {"label": "Tender Email", "helper": "Email or saved message/PDF", "scope": "creates or adds to Proposal"},
+    "TENDER_DOCUMENT": {"label": "Tender Document", "helper": "RFQ, RFP, tender or client brief", "scope": "creates or adds to Proposal"},
+    "TENDER_IMAGE": {"label": "Tender Photo / Image", "helper": "Image or screenshot", "scope": "creates or adds to Proposal"},
+    "CLIENT_INFORMATION": {"label": "Client Information", "helper": "Client source or supporting document", "scope": "creates or adds to Proposal"},
+    "CLIENT_LIST": {"label": "Client List", "helper": "Client master source", "scope": "Client master reconciliation; never creates Proposal"},
+    "PROPOSAL_FORM": {"label": "Proposal Form", "helper": "Attach to an eligible Proposal", "scope": "existing Proposal + Project required"},
+    "CONTRACT_FORM": {"label": "Contract Form", "helper": "Attach to an eligible Contract", "scope": "existing Contract + Proposal + Project required"}
+  },
+  "verification": ["focused source card", "styled file picker", "read-back verified success", "action-specific CTA"]
+}

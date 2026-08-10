@@ -1,0 +1,6 @@
+{
+  "policy": "COPY_VERIFY_AND_ARCHIVE_SOURCE",
+  "local": {"status": "PASS", "tender_document": "PASS", "proposal_form": "PASS", "hash_preserved": true, "target_read_back": true, "provisional_reference_retained": true, "idempotent_retry": true, "target_conflict_control": "IMPLEMENTED", "folder_drift_control": "IMPLEMENTED", "wrong_project_control": "PASS", "cross_project_writes": 0},
+  "deployed": {"status": "NOT_RUN", "reason": "The deployed synthetic fixture has no early-stage source artifact; a deployed mutation cycle was not executed."},
+  "decision": "CANONICAL_SOR_PROMOTION_POLICY_PASS_LOCAL_DEPLOYED_CYCLE_OPEN"
+}

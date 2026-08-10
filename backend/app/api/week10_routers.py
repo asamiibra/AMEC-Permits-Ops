@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
+from ..api.dependencies import current_user_role
 from ..db import get_db
 from ..fixtures.canonical import fixture_metadata
 from ..models import *
@@ -15,6 +16,7 @@ from ..services.week10 import *
 from ..services.week7 import create_routed_finding
 from ..services.week45 import build_package, evaluate_readiness, row, snapshot_for_revision
 from ..services.week8 import ensure_project_lineage, record_material_change
+from ..services.persona_visibility import authorize_issue_mutation
 
 router = APIRouter(prefix="/api")
 
@@ -71,8 +73,13 @@ def get_resolution_requirements(finding_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/findings/{finding_id}/resolutions")
-def post_resolution(finding_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db)):
+def post_resolution(finding_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role=Depends(current_user_role)):
     finding = finding_or_404(db, finding_id)
+    authorize_issue_mutation(finding, role)
+    supplied = payload.get("affected_entity_id") or payload.get("corrected_entity_id")
+    expected = finding.contract_id or finding.proposal_id or finding.permit_id or finding.project_id
+    if (supplied and supplied != expected) or (payload.get("project_id") and payload.get("project_id") != finding.project_id):
+        raise HTTPException(409, detail={"code": "ISSUE_ENTITY_MISMATCH", "message": "The resolution payload does not belong to this Issue's affected record."})
     try:
         item = create_resolution(db, finding, payload, actor=payload.get("proposed_by", "synthetic-operator"), correlation_id=cid(request))
         db.commit()
@@ -82,8 +89,9 @@ def post_resolution(finding_id: str, payload: dict[str, Any], request: Request, 
 
 
 @router.post("/finding-resolutions/{resolution_id}/evidence")
-def post_resolution_evidence(resolution_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db)):
+def post_resolution_evidence(resolution_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role=Depends(current_user_role)):
     resolution = resolution_or_404(db, resolution_id)
+    authorize_issue_mutation(finding_or_404(db, resolution.finding_id), role)
     try:
         evidence = add_evidence(db, resolution, payload, actor=payload.get("added_by", "synthetic-operator"), correlation_id=cid(request))
         db.commit()
@@ -93,8 +101,9 @@ def post_resolution_evidence(resolution_id: str, payload: dict[str, Any], reques
 
 
 @router.post("/finding-resolutions/{resolution_id}/request-verification")
-def request_resolution_verification(resolution_id: str, payload: dict[str, Any] | None = None, request: Request = None, db: Session = Depends(get_db)):
+def request_resolution_verification(resolution_id: str, payload: dict[str, Any] | None = None, request: Request = None, db: Session = Depends(get_db), role=Depends(current_user_role)):
     resolution = resolution_or_404(db, resolution_id)
+    authorize_issue_mutation(finding_or_404(db, resolution.finding_id), role)
     resolution.status = "READY_FOR_VERIFICATION"
     audit(db, correlation_id=cid(request), event_type="FINDING_CLOSURE_VERIFICATION_REQUESTED", entity_type="FindingResolution", entity_id=resolution.id, after={"finding_id": resolution.finding_id}, metadata=fixture_metadata())
     evaluation = evaluate_closure(db, resolution)
@@ -103,8 +112,9 @@ def request_resolution_verification(resolution_id: str, payload: dict[str, Any] 
 
 
 @router.post("/finding-resolutions/{resolution_id}/verify")
-def verify_resolution_route(resolution_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db)):
+def verify_resolution_route(resolution_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role=Depends(current_user_role)):
     resolution = resolution_or_404(db, resolution_id)
+    authorize_issue_mutation(finding_or_404(db, resolution.finding_id), role)
     actor = payload.get("verifier", payload.get("verified_by", ""))
     if not actor:
         raise HTTPException(422, "VERIFIER_REQUIRED")
@@ -114,8 +124,9 @@ def verify_resolution_route(resolution_id: str, payload: dict[str, Any], request
 
 
 @router.post("/finding-resolutions/{resolution_id}/reject")
-def reject_resolution_route(resolution_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db)):
+def reject_resolution_route(resolution_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role=Depends(current_user_role)):
     resolution = resolution_or_404(db, resolution_id)
+    authorize_issue_mutation(finding_or_404(db, resolution.finding_id), role)
     reason = payload.get("reason")
     if not reason:
         raise HTTPException(422, "REJECTION_REASON_REQUIRED")
@@ -130,27 +141,30 @@ def get_resolution(resolution_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/findings/{finding_id}/disputes")
-def post_dispute(finding_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db)):
+def post_dispute(finding_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role=Depends(current_user_role)):
     try:
-        dispute = raise_dispute(db, finding_or_404(db, finding_id), payload, actor=payload.get("raised_by", "synthetic-operator"), correlation_id=cid(request)); db.commit()
+        finding = finding_or_404(db, finding_id); authorize_issue_mutation(finding, role)
+        dispute = raise_dispute(db, finding, payload, actor=payload.get("raised_by", "synthetic-operator"), correlation_id=cid(request)); db.commit()
     except ValueError as exc:
         db.rollback(); raise HTTPException(422, str(exc))
     return {"dispute": row(dispute), "finding": finding_payload(db, finding_or_404(db, finding_id)), "fixture": fixture_metadata()}
 
 
 @router.post("/finding-disputes/{dispute_id}/review")
-def review_dispute_route(dispute_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db)):
+def review_dispute_route(dispute_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role=Depends(current_user_role)):
     dispute = db.get(FindingDispute, dispute_id)
     if not dispute: raise HTTPException(404, "Finding dispute not found")
+    authorize_issue_mutation(finding_or_404(db, dispute.finding_id), role)
     review_dispute(db, dispute, payload, actor=payload.get("reviewed_by", "synthetic-reviewer"), correlation_id=cid(request)); db.commit()
     return {"dispute": row(dispute), "finding": finding_payload(db, finding_or_404(db, dispute.finding_id)), "fixture": fixture_metadata()}
 
 
 @router.post("/findings/{finding_id}/reopen")
-def reopen_route(finding_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db)):
+def reopen_route(finding_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role=Depends(current_user_role)):
     reason = payload.get("reason")
     if not reason: raise HTTPException(422, "REOPEN_REASON_REQUIRED")
-    event = reopen_finding(db, finding_or_404(db, finding_id), actor=payload.get("reopened_by", "synthetic-reviewer"), reason=reason, correlation_id=cid(request), authority_event_id=payload.get("source_authority_event_id")); db.commit()
+    finding = finding_or_404(db, finding_id); authorize_issue_mutation(finding, role)
+    event = reopen_finding(db, finding, actor=payload.get("reopened_by", "synthetic-reviewer"), reason=reason, correlation_id=cid(request), authority_event_id=payload.get("source_authority_event_id")); db.commit()
     return {"reopen_event": row(event), "finding": finding_payload(db, finding_or_404(db, finding_id)), "fixture": fixture_metadata()}
 
 

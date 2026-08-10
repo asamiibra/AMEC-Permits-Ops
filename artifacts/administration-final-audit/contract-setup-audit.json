@@ -1,0 +1,1 @@
+{"proposal_contract_identity":"canonical Project context displayed by business reference","permit_handoff":"eligible Contract + canonical Project starts or links Permit","existing_permit_required":false,"runtime_test":"backend/tests/test_proposals_main.py::test_contract_permit_handoff_starts_downstream_permit_when_project_is_canonical","result":"PASS"}

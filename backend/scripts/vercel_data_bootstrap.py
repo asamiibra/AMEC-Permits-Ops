@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from datetime import datetime, timezone
 
 from alembic import command
 from alembic.config import Config
@@ -27,11 +28,17 @@ from backend.app.fixtures.canonical import (  # noqa: E402
 from backend.app.models import (  # noqa: E402
     Base,
     AuditEvent,
+    Contract,
+    Opportunity,
     PermitApplication,
     Project,
+    Quotation,
     SyntheticFixtureSet,
+    WorkflowTask,
 )
-from backend.app.seed.cli import seed  # noqa: E402
+from backend.app.seed.cli import ensure_primary_proposal_sources, ensure_proposals_contracts_demo_state, seed  # noqa: E402
+from backend.app.seed.persona_issues_notifications import seed_persona_issues_notifications  # noqa: E402
+from backend.app.services.permit_workflow import ensure_project_sources_task  # noqa: E402
 
 
 def alembic_config() -> Config:
@@ -78,6 +85,59 @@ def ensure_current_schema() -> str:
     return "upgrade_head"
 
 
+def reconcile_proposalops_fixture(db, projects: list[Project], applications: list[PermitApplication]) -> bool:
+    """Repair only deterministic ProposalOps links in the known fixture.
+
+    This is intentionally narrow and idempotent: it does not reset business
+    records or invent sources, it only reconciles the existing synthetic
+    opportunity/contract/permit chain to the canonical first project.
+    """
+    project = next((item for item in projects if item.project_number == CANONICAL_PROJECT_IDS[0]), None)
+    application = next((item for item in applications if item.external_request_number == CANONICAL_APPLICATION_IDS[0]), None)
+    opportunity = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == "SYN-OPP-0001"))
+    if not project or not application or not opportunity:
+        return False
+    changed = False
+    if opportunity.project_id != project.id:
+        opportunity.project_id = project.id
+        changed = True
+    if opportunity.reference_state != "CANONICAL":
+        opportunity.reference_state = "CANONICAL"
+        changed = True
+    if not opportunity.provisional_reference:
+        opportunity.provisional_reference = opportunity.opportunity_reference
+        changed = True
+    if opportunity.canonical_project_reference != project.project_number:
+        opportunity.canonical_project_reference = project.project_number
+        changed = True
+    if not opportunity.canonicalized_at:
+        opportunity.canonicalized_at = datetime.now(timezone.utc)
+        changed = True
+    if not opportunity.canonicalized_by:
+        opportunity.canonicalized_by = "owner@amec.synthetic"
+        changed = True
+    if not opportunity.proposal_fields_json:
+        opportunity.proposal_fields_json = {
+            "price": "QAR 125,000",
+            "sow": "Building advisory and permit coordination",
+            "period": "12 weeks",
+            "exclusions": "Authority fees",
+        }
+        changed = True
+    quotation = db.scalar(select(Quotation).where(Quotation.opportunity_id == opportunity.id).order_by(Quotation.created_at))
+    contract = db.scalar(select(Contract).where(Contract.quotation_id == quotation.id).order_by(Contract.created_at)) if quotation else None
+    if contract and contract.project_id != project.id:
+        contract.project_id = project.id
+        changed = True
+    if contract and opportunity.status not in {"CONTRACT_HANDOVER", "CONTRACTED", "CLOSED"}:
+        opportunity.status = "CONTRACT_HANDOVER"
+        changed = True
+    if contract and application.controlling_contract_id != contract.id:
+        application.controlling_contract_id = contract.id
+        changed = True
+    return changed
+
+
 def main() -> None:
     settings = get_settings()
     if settings.app_env.upper() != "TEST" or not settings.synthetic_only:
@@ -87,6 +147,12 @@ def main() -> None:
 
     with engine.connect() as connection:
         connection.exec_driver_sql("select 1")
+
+    # Migrate before querying ORM models.  The bootstrap itself may be the
+    # first deployed process to introduce a new model column (for example the
+    # Contract → Permit controlling link), so model inspection cannot precede
+    # the schema gate.
+    migration_action = ensure_current_schema()
 
     with SessionLocal() as db:
         fixture_rows = list(db.scalars(select(SyntheticFixtureSet).where(SyntheticFixtureSet.fixture_set_id == CANONICAL_FIXTURE_ID)).all())
@@ -98,7 +164,17 @@ def main() -> None:
             fixture = fixture_rows[0]
             if fixture.manifest_sha256 != CANONICAL_FIXTURE_MANIFEST_HASH or len(projects) != len(CANONICAL_PROJECT_IDS) or len(applications) != len(CANONICAL_APPLICATION_IDS):
                 raise RuntimeError("Canonical synthetic fixture is partial or inconsistent; refusing an automatic reset")
-            migration_action = ensure_current_schema()
+            changed = reconcile_proposalops_fixture(db, projects, applications)
+            changed = seed_persona_issues_notifications(db) or changed
+            for project in projects:
+                application = next((item for item in applications if item.project_id == project.id), None)
+                if application and not db.scalar(select(WorkflowTask).where(WorkflowTask.context_type == "PERMIT_WORKSPACE", WorkflowTask.context_id == project.id, WorkflowTask.task_type == "CONFIRM_PROJECT_SOURCES")):
+                    ensure_project_sources_task(db, project, application)
+                    changed = True
+            if changed:
+                db.commit()
+            ensure_primary_proposal_sources()
+            ensure_proposals_contracts_demo_state()
             print(f"synthetic_bootstrap=noop fixture={CANONICAL_FIXTURE_ID} migration={migration_action}")
             return
 
@@ -112,7 +188,6 @@ def main() -> None:
     if nonempty_tables and not audit_only:
         raise RuntimeError(f"Non-empty database without canonical fixture; refusing reset tables={sorted(nonempty_tables)}")
 
-    migration_action = ensure_current_schema()
     seed()
 
     with SessionLocal() as db:

@@ -1,0 +1,14 @@
+{
+  "intake_sources": [
+    {"intent": "NEW_PROPOSAL", "label": "New Proposal", "selection": "generic multi-source"},
+    {"intent": "TENDER_EMAIL", "label": "Tender Email", "semantic_class": "TENDER_EMAIL_SOURCE"},
+    {"intent": "TENDER_DOCUMENT", "label": "Tender Document", "semantic_class": "TENDER_DOCUMENT_SOURCE"},
+    {"intent": "TENDER_IMAGE", "label": "Tender Photo / Image", "semantic_class": "TENDER_IMAGE_SOURCE"},
+    {"intent": "CLIENT_INFORMATION", "label": "Client Information", "semantic_class": "CLIENT_SOURCE"}
+  ],
+  "excluded_from_generic_intake": ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "PERMIT_SOURCE"],
+  "multiple_sources": true,
+  "minimum_evidence": "at least one uploaded source",
+  "status": "PASS",
+  "markers": ["NEW_PROPOSAL_SOURCE_ENTRY_INTENT_PASS", "NEW_PROPOSAL_MULTI_SOURCE_PASS"]
+}

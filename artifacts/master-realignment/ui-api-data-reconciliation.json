@@ -1,0 +1,9 @@
+{
+  "verification_date": "2026-08-09",
+  "deployed_api_proxy_equivalence": "PASS",
+  "local_material_count_mismatches": 0,
+  "local_material_relationship_mismatches": 0,
+  "local_fake_empty_states": 0,
+  "deployed": {"proposal_count": 1, "contract_count": 1, "permit_count": 4, "kpi_cards": "API verified; full UI table comparison not run", "related_proposal": "API and DB-linked; focused UI route verified", "controlling_contract": "DB/API-linked in fixture; full UI comparison not run"},
+  "decision": "UI_API_DATA_RECONCILIATION_OPEN_FOR_FULL_DEPLOYED_GOLDEN_PATH"
+}

@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "source": "same visible NotificationEvent projection as stream",
+  "summary_endpoint": "/api/notifications/summary",
+  "list_endpoint": "/api/notifications",
+  "reconciliation": "visible, unread and category counts are projected from the same filtered rows"
+}

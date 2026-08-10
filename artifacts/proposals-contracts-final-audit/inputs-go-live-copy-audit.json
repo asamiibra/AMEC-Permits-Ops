@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "screen": "S02",
+  "purpose": "Governed commercial register from Client source and Proposal intake through Contract and downstream Permit handoff.",
+  "uses": ["Proposal and Contract records", "Client and Project context", "Proposal / Contract references", "Current lifecycle stage", "Handoffs and blockers", "Owner / team", "Last activity"],
+  "produces": ["Proposal and Contract portfolio", "Current lifecycle status", "Handoff visibility", "Direct links to Proposal / Contract work"],
+  "setup": ["Client source", "Proposal and Contract reference rules", "Proposal Form template", "Contract Form template", "required fields", "handoff ownership", "commercial notification audience"]
+}

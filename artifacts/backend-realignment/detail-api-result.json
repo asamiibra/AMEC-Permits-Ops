@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "routes": {
+    "proposal": "/api/proposals/{proposal_id}",
+    "preparation": "/api/proposals/{proposal_id}/preparation",
+    "contract": "/api/contracts/{contract_id}",
+    "permit": "/api/permits/{permit_id}"
+  },
+  "local": "all four 200; not-found contract returns typed 404",
+  "deployed": "all four 200; missing Proposal returns 404 PROPOSAL_NOT_FOUND",
+  "project_chain_consistent": true
+}

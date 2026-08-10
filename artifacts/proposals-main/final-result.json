@@ -1,0 +1,18 @@
+{
+  "status": "PASS_APPLICABLE_SYNTHETIC_REGRESSION",
+  "synthetic_only": true,
+  "page": "Proposals & Contracts",
+  "implementation": ["manual orange intake", "derived blue KPI filters", "project-scoped SOR adapter", "read-back verification", "version lineage", "persona access"],
+  "tests": {
+    "backend_focused": "2 passed (including same-name new-version preservation)",
+    "backend_full": "74 passed",
+    "frontend_unit": "22 passed",
+    "frontend_build": "passed",
+    "browser_owner_page": "3 passed",
+    "sor": "passed: write/read-back/idempotency/version/mismatch/unavailable",
+    "kpi": "passed: counts derive from table rows",
+    "persona": "passed: owner/BD/Engineering action and amount boundaries",
+    "handoff": "verified proposal intake creates one canonical AMEC Work task/handoff for New Proposal or Proposal Form; no duplicate task on retry"
+  },
+  "legacy_browser_note": "Older permit-centric browser specs still assert pre-rebrand labels and are not applicable to the current AMEC ProposalOps shell; the owner-directed page spec passes."
+}

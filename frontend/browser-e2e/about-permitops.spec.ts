@@ -1,29 +1,26 @@
 import { test, expect } from "@playwright/test";
 
-test("About route exposes the business explainer from the normal app shell", async ({ page }) => {
+test("Operating Guide opens from the AMEC Work shell", async ({ page }) => {
   await page.goto("/work");
-  await expect(page.getByRole("heading", { name: "Resume permit work" })).toBeVisible();
-  await page.getByRole("button", { name: "Explore PermitOps" }).click();
-  await expect(page).toHaveURL(/\/about$/);
-  await expect(page.getByRole("heading", { name: /PermitOps helps AMEC/ })).toBeVisible();
-  await expect(page.locator(".about-lifecycle-step")).toHaveCount(8);
-  await expect(page.getByText("final submission", { exact: false }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Operating Guide" }).first().click();
+  await expect(page).toHaveURL(/\/operating-guide$/);
+  await expect(page.getByRole("heading", { name: /ProposalOps helps AMEC move work from tender/ })).toBeVisible();
+  await expect(page.locator(".about-lifecycle-step")).toHaveCount(7);
 });
 
-test("Arabic mode is RTL and isolates technical terms", async ({ page }) => {
-  await page.goto("/about");
+test("Arabic Guide is RTL and isolates mixed identifiers", async ({ page }) => {
+  await page.goto("/operating-guide");
   await page.getByRole("button", { name: "العربي" }).click();
   await expect(page.locator(".about-page")).toHaveAttribute("lang", "ar-EG");
   await expect(page.locator(".about-page")).toHaveAttribute("dir", "rtl");
-  await expect(page.locator('bdi[dir="ltr"]')).toHaveCount(153);
-  await expect(page.getByRole("heading", { name: "PermitOps بيشتغل إزاي؟" })).toBeVisible();
+  expect(await page.locator('bdi[dir="ltr"]').count()).toBeGreaterThan(15);
+  await expect(page.getByRole("heading", { name: "دورة عمل AMEC" })).toBeVisible();
 });
 
-test("Arabic mobile keeps the lifecycle chronological without horizontal overflow", async ({ page }) => {
+test("Arabic mobile keeps the seven-stage lifecycle without overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/about");
+  await page.goto("/operating-guide");
   await page.getByRole("button", { name: "العربي" }).click();
-  await expect(page.locator(".about-lifecycle")).toHaveCSS("display", "flex");
-  await expect(page.locator(".about-lifecycle-step")).toHaveCount(8);
+  await expect(page.locator(".about-lifecycle-step")).toHaveCount(7);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
 });

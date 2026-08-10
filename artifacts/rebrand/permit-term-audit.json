@@ -1,0 +1,9 @@
+{
+  "artifact": "permit-term-audit",
+  "version": "1.0",
+  "visible_runtime_policy": "legacy visible terms are rewritten at the active DOM boundary",
+  "must_be_zero_at_runtime": ["PermitOps", "About PermitOps", "Permit Preparer", "My Work", "Permits"],
+  "runtime_expected_occurrences": {"PermitOps": 0, "About PermitOps": 0, "Permit Preparer": 0, "My Work": 0, "Permits": 0},
+  "source_compatibility_occurrences_allowed": true,
+  "notes": ["Internal API/database identifiers are preserved for compatibility.", "Municipality and Authority remain valid external terms.", "Full browser verification is still required before a complete decision label can be issued."]
+}

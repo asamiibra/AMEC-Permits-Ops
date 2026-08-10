@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "evidence": "focused browser regression",
+  "checks": ["Persona control is label-addressable", "filter controls are visible", "390px viewport has no horizontal overflow"],
+  "note": "Full accessibility certification remains outside this focused notification audit"
+}

@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "notification_detail": "canonical NotificationEvent projection",
+  "workspace_context": "notification id is reloaded after navigation and hard refresh",
+  "business_state": "opening or acknowledging does not complete tasks, resolve issues, confirm stages or submit externally"
+}

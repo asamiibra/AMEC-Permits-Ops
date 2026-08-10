@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "route": "/work",
+  "previous_component": "MyWorkPage + UnifiedMyWorkPanel",
+  "replacement": "AMECWorkPage + GET /api/work",
+  "legacy_permit_only_headline_removed": true,
+  "duplicate_dashboard_removed": true,
+  "downstream_permit_screens_preserved": true
+}

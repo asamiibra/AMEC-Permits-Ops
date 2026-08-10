@@ -1,0 +1,12 @@
+{
+  "date": "2026-08-09",
+  "repo_head": "3495937b898444ba78f275cbdbb562ff8e23e36e",
+  "database": "permitops_owner_demo_rc_v2",
+  "migration_head": "0025_permit_workflow_stage_confirmation",
+  "synthetic_only": true,
+  "local_status": "BASELINE_VERIFIED",
+  "deployed_status": "ALIGNED_AND_VERIFIED",
+  "frontend_deployment": "dpl_ES4KvUzAsWcDGEtcDqf7SQJPsYLq",
+  "backend_deployment": "dpl_AhTpoekhRAcrZiret6xnQKNv6jbF",
+  "final_decision": "PROPOSALOPS_OWNER_DEMO_RELEASE_CANDIDATE_READY"
+}

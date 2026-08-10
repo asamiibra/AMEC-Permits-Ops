@@ -1,0 +1,15 @@
+{
+  "artifact": "proposalops-screen-persona-matrix",
+  "version": "1.0",
+  "visible_personas": ["Owner", "Engineering", "Business Development"],
+  "shared_truth": "canonical project/proposal/application/task/issue/evidence substrate",
+  "screens": [
+    {"screen": "AMEC Work", "route": "/work", "owner": "full", "engineering": "assigned-and-shared", "business_development": "assigned-and-shared"},
+    {"screen": "Proposals & Contracts", "route": "/proposals-contracts", "owner": "full", "engineering": "technical-context", "business_development": "commercial-context"},
+    {"screen": "Issues", "route": "/issues", "owner": "full", "engineering": "technical-findings", "business_development": "commercial-blockers"},
+    {"screen": "Notifications", "route": "/notifications", "owner": "full", "engineering": "assigned", "business_development": "assigned"},
+    {"screen": "Operating Guide", "route": "/operating-guide", "owner": "full", "engineering": "full", "business_development": "full"}
+  ],
+  "unclassified_material_screens": 0,
+  "status": "IMPLEMENTED_PROTOTYPE"
+}

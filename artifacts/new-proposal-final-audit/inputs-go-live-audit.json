@@ -1,0 +1,13 @@
+{
+  "screen_id": "S02A",
+  "route": "/proposals/new",
+  "title": "New Proposal",
+  "purpose": "Start a Proposal from tender/client information and establish the controlled intake record before or alongside final Project setup.",
+  "uses": ["Client information", "Tender / RFQ source evidence", "Initial Proposal details", "Proposal reference rules", "Project context if already known", "Business Development ownership"],
+  "produces": ["New Proposal record", "Controlled Proposal/reference state", "Verified source evidence", "Client / Project linkage where available", "Initial lifecycle state", "Next Proposal action"],
+  "excluded_parent_permit_items": ["Municipality application reference", "Permit type and first project", "Findings", "Permit stage"],
+  "count_semantics": "unresolved requirements applicable to New Proposal and global dependencies only",
+  "status_copy": "Demo ready · N go-live inputs remaining",
+  "view_details": "existing readiness detail toggle",
+  "markers": ["NEW_PROPOSAL_INPUTS_GO_LIVE_ROUTE_CONTEXT_PASS", "NEW_PROPOSAL_INPUTS_GO_LIVE_BUSINESS_LANGUAGE_PASS", "NEW_PROPOSAL_INPUTS_GO_LIVE_PERMIT_FIRST_BIAS_ZERO"]
+}

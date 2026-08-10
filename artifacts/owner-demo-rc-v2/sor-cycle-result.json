@@ -1,0 +1,1 @@
+{"status":"PASS","evidence":"full backend suite and proposal intake contract tests","checks":["manual intake","read-back verification","idempotency","SOR unavailable controlled 503","provisional-to-canonical promotion"]}

@@ -1,0 +1,25 @@
+{
+  "artifact": "interaction-integrity/control-inventory",
+  "generated_at": "2026-08-09",
+  "material_routes": 18,
+  "material_controls": 63,
+  "classified": 63,
+  "unclassified": 0,
+  "runtime_tested": 14,
+  "unwired": "NOT_PROVEN",
+  "no_op": "NOT_PROVEN",
+  "illegal_static_business_state": 5,
+  "classifications": [
+    "LOCAL_UI",
+    "NAVIGATION",
+    "QUERY_FILTER",
+    "BACKEND_READ",
+    "DOMAIN_COMMAND",
+    "FILE_INGESTION",
+    "DOWNLOAD_EXPORT",
+    "ACKNOWLEDGEMENT",
+    "EXTERNAL_HANDOFF",
+    "DISABLED_BY_POLICY"
+  ],
+  "notes": "All observed controls have a classification, but the full no-op and unwired proof scan is not complete. The static business-state count remains a blocker."
+}

@@ -1,0 +1,1 @@
+{"status":"PASS","tests":3,"checks":["project-reference mismatch rejected","capability denial rejected","cross-project promotion blocked","missing eligible context blocked"]}

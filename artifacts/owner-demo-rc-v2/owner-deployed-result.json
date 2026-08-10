@@ -1,0 +1,1 @@
+{"status":"PASS","url":"https://amec-permits-ops.vercel.app","golden_path":"Owner deployed Golden Path","result":"AMEC Work → Proposal → Contract → Permit → Confirm project & sources → persisted Stage 2 VERIFY_DATA → Issues/Notifications"}

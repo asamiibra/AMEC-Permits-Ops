@@ -1,0 +1,12 @@
+{
+  "write": "intake SOR bytes stored",
+  "read_back": "SHA-256 and byte-length verified",
+  "verification_status": "READ_BACK_VERIFIED",
+  "evidence_and_version": "EvidenceArtifact plus ProposalIntakeArtifact metadata/version",
+  "provenance": "semantic source class, filename, actor, correlation, SOR path, hash",
+  "partial_failure": "failed source is not returned as authoritative; friendly retry state",
+  "duplicate_create": "same idempotency key reuses source and existing Opportunity",
+  "orphan_active_records": 0,
+  "status": "PASS",
+  "markers": ["NEW_PROPOSAL_SOURCE_INTEGRITY_PASS", "NEW_PROPOSAL_ORPHAN_ACTIVE_RECORD_ZERO", "NEW_PROPOSAL_DUPLICATE_CREATE_ZERO"]
+}

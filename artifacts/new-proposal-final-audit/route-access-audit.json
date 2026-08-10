@@ -1,0 +1,9 @@
+{
+  "route": "/proposals/new",
+  "bd": {"status": "PASS", "surface": "dedicated source-driven intake"},
+  "owner": {"status": "PASS", "capability_source": "current backend capability truth"},
+  "engineering": {"status": "PASS", "surface": "controlled access state", "message": "New Proposal intake is handled by Business Development."},
+  "engineering_blank_page": 0,
+  "server_create_denial": {"status": 403, "code": "CAPABILITY_DENIED"},
+  "markers": ["ENGINEERING_NEW_PROPOSAL_BLANK_PAGE_ZERO", "ENGINEERING_CREATE_PROPOSAL_SERVER_DENIED", "ENGINEERING_NEW_PROPOSAL_ACCESS_PASS", "OWNER_NEW_PROPOSAL_CAPABILITY_TRUTH_PASS", "NEW_PROPOSAL_ROUTE_CONTENT_PASS"]
+}

@@ -1,0 +1,9 @@
+{
+  "runner": "Playwright",
+  "spec": "frontend/browser-e2e/persona-issues-notifications.spec.ts",
+  "result": "PASS",
+  "tests": 3,
+  "accessibility_responsive": "pass",
+  "real_stack_tests": 1,
+  "checks": ["persona switch", "persona-specific issue copy", "notification KPI separation", "Delivery Diagnostics", "Proposal Preparation deep link"]
+}

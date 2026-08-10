@@ -1,0 +1,7 @@
+{
+  "status_source": "Finding status",
+  "closure_rule": "Underlying condition plus required evidence and verification",
+  "manual_arbitrary_close": false,
+  "reopen_and_recurrence_preserved": true,
+  "activity_and_history_projection": true
+}

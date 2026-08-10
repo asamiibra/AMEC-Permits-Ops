@@ -1,0 +1,45 @@
+.amec-work-page { max-width: 1180px; }
+.amec-work-intro { margin-bottom: 8px; }
+.amec-work-helper { color: var(--muted, #657383); font-size: .84rem; margin-bottom: 18px; }
+.amec-work-guide { margin: 0 0 18px; }
+.amec-work-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0 0 18px; }
+.amec-work-kpi { min-height: 118px; text-align: left; border: 1px solid #d9e1e8; border-radius: 12px; background: #fff; padding: 16px; cursor: pointer; display: flex; flex-direction: column; gap: 7px; color: #182734; }
+.amec-work-kpi:hover, .amec-work-kpi:focus-visible, .amec-work-kpi.selected { border-color: #0d6d78; box-shadow: 0 0 0 3px rgba(13,109,120,.12); outline: none; }
+.amec-work-kpi span { font-size: .8rem; font-weight: 700; }
+.amec-work-kpi strong { font-size: 2rem; line-height: 1; }
+.amec-work-kpi small { color: #667684; }
+.amec-work-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.amec-work-filters { display: flex; gap: 12px; flex-wrap: wrap; }
+.amec-work-filters label { display: grid; gap: 5px; color: #52616d; font-size: .78rem; font-weight: 700; }
+.amec-work-filters select { min-width: 180px; border: 1px solid #cbd6df; border-radius: 8px; padding: 9px 30px 9px 10px; background: #fff; color: #182734; }
+.amec-work-list, .amec-work-changes { margin-bottom: 18px; }
+.amec-work-card { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-top: 1px solid #e5ebf0; padding: 18px 0; }
+.amec-work-card:first-of-type { border-top: 0; }
+.amec-work-card-main { min-width: 0; }
+.amec-work-card-top { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+.amec-domain, .amec-blocking, .amec-due, .amec-overdue { display: inline-flex; align-items: center; border-radius: 99px; padding: 4px 8px; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.amec-domain { color: #0e5963; background: #e5f4f3; }
+.amec-blocking { color: #8c3e16; background: #fff0e6; }
+.amec-due { color: #536471; background: #eef2f5; }
+.amec-overdue { color: #9c2f37; background: #ffeaec; }
+.amec-work-card h4 { margin: 8px 0 4px; font-size: 1.05rem; }
+.amec-work-card p { margin: 0 0 8px; color: #50606c; }
+.amec-work-card-meta { display: flex; flex-wrap: wrap; gap: 5px 16px; color: #657383; font-size: .8rem; }
+.amec-work-card-meta span + span { position: relative; }
+.amec-work-card-meta span + span::before { content: "·"; position: absolute; left: -10px; }
+.amec-work-empty { padding: 30px 0 12px; color: #596a77; }
+.amec-work-empty b { color: #1d303c; font-size: 1.05rem; }
+.amec-work-empty p { margin: 8px 0 18px; }
+.amec-work-change { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #e5ebf0; padding: 12px 0; text-decoration: none; color: inherit; }
+.amec-work-change:first-of-type { border-top: 0; }
+.amec-work-change small { display: block; margin-top: 3px; color: #657383; }
+.amec-work-change > span { color: #657383; font-size: .8rem; white-space: nowrap; }
+.amec-work-loading, .amec-work-error { min-height: 100px; display: grid; align-content: center; gap: 8px; }
+.amec-work-error h3, .amec-work-error p { margin: 0; }
+.amec-work-active-filter { display: flex; align-items: center; gap: 12px; color: #52616d; font-size: .82rem; }
+.amec-work-overlap-note { display: block; margin-top: 6px; color: #657383; font-weight: 500; }
+.content:has(.amec-work-page) > .compact-environment-badge { display: none; }
+@media (max-width: 760px) { .amec-work-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .amec-work-toolbar { align-items: stretch; flex-direction: column; } .amec-work-filters select { min-width: 0; width: 100%; } .amec-work-filters label { flex: 1 1 140px; } .amec-work-card { align-items: flex-start; flex-direction: column; } .amec-work-card .button-secondary { align-self: flex-start; } }
+@media (max-width: 420px) { .amec-work-kpis { gap: 8px; } .amec-work-kpi { padding: 12px; min-height: 110px; } .amec-work-kpi strong { font-size: 1.6rem; } }
+@media (max-width: 700px) { .sidebar { display: none; } .topbar { padding: 16px; } .content { padding: 22px 16px; } }
+@media (max-width: 700px) { .amec-work-guide { align-items: flex-start; flex-wrap: wrap; } .amec-work-guide > div:nth-child(2) { min-width: 0; } .amec-work-guide > button { flex: 1 1 100%; width: 100%; } }

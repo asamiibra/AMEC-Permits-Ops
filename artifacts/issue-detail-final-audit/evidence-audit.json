@@ -1,0 +1,9 @@
+{
+  "every_detail_has_evidence_projection": true,
+  "source_evidence": "Finding evidence_artifact_id or source_reference",
+  "authority_evidence": "AuthorityEvent when linked",
+  "contract_comparison": "Explicit Proposal / Contract comparison review record",
+  "source_integrity_empty_state": "No candidate source attached; human decision boundary shown",
+  "fake_empty_evidence": 0,
+  "fake_empty_state": 0
+}

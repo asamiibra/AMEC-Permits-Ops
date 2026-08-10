@@ -1,0 +1,8 @@
+{
+  "artifact": "persona-authorization-result",
+  "status": "PASS_LOCAL",
+  "owner_roles":["SYSTEM_ADMIN","OWNER_SPONSOR"],
+  "denied_roles":["COMMERCIAL_APPROVER","RESPONSIBLE_ENGINEER"],
+  "backend_denial_code":"ADMINISTRATION_ACCESS_DENIED",
+  "frontend_denial":"privileged nav hidden and direct owner path redirects to /work"
+}

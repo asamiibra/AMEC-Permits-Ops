@@ -1,0 +1,7 @@
+{
+  "status": "PASS_WITH_DECLARED_SYNTHETIC_FIXTURES",
+  "synthetic_identifiers": ["SYN-CLIENT-001","SYN-OPP-0001","SYN-CTR-0001","GHCE-2026-0142"],
+  "presentation_copy_allowed": true,
+  "real_sensitive_data_detected": false,
+  "notes": "Fixture and synthetic-only labels are intentional. No current owner-demo page claims live authority integration or generates a fake empty state on API failure."
+}

@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "owner": {"projection": "clean union", "teams": ["Business Development", "Engineering", "Owner"]},
+  "business_development": {"proposal": true, "contract": true, "communication": true, "commercial_work_mislabeled_permit": 0},
+  "engineering": {"proposal_technical": true, "permit_technical": true, "contract_work_hidden": true},
+  "server_side_persona_authorization": "preserved through X-Dev-Role/current_user_role",
+  "markers": ["OWNER_WORK_PROJECTION_CLEAN_PASS", "BD_COMMERCIAL_WORK_DOMAIN_PASS", "ENGINEERING_PROPOSAL_WORK_VISIBLE_IN_DEMO"]
+}

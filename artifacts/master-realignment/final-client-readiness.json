@@ -1,0 +1,10 @@
+{
+  "overall": "FAIL",
+  "decision": "PROPOSALOPS_MASTER_REALIGNMENT_INCOMPLETE",
+  "previously_open_blockers": {"deployed_vercel_neon": "CLOSED", "historical_browser_regression": "OPEN", "canonical_sor_promotion_policy": "CLOSED_LOCAL_DEPLOYED_CYCLE_OPEN", "dedicated_detail_route_rendering": "CLOSED_FOCUSED"},
+  "local": {"backend_tests": "74 passed; one historical test is order-sensitive when full suite is run", "frontend_unit": "22 passed", "build": "PASS", "focused_browser": "7 passed", "alembic_head": "0022_proposalops_master_realignment"},
+  "deployed": {"frontend": "PASS", "backend": "PASS", "neon_migration": "PASS", "proxy": "PASS", "focused_browser": "7 passed", "owner_bd_engineering_golden_paths": "NOT FULLY RUN"},
+  "error_counts": {"material_required_api_500s_verified": 0, "unhandled_client_errors_in_focused_run": 0, "non_json_proxy_failures": 0, "sor_false_success": 0, "cross_project_writes": 0, "cross_project_contract_links": 0, "cross_project_permit_links": 0},
+  "open_blockers": ["19 historical browser failures", "deployed full Owner/BD/Engineering Golden Paths not completed", "deployed provisional-to-canonical SOR mutation cycle not completed", "deployed fixture has no early-stage source artifacts"],
+  "final_tokens_withheld": ["G11_FULL_HISTORICAL_BROWSER_REGRESSION_PASS", "OWNER_GOLDEN_PATH_PASS", "BD_GOLDEN_PATH_PASS", "ENGINEERING_GOLDEN_PATH_PASS", "CLIENT_NAVIGATION_READY"]
+}

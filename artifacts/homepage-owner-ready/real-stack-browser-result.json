@@ -1,0 +1,9 @@
+{
+  "status": "PASS_LOCAL_BROWSER_STACK",
+  "command": "npm run browser-real-stack -- homepage-owner-ready.spec.ts",
+  "passed": 7,
+  "failed": 0,
+  "coverage": ["owner", "business_development", "engineering", "kpi_filter", "domain_filter", "team_filter", "api_failure_recovery", "duplicate_dashboard", "mobile", "axe"],
+  "database": "local synthetic SQLite",
+  "postgres_neon_verification": "NOT_RUN"
+}

@@ -1,0 +1,11 @@
+{
+  "issues": {"owner_union": true, "summary_source": "same_visible_issue_rows", "list_count_equals_open_count": true},
+  "notifications": {"summary_source": "same_visible_notification_rows", "list_count_equals_unread_count": true},
+  "fake_empty_states": 0,
+  "persona_switch_stale_data": 0,
+  "backend_tests": "82 passed",
+  "persona_backend_tests": "6 passed",
+  "frontend_tests": "24 passed",
+  "frontend_build": "passed",
+  "persona_browser_tests": "3 passed; real-stack 1 passed"
+}

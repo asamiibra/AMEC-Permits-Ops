@@ -1,0 +1,11 @@
+{
+  "orange_equals_manual_input": true,
+  "automatic_orange_source_creation": 0,
+  "actions": {
+    "CLIENT_LIST": {"manual_file_required": true, "semantic_class": "CLIENT_SOURCE", "persona": ["OWNER", "BUSINESS_DEVELOPMENT"]},
+    "PROPOSAL_FORM": {"manual_file_required": true, "semantic_class": "PROPOSAL_SOURCE", "persona": ["OWNER", "ENGINEERING"]},
+    "CONTRACT_FORM": {"manual_file_required": true, "semantic_class": "CONTRACT_SOURCE", "persona": ["OWNER", "BUSINESS_DEVELOPMENT"]},
+    "NEW_PROPOSAL": {"manual_file_required": true, "minimum_context_required": true, "semantic_class": "OPPORTUNITY_SOURCE", "persona": ["OWNER", "BUSINESS_DEVELOPMENT"]}
+  },
+  "state_machine": ["SELECTED", "VALIDATING", "PUSHING_TO_SYSTEM_OF_RECORD", "VERIFYING", "REGISTERED", "FAILED", "CONFLICT"]
+}

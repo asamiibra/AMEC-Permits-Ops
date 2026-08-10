@@ -1,0 +1,7 @@
+{
+  "status": "PASS_WITH_SCOPE_NOTE",
+  "typed_codes_verified": ["CAPABILITY_DENIED", "CONTRACT_PROPOSAL_PROJECT_MISMATCH", "PERMIT_CONTRACT_PROJECT_MISMATCH", "PROPOSAL_INTAKE_INCOMPLETE", "PROPOSAL_NOT_FOUND"],
+  "sor_codes_supported": ["SOR_UNAVAILABLE", "SOR_READBACK_VERIFICATION_FAILED", "SOR_PROMOTION_TARGET_CONFLICT"],
+  "unexpected_500_policy": "global handler returns correlation ID and does not turn exceptions into business success",
+  "new_material_proposals_contracts_routes_fake_empty_responses": 0
+}

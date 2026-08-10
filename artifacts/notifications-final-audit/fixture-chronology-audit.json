@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "fixture": "persona-issues-notifications-v1",
+  "chronology": [
+    "Project sources confirmed: recent operational event",
+    "Proposal preparation completed: prior handoff event",
+    "Client information requirement identified: prior commercial event",
+    "Historical authority comment received: prior authority cycle"
+  ],
+  "historical_semantics": "authority event is labeled historical and remains read-only context"
+}

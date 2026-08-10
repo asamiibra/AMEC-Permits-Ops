@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "owner_seed_projection": {"total": 17, "proposal": 5, "contract": 2, "permit": 8, "system": 2},
+  "work_types_present": ["ACTION", "REVIEW", "HANDOFF", "BLOCKER_ACTION"],
+  "communication_review": true,
+  "proposal_technical_visible_to_engineering": true,
+  "contract_to_permit_handoff": true,
+  "permit_technical_and_authority_work": true,
+  "markers": ["DEMO_WORK_QUEUE_CROSS_LIFECYCLE_BALANCE_PASS", "DEMO_HOMEPAGE_CROSS_LIFECYCLE_COVERAGE_PASS"]
+}

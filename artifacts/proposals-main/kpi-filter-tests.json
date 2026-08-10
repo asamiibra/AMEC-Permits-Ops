@@ -1,0 +1,7 @@
+{
+  "blue_equals_system_state": true,
+  "counts_source": "same rows returned by /api/proposals-main",
+  "editable": false,
+  "kpis": ["OPEN_PROPOSALS", "OPEN_CONTRACTS", "PROPOSAL_HANDOVER", "CONTRACT_HANDOVER", "PROPOSALS_IN_PROCESS", "CONTRACTS_IN_PROCESS"],
+  "reconciliation": "each KPI filter uses its explicit documented state set and returns the same records counted by the API"
+}

@@ -1,0 +1,45 @@
+{
+  "artifact": "ProposalOps — Proposals & Contracts Final Reconciliation",
+  "generated_at": "2026-08-09",
+  "environment": "local seeded synthetic stack",
+  "authoritative_sources": {
+    "register": "GET /api/proposals-main",
+    "proposal_detail": "GET /api/proposals-main/proposals/{id}",
+    "contract_detail": "GET /api/proposals-main/contracts/{id}",
+    "canonical_summary": "GET /api/proposals-contracts/summary",
+    "source_lineage": "ProjectArtifactRecord / ProposalIntakeArtifact"
+  },
+  "observed_counts": {
+    "proposals": 1,
+    "contracts": 1,
+    "primary_proposal_current_sources": 3,
+    "primary_proposal_related_contracts": 1,
+    "primary_contract_related_proposal": 1,
+    "primary_contract_permits": 0
+  },
+  "primary_chain": {
+    "proposal_status": "CONTRACT_HANDOVER",
+    "proposal_stage": "Contracted",
+    "proposal_next_action": "VIEW_CONTRACT",
+    "contract_reference": "SYN-CTR-0001",
+    "project_reference": "GHCE-2026-0142",
+    "contract_next_action": "OPEN_PERMIT",
+    "source_classes": ["TENDER_DOCUMENT_SOURCE", "CLIENT_SOURCE", "PROPOSAL_SOURCE"],
+    "source_sor_bindings": ["CANONICAL_PROJECT_SOR"]
+  },
+  "reconciliation": {
+    "proposal_source_count_register_detail": "PASS",
+    "proposal_contract_lineage": "PASS",
+    "contract_proposal_lineage": "PASS",
+    "contract_project_reference_separate_from_contract_reference": "PASS",
+    "kpi_summary_list_ui_predicate_registry": "PASS locally",
+    "deployed_stack": "NOT_RUN",
+    "verification": {
+      "backend_pytest": "87 passed, 2 warnings",
+      "frontend_build": "PASS",
+      "frontend_vitest": "24 passed",
+      "proposal_contracts_real_stack": "2 passed",
+      "full_real_stack": "4 passed, 6 unrelated legacy permit-shell/accessibility/visual failures"
+    }
+  }
+}

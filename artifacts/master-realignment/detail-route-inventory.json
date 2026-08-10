@@ -1,0 +1,11 @@
+{
+  "verification_date": "2026-08-09",
+  "material_detail_routes_without_dedicated_rendering": 0,
+  "routes": [
+    {"path": "/proposals/new", "business_entity": "Proposal intake", "persona": "Owner / BD", "component": "ProposalIntakeModal", "api_dependency": "/api/proposals-main/intake", "direct_load": "PASS", "refresh": "PASS", "deep_link": "PASS", "status": "PASS_FOCUSED_LOCAL_AND_DEPLOYED"},
+    {"path": "/proposals/:proposalId", "business_entity": "Proposal", "persona": "Owner / BD / Engineering", "component": "ProposalDetailInline", "api_dependency": "/api/proposals-main/proposals/:proposalId", "direct_load": "PASS", "refresh": "PASS", "deep_link": "PASS", "status": "PASS_FOCUSED_LOCAL_AND_DEPLOYED"},
+    {"path": "/proposals/:proposalId/preparation", "business_entity": "Proposal Preparation", "persona": "Engineering", "component": "ProposalPreparationInline", "api_dependency": "/api/proposals-main/proposals/:proposalId", "direct_load": "PASS", "refresh": "PASS", "deep_link": "PASS", "status": "PASS_FOCUSED_LOCAL_AND_DEPLOYED"},
+    {"path": "/contracts/:contractId", "business_entity": "Contract", "persona": "Owner / BD", "component": "ContractDetailInline", "api_dependency": "/api/proposals-main/contracts/:contractId", "direct_load": "PASS", "refresh": "PASS", "deep_link": "PASS", "status": "PASS_FOCUSED_LOCAL_AND_DEPLOYED"},
+    {"path": "/permits/:projectId/:stage", "business_entity": "Downstream Permit", "persona": "Engineering / Owner", "component": "PermitWorkspacePage", "api_dependency": "/api/projects, /api/applications", "direct_load": "PASS_EXISTING_COMPONENT", "refresh": "NOT_IN_G11_FOCUSED_RUN", "deep_link": "PASS_EXISTING_ROUTE", "status": "REQUIRES_FULL_DEPLOYED_GOLDEN_PATH"}
+  ]
+}

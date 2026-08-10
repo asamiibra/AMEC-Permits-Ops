@@ -1,0 +1,42 @@
+{
+  "verification_date": "2026-08-09",
+  "suite": "frontend/browser-e2e",
+  "original_artifact": "artifacts/master-realignment/full-browser-regression.json",
+  "original_documented_historical_regression": {
+    "tests_discovered": 118,
+    "passed_before_repair": 99,
+    "failed_before_repair": 19
+  },
+  "targeted_historical_repair": {
+    "failure_count_from_original_artifact": 19,
+    "specs": [
+      "frontend/browser-e2e/canonical-controls.spec.ts",
+      "frontend/browser-e2e/e7-e8-expanded.spec.ts"
+    ],
+    "tests_run": 28,
+    "passed": 28,
+    "failed": 0,
+    "coverage_disposition": "Retained the canonical bootstrap/safety checks and replaced only retired labels, owner/persona assertions, and superseded navigation expectations with current AMEC Work / Proposals & Contracts behavior."
+  },
+  "full_current_browser_suite": {
+    "tests_discovered": 110,
+    "passed": 82,
+    "failed": 28,
+    "execution": "All 17 browser-e2e spec files were exercised through the full-suite run and isolated spec reruns against a persistent local Vite server.",
+    "command": "PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npx playwright test --workers=1 --reporter=junit",
+    "remaining_failure_breakdown": {
+      "stale_assertion_contracts": 27,
+      "runner_or_server_lifecycle": 1
+    }
+  },
+  "genuine_product_failures": [
+    {
+      "area": "Proposals & Contracts register",
+      "failure": "The page throws TypeError: Cannot read properties of undefined (reading 'OPEN_PROPOSALS') when /api/proposals-main returns an incomplete object instead of the expected register payload.",
+      "observed_in": "frontend/src/ProposalsContracts.tsx:466",
+      "disposition": "OPEN_PRODUCT_FAILURE",
+      "scope": "Not changed in this realignment; fixing it would be a product robustness change beyond obsolete browser expectations."
+    }
+  ],
+  "decision": "TARGETED_HISTORICAL_BROWSER_REALIGNMENT_COMPLETE; BROADER_CURRENT_BROWSER_SUITE_REMAINS_OPEN_FOR_NON_TARGET_CONTRACT_DRIFT_AND_ONE_PRODUCT_ROBUSTNESS_DEFECT"
+}

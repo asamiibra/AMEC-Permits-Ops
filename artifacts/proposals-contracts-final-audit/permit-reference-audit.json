@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "checks": [
+    "Contract row retains related Proposal and Project Reference",
+    "Contract detail exposes Permit handoff",
+    "Linked Permit opens existing Project & Sources route",
+    "No commercial-page Permit-specific warning copy remains in the compact environment banner",
+    "Final Municipality submission remains human-only in the shared readiness boundary"
+  ]
+}

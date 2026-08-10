@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "screen": "AMEC Work",
+  "purpose": "Show the work that needs the current user's attention now",
+  "uses": ["Proposal, Contract and Permit work", "Team assignments", "Workflow state", "Issues and blockers", "Handoffs", "Due dates", "Important changes"],
+  "outputs": ["Prioritized work", "Who needs to act", "What is blocked", "What needs review", "Exact business-context links"],
+  "cross_lifecycle": true,
+  "permit_first_bias": false,
+  "implementation_jargon": 0,
+  "markers": ["AMEC_WORK_INPUTS_GO_LIVE_BUSINESS_LANGUAGE_PASS", "AMEC_WORK_INPUTS_GO_LIVE_CROSS_LIFECYCLE_PASS", "AMEC_WORK_INPUTS_GO_LIVE_PERMIT_FIRST_BIAS_REMOVED"]
+}

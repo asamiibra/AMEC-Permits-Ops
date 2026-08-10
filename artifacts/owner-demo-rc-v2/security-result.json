@@ -1,0 +1,1 @@
+{"status":"PASS","checks":["synthetic-only boundary visible","no machine final submit control","role-scoped administration","project mismatch rejection","SOR unavailable controlled error","fresh deployed smoke has no secret exposure"],"deployed":"SIGNED_OFF"}

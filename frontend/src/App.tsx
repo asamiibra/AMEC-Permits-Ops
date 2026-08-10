@@ -7,23 +7,25 @@ import { FindingsConsolePage } from "./Week7";
 import { LineageValidityPage } from "./Week8";
 import { AttachmentGridPage } from "./Week9";
 import { ReconciliationControls } from "./ReconciliationControls";
-import { AdministrationPage, Application, IssuesPage, MyWorkPage, PermitsPage, PermitWorkspacePage, Project, ReviewsPage, NotificationsPage, WorkflowStage, projectWorkflowStage } from "./WorkflowFirst";
+import { AdministrationPage, Application, MyWorkPage, PermitsPage, PermitWorkspacePage, Project, ReviewsPage, WorkflowStage, projectWorkflowStage } from "./WorkflowFirst";
+import { IssueFocusBanner, PersonaIssuesPage, PersonaNotificationsPage, Persona } from "./PersonaIssuesNotifications";
 import { ExpansionFoundation } from "./ExpansionFoundation";
 import { OpportunitiesPage } from "./Opportunities";
+import { ProposalsContractsPage } from "./ProposalsContracts";
 import { EngineeringCloseoutPage } from "./EngineeringCloseout";
 import { AboutPermitOpsPage } from "./AboutPermitOps";
+import { AdministrationOwnerPage } from "./AdministrationOwner";
+import { AMECWorkPage } from "./AMECWork";
 import { ReadinessDrawer, ReadinessOverviewPage, getScreenDefinition } from "./ProductionReadiness";
 import { AmecLogo } from "./AmecLogo";
+import { readDemoRole } from "./rebrand";
 
 type Decision = { id:string; category:string; key:string; status:string; notes?:string };
 type Raid = { id:string; type:string; title:string; description:string; severity:string; owner:string; status:string; mitigation:string };
 
 const businessNav = [
-  { id: "my-work", label: "My Work", icon: "⌂" },
-  { id: "opportunities", label: "Opportunities", icon: "◇" },
-  { id: "engineering-closeout", label: "Engineering & Closeout", icon: "✦" },
-  { id: "permits", label: "Permits", icon: "▦" },
-  { id: "reviews", label: "Reviews", icon: "✓" },
+  { id: "my-work", label: "AMEC Work", icon: "⌂" },
+  { id: "permits", label: "Proposals & Contracts", icon: "▦" },
   { id: "issues", label: "Issues", icon: "!" },
   { id: "notifications", label: "Notifications", icon: "◌" },
 ];
@@ -32,22 +34,25 @@ const legacyNav = [
   {id:"dashboard",label:"Legacy control room"},
   {id:"projects",label:"Project register"},{id:"documents",label:"Documents / source evidence"},{id:"conflicts",label:"Conflicts"},{id:"config",label:"Configuration"},{id:"package",label:"Package readiness"},{id:"municipality",label:"Municipality preparation"},{id:"findings",label:"Findings & work"},{id:"lineage",label:"Lineage & validity"},{id:"attachments-grids",label:"Attachments & grids"},{id:"spike",label:"Test extraction"},{id:"adjudication",label:"Expected results"},{id:"analysis",label:"Test analysis"},{id:"thresholds",label:"Test targets"},{id:"corpus",label:"Test documents"},{id:"tier1",label:"Tier 1 decisions"},{id:"tier2",label:"Tier 2 backlog"},{id:"delivery",label:"Delivery / data"},{id:"close",label:"Go-live setup decision"},{id:"baseline",label:"Setup baseline"},{id:"signoff",label:"Commercial draft"},{id:"confirmation",label:"Submission confirmation"},{id:"discovery",label:"Project setup"},{id:"business",label:"Business case"},{id:"business-baseline",label:"Business baseline"},{id:"privacy",label:"Privacy & data"},{id:"volume",label:"Volume baseline"},{id:"inquiries",label:"Ministry inquiry"},{id:"raid",label:"RAID log"},{id:"control-loop",label:"Control diagnostics"},
 ];
-const adminRoles = new Set(["SYSTEM_ADMIN", "REQUIREMENT_STEWARD", "PORTAL_MAINTAINER"]);
+const adminRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
+const personaForRole = (value: string): Persona => value === "COMMERCIAL_APPROVER" ? "BUSINESS_DEVELOPMENT" : value === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : "OWNER";
 const statusClass = (status:string) => `status status-${status.toLowerCase().replaceAll("_","-")}`;
 const pageFromPath = () => {
   const path = window.location.pathname;
   if (path === "/work" || path === "/") return "my-work";
-  if (path === "/permits" || path === "/projects") return "permits";
+  if (path === "/permits" || path === "/projects" || path === "/proposals-contracts") return "permits";
+  if (path === "/proposals/new" || path.startsWith("/proposals/") || path.startsWith("/contracts/")) return "permits";
   if (path === "/opportunities") return "opportunities";
   if (path === "/engineering-closeout") return "engineering-closeout";
   if (path === "/reviews") return "reviews";
   if (path === "/issues") return "issues";
   if (path === "/notifications") return "notifications";
-  if (path === "/about" || path === "/how-permitops-works") return "about";
+  if (path === "/about" || path === "/how-permitops-works" || path === "/operating-guide") return "about";
   if (path === "/admin") return "administration";
+  if (path === "/admin/go-live-readiness") return "go-live-readiness";
   if (path === "/admin/control-diagnostics") return "control-loop";
-  if (path.startsWith("/admin/")) return path.slice("/admin/".length);
-  if (path.startsWith("/permits/")) return "permit-workspace";
+  if (path.startsWith("/admin/")) return "administration";
+  if (path.startsWith("/permits/") || path.startsWith("/proposals-contracts/")) return "permit-workspace";
   return "my-work";
 };
 const stageFromPath = (): WorkflowStage => {
@@ -56,7 +61,7 @@ const stageFromPath = (): WorkflowStage => {
 };
 
 function App() {
-  const [page,setPage] = useState(pageFromPath); const [selected,setSelected] = useState<Project|null>(null); const [selectedStage,setSelectedStage] = useState<WorkflowStage>(stageFromPath); const [projects,setProjects] = useState<Project[]>([]); const [apps,setApps] = useState<Application[]>([]); const [governance,setGovernance] = useState<any>(null); const [error,setError] = useState(""); const [role,setRole] = useState(() => sessionStorage.getItem("permitops-role") || "PERMIT_PREPARER");
+  const [page,setPage] = useState(pageFromPath); const [selected,setSelected] = useState<Project|null>(null); const [selectedStage,setSelectedStage] = useState<WorkflowStage>(stageFromPath); const [projects,setProjects] = useState<Project[]>([]); const [apps,setApps] = useState<Application[]>([]); const [governance] = useState({ environment_badge: "SYNTHETIC PROTOTYPE" }); const [error,setError] = useState(""); const [role,setRole] = useState<string>(() => readDemoRole());
   useEffect(() => {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -67,12 +72,27 @@ function App() {
       // The application remains English/LTR when browser storage is unavailable.
     }
   }, []);
-  useEffect(()=>{ Promise.all([api<Project[]>("/api/projects"),api<Application[]>("/api/applications"),api<any>("/api/reconciliation/governance")]).then(([p,a,g])=>{setProjects(p);setApps(a);setGovernance(g); const parts = window.location.pathname.split("/"); if (page === "permit-workspace" && parts[2]) { const project = p.find((item) => item.id === parts[2]); if (project) setSelected(project); } }).catch(e=>setError(e.message)); },[]);
-  useEffect(() => { sessionStorage.setItem("permitops-role", role); }, [role]);
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === "/permits") {
+      window.history.replaceState({}, "", `/proposals-contracts${path.slice("/permits".length)}`);
+    }
+    const originalPushState = window.history.pushState.bind(window.history);
+    window.history.pushState = ((state: unknown, title: string, url?: string | URL | null) => {
+      const next = url == null ? url : String(url).replace(/^\/permits$/, "/proposals-contracts");
+      return originalPushState(state, title, next);
+    }) as History["pushState"];
+    return () => { window.history.pushState = originalPushState; };
+  }, []);
+  useEffect(()=>{
+    if (page === "my-work") return;
+    Promise.allSettled([api<Project[]>("/api/projects"),api<Application[]>("/api/applications")]).then(([projectResult, applicationResult])=>{ const p = projectResult.status === "fulfilled" ? projectResult.value : []; const a = applicationResult.status === "fulfilled" ? applicationResult.value : []; setProjects(p); setApps(a); const parts = window.location.pathname.split("/"); if (page === "permit-workspace" && parts[2]) { const project = p.find((item) => item.id === parts[2]); if (project) setSelected(project); } });
+  },[page]);
+  useEffect(() => { sessionStorage.setItem("proposalops-role", role); }, [role]);
   useEffect(() => {
     const syncLocation = () => {
       const nextPage = pageFromPath();
-      const projectId = window.location.pathname.startsWith("/permits/") ? window.location.pathname.split("/")[2] : undefined;
+      const projectId = (window.location.pathname.startsWith("/permits/") || window.location.pathname.startsWith("/proposals-contracts/")) ? window.location.pathname.split("/")[2] : undefined;
       setPage(nextPage);
       setSelectedStage(stageFromPath());
       setSelected(projectId ? projects.find((project) => project.id === projectId) || null : null);
@@ -81,17 +101,19 @@ function App() {
     return () => window.removeEventListener("popstate", syncLocation);
   }, [projects]);
   useEffect(() => { if (window.location.pathname.startsWith("/admin") && !adminRoles.has(role)) { setPage("my-work"); window.history.replaceState({}, "", "/work"); } }, [role]);
-  const navigate = (next: string) => { setPage(next); setSelected(null); const path = next === "my-work" ? "/work" : next === "administration" ? "/admin" : next === "go-live-readiness" ? "/admin/go-live-readiness" : `/${next}`; window.history.pushState({}, "", path); };
-  const openPermit = (projectId: string, stage: WorkflowStage = "PROJECT_AND_SOURCES") => { const project = projects.find((item) => item.id === projectId) || projects[0]; if (!project) return; setSelected(project); setSelectedStage(stage); setPage("permit-workspace"); window.history.pushState({}, "", `/permits/${project.id}/${stage.toLowerCase().replaceAll("_", "-")}`); };
-  const openLegacy = (next: string, projectId?: string) => { if (!adminRoles.has(role) && !projectId) { navigate("my-work"); return; } if (next === "control-loop") { setPage("control-loop"); setSelected(null); window.history.pushState({}, "", "/admin/control-diagnostics"); return; } setPage(next); setSelected(projectId ? projects.find((item) => item.id === projectId) || null : null); window.history.pushState({}, "", projectId ? `/permits/${projectId}/${next === "package" ? "package" : next === "municipality" ? "municipality" : next}` : `/admin/${next}`); };
+  const navigate = (next: string) => { setPage(next); setSelected(null); const path = next === "my-work" ? "/work" : next === "permits" ? "/proposals-contracts" : next === "about" ? "/operating-guide" : next === "administration" ? "/admin" : next === "go-live-readiness" ? "/admin/go-live-readiness" : `/${next}`; window.history.pushState({}, "", path); };
+  const openPermit = (projectId: string, stage: WorkflowStage = "PROJECT_AND_SOURCES") => { const project = projects.find((item) => item.id === projectId) || projects[0]; if (!project) return; setSelected(project); setSelectedStage(stage); setPage("permit-workspace"); window.history.pushState({}, "", `/proposals-contracts/${project.id}/${stage.toLowerCase().replaceAll("_", "-")}`); };
+  const openLegacy = (next: string, projectId?: string) => { if (!adminRoles.has(role) && !projectId) { navigate("my-work"); return; } if (next === "control-loop") { setPage("control-loop"); setSelected(null); window.history.pushState({}, "", "/admin/control-diagnostics"); return; } setPage(next); setSelected(projectId ? projects.find((item) => item.id === projectId) || null : null); window.history.pushState({}, "", projectId ? `/proposals-contracts/${projectId}/${next === "package" ? "package" : next === "municipality" ? "municipality" : next}` : `/admin/${next}`); };
   const openProject=(p:Project)=>openPermit(p.id);
   const visibleBusinessNav = businessNav.filter((item) => {
-    if (role === "PERMIT_PREPARER") return ["my-work", "permits", "issues", "notifications"].includes(item.id);
-    if (role === "PACKAGE_APPROVER" || role === "FINAL_SUBMITTER") return ["my-work", "permits", "reviews", "notifications"].includes(item.id);
-    return true;
+    if (role === "SYSTEM_ADMIN" || role === "OWNER_SPONSOR") return true;
+    if (role === "COMMERCIAL_APPROVER") return ["my-work", "opportunities", "permits", "issues", "notifications"].includes(item.id);
+    if (role === "RESPONSIBLE_ENGINEER") return ["my-work", "engineering-closeout", "permits", "reviews", "issues", "notifications"].includes(item.id);
+    return ["my-work", "permits", "issues", "notifications"].includes(item.id);
   });
   const title = page === "permit-workspace" && selected ? `${selected.project_number} · ${selected.project_name}` : page === "administration" ? "Administration" : page === "go-live-readiness" ? "Go-Live Setup" : (visibleBusinessNav.find((item) => item.id === page)?.label || legacyNav.find((item) => item.id === page)?.label || (page === "project-detail" ? "Project detail" : "PermitOps"));
-  return <div className="app-shell"><aside className="sidebar"><div className="brand"><AmecLogo size="sm" className="sidebar-amec-logo"/><div className="brand-product"><b>PermitOps</b><small>PERMIT INTEGRITY &amp; WORKFLOW</small></div></div><div className="office-pill"><span className="dot"/><span>AMEC Engineering</span><br/><small>QEC-DOHA · SYNTHETIC DEV</small></div><nav aria-label="Primary navigation">{visibleBusinessNav.map(item=><button key={item.id} className={page===item.id?"nav-item active":"nav-item"} onClick={()=>navigate(item.id)}><span className="nav-icon">{item.icon}</span>{item.label}</button>)}{adminRoles.has(role) && <><div className="nav-divider"/><button className={page === "administration" ? "nav-item active" : "nav-item"} onClick={()=>navigate("administration")}><span className="nav-icon">⚙</span>Administration</button></>}</nav><button className={page === "about" ? "nav-item active" : "nav-item"} onClick={()=>navigate("about")}><span className="nav-icon">?</span>About PermitOps</button><div className="sidebar-foot"><span className="lock">▣</span><span><b>Safe boundary</b><small>Synthetic data only<br/>No portal writes<br/>No closure automation</small></span></div></aside><main className="main"><header className="topbar"><div className="topbar-heading"><AmecLogo size="sm" className="mobile-topbar-amec-logo"/><div><span className="eyebrow">PERMIT WORKFLOW</span><h1>{title}</h1></div></div><div className="top-actions"><ReadinessDrawer screenId={page === "permit-workspace" ? getScreenDefinition(selectedStage).screenId : getScreenDefinition(page).screenId} role={role} onNavigate={navigate}/><span className="env-chip"><span className="dot green"/> {governance?.environment_badge || "SYNTHETIC PROTOTYPE"}</span><label aria-label="Role" className="role-switcher">Demo as<select value={role} onChange={(event) => setRole(event.target.value)}><option value="PERMIT_PREPARER">Permit Preparer</option><option value="DATA_VERIFIER">Data Verifier</option><option value="RESPONSIBLE_ENGINEER">Responsible Engineer</option><option value="PACKAGE_APPROVER">Package Approver</option><option value="FINAL_SUBMITTER">Final Submitter</option><option value="SYSTEM_ADMIN">System Admin</option></select></label><button className="avatar" aria-label="Current user">SA</button></div></header><div className="content">{error&&<div className="error-banner">API unavailable: {error}. Start the backend to view seeded data.</div>}{page === "administration" || page === "control-loop" || page.startsWith("admin-") || page === "go-live-readiness" || page === "about" ? null : <div className="synthetic-note compact-environment-badge">SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED</div>}{page==='my-work'&&<MyWorkPage projects={projects} applications={apps} openPermit={openPermit} openAbout={()=>navigate("about")}/>} {page==='about'&&<AboutPermitOpsPage onNavigate={navigate}/>} {page==='opportunities'&&<OpportunitiesPage/>} {page==='engineering-closeout'&&<EngineeringCloseoutPage/>} {page==='permits'&&<PermitsPage projects={projects} applications={apps} openPermit={openPermit}/>} {page==='reviews'&&<ReviewsPage projects={projects} applications={apps} openPermit={openPermit}/>} {page==='issues'&&<IssuesPage projects={projects} applications={apps} openPermit={openPermit}/>} {page==='notifications'&&<NotificationsPage projects={projects} applications={apps} openPermit={openPermit}/>} {page==='permit-workspace'&&selected&&<PermitWorkspacePage project={selected} application={apps.find((item) => item.project_id === selected.id)} activeStage={selectedStage} openStage={(stage) => { setSelectedStage(stage); window.history.pushState({}, "", `/permits/${selected.id}/${stage.toLowerCase().replaceAll("_", "-")}`); }} openLegacy={openLegacy} backToPermits={() => navigate("permits")}/>} {page==='administration'&&<AdministrationPage openLegacy={openLegacy}/>} {page==='go-live-readiness'&&<ReadinessOverviewPage onNavigate={navigate} role={role}/>} {page==='expansion-foundation'&&<ExpansionFoundation/>} {page==='projects'&&<Projects projects={projects} apps={apps} open={openProject}/>} {page==='project-detail'&&selected&&<ProjectDetail project={selected} apps={apps.filter(a=>a.project_id===selected.id)} back={()=>navigate("permits")}/>} {page==='package'&&<PackageReadinessPage initialProjectId={selected?.id}/>} {page==='municipality'&&<MunicipalityPreparationPage initialProjectId={selected?.id}/>} {page==='findings'&&<FindingsConsolePage/>}{page==='lineage'&&<LineageValidityPage/>}{page==='attachments-grids'&&<AttachmentGridPage/>}{page==='documents'&&<DocumentsPage/>}{page==='conflicts'&&<ConflictsPage/>}{page==='config'&&<ConfigurationPage/>}{page==='spike'&&<SpikePage/>}{page==='adjudication'&&<AdjudicationPage/>}{page==='analysis'&&<AnalysisPage/>}{page==='thresholds'&&<ThresholdsPage/>}{page==='corpus'&&<CorpusPage/>}{page==='tier1'&&<Tier1Page/>}{page==='tier2'&&<Tier2Page/>}{page==='delivery'&&<DeliveryPage/>}{page==='close'&&<CloseDecisionPage/>}{page==='baseline'&&<BaselinePage/>}{page==='signoff'&&<SignoffPage/>}{page==='confirmation'&&<SubmissionConfirmationPage/>}{page==='discovery'&&<Discovery/>}{page==='business'&&<BusinessCase/>}{page==='business-baseline'&&<BusinessBaselinePage/>}{page==='privacy'&&<Privacy/>}{page==='volume'&&<Volume/>}{page==='inquiries'&&<Inquiries/>}{page==='raid'&&<Raid/>}{page==='control-loop'&&<ReconciliationControls state={{packageStatus:"BLOCKED",blockedReasons:["Current evidence requires human approval"],packageStale:true,revisionStale:true,portalMismatch:true,municipalityValue:"Doha",dropdownCode:"MUN_A",dropdownLabel:"Doha Municipality",findingOwner:"Responsible Engineer",taskLabel:"Finding remediation",notificationStatus:"FAILED",precheckRun:"SYN-PRECHECK-0142",precheckRevision:"R2",handoffStatus:"HUMAN SUBMISSION REQUIRED"}}/>}</div></main></div>
+  const permitSafetySurface = page === "permit-workspace";
+ return <div className="app-shell"><aside className="sidebar"><div className="brand"><AmecLogo size="sm" className="sidebar-amec-logo"/><div className="brand-product"><b>PermitOps</b><small>PERMIT INTEGRITY &amp; WORKFLOW</small></div></div><div className="office-pill"><span className="dot"/><span>AMEC Engineering</span><br/><small>QEC-DOHA · SYNTHETIC DEV</small></div><nav aria-label="Primary navigation">{visibleBusinessNav.map(item=><button key={item.id} className={page===item.id?"nav-item active":"nav-item"} onClick={()=>navigate(item.id)}><span className="nav-icon">{item.icon}</span>{item.label}</button>)}{adminRoles.has(role) && <><div className="nav-divider"/><button className={page === "administration" ? "nav-item active" : "nav-item"} onClick={()=>navigate("administration")}><span className="nav-icon">⚙</span>Administration</button></>}</nav><button className={page === "about" ? "nav-item active" : "nav-item"} onClick={()=>navigate("about")}><span className="nav-icon">?</span>About PermitOps</button><div className="sidebar-foot"><span className="lock">▣</span><span><b>Safe boundary</b><small>Synthetic data only<br/>No portal writes<br/>No closure automation</small></span></div></aside><main className="main"><header className="topbar"><div className="topbar-heading"><AmecLogo size="sm" className="mobile-topbar-amec-logo"/><div><span className="eyebrow">PERMIT WORKFLOW</span><h1>{title}</h1></div></div><div className="top-actions"><ReadinessDrawer screenId={window.location.pathname === "/proposals/new" ? getScreenDefinition("new-proposal").screenId : page === "permit-workspace" ? getScreenDefinition(selectedStage).screenId : getScreenDefinition(page).screenId} role={role} onNavigate={navigate}/><span className="env-chip"><span className="dot green"/> {governance?.environment_badge || "SYNTHETIC PROTOTYPE"}</span><label aria-label="Demo as" className="role-switcher">Demo as<select aria-label="Persona" value={role} onChange={(event) => setRole(event.target.value)}><option value="SYSTEM_ADMIN">Owner</option><option value="COMMERCIAL_APPROVER">Business Development</option><option value="RESPONSIBLE_ENGINEER">Engineering</option></select></label><button className="avatar" aria-label="Current user">SA</button></div></header><div className="content">{error&&<div className="error-banner">API unavailable: {error}. Start the backend to view seeded data.</div>}{page === "administration" || page === "control-loop" || page.startsWith("admin-") || page === "go-live-readiness" || page === "about" || window.location.pathname === "/proposals/new" ? null : <div className="synthetic-note compact-environment-badge">SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED</div>}{page==='my-work'&&<MyWorkPage projects={projects} applications={apps} openPermit={openPermit} openAbout={()=>navigate("about")}/>} {page==='about'&&<AboutPermitOpsPage onNavigate={navigate}/>} {page==='opportunities'&&<OpportunitiesPage/>} {page==='engineering-closeout'&&<EngineeringCloseoutPage/>} {page==='permits'&&<ProposalsContractsPage projects={projects} persona={role as "SYSTEM_ADMIN" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} openRecord={openPermit}/>} {page==='reviews'&&<ReviewsPage projects={projects} applications={apps} openPermit={openPermit}/>} {page==='issues'&&<PersonaIssuesPage persona={personaForRole(role)}/>} {page==='notifications'&&<PersonaNotificationsPage persona={personaForRole(role)}/>} {page==='permit-workspace'&&selected&&<PermitWorkspacePage project={selected} application={apps.find((item) => item.project_id === selected.id)} activeStage={selectedStage} openStage={(stage) => { setSelectedStage(stage); window.history.pushState({}, "", `/permits/${selected.id}/${stage.toLowerCase().replaceAll("_", "-")}`); }} openLegacy={openLegacy} backToPermits={() => navigate("permits")}/>} {page==='administration'&&<AdministrationPage openLegacy={openLegacy}/>} {page==='go-live-readiness'&&<ReadinessOverviewPage onNavigate={navigate} role={role}/>} {page==='expansion-foundation'&&<ExpansionFoundation/>} {page==='projects'&&<Projects projects={projects} apps={apps} open={openProject}/>} {page==='project-detail'&&selected&&<ProjectDetail project={selected} apps={apps.filter(a=>a.project_id===selected.id)} back={()=>navigate("permits")}/>} {page==='package'&&<PackageReadinessPage initialProjectId={selected?.id}/>} {page==='municipality'&&<MunicipalityPreparationPage initialProjectId={selected?.id}/>} {page==='findings'&&<FindingsConsolePage/>}{page==='lineage'&&<LineageValidityPage/>}{page==='attachments-grids'&&<AttachmentGridPage/>}{page==='documents'&&<DocumentsPage/>}{page==='conflicts'&&<ConflictsPage/>}{page==='config'&&<ConfigurationPage/>}{page==='spike'&&<SpikePage/>}{page==='adjudication'&&<AdjudicationPage/>}{page==='analysis'&&<AnalysisPage/>}{page==='thresholds'&&<ThresholdsPage/>}{page==='corpus'&&<CorpusPage/>}{page==='tier1'&&<Tier1Page/>}{page==='delivery'&&<DeliveryPage/>}{page==='close'&&<CloseDecisionPage/>}{page==='baseline'&&<BaselinePage/>}{page==='signoff'&&<SignoffPage/>}{page==='confirmation'&&<SubmissionConfirmationPage/>}{page==='discovery'&&<Discovery/>}{page==='business'&&<BusinessCase/>}{page==='business-baseline'&&<BusinessBaselinePage/>}{page==='privacy'&&<Privacy/>}{page==='volume'&&<Volume/>}{page==='inquiries'&&<Inquiries/>}{page==='raid'&&<Raid/>}{page==='control-loop'&&<ReconciliationControls state={{packageStatus:"BLOCKED",blockedReasons:["Current evidence requires human approval"],packageStale:true,revisionStale:true,portalMismatch:true,municipalityValue:"Doha",dropdownCode:"MUN_A",dropdownLabel:"Doha Municipality",findingOwner:"Responsible Engineer",taskLabel:"Finding remediation",notificationStatus:"FAILED",precheckRun:"SYN-PRECHECK-0142",precheckRevision:"R2",handoffStatus:"HUMAN SUBMISSION REQUIRED"}}/>}</div></main></div>
 }
 
 function PageIntro({kicker,title,description}:{kicker:string;title:string;description:string}){return <div className="page-intro"><div><span className="eyebrow">{kicker}</span><h2>{title}</h2><p>{description}</p></div></div>}

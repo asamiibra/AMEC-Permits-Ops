@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "canonical_proposal_storage": "Opportunity",
+  "canonical_proposal_revision_storage": "QuotationRevision",
+  "canonical_contract_storage": "Contract",
+  "canonical_contract_revision_storage": "ContractRevision",
+  "canonical_permit_storage": "PermitApplication",
+  "canonical_project_storage": "Project",
+  "local_full_backend_tests": "76 passed",
+  "deployed_chain": {
+    "proposal_id": "6d9f8392-1796-4f69-8c9b-167d84e9274a",
+    "contract_id": "5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+    "permit_id": "54b0ec1e-0e54-44f6-b012-36891361d0bf",
+    "project_id": "c05a4f2c-8e45-49da-bda3-70429f18c496",
+    "cross_project_contract_link": 0,
+    "cross_project_permit_link": 0,
+    "cross_project_artifact_write": 0
+  }
+}

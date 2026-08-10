@@ -30,6 +30,39 @@ class EvidenceArtifact(Base):
     label: Mapped[str] = mapped_column(String(150), default="SYNTHETIC / NOT CLIENT APPROVED", nullable=False)
 
 
+class ProjectArtifactRecord(Base, TimestampMixin):
+    """Workflow/index record for bytes written to the configured project SOR.
+
+    This record intentionally stores metadata and lineage pointers only. The
+    project-folder repository remains the durable system of record for file
+    bytes.
+    """
+    __tablename__ = "project_artifact_records"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_project_artifact_idempotency"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)
+    opportunity_id: Mapped[str | None] = mapped_column(ForeignKey("opportunities.id"), index=True)
+    contract_id: Mapped[str | None] = mapped_column(ForeignKey("contracts.id"), index=True)
+    artifact_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    semantic_class: Mapped[str] = mapped_column(String(50), nullable=False)
+    source_filename: Mapped[str] = mapped_column(String(300), nullable=False)
+    stored_filename: Mapped[str] = mapped_column(String(300), nullable=False)
+    sor_path: Mapped[str] = mapped_column(String(600), nullable=False)
+    source_revision: Mapped[str | None] = mapped_column(String(80))
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    content_type: Mapped[str] = mapped_column(String(120), nullable=False)
+    file_size: Mapped[int] = mapped_column(Integer, nullable=False)
+    uploaded_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    folder_template_version: Mapped[str] = mapped_column(String(60), nullable=False)
+    document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    evidence_artifact_id: Mapped[str | None] = mapped_column(ForeignKey("evidence_artifacts.id"), index=True)
+    supersedes_record_id: Mapped[str | None] = mapped_column(String(36))
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    verification_state: Mapped[str] = mapped_column(String(40), nullable=False, default="REGISTERED")
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="REGISTERED")
+    audit_metadata: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+
+
 class Opportunity(Base, TimestampMixin):
     __tablename__ = "opportunities"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
@@ -42,6 +75,15 @@ class Opportunity(Base, TimestampMixin):
     received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     current_owner_user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), index=True)
     stage2_capability_scope: Mapped[str] = mapped_column(String(100), default="UNDECIDED_STAGE2", nullable=False)
+    # Proposal-facing terminology is canonical; the internal Opportunity name
+    # remains stable for migration compatibility.
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
+    reference_state: Mapped[str] = mapped_column(String(30), default="PROVISIONAL", nullable=False)
+    proposal_fields_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    provisional_reference: Mapped[str | None] = mapped_column(String(100), index=True)
+    canonical_project_reference: Mapped[str | None] = mapped_column(String(100), index=True)
+    canonicalized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    canonicalized_by: Mapped[str | None] = mapped_column(String(200))
 
 
 class ClientAccount(Base, TimestampMixin):
@@ -144,6 +186,8 @@ class Contract(Base, TimestampMixin):
     contract_reference: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="DRAFT", nullable=False)
     current_revision_id: Mapped[str | None] = mapped_column(String(36))
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
+    end_date: Mapped[date | None] = mapped_column(Date)
 
 
 class ContractRevision(Base):
@@ -746,3 +790,30 @@ class AssistantHandoff(Base, TimestampMixin):
     accepted_by: Mapped[str | None] = mapped_column(String(200))
     accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     reason: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class ProposalIntakeArtifact(Base, TimestampMixin):
+    """Durable pre-project intake evidence rooted by the provisional reference."""
+
+    __tablename__ = "proposal_intake_artifacts"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_proposal_intake_idempotency"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
+    opportunity_reference: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    artifact_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    semantic_class: Mapped[str] = mapped_column(String(80), nullable=False)
+    source_filename: Mapped[str] = mapped_column(String(300), nullable=False)
+    stored_filename: Mapped[str] = mapped_column(String(300), nullable=False)
+    sor_path: Mapped[str] = mapped_column(String(600), nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    content_type: Mapped[str] = mapped_column(String(120), nullable=False)
+    file_size: Mapped[int] = mapped_column(Integer, nullable=False)
+    uploaded_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    source_revision: Mapped[str | None] = mapped_column(String(80))
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    verification_state: Mapped[str] = mapped_column(String(40), default="READ_BACK_VERIFIED", nullable=False)
+    status: Mapped[str] = mapped_column(String(40), default="REGISTERED", nullable=False)
+    evidence_artifact_id: Mapped[str | None] = mapped_column(ForeignKey("evidence_artifacts.id"), index=True)
+    supersedes_artifact_id: Mapped[str | None] = mapped_column(String(36))
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)

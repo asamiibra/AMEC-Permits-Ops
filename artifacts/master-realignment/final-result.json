@@ -1,0 +1,11 @@
+{
+  "title": "ProposalOps — Master Application Realignment Result",
+  "overall": "INCOMPLETE",
+  "completed_gates": ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10 local evidence", "G11 deployed runtime and migration", "G11 dedicated detail routes focused"],
+  "open_gates": ["G11 full historical browser regression", "G11 deployed Owner/BD/Engineering Golden Paths", "G11 deployed provisional-to-canonical SOR cycle"],
+  "deployment": {"frontend": "https://amec-permits-ops.vercel.app", "backend": "https://amec-permits-ops-backend.vercel.app", "database": "Neon PostgreSQL", "alembic_head": "0022_proposalops_master_realignment"},
+  "local_regression": {"backend": "74 passed, one order-sensitive historical failure in full-suite run", "frontend_unit": "22 passed", "frontend_build": "PASS", "focused_browser": "7 passed", "promotion": "PASS"},
+  "deployed_focused_browser": "7 passed",
+  "decision": "PROPOSALOPS_MASTER_REALIGNMENT_INCOMPLETE",
+  "blockers": ["19 historical browser failures", "deployed full Owner/BD/Engineering Golden Paths not completed", "deployed SOR promotion mutation cycle not completed"]
+}

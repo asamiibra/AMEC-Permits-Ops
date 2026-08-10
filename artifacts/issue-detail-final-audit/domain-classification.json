@@ -1,0 +1,7 @@
+{
+  "affected_entity_rule": {"Proposal": "PROPOSAL", "Contract": "CONTRACT", "Permit/Application": "PERMIT", "Source/SOR/System": "SYSTEM / DATA"},
+  "unclassified": 0,
+  "commercial_issues_mislabeled_permit": 0,
+  "legitimate_permit_issue_domain_preserved": true,
+  "verified_titles": ["Client pricing clarification required", "Contract scope differs from Proposal", "Permit drawing revision requires technical review", "Authority returned a technical comment"]
+}

@@ -1,0 +1,11 @@
+{
+  "illegal_static_business_state": 5,
+  "findings": [
+    "projectNextAction compatibility fallback",
+    "WorkspaceStage generic current state and blockers copy",
+    "FinalReviewStage static checklist",
+    "AuthorityReviewStage returned-state comments fallback",
+    "legacy catch-to-empty handlers can mask API failure"
+  ],
+  "status": "FAIL"
+}

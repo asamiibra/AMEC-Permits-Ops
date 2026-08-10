@@ -6,7 +6,7 @@
       "test",
       "-c",
       "playwright.real-stack.config.ts",
-      "--workers=1"
+      "issue-detail-final.spec.ts"
     ],
     "configFile": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/playwright.real-stack.config.ts",
     "rootDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
@@ -63,7 +63,7 @@
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.62.1",
-    "workers": 1,
+    "workers": 5,
     "webServer": {
       "command": "npm run dev -- --host 127.0.0.1",
       "url": "http://127.0.0.1:5173",
@@ -72,13 +72,13 @@
   },
   "suites": [
     {
-      "title": "accessibility.spec.ts",
-      "file": "accessibility.spec.ts",
+      "title": "issue-detail-final.spec.ts",
+      "file": "issue-detail-final.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [
         {
-          "title": "core owner routes have no critical or serious axe violations in English and Arabic",
+          "title": "Issue list, detail, and Work share one canonical resolution path",
           "ok": true,
           "tags": [],
           "tests": [
@@ -93,12 +93,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 6315,
+                  "duration": 5244,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-09T01:23:02.746Z",
+                  "startTime": "2026-08-10T01:33:08.962Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -106,13 +106,13 @@
               "status": "expected"
             }
           ],
-          "id": "ddd864604af8a6a0198f-a1e3a6d46f3b9f86e19f",
-          "file": "accessibility.spec.ts",
-          "line": 6,
+          "id": "f556c46934d8d780b871-5b73df66d91f38e3f936",
+          "file": "issue-detail-final.spec.ts",
+          "line": 4,
           "column": 1
         },
         {
-          "title": "keyboard reaches the primary owner controls",
+          "title": "Issue detail is role-aware, domain-relevant, accessible, and mobile-safe",
           "ok": true,
           "tags": [],
           "tests": [
@@ -127,12 +127,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 252,
+                  "duration": 1768,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-08-09T01:23:09.273Z",
+                  "startTime": "2026-08-10T01:33:14.344Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -140,170 +140,9 @@
               "status": "expected"
             }
           ],
-          "id": "ddd864604af8a6a0198f-2bd781a1e5de92384e38",
-          "file": "accessibility.spec.ts",
-          "line": 20,
-          "column": 1
-        }
-      ]
-    },
-    {
-      "title": "owner-rehearsal.spec.ts",
-      "file": "owner-rehearsal.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "owner/client rehearsal against seeded FastAPI + PostgreSQL",
-          "file": "owner-rehearsal.spec.ts",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "traverses seeded My Work → permit workspace → Arabic and back",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "",
-                  "projectName": "",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 503,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-08-09T01:23:09.534Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "e7dd6839752a51220ca9-3d549f2de4fe28f75392",
-              "file": "owner-rehearsal.spec.ts",
-              "line": 11,
-              "column": 3
-            },
-            {
-              "title": "persists a real municipality preparation revision and reconciled simulator state",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "",
-                  "projectName": "",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 941,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-08-09T01:23:10.041Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "e7dd6839752a51220ca9-302b3baa4eecd19cc459",
-              "file": "owner-rehearsal.spec.ts",
-              "line": 33,
-              "column": 3
-            },
-            {
-              "title": "preserves the final human-submit boundary and role restriction",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 45000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "",
-                  "projectName": "",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 443,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-08-09T01:23:10.989Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "e7dd6839752a51220ca9-75542e65e0104eb17770",
-              "file": "owner-rehearsal.spec.ts",
-              "line": 52,
-              "column": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "visual-qa.spec.ts",
-      "file": "visual-qa.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [
-        {
-          "title": "captures the owner/client visual QA set in both locales",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 45000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "",
-              "projectName": "",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 13632,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-08-09T01:23:11.440Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "acd366a2e83d4ab68325-f391721db39e630483f5",
-          "file": "visual-qa.spec.ts",
-          "line": 19,
+          "id": "f556c46934d8d780b871-f1db7709302055d45a10",
+          "file": "issue-detail-final.spec.ts",
+          "line": 36,
           "column": 1
         }
       ]
@@ -311,9 +150,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-08-09T01:23:02.096Z",
-    "duration": 23050.013,
-    "expected": 6,
+    "startTime": "2026-08-10T01:33:08.437Z",
+    "duration": 7739.061,
+    "expected": 2,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

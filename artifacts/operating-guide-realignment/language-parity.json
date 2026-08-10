@@ -1,0 +1,18 @@
+{
+  "artifact": "operating-guide-language-parity",
+  "english_arabic_semantic_mismatch": 0,
+  "checks": [
+    {"section":"Hero and memory model","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Why ProposalOps exists","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"The AMEC workflow","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Who does what","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Proposal work starts and Proceed","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Proposal → Contract → Permit","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Downstream Permit workflow","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"AMEC Work, Issues, Notifications","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Information control","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"AI and human boundary","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Administration, Inputs & Go-Live, synthetic mode","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true},
+    {"section":"Golden Path and starting points","same_meaning":true,"same_lifecycle":true,"same_role_boundaries":true,"same_safety_boundaries":true,"same_route_references":true}
+  ]
+}

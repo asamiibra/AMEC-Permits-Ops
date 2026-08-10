@@ -1,0 +1,11 @@
+{
+  "title":"ProposalOps — Owner-Ready Administration Result",
+  "overall":"ADMINISTRATION_OWNER_READY_INCOMPLETE",
+  "local_implementation":"PASS",
+  "local_backend":"PASS",
+  "local_browser":"PASS",
+  "local_owner_endpoint_sweep":"PASS",
+  "deployed_verification":"NOT_RUN",
+  "exact_blocker":"Deployed verification cannot be completed without a deployed URL/target and deployment access.",
+  "no_final_deployed_ready_claim":true
+}

@@ -1,0 +1,9 @@
+{
+  "artifact": "browser-result",
+  "suite":"frontend/browser-real-stack/admin-owner-ready.spec.ts",
+  "status":"PASS_LOCAL",
+  "tests":4,
+  "passed":4,
+  "owner_endpoint_sweep": {"status":"PASS_LOCAL","get_endpoints":14,"all_http_200":true,"non_owner_summary_http_status":403},
+  "coverage":["owner navigation","bounded notification persistence after reload","connection test","project setup projection","BD/Engineering denial","narrow viewport overflow"]
+}

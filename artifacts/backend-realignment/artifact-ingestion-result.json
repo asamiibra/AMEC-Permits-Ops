@@ -1,0 +1,8 @@
+{
+  "status": "PASS_WITH_SCOPE_NOTE",
+  "service": "ArtifactIngestionService",
+  "supported_classes": ["TENDER_EMAIL_SOURCE", "TENDER_DOCUMENT_SOURCE", "TENDER_IMAGE_SOURCE", "CLIENT_SOURCE", "PROPOSAL_SOURCE", "CONTRACT_SOURCE", "PERMIT_INITIATION_SOURCE"],
+  "focused_tested_classes": ["TENDER_DOCUMENT_SOURCE", "PROPOSAL_SOURCE", "CLIENT_SOURCE"],
+  "guarantees": ["hash", "context-aware idempotency", "revision supersession", "SOR read-back", "DocumentVersion", "EvidenceArtifact", "LineageEdge", "AuditEvent"],
+  "cross_project_artifact_write": 0
+}

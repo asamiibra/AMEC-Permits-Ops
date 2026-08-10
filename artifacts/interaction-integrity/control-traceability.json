@@ -1,0 +1,17 @@
+{
+  "stage1_confirm_project_sources": {
+    "ui": "frontend/src/WorkflowFirst.tsx:PermitWorkspacePage",
+    "endpoint": "POST /api/projects/{project_id}/confirm-project-sources",
+    "handler": "backend/app/api/routers.py:confirm_project_sources_command",
+    "service": "backend/app/services/permit_workflow.py:confirm_project_sources",
+    "db_mutation": ["permit_applications.workflow_stage", "permit_applications.project_sources_confirmed_at", "permit_applications.project_sources_confirmed_by", "workflow_tasks", "audit_events", "notification_events"],
+    "refetch": ["GET /api/projects/{project_id}", "GET /api/findings?project_id={project_id}"],
+    "browser": "frontend/browser-real-stack/stage1-confirm-project-sources.spec.ts",
+    "status": "PASS"
+  },
+  "known_open_paths": [
+    "legacy stage summaries with static checklist/state copy",
+    "legacy catch-to-empty read handlers",
+    "deployed verification"
+  ]
+}

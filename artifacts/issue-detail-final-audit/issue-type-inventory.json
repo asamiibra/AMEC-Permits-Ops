@@ -1,0 +1,15 @@
+{
+  "audit": "Issue Detail Pages",
+  "canonical_source": "Finding",
+  "reachable_issue_types": 7,
+  "unclassified_issue_types": 0,
+  "types": [
+    {"title": "Client pricing clarification required", "stored_domain": "PROPOSAL_COMMERCIAL", "display_domain": "PROPOSAL", "affected_entity": "Proposal", "resolution": "/proposals/:proposalId"},
+    {"title": "Proposal SOW needs engineering confirmation", "stored_domain": "PROPOSAL_TECHNICAL", "display_domain": "PROPOSAL", "affected_entity": "Proposal", "resolution": "/proposals/:proposalId/preparation"},
+    {"title": "Review Proposal release", "stored_domain": "PROPOSAL_COMMERCIAL", "display_domain": "PROPOSAL", "affected_entity": "Proposal", "resolution": "/proposals/:proposalId"},
+    {"title": "Contract scope differs from Proposal", "stored_domain": "CONTRACT", "display_domain": "CONTRACT", "affected_entity": "Contract", "resolution": "/contracts/:contractId"},
+    {"title": "Permit drawing revision requires technical review", "stored_domain": "PERMIT_TECHNICAL", "display_domain": "PERMIT", "affected_entity": "Permit/Application", "resolution": "/proposals-contracts/:projectId/project-and-sources"},
+    {"title": "Authority returned a technical comment", "stored_domain": "AUTHORITY", "display_domain": "PERMIT", "affected_entity": "Permit/Application", "resolution": "/proposals-contracts/:projectId/comments-and-corrections"},
+    {"title": "Review source integrity conflict", "stored_domain": "SYSTEM_INTEGRITY", "display_domain": "SYSTEM / DATA", "affected_entity": "Source/SOR/System", "resolution": "/proposals-contracts/:projectId/project-and-sources"}
+  ]
+}

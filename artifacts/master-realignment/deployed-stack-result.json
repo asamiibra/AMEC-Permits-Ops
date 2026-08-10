@@ -1,0 +1,10 @@
+{
+  "verification_date": "2026-08-09",
+  "frontend": {"url": "https://amec-permits-ops.vercel.app", "deployment_id": "dpl_D3uiiBqE3fG2gMa8hKz5Y8MvGQjV", "ready": true, "git_sha": "NOT_EXPOSED_BY_PUBLIC_RUNTIME"},
+  "backend": {"url": "https://amec-permits-ops-backend.vercel.app", "deployment_id": "dpl_4D6gDnf2W9mwWvei7HK37oQebpA8", "ready": true, "git_sha": "NOT_EXPOSED_BY_PUBLIC_RUNTIME"},
+  "database": {"provider": "Neon PostgreSQL", "dialect": "postgresql", "durable": true, "sqlite_fallback_active": false, "alembic_head": "0022_proposalops_master_realignment"},
+  "backend_probes": {"root": 200, "health": 200, "docs": 200, "openapi": 200, "material_json_routes_all_200": true},
+  "proxy_equivalence": {"projects": true, "proposals_main": true, "applications": true, "tasks": true, "findings": true, "notifications": true, "governance": true},
+  "fixture": {"projects": 4, "applications": 4, "proposal_rows": 1, "contract_rows": 1, "canonical_proposal_reference": true, "contract_project_link": true, "permit_contract_link": true, "early_source_artifacts": 0, "complete_g11_fixture": false},
+  "decision": "DEPLOYED_RUNTIME_PASS_GOLDEN_PATH_OPEN"
+}

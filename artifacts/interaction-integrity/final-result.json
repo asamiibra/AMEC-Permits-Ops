@@ -1,0 +1,18 @@
+{
+  "overall": "FAIL",
+  "decision": "INTERACTION_INTEGRITY_INCOMPLETE",
+  "stage1": "PASS",
+  "backend_tests": "85 passed",
+  "frontend_tests": "24 passed",
+  "frontend_build": "PASS",
+  "migration_head": "0025_permit_workflow_stage_confirmation",
+  "real_stack_stage1": "PASS",
+  "blockers": [
+    "whole-app material-control browser matrix incomplete",
+    "full unwired/no-op proof scan incomplete",
+    "static/fallback business-state paths remain",
+    "legacy catch-to-empty handlers remain",
+    "deployed verification not run",
+    "full cross-project and persona click-through evidence incomplete"
+  ]
+}

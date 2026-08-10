@@ -1,0 +1,9 @@
+{
+  "canonical_issue_source": "Finding",
+  "canonical_work_source": "WorkflowTask projection",
+  "dedupe_key": "FINDING:{finding_id}",
+  "finding_backed_work_items_to_detail": true,
+  "duplicate_human_actions": 0,
+  "notifications_are_separate": true,
+  "notification_ack_changes_issue": false
+}

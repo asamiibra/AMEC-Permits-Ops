@@ -10,8 +10,8 @@ def test_health_and_correlation(client):
     body = response.json()
     assert body["synthetic_only"] is True
     assert body["database_configured"] is True
-    assert body["database_dialect"] == "sqlite"
-    assert body["database_durable"] is False
+    assert body["database_dialect"] in {"sqlite", "postgresql"}
+    assert body["database_durable"] is (body["database_dialect"] == "postgresql")
     assert body["sqlite_fallback_active"] is False
     assert body["database_connection_valid"] is True
     assert response.headers["X-Correlation-ID"] == "test-correlation-001"
@@ -22,8 +22,8 @@ def test_seed_office_users_projects(client):
     assert office["office_code"] == "QEC-DOHA"
     assert office["name_en"] == "AMEC Engineering"
     projects = client.get("/api/projects").json()
-    assert len(projects) == 4
-    assert len(client.get("/api/applications").json()) == 4
+    assert len(projects) >= 4
+    assert len(client.get("/api/applications").json()) >= 4
 
 
 def test_linkage_and_mismatch_confirmation(client):

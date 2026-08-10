@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "presentation": "collapsed secondary DELIVERY HEALTH panel",
+  "failure_behavior": "diagnostics failure shows unavailable and does not synthesize zero values",
+  "endpoint": "/api/notifications/observability",
+  "fallback_recipient": "Not used in demo when absent"
+}

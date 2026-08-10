@@ -1,0 +1,8 @@
+{
+  "status": "PASS_WITH_DEPLOYED_FIXTURE_LIMITATION",
+  "local_provisional_to_canonical": "implemented and exercised by focused promotion test",
+  "metadata": ["provisional_reference", "canonical_project_reference", "canonicalized_at", "canonicalized_by"],
+  "history": "LineageEdge PROVISIONAL_TO_CANONICAL_REFERENCE plus audit event",
+  "deployed_fixture": {"reference_state": "CANONICAL", "provisional_reference": "SYN-OPP-0001", "canonical_project_reference": "GHCE-2026-0142"},
+  "source": "https://amec-permits-ops-backend.vercel.app/api/proposals/6d9f8392-1796-4f69-8c9b-167d84e9274a"
+}

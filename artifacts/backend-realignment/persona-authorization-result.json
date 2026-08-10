@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "personas": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"],
+  "local_tests": {"owner_visibility": "allowed", "engineering_contract_write": "403", "engineering_client_intake": "403", "wrong_project_bd_commands": "409"},
+  "deployed_tests": {"engineering_contract_write": "403 CAPABILITY_DENIED", "bd_wrong_project_contract": "409 CONTRACT_PROPOSAL_PROJECT_MISMATCH", "bd_wrong_project_permit": "409 PERMIT_CONTRACT_PROJECT_MISMATCH"},
+  "internal_roles_preserved": true
+}

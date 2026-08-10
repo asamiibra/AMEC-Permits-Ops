@@ -1,0 +1,10 @@
+{
+  "stage_1": {"stage": "PROJECT_AND_SOURCES", "command": "CONFIRM_PROJECT_SOURCES", "status": "PASS"},
+  "stage_2": {"stage": "VERIFY_DATA", "command": "VERIFY_PROJECT_DATA", "status": "PROJECTION_ONLY"},
+  "stage_3": {"stage": "PREPARE_PACKAGE", "command": "PACKAGE_WORKFLOW", "status": "EXISTING_BOUNDED_WORKFLOW"},
+  "stage_4": {"stage": "MUNICIPALITY_PREPARATION", "command": "ASSISTED_PREPARATION", "status": "EXISTING_BOUNDED_WORKFLOW"},
+  "stage_5": {"stage": "FINAL_REVIEW", "command": "HUMAN_SUBMISSION_HANDOFF", "status": "HUMAN_ONLY"},
+  "stage_6": {"stage": "AUTHORITY_REVIEW", "command": "READ_ONLY_MONITORING", "status": "READ_ONLY"},
+  "stage_7": {"stage": "COMMENTS_AND_CORRECTIONS", "command": "FINDING_COMMANDS", "status": "EXISTING_BOUNDED_WORKFLOW"},
+  "stage_8": {"stage": "HISTORY", "command": "HISTORY_READ", "status": "READ_ONLY"}
+}

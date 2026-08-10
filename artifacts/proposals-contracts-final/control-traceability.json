@@ -1,0 +1,15 @@
+{
+  "artifact": "ProposalOps — Proposals & Contracts Control Traceability",
+  "generated_at": "2026-08-09",
+  "controls": [
+    {"id": "PC-NAV-01", "control": "Proposal identity and Open route", "implementation": "frontend/src/ProposalsContracts.tsx; backend/app/api/proposals_main_routers.py", "status": "PASS locally"},
+    {"id": "PC-LIFE-01", "control": "Canonical Proposal lifecycle and NextAction", "implementation": "backend/app/services/backend_realignment.py", "status": "PASS locally"},
+    {"id": "PC-SOR-01", "control": "Source provenance and read-back evidence", "implementation": "backend/app/services/proposals_sor.py; backend/app/seed/cli.py", "status": "PASS locally"},
+    {"id": "PC-LINE-01", "control": "Proposal → Contract → Permit lineage", "implementation": "backend/app/api/proposals_main_routers.py", "status": "PASS locally; downstream permit creation requires existing application"},
+    {"id": "PC-KPI-01", "control": "Six KPI cards use one predicate registry", "implementation": "backend/app/services/backend_realignment.py; backend/app/api/proposals_main_routers.py", "status": "PASS locally"},
+    {"id": "PC-CTX-01", "control": "Contextual orange source actions", "implementation": "frontend/src/ProposalsContracts.tsx; backend/app/api/proposals_main_routers.py", "status": "PASS locally"},
+    {"id": "PC-SYNC-01", "control": "AMEC Work and notification handoff persistence", "implementation": "_create_handoff_task creates WorkflowTask, AssistantHandoff, NotificationEvent", "status": "PASS locally"},
+    {"id": "PC-DEP-01", "control": "Deployed frontend/backend/Neon critical path", "implementation": "Requires deployment target verification", "status": "BLOCKED — not run"},
+    {"id": "PC-REG-01", "control": "Full browser regression suite", "implementation": "frontend/browser-real-stack", "status": "BLOCKED — 4 ProposalOps/Stage 1 tests pass; 6 older permit-shell/accessibility/visual tests fail on missing legacy controls"}
+  ]
+}

@@ -1,0 +1,1 @@
+{"source_of_truth":"backend/app/services/backend_realignment.py::CAPABILITY_MATRIX plus owner_admin route dependency","administration_roles":["SYSTEM_ADMIN","OWNER_SPONSOR"],"business_roles_denied":["PROCESS_CHAMPION","RESPONSIBLE_ENGINEER"],"matrix_route":"/api/admin/users","parity":"PASS","direct_route_recheck":"PASS"}

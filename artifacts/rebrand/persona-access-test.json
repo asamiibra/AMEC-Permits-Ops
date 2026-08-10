@@ -1,0 +1,12 @@
+{
+  "artifact": "persona-access-test",
+  "version": "1.0",
+  "personas": [
+    {"name": "Owner", "internal_role": "SYSTEM_ADMIN", "navigation": "full", "status": "IMPLEMENTED_PROTOTYPE"},
+    {"name": "Engineering", "internal_role": "RESPONSIBLE_ENGINEER", "navigation": ["AMEC Work", "Engineering & Closeout", "Proposals & Contracts", "Reviews", "Issues", "Notifications"], "status": "IMPLEMENTED_PROTOTYPE"},
+    {"name": "Business Development", "internal_role": "COMMERCIAL_APPROVER", "navigation": ["AMEC Work", "Opportunities", "Proposals & Contracts", "Issues", "Notifications"], "status": "IMPLEMENTED_PROTOTYPE"}
+  ],
+  "exact_selector_options": ["Owner", "Engineering", "Business Development"],
+  "field_level_ownership": "INCOMPLETE",
+  "status": "INCOMPLETE_PENDING_BROWSER_AND_FIELD_AUDIT"
+}

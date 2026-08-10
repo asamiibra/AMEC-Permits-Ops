@@ -1,0 +1,10 @@
+{
+  "artifact": "admin-route-reconciliation",
+  "status": "RECONCILED",
+  "old_admin_inventory_count": 31,
+  "unmapped_old_admin_routes": 0,
+  "normal_owner_navigation": ["People & Access", "Data & Connections", "Project & Folder Setup", "Proposal Setup", "Contract Setup", "Permit Workflow Setup", "Templates & Documents", "Notifications & Follow-up", "Data, Security & Retention", "Integration Health", "Audit History", "Advanced Diagnostics"],
+  "separate_navigation": ["Inputs & Go-Live"],
+  "internal_items_in_normal_owner_nav": 0,
+  "removed_owner_inappropriate_items": ["Expansion foundation", "Business case", "RAID log", "Test targets", "Tier 1 decisions", "Tier 2 backlog", "Go-live setup decision", "Confirmation demo", "Test extraction", "Expected results", "Test analysis", "Test documents", "Attachment / grid diagnostics", "Control diagnostics"]
+}

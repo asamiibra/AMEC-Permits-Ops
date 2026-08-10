@@ -1,0 +1,11 @@
+{
+  "material_routes": [
+    {"route":"/work","frontend":"canonical AMEC Work","local":"PASS","deployed":"PASS: /api/work 200"},
+    {"route":"/proposals-contracts","frontend":"Proposals & Contracts","local":"PASS","deployed":"PASS"},
+    {"route":"/issues","frontend":"Persona Issues","local":"PASS","deployed":"PASS: /api/issues 200"},
+    {"route":"/notifications","frontend":"Persona Notifications","local":"PASS","deployed":"PASS: /api/notifications 200"},
+    {"route":"/admin","frontend":"Owner Administration","local":"PASS","deployed":"PASS"},
+    {"route":"/proposals-contracts/:projectId/project-and-sources","frontend":"Permit Stage 1","local":"PASS","deployed":"PASS"}
+  ],
+  "backend_route_declarations": 450
+}

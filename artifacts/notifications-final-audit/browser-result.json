@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "command": "cd frontend && npm run browser-e2e -- browser-e2e/persona-issues-notifications.spec.ts",
+  "passed": 3,
+  "failed": 0,
+  "coverage": ["persona switching", "notification KPIs and delivery diagnostics", "keyboard/responsive surface"]
+}

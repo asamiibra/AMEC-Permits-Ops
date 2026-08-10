@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "endpoint": "/api/proposals-contracts/summary",
+  "local_reconciliation": "summary counts equal filtered list counts",
+  "deployed": {"open_proposals": 1, "open_contracts": 1, "proposal_handover": 0, "contract_handover": 0, "proposals_in_process": 0, "contracts_in_process": 1, "list_reconciliation": {"open_proposals": 1, "open_contracts": 1}},
+  "predicate_registry": "KPI_PREDICATES"
+}

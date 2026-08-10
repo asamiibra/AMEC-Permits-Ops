@@ -1,0 +1,7 @@
+{
+  "focused_suite": {"file": "frontend/browser-real-stack/new-proposal-final.spec.ts", "passed": 4, "failed": 0},
+  "adjacent_suite": {"file": "frontend/browser-real-stack/proposals-contracts-final.spec.ts", "passed": 2, "failed": 0},
+  "e2e_regression": {"file": "frontend/browser-e2e/proposals-main.spec.ts", "passed": 4, "failed": 0},
+  "flows": ["BD create and refresh", "Engineering access and API denial", "four source-card intents", "route-aware readiness", "Owner capability truth"],
+  "marker": "BD_NEW_PROPOSAL_END_TO_END_PASS"
+}

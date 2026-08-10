@@ -1,0 +1,8 @@
+{
+  "status": "PASS_WITH_DEPLOYED_MUTATION_NOT_RUN",
+  "policy": "COPY_VERIFY_AND_ARCHIVE_SOURCE",
+  "local_test": "provisional Tender Document + Proposal Form copied, hash-verified, registered, retried idempotently, and wrong Project rejected",
+  "failure_states": ["PROMOTING", "CANONICAL_VERIFIED", "PROMOTION_FAILED", "CONFLICT"],
+  "cross_project_artifact_write": 0,
+  "deployed_note": "The durable Neon fixture was not mutated with a new upload/promotion cycle because no deletion endpoint exists; deployed canonical chain and SOR configuration were smoke-verified."
+}

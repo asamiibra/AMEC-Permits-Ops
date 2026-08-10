@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "allowed_event_copy": ["Proposal preparation completed", "Client clarification requested", "Authority comment captured"],
+  "owner_relevant": true,
+  "business_development_relevant": true,
+  "engineering_relevant": true,
+  "generic_event_copy": 0,
+  "task_event_separation": true,
+  "markers": ["RECENT_CHANGES_PERSONA_RELEVANCE_PASS", "RECENT_CHANGES_EVENT_COPY_PASS"]
+}

@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "owner_union": true,
+  "business_development_team_filter": false,
+  "engineering_team_filter": false,
+  "owner_team_filters": ["all", "business_development", "engineering", "owner", "system"],
+  "roles": {"SYSTEM_ADMIN": "OWNER", "COMMERCIAL_APPROVER": "BUSINESS_DEVELOPMENT", "RESPONSIBLE_ENGINEER": "ENGINEERING"}
+}

@@ -1,0 +1,20 @@
+{
+  "artifact": "operating-guide-content-audit",
+  "unclassified_guide_sections": 0,
+  "sections": [
+    {"current_heading":"Permit-first hero","purpose":"Top-level product story","classification":"REWRITE","reason":"Permit was no longer the complete product story.","new_destination":"Hero","english_updated":true,"arabic_updated":true},
+    {"current_heading":"Why PermitOps exists","purpose":"Product rationale","classification":"REWRITE","reason":"Reframe around sources, traceability, and handoffs.","new_destination":"01 Why ProposalOps exists","english_updated":true,"arabic_updated":true},
+    {"current_heading":"How PermitOps works","purpose":"Primary lifecycle","classification":"REWRITE","reason":"Replace permit-first eight-stage top-level flow.","new_destination":"02 The AMEC workflow","english_updated":true,"arabic_updated":true},
+    {"current_heading":"When the authority sends comments","purpose":"Correction loop","classification":"MOVE","reason":"Authority work is downstream of commercial lifecycle.","new_destination":"07 Downstream Permit workflow","english_updated":true,"arabic_updated":true},
+    {"current_heading":"Capabilities available in the current MVP","purpose":"Feature catalogue","classification":"REMOVE","reason":"Large implementation-oriented catalogue made the Guide a technical inventory.","new_destination":"09 How information stays controlled and 11 Administration and Inputs & Go-Live","english_updated":true,"arabic_updated":true},
+    {"current_heading":"What users see in the app","purpose":"Permit stage map","classification":"MERGE","reason":"Fold stage explanations into the downstream Permit section.","new_destination":"07 Downstream Permit workflow","english_updated":true,"arabic_updated":true},
+    {"current_heading":"How one fact becomes controlled outputs","purpose":"Data flow","classification":"REWRITE","reason":"Use business-language shared truth and governed work.","new_destination":"09 How information stays controlled","english_updated":true,"arabic_updated":true},
+    {"current_heading":"Simplified business architecture","purpose":"Architecture explanation","classification":"REWRITE","reason":"Remove implementation framing and explain commercial portfolio and controlled records.","new_destination":"06 Proposal → Contract → Permit and 09 How information stays controlled","english_updated":true,"arabic_updated":true},
+    {"current_heading":"AI assists; people decide","purpose":"AI boundary","classification":"REWRITE","reason":"Retain safety boundary with current commercial and professional authority examples.","new_destination":"10 Where AI helps","english_updated":true,"arabic_updated":true},
+    {"current_heading":"Human roles and checkpoints","purpose":"Role explanation","classification":"REWRITE","reason":"Use exactly Owner, Business Development, and Engineering.","new_destination":"03 Who does what","english_updated":true,"arabic_updated":true},
+    {"current_heading":"Broader AMEC owner-session vision","purpose":"Product roadmap context","classification":"REMOVE","reason":"Replace broad unfinished capability catalogue with current operating model.","new_destination":"01 Why ProposalOps exists and 11 Synthetic prototype truth","english_updated":true,"arabic_updated":true},
+    {"current_heading":"What PermitOps intentionally does not do","purpose":"Safety boundary","classification":"MERGE","reason":"Keep human submission and authority limits next to AI and Permit explanations.","new_destination":"07 Downstream Permit workflow and 10 Where AI helps","english_updated":true,"arabic_updated":true},
+    {"current_heading":"Quick glossary","purpose":"Terminology aid","classification":"REMOVE","reason":"Short operational definitions are more useful in the relevant sections than a technical glossary.","new_destination":"02–13 inline definitions","english_updated":true,"arabic_updated":true},
+    {"current_heading":"Ready to work CTA","purpose":"Navigation","classification":"REWRITE","reason":"Use existing current surfaces only.","new_destination":"13 Where do I start?","english_updated":true,"arabic_updated":true}
+  ]
+}

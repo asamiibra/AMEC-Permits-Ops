@@ -1,0 +1,1 @@
+{"owner_admin_tests":6,"passed":6,"failed":0,"full_real_stack_tests":30,"full_real_stack_passed":19,"full_real_stack_failed":11,"admin_routes_directly_checked":12,"mobile_admin_check":"PASS","authorization_check":"PASS","persistence_checks":["connection test","follow-up timing"],"broader_failures_out_of_scope":true}

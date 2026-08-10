@@ -1,0 +1,6 @@
+{
+  "artifact":"deployed-result",
+  "status":"NOT_RUN",
+  "reason":"No deployed URL or deployment target was supplied in the request.",
+  "required_before_final_claim":["run owner navigation against deployed URL","run BD/Engineering denial against deployed API","repeat secret audit","repeat bounded write and refresh persistence","repeat broken-route and mobile checks"]
+}

@@ -2,7 +2,9 @@ const API = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const endpoint = `${API}${path}`;
-  const response = await fetch(endpoint, { ...init, headers: { "Content-Type": "application/json", "X-Dev-Role": "SYSTEM_ADMIN", ...(init?.headers || {}) } });
+  const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
+  const demoRole = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("proposalops-role") || "SYSTEM_ADMIN" : "SYSTEM_ADMIN";
+  const response = await fetch(endpoint, { ...init, headers: { ...(isFormData ? {} : { "Content-Type": "application/json" }), "X-Dev-Role": demoRole, ...(init?.headers || {}) } });
   const contentType = response.headers.get("content-type") || "";
   const body = await response.text();
   let payload: unknown;

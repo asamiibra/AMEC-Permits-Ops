@@ -1,0 +1,8 @@
+{
+  "stage1_allowed_roles": ["SYSTEM_ADMIN", "OWNER_SPONSOR", "PROCESS_CHAMPION", "REQUIREMENT_STEWARD", "RESPONSIBLE_ENGINEER", "PERMIT_PREPARER"],
+  "stage1_denied_roles": ["FINAL_SUBMITTER"],
+  "ui_persona_tests": "PASS_EXISTING",
+  "server_capability_test": "PASS",
+  "full_owner_bd_engineering_clickthrough": "NOT_COMPLETE",
+  "status": "PARTIAL"
+}

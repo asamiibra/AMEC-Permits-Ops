@@ -1,0 +1,13 @@
+{
+  "subtitle": "Start a Proposal from tender and client information. If a canonical AMEC Project Reference has not been assigned yet, ProposalOps keeps the intake under a controlled provisional Proposal Reference until the Project Reference is available.",
+  "period_label": "Period",
+  "period_helper": "Proposal validity / delivery period",
+  "sow_label": "Initial SOW / Tender Scope",
+  "cta": "Create Proposal & Save Sources",
+  "proceed_separation": "Proceed remains a separate Proposal Detail lifecycle command",
+  "shell_descriptor": "PROPOSAL • CONTRACT • PERMIT",
+  "general_boundary": ["Synthetic environment", "Test data only", "Simulated integrations"],
+  "new_proposal_permit_warning": 0,
+  "internal_jargon": 0,
+  "marker": "NEW_PROPOSAL_INTERNAL_JARGON_ZERO"
+}

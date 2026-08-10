@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
@@ -8,6 +9,7 @@ from ..schemas.api import *
 from ..audit.service import audit
 from ..services.business_case import DEFAULT_BUSINESS_CASE, calculate_business_case
 from .dependencies import current_user_role
+from ..services.permit_workflow import confirm_project_sources, ensure_project_sources_task, workflow_projection
 
 router = APIRouter(prefix="/api")
 
@@ -30,10 +32,31 @@ def create_project(payload: ProjectCreate, request: Request, db: Session = Depen
 
 
 @router.get("/projects/{project_id}")
-def project_detail(project_id: str, db: Session = Depends(get_db)):
+def project_detail(project_id: str, issue: str | None = None, db: Session = Depends(get_db)):
     p = db.get(Project, project_id)
     if not p: raise HTTPException(404, "Project not found")
-    return {**project_dict(p), "links": [link_out(p, l) for l in p.links], "applications": [ApplicationOut.model_validate(a).model_dump(mode="json") for a in p.applications], "audit": audit_for_entity(db, "Project", p.id)}
+    applications = [ApplicationOut.model_validate(a).model_dump(mode="json") for a in p.applications]
+    application = p.applications[0] if p.applications else None
+    if issue:
+        finding = db.get(Finding, issue)
+        if not finding:
+            raise HTTPException(404, detail={"code": "ISSUE_NOT_FOUND", "issue_id": issue})
+        if finding.project_id != project_id:
+            raise HTTPException(409, detail={"code": "ISSUE_PROJECT_MISMATCH", "issue_id": issue, "project_id": project_id})
+        target_application_id = finding.permit_id or finding.application_id
+        if target_application_id:
+            application = next((item for item in p.applications if item.id == target_application_id), None)
+            if application is None:
+                raise HTTPException(409, detail={"code": "ISSUE_APPLICATION_MISMATCH", "issue_id": issue, "project_id": project_id})
+    return {**project_dict(p), "office": {"id": p.office.id, "office_code": p.office.office_code, "name_en": p.office.name_en, "name_ar": p.office.name_ar} if p.office else None, "links": [link_out(p, l) for l in p.links], "applications": applications, "workflow": workflow_projection(db, p, application) if application else None, "audit": audit_for_entity(db, "Project", p.id)}
+
+
+@router.post("/projects/{project_id}/confirm-project-sources")
+def confirm_project_sources_command(project_id: str, payload: dict[str, Any] | None = None, request: Request = None, db: Session = Depends(get_db), role=Depends(current_user_role)):
+    payload = payload or {}
+    result = confirm_project_sources(db, project_id=project_id, actor_role=role, actor_id=payload.get("actor_id") or role.value, correlation_id=corr(request), project_reference=payload.get("project_reference"))
+    application = result["application"]
+    return {"command": "ConfirmProjectAndSources", "result": "IDEMPOTENT" if result["idempotent"] else "COMPLETED", "project": project_dict(result["project"]), "application": ApplicationOut.model_validate(application).model_dump(mode="json"), "workflow": result["workflow"], "fixture": {"synthetic_only": True}}
 
 
 def link_out(project, link):

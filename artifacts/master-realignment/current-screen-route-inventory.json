@@ -1,0 +1,17 @@
+{
+  "captured_at": "2026-08-09",
+  "product": "ProposalOps",
+  "screens": [
+    {"screen": "AMEC Work", "route": "/", "status": "active"},
+    {"screen": "Proposals & Contracts", "route": "/proposals-contracts", "status": "active"},
+    {"screen": "New Proposal", "route": "/proposals/new", "status": "contracted"},
+    {"screen": "Proposal Preparation", "route": "/proposals/:proposalId/preparation", "status": "API-and-inline-workspace"},
+    {"screen": "Contract", "route": "/contracts/:contractId", "status": "API-transition-contract"},
+    {"screen": "Permit Workspace", "route": "/proposals-contracts/:projectId/*", "status": "downstream"},
+    {"screen": "Issues", "route": "/issues", "status": "active"},
+    {"screen": "Notifications", "route": "/notifications", "status": "active"},
+    {"screen": "Operating Guide", "route": "/operating-guide", "status": "active"}
+  ],
+  "legacy_collection_redirect": {"from": "/permits", "to": "/proposals-contracts"},
+  "true_permit_detail_redirected": false
+}

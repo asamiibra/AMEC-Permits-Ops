@@ -1,0 +1,1 @@
+{"screen_scope":"all Owner Administration routes","forbidden_visible_terms":["persona","Quotation","COMMERCIAL_APPROVER","SYNTHETIC_STANDIN","SUBMIT"],"result":"PASS","replacement_model":"roles, Proposal, human-controlled final submission"}

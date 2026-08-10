@@ -50,6 +50,9 @@ class ApplicationOut(BaseModel):
     application_status: ApplicationStatus
     repetition_count: int
     last_status_at: datetime
+    workflow_stage: str | None = None
+    project_sources_confirmed_at: datetime | None = None
+    project_sources_confirmed_by: str | None = None
 
 
 class DecisionPatch(BaseModel):

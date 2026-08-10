@@ -1,0 +1,12 @@
+{
+  "controls": [
+    {"name":"Persona switch","local":"PASS","evidence":"15-test real-stack suite"},
+    {"name":"AMEC Work KPI/domain composition","local":"PASS","evidence":"homepage-owner-ready"},
+    {"name":"Controlled API retry","local":"PASS","evidence":"homepage-owner-ready"},
+    {"name":"Administration persistence","local":"PASS","evidence":"admin-owner-ready"},
+    {"name":"Privileged role denial","local":"PASS","evidence":"admin-owner-ready"},
+    {"name":"Proposal/Contract lineage","local":"PASS","evidence":"proposals-contracts-final"},
+    {"name":"Stage 1 persisted command","local":"PASS","evidence":"stage1-confirm-project-sources"},
+    {"name":"Machine final submission","local":"BLOCKED BY DESIGN","evidence":"human-only boundary"}
+  ]
+}

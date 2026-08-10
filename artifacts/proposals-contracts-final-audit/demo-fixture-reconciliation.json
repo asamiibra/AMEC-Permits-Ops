@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "fixture": [
+    {"reference": "SYN-OPP-0002", "title": "Synthetic Engineering Proposal Intake", "status": "PROPOSAL_PREPARATION", "contract": false, "project": "GHCE-2026-0187", "next_action": "OPEN_PREPARATION"},
+    {"reference": "SYN-OPP-0001", "title": "Synthetic Building Advisory Opportunity", "status": "CONTRACT_HANDOVER", "stage": "Contracted", "contract": true, "project": "GHCE-2026-0142", "next_action": "VIEW_CONTRACT"},
+    {"reference": "SYN-CTR-0001", "status": "DRAFT", "permit": "linked downstream Permit"}
+  ],
+  "repair": "Idempotent seed/bootstrap reconciliation upgrades stale primary IN_REVIEW state when a durable Contract exists."
+}

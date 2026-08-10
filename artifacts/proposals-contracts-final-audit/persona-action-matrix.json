@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "OWNER": {"actions": ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "NEW_PROPOSAL"], "sources": ["TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_IMAGE", "CLIENT_INFORMATION"], "amount_visible": true},
+  "BUSINESS_DEVELOPMENT": {"actions": ["CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL"], "sources": ["TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_IMAGE", "CLIENT_INFORMATION"], "amount_visible": true},
+  "ENGINEERING": {"actions": ["PROPOSAL_FORM"], "sources": [], "amount_visible": false, "commercial_creation_hidden": true},
+  "server_guards": ["Engineering NEW_PROPOSAL denied", "Engineering CONTRACT_FORM denied", "BD PROPOSAL_FORM denied", "Client List never binds to Proposal"]
+}

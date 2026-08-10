@@ -1,0 +1,10 @@
+{
+  "roles": {
+    "Owner": {"allowed": ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "NEW_PROPOSAL"], "create_proposal": true},
+    "Business Development": {"allowed": ["CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL", "TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_IMAGE", "CLIENT_INFORMATION"], "create_proposal": true},
+    "Engineering": {"allowed": ["PROPOSAL_FORM"], "create_proposal": false}
+  },
+  "server_authorization": "capability middleware plus action/persona policy",
+  "status": "PASS",
+  "marker": "OWNER_NEW_PROPOSAL_CAPABILITY_TRUTH_PASS"
+}

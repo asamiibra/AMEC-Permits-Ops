@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "canonical_project_reference": "GHCE-2026-0142",
+  "proposal_reference": "SYN-OPP-0001",
+  "contract_reference": "SYN-CTR-0001",
+  "permit_reference": "GHCE-APP-0142",
+  "fixture_semantic_version": "1.1.1"
+}

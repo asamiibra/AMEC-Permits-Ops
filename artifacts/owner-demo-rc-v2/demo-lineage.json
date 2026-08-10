@@ -1,0 +1,7 @@
+{
+  "chain": ["SYN-CLIENT-001","SYN-OPP-0001","SYN-CTR-0001","GHCE-2026-0142","GHCE-APP-0142"],
+  "project_contract_match": true,
+  "project_permit_match": true,
+  "permit_controlling_contract_match": true,
+  "counts": {"client_accounts":1,"opportunities":1,"contracts":1,"projects":4,"permit_applications":4,"workflow_tasks":11,"findings":6,"notification_events":4,"project_artifact_records":3}
+}

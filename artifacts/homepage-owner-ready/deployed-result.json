@@ -1,0 +1,5 @@
+{
+  "status": "NOT_RUN",
+  "reason": "No deployed Vercel/Neon target or credentials supplied",
+  "required_follow_up": ["Owner load", "BD/Engineering switch", "KPI/list reconciliation", "Proposal CTA", "Contract CTA", "Permit exact-stage CTA", "hard refresh"]
+}

@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "rule": "delivery_status is rendered only when the event domain is COMMUNICATION_DELIVERY",
+  "ordinary_rows": "read/unread state is shown independently",
+  "fixture_result": "ordinary awareness events do not display Delivered or Pending badges"
+}

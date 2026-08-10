@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "personas": {
+    "OWNER": "cross-functional awareness",
+    "BUSINESS_DEVELOPMENT": "commercial, proposal, contract and client awareness",
+    "ENGINEERING": "technical, permit and authority awareness"
+  },
+  "visibility_authority": "backend audience and domain projection",
+  "read_state_scope": "persona plus principal key"
+}

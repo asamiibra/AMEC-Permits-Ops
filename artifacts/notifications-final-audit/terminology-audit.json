@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "forbidden_notification_copy_removed": ["Backend-derived", "Open record"],
+  "approved_examples": ["Open Permit", "Review Proposal", "Review client information", "Review Authority comment"],
+  "actor_sanitization": "raw fixture/admin actor identifiers project to System or simulator labels"
+}

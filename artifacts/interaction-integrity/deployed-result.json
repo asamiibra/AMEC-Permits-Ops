@@ -1,0 +1,5 @@
+{
+  "status": "NOT_RUN",
+  "reason": "This implementation was not deployed to Vercel/Neon during the verification run.",
+  "required_before_complete": ["deploy backend migration 0025", "deploy frontend", "run command against deployed stack", "verify persisted Neon task/audit/notification records"]
+}

@@ -1,0 +1,11 @@
+{
+  "verification_date": "2026-08-09",
+  "historical_spec_files_discovered": 15,
+  "historical_tests_discovered": 118,
+  "historical_passed": 99,
+  "historical_failed": 19,
+  "focused_current_suite_local": {"tests": 7, "passed": 7, "failed": 0},
+  "focused_current_suite_deployed": {"tests": 7, "passed": 7, "failed": 0, "frontend": "https://amec-permits-ops.vercel.app"},
+  "failed_categories": ["retired PermitOps/Permit labels", "retired Permit Preparer and four-assistant owner model", "legacy navigation timing/route expectations"],
+  "decision": "G11_FULL_HISTORICAL_BROWSER_REGRESSION_OPEN"
+}

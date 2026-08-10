@@ -1,0 +1,9 @@
+{
+  "suite": "frontend/browser-real-stack/issue-detail-final.spec.ts",
+  "tests": 2,
+  "passed": 2,
+  "api_interception": false,
+  "direct_refresh_and_back_mapping": true,
+  "mobile_width": 390,
+  "axe_serious_or_critical": 0
+}

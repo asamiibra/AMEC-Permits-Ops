@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "owner_facing_quotation_language": 0,
+  "internal_jargon": 0,
+  "generic_open_work_ctas": 0,
+  "source_integrity_copy": "Review source integrity conflict",
+  "markers": ["AMEC_WORK_OWNER_FACING_QUOTATION_LANGUAGE_ZERO", "AMEC_WORK_INTERNAL_JARGON_ZERO", "GENERIC_OPEN_WORK_CTA_ZERO"]
+}

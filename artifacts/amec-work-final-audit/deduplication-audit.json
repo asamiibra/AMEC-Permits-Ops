@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "linked_issue_task_pairs": "one canonical row",
+  "duplicate_actionable_rows": 0,
+  "workflow_task_preference": true,
+  "canonical_key_rule": "FINDING:<finding_id> for linked issue/task pairs; affected entity plus action for independent work",
+  "marker": "DUPLICATE_ACTIONABLE_WORK_ZERO"
+}

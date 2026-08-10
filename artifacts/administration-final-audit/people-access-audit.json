@@ -1,0 +1,1 @@
+{"route":"/admin/people-access","roles":["Owner","Business Development","Engineering"],"users_synthetic_only":true,"capability_matrix_nonblank":true,"persona_copy":false,"owner_only_runtime_parity":true,"production_provisioning":"Needs AMEC production setup"}

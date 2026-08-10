@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "domains": ["PROPOSAL", "CONTRACT", "PERMIT", "SYSTEM"],
+  "precedence": ["contract", "proposal", "permit", "system"],
+  "misclassified_work": 0,
+  "commercial_work_mislabeled_permit": 0,
+  "legitimate_permit_work_preserved": true,
+  "marker": "WORK_ITEM_DOMAIN_MISCLASSIFICATION_ZERO"
+}

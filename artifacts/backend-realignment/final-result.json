@@ -1,0 +1,10 @@
+{
+  "overall": "INCOMPLETE",
+  "decision": "PROPOSALOPS_BACKEND_REALIGNMENT_INCOMPLETE",
+  "local": {"backend_tests": "76 passed", "focused_realignment": "11 passed", "migration_clean_upgrade": "0023 head"},
+  "frontend_regression": {"unit": "22 passed", "build": "passed", "deployed_focused_browser": "7 passed"},
+  "deployed": {"runtime": "PASS", "neon": "PASS", "summary_detail_negative_smoke": "PASS", "full_deployed_mutation_golden_path": "NOT_RUN"},
+  "remaining_blockers": ["Run a disposable/deletable PostgreSQL SOR ingestion and promotion cycle against deployed infrastructure or provide an approved cleanup path.", "Run the full applicable backend regression family against PostgreSQL rather than SQLite plus deployed smoke."],
+  "ready_for_owner_demo": false,
+  "secrets_in_artifact": false
+}

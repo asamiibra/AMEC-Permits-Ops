@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "table": "notification_read_states",
+  "key": ["notification_event_id", "persona", "principal_key"],
+  "idempotency": "unique constraint plus changed=false on repeat acknowledge",
+  "side_effects": "no task mutation and no primary NOTIFICATION_ACKNOWLEDGED audit event"
+}

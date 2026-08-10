@@ -1,0 +1,7 @@
+{
+  "detail_fetch": "GET /api/issues/{issue_id}",
+  "list_to_detail": "issue_detail_link=/issues/{id}",
+  "work_to_detail": "finding-backed WorkflowTask deep_link=/issues/{finding_id}",
+  "context_links": {"PROPOSAL": "Proposal or Proposal preparation", "CONTRACT": "Contract", "PERMIT": "Permit stage", "SYSTEM / DATA": "Project and sources"},
+  "cross_entity_mutation": "Bound to Finding affected entity IDs"
+}

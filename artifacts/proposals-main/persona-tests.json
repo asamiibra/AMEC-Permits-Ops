@@ -1,0 +1,6 @@
+{
+  "owner": {"orange_actions": ["CLIENT_LIST", "PROPOSAL_FORM", "CONTRACT_FORM", "NEW_PROPOSAL"], "amount_visible": true},
+  "business_development": {"orange_actions": ["CLIENT_LIST", "CONTRACT_FORM", "NEW_PROPOSAL"], "amount_visible": true},
+  "engineering": {"orange_actions": ["PROPOSAL_FORM"], "amount_visible": false},
+  "engineering_handoff": "PROPOSAL_FORM -> PROPOSAL_HANDOVER on the canonical proposal record"
+}

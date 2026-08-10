@@ -7,10 +7,11 @@ from sqlalchemy import delete, select
 
 from ..expansion.fixture import EXPANDED_FIXTURE_MANIFEST, EXPANDED_FIXTURE_MANIFEST_HASH, EXPANDED_FIXTURE_VERSION
 from ..models import *
+from ..services.proposals_sor import ingest_project_artifact
 
 
 EXPANSION_RESET_MODELS = [
-    ExpansionFixtureResource, EvidenceArtifact, QuotationRelease, ProjectStatusProjection, AdminDocumentComment, SystemBlock,
+    ProjectArtifactRecord, ExpansionFixtureResource, ProposalIntakeArtifact, EvidenceArtifact, QuotationRelease, ProjectStatusProjection, AdminDocumentComment, SystemBlock,
     ContractExecutionEvidence, ClientResponse, QuotationFieldObservation, ExecutionAuthorityConfig,
     ExpansionFixtureResource, AssistantCapabilityDefinition,
     DrawingReviewCycle, EngineeringComment, EngineeringReviewRun, RegulationApplicability, EngineeringReviewScope, EngineeringReview, RegulationVersion, RegulationSource,
@@ -49,7 +50,7 @@ def seed_expansion(db, office, users, projects, apps):
     db.add(contact)
     db.flush()
 
-    opportunity = Opportunity(office_id=office.id, client_account_id=client.id, opportunity_reference="SYN-OPP-0001", title="Synthetic Building Advisory Opportunity", status="IN_REVIEW", source_type="RFQ_EMAIL", current_owner_user_id=owner.id, stage2_capability_scope="UNDECIDED_STAGE2")
+    opportunity = Opportunity(office_id=office.id, client_account_id=client.id, opportunity_reference="SYN-OPP-0001", title="Synthetic Building Advisory Opportunity", status="IN_REVIEW", source_type="RFQ_EMAIL", current_owner_user_id=owner.id, stage2_capability_scope="UNDECIDED_STAGE2", project_id=project.id, reference_state="CANONICAL", proposal_fields_json={"price": "QAR 125,000", "sow": "Building advisory and permit coordination", "period": "12 weeks", "exclusions": "Authority fees"}, provisional_reference="SYN-OPP-0001", canonical_project_reference=project.project_number, canonicalized_by=owner.email)
     db.add(opportunity)
     db.flush()
     rfq = RFQ(opportunity_id=opportunity.id, source_document_version_id=source_version.id, sender_reference="SYN-RFQ-SENDER", source_reference="SYN-RFQ-0001", language="EN", status="RECEIVED")
@@ -70,13 +71,16 @@ def seed_expansion(db, office, users, projects, apps):
         QuotationApproval(quotation_revision_id=quotation_revision.id, approval_id=shared_approval.id, approval_type="COMMERCIAL_QUOTATION_RELEASE"),
     ])
 
-    contract = Contract(client_account_id=client.id, quotation_id=quotation.id, contract_reference="SYN-CTR-0001", status="DRAFT")
+    contract = Contract(client_account_id=client.id, quotation_id=quotation.id, contract_reference="SYN-CTR-0001", status="DRAFT", project_id=project.id)
     db.add(contract)
     db.flush()
     contract_revision = ContractRevision(contract_id=contract.id, revision_number=1, controlling_quotation_revision_id=quotation_revision.id, status="DRAFT")
     db.add(contract_revision)
     db.flush()
     contract.current_revision_id = contract_revision.id
+    # The primary owner-demo chain is already contracted.  Keep its proposal
+    # lifecycle state aligned with that durable relationship.
+    opportunity.status = "CONTRACT_HANDOVER"
     milestone = ContractMilestone(contract_id=contract.id, contract_revision_id=contract_revision.id, milestone_reference="SYN-M1", title="Synthetic permit package milestone", payment_condition="Synthetic tracking only; no accounting write.", amount_value="SYNTHETIC", status="PLANNED")
     db.add(milestone)
     db.flush()
@@ -88,6 +92,7 @@ def seed_expansion(db, office, users, projects, apps):
     request = DocumentRequest(checklist_item_id=checklist.id, client_account_id=client.id, requested_from_contact_id=contact.id, status="OPEN")
     db.add(request)
 
+    application.controlling_contract_id = contract.id
     reference = ReferenceNumber(reference_value="SYN-REF-0001", reference_type="EXPANSION_TRANSACTION", opportunity_id=opportunity.id, quotation_id=quotation.id, contract_id=contract.id, project_id=project.id, permit_application_id=application.id, status="RESERVED")
     db.add(reference)
     db.flush()

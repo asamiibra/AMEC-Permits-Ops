@@ -1,0 +1,1 @@
+{"connections":4,"simulator_status":"Simulator Ready or Simulator Check Failed","production_status":"Production Not Connected","test_action":"POST /api/admin/connections/test","test_persistence":"ConfigurationArtifact ADMIN_CONNECTION_HEALTH:AMEC plus audit event","credentials":"masked","false_healthy_unavailable_labels":false}

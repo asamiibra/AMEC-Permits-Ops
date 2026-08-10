@@ -116,6 +116,12 @@ class PermitApplication(Base, TimestampMixin):
     application_status: Mapped[ApplicationStatus] = mapped_column(SAEnum(ApplicationStatus), nullable=False)
     repetition_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_status_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    controlling_contract_id: Mapped[str | None] = mapped_column(ForeignKey("contracts.id"), index=True)
+    # Durable workflow projection for the downstream permit workspace. Legacy
+    # rows remain status-derived until a deliberate stage command writes this.
+    workflow_stage: Mapped[str | None] = mapped_column(String(60), index=True)
+    project_sources_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    project_sources_confirmed_by: Mapped[str | None] = mapped_column(String(120))
     project: Mapped[Project] = relationship(back_populates="applications")
 
 

@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "registry": "NOTIFICATION_DEEP_LINK_REGISTRY",
+  "context_query": "notification=<id>&return_filter=<filter>",
+  "mapped_event_types": [
+    "PROJECT_SOURCES_CONFIRMED",
+    "ENGINEERING_PROPOSAL_READY",
+    "CLIENT_INFORMATION_REQUIRED",
+    "AUTHORITY_COMMENT_CAPTURED"
+  ],
+  "context_banner": "destination workspace renders Opened from notification and Back to Notifications"
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "predicates": {
+    "OPEN_PROPOSALS": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "QUOTATION_IN_PROGRESS", "COMMERCIAL_REVIEW", "CLIENT_RESPONSE_PENDING"],
+    "OPEN_CONTRACTS": ["DRAFT", "CONTRACT_IN_PROGRESS", "READY_FOR_ADMIN"],
+    "PROPOSALS_IN_PROCESS": ["PROPOSAL_PREPARATION", "QUOTATION_IN_PROGRESS", "COMMERCIAL_REVIEW", "PROPOSAL_HANDOVER"],
+    "CONTRACTS_IN_PROCESS": ["DRAFT", "CONTRACT_IN_PROGRESS", "CONTRACT_HANDOVER"]
+  },
+  "rules": ["Contracted Proposal is excluded from Open Proposals", "Contracted Proposal renders Contracted whenever a Contract lineage exists", "KPI counts and register filters use the same backend predicate registry"]
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "projection": "WorkProjectionService",
+  "endpoint": "/api/work",
+  "summary_endpoint": "/api/work/summary",
+  "duplicate_task_store": false,
+  "local_observed_owner_items": 3,
+  "local_observed_sources": ["PERMIT_APPLICATION", "COMMUNICATION_DRAFT"],
+  "ranking": ["blocking", "overdue", "due_at_ascending", "configured_priority", "created_at", "stable_id"]
+}

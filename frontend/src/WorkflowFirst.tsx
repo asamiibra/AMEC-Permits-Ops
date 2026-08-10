@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "./api";
 import "./workflow.css";
 import "./workflow-overrides.css";
 import { UnifiedMyWorkPanel } from "./UnifiedWork";
+import { AdministrationOwnerPage } from "./AdministrationOwner";
+import { AMECWorkPage } from "./AMECWork";
+import { IssueFocusBanner, type Persona } from "./PersonaIssuesNotifications";
+import { readDemoRole } from "./rebrand";
 
 export type Project = {
   id: string;
@@ -24,6 +28,9 @@ export type Application = {
   municipality: string;
   permit_type: string;
   last_status_at?: string;
+  workflow_stage?: WorkflowStage;
+  project_sources_confirmed_at?: string | null;
+  project_sources_confirmed_by?: string | null;
 };
 
 export type WorkflowStage =
@@ -59,6 +66,7 @@ export type NextAction = {
 const activeFinding = (finding: any) => !["CLOSED", "RESOLVED", "DISMISSED"].includes(String(finding?.status || "").toUpperCase());
 
 export function projectWorkflowStage(application?: Application | null, findings: any[] = []): WorkflowStage {
+  if (application?.workflow_stage && ["PROJECT_AND_SOURCES", "VERIFY_DATA", "PREPARE_PACKAGE", "MUNICIPALITY_PREPARATION", "FINAL_REVIEW", "AUTHORITY_REVIEW", "COMMENTS_AND_CORRECTIONS", "HISTORY"].includes(application.workflow_stage)) return application.workflow_stage;
   const status = String(application?.application_status || "DRAFT").toUpperCase();
   if (status === "RETURNED") return "COMMENTS_AND_CORRECTIONS";
   if (["UNDER_REVIEW", "SUBMITTED", "SUBMITTED_CONFIRMED"].includes(status)) return "AUTHORITY_REVIEW";
@@ -69,6 +77,7 @@ export function projectWorkflowStage(application?: Application | null, findings:
 
 export function projectNextAction(project: Project, application?: Application | null, findings: any[] = []): NextAction {
   const status = String(application?.application_status || "DRAFT").toUpperCase();
+  if (application?.workflow_stage === "VERIFY_DATA") return { action_code: "VERIFY_PROJECT_DATA", action_label: "Verify project data", reason: "Project identity and source systems are confirmed; review the evidence and critical facts.", owner_role: "Responsible Engineer", stage: "VERIFY_DATA", blocking: true };
   const blocking = findings.filter((finding) => Boolean(finding?.blocking) && activeFinding(finding));
   if (blocking.length) {
     return {
@@ -92,7 +101,9 @@ const arrayFrom = (value: any): any[] => Array.isArray(value) ? value : value?.i
 const fmtDate = (value?: string) => value ? new Date(value).toLocaleDateString() : "—";
 
 function PermitIdentity({ project, application }: { project: Project; application?: Application | null }) {
-  return <div className="permit-identity"><div><span className="eyebrow">PERMIT WORKSPACE</span><h2>{project.project_number} · {project.project_name}</h2><p>{application?.external_request_number || "No municipality application linked"} · {project.municipality} · {project.permit_type}</p></div><div className="permit-identity-meta"><span className={statusClass(application?.application_status || project.status)}>{application?.application_status || project.status}</span><small>Owner / next actor</small><b>{project.assigned_engineer || "Permit team"}</b></div></div>;
+  const role = readDemoRole();
+  const persona: Persona = role === "COMMERCIAL_APPROVER" ? "BUSINESS_DEVELOPMENT" : role === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : "OWNER";
+  return <><IssueFocusBanner persona={persona} /><div className="permit-identity"><div><span className="eyebrow">PERMIT WORKSPACE</span><h2>{project.project_number} · {project.project_name}</h2><p>{application?.external_request_number || "No municipality application linked"} · {project.municipality} · {project.permit_type}</p></div><div className="permit-identity-meta"><span className={statusClass(application?.application_status || project.status)}>{application?.application_status || project.status}</span><small>Owner / next actor</small><b>{project.assigned_engineer || "Permit team"}</b></div></div></>;
 }
 
 export function PermitStageStepper({ currentStage, activeStage, onSelect }: { currentStage: WorkflowStage; activeStage: WorkflowStage; onSelect: (stage: WorkflowStage) => void }) {
@@ -104,11 +115,12 @@ export function PermitStageStepper({ currentStage, activeStage, onSelect }: { cu
   </div>;
 }
 
-function NextActionCard({ action, onOpen }: { action: NextAction; onOpen: () => void }) {
-  return <section className={`next-action-card ${action.blocking ? "blocking" : ""}`} aria-label="Next action"><div><span className="eyebrow">NEXT ACTION</span><h3>{action.action_label}</h3><p>{action.reason}</p><small>Owner: <b>{action.owner_role}</b> · Stage: {WORKFLOW_STAGES.find((stage) => stage.code === action.stage)?.label}</small></div><button className="button-primary" onClick={onOpen}>{action.action_label}</button></section>;
+function NextActionCard({ action, onOpen, loading, canAct = true }: { action: NextAction; onOpen: () => void; loading?: boolean; canAct?: boolean }) {
+  return <section className={`next-action-card ${action.blocking ? "blocking" : ""}`} aria-label="Next action"><div><span className="eyebrow">NEXT ACTION</span><h3>{action.action_label}</h3><p>{action.reason}</p><small>Owner: <b>{action.owner_role}</b> · Stage: {WORKFLOW_STAGES.find((stage) => stage.code === action.stage)?.label}{!canAct && " · Context only for this role"}</small></div><button className={canAct ? "button-primary" : "button-secondary"} onClick={onOpen} disabled={loading}>{loading ? "Confirming…" : canAct ? action.action_label : "View current stage"}</button></section>;
 }
 
 export function MyWorkPage({ projects, applications, openPermit, openAbout }: { projects: Project[]; applications: Application[]; openPermit: (projectId: string, stage?: WorkflowStage) => void; openAbout?: () => void }) {
+  return <AMECWorkPage openAbout={openAbout} />;
   const [findings, setFindings] = useState<any[]>([]); const [tasks, setTasks] = useState<any[]>([]); const [notifications, setNotifications] = useState<any[]>([]); const [message, setMessage] = useState("");
   useEffect(() => { Promise.all([api<any>("/api/findings"), api<any>("/api/tasks"), api<any>("/api/notifications")]).then(([f, t, n]) => { setFindings(f.findings || []); setTasks(t.tasks || []); setNotifications(n.notifications || []); }).catch((error) => setMessage(error.message)); }, []);
   const findingsByProject = useMemo(() => findings.reduce((map, finding) => { (map[finding.project_id] ||= []).push(finding); return map; }, {} as Record<string, any[]>), [findings]);
@@ -154,12 +166,19 @@ export function NotificationsPage({ projects, applications, openPermit }: { proj
   return <div className="workflow-page"><PageIntro kicker="NOTIFICATIONS" title="Notifications & delivery" description="Unread alerts, failed deliveries, acknowledgements, and system notices are visible without becoming a duplicate task queue." /><div className="workflow-summary-grid"><div><span>Unread / visible</span><strong>{notifications.length}</strong><small>Notification events</small></div><div><span>Failed delivery</span><strong>{notifications.filter((item) => (item.status || item.result) === "FAILED").length}</strong><small>Retry evidence retained</small></div><div><span>Delivery failure rate</span><strong>{observability ? `${Math.round((observability.delivery_failure_rate || 0) * 100)}%` : "—"}</strong><small>Read-only observability</small></div><div><span>Fallback recipient</span><strong>{observability?.fallback_recipient_visible ? "VISIBLE" : "—"}</strong><small>Process Champion routing</small></div></div><section className="panel"><div className="panel-head"><h3>Notification history</h3><span className="tag">Delivery evidence</span></div>{notifications.length ? notifications.map((notification) => <div className="notification-card" key={notification.id}><div><span className="eyebrow">{notification.channel || "SYSTEM"}</span><h3>{notification.subject || notification.event_type || "Permit notification"}</h3><p>{notification.body || "System notification retained with delivery state."}</p><small>{notification.finding_id ? `Finding ${notification.finding_id}` : "Permit-level event"} · {notification.created_at ? fmtDate(notification.created_at) : "—"}</small></div><span className={statusClass(notification.status || notification.result || "PENDING")}>{notification.status || notification.result || "PENDING"}</span></div>) : <EmptyState title="No notification events" body="Failed delivery, acknowledgement, and system alerts will appear here when emitted by the domain workflows." />}</section></div>;
 }
 
-export function PermitWorkspacePage({ project, application, activeStage, openStage, openLegacy, backToPermits }: { project: Project; application?: Application | null; activeStage: WorkflowStage; openStage: (stage: WorkflowStage) => void; openLegacy: (page: string, projectId?: string) => void; backToPermits: () => void }) {
-  const [findings, setFindings] = useState<any[]>([]); const [detail, setDetail] = useState<any>(null);
-  useEffect(() => { api<any>(`/api/projects/${project.id}`).then(setDetail).catch(() => {}); api<any>(`/api/findings?project_id=${project.id}`).then((value) => setFindings(value.findings || [])).catch(() => setFindings([])); }, [project.id]);
-  const currentStage = projectWorkflowStage(application, findings); const action = projectNextAction(project, application, findings);
-  return <div className="workflow-page permit-workspace"><button className="back-button" onClick={backToPermits}>← Permit portfolio</button><PermitIdentity project={project} application={application} /><PermitStageStepper currentStage={currentStage} activeStage={activeStage} onSelect={openStage} /><div className="breadcrumb"><span>My Work</span><b>›</b><span>{project.project_number}</span><b>›</b><strong>{WORKFLOW_STAGES.find((item) => item.code === activeStage)?.label}</strong></div><NextActionCard action={action} onOpen={() => openStage(action.stage)} />
-    {activeStage === "PROJECT_AND_SOURCES" && <SourcesStage project={project} detail={detail} />}
+export function PermitWorkspacePage({ project, application, persona, activeStage, openStage, openLegacy, backToPermits }: { project: Project; application?: Application | null; persona?: Persona; activeStage: WorkflowStage; openStage: (stage: WorkflowStage) => void; openLegacy: (page: string, projectId?: string) => void; backToPermits: () => void }) {
+  const [findings, setFindings] = useState<any[]>([]); const [detail, setDetail] = useState<any>(null); const [commandLoading, setCommandLoading] = useState(false); const [commandMessage, setCommandMessage] = useState(""); const [commandError, setCommandError] = useState(""); const [notificationContext, setNotificationContext] = useState<any>(null); const contextRef = useRef<HTMLElement | null>(null); const issueId = new URLSearchParams(window.location.search).get("issue");
+  const demoRole = readDemoRole(); const activePersona: Persona = persona || (demoRole === "COMMERCIAL_APPROVER" ? "BUSINESS_DEVELOPMENT" : demoRole === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : "OWNER"); const contextPersona = activePersona; const notificationId = new URLSearchParams(window.location.search).get("notification"); const returnFilter = new URLSearchParams(window.location.search).get("return_filter"); const readError = new URLSearchParams(window.location.search).get("notification_read_error") === "1";
+  const refreshWorkspace = () => Promise.all([api<any>(`/api/projects/${project.id}${issueId ? `?issue=${encodeURIComponent(issueId)}` : ""}`), api<any>(`/api/findings?project_id=${project.id}`)]).then(([nextDetail, value]) => { if (!nextDetail?.workflow || !Array.isArray(value?.findings)) throw new Error("Workspace response is incomplete."); setDetail(nextDetail); setFindings(value.findings); });
+  useEffect(() => { refreshWorkspace().catch((error) => setCommandError(error instanceof Error ? error.message : "Workspace data unavailable.")); }, [project.id]);
+  useEffect(() => { if (!notificationId) return; let live = true; api<any>(`/api/notifications/${notificationId}?persona=${contextPersona}`, { headers: { "X-Dev-Role": demoRole, "X-Dev-User": `demo:${contextPersona.toLowerCase()}` } }).then((value) => { if (live) setNotificationContext(value.notification); }).catch(() => { if (live) setCommandError("The notification context could not be loaded; the destination record remains available."); }); return () => { live = false; }; }, [notificationId, contextPersona, demoRole]);
+  useEffect(() => { if (notificationContext && contextRef.current) contextRef.current.focus(); }, [notificationContext]);
+  const currentStage = detail?.workflow?.stage || projectWorkflowStage(application, findings); const action = detail?.workflow?.next_action || projectNextAction(project, application, findings);
+  const canAct = activePersona === "ENGINEERING" && action.owner_role === "Responsible Engineer";
+  const confirmProjectSources = () => { if (commandLoading) return; setCommandLoading(true); setCommandError(""); setCommandMessage(""); api<any>(`/api/projects/${project.id}/confirm-project-sources`, { method: "POST", body: JSON.stringify({ project_reference: project.project_number }) }).then((result) => { setDetail((previous: any) => previous ? { ...previous, workflow: result.workflow, applications: [result.application] } : previous); setCommandMessage(result.result === "IDEMPOTENT" ? "Project & sources were already confirmed." : "Project & sources confirmed."); openStage("VERIFY_DATA"); return refreshWorkspace(); }).catch((error) => setCommandError(error instanceof Error ? error.message : "Project & sources could not be confirmed.")).finally(() => setCommandLoading(false)); };
+  const backHref = `/notifications${returnFilter && returnFilter !== "ALL" ? `?domain=${encodeURIComponent(returnFilter)}` : ""}`;
+  return <div className="workflow-page permit-workspace"><button className="back-button" onClick={backToPermits}>← Permit portfolio</button>{notificationContext && <section className="notification-context" aria-label="Opened from notification" tabIndex={-1} ref={contextRef}><span className="eyebrow">OPENED FROM NOTIFICATION</span><h3>{notificationContext.subject}</h3><small>{notificationContext.created_at ? new Date(notificationContext.created_at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "—"}{notificationContext.historical ? " · Historical event" : ""}</small><p>{notificationContext.historical ? "This event is historical context. Review the current Permit state below." : "This destination was opened from a Notification; reading it does not change the Permit workflow state."}</p>{notificationContext.context_only && <span className="tag">Context only for {contextPersona === "OWNER" ? "Owner" : contextPersona === "BUSINESS_DEVELOPMENT" ? "Business Development" : "Engineering"}</span>}<a className="button-secondary" href={backHref}>← Back to Notifications</a>{readError && <div className="notification-read-warning" role="alert">Could not persist the read acknowledgement. The notification remains unread.</div>}</section>}<PermitIdentity project={project} application={detail?.applications?.[0] || application} /><PermitStageStepper currentStage={currentStage} activeStage={activeStage} onSelect={openStage} /><div className="breadcrumb"><span>My Work</span><b>›</b><span>{project.project_number}</span><b>›</b><strong>{WORKFLOW_STAGES.find((item) => item.code === activeStage)?.label}</strong></div><NextActionCard action={action} canAct={canAct} loading={commandLoading} onOpen={action.action_code === "ESTABLISH_PROJECT_SOURCES" && canAct ? confirmProjectSources : () => openStage(action.stage)} />{commandMessage && <div className="inline-message" role="status">{commandMessage}</div>}{commandError && <div className="error-banner" role="alert">{commandError}</div>}
+    {activeStage === "PROJECT_AND_SOURCES" && <SourcesStage project={project} detail={detail} workflowStage={currentStage} />}
     {activeStage === "VERIFY_DATA" && <VerifyStage project={project} findings={findings} openLegacy={(page) => openLegacy(page, project.id)} />}
     {activeStage === "PREPARE_PACKAGE" && <WorkspaceStage title="Prepare Package" description="Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic." actionLabel="Open package preparation" onOpen={() => openLegacy("package", project.id)} />}
     {activeStage === "MUNICIPALITY_PREPARATION" && <WorkspaceStage title="Municipality Preparation" description="Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence." actionLabel="Open assisted preparation" onOpen={() => openLegacy("municipality", project.id)} />}
@@ -170,8 +189,8 @@ export function PermitWorkspacePage({ project, application, activeStage, openSta
   </div>;
 }
 
-function SourcesStage({ project, detail }: { project: Project; detail: any }) {
-  const links = detail?.links || []; return <section className="panel stage-panel"><div className="stage-heading"><div><span className="eyebrow">STAGE 1 · PROJECT & SOURCES</span><h3>Establish the permit workspace</h3><p>Confirm project identity and the source-system links that drive later verification.</p></div><span className="tag">{links.length >= 3 ? "READY FOR VERIFICATION" : "BLOCKED"}</span></div><div className="source-grid"><div><span className="eyebrow">PROJECT</span><dl><dt>Project number</dt><dd>{project.project_number}</dd><dt>Consultancy office</dt><dd>AMEC Engineering</dd><dt>Project type</dt><dd>{project.workstream || project.permit_type}</dd></dl></div><div><span className="eyebrow">SOURCE SYSTEMS</span>{links.length ? links.map((link: any) => <div className="source-link" key={link.id}><span className="source-check">✓</span><div><b>{link.system_type}</b><small>{link.display_reference}</small></div><span className="tag">LINKED</span></div>) : <Blocker text="Missing required source-system link" owner="Permit Preparer" evidence="Project identity and source reference" />}</div></div></section>;
+function SourcesStage({ project, detail, workflowStage }: { project: Project; detail: any; workflowStage: WorkflowStage }) {
+  const links = detail?.links || []; const complete = workflowStage !== "PROJECT_AND_SOURCES" || Boolean(detail?.workflow?.confirmed_at); return <section className="panel stage-panel"><div className="stage-heading"><div><span className="eyebrow">STAGE 1 · PROJECT & SOURCES</span><h3>Establish the permit workspace</h3><p>Confirm project identity and the source-system links that drive later verification.</p></div><span className={`tag ${complete ? "status-approved" : ""}`}>{complete ? "COMPLETE" : links.length >= 3 ? "READY FOR CONFIRMATION" : "BLOCKED"}</span></div><div className="source-grid"><div><span className="eyebrow">PROJECT</span><dl><dt>Project number</dt><dd>{project.project_number}</dd><dt>Consultancy office</dt><dd>{detail?.office?.name_en || "—"}</dd><dt>Project type</dt><dd>{project.workstream || project.permit_type}</dd><dt>Confirmation evidence</dt><dd>{detail?.workflow?.confirmed_at ? `${new Date(detail.workflow.confirmed_at).toLocaleString()} · ${detail.workflow.confirmed_by}` : "Pending human confirmation"}</dd></dl></div><div><span className="eyebrow">SOURCE SYSTEMS</span>{links.length ? links.map((link: any) => <div className="source-link" key={link.id}><span className="source-check">✓</span><div><b>{link.system_type}</b><small>{link.display_reference}</small></div><span className="tag">LINKED</span></div>) : <Blocker text="Missing required source-system link" owner="Permit Preparer" evidence="Project identity and source reference" />}</div></div></section>;
 }
 
 function VerifyStage({ project, findings, openLegacy }: { project: Project; findings: any[]; openLegacy: (page: string) => void }) {
@@ -193,12 +212,7 @@ function EmptyState({ title, body }: { title: string; body: string }) { return <
 function PageIntro({ kicker, title, description }: { kicker: string; title: string; description: string }) { return <div className="page-intro"><div><span className="eyebrow">{kicker}</span><h2>{title}</h2><p>{description}</p></div></div>; }
 
 export function AdministrationPage({ openLegacy }: { openLegacy: (page: string) => void }) {
-  const groups = [
-    { title: "Project setup & go-live", description: "Project details, practical AMEC inputs, privacy, volume, questions, support, and safe fallbacks.", links: [["discovery", "Project setup"], ["go-live-readiness", "Go-Live Setup"], ["expansion-foundation", "Expansion foundation"], ["business", "Business case"], ["privacy", "Privacy & data"], ["volume", "Volume baseline"], ["inquiries", "Ministry inquiry"], ["raid", "RAID log"]] },
-    { title: "Configuration & rules", description: "Rules, mappings, Municipality setup, package preparation, attachments, and handoff decisions.", links: [["config", "Configuration"], ["thresholds", "Test targets"], ["tier1", "Tier 1 decisions"], ["tier2", "Tier 2 backlog"], ["delivery", "Delivery / data"], ["close", "Go-live setup decision"], ["baseline", "Setup baseline"], ["signoff", "Commercial draft"], ["confirmation", "Confirmation demo"]] },
-    { title: "Testing, evidence & audit", description: "Test documents, expected results, analysis, lineage, and control evidence for setup administrators.", links: [["spike", "Test extraction"], ["adjudication", "Expected results"], ["analysis", "Test analysis"], ["corpus", "Test documents"], ["lineage", "Audit & lineage"], ["attachments-grids", "Attachment / grid diagnostics"], ["control-loop", "Control diagnostics"]] },
-  ];
-  return <div className="workflow-page admin-page"><PageIntro kicker="ADMINISTRATION" title="Setup and system controls" description="Privileged configuration, testing, evidence, and audit surfaces stay available for setup administrators." /><div className="synthetic-note admin-banner">SYNTHETIC DEVELOPMENT / PROTOTYPE TRACK · SAFE FALLBACKS ACTIVE · NO PORTAL WRITES</div><div className="admin-grid">{groups.map((group) => <section className="panel admin-group" key={group.title}><span className="eyebrow">ADMINISTRATION</span><h3>{group.title}</h3><p>{group.description}</p><div className="admin-links">{group.links.map(([id, label]) => <button key={id} onClick={() => openLegacy(id)}>{label}<span>→</span></button>)}</div></section>)}</div></div>;
+  return <AdministrationOwnerPage />;
 }
 
 export function WorkflowStageLabel({ stage }: { stage: WorkflowStage }) { return <>{WORKFLOW_STAGES.find((item) => item.code === stage)?.label || stage}</>; }

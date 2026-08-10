@@ -1,0 +1,14 @@
+{
+  "source": "NotificationEvent",
+  "one_event_multi_persona_projection": {
+    "event_type": "ENGINEERING_PROPOSAL_READY",
+    "audience": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"],
+    "same_source_event": true,
+    "messages": {
+      "OWNER": "Engineering completed proposal preparation.",
+      "BUSINESS_DEVELOPMENT": "Proposal is ready for commercial review.",
+      "ENGINEERING": "Proposal preparation was recorded as ready for handoff."
+    }
+  },
+  "read_does_not_complete_task": true
+}

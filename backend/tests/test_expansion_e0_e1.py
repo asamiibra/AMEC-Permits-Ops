@@ -41,7 +41,9 @@ def test_e0_safe_defaults_and_assistant_boundary():
 
 def test_e1_shared_domain_rows_and_primitives(client):
     summary = client.get("/api/expansion/domain-summary").json()
-    assert summary["counts"]["opportunities"] == 1
+    # ProposalOps now keeps a deterministic active pre-contract Proposal next
+    # to the contracted owner-demo chain so both lifecycle paths are visible.
+    assert summary["counts"]["opportunities"] >= 2
     assert summary["counts"]["rfqs"] == 1
     assert summary["counts"]["quotation_revisions"] == 1
     assert summary["counts"]["contract_revisions"] == 1

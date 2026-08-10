@@ -1,0 +1,22 @@
+{
+  "audit_version": "B0-1.0",
+  "database_role": "workflow metadata, relationships, lineage and hashes; not document bytes",
+  "canonical_entities": {
+    "Proposal": {"storage": "opportunities", "compatibility_name": "Opportunity", "disposition": "REUSE_AS_CANONICAL"},
+    "ProposalRevision": {"storage": "quotation_revisions", "compatibility_name": "QuotationRevision", "disposition": "REUSE_AS_INTERNAL_COMPATIBILITY"},
+    "Contract": {"storage": "contracts", "disposition": "REUSE_AS_CANONICAL"},
+    "ContractRevision": {"storage": "contract_revisions", "disposition": "REUSE_AS_CANONICAL"},
+    "PermitApplication": {"storage": "permit_applications", "disposition": "REUSE_AS_CANONICAL"},
+    "Project": {"storage": "projects", "disposition": "REUSE_AS_CANONICAL"}
+  },
+  "shared_primitives": ["DocumentVersion", "EvidenceArtifact", "WorkflowTask", "AssistantHandoff", "NotificationEvent", "LineageEdge", "MockSynologyAdapter"],
+  "new_duplicate_entities": 0,
+  "relationship_invariants": {
+    "contract_project_equals_proposal_project": true,
+    "permit_project_equals_contract_project": true,
+    "cross_project_contract_link": 0,
+    "cross_project_permit_link": 0,
+    "cross_project_artifact_write": 0
+  },
+  "compatibility_notes": ["Opportunity and Quotation table names are retained for existing expansion and permit workflows.", "ProposalOps routes expose canonical Proposal terminology."]
+}

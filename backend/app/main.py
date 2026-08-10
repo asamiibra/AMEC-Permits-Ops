@@ -26,6 +26,10 @@ from .api.week14_routers import router as week14_router
 from .api.expansion_routers import router as expansion_router
 from .api.recovery_routers import router as recovery_router
 from .api.e5_e6_routers import router as e5_e6_router
+from .api.proposals_main_routers import router as proposals_main_router, canonical_router as canonical_proposals_router
+from .api.persona_issues_notifications import router as persona_issues_notifications_router
+from .api.admin_owner_ready import router as admin_owner_ready_router
+from .api.work_routers import router as work_router
 
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO), format='%(message)s')
@@ -38,7 +42,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="PermitOps Build Week 8 Lineage + Validity", version="0.8.0", lifespan=lifespan)
+app = FastAPI(title="ProposalOps · AMEC Proposal & Contract Workflow", version="0.8.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=settings.origins, allow_credentials=False, allow_methods=["GET", "POST", "PATCH", "PUT"], allow_headers=["*"])
 
 
@@ -94,7 +98,7 @@ def health():
 
 @app.get("/")
 def api_root():
-    return {"service": "PermitOps API", "status": "ok", "environment": "synthetic"}
+    return {"service": "ProposalOps API", "status": "ok", "environment": "synthetic"}
 
 
 @app.get("/api/office")
@@ -168,14 +172,19 @@ app.include_router(week2_mock_router)
 app.include_router(week3_router)
 app.include_router(reconciliation_router)
 app.include_router(week45_router)
+app.include_router(week11_router)
+app.include_router(persona_issues_notifications_router)
+app.include_router(admin_owner_ready_router)
+app.include_router(work_router)
 app.include_router(week7_router)
 app.include_router(week8_router)
 app.include_router(week9_router)
 app.include_router(week10_router)
-app.include_router(week11_router)
 app.include_router(week12_router)
 app.include_router(week13_router)
 app.include_router(week14_router)
 app.include_router(expansion_router)
+app.include_router(canonical_proposals_router)
 app.include_router(recovery_router)
 app.include_router(e5_e6_router)
+app.include_router(proposals_main_router)

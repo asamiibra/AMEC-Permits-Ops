@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "backend_url": "https://amec-permits-ops-backend.vercel.app",
+  "deployment_id": "dpl_99qFQFcdNG17fqN4Vrc5TPr1gt6R",
+  "deployment_sha": "not exposed by public runtime",
+  "database": {"dialect": "postgresql", "durable": true, "connection_valid": true, "sqlite_fallback_active": false, "alembic_head": "0023_backend_realign_reference_metadata", "synthetic_only": true},
+  "fixture": {"fixture_set": "PermitOps_Synthetic_MVP_Dataset_v1", "proposal": "SYN-OPP-0001", "contract": "SYN-CTR-0001", "project_reference": "GHCE-2026-0142"},
+  "secret_values_in_artifact": false
+}

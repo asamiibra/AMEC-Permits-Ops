@@ -22,7 +22,10 @@ def model_dict(item):
 
 @router.get("/projects/{project_id}/documents")
 def project_documents(project_id: str, db: Session = Depends(get_db)):
-    return [{**model_dict(d), "current_version": model_dict(db.get(DocumentVersion, d.current_version_id)) if d.current_version_id else None} for d in db.scalars(select(Document).where(Document.project_id == project_id).order_by(Document.logical_name)).all()]
+    # Keep deterministic semantic sources ahead of generic OTHER records so
+    # callers never accidentally select a non-extractable placeholder merely
+    # because a later user-uploaded filename sorts first.
+    return [{**model_dict(d), "current_version": model_dict(db.get(DocumentVersion, d.current_version_id)) if d.current_version_id else None} for d in db.scalars(select(Document).where(Document.project_id == project_id).order_by(Document.document_type, Document.logical_name)).all()]
 
 
 @router.post("/projects/{project_id}/documents")

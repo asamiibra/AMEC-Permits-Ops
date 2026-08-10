@@ -1,0 +1,9 @@
+{
+  "test": "frontend/browser-real-stack/stage1-confirm-project-sources.spec.ts",
+  "frontend": "Vite http://127.0.0.1:5173",
+  "backend": "FastAPI http://127.0.0.1:8000",
+  "database": "temporary seeded SQLite",
+  "api_interception": false,
+  "scenarios": ["direct route", "Stage 1 projection", "real POST command", "success transition", "hard refresh persistence"],
+  "status": "PASS"
+}

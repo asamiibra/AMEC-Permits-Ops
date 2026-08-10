@@ -1,0 +1,1 @@
+{"source":"/api/proposals-main","kpis":["OPEN_PROPOSALS","OPEN_CONTRACTS","PROPOSAL_HANDOVER","CONTRACT_HANDOVER","PROPOSALS_IN_PROCESS","CONTRACTS_IN_PROCESS"],"predicate_type":"deterministic state arrays","counts_are_manual":false,"table_filter_reconciliation":"PASS","last_activity_page_view_updates":false}

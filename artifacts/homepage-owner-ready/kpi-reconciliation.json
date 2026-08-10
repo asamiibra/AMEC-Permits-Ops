@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "roles_tested": ["Owner", "Business Development", "Engineering"],
+  "predicates": ["needs_action", "waiting_review", "blocked", "overdue"],
+  "backend_tests": 7,
+  "kpi_list_mismatch": 0,
+  "flag": "HOMEPAGE_KPI_LIST_MISMATCH_ZERO"
+}

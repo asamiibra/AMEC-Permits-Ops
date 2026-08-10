@@ -1,9 +1,10 @@
 import shutil
 import hashlib
 import json
+import os
 from pathlib import Path
 from datetime import datetime, timezone, date
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select, text, update
 from reportlab.pdfgen.canvas import Canvas
 from ..config.settings import get_settings, repo_root
 from ..db import engine, SessionLocal, init_db
@@ -17,6 +18,9 @@ from ..adapters.excel.adapter import MockExcelAdapter
 from ..audit.service import audit
 from ..services.configuration_lineage import ensure_configuration_bundle, stable_hash
 from .expansion import EXPANSION_RESET_MODELS, seed_expansion
+from .persona_issues_notifications import seed_persona_issues_notifications
+from ..services.permit_workflow import ensure_project_sources_task
+from ..services.proposals_sor import ACTION_CONFIG, ingest_project_artifact
 
 
 def seed():
@@ -34,7 +38,7 @@ def seed():
             AuthorityCommentObservation, AuthorityStatusObservation, PortalContractValidationRun, PortalDriftEvent, PortalReadContract,
             MonitoringCheck, MonitoringExecutionDecision, MonitoringRun, MonitoringPolicy,
             GridFieldDiff, GridRowReconciliationResult, GridReconciliationRun, GridPersistenceEvidence, PortalGridRowObservation, PortalDerivedFieldReconciliation, PortalStructureFingerprint, AttachmentReconciliationResult, AttachmentPersistenceEvidence, AttachmentAssociationIntent, AttachmentManifestItem, AttachmentCategoryRule, FieldMatrixCoverage, RequirementMatrixCoverage, RuleCandidate, ControlRun, ControlDefinition, ResubmissionReadinessEvaluation, ApprovalApplicabilityEvaluation, SubmittedSnapshot, PrecheckClearanceEvaluation, FindingHistoryLink, FindingReopenEvent, FindingDispute, FindingClosureEvaluation, FindingResolutionEvidence, FindingResolution, CorpusCaseResult, CorpusCase, CorpusRun, ShadowCorrection, StaleReason, MaterialChangeEvent, LineageEdge, ConfigurationChangeImpactPolicy, AuthorityApprovalValidity, DocumentValidity,
-            NotificationEvent, WorkflowTask, Finding, AuthorityEvent, SubmissionCycle, PortalValidationFindingRule, FindingRoutingRule, FindingSlaPolicy, FindingCode,
+            NotificationReadState, NotificationEvent, WorkflowTask, Finding, AuthorityEvent, SubmissionCycle, PortalValidationFindingRule, FindingRoutingRule, FindingSlaPolicy, FindingCode,
             OperatorExerciseEvidence, SubmissionConfirmation, MunicipalityPreparationException, SubmissionHandoff, AttendedSession, AuthorityPrecheckItem, AuthorityPrecheckRun, HumanPortalVerification, PortalReconciliationResult, PortalSnapshot, PortalIntendedState, PortalGridRowIntent, PreparationSnapshot, PreparationRevision, Approval, ExcelProjection, RenderedForm, FormTemplateVersion, FormTemplate, AttachmentManifest, PackageItem, Package, ReadinessResultItem, PackageReadinessEvaluation, MinimumPackageDefinition, OfficeCredential, ProfessionalCredential, ApplicableRuleSet, ConfigurationBundle, ConfigurationArtifact,
             AuditEvent,
             SignoffCProposal, Stage2ReviewAcknowledgement, Stage2Baseline, DeliveryAuthorityStatus, Phase0Decision, PilotCohort, PrecheckDecision, MunicipalityOperationDecision, DeliveryScenario, BusinessKpiTarget, BusinessBaseline, Tier2BacklogItem, Tier1Decision, AcceptanceCorpusDefinition, ThresholdDefinition, AdjudicationHistory, AdjudicationCase, PhaseBaseline,
@@ -42,7 +46,16 @@ def seed():
             SpikeFieldResult, SpikeDocumentResult, ExtractionSpikeRun, GoldFieldLabel, GoldDocumentLabel, RealDocumentTestGate, MunicipalityDraft, MunicipalityConfig, Conflict, DrawingMetadataControl, AttachmentCategoryConfig, ApprovalDependency, RequirementConfig, FieldAuthorityRule, VerifiedAssertion, FieldObservation, DocumentClassification, DocumentVersion, Document, FieldDefinition, ScenarioConfig,
             ExternalSystemLink, PermitApplication, Project, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
         ]
-        for model in reset_order: db.execute(delete(model))
+        # PostgreSQL enforces the complete FK graph while SQLite's reset path
+        # historically relied on the hand-maintained model order.  Disposable
+        # local TEST databases can be reset atomically; Vercel/bootstrap never
+        # takes this path, so a deployment cannot accidentally truncate data.
+        settings = get_settings()
+        if db.bind.dialect.name == "postgresql" and settings.app_env.upper() == "TEST" and settings.synthetic_only and not os.getenv("VERCEL"):
+            tables = ", ".join(f'"{name}"' for name in Base.metadata.tables)
+            db.execute(text(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
+        else:
+            for model in reset_order: db.execute(delete(model))
         office = ConsultancyOffice(office_code="QEC-DOHA", name_en="AMEC Engineering", name_ar="مكتب آفاق الخليج للاستشارات الهندسية", status="ACTIVE"); db.add(office); db.flush()
         users = [("owner@amec.synthetic", "Maha Al-Khatri", Role.OWNER_SPONSOR), ("champion@amec.synthetic", "Yousef Nasser", Role.PROCESS_CHAMPION), ("steward@amec.synthetic", "Noura Salem", Role.REQUIREMENT_STEWARD), ("engineer@amec.synthetic", "Omar Haddad", Role.RESPONSIBLE_ENGINEER), ("preparer@amec.synthetic", "Rana Faisal", Role.PERMIT_PREPARER), ("submitter@amec.synthetic", "Khalid Mansour", Role.FINAL_SUBMITTER), ("admin@amec.synthetic", "Samir Qasem", Role.SYSTEM_ADMIN)]
         db.add_all([User(email=e, display_name=n, role=r, office_id=office.id) for e,n,r in users]); db.flush()
@@ -74,8 +87,110 @@ def seed():
         seed_reconciliation(db, projects)
         seed_users = db.scalars(select(User).order_by(User.email)).all()
         seed_expansion(db, office, seed_users, projects, apps)
+        seed_persona_issues_notifications(db)
+        for project, application in zip(projects, apps):
+            ensure_project_sources_task(db, project, application)
         db.commit()
     create_fixtures(repo_root())
+    ensure_primary_proposal_sources()
+    ensure_proposals_contracts_demo_state()
+
+
+def ensure_primary_proposal_sources():
+    """Keep the canonical owner-demo Proposal source-driven and provenance-backed."""
+    with SessionLocal() as db:
+        proposal = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == "SYN-OPP-0001"))
+        if not proposal or not proposal.project_id:
+            return
+        existing = {item.semantic_class for item in db.scalars(select(ProjectArtifactRecord).where(ProjectArtifactRecord.opportunity_id == proposal.id, ProjectArtifactRecord.status == "REGISTERED")).all()}
+        source_specs = [
+            ("TENDER_DOCUMENT", "tender_document_S1.txt", b"SYNTHETIC TENDER DOCUMENT\nOwner-demo source evidence."),
+            ("CLIENT_INFORMATION", "client_information_S1.txt", b"SYNTHETIC CLIENT INFORMATION\nOwner-demo source evidence."),
+            ("PROPOSAL_FORM", "proposal_form_S1.txt", b"SYNTHETIC PROPOSAL FORM\nOwner-demo source evidence."),
+        ]
+        for action, filename, content in source_specs:
+            semantic_class = ACTION_CONFIG[action]["semantic_class"]
+            if semantic_class in existing:
+                continue
+            # Include the current seeded lineage in the idempotency key.  The
+            # expansion seed may be rerun inside the full test suite and
+            # generates fresh Proposal IDs; a global action-only key would
+            # incorrectly reuse a prior Proposal's artifact row.
+            ingest_project_artifact(db, project_id=proposal.project_id, opportunity_id=proposal.id, action=action, source_filename=filename, content_type="text/plain", content=content, actor="owner@amec.synthetic", actor_role="SYSTEM_ADMIN", correlation_id="seed-primary-proposal-sources", project_reference=proposal.canonical_project_reference, idempotency_key=f"seed-primary:{proposal.id}:{proposal.project_id}:{action}:v1")
+        db.commit()
+
+
+def ensure_proposals_contracts_demo_state():
+    """Keep one active pre-contract Proposal beside the contracted chain."""
+    with SessionLocal() as db:
+        primary = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == "SYN-OPP-0001"))
+        if primary:
+            contract = db.scalar(select(Contract).join(Quotation).where(Quotation.opportunity_id == primary.id).order_by(Contract.created_at))
+            if contract and primary.status not in {"CONTRACT_HANDOVER", "CONTRACTED", "CLOSED"}:
+                primary.status = "CONTRACT_HANDOVER"
+            if contract and db.scalar(select(PermitApplication).where(PermitApplication.controlling_contract_id == contract.id)):
+                # A Contract with a downstream Permit is already at the
+                # handoff boundary; do not present it as an untouched draft.
+                contract.status = "CONTRACT_HANDOVER"
+        active = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == "SYN-OPP-0002"))
+        if not active:
+            office = db.scalar(select(ConsultancyOffice).where(ConsultancyOffice.office_code == "QEC-DOHA"))
+            client = db.scalar(select(ClientAccount).where(ClientAccount.client_reference == "SYN-CLIENT-001"))
+            project = db.scalar(select(Project).where(Project.project_number == "GHCE-2026-0187"))
+            owner = db.scalar(select(User).where(User.email == "owner@amec.synthetic"))
+            if office and client and project:
+                active = Opportunity(office_id=office.id, client_account_id=client.id, opportunity_reference="SYN-OPP-0002", title="Synthetic Engineering Proposal Intake", status="PROPOSAL_PREPARATION", source_type="TENDER_DOCUMENT", current_owner_user_id=owner.id if owner else None, stage2_capability_scope="UNDECIDED_STAGE2", project_id=project.id, reference_state="CANONICAL", proposal_fields_json={"price": "QAR 98,000", "sow": "Synthetic engineering proposal preparation", "period": "8 weeks", "exclusions": "Authority fees"}, provisional_reference="SYN-OPP-0002", canonical_project_reference=project.project_number, canonicalized_by=owner.email if owner else "owner@amec.synthetic")
+                db.add(active)
+                db.flush()
+                ingest_project_artifact(db, project_id=project.id, opportunity_id=active.id, action="TENDER_DOCUMENT", source_filename="tender_document_S2.txt", content_type="text/plain", content=b"SYNTHETIC ACTIVE PROPOSAL\nEngineering preparation source.", actor="owner@amec.synthetic", actor_role="SYSTEM_ADMIN", correlation_id="seed-active-proposal", project_reference=project.project_number, idempotency_key=f"seed-active:{active.id}:tender-document:v1")
+        # The authority comment is a separate returned application so its
+        # Comments & Corrections target has a truthful persisted lifecycle.
+        authority_application = db.scalar(select(PermitApplication).where(PermitApplication.external_request_number == "GHCE-APP-0142-AUTH"))
+        base_application = db.scalar(select(PermitApplication).where(PermitApplication.project_id == (primary.project_id if primary else None)).order_by(PermitApplication.external_request_number)) if primary else None
+        if not authority_application and base_application:
+            authority_application = PermitApplication(
+                project_id=base_application.project_id,
+                authority=base_application.authority,
+                municipality=base_application.municipality,
+                permit_type=base_application.permit_type,
+                external_request_number="GHCE-APP-0142-AUTH",
+                application_status=ApplicationStatus.RETURNED,
+                repetition_count=1,
+                controlling_contract_id=base_application.controlling_contract_id,
+                workflow_stage="COMMENTS_AND_CORRECTIONS",
+            )
+            db.add(authority_application)
+            db.flush()
+        if authority_application:
+            authority_finding = db.scalar(select(Finding).where(Finding.correlation_id == "persona-issues-notifications-v1", Finding.title == "Authority returned a technical comment"))
+            if authority_finding:
+                authority_finding.application_id = authority_application.id
+                authority_finding.permit_id = authority_application.id
+            authority_task = db.scalar(select(WorkflowTask).where(WorkflowTask.correlation_id == "persona-issues-notifications-v1", WorkflowTask.title == "Authority returned a technical comment"))
+            if authority_task:
+                authority_task.application_id = authority_application.id
+            authority_notification = db.scalar(select(NotificationEvent).where(NotificationEvent.correlation_id == "persona-issues-notifications-v1", NotificationEvent.event_type == "AUTHORITY_COMMENT_CAPTURED"))
+            if authority_notification:
+                authority_notification.permit_id = authority_application.id
+                authority_notification.deep_link = f"/proposals-contracts/{authority_application.project_id}/comments-and-corrections"
+        if active:
+            active_application = db.scalar(select(PermitApplication).where(PermitApplication.project_id == active.project_id).order_by(PermitApplication.external_request_number))
+            technical_finding = db.scalar(select(Finding).where(Finding.correlation_id == "persona-issues-notifications-v1", Finding.title == "Proposal SOW needs engineering confirmation"))
+            if technical_finding:
+                technical_finding.proposal_id = active.id
+                technical_finding.project_id = active.project_id
+                if active_application:
+                    technical_finding.application_id = active_application.id
+            technical_task = db.scalar(select(WorkflowTask).where(WorkflowTask.correlation_id == "persona-issues-notifications-v1", WorkflowTask.title == "Proposal SOW needs engineering confirmation"))
+            if technical_task:
+                technical_task.context_id = active.id
+                technical_task.project_id = active.project_id
+                if active_application:
+                    technical_task.application_id = active_application.id
+            technical_notification = db.scalar(select(NotificationEvent).where(NotificationEvent.correlation_id == "persona-issues-notifications-v1", NotificationEvent.event_type == "ENGINEERING_PROPOSAL_READY"))
+            if technical_notification:
+                technical_notification.proposal_id = active.id
+        db.commit()
 
 
 def create_fixtures(root: Path):

@@ -1,0 +1,8 @@
+{
+  "artifact": "operating-guide-accessibility-mobile-result",
+  "status": "PASS",
+  "axe": {"english_critical_serious":0,"arabic_critical_serious":0},
+  "keyboard": {"language_switch_reachable":true,"aria_pressed_state":true,"headings_semantic":true,"color_independent_copy":true},
+  "responsive": {"viewport":"390x844","english_horizontal_overflow":false,"arabic_horizontal_overflow":false,"mixed_identifiers_readable":true},
+  "rtl": {"root_direction":"rtl","logical_lifecycle_order":true}
+}

@@ -1,0 +1,8 @@
+{
+  "screen_id": "S04A",
+  "route": "/issues/:issueId",
+  "readiness_definition": "Issue Detail",
+  "domain_relevant_inputs": ["Issue identity and domain", "Affected business record", "Severity/blocking/owner/due", "Evidence and activity"],
+  "permit_first_contamination": 0,
+  "generic_permit_setup_on_non_permit_issue": false
+}

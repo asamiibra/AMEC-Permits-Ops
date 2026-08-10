@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "canonical_source": "NotificationEvent",
+  "event_types": [
+    "PROJECT_SOURCES_CONFIRMED",
+    "ENGINEERING_PROPOSAL_READY",
+    "CLIENT_INFORMATION_REQUIRED",
+    "AUTHORITY_COMMENT_CAPTURED"
+  ],
+  "fixture_correlation": "persona-issues-notifications-v1",
+  "audience_projection": "backend persona_visibility.notification_rows"
+}

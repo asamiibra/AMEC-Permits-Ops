@@ -1,0 +1,23 @@
+{
+  "artifact": "operating-guide-terminology-audit",
+  "scope": "rendered normal Guide copy",
+  "obsolete_or_internal_hits": 0,
+  "checks": {
+    "PermitOps": 0,
+    "permit-first framing": 0,
+    "My Work": 0,
+    "Permit Preparer": 0,
+    "four assistants": 0,
+    "E7": 0,
+    "persona": 0,
+    "All owner roles": 0,
+    "G10": 0,
+    "Sign-off C": 0,
+    "RAID": 0,
+    "Tier 1": 0,
+    "Tier 2": 0,
+    "HUMAN_SEND": 0,
+    "MISSING_DOCUMENT": 0
+  },
+  "required": "OPERATING_GUIDE_INTERNAL_JARGON_ZERO and OPERATING_GUIDE_OBSOLETE_PRODUCT_LANGUAGE_ZERO"
+}

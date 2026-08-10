@@ -1,0 +1,11 @@
+{
+  "title": "ProposalOps — Owner Demo Release Candidate v2 Result",
+  "protected_baseline": "PASS_LOCAL",
+  "local_verification": "PASS",
+  "deployed_verification": "PASS",
+  "frontend_deployment": "dpl_ES4KvUzAsWcDGEtcDqf7SQJPsYLq",
+  "backend_deployment": "dpl_AhTpoekhRAcrZiret6xnQKNv6jbF",
+  "alembic_head": "0025_permit_workflow_stage_confirmation",
+  "remaining_p1_blockers": [],
+  "final_decision": "PROPOSALOPS_OWNER_DEMO_RELEASE_CANDIDATE_READY"
+}

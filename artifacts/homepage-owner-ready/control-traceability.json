@@ -1,0 +1,12 @@
+{
+  "status": "PASS_LOCAL",
+  "controls": {
+    "single_work_source": "WorkProjectionService",
+    "four_primary_kpis": "AMECWorkPage",
+    "no_fake_empty_on_error": "controlled error and retry state",
+    "deep_links": "projected item deep_link",
+    "no_generic_completion": "domain CTA only",
+    "passive_events": "recent_changes only"
+  },
+  "deployed_controls": "NOT_VERIFIED"
+}

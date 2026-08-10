@@ -1,0 +1,7 @@
+{
+  "no_project_reference": {"reference_state": "PROVISIONAL", "project_reference": "not yet assigned", "status": "PASS"},
+  "existing_canonical_project": {"reference_state": "CANONICAL", "project_link": "selected existing Project", "status": "PASS"},
+  "mismatch": {"status": 409, "code": "PROJECT_REFERENCE_MISMATCH"},
+  "promotion_path": "provisional Proposal sources remain eligible for existing promote-and-verify command",
+  "marker": "NEW_PROPOSAL_REFERENCE_LIFECYCLE_PASS"
+}

@@ -1,0 +1,18 @@
+{
+  "artifact": "configuration-reconciliation",
+  "status": "PASS_LOCAL",
+  "projections": {
+    "people_access":"User, Role, ConsultancyOffice -> GET /api/admin/users and /api/admin/permissions",
+    "data_connections":"MockSynologyAdapter, MockExcelAdapter, MockMunicipalityAdapter -> GET /api/admin/connections",
+    "project_folder_setup":"ScenarioConfig, Project, SynologyProjectBootstrap, ProjectNumberReservation, semantic folder config -> GET /api/admin/project-setup",
+    "proposal_setup":"Opportunity and Proposal source/action configuration -> GET /api/admin/proposal-setup",
+    "contract_setup":"Contract and Proposal/Contract lifecycle rules -> GET /api/admin/contract-setup",
+    "permit_setup":"ScenarioConfig, MunicipalityConfig, RequirementConfig, AttachmentCategoryConfig -> GET /api/admin/permit-setup",
+    "templates":"TemplateDefinition, TemplateVersion, FormTemplate, FormTemplateVersion -> GET /api/admin/templates",
+    "notifications":"ConfigurationArtifact ADMIN_RUNTIME_SETTINGS:AMEC -> GET/PUT /api/admin/notifications",
+    "security":"MunicipalityConfig, role guard, audit store -> GET /api/admin/security",
+    "audit":"AuditEvent -> GET /api/admin/audit"
+  },
+  "bounded_writes": ["follow_up_hours 1..720", "connection test timestamp"],
+  "persistence_verified_after_refresh":true
+}

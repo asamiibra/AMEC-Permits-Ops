@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "suite": "frontend/browser-real-stack/homepage-owner-ready.spec.ts",
+  "tests": 7,
+  "passed": 7,
+  "owner": "PASS",
+  "business_development": "PASS",
+  "engineering": "PASS",
+  "mobile": "PASS",
+  "accessibility": "PASS",
+  "error_retry": "PASS",
+  "filter_empty_state": "PASS",
+  "note": "Legacy owner-rehearsal/accessibility suites still contain pre-realignment selectors and were not used as AMEC Work closure evidence."
+}

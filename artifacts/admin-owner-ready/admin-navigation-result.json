@@ -1,0 +1,8 @@
+{
+  "artifact": "admin-navigation-result",
+  "status": "PASS_LOCAL",
+  "owner": {"landing":"/admin", "categories":12, "advanced_secondary":true, "inputs_go_live_separate":true},
+  "business_development": {"nav_visible":false, "direct_route":"redirected to /work"},
+  "engineering": {"nav_visible":false, "direct_route":"redirected to /work"},
+  "legacy_internal_items_visible_in_owner_index":false
+}

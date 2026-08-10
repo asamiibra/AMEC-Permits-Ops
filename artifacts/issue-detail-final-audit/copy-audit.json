@@ -1,0 +1,7 @@
+{
+  "owner_facing_quotation_language": 0,
+  "raw_enum_titles": 0,
+  "generic_open_work_ctas": 0,
+  "required_sections": ["What is wrong", "Why it matters", "What needs to happen", "Evidence", "Activity & history", "Resolution path"],
+  "business_vocabulary": ["Proposal", "Contract", "Permit", "System / Data", "Authority comment"]
+}

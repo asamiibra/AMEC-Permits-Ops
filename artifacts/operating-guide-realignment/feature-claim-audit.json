@@ -1,0 +1,20 @@
+{
+  "artifact": "operating-guide-feature-claim-audit",
+  "unsupported_owner_facing_claims": 0,
+  "claims": [
+    {"claim":"Tender, client, document, image, form, Excel, and project evidence can contribute to Proposal intake.","supporting_route_or_behavior":"/proposals-contracts and Proposal intake/source controls","status":"IMPLEMENTED"},
+    {"claim":"Candidate information may be captured or extracted where supported.","supporting_route_or_behavior":"Proposal source and evidence UI; qualified Guide wording","status":"CONFIGURATION_DEPENDENT"},
+    {"claim":"Proceed moves sufficiently verified Proposal Intake into Engineering Proposal Preparation.","supporting_route_or_behavior":"/proposals/:proposalId/preparation and current Proposal lifecycle","status":"IMPLEMENTED"},
+    {"claim":"Engineering prepares technical Proposal content and hands it back to BD.","supporting_route_or_behavior":"Proposal Preparation route and persona-scoped actions","status":"IMPLEMENTED"},
+    {"claim":"Proposal, Contract, Project, and Permit remain linked through the lifecycle.","supporting_route_or_behavior":"Proposal/Contract/Project/Permit APIs and deployed lineage","status":"IMPLEMENTED"},
+    {"claim":"Permit has Sources, Verify, Package, Municipality, Final Review, Authority, Corrections, and History stages.","supporting_route_or_behavior":"Permit workspace stage navigation","status":"IMPLEMENTED"},
+    {"claim":"Authority and Municipality work is prepared and tracked in synthetic or supported assisted modes.","supporting_route_or_behavior":"Permit workspace and synthetic boundary","status":"SYNTHETIC_SIMULATED"},
+    {"claim":"Original evidence remains connected to provenance and version context.","supporting_route_or_behavior":"Proposal source evidence and controlled record behavior","status":"IMPLEMENTED"},
+    {"claim":"Controlled sources are read back before being treated as registered evidence.","supporting_route_or_behavior":"Source registration/read-back behavior","status":"IMPLEMENTED"},
+    {"claim":"Forms, status projections, and communications derive from governed work where supported.","supporting_route_or_behavior":"Proposal/Contract forms and governed record boundary","status":"CONFIGURATION_DEPENDENT"},
+    {"claim":"AI can read, compare, summarize, prepare drafts, and identify potential conflicts.","supporting_route_or_behavior":"Qualified synthetic Guide capability boundary","status":"SYNTHETIC_SIMULATED"},
+    {"claim":"AI does not approve professional compliance, set binding terms, execute Contract authority, or submit to the Municipality.","supporting_route_or_behavior":"Human-only safety boundary and role controls","status":"IMPLEMENTED"},
+    {"claim":"Owner, Business Development, and Engineering have distinct views and actions on shared records.","supporting_route_or_behavior":"Persona-scoped AMEC Work and Proposals & Contracts","status":"IMPLEMENTED"},
+    {"claim":"Administration is Owner-facing and Inputs & Go-Live explains remaining AMEC setup.","supporting_route_or_behavior":"/admin and /admin/go-live-readiness","status":"IMPLEMENTED"}
+  ]
+}

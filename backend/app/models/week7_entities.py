@@ -177,6 +177,15 @@ class Finding(Base):
     correlation_id: Mapped[str] = mapped_column(String(100), nullable=False)
     finding_code_version: Mapped[str | None] = mapped_column(String(40))
     finding_code_checksum: Mapped[str | None] = mapped_column(String(64))
+    # ProposalOps persona projection metadata. These fields are nullable so
+    # historical Week 7 findings remain valid and continue to be the shared
+    # source for AMEC Work, Issues, and audit history.
+    domain: Mapped[str | None] = mapped_column(String(50), index=True)
+    proposal_id: Mapped[str | None] = mapped_column(ForeignKey("opportunities.id"), index=True)
+    contract_id: Mapped[str | None] = mapped_column(ForeignKey("contracts.id"), index=True)
+    permit_id: Mapped[str | None] = mapped_column(ForeignKey("permit_applications.id"), index=True)
+    owner_persona: Mapped[str | None] = mapped_column(String(40), index=True)
+    deep_link: Mapped[str | None] = mapped_column(String(300))
 
 
 class WorkflowTask(Base):
@@ -243,8 +252,8 @@ class FindingSlaPolicy(Base):
 class NotificationEvent(Base):
     __tablename__ = "notification_events"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    finding_id: Mapped[str] = mapped_column(ForeignKey("findings.id"), nullable=False)
-    workflow_task_id: Mapped[str] = mapped_column(ForeignKey("workflow_tasks.id"), nullable=False)
+    finding_id: Mapped[str | None] = mapped_column(ForeignKey("findings.id"))
+    workflow_task_id: Mapped[str | None] = mapped_column(ForeignKey("workflow_tasks.id"))
     recipient_user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
     recipient_role: Mapped[str] = mapped_column(String(80), nullable=False)
     channel: Mapped[str] = mapped_column(String(40), nullable=False)
@@ -258,6 +267,28 @@ class NotificationEvent(Base):
     failure_code: Mapped[str | None] = mapped_column(String(100))
     external_message_reference: Mapped[str | None] = mapped_column(String(200))
     correlation_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    # Notifications are domain events, not task records. An event may have no
+    # issue/task and may project to several persona-specific messages.
+    domain: Mapped[str | None] = mapped_column(String(50), index=True)
+    proposal_id: Mapped[str | None] = mapped_column(ForeignKey("opportunities.id"), index=True)
+    contract_id: Mapped[str | None] = mapped_column(ForeignKey("contracts.id"), index=True)
+    permit_id: Mapped[str | None] = mapped_column(ForeignKey("permit_applications.id"), index=True)
+    severity: Mapped[str | None] = mapped_column(String(30))
+    audience: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    actor: Mapped[str | None] = mapped_column(String(200))
+    deep_link: Mapped[str | None] = mapped_column(String(300))
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class NotificationReadState(Base):
+    """Persona/principal-scoped acknowledgement, separate from the domain event."""
+
+    __tablename__ = "notification_read_states"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    notification_event_id: Mapped[str] = mapped_column(ForeignKey("notification_events.id"), nullable=False, index=True)
+    persona: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    principal_key: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    acknowledged_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
 
 class PortalValidationFindingRule(Base):
