@@ -8,5 +8,5 @@
     "focused_browser": "3 passed"
   },
   "remaining_blockers": [],
-  "deployment": "pending final push verification"
+  "deployment": "PASS: Vercel production aliases Ready; PostgreSQL durable; Alembic 0026 present"
 }

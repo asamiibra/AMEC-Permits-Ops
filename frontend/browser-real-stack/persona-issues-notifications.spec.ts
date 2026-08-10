@@ -10,6 +10,6 @@ test("real stack serves persona-aware issues and notifications without intercept
   await expect(page.getByRole("heading", { name: "Engineering issues" })).toBeVisible();
   await page.goto("/notifications");
   await expect(page.getByRole("heading", { name: /Owner notifications|Engineering notifications/ })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Delivery observability" })).toBeVisible();
+  await expect(page.getByText("No delivery failures")).toBeVisible();
   expect(intercepted.length).toBeGreaterThan(0);
 });

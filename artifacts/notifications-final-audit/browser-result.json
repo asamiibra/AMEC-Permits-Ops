@@ -3,5 +3,8 @@
   "command": "cd frontend && npm run browser-e2e -- browser-e2e/persona-issues-notifications.spec.ts",
   "passed": 3,
   "failed": 0,
+  "live_real_stack_passed": 1,
+  "live_backend": "https://amec-permits-ops-backend.vercel.app",
+  "live_frontend": "https://amec-permits-ops.vercel.app",
   "coverage": ["persona switching", "notification KPIs and delivery diagnostics", "keyboard/responsive surface"]
 }
