@@ -31,6 +31,7 @@ from .api.persona_issues_notifications import router as persona_issues_notificat
 from .api.admin_owner_ready import router as admin_owner_ready_router
 from .api.work_routers import router as work_router
 from .api.master_content_routers import router as master_content_router
+from .api.dashboard_inputs_routers import router as dashboard_inputs_router
 
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO), format='%(message)s')
@@ -205,3 +206,4 @@ app.include_router(recovery_router)
 app.include_router(e5_e6_router)
 app.include_router(proposals_main_router)
 app.include_router(master_content_router)
+app.include_router(dashboard_inputs_router)

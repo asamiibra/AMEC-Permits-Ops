@@ -1,0 +1,142 @@
+"""Dashboard-specific, persistent Master Content readiness projections."""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import Any
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from ..api.admin_owner_ready import _connections
+from ..models import (
+    AuditEvent,
+    ContentCategory,
+    DefinitionEntry,
+    DashboardInputItem,
+    MasterContentItem,
+    MasterContentReferenceSequence,
+)
+
+CONTEXT_KEY = "DASHBOARD_MASTER_CONTENT"
+OPEN_STATUSES = {"NEEDS_CONFIRMATION", "PROPOSED_DEFAULT", "NEEDS_DECISION", "NEEDS_CONTENT", "IN_PROGRESS", "WAITING_ON_AMEC_IT"}
+CONFIRMED_STATUSES = {"CONFIRMED", "COMPLETE", "NOT_APPLICABLE"}
+FRIENDLY_STATUS = {
+    "NEEDS_CONFIRMATION": "Needs confirmation",
+    "PROPOSED_DEFAULT": "Using proposed default",
+    "NEEDS_DECISION": "Needs decision",
+    "NEEDS_CONTENT": "Needs content",
+    "IN_PROGRESS": "In progress",
+    "WAITING_ON_AMEC_IT": "Waiting on AMEC IT",
+    "CONFIRMED": "Confirmed",
+    "COMPLETE": "Complete",
+    "OPTIONAL": "Optional",
+    "NOT_APPLICABLE": "Not applicable",
+}
+GROUP_LABELS = {
+    "BUSINESS_DECISION": "AMEC Business Decisions",
+    "CONTENT_READINESS": "Master Content Readiness",
+    "TECHNICAL_GO_LIVE": "Technical Go-Live",
+    "OPTIONAL_FUTURE": "Optional / Future Decisions",
+}
+
+SPECS: list[dict[str, Any]] = [
+    {"key": "DASHBOARD_CATEGORY_TAXONOMY", "group": "BUSINESS_DECISION", "title": "Production categories", "what": "Review and confirm the category taxonomy for Forms, Reports, Engineering Works, and Definitions.", "why": "Consistent categories keep the four libraries organized and make filtering and future suggestions reliable.", "status": "NEEDS_CONFIRMATION", "blocking": "BUSINESS", "route": "/dashboard#categories"},
+    {"key": "DASHBOARD_REFERENCE_NUMBERING", "group": "BUSINESS_DECISION", "title": "Reference numbering", "what": "Confirm the proposed F / R / E / D numbering pattern for reusable master content.", "why": "Stable references make master content easy to identify, cite, and audit across modules.", "status": "NEEDS_CONFIRMATION", "blocking": "BUSINESS", "route": "/dashboard"},
+    {"key": "DASHBOARD_MODULE_USAGE_POLICY", "group": "BUSINESS_DECISION", "title": "Module usage policy", "what": "Confirm where each content type may be used across Proposal, Contract, Permit, Engineering, Reports, and Administration.", "why": "Explicit usage prevents a reusable item from appearing in the wrong workflow.", "status": "NEEDS_CONFIRMATION", "blocking": "BUSINESS", "route": "/dashboard"},
+    {"key": "DASHBOARD_ENGINEERING_ACTIVATION_POLICY", "group": "BUSINESS_DECISION", "title": "Engineering activation policy", "what": "Choose whether Engineering Works are advisory references only or may support a controlled engineering workflow.", "why": "This is a professional-responsibility boundary and must be selected by AMEC rather than assumed by the product.", "status": "NEEDS_DECISION", "blocking": "BUSINESS", "route": "/dashboard#engineering-works"},
+    {"key": "DASHBOARD_REPORT_SCOPE_POLICY", "group": "BUSINESS_DECISION", "title": "Reports scope", "what": "Confirm whether Reports are reusable master templates, project outputs, or both with separate scopes.", "why": "Separating master templates from project outputs protects reuse and project-specific records.", "status": "NEEDS_CONFIRMATION", "blocking": "BUSINESS", "route": "/dashboard#reports"},
+    {"key": "DASHBOARD_MASTER_WRITE_PERMISSIONS", "group": "BUSINESS_DECISION", "title": "Master write permissions", "what": "Confirm Owner-only write access for master content, with Business Development and Engineering using read/use permissions.", "why": "A single accountable owner protects the canonical content library from ungoverned edits.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/admin"},
+    {"key": "DASHBOARD_FORMS_CONTENT_READINESS", "group": "CONTENT_READINESS", "title": "Forms readiness", "what": "Provide or confirm the production Forms, their versions, categories, and intended modules.", "why": "Forms are the reusable starting point for consistent proposal and contract work.", "status": "NEEDS_CONTENT", "blocking": "CONTENT", "type": "FORM", "route": "/dashboard#forms"},
+    {"key": "DASHBOARD_REPORTS_CONTENT_READINESS", "group": "CONTENT_READINESS", "title": "Reports readiness", "what": "Provide or confirm the production Reports, their versions, categories, and intended modules.", "why": "Reports need an approved reusable baseline before teams can rely on them.", "status": "NEEDS_CONTENT", "blocking": "CONTENT", "type": "REPORT", "route": "/dashboard#reports"},
+    {"key": "DASHBOARD_ENGINEERING_CONTENT_READINESS", "group": "CONTENT_READINESS", "title": "Engineering Works readiness", "what": "Provide or confirm the Engineering Works references and the professional review boundary.", "why": "Engineering references must be authoritative, current, and clearly separated from professional approval.", "status": "NEEDS_CONTENT", "blocking": "CONTENT", "type": "ENGINEERING_WORK", "route": "/dashboard#engineering-works"},
+    {"key": "DASHBOARD_DEFINITIONS_CONTENT_READINESS", "group": "CONTENT_READINESS", "title": "Definitions readiness", "what": "Provide or confirm the canonical business terms, meanings, categories, and module usage.", "why": "Shared definitions keep Forms, Reports, Engineering Works, and workflows semantically aligned.", "status": "NEEDS_CONTENT", "blocking": "CONTENT", "type": "DEFINITION", "route": "/dashboard#definitions"},
+    {"key": "DASHBOARD_SYNOLOGY_CONNECTION", "group": "TECHNICAL_GO_LIVE", "title": "Synology connection", "what": "Provide AMEC IT connection details and complete a real Synology health verification for the document source of record.", "why": "Production master-content files must be read from the AMEC-controlled source of record, not the synthetic connector.", "status": "WAITING_ON_AMEC_IT", "blocking": "EXTERNAL_TECHNICAL", "route": "/admin"},
+    {"key": "DASHBOARD_FILE_POLICY", "group": "TECHNICAL_GO_LIVE", "title": "File policy", "what": "Confirm the production file policy for DOCX and PDF, including configurable size and version limits.", "why": "A clear file policy keeps uploads predictable and protects source-of-record storage.", "status": "PROPOSED_DEFAULT", "blocking": "TECHNICAL", "route": "/dashboard"},
+    {"key": "DASHBOARD_DEFINITION_ARABIC_ALIASES", "group": "OPTIONAL_FUTURE", "title": "Arabic definition aliases", "what": "Decide later whether canonical English terms should have maintained Arabic aliases.", "why": "Aliases can improve bilingual discovery without creating a second definition authority.", "status": "OPTIONAL", "blocking": "OPTIONAL", "route": "/dashboard#definitions"},
+]
+
+
+def ensure_dashboard_input_registry(db: Session) -> None:
+    existing = {item.input_key: item for item in db.scalars(select(DashboardInputItem).where(DashboardInputItem.context_key == CONTEXT_KEY)).all()}
+    for spec in SPECS:
+        item = existing.get(spec["key"])
+        if not item:
+            item = DashboardInputItem(context_key=CONTEXT_KEY, input_key=spec["key"], group_name=spec["group"], title=spec["title"], why_needed=spec["why"], requested_input=spec["what"], status=spec["status"], blocking_level=spec["blocking"], owner_role="OWNER", linked_route=spec.get("route"), current_value_json={})
+            db.add(item)
+        else:
+            item.group_name = spec["group"]
+            item.title = spec["title"]
+            item.why_needed = spec["why"]
+            item.requested_input = spec["what"]
+            item.linked_route = spec.get("route")
+    db.flush()
+
+
+def _content_state(db: Session, content_type: str) -> dict[str, Any]:
+    if content_type == "DEFINITION":
+        rows = list(db.scalars(select(DefinitionEntry).where(DefinitionEntry.status == "ACTIVE")).all())
+        confirmed = sum(1 for row in rows if row.current_revision_id and row.used_in)
+        return {"total": len(rows), "starter": len(rows), "confirmed_production": confirmed, "missing_usage": sum(1 for row in rows if not row.used_in), "source": "Master Content Definitions"}
+    rows = [row for row in db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == content_type, MasterContentItem.status == "ACTIVE")).all() if not (row.ref or "").startswith(("E2E", "B-F", "B-E", "AF-MSN", "DEPLOY-PROBE"))]
+    confirmed = sum(1 for row in rows if str(row.created_by).startswith("production") or str(row.created_by).startswith("amec-production"))
+    return {"total": len(rows), "starter": len(rows) - confirmed, "confirmed_production": confirmed, "missing_category": sum(1 for row in rows if not row.category_id), "missing_usage": sum(1 for row in rows if not row.used_in), "source": "Master Content Library"}
+
+
+def _current_state(db: Session, spec: dict[str, Any]) -> dict[str, Any]:
+    key = spec["key"]
+    if spec.get("type"):
+        state = _content_state(db, spec["type"])
+        state["summary"] = f"{state['total']} active starter/demo record(s); {state['confirmed_production']} confirmed production record(s)."
+        return state
+    if key == "DASHBOARD_CATEGORY_TAXONOMY":
+        categories = list(db.scalars(select(ContentCategory).where(ContentCategory.active.is_(True)).order_by(ContentCategory.sort_order, ContentCategory.label)).all())
+        return {"categories": [{"label": c.label, "content_types": c.allowed_content_types} for c in categories], "summary": f"{len(categories)} starter configurable categories are available across the four libraries."}
+    if key == "DASHBOARD_REFERENCE_NUMBERING":
+        sequences = list(db.scalars(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.active.is_(True)).order_by(MasterContentReferenceSequence.content_type)).all())
+        patterns = [f"{s.prefix}-{s.current_value + 1:0{s.padding}d}" for s in sequences] or ["F-0001", "R-0001", "E-0001", "D-0001"]
+        return {"patterns": patterns, "summary": "Proposed references are F-0001, R-0001, E-0001, and D-0001."}
+    if key == "DASHBOARD_MODULE_USAGE_POLICY":
+        return {"policy": {"Forms": "Proposal, Contract, Permit, Engineering, Administration", "Reports": "Proposal, Contract, Permit, Engineering, Reports, Administration", "Engineering Works": "Engineering, Permit, Issues, Reports", "Definitions": "Proposal, Contract, Permit, Engineering, Reports, Administration"}, "summary": "Starter module bindings are configurable and visible in each library."}
+    if key == "DASHBOARD_ENGINEERING_ACTIVATION_POLICY":
+        return {"summary": "No activation policy selected. Upload and technical verification do not equal professional engineering approval."}
+    if key == "DASHBOARD_REPORT_SCOPE_POLICY":
+        return {"summary": "Reusable master Reports are separate from project-specific outputs; AMEC confirmation remains open."}
+    if key == "DASHBOARD_MASTER_WRITE_PERMISSIONS":
+        return {"summary": "Owner-only master-content management is enforced; Business Development and Engineering are read/use roles."}
+    if key == "DASHBOARD_SYNOLOGY_CONNECTION":
+        synology = next((item for item in _connections(db) if item["name"] == "Synology / document SOR"), {})
+        connected = synology.get("production_status") == "Production Connected" and synology.get("status") in {"Connected", "Healthy"}
+        return {"summary": "Production Synology connection is verified." if connected else "Production connection is not configured/verified; synthetic connector is available.", "production_status": synology.get("production_status", "Production Not Connected"), "synthetic_status": synology.get("status", "Simulator Check Failed"), "verified": connected}
+    if key == "DASHBOARD_FILE_POLICY":
+        return {"extensions": [".docx", ".pdf"], "summary": "DOCX and PDF are supported by the current UI; production limits remain configuration-driven."}
+    if key == "DASHBOARD_DEFINITION_ARABIC_ALIASES":
+        return {"summary": "Deferred; canonical English terms remain authoritative."}
+    return {"summary": "Current proposal is available for AMEC review."}
+
+
+def _history(db: Session, item_id: str) -> list[dict[str, Any]]:
+    events = db.scalars(select(AuditEvent).where(AuditEvent.entity_type == "DashboardInputItem", AuditEvent.entity_id == item_id).order_by(AuditEvent.occurred_at.desc()).limit(10)).all()
+    return [{"event": event.event_type, "actor": event.actor_id or "System", "at": event.occurred_at.isoformat() if event.occurred_at else None, "note": (event.metadata_json or {}).get("note")} for event in events]
+
+
+def project_input(db: Session, item: DashboardInputItem) -> dict[str, Any]:
+    spec = next(spec for spec in SPECS if spec["key"] == item.input_key)
+    state = _current_state(db, spec)
+    status = item.status
+    if item.input_key == "DASHBOARD_SYNOLOGY_CONNECTION" and not state.get("verified") and status in {"CONFIRMED", "COMPLETE"}:
+        status = "WAITING_ON_AMEC_IT"
+    return {"key": item.input_key, "title": item.title, "group": item.group_name, "group_label": GROUP_LABELS[item.group_name], "what": item.requested_input, "why": item.why_needed, "current": state, "status": status, "status_label": FRIENDLY_STATUS.get(status, "Needs review"), "blocking": item.blocking_level, "blocking_label": "Technical dependency" if item.blocking_level == "EXTERNAL_TECHNICAL" else "Optional" if item.blocking_level == "OPTIONAL" else "Business input" if item.blocking_level == "BUSINESS" else "Content input" if item.blocking_level == "CONTENT" else "Technical input", "notes": item.notes, "route": item.linked_route, "confirmed_by": item.confirmed_by, "confirmed_at": item.confirmed_at.isoformat() if item.confirmed_at else None, "history": _history(db, item.id)}
+
+
+def dashboard_inputs_payload(db: Session) -> dict[str, Any]:
+    ensure_dashboard_input_registry(db)
+    stored = {item.input_key: item for item in db.scalars(select(DashboardInputItem).where(DashboardInputItem.context_key == CONTEXT_KEY)).all()}
+    items = [project_input(db, stored[spec["key"]]) for spec in SPECS if spec["key"] in stored]
+    unresolved = [item for item in items if item["status"] not in {"CONFIRMED", "COMPLETE", "NOT_APPLICABLE", "OPTIONAL"}]
+    technical = [item for item in unresolved if item["blocking"] == "EXTERNAL_TECHNICAL"]
+    return {"context_key": CONTEXT_KEY, "summary": {"confirmed": len(items) - len(unresolved) - sum(1 for item in items if item["status"] == "OPTIONAL"), "remaining": len(unresolved), "technical_remaining": len(technical), "ready": not unresolved}, "groups": [{"key": key, "label": label, "items": [item for item in items if item["group"] == key]} for key, label in GROUP_LABELS.items() if any(item["group"] == key for item in items)], "items": items}
+
+
+def default_status(input_key: str) -> str:
+    return next(spec["status"] for spec in SPECS if spec["key"] == input_key)

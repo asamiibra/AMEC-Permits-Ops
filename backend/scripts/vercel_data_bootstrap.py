@@ -40,6 +40,7 @@ from backend.app.seed.cli import ensure_primary_proposal_sources, ensure_proposa
 from backend.app.seed.persona_issues_notifications import seed_persona_issues_notifications  # noqa: E402
 from backend.app.services.permit_workflow import ensure_project_sources_task  # noqa: E402
 from backend.app.services.master_content import reconcile_owner_demo_dataset  # noqa: E402
+from backend.app.services.dashboard_inputs import ensure_dashboard_input_registry  # noqa: E402
 
 
 def alembic_config() -> Config:
@@ -177,6 +178,8 @@ def main() -> None:
             ensure_primary_proposal_sources()
             ensure_proposals_contracts_demo_state()
             owner_demo = reconcile_owner_demo_dataset(db)
+            ensure_dashboard_input_registry(db)
+            db.commit()
             print(f"synthetic_bootstrap=noop fixture={CANONICAL_FIXTURE_ID} migration={migration_action} owner_demo={owner_demo}")
             return
 
@@ -199,6 +202,8 @@ def main() -> None:
         if not fixture or fixture.manifest_sha256 != CANONICAL_FIXTURE_MANIFEST_HASH or len(projects) != len(CANONICAL_PROJECT_IDS) or len(applications) != len(CANONICAL_APPLICATION_IDS):
             raise RuntimeError("Canonical synthetic bootstrap verification failed")
         owner_demo = reconcile_owner_demo_dataset(db)
+        ensure_dashboard_input_registry(db)
+        db.commit()
     print(f"synthetic_bootstrap=seeded fixture={CANONICAL_FIXTURE_ID} migration={migration_action} projects={len(projects)} applications={len(applications)} owner_demo={owner_demo}")
 
 

@@ -1,0 +1,12 @@
+{
+  "frontend": "https://amec-permits-ops.vercel.app/dashboard/inputs-go-live",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "frontend_deployment": "dpl_Dg1ARBxpGBHMjLwty6EHysyycNug",
+  "backend_deployment": "dpl_GB6ioJ7UPoqAr8MJwfPFPhnixxvc",
+  "database": "PostgreSQL",
+  "alembic_head": "0030_dashboard_master_content_inputs",
+  "dashboard_input_keys": 13,
+  "technical_remaining": 1,
+  "synology_status": "Waiting on AMEC IT",
+  "real_synology_verification": "BLOCKED_EXTERNAL"
+}

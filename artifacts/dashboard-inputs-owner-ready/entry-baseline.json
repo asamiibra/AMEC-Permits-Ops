@@ -1,0 +1,10 @@
+{
+  "context": "Dashboard",
+  "old_drawer_title": "Legacy control room",
+  "new_drawer_title": "Master Content Setup & Go-Live",
+  "full_route": "/dashboard/inputs-go-live",
+  "legacy_shared_route_preserved": "/admin/go-live-readiness",
+  "required_input_keys": 13,
+  "baseline_branch": "main",
+  "baseline_commit": "1e63f2e"
+}
