@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T02:37:32.731Z",
+  "generated_at": "2026-08-10T02:41:57.911Z",
   "base_url": "http://127.0.0.1:5173",
   "route_count": 66,
   "contract_count": 37,
@@ -2451,8 +2451,7 @@
       "raw_json": false,
       "raw_enums": [
         "READ_CURRENT_STATE",
-        "READ_STATUS",
-        "WAITING_FOR_MFA"
+        "READ_STATUS"
       ],
       "internal_actor": false,
       "horizontal_overflow": false,

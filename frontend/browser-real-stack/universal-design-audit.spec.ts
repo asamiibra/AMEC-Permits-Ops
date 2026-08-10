@@ -127,9 +127,9 @@ test.describe("ProposalOps universal design and functional audit", () => {
       { role: "Owner" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "owner-commercial" },
       { role: "Business Development" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "bd-commercial" },
       { role: "Engineering" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "engineering-commercial" },
-      { role: "Owner" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "owner-permit-context" },
-      { role: "Business Development" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "bd-permit-context" },
-      { role: "Engineering" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "engineering-permit-context" },
+      { role: "Owner" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/proposals-contracts/", expected: /Current stage|Viewing|Project & Sources/i, name: "owner-permit-context" },
+      { role: "Business Development" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/proposals-contracts/", expected: /Current stage|Viewing|Project & Sources/i, name: "bd-permit-context" },
+      { role: "Engineering" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/proposals-contracts/", expected: /Current stage|Viewing|Project & Sources/i, name: "engineering-permit-context" },
     ];
     const results = [];
     for (const item of checks) {

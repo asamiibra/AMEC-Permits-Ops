@@ -29,7 +29,7 @@ export function EngineeringCloseoutPage() {
         <div className="expansion-status"><span>Finance route</span><b>General finance handoff</b></div>
         <div className="expansion-status"><span>Invoice follow-up</span><b>Due date unknown / needs review when unconfigured</b></div>
         <div className="expansion-status"><span>Handover readiness</span><b>{readiness?.evaluation?.state?.replaceAll("_", " ") || "Needs review"}</b></div>
-        <div className="expansion-callout"><b>HUMAN_SEND · NO ACCOUNTING WRITE</b><p>Invoice issue/payment evidence is separate from internal readiness. Handover output requires human approval and release evidence; release does not close the project.</p></div>
+        <div className="expansion-callout"><b>HUMAN-CONTROLLED SEND · NO ACCOUNTING WRITE</b><p>Invoice issue/payment evidence is separate from internal readiness. Handover output requires human approval and release evidence; release does not close the project.</p></div>
         <div className="expansion-chip-row"><span className="tag">Invoice Follow-up Sheet</span><span className="tag">Handover Form / Output</span><span className="tag">Client Draft</span></div>
       </section>
     </div>
