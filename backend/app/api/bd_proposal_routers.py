@@ -14,7 +14,8 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import ClientAccount, ConsultancyOffice, Contract, ContractRevision, Opportunity, ProposalAcceptedRevision, ProposalOutputArtifact, ProposalOwnerSetting, ProposalSourceEvidence, Quotation, QuotationRevision, ReferenceNumber, Role
+from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Opportunity, ProposalAcceptedRevision, ProposalIntakeArtifact, ProposalOutputArtifact, ProposalOwnerSetting, ProposalSourceEvidence, Quotation, QuotationRevision, ReferenceNumber, Role
+from ..config.settings import get_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
 from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal
@@ -48,6 +49,39 @@ def _actor(role: Role, supplied: str | None = None) -> str:
 def _list_row(db: Session, item: Opportunity) -> dict[str, Any]:
     projection = proposal_projection(db, item)
     return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": projection["client_name"] or item.client_account_id or "Not recorded", "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": (item.proposal_fields_json or {}).get("location"), "contract_eligible": projection["contract_eligible"], "validation": projection["validation"]}
+
+
+@router.post("/test-support/cleanup")
+def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    if get_settings().app_env.upper() != "TEST":
+        raise HTTPException(404, "TEST_SUPPORT_NOT_AVAILABLE")
+    require_capability(role, "BD_PROPOSAL_OWNER_SETTINGS")
+    removed = []
+    from ..services.proposals_sor import intake_sor_root
+    from shutil import rmtree
+    for proposal_id in proposal_ids:
+        proposal = db.get(Opportunity, proposal_id)
+        if not proposal:
+            continue
+        reference = proposal.opportunity_reference
+        quotations = db.scalars(select(Quotation).where(Quotation.opportunity_id == proposal_id)).all()
+        for quotation in quotations:
+            contracts = db.scalars(select(Contract).where(Contract.quotation_id == quotation.id)).all()
+            for contract in contracts:
+                db.query(ContractRevision).filter(ContractRevision.contract_id == contract.id).delete(synchronize_session=False)
+            db.query(Contract).filter(Contract.quotation_id == quotation.id).delete(synchronize_session=False)
+            db.query(QuotationRevision).filter(QuotationRevision.quotation_id == quotation.id).delete(synchronize_session=False)
+        db.query(Quotation).filter(Quotation.opportunity_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalOutputArtifact).filter(ProposalOutputArtifact.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalAcceptedRevision).filter(ProposalAcceptedRevision.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalSourceEvidence).filter(ProposalSourceEvidence.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalIntakeArtifact).filter(ProposalIntakeArtifact.opportunity_id == proposal_id).delete(synchronize_session=False)
+        db.query(AuditEvent).filter(AuditEvent.entity_id == proposal_id).delete(synchronize_session=False)
+        db.delete(proposal)
+        rmtree(intake_sor_root() / reference, ignore_errors=True)
+        removed.append(proposal_id)
+    db.commit()
+    return {"status": "APPLIED", "removed": removed}
 
 
 @router.get("")
