@@ -473,9 +473,22 @@ def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed")
             projection = create_master_content(db, content_type=content_type, ref=spec["ref"], title=spec["title"], category_id=category_id, description=spec["description"], filename=f"{spec['ref']}-owner-demo.txt", mime_type="text/plain", content=f"AMEC owner demo source for {spec['ref']}.".encode(), actor=actor, idempotency_key=f"owner-demo:{content_type}:{spec['ref']}", correlation_id=f"owner-demo:{content_type}:{spec['ref']}", used_in=spec["used_in"], engineering_metadata=spec.get("engineering_metadata"))
             created_master.append(projection["ref"])
 
-    purpose_refs = {"F-0003": "PROPOSAL_TEMPLATE", "F-0004": "PROPOSAL_CHECKLIST"}
-    for ref, usage_type in purpose_refs.items():
-        item = db.scalar(select(MasterContentItem).where(MasterContentItem.ref == ref, MasterContentItem.status == "ACTIVE"))
+    # Older TEST rehearsals may have archived a probe at F-0003/F-0004.  Do
+    # not resurrect that row or create duplicate truth at the same reference;
+    # use a distinct active fallback only when the titled canonical item is
+    # unavailable.
+    fallback_specs = [
+        {"ref": "BD-PROP-001", "title": "AMEC Proposal Template", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal rendering template.", "used_in": ["BD", "PROPOSAL"]},
+        {"ref": "BD-CHK-001", "title": "AMEC Proposal Checklist", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal readiness checklist.", "used_in": ["BD", "PROPOSAL"]},
+    ]
+    for spec in fallback_specs:
+        if not db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.title == spec["title"], MasterContentItem.status == "ACTIVE")):
+            category_id = _demo_category_id(db, "FORM", spec["category"])
+            create_master_content(db, content_type="FORM", ref=spec["ref"], title=spec["title"], category_id=category_id, description=spec["description"], filename=f"{spec['ref']}-owner-demo.txt", mime_type="text/plain", content=f"AMEC owner demo source for {spec['ref']}.".encode(), actor=actor, idempotency_key=f"owner-demo:FORM:{spec['ref']}", correlation_id=f"owner-demo:FORM:{spec['ref']}", used_in=spec["used_in"])
+
+    active_by_title = {item.title: item for item in db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.status == "ACTIVE")).all()}
+    purpose_refs = {active_by_title.get("AMEC Proposal Template"): "PROPOSAL_TEMPLATE", active_by_title.get("AMEC Proposal Checklist"): "PROPOSAL_CHECKLIST"}
+    for item, usage_type in purpose_refs.items():
         if item and not db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == "BD", MasterContentModuleBinding.usage_type == usage_type)):
             db.add(MasterContentModuleBinding(master_content_id=item.id, module="BD", usage_type=usage_type, active=True, created_by=actor))
 
