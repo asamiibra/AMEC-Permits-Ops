@@ -80,7 +80,9 @@ def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db
         db.query(ProposalIntakeArtifact).filter(ProposalIntakeArtifact.opportunity_id == proposal_id).delete(synchronize_session=False)
         db.query(AuditEvent).filter(AuditEvent.entity_id == proposal_id).delete(synchronize_session=False)
         client = db.get(ClientAccount, proposal.client_account_id) if proposal.client_account_id else None
+        proposal.client_account_id = None
         db.delete(proposal)
+        db.flush()
         if client and client.client_reference.startswith("AMEC-SYN-CLIENT-") and not db.scalar(select(Opportunity).where(Opportunity.client_account_id == client.id, Opportunity.id != proposal_id)):
             db.delete(client)
         rmtree(intake_sor_root() / reference, ignore_errors=True)
