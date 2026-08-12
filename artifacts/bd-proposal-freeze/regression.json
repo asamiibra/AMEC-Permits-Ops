@@ -1,0 +1,1 @@
+{"backend_postgresql":"137 passed, 0 failed, 2 warnings","frontend":"29 passed, 0 failed","build":"PASS","domains":["Dashboard","My Work","Administration","Engineering","Permit","Issues","Notifications","Reports","Proposals & Contracts","Proposal → Contract → Permit"],"regression_failures":0}

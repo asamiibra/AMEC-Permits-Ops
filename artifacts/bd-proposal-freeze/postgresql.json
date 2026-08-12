@@ -1,0 +1,1 @@
+{"database":"PostgreSQL","database_name":"permitops_bd_freeze_20260812","migration":"0032_bd_proposal_owner_session","backend_tests":{"passed":137,"failed":0,"warnings":2},"focused_bd_tests":{"passed":4,"failed":0,"warnings":1},"temporary_database_removed":true}

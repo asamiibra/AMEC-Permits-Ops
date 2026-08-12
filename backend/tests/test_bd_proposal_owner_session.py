@@ -101,3 +101,46 @@ def test_bd_proposal_dashboard_seams_and_engineering_read_only(client):
     settings = client.get("/api/bd/proposals/settings/go-live", headers=owner)
     assert settings.status_code == 200
     assert settings.json()["safe_default"] is True
+
+
+def test_bd_proposal_source_replacement_preserves_history_without_permanent_conflict(client):
+    _ensure_dashboard_proposal_templates(client)
+    created = client.post("/api/bd/proposals", headers=_headers("COMMERCIAL_APPROVER"), json={"proposal_description": "Source history regression", "client_name": "Synthetic Source History Client"})
+    assert created.status_code == 200
+    proposal_id = created.json()["id"]
+    first = client.post(f"/api/bd/proposals/{proposal_id}/sources", headers=_headers("COMMERCIAL_APPROVER"), data={"source_type": "TENDER_DOCUMENT", "source_revision": "v1"}, files={"file": ("tender-v1.txt", b"original tender", "text/plain")})
+    second = client.post(f"/api/bd/proposals/{proposal_id}/sources", headers=_headers("COMMERCIAL_APPROVER"), data={"source_type": "TENDER_DOCUMENT", "source_revision": "v2"}, files={"file": ("tender-v2.txt", b"revised tender", "text/plain")})
+    assert first.status_code == second.status_code == 200
+    sources = second.json()["proposal"]["sources"]
+    assert len(sources) == 2
+    assert {item["status"] for item in sources} == {"CURRENT", "CONFLICT"}
+    validation = second.json()["proposal"]["validation"]
+    assert "SOURCE_CONFLICTS_UNRESOLVED" not in {item["code"] for item in validation["blockers"]}
+    assert "SOURCE_CONFLICT_HISTORY" in {item["code"] for item in validation["warnings"]}
+
+
+def test_bd_proposal_acceptance_pins_template_and_checklist_history(client):
+    _ensure_dashboard_proposal_templates(client)
+    created = client.post("/api/bd/proposals", headers=_headers("COMMERCIAL_APPROVER"), json={"proposal_description": "Template history regression", "client_name": "Synthetic Template History Client"})
+    assert created.status_code == 200
+    proposal_id = created.json()["id"]
+    for source_type in ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA"):
+        response = client.post(f"/api/bd/proposals/{proposal_id}/sources", headers=_headers("COMMERCIAL_APPROVER"), data={"source_type": source_type, "source_revision": "H1"}, files={"file": (f"{source_type.lower()}-h1.txt", b"history source", "text/plain")})
+        assert response.status_code == 200
+    fields = {"scope_of_work": "AMEC scope", "client_scope_of_work": "Client scope", "process_of_work": "Review", "price": "QAR 100", "duration": "1 day"}
+    assert client.patch(f"/api/bd/proposals/{proposal_id}", headers=_headers("COMMERCIAL_APPROVER"), json={"fields": fields}).status_code == 200
+    first = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=_headers("COMMERCIAL_APPROVER")).json()["current_revision"]
+    template_id = first["template"]["ref"]
+    checklist_id = first["checklist"]["ref"]
+    for ref, label in ((template_id, "template v2"), (checklist_id, "checklist v2")):
+        item = next(row for row in client.get("/api/master-content", params={"q": ref}, headers=_headers("SYSTEM_ADMIN")).json() if row["ref"] == ref)
+        versioned = client.post(f"/api/master-content/{item['id']}/versions", headers=_headers("SYSTEM_ADMIN"), data={"expected_current_version": "1", "change_reason": label}, files={"file": (f"{ref}-v2.txt", label.encode(), "text/plain")})
+        assert versioned.status_code == 200, versioned.text
+    assert client.patch(f"/api/bd/proposals/{proposal_id}", headers=_headers("COMMERCIAL_APPROVER"), json={"fields": {"proposal_details": "Updated after master revision"}}).status_code == 200
+    second = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=_headers("COMMERCIAL_APPROVER")).json()
+    history = {row["revision_number"]: row for row in second["revision_history"]}
+    assert history[1]["revision_number"] == 1
+    assert second["current_revision"]["revision_number"] == 2
+    assert second["current_revision"]["template"]["version"] == "2"
+    assert second["current_revision"]["checklist"]["version"] == "2"
+    assert history[1]["content_hash"] != second["current_revision"]["content_hash"]

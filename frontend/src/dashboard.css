@@ -25,5 +25,8 @@
 .bd-gap-list.warning { color: #815b12; background: #fff9e8; border: 1px solid #efd58a; }
 .bd-review-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; justify-content: space-between; }
 .bd-output-links { display: flex; flex-wrap: wrap; gap: 14px; }
+.bd-history-list { display: grid; gap: 8px; }
+.bd-history-row { display: grid; grid-template-columns: auto 1fr 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid #e4e7ec; border-radius: 8px; color: #475467; font-size: 12px; }
+.bd-history-row code { color: #667085; }
 @media (max-width: 900px) { .bd-workspace-header, .bd-source-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 620px) { .bd-workspace-header, .bd-source-grid, .bd-form-grid { grid-template-columns: 1fr; } .bd-form-grid label.wide { grid-column: auto; } }
+@media (max-width: 620px) { .bd-workspace-header, .bd-source-grid, .bd-form-grid { grid-template-columns: 1fr; } .bd-form-grid label.wide { grid-column: auto; } .bd-history-row { grid-template-columns: 1fr; gap: 4px; } }

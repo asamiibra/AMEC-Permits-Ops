@@ -153,7 +153,11 @@ def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
     for source_type in SOURCE_TYPES:
         if not any(item.source_type == source_type and item.status == "CURRENT" for item in sources):
             warnings.append({"code": f"{source_type}_MISSING", "label": source_type.replace("_", " ").title()})
-    conflicts = [item for item in sources if item.status == "CONFLICT"]
+    current_sources = [item for item in sources if item.status == "CURRENT"]
+    superseded_conflicts = [item for item in sources if item.status == "CONFLICT" and any(current.supersedes_id == item.id for current in current_sources)]
+    conflicts = [item for item in sources if item.status == "CONFLICT" and item not in superseded_conflicts]
+    if superseded_conflicts:
+        warnings.append({"code": "SOURCE_CONFLICT_HISTORY", "label": "A prior source revision was superseded and remains in history"})
     if conflicts:
         blockers.append({"code": "SOURCE_CONFLICTS_UNRESOLVED", "label": "Resolve conflicting source evidence"})
     if not (fields.get("inclusions") or fields.get("exclusions")):

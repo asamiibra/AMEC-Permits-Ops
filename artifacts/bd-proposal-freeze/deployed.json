@@ -1,0 +1,1 @@
+{"frontend_deployment":"dpl_14eoM3BnVPEDxYkuvqDhuxN7LQou","backend_deployment":"dpl_AM3VCPGQGqRpTpCe3Y5tUbt6qeX9","database_dialect":"postgresql","database_durable":true,"sqlite_fallback_active":false,"alembic_head":"0032_bd_proposal_owner_session","api_e2e_checks":14,"api_e2e_failures":0,"real_synology":"NOT_CONFIGURED","local_deployed_parity":true}
