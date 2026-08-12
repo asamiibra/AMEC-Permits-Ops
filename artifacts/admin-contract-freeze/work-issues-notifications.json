@@ -1,0 +1,10 @@
+{
+  "duplicate_tasks": 0,
+  "duplicate_issues": 0,
+  "duplicate_notifications": 0,
+  "acknowledgement_completes_task": false,
+  "evidence": [
+    "frontend/browser-real-stack/persona-issues-notifications.spec.ts"
+  ]
+}
+

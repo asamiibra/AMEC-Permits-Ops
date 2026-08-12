@@ -247,6 +247,7 @@ function FormTable({
         <thead>
           <tr>
             <th>S/N</th>
+            <th>Version</th>
             <th>Reference</th>
             <th>Form</th>
             <th>Category</th>
@@ -258,6 +259,7 @@ function FormTable({
           {forms.map((form, index) => (
             <tr key={form.id}>
               <td>{form.serial_number || index + 1}</td>
+              <td>{versionLabel(form.version)}</td>
               <td>
                 <code className="content-reference">{form.ref}</code>
               </td>

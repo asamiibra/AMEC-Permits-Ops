@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "frontend_http": 200,
+  "backend_health": "PASS",
+  "alembic_head": "0035_owner_decision_closure",
+  "postgresql_durable": true,
+  "synthetic_only": true,
+  "real_synology": "NOT_CONFIGURED",
+  "parity": "LOCAL_DEPLOYED_ADMIN_CONTRACT_PARITY_PASS"
+}
+

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
+import re
 from typing import Any
 from uuid import uuid4
 
@@ -18,6 +19,7 @@ from ..models import (
 )
 from .master_content import resolve_master_content_purpose
 from .proposal_workspace import stable_hash
+from .owner_decisions import runtime_decision_value
 
 
 CONTRACT_STAGES = ("DRAFT", "NEEDS_ACTION", "AUTHORITY_REVIEW", "READY", "ACTIVE", "CLOSED")
@@ -65,6 +67,32 @@ def actor_name(actor: Any) -> str:
     return getattr(actor, "value", str(actor))
 
 
+def effective_contract_stages(db: Session) -> tuple[str, ...]:
+    configured = runtime_decision_value(db, "CONTRACT_STAGE_POLICY", {"stages": list(CONTRACT_STAGES)})
+    stages = configured.get("stages") if isinstance(configured, dict) else None
+    normalized = tuple(str(item).upper() for item in stages or CONTRACT_STAGES)
+    return normalized or CONTRACT_STAGES
+
+
+def effective_contract_reference_policy(db: Session) -> dict[str, Any]:
+    return runtime_decision_value(db, "CONTRACT_REFERENCE_POLICY", {"prefix": "C-DEMO", "padding": 3, "unique": True, "owner_override": True})
+
+
+def effective_required_fields(db: Session) -> list[str]:
+    return list(runtime_decision_value(db, "CONTRACT_REQUIRED_FIELDS", ["CLIENT", "CONTRACT_REFERENCE", "PROJECT_OPPORTUNITY_REFERENCE", "AMOUNT"]))
+
+
+def effective_required_evidence(db: Session) -> list[str]:
+    # The current safe implementation proves the accepted revision and the
+    # canonical template.  Additional Owner-approved evidence classes become
+    # blockers only after the corresponding Step 5 decision is applied.
+    return list(runtime_decision_value(db, "CONTRACT_REQUIRED_EVIDENCE", ["ACCEPTED_PROPOSAL_REVISION", "CONTRACT_TEMPLATE_SNAPSHOT"]))
+
+
+def effective_activation_fields(db: Session) -> list[str]:
+    return list(runtime_decision_value(db, "PROJECT_ACTIVATION_REQUIRED_FIELDS", ["CONTRACT", "ACCEPTED_PROPOSAL_REVISION", "PROJECT_CODE", "START_DATE", "CLIENT"]))
+
+
 def fields_from_revision(revision: ProposalAcceptedRevision) -> dict[str, Any]:
     return dict(revision.snapshot.get("fields") or {})
 
@@ -84,7 +112,10 @@ def _next_reference(db: Session) -> str:
         db.flush()
     number = sequence.next_number
     sequence.next_number += 1
-    return f"C-DEMO-{number:03d}"
+    policy = effective_contract_reference_policy(db)
+    prefix = str(policy.get("prefix") or "C-DEMO")
+    padding = int(policy.get("padding") or 3)
+    return f"{prefix}-{number:0{padding}d}"
 
 
 def _snapshot_template(db: Session, contract: Contract, revision: ContractRevision, actor: str) -> dict[str, Any] | None:
@@ -148,20 +179,44 @@ def create_contract_from_proposal(db: Session, *, proposal: Opportunity, accepte
 def readiness(db: Session, contract: Contract) -> dict[str, Any]:
     blockers: list[dict[str, str]] = []
     warnings: list[dict[str, str]] = []
-    if not contract.client_account_id: blockers.append({"code": "CLIENT_CONTEXT_REQUIRED", "label": "Canonical Client"})
-    if not contract.contract_reference: blockers.append({"code": "CONTRACT_REFERENCE_REQUIRED", "label": "Contract Reference"})
-    if not contract.accepted_proposal_revision_id: blockers.append({"code": "ACCEPTED_PROPOSAL_REVISION_REQUIRED", "label": "Exact accepted Proposal revision"})
-    if not contract.amount_value: blockers.append({"code": "CONTRACT_AMOUNT_REQUIRED", "label": "Contract Amount"})
+    required_fields = set(effective_required_fields(db))
+    if "CLIENT" in required_fields and not contract.client_account_id: blockers.append({"code": "CLIENT_CONTEXT_REQUIRED", "label": "Canonical Client"})
+    if "CONTRACT_REFERENCE" in required_fields and not contract.contract_reference: blockers.append({"code": "CONTRACT_REFERENCE_REQUIRED", "label": "Contract Reference"})
+    if "ACCEPTED_PROPOSAL_REVISION" in required_fields and not contract.accepted_proposal_revision_id: blockers.append({"code": "ACCEPTED_PROPOSAL_REVISION_REQUIRED", "label": "Exact accepted Proposal revision"})
+    if "AMOUNT" in required_fields and not contract.amount_value: blockers.append({"code": "CONTRACT_AMOUNT_REQUIRED", "label": "Contract Amount"})
+    if "CURRENCY" in required_fields and not contract.currency: blockers.append({"code": "CONTRACT_CURRENCY_REQUIRED", "label": "Contract Currency"})
+    if "DURATION" in required_fields and not contract.duration: blockers.append({"code": "CONTRACT_DURATION_REQUIRED", "label": "Contract Duration"})
+    if "PROJECT_OPPORTUNITY_REFERENCE" in required_fields and not contract.project_opportunity_ref: blockers.append({"code": "PROJECT_OPPORTUNITY_REFERENCE_REQUIRED", "label": "Project / Opportunity Reference"})
     if not contract.currency: warnings.append({"code": "CONTRACT_CURRENCY_REVIEW", "label": "Confirm currency"})
-    if not contract.project_opportunity_ref: blockers.append({"code": "PROJECT_OPPORTUNITY_REFERENCE_REQUIRED", "label": "Project / Opportunity Reference"})
     template = db.scalar(select(ContractTemplateSnapshot).where(ContractTemplateSnapshot.contract_id == contract.id).order_by(ContractTemplateSnapshot.captured_at.desc()))
-    if not template: blockers.append({"code": "CONTRACT_TEMPLATE_REQUIRED", "label": "Canonical Dashboard Contract Template"})
+    required_evidence = set(effective_required_evidence(db))
+    if "CONTRACT_TEMPLATE_SNAPSHOT" in required_evidence and not template: blockers.append({"code": "CONTRACT_TEMPLATE_REQUIRED", "label": "Canonical Dashboard Contract Template"})
+    evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id)).all()
+    if "COMMERCIAL_OR_AWARD_EVIDENCE" in required_evidence and not any(item.evidence_type in {"COMMERCIAL", "AWARD", "COMMERCIAL_OR_AWARD_EVIDENCE"} for item in evidence):
+        blockers.append({"code": "COMMERCIAL_OR_AWARD_EVIDENCE_REQUIRED", "label": "Commercial or award evidence"})
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
     activation_blockers = [] if activation else [{"code": "PROJECT_ACTIVATION_HUMAN_ACTION_REQUIRED", "label": "Explicit Project Activation"}]
-    return {"ready": not blockers, "blockers": blockers, "warnings": warnings, "activation_ready": bool(activation), "activation_blockers": activation_blockers, "authority_state": contract.authority_state, "template_snapshot": template}
+    return {"ready": not blockers, "blockers": blockers, "warnings": warnings, "activation_ready": bool(activation), "activation_blockers": activation_blockers, "authority_state": contract.authority_state, "template_snapshot": template, "effective_required_fields": sorted(required_fields), "effective_required_evidence": sorted(required_evidence), "authority_review_meaning": runtime_decision_value(db, "CONTRACT_AUTHORITY_REVIEW_MEANING", "OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION"), "ready_close_policy": runtime_decision_value(db, "CONTRACT_READY_CLOSE_POLICY", "REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION")}
 
 
 def project_activation(db: Session, *, contract: Contract, project_code: str, start_date: date, actor: str, correlation_id: str, idempotency_key: str) -> tuple[Project, ProjectActivation, bool]:
+    activation_fields = set(effective_activation_fields(db))
+    if "CONTRACT" in activation_fields and not contract.id:
+        raise ValueError("CONTRACT_REQUIRED_FOR_PROJECT_ACTIVATION")
+    if "ACCEPTED_PROPOSAL_REVISION" in activation_fields and not contract.accepted_proposal_revision_id:
+        raise ValueError("ACCEPTED_PROPOSAL_REVISION_REQUIRED")
+    if "CLIENT" in activation_fields and not contract.client_account_id:
+        raise ValueError("CLIENT_CONTEXT_REQUIRED")
+    assignment = runtime_decision_value(db, "PROJECT_CODE_ASSIGNMENT_METHOD", "OWNER_ENTERED_UNIQUE")
+    if assignment == "OWNER_ENTERED_UNIQUE" and not project_code.strip():
+        raise ValueError("PROJECT_CODE_REQUIRED")
+    code_policy = runtime_decision_value(db, "PROJECT_CODE_FORMAT", None)
+    if isinstance(code_policy, dict) and code_policy.get("pattern"):
+        pattern = str(code_policy["pattern"])
+        if pattern == "AMEC-YYYY-NNN":
+            pattern = r"AMEC-\d{4}-\d{3}"
+        if not re.fullmatch(pattern, project_code):
+            raise ValueError("PROJECT_CODE_FORMAT_INVALID")
     existing = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
     if existing:
         project = db.get(Project, existing.project_id)
@@ -223,4 +278,4 @@ def contract_projection(db: Session, contract: Contract, *, include_history: boo
     notifications = db.scalars(select(NotificationEvent).where(NotificationEvent.contract_id == contract.id).order_by(NotificationEvent.created_at.desc())).all()
     history = db.scalars(select(AuditEvent).where(AuditEvent.entity_type.in_(("Contract", "Project")), AuditEvent.entity_id.in_([contract.id] + ([project.id] if project else []))).order_by(AuditEvent.occurred_at.desc()).limit(50)).all() if include_history else []
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
-    return {"id": contract.id, "contract": {"id": contract.id, "name": contract.contract_name, "reference": contract.contract_reference, "stage": contract.stage or contract.status, "status": contract.status, "amount": contract.amount_value, "currency": contract.currency, "duration": contract.duration, "expected_close_date": contract.expected_close_date.isoformat() if contract.expected_close_date else None, "actual_close_date": contract.actual_close_date.isoformat() if contract.actual_close_date else None, "close_date_meaning": contract.close_date_meaning, "last_activity": (contract.last_activity_at or contract.updated_at).isoformat(), "authority_state": contract.authority_state}, "client": {"id": client.id, "reference": client.client_reference, "name": client.display_name} if client else None, "project": {"id": project.id, "reference": project.project_number, "code": project.project_code, "name": project.project_name, "start_date": project.start_date.isoformat() if project and project.start_date else None, "status": project.status} if project else None, "origin": {"proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "title": proposal.title, "accepted_revision_id": accepted.id, "revision_number": accepted.revision_number, "content_hash": accepted.content_hash, "snapshot": accepted.snapshot} if proposal and accepted else None, "current_revision": {"id": revision.id, "revision_number": revision.revision_number, "accepted_proposal_revision_id": revision.accepted_proposal_revision_id, "content_hash": revision.content_hash, "status": revision.status} if revision else None, "template": {"ref": template.master_content_ref, "version": template.version, "version_id": template.document_version_id, "hash": template.content_hash, "master_content_id": template.master_content_id} if template else None, "inputs": [{"key": item.input_key, "value": item.value_json, "entered_by": item.entered_by, "reason": item.reason, "updated_at": item.updated_at.isoformat()} for item in inputs], "evidence": [{"id": item.id, "type": item.evidence_type, "source_reference": item.source_reference, "hash": item.content_hash, "status": item.status, "recorded_by": item.recorded_by} for item in evidence], "readiness": readiness(db, contract), "activation": {"id": activation.id, "project_id": activation.project_id, "project_code": activation.project_code, "start_date": activation.start_date.isoformat(), "activated_by": activation.activated_by, "activated_at": activation.activated_at.isoformat()} if activation else None, "my_work": [{"id": item.id, "title": item.title, "status": item.status, "next_action_code": item.next_action_code, "deep_link": item.deep_link} for item in tasks], "issues": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "blocking": item.blocking, "deep_link": item.deep_link} for item in issues], "notifications": [{"id": item.id, "event_type": item.event_type, "status": item.status, "subject": item.subject, "created_at": item.created_at.isoformat()} for item in notifications], "history": [{"id": item.id, "event_type": item.event_type, "entity_type": item.entity_type, "occurred_at": item.occurred_at.isoformat(), "actor": item.actor_id, "after": item.after_json} for item in history]}
+    return {"id": contract.id, "contract": {"id": contract.id, "name": contract.contract_name, "reference": contract.contract_reference, "stage": contract.stage or contract.status, "status": contract.status, "amount": contract.amount_value, "currency": contract.currency, "duration": contract.duration, "expected_close_date": contract.expected_close_date.isoformat() if contract.expected_close_date else None, "actual_close_date": contract.actual_close_date.isoformat() if contract.actual_close_date else None, "close_date_meaning": contract.close_date_meaning, "last_activity": (contract.last_activity_at or contract.updated_at).isoformat(), "authority_state": contract.authority_state}, "client": {"id": client.id, "reference": client.client_reference, "name": client.display_name} if client else None, "project": {"id": project.id, "reference": project.project_number, "code": project.project_code, "name": project.project_name, "start_date": project.start_date.isoformat() if project and project.start_date else None, "status": project.status} if project else None, "origin": {"proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "title": proposal.title, "accepted_revision_id": accepted.id, "revision_number": accepted.revision_number, "content_hash": accepted.content_hash, "snapshot": accepted.snapshot} if proposal and accepted else None, "current_revision": {"id": revision.id, "revision_number": revision.revision_number, "accepted_proposal_revision_id": revision.accepted_proposal_revision_id, "content_hash": revision.content_hash, "status": revision.status} if revision else None, "template": {"ref": template.master_content_ref, "version": template.version, "version_id": template.document_version_id, "hash": template.content_hash, "master_content_id": template.master_content_id} if template else None, "inputs": [{"key": item.input_key, "value": item.value_json, "entered_by": item.entered_by, "reason": item.reason, "updated_at": item.updated_at.isoformat()} for item in inputs], "evidence": [{"id": item.id, "type": item.evidence_type, "source_reference": item.source_reference, "hash": item.content_hash, "status": item.status, "recorded_by": item.recorded_by} for item in evidence], "readiness": readiness(db, contract), "activation": {"id": activation.id, "project_id": activation.project_id, "project_code": activation.project_code, "start_date": activation.start_date.isoformat(), "activated_by": activation.activated_by, "activated_at": activation.activated_at.isoformat()} if activation else None, "my_work": [{"id": item.id, "title": item.title, "status": item.status, "next_action_code": item.next_action_code, "deep_link": item.deep_link} for item in tasks], "issues": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "blocking": item.blocking, "deep_link": item.deep_link} for item in issues], "notifications": [{"id": item.id, "event_type": item.event_type, "status": item.status, "subject": item.subject, "created_at": item.created_at.isoformat()} for item in notifications], "history": [{"id": item.id, "event_type": item.event_type, "entity_type": item.entity_type, "occurred_at": item.occurred_at.isoformat(), "actor": item.actor_id, "after": item.after_json} for item in history], "effective_policies": {"stage": runtime_decision_value(db, "CONTRACT_STAGE_POLICY", {"stages": list(CONTRACT_STAGES)}), "authority_review_meaning": runtime_decision_value(db, "CONTRACT_AUTHORITY_REVIEW_MEANING", "OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION"), "ready_close": runtime_decision_value(db, "CONTRACT_READY_CLOSE_POLICY", "REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION"), "close_date": runtime_decision_value(db, "CONTRACT_CLOSE_DATE_MEANING", "EXPECTED_CLOSE_DATE_UNTIL_OWNER_CONFIRMS_ACTUAL_CLOSE"), "reference": effective_contract_reference_policy(db), "required_fields": effective_required_fields(db), "required_evidence": effective_required_evidence(db), "authority": runtime_decision_value(db, "CONTRACT_AUTHORITY_POLICY", "OWNER_ONLY_FOR_AUTHORITY_AND_EXECUTION_STATE"), "manual_new": runtime_decision_value(db, "MANUAL_NEW_CONTRACT_POLICY", "SELECT_ACCEPTED_PROPOSAL_ONLY"), "amount_change": runtime_decision_value(db, "CONTRACT_AMOUNT_CHANGE_AUTHORITY", "OWNER_ONLY_WITH_REASON_AND_NEW_REVISION"), "artifact_strategy": runtime_decision_value(db, "CONTRACT_ARTIFACT_STRATEGY", "CANONICAL_TEMPLATE_RENDER_PLUS_EVIDENCE"), "reopen": runtime_decision_value(db, "CONTRACT_REOPEN_POLICY", "OWNER_DECISION_REQUIRED_WITH_PROSPECTIVE_REVALIDATION"), "activation_trigger": runtime_decision_value(db, "CONTRACT_TO_PROJECT_TRIGGER", "EXPLICIT_OWNER_ACTION_AFTER_CONTRACT_READINESS"), "activation_authority": runtime_decision_value(db, "PROJECT_ACTIVATION_AUTHORITY", "OWNER_ONLY_HUMAN_ACTION"), "code_assignment": runtime_decision_value(db, "PROJECT_CODE_ASSIGNMENT_METHOD", "OWNER_ENTERED_UNIQUE"), "code_format": runtime_decision_value(db, "PROJECT_CODE_FORMAT", {"pattern": "AMEC-YYYY-NNN", "example": "AMEC-2026-001"}), "code_mutability": runtime_decision_value(db, "PROJECT_CODE_MUTABILITY_POLICY", "IMMUTABLE_AFTER_ACTIVATION"), "start_date": runtime_decision_value(db, "PROJECT_START_DATE_SEMANTICS", "ORIGINAL_HUMAN_ACTIVATION_DATE"), "activation_fields": effective_activation_fields(db), "close_vs_activation": runtime_decision_value(db, "CONTRACT_CLOSE_VS_PROJECT_ACTIVATION", "SEPARATE_EVENTS_WITH_LINEAGE")}}

@@ -1,0 +1,12 @@
+{
+  "explicit_action": true,
+  "automatic_activation": 0,
+  "idempotent": true,
+  "canonical_project": true,
+  "duplicate_projects": 0,
+  "evidence": [
+    "backend/tests/test_admin_contract_owner_session.py",
+    "backend/tests/test_contract_workspace.py"
+  ]
+}
+

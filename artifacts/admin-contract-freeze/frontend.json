@@ -1,0 +1,9 @@
+{
+  "unit_test_files": 11,
+  "tests": 29,
+  "passed": 29,
+  "failed": 0,
+  "build": "PASS",
+  "build_warning": "Vite chunk-size advisory only"
+}
+

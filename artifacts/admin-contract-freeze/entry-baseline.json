@@ -1,0 +1,12 @@
+{
+  "result": "ADMIN_CONTRACT_FREEZE_ENTRY_PASS",
+  "branch": "main",
+  "entry_sha": "698b9a40ac178437736fc086400955cf28294e98",
+  "alembic_head": "0035_owner_decision_closure",
+  "postgresql_database": "admin_contract_freeze_20260812",
+  "sqlite_fallback": false,
+  "concurrent_change": false,
+  "frontend_http": 200,
+  "real_synology": "NOT_CONFIGURED"
+}
+

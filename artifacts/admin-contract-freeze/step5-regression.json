@@ -1,0 +1,10 @@
+{
+  "canonical_decisions": 50,
+  "duplicate_keys": 0,
+  "owner_confirmed_is_actual": true,
+  "safe_defaults_falsely_confirmed": 0,
+  "runtime_bindings": true,
+  "technical_facts_protected": true,
+  "status": "OWNER_DECISIONS_READY_FOR_SIGNOFF_NOT_CLOSED"
+}
+

@@ -37,6 +37,7 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   await page.getByLabel("Title / Name").fill("Verification Engineering Work");
   await page.getByLabel("Reference").first().fill(engineeringRef);
   await page.getByRole("dialog").getByLabel("Category").selectOption({ label: "Technical Reference" });
+  await page.getByLabel("Engineering Source Type").selectOption({ label: "TECHNICAL REFERENCE" });
   await page.getByLabel("Description").fill("Synthetic Engineering Works source for propagation proof.");
   await page.getByLabel("File").setInputFiles({ name: "browser-engineering.txt", mimeType: "text/plain", buffer: Buffer.from("engineering v1") });
   await page.getByRole("button", { name: "Create Engineering Work" }).click();

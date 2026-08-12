@@ -1,0 +1,9 @@
+{
+  "append_only": true,
+  "history_rewrites": 0,
+  "last_activity_event_derived": true,
+  "evidence": [
+    "backend/tests/test_admin_contract_owner_session.py"
+  ]
+}
+

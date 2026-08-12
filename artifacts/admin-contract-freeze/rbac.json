@@ -1,0 +1,8 @@
+{
+  "unauthorized_contract_authority_successes": 0,
+  "unauthorized_project_activation_successes": 0,
+  "bd_denied": true,
+  "engineering_denied": true,
+  "direct_api_negative_tests": true
+}
+

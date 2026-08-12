@@ -1,0 +1,12 @@
+{
+  "tests": 23,
+  "passed": 23,
+  "failed": 0,
+  "workers": 5,
+  "real_frontend": true,
+  "real_fastapi": true,
+  "postgresql": true,
+  "synthetic_sor": true,
+  "unexplained_failures": 0
+}
+

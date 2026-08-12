@@ -1,0 +1,10 @@
+{
+  "owner_test_cleanup": "PASS",
+  "owner_decision_test_cleanup": "PASS",
+  "owner_visible_e2e_contracts": 0,
+  "owner_visible_e2e_projects": 0,
+  "owner_visible_project_code_probes": 0,
+  "owner_visible_fake_confirmations": 0,
+  "generated_sor_cleaned": true
+}
+

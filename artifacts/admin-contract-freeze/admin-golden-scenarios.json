@@ -1,0 +1,282 @@
+{
+  "suite": "Admin/Contract canonical real-stack closure matrix",
+  "scenarios": [
+    {
+      "id": 1,
+      "name": "Contract list",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "New Contract policy",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Accepted Proposal → Contract",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Exact accepted revision pinning",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Contract Template exact version",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Contract workbench",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Admin Input",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Contract evidence/history",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Readiness blocker",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Authority negative",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Contract change preserves Proposal",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Activation blocked",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Activation success",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Activation idempotency",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Project Code uniqueness",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Project Ref vs Project Code",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "Start Date",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 18,
+      "name": "Engineering context",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "Permit context",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "My Work / Issues / Notifications",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "BD permission negatives",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "Engineering permission negatives",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "Template v1→v2 history",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "Proposal changes after Contract",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "Contract changes after activation",
+      "status": "PASS",
+      "evidence": [
+        "backend/tests/test_admin_contract_owner_session.py",
+        "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+        "frontend/browser-real-stack/administration-final-audit.spec.ts",
+        "frontend/browser-real-stack/owner-decision-closure.spec.ts"
+      ]
+    }
+  ],
+  "failures": 0
+}
+

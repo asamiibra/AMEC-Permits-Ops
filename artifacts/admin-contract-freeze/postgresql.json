@@ -1,0 +1,11 @@
+{
+  "database": "admin_contract_freeze_20260812",
+  "tests": 146,
+  "passed": 146,
+  "failed": 0,
+  "skipped": 0,
+  "warnings": 2,
+  "alembic_head": "0035_owner_decision_closure",
+  "sqlite_fallback": false
+}
+

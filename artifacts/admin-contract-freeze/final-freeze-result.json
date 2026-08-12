@@ -1,0 +1,21 @@
+{
+  "overall": "ADMIN_CONTRACT_OWNER_SESSION_FROZEN_READY_EXCEPT_REAL_SYNOLOGY",
+  "external_boundary": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
+  "owner_decisions": "OWNER_DECISIONS_READY_FOR_SIGNOFF_NOT_CLOSED",
+  "sections_unaccounted": 0,
+  "actionable_incomplete": 0,
+  "untested_required": 0,
+  "browser_failures": 0,
+  "postgresql_failures": 0,
+  "frontend_failures": 0,
+  "build_failures": 0,
+  "duplicate_project_truth": 0,
+  "duplicate_template_truth": 0,
+  "automatic_legal_contracts_from_accept": 0,
+  "automatic_project_activation": 0,
+  "unauthorized_authority_successes": 0,
+  "unauthorized_activation_successes": 0,
+  "owner_visible_e2e_artifacts": 0,
+  "visual_review": "PASS"
+}
+

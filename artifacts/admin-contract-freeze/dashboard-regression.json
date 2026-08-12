@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "forms": true,
+  "reports": true,
+  "engineering_works": true,
+  "definitions": true,
+  "version_labels": true,
+  "role_boundaries": true
+}
+

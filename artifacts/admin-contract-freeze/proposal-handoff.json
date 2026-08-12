@@ -1,0 +1,10 @@
+{
+  "result": "CONTRACT_EXACT_PROPOSAL_REVISION_PASS",
+  "silent_resyncs": 0,
+  "proposal_history_rewrites": 0,
+  "evidence": [
+    "backend/tests/test_admin_contract_owner_session.py",
+    "backend/tests/test_bd_proposal_owner_session.py"
+  ]
+}
+

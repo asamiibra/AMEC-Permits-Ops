@@ -1,0 +1,11 @@
+{
+  "live_connection": true,
+  "duplicate_truth": 0,
+  "canonical_version_history": true,
+  "step5_artifact_strategy": "runtime-bound-safe-default",
+  "evidence": [
+    "backend/app/services/contract_workspace.py",
+    "frontend/browser-real-stack/admin-forms-real-stack.spec.ts"
+  ]
+}
+

@@ -1,0 +1,34 @@
+{
+  "prior_reports": [
+    "57 passed, 12 existing baseline failures",
+    "20 passed, 3 pre-existing baseline failures"
+  ],
+  "entry_failures": 3,
+  "root_caused": 3,
+  "fixed": 3,
+  "final_failures": 0,
+  "unexplained": 0,
+  "golden_admin_passed": 23,
+  "golden_admin_failed": 0,
+  "items": [
+    {
+      "test": "admin-forms-real-stack",
+      "cause": "Missing visible Version column",
+      "repair": "Render canonical Version label in Forms and Dashboard tables",
+      "status": "FIXED"
+    },
+    {
+      "test": "administration-final-audit",
+      "cause": "Contract workflow heading mismatch",
+      "repair": "Make workflow configuration and Contracts headings explicit",
+      "status": "FIXED"
+    },
+    {
+      "test": "master-content-owner-dashboard",
+      "cause": "Required Engineering Source Type omitted by existing test",
+      "repair": "Supply governed source type in golden path",
+      "status": "FIXED"
+    }
+  ]
+}
+

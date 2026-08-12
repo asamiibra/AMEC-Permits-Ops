@@ -15,9 +15,9 @@ from ..audit.service import audit
 from ..db import get_db
 from ..models import Contract, ContractAdminEvidence, ContractAdminInput, ContractRevision, DashboardInputItem, Opportunity, ProposalAcceptedRevision, ProjectActivation, Role
 from ..services.backend_realignment import domain_error, require_capability
-from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, contract_projection, create_contract_from_proposal, now, project_activation, readiness
+from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, contract_projection, create_contract_from_proposal, effective_contract_stages, now, project_activation, readiness
 from ..services.proposal_workspace import stable_hash
-from ..services.owner_decisions import runtime_decision_value
+from ..services.owner_decisions import get_decision, runtime_decision_value
 
 
 router = APIRouter(prefix="/api/admin/contracts", tags=["administration-contract-owner-session"])
@@ -93,7 +93,7 @@ def list_contracts(q: str = "", filter: str = "ALL", stage: str | None = None, d
         rows.append({"id": contract.id, "contract": item["name"], "contract_ref": item["reference"], "client": detail["client"], "project_opportunity_ref": contract.project_opportunity_ref, "project": detail["project"], "stage": item["stage"], "status": item["status"], "amount": item["amount"], "currency": item["currency"], "close_date": close_date, "last_activity": item["last_activity"], "open": f"/contracts/{contract.id}", "accepted_proposal_revision_id": contract.accepted_proposal_revision_id})
     manual_policy = runtime_decision_value(db, "MANUAL_NEW_CONTRACT_POLICY", "SELECT_ACCEPTED_PROPOSAL_ONLY")
     authority_policy = runtime_decision_value(db, "CONTRACT_AUTHORITY_POLICY", "OWNER_ONLY_FOR_AUTHORITY_AND_EXECUTION_STATE")
-    return {"items": rows, "rows": rows, "count": len(rows), "filters": [{"key": "ALL", "label": "All Contracts"}, {"key": "NEEDS_ACTION", "label": "Needs Action"}, {"key": "AUTHORITY_REVIEW", "label": "Authority Review"}, {"key": "READY_CLOSE", "label": "Ready / Close"}], "stage_options": list(CONTRACT_STAGES), "manual_new_policy": manual_policy, "authority": authority_policy, "synthetic_only": True}
+    return {"items": rows, "rows": rows, "count": len(rows), "filters": [{"key": "ALL", "label": "All Contracts"}, {"key": "NEEDS_ACTION", "label": "Needs Action"}, {"key": "AUTHORITY_REVIEW", "label": "Authority Review"}, {"key": "READY_CLOSE", "label": "Ready / Close"}], "stage_options": list(effective_contract_stages(db)), "manual_new_policy": manual_policy, "authority": authority_policy, "synthetic_only": True}
 
 
 @router.post("")
@@ -131,8 +131,15 @@ def create_from_proposal(proposal_id: str, payload: ContractCreatePayload | None
 @router.get("/inputs/go-live")
 def contract_inputs_go_live(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_READ")
-    items = [{"key": key, "title": key.replace("_", " ").title(), "requested_input": description, "status": "PROPOSED_DEFAULT" if key in {"CONTRACT_REFERENCE_POLICY", "CONTRACT_STAGE_NAMES", "CONTRACT_TEMPLATE_POLICY", "PROJECT_ACTIVATION_AUTHORITY", "PROJECT_START_DATE_SEMANTICS", "CONTRACT_REOPEN_POLICY"} else "NEEDS_CONFIRMATION", "blocking": "EXTERNAL_TECHNICAL" if key == "REAL_SYNOLOGY_VERIFICATION" else "BUSINESS", "route": "/admin/contract-setup", "safe_default": DEFAULT_CONTRACT_INPUTS.get(key.lower(), {}).get("value")} for key, description in CONTRACT_GO_LIVE_SPECS]
-    return {"context": "ADMIN_CONTRACT", "safe_defaults": DEFAULT_CONTRACT_INPUTS, "items": items, "minimum_input_count": 22, "summary": {"total": len(items), "remaining": len(items), "ready": False}}
+    legacy_to_canonical = {"CONTRACT_STAGE_NAMES": "CONTRACT_STAGE_POLICY", "CONTRACT_AUTHORITY_REVIEW": "CONTRACT_AUTHORITY_REVIEW_MEANING", "CONTRACT_PROPOSAL_INITIATION_RULE": "MANUAL_NEW_CONTRACT_POLICY", "CONTRACT_TEMPLATE_POLICY": "OFFICIAL_CONTRACT_TEMPLATE", "PROJECT_CODE_POLICY": "PROJECT_CODE_ASSIGNMENT_METHOD", "CONTRACT_ARTIFACT_SOR": "CONTRACT_ARTIFACT_STRATEGY", "CONTRACT_PERMIT_HANDOFF": "CONTRACT_TO_PROJECT_TRIGGER", "REAL_SYNOLOGY_VERIFICATION": "REAL_SYNOLOGY_CONNECTION"}
+    items = []
+    for key, description in CONTRACT_GO_LIVE_SPECS:
+        canonical_key = legacy_to_canonical.get(key, key)
+        decision = get_decision(db, canonical_key)
+        default = decision.proposed_default_json if decision else DEFAULT_CONTRACT_INPUTS.get(key.lower(), {}).get("value")
+        items.append({"key": key, "canonical_key": canonical_key, "title": key.replace("_", " ").title(), "requested_input": description, "status": decision.status if decision else "UNANSWERED", "blocking": decision.blocking_level if decision else ("EXTERNAL_TECHNICAL" if key == "REAL_SYNOLOGY_VERIFICATION" else "BUSINESS"), "route": "/admin/owner-decisions", "safe_default": default, "effective_value": decision.effective_value_json if decision else None, "apply_state": decision.apply_state if decision else "NOT_APPLIED", "owner_confirmed": bool(decision and decision.status in {"OWNER_CONFIRMED", "OWNER_CONFIRMED_WITH_NOTES", "OWNER_MARKED_NOT_APPLICABLE", "SAFE_DEFAULT_APPROVED_FOR_GO_LIVE"})})
+    remaining = sum(1 for item in items if not item["owner_confirmed"])
+    return {"context": "ADMIN_CONTRACT", "safe_defaults": DEFAULT_CONTRACT_INPUTS, "items": items, "minimum_input_count": len(items), "summary": {"total": len(items), "remaining": remaining, "ready": remaining == 0}}
 
 
 @router.get("/{contract_id}")
@@ -174,8 +181,9 @@ def patch_contract(contract_id: str, payload: ContractPatchPayload, request: Req
 @router.post("/{contract_id}/stage")
 def stage_contract(contract_id: str, payload: StagePayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_AUTHORITY_ACTION" if payload.stage.upper() in {"AUTHORITY_REVIEW", "READY"} else "CONTRACT_CLOSE" if payload.stage.upper() == "CLOSED" else "CONTRACT_EDIT")
-    if payload.stage.upper() not in CONTRACT_STAGES:
-        raise domain_error(422, "CONTRACT_STAGE_INVALID", allowed=list(CONTRACT_STAGES))
+    allowed_stages = effective_contract_stages(db)
+    if payload.stage.upper() not in allowed_stages:
+        raise domain_error(422, "CONTRACT_STAGE_INVALID", allowed=list(allowed_stages))
     contract = _contract_or_404(db, contract_id)
     before = {"stage": contract.stage, "status": contract.status, "authority_state": contract.authority_state}
     contract.stage = payload.stage.upper()

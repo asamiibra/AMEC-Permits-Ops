@@ -460,6 +460,7 @@ function MasterSection({
             <thead>
               <tr>
                 <th>S/N</th>
+                <th>Version</th>
                 <th>Reference</th>
                 <th>{type === "ENGINEERING_WORK" ? "Document" : "Report"}</th>
                 <th>Category</th>
@@ -471,6 +472,7 @@ function MasterSection({
               {items.map((item, index) => (
                 <tr key={item.id}>
                   <td>{item.serial_number || index + 1}</td>
+                  <td>{versionLabel(item.version)}</td>
                   <td>
                     <code className="content-reference">{item.ref}</code>
                   </td>
