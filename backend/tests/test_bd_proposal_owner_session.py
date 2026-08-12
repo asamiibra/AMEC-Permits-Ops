@@ -68,7 +68,8 @@ def test_bd_proposal_full_owner_session_flow(client):
     assert engineering_accept.status_code == 403
     accepted = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=_headers("COMMERCIAL_APPROVER"))
     assert accepted.status_code == 200
-    revision = accepted.json()["current_revision"]
+    accepted_payload = accepted.json()
+    revision = accepted_payload["current_revision"]
     assert revision["revision_number"] == 1
     assert revision["template"]["ref"] == "F-0003"
     assert revision["checklist"]["ref"] == "F-0004"
@@ -83,6 +84,11 @@ def test_bd_proposal_full_owner_session_flow(client):
     handoff = client.post(f"/api/bd/proposals/{proposal_id}/handoff/contract", headers=_headers("COMMERCIAL_APPROVER"))
     assert handoff.status_code == 200
     assert handoff.json()["accepted_revision_id"] == revision["id"]
+    assert handoff.json()["proposal_reference"] == accepted_payload["proposal_reference"]
+    assert handoff.json()["client"] == "Synthetic BD Regression Client"
+    assert handoff.json()["project_reference"] == "GHCE-2026-0187"
+    assert handoff.json()["proposal_artifact"]["content_hash"]
+    assert handoff.json()["checklist_artifact"]["content_hash"]
     assert handoff.json()["machine_legal_contract"] is False
 
 

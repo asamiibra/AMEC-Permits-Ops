@@ -286,7 +286,10 @@ def contract_handoff(proposal_id: str, request: Request, db: Session = Depends(g
     proposal.status = "CONTRACT_HANDOVER"
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_CONTRACT_HANDOFF", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role, actor), after={"accepted_revision_id": revision.id, "contract_id": contract.id, "machine_legal_contract": False})
     db.commit()
-    return {"contract_id": contract.id, "contract_reference": contract.contract_reference, "proposal_id": proposal.id, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "status": proposal.status, "machine_legal_contract": False}
+    artifacts = {item.artifact_type: {"id": item.id, "filename": item.filename, "content_hash": item.content_hash} for item in db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.revision_id == revision.id)).all()}
+    fields = revision.snapshot.get("fields", {})
+    client = db.get(ClientAccount, client_id)
+    return {"contract_id": contract.id, "contract_reference": contract.contract_reference, "proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "client": client.display_name if client else client_id, "project_reference": revision.snapshot.get("project_reference"), "project_description": fields.get("project_description") or revision.snapshot.get("title"), "scope": fields.get("scope_of_work") or fields.get("sow"), "amount": fields.get("price"), "currency": fields.get("currency"), "duration": fields.get("duration") or fields.get("period"), "proposal_artifact": artifacts.get("PROPOSAL"), "checklist_artifact": artifacts.get("CHECKLIST"), "source_ids": revision.snapshot.get("source_ids", []), "template": revision.snapshot.get("template"), "checklist": revision.snapshot.get("checklist"), "status": proposal.status, "machine_legal_contract": False}
 
 
 @router.get("/settings/go-live")
