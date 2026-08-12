@@ -22,6 +22,7 @@ from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
 from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal
 from ..services.proposals_sor import ingest_provisional_intake_artifact
+from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
 
 router = APIRouter(prefix="/api/bd/proposals", tags=["bd-proposal-owner-session"])
 
@@ -262,28 +263,16 @@ def contract_handoff_preview(proposal_id: str, db: Session = Depends(get_db), ro
 def contract_handoff(proposal_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), actor: str | None = None):
     require_capability(role, "BD_PROPOSAL_HANDOFF")
     proposal = db.get(Opportunity, proposal_id)
-    revision = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id).order_by(ProposalAcceptedRevision.revision_number.desc()))
+    revision = accepted_contract_revision(db, proposal_id)
     if not proposal or not revision:
         raise HTTPException(409, "ACCEPTED_REVISION_REQUIRED")
     client_id = proposal.client_account_id
     if not client_id:
         raise HTTPException(409, "CLIENT_CONTEXT_REQUIRED")
-    quotation = db.scalar(select(Quotation).where(Quotation.opportunity_id == proposal.id).order_by(Quotation.created_at.desc()))
-    if not quotation:
-        quotation = Quotation(opportunity_id=proposal.id, quotation_reference=f"AMEC-SYN-QTN-{db.query(Quotation).count() + 1:04d}", status="RELEASED_FOR_CONTRACT", client_account_id=client_id)
-        db.add(quotation)
-        db.flush()
-        quotation_revision = QuotationRevision(quotation_id=quotation.id, revision_number=1, source_snapshot=revision.snapshot, content_hash=revision.content_hash, semantic_hash=stable_hash(revision.snapshot.get("fields", {})), status="RELEASED", created_by=_actor(role, actor))
-        db.add(quotation_revision)
-        db.flush()
-        quotation.current_revision_id = quotation_revision.id
-    contract = db.scalar(select(Contract).where(Contract.quotation_id == quotation.id).order_by(Contract.created_at.desc()))
-    if not contract:
-        contract = Contract(client_account_id=client_id, quotation_id=quotation.id, contract_reference=f"AMEC-SYN-CTR-{db.query(Contract).count() + 1:04d}", status="DRAFT", project_id=proposal.project_id)
-        db.add(contract)
-        db.flush()
-        db.add(ContractRevision(contract_id=contract.id, revision_number=1, controlling_quotation_revision_id=quotation.current_revision_id, status="DRAFT", commercial_terms_snapshot={**revision.snapshot.get("fields", {}), "proposal_accepted_revision_id": revision.id, "proposal_content_hash": revision.content_hash}))
-    proposal.status = "CONTRACT_HANDOVER"
+    try:
+        contract = create_contract_from_proposal(db, proposal=proposal, accepted=revision, actor=_actor(role, actor), correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_CONTRACT_HANDOFF", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role, actor), after={"accepted_revision_id": revision.id, "contract_id": contract.id, "machine_legal_contract": False})
     db.commit()
     artifacts = {item.artifact_type: {"id": item.id, "filename": item.filename, "content_hash": item.content_hash} for item in db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.revision_id == revision.id)).all()}

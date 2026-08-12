@@ -96,6 +96,8 @@ def _content_state(db: Session, content_type: str) -> dict[str, Any]:
 
 def _current_state(db: Session, spec: dict[str, Any]) -> dict[str, Any]:
     key = spec["key"]
+    if key.startswith("ADMIN_"):
+        return {"summary": "Safe default is available; explicit Owner confirmation remains required.", "safe_default": True, "owner_surface": "/admin/contract-setup"}
     if spec.get("type"):
         state = _content_state(db, spec["type"])
         state["summary"] = f"{state['total']} active starter/demo record(s); {state['confirmed_production']} confirmed production record(s)."

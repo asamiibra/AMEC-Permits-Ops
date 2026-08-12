@@ -87,6 +87,13 @@ class Project(Base, TimestampMixin):
     municipality: Mapped[str] = mapped_column(String(100), nullable=False)
     permit_type: Mapped[str] = mapped_column(String(100), nullable=False)
     assigned_engineer: Mapped[str | None] = mapped_column(String(200))
+    # Project Code is the controlled activation identity.  project_number is
+    # retained as the canonical Project/Opportunity reference for legacy and
+    # permit consumers; the two values are intentionally separate.
+    project_code: Mapped[str | None] = mapped_column(String(80), unique=True, index=True)
+    start_date: Mapped[date | None] = mapped_column(Date)
+    activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    activated_by: Mapped[str | None] = mapped_column(String(200))
     office: Mapped[ConsultancyOffice] = relationship(back_populates="projects")
     links: Mapped[list["ExternalSystemLink"]] = relationship(back_populates="project", cascade="all, delete-orphan")
     applications: Mapped[list["PermitApplication"]] = relationship(back_populates="project", cascade="all, delete-orphan")
