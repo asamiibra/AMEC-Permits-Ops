@@ -1,0 +1,13 @@
+{
+  "count": 50,
+  "duplicate_key_count": 0,
+  "groups": {
+    "MASTER_CONTENT_GOVERNANCE": 11,
+    "PROPOSAL_COMMERCIAL": 16,
+    "CONTRACT_ADMINISTRATION": 12,
+    "PROJECT_ACTIVATION": 8,
+    "TECHNICAL_GO_LIVE": 3
+  },
+  "summary": {"confirmed": 0, "pending_defaults": 48, "p0": 1, "p1": 16, "external_technical": 1},
+  "status": "OWNER_DECISIONS_READY_FOR_SIGNOFF_NOT_CLOSED"
+}

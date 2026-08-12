@@ -1,0 +1,6 @@
+{
+  "dashboard_admin_alias_projection": "WIRED",
+  "contract_runtime_binding": "APPLIED_ONLY",
+  "proposal_runtime_binding": "APPLIED_ONLY",
+  "history_reopen_apply_failure": "VERIFIED"
+}

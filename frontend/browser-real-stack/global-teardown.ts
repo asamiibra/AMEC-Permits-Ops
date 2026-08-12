@@ -9,4 +9,13 @@ export default async function globalTeardown() {
     console.error(`owner_test_cleanup=FAIL ${error instanceof Error ? error.message : String(error)}`);
     throw error;
   }
+  try {
+    const response = await fetch(`${base}/api/owner-decisions/test-support/cleanup`, { method: "POST", headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
+    if (!response.ok) throw new Error(`decision cleanup returned ${response.status}`);
+    const result = await response.json();
+    console.log(`owner_decision_test_cleanup=PASS reset=${result.decisions_reset || 0} history=${result.history_removed || 0}`);
+  } catch (error) {
+    console.error(`owner_decision_test_cleanup=FAIL ${error instanceof Error ? error.message : String(error)}`);
+    throw error;
+  }
 }

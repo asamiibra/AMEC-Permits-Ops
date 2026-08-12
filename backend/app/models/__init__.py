@@ -17,3 +17,4 @@ from .master_content_entities import *
 from .dashboard_inputs_entities import *
 from .week15_entities import *
 from .admin_contract_entities import *
+from .owner_decision_entities import *

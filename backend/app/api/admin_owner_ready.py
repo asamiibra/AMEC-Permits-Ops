@@ -155,6 +155,7 @@ def admin_summary(db: Session = Depends(get_db), _role: Role = Depends(owner_adm
             {"key": "project-folder-setup", "label": "Project & Folder Setup", "route": "/admin/project-folder-setup", "status": "Configured for demo"},
             {"key": "proposal-setup", "label": "Proposal Setup", "route": "/admin/proposal-setup", "status": "Configured for demo"},
             {"key": "contract-setup", "label": "Contract Setup", "route": "/admin/contract-setup", "status": "Configured for demo"},
+            {"key": "owner-decisions", "label": "Master Content Setup & Go-Live", "route": "/admin/owner-decisions", "status": "Canonical decision register"},
             {"key": "forms", "label": "Forms", "route": "/admin/forms", "status": "Canonical library"},
             {"key": "permit-setup", "label": "Permit Workflow Setup", "route": "/admin/permit-setup", "status": "Configured for demo"},
             {"key": "templates", "label": "Templates & Documents", "route": "/admin/templates", "status": "Synthetic stand-ins"},

@@ -1,0 +1,67 @@
+{
+  "result": "ADMIN_CONTRACT_ENTRY_BASELINE_PASS",
+  "date": "2026-08-12",
+  "branch": "main",
+  "local_head": "f07a46ccd065e9a51c9aac0b3905cc3c6fd400b9",
+  "origin_head": "f07a46ccd065e9a51c9aac0b3905cc3c6fd400b9",
+  "working_tree_at_entry": "CLEAN",
+  "working_tree_after_baseline": "CLEAN_EXCEPT_INTENTIONAL_STEP_4_5_CHANGES",
+  "migration": {
+    "target": "0034_admin_contract_owner_session",
+    "postgresql_target": "postgresql+psycopg://ahmedsami@localhost:5432/admin_contract_baseline_20260812",
+    "postgresql_version": "PostgreSQL 16.14",
+    "disposable_database_dropped": true
+  },
+  "runtime": {
+    "python": "3.14.2",
+    "node": "v24.13.0",
+    "npm": "11.6.2"
+  },
+  "deployment": {
+    "frontend": {
+      "url": "https://amec-permits-ops.vercel.app",
+      "probe": "HTTP 200 shell response"
+    },
+    "backend": {
+      "url": "https://amec-permits-ops-backend.vercel.app",
+      "health_url": "https://amec-permits-ops-backend.vercel.app/health",
+      "probe": "HTTP 200",
+      "environment": "TEST",
+      "synthetic_only": true,
+      "database_dialect": "postgresql",
+      "sqlite_fallback_active": false,
+      "alembic_state": "0034_admin_contract_owner_session",
+      "real_synology": "NOT_CONFIGURED"
+    }
+  },
+  "source_of_record": {
+    "test_adapter": "MockSynologyAdapter",
+    "test_root": "mock-systems/synology",
+    "mode": "SYNTHETIC_TEST",
+    "real_synology_status": "NOT_CONFIGURED_EXTERNAL_GO_LIVE_DEPENDENCY"
+  },
+  "inspections": [
+    "Administration routes/pages and owner readiness",
+    "Contract list/detail, models, services, and APIs",
+    "Proposal to Contract handoff and accepted revision lineage",
+    "Contract to Project activation, Project Code, and Start Date",
+    "Canonical Client/Contact, Project, Proposal, Contract, Document/DocumentVersion, Evidence, and templates",
+    "Dashboard ADMIN / CONTRACT_TEMPLATE resolver",
+    "Definitions, WorkflowTask/My Work, Findings/issues, notifications, audit, lineage, and RBAC",
+    "Inputs and Go-Live",
+    "Current browser E2E suite",
+    "Deployed frontend shell and backend health/adapter probes"
+  ],
+  "verification": {
+    "backend_postgresql": {"status": "PASS", "passed": 143, "warnings": 2},
+    "frontend_tests": {"status": "PASS", "test_files": 11, "tests": 29},
+    "frontend_build": {"status": "PASS"},
+    "browser_e2e": {"status": "BASELINE_RECORDED", "passed": 57, "failed": 12, "total": 69},
+    "ui_conformance": {"status": "COMPLETED", "cases": 312}
+  },
+  "test_isolation_repair": {
+    "file": "backend/tests/test_admin_contract_owner_session.py",
+    "change": "Delete NotificationEvent and AssistantHandoff dependents before shared WorkflowTask cleanup under PostgreSQL foreign keys"
+  },
+  "scope_boundary": "Sections 4 and 5 only; Section 6 and later implementation/deployment not claimed"
+}

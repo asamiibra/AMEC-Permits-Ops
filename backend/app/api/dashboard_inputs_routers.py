@@ -14,6 +14,7 @@ from ..audit.service import audit
 from ..db import get_db
 from ..models import DashboardInputItem, Role
 from ..services.dashboard_inputs import CONFIRMED_STATUSES, CONTEXT_KEY, dashboard_inputs_payload, default_status
+from ..services.owner_decisions import LEGACY_ALIASES, apply_action, get_decision, sync_legacy_projection
 
 router = APIRouter(prefix="/api/dashboard-inputs", tags=["dashboard-inputs"])
 
@@ -47,6 +48,19 @@ def update_dashboard_input(input_key: str, payload: DashboardInputUpdate, reques
     if not item:
         raise HTTPException(status_code=404, detail={"code": "DASHBOARD_INPUT_NOT_FOUND"})
     action = (payload.action or "").lower()
+    alias = LEGACY_ALIASES.get(input_key)
+    if alias:
+        canonical = get_decision(db, alias[0])
+        if canonical and action in {"confirm", "complete", "reopen", "not_applicable"}:
+            canonical_action = "confirm_default" if action in {"confirm", "complete"} else action
+            try:
+                result = apply_action(db, canonical, action=canonical_action, value=None, notes=payload.notes, actor=role.value, role=role, correlation_id=getattr(request.state, "correlation_id", "dashboard-input"))
+                sync_legacy_projection(db, canonical)
+                db.commit()
+                return next(item for item in dashboard_inputs_payload(db)["items"] if item["key"] == input_key)
+            except ValueError as exc:
+                db.rollback()
+                raise HTTPException(status_code=409, detail={"code": str(exc)}) from exc
     if input_key == "DASHBOARD_SYNOLOGY_CONNECTION" and action in {"confirm", "complete"}:
         raise HTTPException(status_code=409, detail={"code": "REAL_SYNOLOGY_VERIFICATION_REQUIRED", "message": "Synology cannot be manually confirmed; complete the real health check first."})
     before = {"status": item.status, "notes": item.notes, "confirmed_by": item.confirmed_by}

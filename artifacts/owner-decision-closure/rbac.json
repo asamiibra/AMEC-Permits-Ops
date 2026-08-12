@@ -1,0 +1,5 @@
+{
+  "unauthorized_owner_decision_change": "DENIED",
+  "technical_fact_manual_override": "DENIED",
+  "tokens": ["UNAUTHORIZED_OWNER_DECISION_CHANGE_ZERO", "TECHNICAL_FACT_MANUAL_OVERRIDE_ZERO"]
+}

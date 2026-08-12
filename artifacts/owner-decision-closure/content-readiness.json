@@ -1,0 +1,11 @@
+{
+  "status": "READY",
+  "proposal_template": "READY",
+  "proposal_checklist": "READY",
+  "contract_template": "READY",
+  "forms": 5,
+  "reports": 2,
+  "engineering": 3,
+  "definitions": 2,
+  "storage_mode": "SYNTHETIC_TEST"
+}

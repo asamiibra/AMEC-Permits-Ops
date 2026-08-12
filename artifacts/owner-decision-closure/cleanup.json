@@ -1,0 +1,6 @@
+{
+  "owner_decision_test_cleanup": "PASS reset=50 history retained",
+  "browser_fixture_cleanup": "PASS",
+  "production_data_deleted": false,
+  "disposable_databases": ["owner_decision_closure_20260812", "owner_decision_full_20260812", "owner_decision_final_20260812"]
+}

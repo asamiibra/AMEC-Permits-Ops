@@ -1,0 +1,36 @@
+{
+  "status": "ADMIN_CONTRACT_ARCHITECTURE_PROTECTED",
+  "date": "2026-08-12",
+  "baseline_commit": "f07a46ccd065e9a51c9aac0b3905cc3c6fd400b9",
+  "frozen_tokens": [
+    "BD_PROPOSAL_OWNER_SESSION_FROZEN_READY_EXCEPT_REAL_SYNOLOGY",
+    "DASHBOARD_OWNER_SESSION_V3_FROZEN_READY_EXCEPT_REAL_SYNOLOGY"
+  ],
+  "canonical_primitives": [
+    "ClientAccount",
+    "ClientContact",
+    "Opportunity",
+    "ProposalAcceptedRevision",
+    "ProposalOutputArtifact",
+    "Contract",
+    "ContractRevision",
+    "Project",
+    "MasterContentItem",
+    "DocumentVersion",
+    "WorkflowTask",
+    "Finding",
+    "NotificationEvent",
+    "AuditEvent",
+    "LineageEdge",
+    "RBAC",
+    "PostgreSQL",
+    "SOR abstraction"
+  ],
+  "duplicate_truth_stores": [],
+  "authority_boundaries": [
+    "PROPOSAL_ACCEPTANCE_IS_NOT_CONTRACT_AUTHORITY",
+    "CONTRACT_EXISTENCE_IS_NOT_PROJECT_ACTIVATION",
+    "BD_AND_ENGINEERING_HAVE_NO_CONTRACT_AUTHORITY_OR_PROJECT_ACTIVATION_WRITE"
+  ],
+  "result": "PROTECTED_AND_VERIFIED"
+}

@@ -1,0 +1,12 @@
+{
+  "suite": "real-stack Playwright",
+  "total": 23,
+  "passed": 20,
+  "failed": 3,
+  "owner_decision_closure": "2 passed",
+  "baseline_failures": [
+    "admin-forms-real-stack: version label expectation",
+    "administration-final-audit: retired Contract workflow configuration heading",
+    "master-content-owner-dashboard: version label expectation"
+  ]
+}

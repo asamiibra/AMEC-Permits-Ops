@@ -17,6 +17,7 @@ from ..models import Contract, ContractAdminEvidence, ContractAdminInput, Contra
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, contract_projection, create_contract_from_proposal, now, project_activation, readiness
 from ..services.proposal_workspace import stable_hash
+from ..services.owner_decisions import runtime_decision_value
 
 
 router = APIRouter(prefix="/api/admin/contracts", tags=["administration-contract-owner-session"])
@@ -90,7 +91,9 @@ def list_contracts(q: str = "", filter: str = "ALL", stage: str | None = None, d
             continue
         close_date = item["actual_close_date"] or item["expected_close_date"] or (contract.end_date.isoformat() if contract.end_date else None)
         rows.append({"id": contract.id, "contract": item["name"], "contract_ref": item["reference"], "client": detail["client"], "project_opportunity_ref": contract.project_opportunity_ref, "project": detail["project"], "stage": item["stage"], "status": item["status"], "amount": item["amount"], "currency": item["currency"], "close_date": close_date, "last_activity": item["last_activity"], "open": f"/contracts/{contract.id}", "accepted_proposal_revision_id": contract.accepted_proposal_revision_id})
-    return {"items": rows, "rows": rows, "count": len(rows), "filters": [{"key": "ALL", "label": "All Contracts"}, {"key": "NEEDS_ACTION", "label": "Needs Action"}, {"key": "AUTHORITY_REVIEW", "label": "Authority Review"}, {"key": "READY_CLOSE", "label": "Ready / Close"}], "stage_options": list(CONTRACT_STAGES), "manual_new_policy": "SELECT_ACCEPTED_PROPOSAL_ONLY", "authority": "OWNER_ONLY_FOR_COMMERCIAL_AND_ACTIVATION", "synthetic_only": True}
+    manual_policy = runtime_decision_value(db, "MANUAL_NEW_CONTRACT_POLICY", "SELECT_ACCEPTED_PROPOSAL_ONLY")
+    authority_policy = runtime_decision_value(db, "CONTRACT_AUTHORITY_POLICY", "OWNER_ONLY_FOR_AUTHORITY_AND_EXECUTION_STATE")
+    return {"items": rows, "rows": rows, "count": len(rows), "filters": [{"key": "ALL", "label": "All Contracts"}, {"key": "NEEDS_ACTION", "label": "Needs Action"}, {"key": "AUTHORITY_REVIEW", "label": "Authority Review"}, {"key": "READY_CLOSE", "label": "Ready / Close"}], "stage_options": list(CONTRACT_STAGES), "manual_new_policy": manual_policy, "authority": authority_policy, "synthetic_only": True}
 
 
 @router.post("")

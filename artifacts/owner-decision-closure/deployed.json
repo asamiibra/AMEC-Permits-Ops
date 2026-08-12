@@ -1,0 +1,7 @@
+{
+  "frontend": {"url": "https://amec-permits-ops.vercel.app", "http": 200},
+  "backend": {"url": "https://amec-permits-ops-backend.vercel.app", "ready": true},
+  "health": {"database": "PostgreSQL", "migration": "0035_owner_decision_closure", "sqlite_fallback": false, "real_synology": "NOT_CONFIGURED"},
+  "api": {"canonical_count": 50, "duplicate_key_count": 0, "overall": "BLOCKED"},
+  "deployed_software_evidence": "PENDING_EVIDENCE_BUNDLE"
+}

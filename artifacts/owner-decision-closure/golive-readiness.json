@@ -1,0 +1,10 @@
+{
+  "overall": "BLOCKED",
+  "business_decisions_ready": false,
+  "content_ready": true,
+  "software_ready_local": true,
+  "technical_ready": false,
+  "real_synology": "NOT_CONFIGURED",
+  "owner_signoff": "OUTSTANDING",
+  "token": "OWNER_DECISIONS_READY_FOR_SIGNOFF_NOT_CLOSED"
+}

@@ -1,0 +1,7 @@
+{
+  "runtime_binding_boundary": "effective only after apply_state=APPLIED and read-back",
+  "untouched_register_applied_count": 0,
+  "runtime_mismatch_count": 0,
+  "apply_failure_truthful": true,
+  "token": "OWNER_DECISION_RUNTIME_BINDING_PASS"
+}

@@ -23,6 +23,7 @@ from ..services.master_content import definition_lookup
 from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal
 from ..services.proposals_sor import ingest_provisional_intake_artifact
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
+from ..services.owner_decisions import applied_runtime_decision_value, runtime_decision_value
 
 router = APIRouter(prefix="/api/bd/proposals", tags=["bd-proposal-owner-session"])
 
@@ -209,6 +210,9 @@ def validation(proposal_id: str, db: Session = Depends(get_db), role: Role = Dep
 @router.post("/{proposal_id}/accept")
 def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), actor: str | None = None):
     require_capability(role, "BD_PROPOSAL_ACCEPT")
+    accept_authority = runtime_decision_value(db, "PROPOSAL_ACCEPT_AUTHORITY", "OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER")
+    if accept_authority == "OWNER_ONLY" and role not in {Role.SYSTEM_ADMIN, Role.OWNER_SPONSOR}:
+        raise domain_error(403, "PROPOSAL_ACCEPT_OWNER_ONLY")
     item = db.get(Opportunity, proposal_id)
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
@@ -262,6 +266,9 @@ def contract_handoff_preview(proposal_id: str, db: Session = Depends(get_db), ro
 @router.post("/{proposal_id}/handoff/contract")
 def contract_handoff(proposal_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), actor: str | None = None):
     require_capability(role, "BD_PROPOSAL_HANDOFF")
+    contract_policy = applied_runtime_decision_value(db, "PROPOSAL_TO_CONTRACT_POLICY")
+    if contract_policy == "ACCEPT_MAKES_CONTRACT_ELIGIBLE_ADMIN_INITIATES":
+        raise domain_error(403, "CONTRACT_ADMIN_INITIATION_REQUIRED", policy=contract_policy)
     proposal = db.get(Opportunity, proposal_id)
     revision = accepted_contract_revision(db, proposal_id)
     if not proposal or not revision:

@@ -1,0 +1,3 @@
+# Deployment
+
+Backend production deployment: `https://amec-permits-ops-backend.vercel.app`, READY; bootstrap applied `0035_owner_decision_closure`. Frontend production deployment: `https://amec-permits-ops.vercel.app`, HTTP 200. Deployed backend health reported PostgreSQL, durable DB, valid connection, no SQLite fallback, and synthetic-only storage with real Synology `NOT_CONFIGURED`. Deployed API returned 50 decisions and zero duplicate keys. The deployed software-evidence projection is pending because repository-local frozen evidence files are not part of the backend project root; this does not change the blocked go-live result.

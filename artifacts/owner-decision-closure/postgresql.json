@@ -1,0 +1,7 @@
+{
+  "database": "PostgreSQL",
+  "migration_head": "0035_owner_decision_closure",
+  "full_backend": "146 passed, 2 warnings",
+  "focused_backend": "9 passed, 1 warning",
+  "sqlite_fallback_active": false
+}

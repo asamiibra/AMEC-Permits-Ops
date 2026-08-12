@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { api } from "./api";
 import { CanonicalFormsLibrary } from "./MasterContentForms";
 import { readDemoRole } from "./rebrand";
+import { OwnerDecisionCenterPage } from "./OwnerDecisionCenter";
 
 type AdminCategory = { key: string; label: string; route: string; status: string };
 
@@ -9,7 +10,7 @@ const groups = [
   { label: "People & Access", keys: ["people-access"] },
   { label: "Data & Connections", keys: ["data-connections"] },
   { label: "Project & Folder Setup", keys: ["project-folder-setup"] },
-  { label: "Proposals & Contracts", keys: ["proposal-setup", "contract-setup", "forms", "templates"] },
+  { label: "Proposals & Contracts", keys: ["proposal-setup", "contract-setup", "forms", "templates", "owner-decisions"] },
   { label: "Permit Workflow", keys: ["permit-setup"] },
   { label: "Operations", keys: ["notifications"] },
   { label: "System", keys: ["security", "integration-health", "audit"] },
@@ -25,6 +26,7 @@ const endpointFor = (path: string) => {
   };
   if (key === "advanced-diagnostics" || key.startsWith("advanced-diagnostics/") || key === "control-diagnostics") return "/api/admin/advanced-diagnostics";
   if (key === "contracts/inputs/go-live") return "/api/admin/contracts/inputs/go-live";
+  if (key === "owner-decisions") return "/api/owner-decisions";
   if (key.startsWith("contracts/")) return `/api/admin/contracts/${key.split("/")[1]}`;
   // Retired direct Admin aliases keep a safe, current summary response instead of
   // issuing a dead endpoint request. Navigation remains available through the
@@ -53,6 +55,7 @@ export function AdministrationOwnerPage() {
   if (loading) return <AdminShell path={path} onNavigate={go}><section className="admin-owner-panel"><b>Loading Administration…</b></section></AdminShell>;
   if (error) return <AdminShell path={path} onNavigate={go}><section className="admin-owner-panel admin-owner-error" role="alert"><h2>Administration unavailable</h2><p>{error}</p><button className="button-primary" onClick={load}>Retry</button></section></AdminShell>;
   if (path === "/admin/contracts/inputs/go-live") return <AdminShell path={path} onNavigate={go}><ContractInputs data={data} /></AdminShell>;
+  if (path === "/admin/owner-decisions") return <AdminShell path={path} onNavigate={go}><OwnerDecisionCenterPage /></AdminShell>;
   if (path.startsWith("/admin/contracts/")) return <AdminShell path={path} onNavigate={go}><ContractWorkbench data={data} onBack={() => go("/admin/contract-setup")} onRefresh={load} /></AdminShell>;
   return <AdminShell path={path} onNavigate={go}>{path === "/admin" || path === "/admin/" ? <Landing data={data} onNavigate={go} /> : <Section path={path} data={data} onNavigate={go} onRefresh={load} />}</AdminShell>;
 }
