@@ -50,7 +50,9 @@ def _actor(role: Role, supplied: str | None = None) -> str:
 
 def _list_row(db: Session, item: Opportunity) -> dict[str, Any]:
     projection = proposal_projection(db, item)
-    return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": projection["client_name"] or item.client_account_id or "Not recorded", "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": (item.proposal_fields_json or {}).get("location"), "contract_eligible": projection["contract_eligible"], "validation": projection["validation"]}
+    client = db.get(ClientAccount, item.client_account_id) if item.client_account_id else None
+    client_label = projection["client_name"] or (client.display_name if client else None) or item.client_account_id or "Not recorded"
+    return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": client_label, "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": (item.proposal_fields_json or {}).get("location"), "contract_eligible": projection["contract_eligible"], "validation": projection["validation"]}
 
 
 @router.post("/test-support/cleanup")

@@ -1,0 +1,1 @@
+{"database_dialect":"postgresql","database_durable":true,"sqlite_fallback_active":false,"alembic_head":"0032_bd_proposal_owner_session"}

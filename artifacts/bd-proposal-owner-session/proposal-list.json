@@ -1,0 +1,1 @@
+{"route":"/bd/proposals","api":"GET /api/bd/proposals","filters":["q","stage","location"],"columns":["proposal","project_ref","client","stage","amount","last_activity"]}
