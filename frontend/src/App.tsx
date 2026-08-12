@@ -60,6 +60,7 @@ import { AmecLogo } from "./AmecLogo";
 import { readDemoRole } from "./rebrand";
 import { DashboardPage } from "./Dashboard";
 import { DashboardInputsPage } from "./DashboardInputs";
+import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import "./dashboard.css";
 
 type Decision = {
@@ -171,6 +172,7 @@ const pageFromPath = () => {
   const path = window.location.pathname;
   if (path === "/dashboard") return "dashboard";
   if (path === "/bd") return "opportunities";
+  if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/engineering") return "engineering-closeout";
   if (path === "/permit") return "permits";
   if (path === "/work" || path === "/") return "my-work";
@@ -567,6 +569,7 @@ function App() {
           )}{" "}
           {page === "about" && <AboutPermitOpsPage onNavigate={navigate} />}{" "}
           {page === "opportunities" && <OpportunitiesPage />}{" "}
+          {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "engineering-closeout" && <EngineeringCloseoutPage />}{" "}
           {page === "permits" && (
             <ProposalsContractsPage

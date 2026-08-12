@@ -70,7 +70,7 @@ DEFAULT_REFERENCE_SEQUENCES = [
     {"content_type": "DEFINITION", "prefix": "D", "padding": 4, "scope": "GLOBAL"},
 ]
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
-ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE"}
+ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST"}
 CONTENT_TYPE_MODULES = {
     "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
@@ -403,6 +403,8 @@ OWNER_DEMO_SPECS = {
     "FORM": [
         {"ref": "F-0001", "title": "Consultant Form", "category": "Consultant", "description": "Consultant appointment / authorization form.", "used_in": ["BD", "ADMIN", "PERMIT"]},
         {"ref": "F-0002", "title": "Authorization Form", "category": "Administration", "description": "Owner authorization form for ProposalOps workflows.", "used_in": ["ADMIN", "PERMIT", "PROPOSAL"]},
+        {"ref": "F-0003", "title": "AMEC Proposal Template", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal rendering template.", "used_in": ["BD", "PROPOSAL"]},
+        {"ref": "F-0004", "title": "AMEC Proposal Checklist", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal readiness checklist.", "used_in": ["BD", "PROPOSAL"]},
     ],
     "REPORT": [
         {"ref": "R-0001", "title": "Design Review Report", "category": "Design", "description": "Standard design review report template/reference.", "used_in": ["ENGINEERING", "REPORTS"]},
@@ -470,6 +472,12 @@ def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed")
             category_id = _demo_category_id(db, content_type, spec["category"])
             projection = create_master_content(db, content_type=content_type, ref=spec["ref"], title=spec["title"], category_id=category_id, description=spec["description"], filename=f"{spec['ref']}-owner-demo.txt", mime_type="text/plain", content=f"AMEC owner demo source for {spec['ref']}.".encode(), actor=actor, idempotency_key=f"owner-demo:{content_type}:{spec['ref']}", correlation_id=f"owner-demo:{content_type}:{spec['ref']}", used_in=spec["used_in"], engineering_metadata=spec.get("engineering_metadata"))
             created_master.append(projection["ref"])
+
+    purpose_refs = {"F-0003": "PROPOSAL_TEMPLATE", "F-0004": "PROPOSAL_CHECKLIST"}
+    for ref, usage_type in purpose_refs.items():
+        item = db.scalar(select(MasterContentItem).where(MasterContentItem.ref == ref, MasterContentItem.status == "ACTIVE"))
+        if item and not db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == "BD", MasterContentModuleBinding.usage_type == usage_type)):
+            db.add(MasterContentModuleBinding(master_content_id=item.id, module="BD", usage_type=usage_type, active=True, created_by=actor))
 
     created_definitions: list[str] = []
     preserved_definitions: list[str] = []
