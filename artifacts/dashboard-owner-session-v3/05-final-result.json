@@ -3,5 +3,5 @@
   "scope_complete": true,
   "bd_proposal_gate": "FROZEN_READY_EXCEPT_REAL_SYNOLOGY",
   "external_blocker": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
-  "repository": {"branch": "main", "implementation_commit": "95145d3", "implementation_pushed": true, "commit_and_push": "FINAL_EVIDENCE_COMMIT_PENDING", "clean_tree": "FINAL_EVIDENCE_COMMIT_PENDING"}
+  "repository": {"branch": "main", "implementation_commit": "95145d3", "evidence_commit": "1784a36", "implementation_pushed": true, "evidence_pushed": true, "commit_and_push": "PASS", "clean_tree": "PASS"}
 }
