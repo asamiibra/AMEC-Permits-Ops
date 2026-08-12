@@ -26,6 +26,7 @@ class MasterContentItem(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     used_in: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     engineering_metadata: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    source_type_code: Mapped[str | None] = mapped_column(String(80), index=True)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="ACTIVE", index=True)
     document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), nullable=False, unique=True)
     current_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)

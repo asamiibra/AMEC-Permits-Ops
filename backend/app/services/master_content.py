@@ -47,6 +47,8 @@ from ..models import (
 )
 
 CONTENT_TYPES = {"FORM", "REPORT", "ENGINEERING_WORK"}
+ENGINEERING_SOURCE_TYPES = ("REGULATION", "QCS", "MUNICIPALITY_COMMENT", "AUTHORITY_GUIDANCE", "ENGINEERING_STANDARD", "DESIGN_GUIDE", "TECHNICAL_REFERENCE", "OTHER")
+ENGINEERING_DISCIPLINES = ("GENERAL", "DESIGN", "ARCHITECTURE", "STRUCTURAL", "CIVIL", "MEP", "FIRE_LIFE_SAFETY", "PERMIT", "OTHER")
 SEMANTIC_DESTINATION = {
     "FORM": "MASTER_FORM",
     "REPORT": "MASTER_REPORT",
@@ -55,7 +57,7 @@ SEMANTIC_DESTINATION = {
 _CATEGORY_GROUPS = {
     "FORM": ["General", "Administration", "Business Development", "Consultant", "Contract", "Engineering", "Design", "Permit", "Municipality", "Finance", "Handover", "Other"],
     "REPORT": ["General", "Business Development", "Commercial", "Design", "Engineering", "Permit", "Municipality", "Project", "Finance", "Handover", "Other"],
-    "ENGINEERING_WORK": ["Regulation", "QCS", "Municipality", "Authority Guidance", "Architecture", "Structural", "Civil", "MEP", "Fire & Life Safety", "Design Guide", "Technical Reference", "Authority Comment", "Other"],
+    "ENGINEERING_WORK": ["General", "Design", "Regulation", "QCS", "Municipality", "Authority Guidance", "Architecture", "Structural", "Civil", "MEP", "Fire & Life Safety", "Design Guide", "Technical Reference", "Authority Comment", "Other"],
     "DEFINITION": ["Client", "Project", "Proposal", "Contract", "Engineering", "Permit", "Finance", "System", "General", "Other"],
 }
 DEFAULT_CATEGORIES = [
@@ -70,7 +72,7 @@ DEFAULT_REFERENCE_SEQUENCES = [
     {"content_type": "DEFINITION", "prefix": "D", "padding": 4, "scope": "GLOBAL"},
 ]
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
-ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST"}
+ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
 CONTENT_TYPE_MODULES = {
     "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
@@ -253,6 +255,28 @@ def _modules_for(db: Session, *, item_id: str | None = None, definition_id: str 
     return sorted(set(db.scalars(query).all()))
 
 
+def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+    module = module.strip().upper()
+    usage_type = usage_type.strip().upper()
+    rows = db.scalars(
+        select(MasterContentItem)
+        .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
+        .where(
+            MasterContentModuleBinding.module == module,
+            MasterContentModuleBinding.usage_type == usage_type,
+            MasterContentModuleBinding.active.is_(True),
+            MasterContentItem.status == "ACTIVE",
+        )
+        .order_by(MasterContentItem.updated_at.desc(), MasterContentItem.ref)
+    ).all()
+    resolved = []
+    for item in rows:
+        version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+        if version:
+            resolved.append({"id": item.id, "ref": item.ref, "title": item.title, "content_type": item.content_type, "version_id": version.id, "version": version.version_number, "hash": version.sha256, "source_filename": version.source_filename, "module": module, "purpose": usage_type, "canonical": True})
+    return {"module": module, "purpose": usage_type, "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED", "canonical_count": len(resolved), "item": resolved[0] if len(resolved) == 1 else None, "candidates": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
+
+
 def _status(version: DocumentVersion) -> str:
     return str((version.metadata_json or {}).get("master_status", "PENDING_WRITE"))
 
@@ -405,6 +429,7 @@ OWNER_DEMO_SPECS = {
         {"ref": "F-0002", "title": "Authorization Form", "category": "Administration", "description": "Owner authorization form for ProposalOps workflows.", "used_in": ["ADMIN", "PERMIT", "PROPOSAL"]},
         {"ref": "F-0003", "title": "AMEC Proposal Template", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal rendering template.", "used_in": ["BD", "PROPOSAL"]},
         {"ref": "F-0004", "title": "AMEC Proposal Checklist", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal readiness checklist.", "used_in": ["BD", "PROPOSAL"]},
+        {"ref": "F-0005", "title": "AMEC Contract Template", "category": "Contract", "description": "Canonical Dashboard-managed Contract handoff template.", "used_in": ["ADMIN", "CONTRACT"]},
     ],
     "REPORT": [
         {"ref": "R-0001", "title": "Design Review Report", "category": "Design", "description": "Standard design review report template/reference.", "used_in": ["ENGINEERING", "REPORTS"]},
@@ -412,8 +437,8 @@ OWNER_DEMO_SPECS = {
     ],
     "ENGINEERING_WORK": [
         {"ref": "E-0001", "title": "Qatar Regulation Example", "category": "Regulation", "description": "Reference example for Qatar regulatory review.", "used_in": ["ENGINEERING", "PERMIT"]},
-        {"ref": "E-0002", "title": "QCS Example", "category": "QCS", "description": "Reference example for QCS technical review.", "used_in": ["ENGINEERING", "PERMIT", "REPORTS"], "engineering_metadata": {"discipline": "QCS"}},
-        {"ref": "E-0003", "title": "Municipality Comment Reference", "category": "Authority Comment", "description": "Reference example for municipality comments and responses.", "used_in": ["ENGINEERING", "PERMIT", "ISSUES"], "engineering_metadata": {"authority": "Municipality"}},
+        {"ref": "E-0002", "title": "QCS Example", "category": "QCS", "description": "Reference example for QCS technical review.", "used_in": ["ENGINEERING", "PERMIT", "REPORTS"], "source_type_code": "QCS", "engineering_metadata": {"discipline": "GENERAL"}},
+        {"ref": "E-0003", "title": "Municipality Comment Reference", "category": "Authority Comment", "description": "Reference example for municipality comments and responses.", "used_in": ["ENGINEERING", "PERMIT", "ISSUES"], "source_type_code": "MUNICIPALITY_COMMENT", "engineering_metadata": {"authority": "Municipality", "discipline": "GENERAL"}},
     ],
 }
 OWNER_DEFINITION_SPECS = [
@@ -470,7 +495,7 @@ def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed")
                 preserved_master.append(spec["ref"])
                 continue
             category_id = _demo_category_id(db, content_type, spec["category"])
-            projection = create_master_content(db, content_type=content_type, ref=spec["ref"], title=spec["title"], category_id=category_id, description=spec["description"], filename=f"{spec['ref']}-owner-demo.txt", mime_type="text/plain", content=f"AMEC owner demo source for {spec['ref']}.".encode(), actor=actor, idempotency_key=f"owner-demo:{content_type}:{spec['ref']}", correlation_id=f"owner-demo:{content_type}:{spec['ref']}", used_in=spec["used_in"], engineering_metadata=spec.get("engineering_metadata"))
+            projection = create_master_content(db, content_type=content_type, ref=spec["ref"], title=spec["title"], category_id=category_id, description=spec["description"], filename=f"{spec['ref']}-owner-demo.txt", mime_type="text/plain", content=f"AMEC owner demo source for {spec['ref']}.".encode(), actor=actor, idempotency_key=f"owner-demo:{content_type}:{spec['ref']}", correlation_id=f"owner-demo:{content_type}:{spec['ref']}", used_in=spec["used_in"], source_type_code=spec.get("source_type_code"), engineering_metadata=spec.get("engineering_metadata"))
             created_master.append(projection["ref"])
 
     # Older TEST rehearsals may have archived a probe at F-0003/F-0004.  Do
@@ -480,6 +505,7 @@ def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed")
     fallback_specs = [
         {"ref": "BD-PROP-001", "title": "AMEC Proposal Template", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal rendering template.", "used_in": ["BD", "PROPOSAL"]},
         {"ref": "BD-CHK-001", "title": "AMEC Proposal Checklist", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal readiness checklist.", "used_in": ["BD", "PROPOSAL"]},
+        {"ref": "CT-001", "title": "AMEC Contract Template", "category": "Contract", "description": "Canonical Dashboard-managed Contract handoff template.", "used_in": ["ADMIN", "CONTRACT"]},
     ]
     for spec in fallback_specs:
         if not db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.title == spec["title"], MasterContentItem.status == "ACTIVE")):
@@ -487,10 +513,14 @@ def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed")
             create_master_content(db, content_type="FORM", ref=spec["ref"], title=spec["title"], category_id=category_id, description=spec["description"], filename=f"{spec['ref']}-owner-demo.txt", mime_type="text/plain", content=f"AMEC owner demo source for {spec['ref']}.".encode(), actor=actor, idempotency_key=f"owner-demo:FORM:{spec['ref']}", correlation_id=f"owner-demo:FORM:{spec['ref']}", used_in=spec["used_in"])
 
     active_by_title = {item.title: item for item in db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.status == "ACTIVE")).all()}
-    purpose_refs = {active_by_title.get("AMEC Proposal Template"): "PROPOSAL_TEMPLATE", active_by_title.get("AMEC Proposal Checklist"): "PROPOSAL_CHECKLIST"}
-    for item, usage_type in purpose_refs.items():
-        if item and not db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == "BD", MasterContentModuleBinding.usage_type == usage_type)):
-            db.add(MasterContentModuleBinding(master_content_id=item.id, module="BD", usage_type=usage_type, active=True, created_by=actor))
+    purpose_refs = {
+        (active_by_title.get("AMEC Proposal Template"), "BD", "PROPOSAL_TEMPLATE"),
+        (active_by_title.get("AMEC Proposal Checklist"), "BD", "PROPOSAL_CHECKLIST"),
+        (active_by_title.get("AMEC Contract Template"), "ADMIN", "CONTRACT_TEMPLATE"),
+    }
+    for item, module, usage_type in purpose_refs:
+        if item and not db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == module, MasterContentModuleBinding.usage_type == usage_type)):
+            db.add(MasterContentModuleBinding(master_content_id=item.id, module=module, usage_type=usage_type, active=True, created_by=actor))
 
     created_definitions: list[str] = []
     preserved_definitions: list[str] = []
@@ -550,6 +580,8 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         "category": {"id": category.id, "code": category.code, "label": category.label} if category else None,
         "description": item.description,
         "used_in": _modules_for(db, item_id=item.id),
+        "purpose_bindings": [{"module": binding.module, "usage_type": binding.usage_type, "active": binding.active} for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active.is_(True)).order_by(MasterContentModuleBinding.module, MasterContentModuleBinding.usage_type)).all()],
+        "source_type_code": item.source_type_code,
         "engineering_metadata": item.engineering_metadata or {},
         "status": item.status,
         "version": current.version_number if current else None,
@@ -663,12 +695,15 @@ def create_master_content(
     correlation_id: str,
     source_surface: str = "DASHBOARD",
     used_in: Any = None,
+    source_type_code: str | None = None,
     engineering_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     content_type = content_type.upper().strip()
     title = title.strip()
     if content_type not in CONTENT_TYPES or not title:
         raise _error("MASTER_CONTENT_METADATA_INVALID")
+    if content_type == "ENGINEERING_WORK" and source_type_code and source_type_code.upper() not in ENGINEERING_SOURCE_TYPES:
+        raise _error("ENGINEERING_SOURCE_TYPE_NOT_ALLOWED", source_type_code=source_type_code)
     prior_idempotency = db.scalar(select(MasterContentIdempotency).where(MasterContentIdempotency.idempotency_key == idempotency_key))
     if prior_idempotency:
         item = db.get(MasterContentItem, prior_idempotency.master_content_id)
@@ -685,7 +720,7 @@ def create_master_content(
     digest = hashlib.sha256(content).hexdigest()
     document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=title, language="en", source_system="MASTER_CONTENT")
     modules = _parse_modules(used_in)
-    item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, status="ACTIVE", document=document, created_by=actor)
+    item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, source_type_code=source_type_code.upper() if source_type_code else None, status="ACTIVE", document=document, created_by=actor)
     db.add(item)
     db.flush()
     version = DocumentVersion(document_id=document.id, version_number=1, source_filename=_safe_filename(filename, ref, 1), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or "application/octet-stream", file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": content_type, "business_ref": ref, "title": title, "description": description, "used_in": modules, "engineering_metadata": engineering_metadata or {}, "reference_generated": reference_generated, "change_kind": "CREATE", "change_reason": "Initial version"})
@@ -721,6 +756,7 @@ def create_master_content_version(
     source_surface: str = "DASHBOARD",
     used_in: Any = None,
     engineering_metadata: dict[str, Any] | None = None,
+    source_type_code: str | None = None,
 ) -> dict[str, Any]:
     item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
     if not item:
@@ -755,6 +791,10 @@ def create_master_content_version(
     item.used_in = modules
     if engineering_metadata is not None:
         item.engineering_metadata = engineering_metadata
+    if source_type_code is not None:
+        if item.content_type == "ENGINEERING_WORK" and source_type_code.upper() not in ENGINEERING_SOURCE_TYPES:
+            raise _error("ENGINEERING_SOURCE_TYPE_NOT_ALLOWED", source_type_code=source_type_code)
+        item.source_type_code = source_type_code.upper() if item.content_type == "ENGINEERING_WORK" else None
     version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=_safe_filename(filename or current.source_filename, item.ref, next_version), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or current.mime_type, file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": item.content_type, "business_ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "used_in": modules, "engineering_metadata": item.engineering_metadata or {}, "change_kind": "METADATA" if metadata_only else "MODIFY", "change_reason": change_reason, "uploaded_by": actor})
     db.add(version)
     db.flush()

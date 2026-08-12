@@ -1,0 +1,7 @@
+{
+  "focused_backend": {"passed": 21, "skipped": 1},
+  "full_backend": {"passed": 140, "skipped": 1},
+  "frontend": {"test_files": 11, "passed": 29, "build": "PASS"},
+  "postgresql": {"migration_head": "0033_dashboard_owner_session_v3", "focused_passed": 16},
+  "deployed_health": {"database_dialect": "postgresql", "database_durable": true, "sqlite_fallback_active": false, "sor_mode": "SYNTHETIC_TEST", "real_synology": "NOT_CONFIGURED"}
+}

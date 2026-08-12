@@ -123,3 +123,52 @@ def test_v2_definition_revision_retains_category_and_used_in_history(client):
     assert history[0]["used_in"] == ["CONTRACT"]
     assert history[1]["category"] == "Project"
     assert history[1]["used_in"] == ["PROPOSAL"]
+
+
+def test_v3_engineering_source_type_is_distinct_from_category_and_is_owner_controlled(client):
+    categories = client.get("/api/master-content/categories").json()
+    design = next(row for row in categories if row["label"] == "Design" and "ENGINEERING_WORK" in row["allowed_content_types"])
+    created = _create(client, "ENGINEERING_WORK", "QCS Design Reference", used_in='["ENGINEERING"]')
+    assert created.status_code == 200, created.text
+    item_id = created.json()["id"]
+    updated = client.patch(f"/api/master-content/{item_id}/metadata", json={"category_id": design["id"], "source_type_code": "QCS", "engineering_metadata": {"discipline": "STRUCTURAL", "edition": "2024", "clause": "5.2"}, "change_reason": "Classify source"}, headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+    assert updated.status_code == 200, updated.text
+    assert updated.json()["category"]["label"] == "Design"
+    assert updated.json()["source_type_code"] == "QCS"
+    denied = client.post("/api/master-content/categories", json={"code": "OWNER_ONLY", "label": "Owner only", "allowed_content_types": ["FORM"]}, headers={"X-Dev-Role": "COMMERCIAL_APPROVER"})
+    assert denied.status_code == 403
+
+
+def test_v3_reference_policy_does_not_renumber_existing_content(client):
+    created = _create(client, "REPORT", "Stable Reference Report", ref="R-7788")
+    assert created.status_code == 200, created.text
+    policy = client.put("/api/master-content/reference-policies/REPORT", json={"prefix": "REP", "padding": 5}, headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+    assert policy.status_code == 200, policy.text
+    assert policy.json()["renumber_existing"] is False
+    assert client.get(f"/api/master-content/{created.json()['id']}").json()["ref"] == "R-7788"
+
+
+def test_v3_consumer_resolvers_are_deterministic_and_contract_is_explicit(client):
+    for ref, title, module, purpose in (("F-0003", "Resolver Proposal Template", "BD", "PROPOSAL_TEMPLATE"), ("F-0004", "Resolver Proposal Checklist", "BD", "PROPOSAL_CHECKLIST"), ("CT-TEST-001", "Resolver Contract Template", "ADMIN", "CONTRACT_TEMPLATE")):
+        rows = client.get("/api/master-content", params={"q": ref}, headers={"X-Dev-Role": "SYSTEM_ADMIN"}).json()
+        item = next((row for row in rows if row["ref"] == ref), None)
+        if not item:
+            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": f'["{module}"]'}, files={"file": (f"{ref}.txt", b"resolver source", "text/plain")}, headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+            assert created.status_code == 200, created.text
+            item = created.json()
+        bound = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": module, "usage_type": purpose}], headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+        assert bound.status_code == 200, bound.text
+    for module, purpose in (("BD", "PROPOSAL_TEMPLATE"), ("BD", "PROPOSAL_CHECKLIST"), ("ADMIN", "CONTRACT_TEMPLATE")):
+        resolved = client.get(f"/api/master-content/resolvers/{module}/{purpose}")
+        assert resolved.status_code == 200, resolved.text
+        assert resolved.json()["status"] == "RESOLVED"
+        assert resolved.json()["canonical_count"] == 1
+
+
+def test_v3_persona_read_scope_hides_non_applicable_master_content(client):
+    created = _create(client, "FORM", "Administration-only v3 Form", used_in='["ADMIN"]')
+    assert created.status_code == 200, created.text
+    bd_rows = client.get("/api/master-content", params={"content_type": "FORM"}, headers={"X-Dev-Role": "COMMERCIAL_APPROVER"}).json()
+    assert created.json()["id"] not in {row["id"] for row in bd_rows}
+    hidden = client.get(f"/api/master-content/{created.json()['id']}", headers={"X-Dev-Role": "COMMERCIAL_APPROVER"})
+    assert hidden.status_code == 403

@@ -22,7 +22,7 @@ from ..models import (
     ProposalOwnerSetting,
     ProposalSourceEvidence,
 )
-from .master_content import definition_lookup
+from .master_content import definition_lookup, resolve_master_content_purpose
 
 SOURCE_TYPES = ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA")
 SOURCE_TO_SEMANTIC = {
@@ -49,42 +49,7 @@ def _now() -> datetime:
 
 
 def master_content_purpose(db: Session, usage_type: str) -> dict[str, Any]:
-    usage_type = usage_type.upper()
-    rows = db.scalars(
-        select(MasterContentItem)
-        .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
-        .where(
-            MasterContentModuleBinding.module == "BD",
-            MasterContentModuleBinding.usage_type == usage_type,
-            MasterContentModuleBinding.active.is_(True),
-            MasterContentItem.status == "ACTIVE",
-        )
-        .order_by(MasterContentItem.updated_at.desc(), MasterContentItem.ref)
-    ).all()
-    resolved = []
-    for item in rows:
-        version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
-        if version:
-            resolved.append({
-                "id": item.id,
-                "ref": item.ref,
-                "title": item.title,
-                "content_type": item.content_type,
-                "version_id": version.id,
-                "version": version.version_number,
-                "hash": version.sha256,
-                "source_filename": version.source_filename,
-                "usage_type": usage_type,
-                "canonical": True,
-            })
-    return {
-        "purpose": usage_type,
-        "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED",
-        "canonical_count": len(resolved),
-        "item": resolved[0] if len(resolved) == 1 else None,
-        "candidates": resolved,
-        "truth": "DASHBOARD_MASTER_CONTENT",
-    }
+    return resolve_master_content_purpose(db, module="BD", usage_type=usage_type)
 
 
 def definitions_for_proposal(db: Session, terms: list[str]) -> list[dict[str, Any]]:

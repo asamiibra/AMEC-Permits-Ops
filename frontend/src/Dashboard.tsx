@@ -8,6 +8,7 @@ import {
   MODULE_LABELS,
   UsedInPicker,
   friendlyStatus,
+  MODULE_OPTIONS,
   versionLabel,
 } from "./masterContentUi";
 
@@ -36,6 +37,8 @@ type MasterItem = {
   category?: { id: string; label: string } | null;
   description?: string;
   used_in?: string[];
+  purpose_bindings?: { module: string; usage_type: string; active: boolean }[];
+  source_type_code?: string | null;
   engineering_metadata?: Record<string, unknown>;
   version?: number;
   version_status: string;
@@ -95,6 +98,7 @@ export function DashboardPage({ role }: { role: string }) {
     versions?: Version[];
     revisions?: DefinitionRevision[];
   } | null>(null);
+  const [details, setDetails] = useState<MasterItem | Definition | null>(null);
   const [busy, setBusy] = useState(false);
   const canWrite = ownerRoles.has(role);
   const filtersActive = Boolean(query || category || status || module);
@@ -322,6 +326,7 @@ export function DashboardPage({ role }: { role: string }) {
             filtered={filtersActive}
             onNew={() => setEditor({ type: "REPORT" })}
             onEdit={(item) => setEditor({ type: "REPORT", item })}
+            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
             onHistory={async (item) => {
               const detail = await api<MasterItem>(
                 `/api/master-content/${item.id}`,
@@ -342,6 +347,7 @@ export function DashboardPage({ role }: { role: string }) {
             filtered={filtersActive}
             onNew={() => setEditor({ type: "ENGINEERING_WORK" })}
             onEdit={(item) => setEditor({ type: "ENGINEERING_WORK", item })}
+            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
             onHistory={async (item) => {
               const detail = await api<MasterItem>(
                 `/api/master-content/${item.id}`,
@@ -359,6 +365,7 @@ export function DashboardPage({ role }: { role: string }) {
             filtered={filtersActive}
             onNew={() => setDefinitionEditor(null)}
             onEdit={setDefinitionEditor}
+            onOpen={async (item) => setDetails(await api<Definition>(`/api/definitions/${item.id}`))}
             onHistory={async (item) => {
               const detail = await api<Definition>(
                 `/api/definitions/${item.id}`,
@@ -393,6 +400,7 @@ export function DashboardPage({ role }: { role: string }) {
       {history && (
         <HistoryDrawer history={history} onClose={() => setHistory(null)} />
       )}
+      {details && <ContentDetails item={details} onClose={() => setDetails(null)} />}
     </div>
   );
 }
@@ -404,6 +412,7 @@ function MasterSection({
   filtered,
   onNew,
   onEdit,
+  onOpen,
   onHistory,
 }: {
   type: "REPORT" | "ENGINEERING_WORK";
@@ -412,6 +421,7 @@ function MasterSection({
   filtered: boolean;
   onNew: () => void;
   onEdit: (item: MasterItem) => void;
+  onOpen: (item: MasterItem) => void;
   onHistory: (item: MasterItem) => void;
 }) {
   const label = CONTENT_LABELS[type];
@@ -454,10 +464,6 @@ function MasterSection({
                 <th>{type === "ENGINEERING_WORK" ? "Document" : "Report"}</th>
                 <th>Category</th>
                 <th>Description</th>
-                <th>Used In</th>
-                <th>Version</th>
-                <th>Status</th>
-                <th>Updated</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -478,25 +484,8 @@ function MasterSection({
                   >
                     {item.description || "No description"}
                   </td>
-                  <td>
-                    <UsedInChips values={item.used_in} />
-                  </td>
-                  <td>{versionLabel(item.version)}</td>
-                  <td>
-                    <StatusBadge
-                      value={item.version_status}
-                      hasVersion={Boolean(item.version)}
-                    />
-                  </td>
-                  <td>{formatDate(item.updated)}</td>
                   <td className="dashboard-actions">
-                    <a
-                      className="table-action action-view"
-                      href={`/api/master-content/${item.id}/download`}
-                      download
-                    >
-                      View
-                    </a>
+                    <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
                         className="table-action action-edit"
@@ -533,6 +522,7 @@ function DefinitionSection({
   filtered,
   onNew,
   onEdit,
+  onOpen,
   onHistory,
 }: {
   definitions: Definition[];
@@ -540,6 +530,7 @@ function DefinitionSection({
   filtered: boolean;
   onNew: () => void;
   onEdit: (item: Definition) => void;
+  onOpen: (item: Definition) => void;
   onHistory: (item: Definition) => void;
 }) {
   return (
@@ -579,10 +570,6 @@ function DefinitionSection({
                 <th>Term</th>
                 <th>Category</th>
                 <th>Meaning</th>
-                <th>Used In</th>
-                <th>Revision</th>
-                <th>Status</th>
-                <th>Updated</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -605,15 +592,8 @@ function DefinitionSection({
                   >
                     {item.description || "No meaning recorded"}
                   </td>
-                  <td>
-                    <UsedInChips values={item.used_in} />
-                  </td>
-                  <td>{versionLabel(item.revision, true)}</td>
-                  <td>
-                    <StatusBadge value={item.status} hasVersion />
-                  </td>
-                  <td>{formatDate(item.updated)}</td>
                   <td className="dashboard-actions">
+                    <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
                         className="table-action action-edit"
@@ -666,6 +646,8 @@ function MasterEditor({
   const [metadata, setMetadata] = useState(
     JSON.stringify(item?.engineering_metadata || {}, null, 2),
   );
+  const [sourceType, setSourceType] = useState(item?.source_type_code || "");
+  const [discipline, setDiscipline] = useState(String(item?.engineering_metadata?.discipline || "GENERAL"));
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!item) {
@@ -676,8 +658,10 @@ function MasterEditor({
       if (category) form.append("category_id", category);
       form.append("description", description);
       form.append("used_in", JSON.stringify(usedIn));
-      if (type === "ENGINEERING_WORK")
-        form.append("engineering_metadata", metadata);
+      if (type === "ENGINEERING_WORK") {
+        if (sourceType) form.append("source_type_code", sourceType);
+        form.append("engineering_metadata", JSON.stringify({ ...parseJson(metadata), discipline }));
+      }
       form.append("file", file as File);
       void onSave({ form });
       return;
@@ -690,8 +674,10 @@ function MasterEditor({
       if (category) form.append("category_id", category);
       form.append("description", description);
       form.append("used_in", JSON.stringify(usedIn));
-      if (type === "ENGINEERING_WORK")
-        form.append("engineering_metadata", metadata);
+      if (type === "ENGINEERING_WORK") {
+        if (sourceType) form.append("source_type_code", sourceType);
+        form.append("engineering_metadata", JSON.stringify({ ...parseJson(metadata), discipline }));
+      }
       form.append("file", file);
       void onSave({ form });
     } else
@@ -702,7 +688,8 @@ function MasterEditor({
           description,
           used_in: usedIn,
           engineering_metadata:
-            type === "ENGINEERING_WORK" ? parseJson(metadata) : null,
+            type === "ENGINEERING_WORK" ? { ...parseJson(metadata), discipline, source_type_code: sourceType || undefined } : null,
+          source_type_code: type === "ENGINEERING_WORK" ? sourceType || null : null,
           change_reason: reason,
         },
       });
@@ -827,7 +814,20 @@ function MasterEditor({
           <section className="editor-group">
             <h3>Engineering reference details</h3>
             <label>
-              Optional metadata
+              Source Type
+              <select aria-label="Engineering Source Type" required value={sourceType} onChange={(event) => setSourceType(event.target.value)}>
+                <option value="">Choose a source type</option>
+                {['REGULATION','QCS','MUNICIPALITY_COMMENT','AUTHORITY_GUIDANCE','ENGINEERING_STANDARD','DESIGN_GUIDE','TECHNICAL_REFERENCE','OTHER'].map(value => <option key={value} value={value}>{value.replaceAll('_', ' ')}</option>)}
+              </select>
+            </label>
+            <label>
+              Discipline
+              <select aria-label="Engineering Discipline" value={discipline} onChange={(event) => setDiscipline(event.target.value)}>
+                {['GENERAL','DESIGN','ARCHITECTURE','STRUCTURAL','CIVIL','MEP','FIRE_LIFE_SAFETY','PERMIT','OTHER'].map(value => <option key={value} value={value}>{value.replaceAll('_', ' ')}</option>)}
+              </select>
+            </label>
+            <label>
+              Additional metadata (authority, edition, effective date, clause/section, applicability notes)
               <textarea
                 aria-label="Engineering metadata"
                 value={metadata}
@@ -1120,6 +1120,22 @@ function formatDateTime(value: string) {
     minute: "2-digit",
   });
 }
+function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onClose: () => void }) {
+  const isDefinition = "term" in item;
+  return <Drawer title={`${item.ref || "Definition"} · ${isDefinition ? item.term : item.title}`} eyebrow={isDefinition ? "DEFINITION DETAILS" : `${item.content_type.replaceAll("_", " ")} DETAILS`} onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
+    <div className="content-detail-grid">
+      <div><span>Category</span><b>{isDefinition ? item.category || "Uncategorized" : item.category?.label || "Uncategorized"}</b></div>
+      <div><span>{isDefinition ? "Revision" : "Version"}</span><b>{isDefinition ? versionLabel(item.revision, true) : versionLabel(item.version)}</b></div>
+      <div><span>Status</span><b>{isDefinition ? friendlyStatus(item.status, true) : friendlyStatus(item.version_status, Boolean(item.version))}</b></div>
+      {!isDefinition && <div><span>Source Type</span><b>{item.source_type_code || "Not classified"}</b></div>}
+      <div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div>
+    </div>
+    <p className="detail-description">{item.description || "No description"}</p>
+    {!isDefinition && <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}{!item.purpose_bindings?.length && <small>No explicit purpose binding.</small>}</div>}
+    {!isDefinition && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+  </Drawer>;
+}
+
 function parseJson(value: string) {
   try {
     const parsed = JSON.parse(value);

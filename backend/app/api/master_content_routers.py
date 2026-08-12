@@ -17,7 +17,7 @@ from ..audit.service import audit
 from ..db import get_db
 from ..config.settings import get_settings
 from ..models import ContentCategory, DefinitionEntry, DefinitionRevision, DocumentVersion, LineageEdge, MasterContentChangeEvent, MasterContentDependency, MasterContentItem, MasterContentModuleBinding, MasterContentReferenceSequence, Role
-from ..services.backend_realignment import require_capability
+from ..services.backend_realignment import persona_for_role, require_capability
 from ..services.master_content import (
     CONTENT_TYPES,
     _adapter,
@@ -41,6 +41,9 @@ from ..services.master_content import (
     ALLOWED_MODULES,
     ALLOWED_USAGE_TYPES,
     reconcile_owner_demo_dataset,
+    ENGINEERING_SOURCE_TYPES,
+    ENGINEERING_DISCIPLINES,
+    resolve_master_content_purpose,
 )
 
 router = APIRouter(prefix="/api", tags=["master-content"])
@@ -74,6 +77,22 @@ def _write_capability(content_type: str) -> str:
     return {"FORM": "MASTER_FORM_WRITE", "REPORT": "MASTER_REPORT_WRITE", "ENGINEERING_WORK": "MASTER_ENGINEERING_WRITE"}.get(content_type.upper(), "MASTER_FORM_WRITE")
 
 
+def _role_can_see(role: Role, row: dict[str, Any]) -> bool:
+    persona = persona_for_role(role)
+    if persona in {"OWNER", "SYSTEM_ADMIN"}:
+        return True
+    module = "BD" if persona == "BUSINESS_DEVELOPMENT" else "ENGINEERING"
+    return module in row.get("used_in", [])
+
+
+def _definition_role_can_see(role: Role, row: dict[str, Any]) -> bool:
+    persona = persona_for_role(role)
+    if persona in {"OWNER", "SYSTEM_ADMIN"}:
+        return True
+    module = "BD" if persona == "BUSINESS_DEVELOPMENT" else "ENGINEERING"
+    return module in row.get("used_in", [])
+
+
 class DefinitionCreate(BaseModel):
     term: str = Field(min_length=1, max_length=240)
     description: str = Field(min_length=1)
@@ -102,6 +121,7 @@ class MetadataPatch(BaseModel):
     description: str | None = None
     used_in: list[str] | None = None
     engineering_metadata: dict[str, Any] | None = None
+    source_type_code: str | None = None
     change_reason: str = Field(min_length=1)
 
 
@@ -109,6 +129,28 @@ class BindingPayload(BaseModel):
     module: str
     usage_type: str = "AVAILABLE"
     active: bool = True
+
+
+class CategoryPayload(BaseModel):
+    code: str = Field(min_length=1, max_length=80)
+    label: str = Field(min_length=1, max_length=160)
+    description: str | None = None
+    allowed_content_types: list[str] = []
+    sort_order: int = 100
+    source_kind: str = "OWNER_CONFIGURED"
+
+
+class CategoryPatch(BaseModel):
+    label: str | None = None
+    description: str | None = None
+    allowed_content_types: list[str] | None = None
+    sort_order: int | None = None
+    active: bool | None = None
+
+
+class ReferencePolicyPayload(BaseModel):
+    prefix: str = Field(min_length=1, max_length=20)
+    padding: int = Field(ge=1, le=8)
 
 
 class AIAssistRequest(BaseModel):
@@ -131,6 +173,88 @@ def categories(db: Session = Depends(get_db), role: Role = Depends(current_user_
     return [{"id": item.id, "code": item.code, "label": item.label, "description": item.description, "allowed_content_types": item.allowed_content_types, "active": item.active, "sort_order": item.sort_order, "source_kind": item.source_kind} for item in db.scalars(select(ContentCategory).where(ContentCategory.active.is_(True)).order_by(ContentCategory.sort_order, ContentCategory.label)).all()]
 
 
+@router.post("/master-content/categories")
+def create_category(payload: CategoryPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_CATEGORY_WRITE")
+    code = payload.code.strip().upper()
+    types = [item.strip().upper() for item in payload.allowed_content_types]
+    if any(item not in {"FORM", "REPORT", "ENGINEERING_WORK", "DEFINITION"} for item in types):
+        raise HTTPException(422, {"code": "CATEGORY_CONTENT_TYPE_INVALID"})
+    if db.scalar(select(ContentCategory).where(ContentCategory.code == code)):
+        raise HTTPException(409, {"code": "CATEGORY_CODE_CONFLICT"})
+    category = ContentCategory(code=code, label=payload.label.strip(), description=payload.description, allowed_content_types=types, sort_order=payload.sort_order, source_kind=payload.source_kind.strip().upper())
+    db.add(category)
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CATEGORY_CREATED", entity_type="ContentCategory", entity_id=category.id, actor_id=_actor(role), after={"code": code, "label": category.label})
+    db.commit()
+    return {"id": category.id, "code": category.code, "label": category.label, "description": category.description, "allowed_content_types": category.allowed_content_types, "active": category.active, "sort_order": category.sort_order, "source_kind": category.source_kind}
+
+
+@router.patch("/master-content/categories/{category_id}")
+def patch_category(category_id: str, payload: CategoryPatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_CATEGORY_WRITE")
+    category = db.get(ContentCategory, category_id)
+    if not category:
+        raise HTTPException(404, {"code": "CATEGORY_NOT_FOUND"})
+    if payload.label is not None:
+        category.label = payload.label.strip()
+    if payload.description is not None:
+        category.description = payload.description
+    if payload.allowed_content_types is not None:
+        category.allowed_content_types = [item.strip().upper() for item in payload.allowed_content_types]
+    if payload.sort_order is not None:
+        category.sort_order = payload.sort_order
+    if payload.active is not None:
+        category.active = payload.active
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CATEGORY_UPDATED", entity_type="ContentCategory", entity_id=category.id, actor_id=_actor(role), after={"label": category.label, "active": category.active})
+    db.commit()
+    return {"id": category.id, "code": category.code, "label": category.label, "description": category.description, "allowed_content_types": category.allowed_content_types, "active": category.active, "sort_order": category.sort_order, "source_kind": category.source_kind}
+
+
+@router.get("/master-content/reference-policies")
+def reference_policies(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    seed_reference_sequences(db)
+    db.commit()
+    return [{"content_type": row.content_type, "prefix": row.prefix, "padding": row.padding, "scope": row.scope, "next_reference": f"{row.prefix}-{row.current_value + 1:0{row.padding}d}", "renumber_existing": False} for row in db.scalars(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.active.is_(True)).order_by(MasterContentReferenceSequence.content_type)).all()]
+
+
+@router.put("/master-content/reference-policies/{content_type}")
+def put_reference_policy(content_type: str, payload: ReferencePolicyPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_CATEGORY_WRITE")
+    content_type = content_type.strip().upper()
+    if content_type not in {"FORM", "REPORT", "ENGINEERING_WORK", "DEFINITION"}:
+        raise HTTPException(422, {"code": "REFERENCE_CONTENT_TYPE_INVALID"})
+    seed_reference_sequences(db)
+    row = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL"))
+    row.prefix = payload.prefix.strip().upper()
+    row.padding = payload.padding
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_REFERENCE_POLICY_UPDATED", entity_type="MasterContentReferenceSequence", entity_id=row.id, actor_id=_actor(role), after={"content_type": content_type, "prefix": row.prefix, "padding": row.padding, "renumber_existing": False})
+    db.commit()
+    return {"content_type": row.content_type, "prefix": row.prefix, "padding": row.padding, "scope": row.scope, "next_reference": f"{row.prefix}-{row.current_value + 1:0{row.padding}d}", "renumber_existing": False}
+
+
+@router.get("/master-content/resolvers/{module}/{purpose}")
+def purpose_resolver(module: str, purpose: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    module = module.strip().upper()
+    if persona_for_role(role) == "BUSINESS_DEVELOPMENT" and module != "BD":
+        raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE"})
+    if persona_for_role(role) == "ENGINEERING" and module not in {"ENGINEERING", "PERMIT", "REPORTS"}:
+        raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE"})
+    return resolve_master_content_purpose(db, module=module, usage_type=purpose)
+
+
+@router.get("/master-content/consumer-resolvers/{consumer}")
+def consumer_resolvers(consumer: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    consumer = consumer.strip().upper()
+    persona = persona_for_role(role)
+    if persona == "BUSINESS_DEVELOPMENT":
+        consumer = "BD"
+    elif persona == "ENGINEERING":
+        consumer = "ENGINEERING"
+    purpose_map = {"BD": [("BD", "PROPOSAL_TEMPLATE"), ("BD", "PROPOSAL_CHECKLIST")], "ADMIN": [("ADMIN", "CONTRACT_TEMPLATE")]}
+    resolved = [{"module": module, "purpose": purpose, "resolution": resolve_master_content_purpose(db, module=module, usage_type=purpose)} for module, purpose in purpose_map.get(consumer, [])]
+    return {"consumer": consumer, "resolvers": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
+
+
 @router.get("/master-content")
 def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, module: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     query = select(MasterContentItem).order_by(MasterContentItem.content_type, MasterContentItem.ref)
@@ -146,6 +270,7 @@ def list_master_content(q: str = "", content_type: str | None = None, category_i
         needle = f"%{q.strip()}%"
         query = query.where(or_(MasterContentItem.title.ilike(needle), MasterContentItem.ref.ilike(needle), MasterContentItem.description.ilike(needle)))
     rows = [item_projection(db, item) for item in db.scalars(query).all()]
+    rows = [row for row in rows if _role_can_see(role, row)]
     if category_label:
         rows = [row for row in rows if (row.get("category") or {}).get("label") == category_label]
     if module:
@@ -172,6 +297,7 @@ async def create_content(
     category_id: str | None = Form(default=None),
     description: str | None = Form(default=None),
     used_in: str | None = Form(default=None),
+    source_type_code: str | None = Form(default=None),
     engineering_metadata: str | None = Form(default=None),
     file: UploadFile = File(...),
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
@@ -183,7 +309,7 @@ async def create_content(
     require_capability(role, _write_capability(content_type))
     payload = await file.read()
     parsed_metadata = _json_object(engineering_metadata)
-    return create_master_content(db, content_type=content_type, ref=ref, title=title, category_id=category_id, description=description, filename=file.filename or "document.bin", mime_type=file.content_type or "application/octet-stream", content=payload, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, engineering_metadata=parsed_metadata)
+    return create_master_content(db, content_type=content_type, ref=ref, title=title, category_id=category_id, description=description, filename=file.filename or "document.bin", mime_type=file.content_type or "application/octet-stream", content=payload, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata)
 
 
 @router.get("/master-content/{item_id}")
@@ -191,7 +317,10 @@ def get_content(item_id: str, db: Session = Depends(get_db), role: Role = Depend
     item = db.get(MasterContentItem, item_id)
     if not item:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
-    return item_projection(db, item, include_history=True)
+    projection = item_projection(db, item, include_history=True)
+    if not _role_can_see(role, projection):
+        raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE", "persona": persona_for_role(role)})
+    return projection
 
 
 @router.get("/master-content/{item_id}/dependencies")
@@ -256,6 +385,10 @@ def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: S
         _sync_module_bindings(db, item_id=item.id, modules=modules, actor=_actor(role))
     if payload.engineering_metadata is not None:
         item.engineering_metadata = payload.engineering_metadata
+    if payload.source_type_code is not None:
+        if item.content_type != "ENGINEERING_WORK" or payload.source_type_code.upper() not in ENGINEERING_SOURCE_TYPES:
+            raise HTTPException(422, {"code": "ENGINEERING_SOURCE_TYPE_NOT_ALLOWED"})
+        item.source_type_code = payload.source_type_code.upper()
     audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_METADATA_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after={"ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "used_in": item.used_in, "current_version_id": current.id}, metadata={"change_reason": payload.change_reason, "document_version_unchanged": True})
     db.commit()
     return item_projection(db, item, include_history=True)
@@ -306,6 +439,7 @@ async def create_version(
     category_id: str | None = Form(default=None),
     description: str | None = Form(default=None),
     used_in: str | None = Form(default=None),
+    source_type_code: str | None = Form(default=None),
     engineering_metadata: str | None = Form(default=None),
     file: UploadFile | None = File(default=None),
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
@@ -319,7 +453,7 @@ async def create_version(
     require_capability(role, _write_capability(item.content_type))
     payload = await file.read() if file else None
     parsed_metadata = _json_object(engineering_metadata)
-    return create_master_content_version(db, item_id=item_id, expected_current_version=expected_current_version, filename=file.filename if file else None, mime_type=file.content_type if file else None, content=payload, title=title, category_id=category_id, description=description, change_reason=change_reason, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, engineering_metadata=parsed_metadata)
+    return create_master_content_version(db, item_id=item_id, expected_current_version=expected_current_version, filename=file.filename if file else None, mime_type=file.content_type if file else None, content=payload, title=title, category_id=category_id, description=description, change_reason=change_reason, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata)
 
 
 @router.get("/master-content/{item_id}/download")
@@ -385,6 +519,7 @@ def list_definitions(q: str = "", category: str | None = None, status: str | Non
     if q.strip():
         query = query.where(DefinitionEntry.term.ilike(f"%{q.strip()}%"))
     rows = [definition_projection(db, item) for item in db.scalars(query).all()]
+    rows = [row for row in rows if _definition_role_can_see(role, row)]
     if module:
         rows = [row for row in rows if module.upper() in row.get("used_in", [])]
     return [{**row, "serial_number": index + 1} for index, row in enumerate(rows)]
@@ -417,7 +552,10 @@ def get_definition(definition_id: str, db: Session = Depends(get_db), role: Role
     definition = db.get(DefinitionEntry, definition_id)
     if not definition:
         raise HTTPException(404, {"code": "DEFINITION_NOT_FOUND"})
-    return definition_projection(db, definition, include_history=True)
+    projection = definition_projection(db, definition, include_history=True)
+    if not _definition_role_can_see(role, projection):
+        raise HTTPException(403, {"code": "DEFINITION_NOT_APPLICABLE", "persona": persona_for_role(role)})
+    return projection
 
 
 @router.get("/definitions/{definition_id}/revisions")

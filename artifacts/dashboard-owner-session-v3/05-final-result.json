@@ -1,0 +1,7 @@
+{
+  "token": "DASHBOARD_OWNER_SESSION_V3_FROZEN_READY_EXCEPT_REAL_SYNOLOGY",
+  "scope_complete": true,
+  "bd_proposal_gate": "FROZEN_READY_EXCEPT_REAL_SYNOLOGY",
+  "external_blocker": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
+  "repository": {"branch": "main", "commit_and_push": "PENDING_FINAL_ACTION", "clean_tree": "PENDING_FINAL_ACTION"}
+}

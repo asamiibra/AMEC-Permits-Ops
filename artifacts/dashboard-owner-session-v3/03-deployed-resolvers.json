@@ -1,0 +1,8 @@
+{
+  "frontend": "https://amec-permits-ops.vercel.app/dashboard",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "migration": "0033_dashboard_owner_session_v3",
+  "contract_template": {"module": "ADMIN", "purpose": "CONTRACT_TEMPLATE", "status": "RESOLVED", "canonical_count": 1, "ref": "CT-001"},
+  "reference_policies": ["D-0004", "E-0005", "F-0006", "R-0003"],
+  "browser": {"tables": "PASS", "open_details": "PASS", "purpose_bindings_visible": true}
+}

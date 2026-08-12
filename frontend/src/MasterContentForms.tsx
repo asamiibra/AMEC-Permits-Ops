@@ -30,6 +30,8 @@ export type CanonicalForm = {
   category?: { id: string; label: string } | null;
   description?: string;
   used_in?: string[];
+  purpose_bindings?: { module: string; usage_type: string; active: boolean }[];
+  source_type_code?: string | null;
   version?: number;
   version_status: string;
   current_source_filename?: string;
@@ -69,6 +71,7 @@ export function CanonicalFormsLibrary({
     title: string;
     versions: Version[];
   } | null>(null);
+  const [details, setDetails] = useState<CanonicalForm | null>(null);
   const [busy, setBusy] = useState(false);
   const canWrite = ownerRoles.has(role);
   const load = async () => {
@@ -195,6 +198,7 @@ export function CanonicalFormsLibrary({
           forms={forms}
           canWrite={canWrite}
           onEdit={setEditor}
+          onOpen={async (form) => setDetails(await api<CanonicalForm>(`/api/master-content/${form.id}`))}
           onHistory={async (form) => {
             const detail = await api<CanonicalForm>(
               `/api/master-content/${form.id}`,
@@ -219,6 +223,7 @@ export function CanonicalFormsLibrary({
       {history && (
         <FormHistory history={history} onClose={() => setHistory(null)} />
       )}
+      {details && <FormDetails item={details} onClose={() => setDetails(null)} />}
     </section>
   );
 }
@@ -227,11 +232,13 @@ function FormTable({
   forms,
   canWrite,
   onEdit,
+  onOpen,
   onHistory,
 }: {
   forms: CanonicalForm[];
   canWrite: boolean;
   onEdit: (item: CanonicalForm) => void;
+  onOpen: (item: CanonicalForm) => void;
   onHistory: (item: CanonicalForm) => void;
 }) {
   return (
@@ -244,10 +251,6 @@ function FormTable({
             <th>Form</th>
             <th>Category</th>
             <th>Description</th>
-            <th>Used In</th>
-            <th>Version</th>
-            <th>Status</th>
-            <th>Updated</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -268,25 +271,8 @@ function FormTable({
               >
                 {form.description || "No description"}
               </td>
-              <td>
-                <UsedInChips values={form.used_in} />
-              </td>
-              <td>{versionLabel(form.version)}</td>
-              <td>
-                <StatusBadge
-                  value={form.version_status}
-                  hasVersion={Boolean(form.version)}
-                />
-              </td>
-              <td>{formatDate(form.updated)}</td>
               <td className="dashboard-actions">
-                <a
-                  className="table-action action-view"
-                  href={`/api/master-content/${form.id}/download`}
-                  download
-                >
-                  View
-                </a>
+                <button className="table-action action-view" onClick={() => onOpen(form)}>Open</button>
                 {canWrite && (
                   <button
                     className="table-action action-edit"
@@ -308,6 +294,20 @@ function FormTable({
       </table>
     </div>
   );
+}
+
+function FormDetails({ item, onClose }: { item: CanonicalForm; onClose: () => void }) {
+  return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
+    <div className="content-detail-grid">
+      <div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div>
+      <div><span>Version</span><b>{versionLabel(item.version)}</b></div>
+      <div><span>Status</span><b>{friendlyStatus(item.version_status, Boolean(item.version))}</b></div>
+      <div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div>
+    </div>
+    <p className="detail-description">{item.description || "No description"}</p>
+    <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}</div>
+    <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>
+  </Drawer>;
 }
 
 function FormEditor({
