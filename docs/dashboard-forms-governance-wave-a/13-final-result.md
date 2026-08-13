@@ -10,10 +10,11 @@ Wave A is regression-proven locally but not frozen because deployment and deploy
 
 - Branch: `main`
 - Baseline SHA: `0ccb61a2b7ac483a17590c27eca594b16b505bb7`
-- Final local SHA before evidence amend: `f0b0500` (amend will be recorded after this evidence refresh)
-- Remote SHA: pending push verification
+- Wave A source closure commit: `6e4904561eba3143591a68afa5940e6fbd5a0948`
+- Source push remote SHA: `6e4904561eba3143591a68afa5940e6fbd5a0948`
+- A later documentation-only evidence refresh is recorded in the final repository state.
 - Alembic head: `0036_dashboard_forms_governance_wave_a`
-- Working tree: clean after final amend/push, if the external push succeeds
+- Working tree: clean after the evidence-only follow-up push
 
 ## Implementation preserved
 

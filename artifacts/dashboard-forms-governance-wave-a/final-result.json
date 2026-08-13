@@ -9,7 +9,7 @@
   "browser_real_stack": {"passed": 3, "failed": 0},
   "deployment": "DEPLOYMENT_VERIFICATION_BLOCKED",
   "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
-  "local_sha_before_evidence_amend": "f0b0500",
-  "remote_sha": "PENDING_PUSH_VERIFICATION",
-  "working_tree": "CLEAN_EXPECTED_AFTER_AMEND_PUSH"
+  "source_closure_commit": "6e4904561eba3143591a68afa5940e6fbd5a0948",
+  "source_push_remote_sha": "6e4904561eba3143591a68afa5940e6fbd5a0948",
+  "working_tree": "CLEAN_AFTER_EVIDENCE_ONLY_FOLLOW_UP"
 }
