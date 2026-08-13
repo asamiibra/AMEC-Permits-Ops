@@ -55,10 +55,13 @@ def test_configuration_bundle_is_stable_and_reconstructable(client):
 def test_safety_contract_has_no_machine_final_submit(client):
     openapi = client.get("/openapi.json").json()
     paths = " ".join(openapi["paths"].keys()).upper()
+    permit_paths = " ".join(path for path in openapi["paths"].keys() if not path.startswith("/api/billing")).upper()
     operations = str(openapi).upper()
     assert "FINAL_SUBMIT" not in paths
     assert "SUBMIT_APPLICATION" not in operations
-    assert "PAYMENT" not in paths
+    # Billing has an explicitly bounded payment-evidence/allocation seam; the
+    # permit workflow safety contract remains unchanged outside that namespace.
+    assert "PAYMENT" not in permit_paths
     assert "SIGNATURE" not in paths
 
 

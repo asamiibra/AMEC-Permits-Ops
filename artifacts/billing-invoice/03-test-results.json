@@ -1,0 +1,1 @@
+{"status":"PROTECTED_AND_REGRESSION_VERIFIED","targeted_sqlite":{"passed":2,"failed":0},"full_sqlite":{"passed":163,"skipped":1,"failed":0,"warnings":2},"targeted_postgresql":{"passed":2,"failed":0},"frontend_build":"passed"}

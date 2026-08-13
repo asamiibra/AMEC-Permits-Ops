@@ -65,7 +65,9 @@ import { DashboardInputsPage } from "./DashboardInputs";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
+import { BillingInvoicePage } from "./BillingInvoice";
 import "./dashboard.css";
+import "./billing-invoice.css";
 
 type Decision = {
   id: string;
@@ -108,6 +110,7 @@ const businessNav: BusinessNavItem[] = [
     canonicalLabel: "Opportunities",
     icon: "↗",
   },
+  { id: "billing", page: "billing", label: "Billing / Invoice", icon: "▤" },
   {
     id: "engineering",
     page: "project-engineering",
@@ -179,6 +182,7 @@ const pageFromPath = () => {
   if (path === "/dashboard-v2") return "dashboard-v2";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
+  if (path === "/billing" || path.startsWith("/billing/")) return "billing";
   if (path === "/engineering") return "project-engineering";
   if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
@@ -405,6 +409,7 @@ function App() {
         "dashboard",
         "my-work",
         "bd",
+        "billing",
         "permit",
         "authority-cases",
         "issues",
@@ -588,6 +593,7 @@ function App() {
           )}{" "}
           {page === "about" && <AboutPermitOpsPage onNavigate={navigate} />}{" "}
           {page === "opportunities" && <OpportunitiesPage />}{" "}
+          {page === "billing" && <BillingInvoicePage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
           {page === "authority-cases" && <AuthorityCaseWorkspacePage />}{" "}

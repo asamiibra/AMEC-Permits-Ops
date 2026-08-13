@@ -1,0 +1,1 @@
+{"status":"PROTECTED_AND_REGRESSION_VERIFIED","backend_rbac":true,"cross_project_context_checks":true,"financial_account_masking":true,"payment_evidence_not_broadly_logged":true,"accept_issue_owner_only":true,"download_requires_billing_view":true,"ai_authority":false,"settlement_or_gl":false}

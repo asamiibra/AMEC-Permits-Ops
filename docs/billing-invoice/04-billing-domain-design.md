@@ -1,0 +1,3 @@
+# Billing domain design
+
+BillingPlan is a human-created operational interpretation of one exact finalized ContractRevision. BillingPlanRevision is immutable after activation. BillingMilestone stores basis, trigger, calculated amount, eligibility, invoiced amount, and remaining amount. Eligibility is separate from Invoice creation. Invoice remains the stable identity; InvoiceRevision contains exact content and line items. Accept locks a revision; Issue creates one immutable issue event, allocates the official reference, resolves exact template/account versions, and creates the final artifact. Receivable state is derived from issue/due date/verified allocations, never manually set.

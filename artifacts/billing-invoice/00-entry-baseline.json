@@ -1,0 +1,13 @@
+{
+  "branch": "main",
+  "starting_sha": "24e4e9d759eb681ad597c251303346e77cfeb7d8",
+  "starting_origin_main": "24e4e9d759eb681ad597c251303346e77cfeb7d8",
+  "working_tree": "clean",
+  "alembic_head": "0047_prebilling_regulatory_context",
+  "local_alembic_current": "0021_e7_unified_task_context",
+  "prebilling_token": "PRE_BILLING_CROSS_WORKSTREAM_BASELINE_CODE_FROZEN",
+  "contract_dependency_token": "BILLING_INVOICE_CONTRACT_DEPENDENCIES_READY",
+  "invoice_source_docx": "BLOCKED_EXTERNAL_NOT_FOUND",
+  "existing_finance_seam": ["Invoice", "InvoiceRevision", "InvoiceMilestone", "InvoiceApproval", "FinanceEvidence", "AccountingHandoff"],
+  "missing_canonical_seams": ["BillingPlan", "BillingPlanRevision", "BillingMilestone", "InvoiceLineItem", "FinancialAccountVersion", "PaymentReceipt", "InvoicePaymentAllocation", "ReceivableFollowUp"]
+}

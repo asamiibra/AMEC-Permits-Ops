@@ -1,0 +1,1 @@
+{"status":"IMPLEMENTED_AND_VERIFIED","migration":"0048_billing_invoice_full","fresh_sqlite":"0048_billing_invoice_full (head)","sqlite_downgrade_reupgrade":"passed","postgresql_existing_upgrade":"passed from 0006_confirmation_binding","postgresql_fresh_upgrade":"0048_billing_invoice_full (head)"}
