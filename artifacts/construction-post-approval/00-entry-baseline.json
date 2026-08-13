@@ -1,0 +1,1 @@
+{"workstream":"construction-post-approval","upstream_sha":"32daf7471b7086ee399df92256ec030bd5c18f70","upstream_alembic":"0049_billing_v2_communication_due_events","scope_excludes":["completion","as-built","handover","financial-settlement"],"pre_change_postgresql":{"backend":"165 passed, 2 warnings","frontend":"32 passed","build":"passed"}}

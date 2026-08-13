@@ -1,0 +1,1 @@
+{"idempotency_keys":["ConstructionStartAuthorization","ConstructionWorkControlEvent","AuthorityNotification"],"duplicate_command_behavior":"returns existing record for matching project scope; cross-project reuse rejected","database_concurrency_test":"not separately executed"}

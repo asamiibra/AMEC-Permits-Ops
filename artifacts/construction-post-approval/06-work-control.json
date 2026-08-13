@@ -1,0 +1,1 @@
+{"events":["START","STOP","POSTPONE","RESUME"],"states":["NOT_STARTED","WORK_ACTIVE","WORK_STOPPED","POSTPONED"],"transition_enforcement":true,"idempotency":true,"audit_and_lineage":true}

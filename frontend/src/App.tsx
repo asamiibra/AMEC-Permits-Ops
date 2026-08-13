@@ -66,8 +66,10 @@ import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
 import { BillingInvoicePage } from "./BillingInvoice";
+import { ConstructionPage } from "./Construction";
 import "./dashboard.css";
 import "./billing-invoice.css";
+import "./construction.css";
 
 type Decision = {
   id: string;
@@ -118,6 +120,7 @@ const businessNav: BusinessNavItem[] = [
     canonicalLabel: "Engineering & Closeout",
     icon: "⌁",
   },
+  { id: "construction", page: "construction", label: "Construction", icon: "▥" },
   {
     id: "permit",
     page: "permit-portfolio",
@@ -184,6 +187,7 @@ const pageFromPath = () => {
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
   if (path === "/engineering") return "project-engineering";
+  if (path === "/construction" || path.startsWith("/construction/")) return "construction";
   if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
@@ -420,6 +424,7 @@ function App() {
         "dashboard",
         "my-work",
         "engineering",
+        "construction",
         "permit",
         "authority-cases",
         "issues",
@@ -596,6 +601,7 @@ function App() {
           {page === "billing" && <BillingInvoicePage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
+          {page === "construction" && <ConstructionPage />}{" "}
           {page === "authority-cases" && <AuthorityCaseWorkspacePage />}{" "}
           {page === "engineering-closeout" && <EngineeringCloseoutPage />}{" "}
           {page === "permit-portfolio" && <PermitPortfolioPage />} {" "}

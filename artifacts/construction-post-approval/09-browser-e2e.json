@@ -1,0 +1,1 @@
+{"spec":"frontend/browser-real-stack/construction-post-approval.spec.ts","result":"1 passed","checks":["real API create project/execution","START rejected before authorization","readiness NOT_READY","construction page rendered","screenshot captured"],"visual":"artifacts/construction-post-approval/visual/construction-start-gate.png"}

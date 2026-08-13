@@ -1,0 +1,1 @@
+{"obligations":"versioned definition/instance/participant records","trigger":"WORK_START transitions WAITING_TRIGGER to DUE","notifications":"PREPARED then evidence-recorded SENT; no external send performed","correspondence":"separate record","external_verification":"not performed"}

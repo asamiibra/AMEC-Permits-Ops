@@ -1,0 +1,1 @@
+{"readiness_result":"NOT_READY","verified_negative_control":"START without ConstructionStartAuthorization returns HTTP 409","blockers":["PROJECT_ACTIVATION_REQUIRED","FINAL_AMEC_CONTRACT_REVISION_REQUIRED","CURRENT_AUTHORITY_APPROVAL_REQUIRED","CURRENT_CONSTRUCTION_DESIGN_REQUIRED"],"auto_start":false,"authorization":"human-only"}

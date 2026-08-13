@@ -42,6 +42,7 @@ from .api.preparation_submission_routers import router as preparation_submission
 from .api.regulatory_context_routers import router as regulatory_context_router
 from .api.permit_ux_routers import router as permit_ux_router
 from .api.billing_invoice_routers import router as billing_invoice_router
+from .api.construction_routers import router as construction_router
 
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO), format='%(message)s')
@@ -231,3 +232,4 @@ app.include_router(preparation_submission_router)
 app.include_router(regulatory_context_router)
 app.include_router(permit_ux_router)
 app.include_router(billing_invoice_router)
+app.include_router(construction_router)
