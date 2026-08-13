@@ -1,0 +1,11 @@
+{
+  "tokens": {
+    "ENGINEERING_APPROVED_DESIGN_BASELINE_CODE_FROZEN": "executable_prior_evidence",
+    "ENGINEERING_OWNER_SKETCH_RECONCILIATION_CODE_FROZEN": "executable_prior_evidence",
+    "PREPARATION_SUBMISSION_LOOP_CODE_FROZEN": "executable_prior_evidence",
+    "PERMIT_AUTHORITY_CASE_UX_CODE_FROZEN": "executable_prior_evidence",
+    "ADMIN_CONTRACT_OWNER_SKETCH_RECONCILIATION_CODE_FROZEN": "executable_prior_evidence",
+    "BILLING_INVOICE_CONTRACT_DEPENDENCIES_READY": "executable_contract_billing_context_test"
+  },
+  "deployment_provenance": "BLOCKED_EXTERNAL"
+}

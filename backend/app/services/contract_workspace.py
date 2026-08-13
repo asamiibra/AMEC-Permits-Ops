@@ -141,7 +141,8 @@ def contract_billing_context(db: Session, contract: Contract, revision_id: str |
         blockers.append({"code": "CLIENT_CONTEXT_REQUIRED", "label": "Canonical Client"})
     if not contract.amount_value or not contract.currency:
         blockers.append({"code": "CONTRACT_AMOUNT_CURRENCY_REQUIRED", "label": "Contract Amount and Currency"})
-    if not activation:
+    project_policy = str(runtime_decision_value(db, "BILLING_PROJECT_REQUIREMENT_POLICY", "REQUIRED")).upper()
+    if not activation and project_policy in {"REQUIRED", "PROJECT_REQUIRED"}:
         blockers.append({"code": "PROJECT_ACTIVATION_HUMAN_ACTION_REQUIRED", "label": "Explicit Project Activation"})
     if not payment_terms or any(str(item.status).upper() not in {"VERIFIED", "HUMAN_VERIFIED", "CONFIRMED"} for item in payment_terms):
         blockers.append({"code": "PAYMENT_TERMS_REVIEW_REQUIRED", "label": "Human-verified Contract payment terms"})
@@ -154,11 +155,16 @@ def contract_billing_context(db: Session, contract: Contract, revision_id: str |
         "contract_id": contract.id,
         "contract_reference": contract.contract_reference,
         "revision": {"id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "content_hash": revision.content_hash} if revision else None,
+        "revision_selection": {"requested_revision_id": revision_id, "latest_lookup_used": revision_id is None, "exact_revision_pinned": bool(revision)},
         "status": status,
         "blockers": blockers,
         "client_account_id": contract.client_account_id,
-        "project_id": contract.project_id,
+        "project_id": activation.project_id if activation else None,
         "project_code": activation.project_code if activation else None,
+        "project_activation_status": "ACTIVE" if activation else "NOT_ACTIVATED",
+        "project_required_policy": project_policy,
+        "contract_project_context_snapshot": {"project_opportunity_ref": contract.project_opportunity_ref, "project_description": contract.contract_name, "location_or_property_context": (revision.source_snapshot or {}).get("location_or_property_context") if revision else None, "source": "CONTRACT_OR_ACCEPTED_PROPOSAL_SNAPSHOT", "canonical_project_created": bool(activation)},
+        "proposal_opportunity_ref": contract.project_opportunity_ref,
         "project_start_date": activation.start_date.isoformat() if activation else None,
         "contract_amount": {"value": contract.amount_value, "currency": contract.currency},
         "valuation": {"value": str(contract.valuation_amount) if contract.valuation_amount is not None else None, "currency": contract.valuation_currency, "basis": contract.valuation_basis, "status": contract.valuation_status},
@@ -172,6 +178,7 @@ def contract_billing_context(db: Session, contract: Contract, revision_id: str |
         "invoice_created": False,
         "billing_milestone_created": False,
         "invoice_implementation": "BILLING_INVOICE_IMPLEMENTATION_DEFERRED_TO_NEXT_WORKSTREAM",
+        "external_agreement_consumption": "AMEC_PROFESSIONAL_SERVICES_CONTRACT_ONLY",
     }
 
 

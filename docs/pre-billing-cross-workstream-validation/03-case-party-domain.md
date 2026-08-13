@@ -1,0 +1,3 @@
+# Case party domain
+
+Canonical `Party`, `Property`, `PropertyOwnership`, `Representation`, and `Authorization` primitives are reused. The smallest missing shared extensions are now `PartyRoleAssignment` and `AuthorityCaseSubject`; they are case/project scoped and never create a Permit-local Party truth. Roles remain explicit: Commercial Client, Property Owner, Applicant, Tenant, Buyer/Purchaser, Authorized Agent, Consultant Office, Supervising Engineer, Contractor, Responsible Engineer, Maintenance Contractor, Laboratory, and Authorized Signatory are not default aliases. The executable synthetic test proves Client Org A, Owner Person B, and Applicant Person C remain distinct.

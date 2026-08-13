@@ -1,0 +1,10 @@
+{
+  "branch": "main",
+  "starting_sha": "ba383fe3e07510a4d49be1737453977e977f0156",
+  "starting_origin_main": "ba383fe3e07510a4d49be1737453977e977f0156",
+  "entry_tree": "clean",
+  "entry_alembic_head": "0046_engineering_drawing_review_reconciliation",
+  "local_alembic_current": "0021_e7_unified_task_context",
+  "controlling_register": "BLOCKED_EXTERNAL_NOT_IN_CHECKOUT",
+  "billing_implementation": false
+}

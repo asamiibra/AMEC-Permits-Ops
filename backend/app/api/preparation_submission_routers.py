@@ -21,17 +21,19 @@ from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
 from ..models import (
-    ApprovedDesignBaseline, ApprovedDesignBaselineMember, AuthorityCase,
+    ApprovedDesignBaseline, ApprovedDesignBaselineMember, AuthorityCase, AuthorityCaseSubject,
     AuthorityCaseCreateRequest, AuthorityCaseFinding, AuthorityCaseIdentifier,
     AuthorityCaseOutcome, AuthorityCasePolicyBinding, AuthorityFindingResponse,
     AuthoritySubmissionCycle, CaseEvidenceSelection, Document, DocumentVersion,
     ExternalBody, ExternalSubmissionSnapshot, FormInstance, Jurisdiction, LineageEdge,
-    PhysicalEvidenceItem, PreparationRevision, Project, RequirementApplicabilityDecision,
+    PhysicalEvidenceItem, PreparationRevision, Project, Property, RequirementApplicabilityDecision,
     RequirementDecision, RequirementDefinition, RequirementGroup,
     RequirementInstance, RequirementPolicyItem, RequirementPolicyVersion,
     RegulatoryJourney, Role, ServiceType, SubmissionAttempt, SubmissionPackage, SubmissionPackageItem,
     SubmissionPrecheckCheck, SubmissionPrecheckRun,
+    CasePartySnapshot,
 )
+from ..services.regulatory_context import build_case_party_snapshot, case_party_context
 
 
 router = APIRouter(prefix="/api")
@@ -171,9 +173,22 @@ def create_authority_case(payload: dict[str, Any], request: Request, db: Session
     else:
         journey = RegulatoryJourney(journey_code=str(payload.get("journey_code") or f"JRN-{project.project_number}-{str(uuid4())[:8].upper()}"), project_id=project.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, external_body_id=body.id, status="OPEN", opened_at=datetime.now(timezone.utc), created_by=actor)
         db.add(journey); db.flush()
+    subject_type = str(payload.get("subject_type") or "Project")
+    subject_id = str(payload.get("subject_id") or project.id)
+    if subject_type == "Project":
+        if subject_id != project.id:
+            raise _http(409, "CASE_SUBJECT_PROJECT_MISMATCH")
+        subject_snapshot = {"project_id": project.id, "project_number": project.project_number, "project_name": project.project_name}
+    elif subject_type == "Property":
+        property_record = db.get(Property, subject_id)
+        if not property_record or property_record.project_id != project.id:
+            raise _http(404, "CASE_SUBJECT_PROPERTY_NOT_FOUND")
+        subject_snapshot = _row(property_record)
+    else:
+        raise _http(422, "CASE_SUBJECT_TYPE_NOT_CANONICAL", subject_type=subject_type, supported=["Project", "Property"])
     case_ref = str(payload.get("case_reference") or f"CASE-{project.project_number}-{str(uuid4())[:8].upper()}")
-    case = AuthorityCase(case_reference=case_ref, regulatory_journey_id=journey.id, external_body_id=body.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="PREPARING", subject_type=str(payload.get("subject_type") or "Project"), subject_id=str(payload.get("subject_id") or project.id), opened_at=datetime.now(timezone.utc), created_by=actor)
-    db.add(case); db.flush()
+    case = AuthorityCase(case_reference=case_ref, regulatory_journey_id=journey.id, external_body_id=body.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="PREPARING", subject_type=subject_type, subject_id=subject_id, opened_at=datetime.now(timezone.utc), created_by=actor)
+    db.add(case); db.flush(); subject = AuthorityCaseSubject(authority_case_id=case.id, subject_type=subject_type, subject_id=subject_id, subject_snapshot_json=subject_snapshot, created_by=actor); db.add(subject); db.flush(); _lineage(db, case, "AuthorityCaseSubject", subject.id, request, upstream_type="Project", upstream_id=project.id, kind="CASE_SUBJECT_SNAPSHOT"); audit(db, correlation_id=_corr(request), event_type="AUTHORITY_CASE_SUBJECT_SET", entity_type="AuthorityCaseSubject", entity_id=subject.id, actor_id=actor, after={"subject_type": subject_type, "subject_id": subject_id})
     db.add(AuthorityCaseCreateRequest(idempotency_key=key, authority_case_id=case.id, requested_by=actor))
     _lineage(db, case, "AuthorityCase", case.id, request, upstream_type="Project", upstream_id=project.id, kind="EXPLICIT_CASE_START")
     audit(db, correlation_id=_corr(request), event_type="AUTHORITY_CASE_CREATED", entity_type="AuthorityCase", entity_id=case.id, actor_id=actor, after={"case_reference": case.case_reference, "project_id": project.id, "external_body_id": body.id, "jurisdiction_id": jurisdiction.id, "service_type_id": service.id})
@@ -314,7 +329,8 @@ def _snapshot(db: Session, case: AuthorityCase, prep: PreparationRevision) -> di
     instances = db.scalars(select(RequirementInstance).where(RequirementInstance.authority_case_id == case.id).order_by(RequirementInstance.id)).all()
     evidence = db.scalars(select(CaseEvidenceSelection).where(CaseEvidenceSelection.authority_case_id == case.id).order_by(CaseEvidenceSelection.id)).all()
     physical = db.scalars(select(PhysicalEvidenceItem).where(PhysicalEvidenceItem.authority_case_id == case.id).order_by(PhysicalEvidenceItem.id)).all()
-    return {"case_id": case.id, "policy_version_id": prep.authority_policy_version_id, "approved_design_baseline_id": prep.authority_approved_design_baseline_id, "requirements": [_row(x) for x in instances], "evidence": [_row(x) for x in evidence], "physical": [_row(x) for x in physical]}
+    party_snapshot = db.get(CasePartySnapshot, prep.case_party_snapshot_id) if prep.case_party_snapshot_id else None
+    return {"case_id": case.id, "policy_version_id": prep.authority_policy_version_id, "approved_design_baseline_id": prep.authority_approved_design_baseline_id, "case_party_snapshot_id": party_snapshot.id if party_snapshot else None, "party_context": party_snapshot.snapshot_json if party_snapshot else case_party_context(db, case), "requirements": [_row(x) for x in instances], "evidence": [_row(x) for x in evidence], "physical": [_row(x) for x in physical]}
 
 
 @router.post("/authority-cases/{case_id}/preparations")
@@ -330,7 +346,7 @@ def create_preparation(case_id: str, payload: dict[str, Any], request: Request, 
     last = db.scalar(select(func.max(PreparationRevision.authority_revision_number)).where(PreparationRevision.authority_case_id == case.id)) or 0
     project = _case_project(db, case)
     prep = PreparationRevision(project_id=project.id, application_id=None, sequence=last + 1, status="WORKING", scenario_version="AUTHORITY_CASE_V2", field_authority_version="CANONICAL", requirement_config_version=policy.version, rendering_config_version="CANONICAL", authority_case_id=case.id, authority_revision_number=last + 1, authority_policy_version_id=policy.id, authority_approved_design_baseline_id=baseline_id, authority_state="WORKING", created_by=actor)
-    db.add(prep); db.flush(); prep.authority_snapshot_json = _snapshot(db, case, prep); _lineage(db, case, "PreparationRevision", prep.id, request, upstream_type="RequirementPolicyVersion", upstream_id=policy.id, kind="PREPARATION_POLICY_PIN")
+    db.add(prep); db.flush(); party_snapshot = build_case_party_snapshot(db, case, project=project, preparation_revision=prep, actor=actor); _lineage(db, case, "CasePartySnapshot", party_snapshot.id, request, kind="CASE_PARTY_CONTEXT_SNAPSHOT"); audit(db, correlation_id=_corr(request), event_type="CASE_PARTY_SNAPSHOT_CREATED", entity_type="CasePartySnapshot", entity_id=party_snapshot.id, actor_id=actor, after={"snapshot_hash": party_snapshot.snapshot_hash, "snapshot_number": party_snapshot.snapshot_number}); prep.authority_snapshot_json = _snapshot(db, case, prep); _lineage(db, case, "PreparationRevision", prep.id, request, upstream_type="RequirementPolicyVersion", upstream_id=policy.id, kind="PREPARATION_POLICY_PIN")
     audit(db, correlation_id=_corr(request), event_type="PREPARATION_REVISION_CREATED", entity_type="PreparationRevision", entity_id=prep.id, actor_id=actor, after={"case_id": case.id, "revision_number": prep.authority_revision_number, "baseline_id": baseline_id}); db.commit()
     return _row(prep)
 
@@ -343,7 +359,7 @@ def lock_preparation(case_id: str, preparation_id: str, payload: dict[str, Any],
         raise _http(404, "PREPARATION_REVISION_NOT_FOUND")
     if prep.authority_state == "LOCKED": return _row(prep)
     if prep.authority_state != "WORKING": raise _http(409, "PREPARATION_REVISION_IMMUTABLE")
-    case = _case(db, case_id); prep.authority_snapshot_json = _snapshot(db, case, prep); prep.authority_snapshot_hash = _hash(prep.authority_snapshot_json); prep.authority_state = "LOCKED"; prep.status = "AUTHORITY_LOCKED"; prep.authority_locked_at = datetime.now(timezone.utc)
+    case = _case(db, case_id); project = _case_project(db, case); actor = _actor(request, payload); party_snapshot = build_case_party_snapshot(db, case, project=project, preparation_revision=prep, actor=actor); _lineage(db, case, "CasePartySnapshot", party_snapshot.id, request, kind="CASE_PARTY_CONTEXT_SNAPSHOT"); audit(db, correlation_id=_corr(request), event_type="CASE_PARTY_SNAPSHOT_CREATED", entity_type="CasePartySnapshot", entity_id=party_snapshot.id, actor_id=actor, after={"snapshot_hash": party_snapshot.snapshot_hash, "snapshot_number": party_snapshot.snapshot_number}); prep.authority_snapshot_json = _snapshot(db, case, prep); prep.authority_snapshot_hash = _hash(prep.authority_snapshot_json); prep.authority_state = "LOCKED"; prep.status = "AUTHORITY_LOCKED"; prep.authority_locked_at = datetime.now(timezone.utc)
     audit(db, correlation_id=_corr(request), event_type="PREPARATION_REVISION_LOCKED", entity_type="PreparationRevision", entity_id=prep.id, actor_id=_actor(request, payload), after={"snapshot_hash": prep.authority_snapshot_hash}); db.commit(); return _row(prep)
 
 

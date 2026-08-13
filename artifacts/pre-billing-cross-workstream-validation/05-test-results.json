@@ -1,0 +1,7 @@
+{
+  "backend": {"command": "pytest -q backend/tests", "passed": 161, "skipped": 1, "failed": 0, "warnings": 2},
+  "frontend": {"command": "npm run build", "status": "PASS", "typescript": "PASS", "vite": "PASS"},
+  "focused": {"test": "test_prebilling_regulatory_context.py", "status": "PASS"},
+  "postgresql": "BLOCKED_EXTERNAL_NOT_CONFIGURED",
+  "sqlite": "PASS_FRESH_MIGRATION"
+}

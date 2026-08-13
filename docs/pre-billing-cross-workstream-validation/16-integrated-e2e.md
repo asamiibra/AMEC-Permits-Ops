@@ -1,0 +1,3 @@
+# Integrated E2E evidence
+
+Focused test `backend/tests/test_prebilling_regulatory_context.py` proves: Client Org A, Owner Person B, Applicant Person C, and Agent are distinct; POWER_OF_ATTORNEY is relational; general mobile and regulatory contact are separate; PreparationRevision pins CasePartySnapshot; and party changes set open preparation to `NEEDS_REVALIDATION`. Existing Preparation/Submission, Permit, Engineering, and Admin Contract tests cover the surrounding flows. Historical submitted-cycle immutability is enforced by the revalidation query excluding LOCKED/SUBMITTED/HISTORICAL states. Multi-party obligations and BuildingAsset are explicitly deferred because neither canonical model exists in current scope.

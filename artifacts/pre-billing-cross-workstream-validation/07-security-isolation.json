@@ -1,0 +1,8 @@
+{
+  "rbac": "PASS",
+  "cross_project_party_source_evidence": "REJECTED",
+  "cross_project_authorization_evidence": "REJECTED",
+  "contact_values_in_read_model": "MASKED",
+  "journey_case_project_scope": "ENFORCED",
+  "contract_context_project_scope": "ENFORCED_BY_CANONICAL_CONTRACT_AND_ACTIVATION"
+}

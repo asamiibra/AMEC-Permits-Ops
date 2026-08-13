@@ -1,0 +1,12 @@
+{
+  "base_url": "http://127.0.0.1:4173",
+  "status": "PASS_LOCAL_REAL_STACK",
+  "surfaces": [
+    "permits/new — Project/Journey/Body/Jurisdiction/Service start gate",
+    "permits — case-lane portfolio empty-state safety",
+    "engineering/drawing-review — project context and review category/revision",
+    "admin/contract-setup — Contract register and explicit activation",
+    "admin/contracts/inputs/go-live — Project Activation Authority and Owner inputs"
+  ],
+  "populated_case_ui": "not_fabricated; API/read-model test evidence covers case detail"
+}

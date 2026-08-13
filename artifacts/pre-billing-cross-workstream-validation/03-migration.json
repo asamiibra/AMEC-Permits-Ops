@@ -1,0 +1,8 @@
+{
+  "migration": "0047_prebilling_regulatory_context",
+  "from": "0046_engineering_drawing_review_reconciliation",
+  "fresh_sqlite_upgrade": "PASS",
+  "fresh_sqlite_current": "0047_prebilling_regulatory_context (head)",
+  "new_tables": ["authority_case_subjects", "party_role_assignments", "authorization_grants", "contact_points", "case_party_snapshots"],
+  "preparation_column": "case_party_snapshot_id"
+}

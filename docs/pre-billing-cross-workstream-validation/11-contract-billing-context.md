@@ -1,0 +1,3 @@
+# Contract billing context
+
+`contract_billing_context` is a read-only DTO seam. It pins the requested exact `ContractRevision` when supplied, reports revision-selection metadata, canonical client, amount/currency, payment condition, verified structured terms, valuation-safe state, LPO/client evidence, contract authority, project activation status, and project/opportunity context. It returns `invoice_created: false` and `billing_milestone_created: false`; it creates no Billing object. The existing Contract test now asserts exact revision pinning, project status, immutable context marker, and AMEC-only agreement consumption.

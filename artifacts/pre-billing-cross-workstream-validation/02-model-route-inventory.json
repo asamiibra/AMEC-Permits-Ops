@@ -1,0 +1,8 @@
+{
+  "present": [
+    "EngineeringReviewCategory", "EngineeringCategoryAssignment", "RegulatoryJourney", "AuthorityCase", "Party", "Property", "RequirementInstance", "PreparationRevision", "SubmissionPackage", "AuthorityCaseFinding", "Contract", "ContractRevision", "ProjectActivation", "ContractBillingContext(read-only DTO)"
+  ],
+  "added": ["AuthorityCaseSubject", "PartyRoleAssignment", "CasePartySnapshot", "AuthorizationGrant", "ContactPoint"],
+  "not_present_and_not_invented": ["BuildingAsset", "ExternalAgreement", "ObligationParticipant", "Consent/NOC dedicated model"],
+  "billing_objects_implemented_by_this_prompt": []
+}

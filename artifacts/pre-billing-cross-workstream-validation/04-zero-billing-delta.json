@@ -1,0 +1,11 @@
+{
+  "method": "scoped diff inspection plus read-only ContractBillingContext assertions",
+  "BillingPlan": {"baseline_delta": 0, "created": 0},
+  "BillingMilestone": {"baseline_delta": 0, "created": 0},
+  "Invoice": {"baseline_delta": 0, "created": 0},
+  "InvoiceRevision": {"baseline_delta": 0, "created": 0},
+  "FinancialAccountMaster": {"baseline_delta": 0, "created": 0},
+  "PaymentReceipt": {"baseline_delta": 0, "created": 0},
+  "invoice_created_field": false,
+  "billing_milestone_created_field": false
+}

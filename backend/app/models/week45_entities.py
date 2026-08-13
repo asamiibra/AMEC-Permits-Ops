@@ -244,6 +244,7 @@ class PreparationRevision(Base):
     authority_state: Mapped[str | None] = mapped_column(String(40), index=True)
     authority_snapshot_hash: Mapped[str | None] = mapped_column(String(64))
     authority_snapshot_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    case_party_snapshot_id: Mapped[str | None] = mapped_column(ForeignKey("case_party_snapshots.id"), index=True)
     authority_locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     authority_supersedes_revision_id: Mapped[str | None] = mapped_column(String(36))
 

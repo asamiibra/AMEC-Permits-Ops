@@ -1,0 +1,3 @@
+# Engineering sketch proof
+
+`EngineeringReviewCategory` is distinct from discipline. `EngineeringCategoryAssignment` is project/review/category scoped, assignment is role-controlled, exact Drawing/PDF revision evidence is pinned, and revision changes create a new review path. AI output remains assistive/draft-only. The existing `AuthorityFinding` model remains the canonical external-comment truth; no duplicate Permit or Engineering comment truth was introduced. The future link seam is represented by the existing review/finding and lineage structures. Prior Engineering reconciliation tests and the full backend suite pass.

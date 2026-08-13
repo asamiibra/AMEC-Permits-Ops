@@ -183,5 +183,10 @@ def test_contract_reconciliation_read_model_and_billing_seam(client):
     assert billing["status"] == "READY_FOR_BILLING_SETUP"
     assert billing["invoice_created"] is False
     assert billing["billing_milestone_created"] is False
+    assert billing["project_activation_status"] == "ACTIVE"
+    assert billing["project_required_policy"] == "REQUIRED"
+    assert billing["revision_selection"]["exact_revision_pinned"] is True
+    assert billing["contract_project_context_snapshot"]["canonical_project_created"] is True
+    assert billing["external_agreement_consumption"] == "AMEC_PROFESSIONAL_SERVICES_CONTRACT_ONLY"
     immutable = client.patch(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR"), json={"amount": "QAR 999", "reason": "Should be blocked after approval"})
     assert immutable.status_code == 409
