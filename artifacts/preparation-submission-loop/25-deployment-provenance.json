@@ -1,0 +1,11 @@
+{
+  "status": "BLOCKED_EXTERNAL",
+  "exact_deployed_sha_proof": "NOT_AVAILABLE",
+  "real_authority_submission_verification": "NOT_PERFORMED",
+  "real_synology_verification": "BLOCKED_EXTERNAL",
+  "required_tokens": [
+    "PREPARATION_SUBMISSION_LOOP_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+    "REAL_AUTHORITY_SUBMISSION_VERIFICATION_NOT_PERFORMED",
+    "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+  ]
+}

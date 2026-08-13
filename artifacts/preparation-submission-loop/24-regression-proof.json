@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "sqlite": {"database": "fresh synthetic SQLite", "passed": 156, "skipped": 1, "warnings": 2},
+  "postgresql": {"database": "fresh synthetic PostgreSQL", "passed": 157, "warnings": 2},
+  "frontend_build": "PASS",
+  "python_compileall": "PASS",
+  "migration_roundtrip": "upgrade 0044 -> downgrade 0043 -> upgrade 0044 PASS"
+}

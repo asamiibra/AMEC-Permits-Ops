@@ -1,0 +1,13 @@
+{
+  "date": "2026-08-13",
+  "prompt": "Preparation + Submission Loop v2",
+  "engineering_token": "ENGINEERING_APPROVED_DESIGN_BASELINE_CODE_FROZEN",
+  "engineering_deployment_token": "ENGINEERING_APPROVED_DESIGN_BASELINE_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+  "engineering_dependencies": "PREPARATION_SUBMISSION_ENGINEERING_DEPENDENCIES_READY",
+  "engineering_sha": "0e1b28825746f973b221670a0ed667daab4a9f95",
+  "origin_main": "0e1b28825746f973b221670a0ed667daab4a9f95",
+  "working_tree": "clean",
+  "alembic_head": "0043_project_engineering_approved_design_baseline",
+  "implementation_scope": "case-specific preparation and submission execution runtime; no portal automation; no full Permit UX",
+  "canonical_domains_reused": ["Regulatory Core", "Requirement Engine v2", "Form Automation", "DocumentVersion", "FieldObservation", "VerifiedAssertion", "Project/Activation", "Engineering ApprovedDesignBaseline", "Audit", "Lineage"]
+}

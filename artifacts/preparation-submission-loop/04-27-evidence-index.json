@@ -1,0 +1,26 @@
+{
+  "workstream": "Preparation + Submission Loop v2",
+  "status": "CODE_FROZEN_LOCALLY_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+  "evidence_documents": "docs/preparation-submission-loop/04-case-lifecycle.md through 27-final-result.md",
+  "migration_head": "0044_preparation_submission_loop",
+  "tests": {
+    "focused_sqlite": "1 passed",
+    "full_sqlite": "156 passed, 1 skipped, 2 warnings",
+    "full_postgresql": "157 passed, 2 warnings",
+    "frontend_build": "PASS",
+    "python_compileall": "PASS",
+    "sqlite_migration_roundtrip": "PASS"
+  },
+  "tokens": [
+    "PREPARATION_SUBMISSION_LOOP_CODE_FROZEN",
+    "PREPARATION_SUBMISSION_LOOP_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+    "PORTAL_AUTOMATION_DEFERRED_BY_SCOPE",
+    "REAL_AUTHORITY_SUBMISSION_VERIFICATION_NOT_PERFORMED",
+    "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+  ],
+  "external_blockers": [
+    "Exact deployed SHA proof not available",
+    "Real authority submission verification not performed",
+    "Real Synology verification blocked externally"
+  ]
+}

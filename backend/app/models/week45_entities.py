@@ -223,7 +223,7 @@ class PreparationRevision(Base):
     __tablename__ = "preparation_revisions"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False)
-    application_id: Mapped[str] = mapped_column(ForeignKey("permit_applications.id"), nullable=False)
+    application_id: Mapped[str | None] = mapped_column(ForeignKey("permit_applications.id"), nullable=True)
     sequence: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False)
     scenario_version: Mapped[str] = mapped_column(String(40), nullable=False)
@@ -235,6 +235,17 @@ class PreparationRevision(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)
     configuration_bundle_id: Mapped[str | None] = mapped_column(ForeignKey("configuration_bundles.id"))
+    # Authority-case execution extension. Nullable so historical municipality
+    # preparation revisions remain valid and continue to use the same table.
+    authority_case_id: Mapped[str | None] = mapped_column(ForeignKey("authority_cases.id"), index=True)
+    authority_revision_number: Mapped[int | None] = mapped_column(Integer)
+    authority_policy_version_id: Mapped[str | None] = mapped_column(ForeignKey("requirement_policy_versions.id"), index=True)
+    authority_approved_design_baseline_id: Mapped[str | None] = mapped_column(ForeignKey("approved_design_baselines.id"), index=True)
+    authority_state: Mapped[str | None] = mapped_column(String(40), index=True)
+    authority_snapshot_hash: Mapped[str | None] = mapped_column(String(64))
+    authority_snapshot_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    authority_locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    authority_supersedes_revision_id: Mapped[str | None] = mapped_column(String(36))
 
 
 class PreparationSnapshot(Base):

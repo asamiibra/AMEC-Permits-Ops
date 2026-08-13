@@ -38,6 +38,7 @@ from .api.project_engineering_routers import router as project_engineering_route
 from .api.owner_decision_routers import router as owner_decision_router
 from .api.shared_domain_routers import router as shared_domain_router
 from .api.dashboard_v2_routers import router as dashboard_v2_router
+from .api.preparation_submission_routers import router as preparation_submission_router
 
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO), format='%(message)s')
@@ -223,3 +224,4 @@ app.include_router(project_engineering_router)
 app.include_router(owner_decision_router)
 app.include_router(shared_domain_router)
 app.include_router(dashboard_v2_router)
+app.include_router(preparation_submission_router)

@@ -47,6 +47,22 @@ from backend.app.models import (
     TechnicalRuleLineage,
     TechnicalRuleSetVersion,
     MasterContentApplicability,
+    AuthorityCaseCreateRequest,
+    AuthorityCasePolicyBinding,
+    RequirementInstance,
+    CaseEvidenceSelection,
+    PhysicalEvidenceItem,
+    AuthorityFindingResponse,
+    AuthorityCaseFinding,
+    AuthorityCaseOutcome,
+    AuthoritySubmissionCycle,
+    ExternalSubmissionSnapshot,
+    SubmissionAttempt,
+    SubmissionPrecheckCheck,
+    SubmissionPrecheckRun,
+    SubmissionPackageItem,
+    SubmissionPackage,
+    PreparationRevision,
 )
 
 
@@ -75,6 +91,10 @@ def _form_source(client):
 
 def _cleanup_foundations():
     models = [
+        AuthorityFindingResponse, AuthorityCaseFinding, AuthorityCaseOutcome, AuthoritySubmissionCycle,
+        ExternalSubmissionSnapshot, SubmissionAttempt, SubmissionPrecheckCheck, SubmissionPrecheckRun,
+        SubmissionPackageItem, SubmissionPackage, PreparationRevision, PhysicalEvidenceItem, CaseEvidenceSelection,
+        RequirementInstance, AuthorityCasePolicyBinding, AuthorityCaseCreateRequest,
         SignaturePacket, FormSignatureRequirement, FormMappingReleaseQAGate, FormQARun, FormValidationResult, GeneratedArtifact, FormInstance,
         AutomationReadinessAssessment, MasterContentApplicability,
         FormMappingRule, FormMappingRelease, SemanticValueAssertion, SemanticKeyDefinition, FormAutomationProfile,

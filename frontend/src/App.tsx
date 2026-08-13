@@ -62,6 +62,7 @@ import { readDemoRole } from "./rebrand";
 import { DashboardPage } from "./Dashboard";
 import { DashboardInputsPage } from "./DashboardInputs";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
+import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import "./dashboard.css";
 
 type Decision = {
@@ -119,6 +120,7 @@ const businessNav: BusinessNavItem[] = [
     canonicalLabel: "Proposals & Contracts",
     icon: "▣",
   },
+  { id: "authority-cases", page: "authority-cases", label: "Authority Cases", icon: "◈" },
   { id: "issues", page: "issues", label: "Issues", icon: "!" },
   {
     id: "notifications",
@@ -177,6 +179,7 @@ const pageFromPath = () => {
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/engineering") return "project-engineering";
   if (path === "/permit") return "permits";
+  if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
   if (path === "/work" || path === "/") return "my-work";
   if (
     path === "/permits" ||
@@ -411,6 +414,7 @@ function App() {
         "my-work",
         "bd",
         "permit",
+        "authority-cases",
         "issues",
         "notifications",
       ].includes(item.id);
@@ -420,10 +424,11 @@ function App() {
         "my-work",
         "engineering",
         "permit",
+        "authority-cases",
         "issues",
         "notifications",
       ].includes(item.id);
-    return ["my-work", "permit", "issues", "notifications"].includes(item.id);
+    return ["my-work", "permit", "authority-cases", "issues", "notifications"].includes(item.id);
   });
   const title =
     page === "permit-workspace" && selected
@@ -588,6 +593,7 @@ function App() {
           {page === "opportunities" && <OpportunitiesPage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
+          {page === "authority-cases" && <AuthorityCaseWorkspacePage />}{" "}
           {page === "engineering-closeout" && <EngineeringCloseoutPage />}{" "}
           {page === "permits" && (
             <ProposalsContractsPage

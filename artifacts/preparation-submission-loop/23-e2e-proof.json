@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "test": "backend/tests/test_preparation_submission_loop.py::test_authority_case_preparation_submission_and_confirmation_loop",
+  "fresh_sqlite_result": "1 passed",
+  "replay_controls": ["case creation", "submit authorization", "external confirmation"],
+  "external_submission_operation": false,
+  "construction_release_created": false
+}
