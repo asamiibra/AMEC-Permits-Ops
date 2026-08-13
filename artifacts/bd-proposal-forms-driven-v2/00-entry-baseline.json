@@ -1,0 +1,20 @@
+{
+  "starting_sha": "9690e5692c0a8ed39f947e8675519c5e7c068478",
+  "remote_sha": "9690e5692c0a8ed39f947e8675519c5e7c068478",
+  "branch": "main",
+  "working_tree": "clean",
+  "migration_head": "0041_dashboard_v2_waves_b_c",
+  "postgresql": "153 passed, 2 warnings",
+  "sqlite": "152 passed, 1 skipped, 2 warnings",
+  "frontend": "32 passed",
+  "build": "passed",
+  "dashboard_v2_dependency": "code frozen; deployment provenance externally blocked",
+  "verified_semantic_foundation": "present",
+  "party_foundation": "present",
+  "property_foundation": "present",
+  "regulatory_core": "present",
+  "requirement_engine_v2": "present",
+  "technical_rule_foundation": "present",
+  "form_automation_runtime": "present",
+  "contract_handoff": "present_and_regression_covered"
+}

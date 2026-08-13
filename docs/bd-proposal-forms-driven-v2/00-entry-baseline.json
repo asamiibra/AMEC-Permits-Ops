@@ -1,0 +1,15 @@
+{
+  "branch": "main",
+  "starting_sha": "9690e5692c0a8ed39f947e8675519c5e7c068478",
+  "origin_main_sha": "9690e5692c0a8ed39f947e8675519c5e7c068478",
+  "working_tree": "clean_before_entry_evidence",
+  "migration_script_head": "0041_dashboard_v2_waves_b_c",
+  "fresh_postgresql_database": "bd_v2_entry_pg_20260813",
+  "fresh_postgresql_revision": "0041_dashboard_v2_waves_b_c",
+  "postgresql_backend": "153 passed, 2 warnings",
+  "sqlite_backend": "152 passed, 1 skipped, 2 warnings",
+  "frontend": "12 files, 32 tests passed",
+  "build": "passed",
+  "upstream_dashboard_v2_status": "DASHBOARD_V2_REGULATORY_AND_FORM_AUTOMATION_GOVERNANCE_WAVES_B_C_CODE_FROZEN",
+  "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+}

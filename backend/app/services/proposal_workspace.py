@@ -23,6 +23,7 @@ from ..models import (
     ProposalSourceEvidence,
 )
 from .master_content import definition_lookup, resolve_master_content_purpose
+from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
 
 SOURCE_TYPES = ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA")
 SOURCE_TO_SEMANTIC = {
@@ -148,6 +149,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     revisions = db.scalars(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
     current = revisions[0] if revisions else None
     validation = validate_proposal(db, proposal)
+    readiness = v2_readiness(db, proposal, validation)
     return {
         "id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
@@ -165,6 +167,8 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "amec_input": fields.get("amec_input", {}),
         "sources": [_source_projection(item) for item in sources],
         "validation": validation,
+        "readiness_v2": readiness,
+        "forms_v2": forms_v2_projection(db, proposal),
         "current_revision": {
             "id": current.id,
             "revision_number": current.revision_number,
@@ -199,6 +203,7 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
         "template": validation["template"]["item"],
         "checklist": validation["checklist"]["item"],
         "definitions": validation["definitions"],
+        "forms_driven_v2": snapshot_forms_v2(db, proposal),
         "accepted_at": _now().isoformat(),
     }
 

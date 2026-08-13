@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Any
 
@@ -16,11 +17,12 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Opportunity, ProposalAcceptedRevision, ProposalIntakeArtifact, ProposalOutputArtifact, ProposalOwnerSetting, ProposalSourceEvidence, Quotation, QuotationRevision, ReferenceNumber, Role
+from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalAssumption, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalServiceScopeItem, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, Quotation, QuotationRevision, ReferenceNumber, Role
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
 from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal
+from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
 from ..services.proposals_sor import ingest_provisional_intake_artifact
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
 from ..services.owner_decisions import applied_runtime_decision_value, runtime_decision_value
@@ -78,6 +80,16 @@ def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db
             db.query(Contract).filter(Contract.quotation_id == quotation.id).delete(synchronize_session=False)
             db.query(QuotationRevision).filter(QuotationRevision.quotation_id == quotation.id).delete(synchronize_session=False)
         db.query(Quotation).filter(Quotation.opportunity_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalExpectedInputPreview).filter(ProposalExpectedInputPreview.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalEngineeringContribution).filter(ProposalEngineeringContribution.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalExternalCostAssumption).filter(ProposalExternalCostAssumption.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalAssumption).filter(ProposalAssumption.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalRegulatoryScopeIntent).filter(ProposalRegulatoryScopeIntent.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalServiceScopeItem).filter(ProposalServiceScopeItem.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalStakeholderIntent).filter(ProposalStakeholderIntent.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalSourceLink).filter(ProposalSourceLink.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalSiteContext).filter(ProposalSiteContext.proposal_id == proposal_id).delete(synchronize_session=False)
+        db.query(ProposalContactContext).filter(ProposalContactContext.proposal_id == proposal_id).delete(synchronize_session=False)
         db.query(ProposalOutputArtifact).filter(ProposalOutputArtifact.proposal_id == proposal_id).delete(synchronize_session=False)
         db.query(ProposalAcceptedRevision).filter(ProposalAcceptedRevision.proposal_id == proposal_id).delete(synchronize_session=False)
         db.query(ProposalSourceEvidence).filter(ProposalSourceEvidence.proposal_id == proposal_id).delete(synchronize_session=False)
@@ -148,6 +160,190 @@ def get_proposal(proposal_id: str, db: Session = Depends(get_db), role: Role = D
     return proposal_projection(db, item)
 
 
+def _proposal_or_404(proposal_id: str, db: Session) -> Opportunity:
+    item = db.get(Opportunity, proposal_id)
+    if not item:
+        raise HTTPException(404, "PROPOSAL_NOT_FOUND")
+    return item
+
+
+@router.put("/{proposal_id}/contact")
+def put_contact(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    set_contact(db, proposal, payload, _actor(role))
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_CONTACT_UPDATED", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role), after={"purpose": payload.get("purpose", "PROPOSAL_CONTACT"), "party_linked": bool(payload.get("party_id"))})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.put("/{proposal_id}/site-context")
+def put_site_context(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    row = set_site_context(db, proposal, payload, _actor(role))
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SITE_CONTEXT_UPDATED", entity_type="ProposalSiteContext", entity_id=row.id, actor_id=_actor(role), after={"status": row.status, "property_id": row.property_id, "area_kind": row.area_kind})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.put("/{proposal_id}/client-party")
+def link_client_party(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    client = db.get(ClientAccount, proposal.client_account_id) if proposal.client_account_id else None
+    party_id = payload.get("canonical_party_id")
+    if not client or not party_id:
+        raise HTTPException(422, {"code": "COMMERCIAL_CLIENT_AND_PARTY_REQUIRED"})
+    if not db.get(__import__("backend.app.models", fromlist=["Party"]).Party, party_id):
+        raise HTTPException(422, {"code": "PARTY_NOT_FOUND", "party_id": party_id})
+    client.canonical_party_id = party_id
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_CLIENT_PARTY_LINKED", entity_type="ClientAccount", entity_id=client.id, actor_id=_actor(role), after={"canonical_party_id": party_id})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/stakeholders")
+def add_stakeholder(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    if payload.get("party_id") and not db.get(__import__("backend.app.models", fromlist=["Party"]).Party, payload["party_id"]):
+        raise HTTPException(422, {"code": "PARTY_NOT_FOUND", "party_id": payload["party_id"]})
+    row = ProposalStakeholderIntent(proposal_id=proposal.id, role_code=payload.get("role_code", "OTHER"), party_id=payload.get("party_id"), display_snapshot=payload.get("display_snapshot"), status=payload.get("status", "UNKNOWN"), source_type=payload.get("source_type", "HUMAN_ENTERED"), source_document_version_id=payload.get("source_document_version_id"), note=payload.get("note"))
+    db.add(row)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_STAKEHOLDER_INTENT_UPDATED", entity_type="ProposalStakeholderIntent", entity_id=row.id, actor_id=_actor(role), after={"role_code": row.role_code, "status": row.status, "party_linked": bool(row.party_id)})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/source-links")
+def link_source_version(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    row = add_source_link(db, proposal, payload, _actor(role))
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SOURCE_VERSION_LINKED", entity_type="ProposalSourceLink", entity_id=row.id, actor_id=_actor(role), after={"document_version_id": row.document_version_id, "source_role": row.source_role})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/scope-items")
+def add_scope_item(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    if not str(payload.get("description") or "").strip():
+        raise HTTPException(422, {"code": "SCOPE_DESCRIPTION_REQUIRED"})
+    row = ProposalServiceScopeItem(proposal_id=proposal.id, service_offering_code=payload.get("service_offering_code"), scope_category_code=payload.get("scope_category_code"), discipline_code=payload.get("discipline_code"), description=payload["description"].strip(), included=bool(payload.get("included", True)), commercial_treatment=payload.get("commercial_treatment", "AMEC_FEE"), regulatory_service_type_id=payload.get("regulatory_service_type_id"), external_body_id=payload.get("external_body_id"), source_document_version_id=payload.get("source_document_version_id"), rationale=payload.get("rationale"), sort_order=int(payload.get("sort_order", 100)), status=payload.get("status", "DRAFT"))
+    db.add(row)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SERVICE_SCOPE_UPDATED", entity_type="ProposalServiceScopeItem", entity_id=row.id, actor_id=_actor(role), after={"description": row.description, "included": row.included})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/regulatory-scope")
+def add_regulatory_scope(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    for model, key, code in (("external_body_id", "ExternalBody", "EXTERNAL_BODY_NOT_FOUND"), ("service_type_id", "ServiceType", "SERVICE_TYPE_NOT_FOUND"), ("jurisdiction_id", "Jurisdiction", "JURISDICTION_NOT_FOUND")):
+        if payload.get(model) and not db.get(__import__("backend.app.models", fromlist=[key]).__dict__[key], payload[model]):
+            raise HTTPException(422, {"code": code, "id": payload[model]})
+    row = ProposalRegulatoryScopeIntent(proposal_id=proposal.id, proposal_scope_item_id=payload.get("proposal_scope_item_id"), external_body_id=payload.get("external_body_id"), service_type_id=payload.get("service_type_id"), service_type_version_id=payload.get("service_type_version_id"), jurisdiction_id=payload.get("jurisdiction_id"), status=payload.get("status", "DRAFT"), source_type=payload.get("source_type", "HUMAN_ENTERED"), source_document_version_id=payload.get("source_document_version_id"), source_assertion_id=payload.get("source_assertion_id"), rationale=payload.get("rationale"), confidence=payload.get("confidence"), notes=payload.get("notes"))
+    db.add(row)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_REGULATORY_SCOPE_INTENT_CREATED", entity_type="ProposalRegulatoryScopeIntent", entity_id=row.id, actor_id=_actor(role), after={"status": row.status, "external_body_id": row.external_body_id, "service_type_id": row.service_type_id, "jurisdiction_id": row.jurisdiction_id})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/regulatory-scope/{intent_id}/confirm")
+def confirm_regulatory_scope(proposal_id: str, intent_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    row = db.get(ProposalRegulatoryScopeIntent, intent_id)
+    if not row or row.proposal_id != proposal.id:
+        raise HTTPException(404, "REGULATORY_SCOPE_INTENT_NOT_FOUND")
+    if not row.service_type_id:
+        raise domain_error(409, "REGULATORY_SCOPE_SERVICE_REQUIRED")
+    row.status = "HUMAN_CONFIRMED_FOR_PROPOSAL"
+    row.human_confirmed_by = _actor(role)
+    row.human_confirmed_at = datetime.now(timezone.utc)
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_REGULATORY_SCOPE_CONFIRMED", entity_type="ProposalRegulatoryScopeIntent", entity_id=row.id, actor_id=_actor(role), after={"status": row.status, "authority_case_created": False})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/assumptions")
+def add_assumption(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    if not str(payload.get("statement") or "").strip():
+        raise HTTPException(422, {"code": "ASSUMPTION_STATEMENT_REQUIRED"})
+    row = ProposalAssumption(proposal_id=proposal.id, category=payload.get("category", "COMMERCIAL"), statement=payload["statement"].strip(), materiality=payload.get("materiality", "INFORMATIONAL"), source_type=payload.get("source_type", "HUMAN_ENTERED"), source_reference=payload.get("source_reference"), status="OPEN")
+    db.add(row)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_ASSUMPTION_CREATED", entity_type="ProposalAssumption", entity_id=row.id, actor_id=_actor(role), after={"materiality": row.materiality})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/assumptions/{assumption_id}/acknowledge")
+def acknowledge_assumption(proposal_id: str, assumption_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_ACCEPT")
+    proposal = _proposal_or_404(proposal_id, db)
+    row = db.get(ProposalAssumption, assumption_id)
+    if not row or row.proposal_id != proposal.id:
+        raise HTTPException(404, "ASSUMPTION_NOT_FOUND")
+    row.status = "ACKNOWLEDGED"
+    row.acknowledged_by = _actor(role)
+    row.acknowledged_at = datetime.now(timezone.utc)
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_ASSUMPTION_ACKNOWLEDGED", entity_type="ProposalAssumption", entity_id=row.id, actor_id=_actor(role), after={"status": row.status})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/external-costs")
+def add_external_cost(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    row = ProposalExternalCostAssumption(proposal_id=proposal.id, description=payload.get("description", "External cost estimate"), external_body_id=payload.get("external_body_id"), estimated_amount=payload.get("estimated_amount"), currency=payload.get("currency"), treatment=payload.get("treatment", "ESTIMATE_ONLY"), source_reference=payload.get("source_reference"), rationale=payload.get("rationale"))
+    db.add(row)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_EXTERNAL_COST_ADDED", entity_type="ProposalExternalCostAssumption", entity_id=row.id, actor_id=_actor(role), after={"treatment": row.treatment, "estimated_amount": row.estimated_amount})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/engineering-contributions")
+def add_engineering_contribution(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "EDIT_TECHNICAL")
+    proposal = _proposal_or_404(proposal_id, db)
+    if not str(payload.get("content") or "").strip():
+        raise HTTPException(422, {"code": "ENGINEERING_CONTRIBUTION_REQUIRED"})
+    row = ProposalEngineeringContribution(proposal_id=proposal.id, discipline_code=payload.get("discipline_code"), contribution_type=payload.get("contribution_type", "TECHNICAL_SCOPE"), content=payload["content"].strip(), technical_rule_set_version_id=payload.get("technical_rule_set_version_id"), source_document_version_id=payload.get("source_document_version_id"), contributed_by=_actor(role))
+    db.add(row)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_ENGINEERING_CONTRIBUTION_ADDED", entity_type="ProposalEngineeringContribution", entity_id=row.id, actor_id=_actor(role), after={"discipline_code": row.discipline_code, "commercial_price_changed": False, "proposal_accepted": False})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/expected-client-inputs/preview")
+def refresh_expected_client_inputs(proposal_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    create_preview(db, proposal, _actor(role), request.state.correlation_id)
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.get("/{proposal_id}/readiness")
+def proposal_readiness(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_READ")
+    proposal = _proposal_or_404(proposal_id, db)
+    return v2_readiness(db, proposal, validate_proposal(db, proposal))
+
+
 @router.patch("/{proposal_id}")
 def patch_proposal(proposal_id: str, payload: ProposalFieldsPatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_WRITE")
@@ -193,6 +389,26 @@ async def add_source(proposal_id: str, request: Request, source_type: str = Form
     if not evidence:
         evidence = ProposalSourceEvidence(proposal_id=proposal.id, source_type=source_type, source_filename=result["source_filename"], source_reference=result["sor_path"], content_hash=digest, content_type=file.content_type or "application/octet-stream", source_revision=source_revision, provenance={"kind": "source", "source_artifact_id": result["id"], "semantic_class": semantic, "verification": result["verification_state"]}, conflict_key=source_type, status="CURRENT", verification_state=result["verification_state"], supersedes_id=existing.id if existing else None, created_by=_actor(role, actor))
         db.add(evidence)
+        db.flush()
+    document = db.scalar(select(Document).where(Document.logical_name == f"{proposal.opportunity_reference}:{source_type}:{digest}"))
+    if not document:
+        document = Document(project_id=proposal.project_id, document_type=DocumentType.OTHER, logical_name=f"{proposal.opportunity_reference}:{source_type}:{digest}", language="EN", source_system="PROPOSAL_INTAKE", current_version_id=None)
+        db.add(document)
+        db.flush()
+        version = DocumentVersion(document_id=document.id, version_number=1, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=file.content_type or "application/octet-stream", file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+        db.add(version)
+        db.flush()
+        document.current_version_id = version.id
+    else:
+        version = db.scalar(select(DocumentVersion).where(DocumentVersion.document_id == document.id, DocumentVersion.sha256 == digest))
+        if not version:
+            next_version = (db.scalar(select(DocumentVersion.version_number).where(DocumentVersion.document_id == document.id).order_by(DocumentVersion.version_number.desc())) or 0) + 1
+            version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=file.content_type or "application/octet-stream", file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+            db.add(version)
+            db.flush()
+            document.current_version_id = version.id
+    if not db.scalar(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal.id, ProposalSourceLink.document_version_id == version.id, ProposalSourceLink.source_role == source_type)):
+        db.add(ProposalSourceLink(proposal_id=proposal.id, source_evidence_id=evidence.id, document_id=document.id, document_version_id=version.id, source_role=source_type, added_by=_actor(role, actor)))
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SOURCE_REGISTERED", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role, actor), after={"source_type": source_type, "source_evidence_id": evidence.id, "content_hash": digest, "conflict": bool(existing and existing.content_hash != digest)})
     db.commit()
     return {"source": {"id": evidence.id, "source_type": evidence.source_type, "content_hash": evidence.content_hash, "verification_state": evidence.verification_state, "status": evidence.status, "source_reference": evidence.source_reference}, "proposal": proposal_projection(db, proposal)}
@@ -217,13 +433,14 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
     check = validate_proposal(db, item)
-    if not check["ready"]:
-        raise domain_error(409, "PROPOSAL_ACCEPT_BLOCKED", blockers=check["blockers"], warnings=check["warnings"])
+    v2_check = v2_readiness(db, item, check)
+    if not check["ready"] or not v2_check["ready"]:
+        raise domain_error(409, "PROPOSAL_ACCEPT_BLOCKED", blockers=check["blockers"] + v2_check["blocking"], warnings=check["warnings"] + v2_check["warnings"])
     snapshot = snapshot_for_accept(db, item, check)
     prior = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == item.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
     revision_number = (prior.revision_number + 1) if prior else 1
     content_hash = stable_hash(snapshot)
-    revision = ProposalAcceptedRevision(proposal_id=item.id, revision_number=revision_number, snapshot=snapshot, validation_snapshot=check, template_ref=check["template"]["item"]["ref"], template_version_id=check["template"]["item"]["version_id"], template_version=str(check["template"]["item"]["version"]), template_hash=check["template"]["item"]["hash"], checklist_ref=check["checklist"]["item"]["ref"], checklist_version_id=check["checklist"]["item"]["version_id"], checklist_version=str(check["checklist"]["item"]["version"]), checklist_hash=check["checklist"]["item"]["hash"], definition_refs=[item["ref"] for item in check["definitions"]], content_hash=content_hash, accepted_by=_actor(role, actor), supersedes_revision_id=prior.id if prior else None)
+    revision = ProposalAcceptedRevision(proposal_id=item.id, revision_number=revision_number, snapshot=snapshot, validation_snapshot={**check, "readiness_v2": v2_check}, template_ref=check["template"]["item"]["ref"], template_version_id=check["template"]["item"]["version_id"], template_version=str(check["template"]["item"]["version"]), template_hash=check["template"]["item"]["hash"], checklist_ref=check["checklist"]["item"]["ref"], checklist_version_id=check["checklist"]["item"]["version_id"], checklist_version=str(check["checklist"]["item"]["version"]), checklist_hash=check["checklist"]["item"]["hash"], definition_refs=[item["ref"] for item in check["definitions"]], content_hash=content_hash, accepted_by=_actor(role, actor), supersedes_revision_id=prior.id if prior else None)
     db.add(revision)
     db.flush()
     for artifact_type, filename in (("PROPOSAL", f"{item.opportunity_reference}-r{revision_number}-proposal.txt"), ("CHECKLIST", f"{item.opportunity_reference}-r{revision_number}-checklist.txt")):
@@ -285,7 +502,7 @@ def contract_handoff(proposal_id: str, request: Request, db: Session = Depends(g
     artifacts = {item.artifact_type: {"id": item.id, "filename": item.filename, "content_hash": item.content_hash} for item in db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.revision_id == revision.id)).all()}
     fields = revision.snapshot.get("fields", {})
     client = db.get(ClientAccount, client_id)
-    return {"contract_id": contract.id, "contract_reference": contract.contract_reference, "proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "client": client.display_name if client else client_id, "project_reference": revision.snapshot.get("project_reference"), "project_description": fields.get("project_description") or revision.snapshot.get("title"), "scope": fields.get("scope_of_work") or fields.get("sow"), "amount": fields.get("price"), "currency": fields.get("currency"), "duration": fields.get("duration") or fields.get("period"), "proposal_artifact": artifacts.get("PROPOSAL"), "checklist_artifact": artifacts.get("CHECKLIST"), "source_ids": revision.snapshot.get("source_ids", []), "template": revision.snapshot.get("template"), "checklist": revision.snapshot.get("checklist"), "status": proposal.status, "machine_legal_contract": False}
+    return {"contract_id": contract.id, "contract_reference": contract.contract_reference, "proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "client": client.display_name if client else client_id, "project_reference": revision.snapshot.get("project_reference"), "project_description": fields.get("project_description") or revision.snapshot.get("title"), "scope": fields.get("scope_of_work") or fields.get("sow"), "amount": fields.get("price"), "currency": fields.get("currency"), "duration": fields.get("duration") or fields.get("period"), "proposal_artifact": artifacts.get("PROPOSAL"), "checklist_artifact": artifacts.get("CHECKLIST"), "source_ids": revision.snapshot.get("source_ids", []), "template": revision.snapshot.get("template"), "checklist": revision.snapshot.get("checklist"), "forms_driven_v2": revision.snapshot.get("forms_driven_v2"), "status": proposal.status, "machine_legal_contract": False, "creates_project_code": False, "creates_authority_case": False, "creates_regulatory_journey": False}
 
 
 @router.get("/settings/go-live")

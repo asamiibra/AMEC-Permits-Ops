@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "sqlite": {"command": "DATABASE_URL=sqlite:///./test_permitops.db APP_ENV=TEST SYNTHETIC_ONLY=true PYTHONPATH=. pytest -q -rs", "passed": 154, "failed": 0, "skipped": 1, "warnings": 2, "skip": "backend/tests/test_dashboard_master_content_v2.py:91 PostgreSQL row-locking proof"},
+  "postgresql": {"database": "bd_v2_full_pg_20260813_c", "command": "DATABASE_URL=postgresql+psycopg://.../bd_v2_full_pg_20260813_c APP_ENV=TEST SYNTHETIC_ONLY=true PYTHONPATH=. pytest -q -rs", "passed": 155, "failed": 0, "skipped": 0, "warnings": 2},
+  "focused_bd_postgresql": {"passed": 2, "failed": 0, "warnings": 1},
+  "frontend": {"files": 12, "tests": 32, "failed": 0},
+  "build": {"status": "PASS", "advisory": "existing Vite chunk-size warning"}
+}

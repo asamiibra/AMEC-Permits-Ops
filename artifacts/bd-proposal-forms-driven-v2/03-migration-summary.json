@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "revision": "0042_bd_proposal_forms_driven_v2",
+  "sqlite_round_trip": "0041 -> 0042 -> 0041 -> 0042",
+  "postgresql_round_trip": "0042 -> 0041 -> 0042",
+  "sqlite_final_head": "0042_bd_proposal_forms_driven_v2",
+  "postgresql_final_head": "0042_bd_proposal_forms_driven_v2",
+  "foreign_key_hardening": "Named client_accounts canonical_party FK supports SQLite batch rebuild"
+}

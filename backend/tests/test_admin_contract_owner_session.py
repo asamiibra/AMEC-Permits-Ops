@@ -7,7 +7,7 @@ from backend.app.models import (
     AssistantHandoff, AuditEvent, ClientAccount, Contract, ContractAdminEvidence, ContractAdminInput,
     ContractRevision, ContractTemplateSnapshot, LineageEdge, NotificationEvent,
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
-    ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence,
+    ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
 )
 
@@ -46,6 +46,7 @@ def clean_owner_fixture():
         if proposal_ids:
             db.query(ProposalOutputArtifact).filter(ProposalOutputArtifact.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalAcceptedRevision).filter(ProposalAcceptedRevision.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
+            db.query(ProposalSourceLink).filter(ProposalSourceLink.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalSourceEvidence).filter(ProposalSourceEvidence.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalIntakeArtifact).filter(ProposalIntakeArtifact.opportunity_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(AuditEvent).filter(AuditEvent.entity_id.in_(proposal_ids)).delete(synchronize_session=False)

@@ -93,6 +93,7 @@ class ClientAccount(Base, TimestampMixin):
     legal_name: Mapped[str] = mapped_column(String(250), nullable=False)
     display_name: Mapped[str] = mapped_column(String(250), nullable=False)
     client_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    canonical_party_id: Mapped[str | None] = mapped_column(ForeignKey("parties.id"), index=True)
     commercial_registration_number: Mapped[str | None] = mapped_column(String(100))
     data_classification: Mapped[str] = mapped_column(String(40), default="SYNTHETIC", nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="ACTIVE", nullable=False)

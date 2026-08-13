@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "command": "VITE_API_URL=http://127.0.0.1:8000 npm run browser-real-stack -- --workers=1 --grep BD Proposal Forms-Driven v2|Dashboard V2|home exposes|captures sanitized visual evidence",
+  "database": "bd_v2_full_pg_20260813_c",
+  "backend_head": "0042_bd_proposal_forms_driven_v2",
+  "passed": 5,
+  "failed": 0,
+  "coverage": ["BD Proposal owner workspace", "Dashboard V1/V2 seam", "non-owner Dashboard V2 redirect", "sanitized split visuals", "Dashboard V2 governance detail"],
+  "screenshot": "artifacts/bd-proposal-forms-driven-v2/proposal-workspace.png",
+  "synthetic_only": true
+}
