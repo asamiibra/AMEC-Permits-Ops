@@ -63,6 +63,7 @@ import { DashboardPage } from "./Dashboard";
 import { DashboardInputsPage } from "./DashboardInputs";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
+import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
 import "./dashboard.css";
 
 type Decision = {
@@ -115,9 +116,9 @@ const businessNav: BusinessNavItem[] = [
   },
   {
     id: "permit",
-    page: "permits",
+    page: "permit-portfolio",
     label: "Permit",
-    canonicalLabel: "Proposals & Contracts",
+    canonicalLabel: "Permit Portfolio",
     icon: "▣",
   },
   { id: "authority-cases", page: "authority-cases", label: "Authority Cases", icon: "◈" },
@@ -178,15 +179,13 @@ const pageFromPath = () => {
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/engineering") return "project-engineering";
-  if (path === "/permit") return "permits";
+  if (path === "/permit") return "permit-portfolio";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
   if (path === "/work" || path === "/") return "my-work";
-  if (
-    path === "/permits" ||
-    path === "/projects" ||
-    path === "/proposals-contracts"
-  )
-    return "permits";
+  if (path === "/permits" || path === "/projects") return "permit-portfolio";
+  if (path === "/proposals-contracts") return "permits";
+  if (path === "/permits/new") return "permit-new";
+  if (path.startsWith("/permits/")) return "permit-case";
   if (
     path === "/proposals/new" ||
     path.startsWith("/proposals/") ||
@@ -211,7 +210,7 @@ const pageFromPath = () => {
   if (path === "/admin/go-live-readiness") return "go-live-readiness";
   if (path === "/admin/control-diagnostics") return "control-loop";
   if (path.startsWith("/admin/")) return "administration";
-  if (path.startsWith("/permits/") || path.startsWith("/proposals-contracts/"))
+  if (path.startsWith("/proposals-contracts/"))
     return "permit-workspace";
   return "my-work";
 };
@@ -263,14 +262,6 @@ function App() {
     }
   }, []);
   useEffect(() => {
-    const path = window.location.pathname;
-    if (path === "/permits") {
-      window.history.replaceState(
-        {},
-        "",
-        "/proposals-contracts?view=proposals",
-      );
-    }
     const originalPushState = window.history.pushState.bind(window.history);
     window.history.pushState = ((
       state: unknown,
@@ -309,7 +300,6 @@ function App() {
     const syncLocation = () => {
       const nextPage = pageFromPath();
       const projectId =
-        window.location.pathname.startsWith("/permits/") ||
         window.location.pathname.startsWith("/proposals-contracts/")
           ? window.location.pathname.split("/")[2]
           : undefined;
@@ -347,10 +337,10 @@ function App() {
     const path =
       nextPage === "my-work"
         ? "/work"
-        : nextPage === "permits"
-          ? next === "permit"
-            ? "/permit"
-            : "/proposals-contracts"
+        : nextPage === "permit-portfolio"
+          ? "/permits"
+          : nextPage === "permits"
+            ? "/proposals-contracts"
           : nextPage === "about"
             ? "/operating-guide"
             : nextPage === "administration"
@@ -433,6 +423,8 @@ function App() {
   const title =
     page === "permit-workspace" && selected
       ? `${selected.project_number} · ${selected.project_name}`
+      : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
+        ? "Permit"
       : page === "administration"
         ? "Administration"
         : page === "go-live-readiness"
@@ -533,6 +525,8 @@ function App() {
                   ? getScreenDefinition("new-proposal").screenId
                   : page === "permit-workspace"
                     ? getScreenDefinition(selectedStage).screenId
+                    : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
+                      ? getScreenDefinition("permits").screenId
                     : getScreenDefinition(page).screenId
               }
               role={role}
@@ -595,6 +589,9 @@ function App() {
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
           {page === "authority-cases" && <AuthorityCaseWorkspacePage />}{" "}
           {page === "engineering-closeout" && <EngineeringCloseoutPage />}{" "}
+          {page === "permit-portfolio" && <PermitPortfolioPage />} {" "}
+          {page === "permit-new" && <NewPermitPage />} {" "}
+          {page === "permit-case" && <PermitCasePage />} {" "}
           {page === "permits" && (
             <ProposalsContractsPage
               projects={projects}

@@ -1,0 +1,19 @@
+{
+  "date": "2026-08-13",
+  "branch": "main",
+  "head": "3bac43e65bdff3eba71f8d9963e3d9238d30c8b4",
+  "origin_main": "3bac43e65bdff3eba71f8d9963e3d9238d30c8b4",
+  "working_tree": "clean",
+  "alembic_head": "0044_preparation_submission_loop",
+  "preparation_token": "PREPARATION_SUBMISSION_LOOP_CODE_FROZEN",
+  "preparation_deployment_token": "PREPARATION_SUBMISSION_LOOP_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+  "engineering_token": "ENGINEERING_APPROVED_DESIGN_BASELINE_CODE_FROZEN",
+  "engineering_dependencies": "PREPARATION_SUBMISSION_ENGINEERING_DEPENDENCIES_READY",
+  "scope": "Owner-facing Permit and Authority Case projections over canonical regulatory execution; no engine duplication, portal automation, billing, or construction/completion",
+  "existing_routes": ["/permit", "/permits", "/proposals-contracts", "/authority-cases"],
+  "baseline_sources": [
+    "docs/preparation-submission-loop/27-final-result.md",
+    "docs/preparation-submission-loop/24-regression-proof.md",
+    "docs/engineering-approved-design-baseline/23-post-implementation-closure.md"
+  ]
+}
