@@ -36,6 +36,12 @@ from ..models import (
     MasterContentReferenceSequence,
     MasterContentIdempotency,
     MasterContentItem,
+    MasterContentApplicability,
+    RequirementPolicyLineage,
+    TechnicalRuleLineage,
+    FormAutomationProfile,
+    FormMappingRelease,
+    FormInstance,
     MaterialChangeEvent,
     Finding,
     FindingStatus,
@@ -361,7 +367,29 @@ def _project_notifications(db: Session, *, event: MasterContentChangeEvent, item
 def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: MasterContentItem, current: DocumentVersion) -> dict[str, int]:
     """Evaluate explicit dependencies and project deterministic platform actions."""
     dependencies = db.scalars(select(MasterContentDependency).where(MasterContentDependency.master_content_id == item.id)).all()
-    impacts = {"dependencies": len(dependencies), "lineage": 0, "findings": 0, "tasks": 0, "notifications": 0}
+    impacts = {"dependencies": len(dependencies), "lineage": 0, "findings": 0, "tasks": 0, "notifications": 0, "governance_revalidation": 0}
+    if event.previous_version_id and event.previous_version_id != current.id:
+        # Source version pinning is a fail-closed boundary for V2.  Existing
+        # active links and released mappings remain auditable, but they cannot
+        # continue to resolve after the current source changes.
+        for row in db.scalars(select(MasterContentApplicability).where(MasterContentApplicability.master_content_item_id == item.id, MasterContentApplicability.source_document_version_id != current.id, MasterContentApplicability.status == "ACTIVE")).all():
+            row.status = "NEEDS_REVALIDATION"
+            impacts["governance_revalidation"] += 1
+        for model in (RequirementPolicyLineage, TechnicalRuleLineage):
+            for row in db.scalars(select(model).where(model.master_content_item_id == item.id, model.document_version_id != current.id, model.governance_status == "ACTIVE")).all():
+                row.governance_status = "NEEDS_REVALIDATION"
+                impacts["governance_revalidation"] += 1
+        for profile in db.scalars(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item.id, FormAutomationProfile.source_document_version_id != current.id)).all():
+            profile.source_version_state = "NEEDS_REVALIDATION"
+            profile.automation_status = "NEEDS_REVALIDATION"
+            for release in db.scalars(select(FormMappingRelease).where(FormMappingRelease.profile_id == profile.id, FormMappingRelease.status == "RELEASED")).all():
+                release.status = "NEEDS_REVALIDATION"
+                release.invalidation_reason = "Current master source version changed; owner revalidation required."
+                impacts["governance_revalidation"] += 1
+            for instance in db.scalars(select(FormInstance).where(FormInstance.profile_id == profile.id, FormInstance.source_document_version_id != current.id, FormInstance.status != "NEEDS_REVALIDATION")).all():
+                instance.status = "NEEDS_REVALIDATION"
+                instance.invalidation_reason = "Current master source version changed; instance is no longer current."
+                impacts["governance_revalidation"] += 1
     for dependency in dependencies:
         if dependency.project_id:
             _lineage_once(db, project_id=dependency.project_id, source_version=current, downstream_type=dependency.downstream_type, downstream_id=dependency.downstream_id, dependency_kind="MASTER_CONTENT_CURRENT_VERSION", correlation_id=event.correlation_id)

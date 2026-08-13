@@ -14,8 +14,10 @@ from backend.app.models import (
     ExternalBodyUnit,
     ExternalInteractionProfile,
     FormAutomationProfile,
+    AutomationReadinessAssessment,
     FormInstance,
     FormMappingRelease,
+    FormMappingReleaseQAGate,
     FormMappingRule,
     FormQARun,
     FormSignatureRequirement,
@@ -44,6 +46,7 @@ from backend.app.models import (
     TechnicalRuleEvaluation,
     TechnicalRuleLineage,
     TechnicalRuleSetVersion,
+    MasterContentApplicability,
 )
 
 
@@ -72,7 +75,8 @@ def _form_source(client):
 
 def _cleanup_foundations():
     models = [
-        SignaturePacket, FormSignatureRequirement, FormQARun, FormValidationResult, GeneratedArtifact, FormInstance,
+        SignaturePacket, FormSignatureRequirement, FormMappingReleaseQAGate, FormQARun, FormValidationResult, GeneratedArtifact, FormInstance,
+        AutomationReadinessAssessment, MasterContentApplicability,
         FormMappingRule, FormMappingRelease, SemanticValueAssertion, SemanticKeyDefinition, FormAutomationProfile,
         TechnicalRuleEvaluation, TechnicalRuleLineage, TechnicalRule, TechnicalRuleSetVersion,
         RequirementDecision, RequirementEvidenceEvaluation, RequirementEvaluation, RequirementApplicabilityDecision,

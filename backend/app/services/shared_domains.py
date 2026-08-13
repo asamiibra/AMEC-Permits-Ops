@@ -315,6 +315,26 @@ def transform_value(value: Any, mapping: FormMappingRule) -> Any:
         return list(str(value))
     if transform == "BOOLEAN_TO_CHECKBOX":
         return bool(value)
+    if transform == "ENUM_TO_CHECKBOX_GROUP":
+        options = mapping.configuration_json.get("options") or []
+        selected = set(value if isinstance(value, list) else [value])
+        return {str(option): str(option) in selected for option in options}
+    if transform == "MULTI_TARGET":
+        return value
+    if transform == "CONDITIONAL_SECTION":
+        return value
+    if transform == "COORDINATE_OVERLAY":
+        return value
+    if transform == "CALCULATED_VALUE":
+        formula = mapping.configuration_json.get("formula")
+        if not formula:
+            raise DomainConflict("CALCULATED_VALUE_FORMULA_MISSING")
+        # Formula execution is deliberately limited to a deterministic
+        # renderer contract.  The governed release validator rejects any
+        # formula it cannot validate; runtime never evaluates arbitrary code.
+        if formula == "IDENTITY":
+            return value
+        raise DomainConflict("CALCULATED_VALUE_FORMULA_UNSUPPORTED")
     if transform == "DATE_PART":
         component = mapping.configuration_json.get("part", "year")
         parsed = date.fromisoformat(str(value)) if not isinstance(value, date) else value

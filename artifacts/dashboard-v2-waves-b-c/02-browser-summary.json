@@ -1,0 +1,10 @@
+{
+  "command": "npm run browser-real-stack -- --grep \"Dashboard V2|legacy Dashboard\"",
+  "result": "3 passed",
+  "coverage": [
+    "Dashboard V2 real-stack health/catalog/forms contract",
+    "Dashboard V2 governance detail sections and advanced filters",
+    "legacy Dashboard V1 and Dashboard V2 route split"
+  ],
+  "screenshot": "artifacts/dashboard-v2-waves-b-c/v2-governance-detail.png"
+}

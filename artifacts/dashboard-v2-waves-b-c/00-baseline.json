@@ -1,0 +1,11 @@
+{
+  "workspace": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev",
+  "branch": "main",
+  "entry_commit": "8ea25276d08a778a7d6ea38dcb034f23e93fa3f2",
+  "entry_alembic_revision": "0040_form_automation_runtime",
+  "entry_backend": "151 passed, 1 skipped",
+  "entry_frontend": "32 passed; build passed",
+  "v1_route": "/dashboard",
+  "v2_route": "/dashboard-v2",
+  "captured": "2026-08-13"
+}

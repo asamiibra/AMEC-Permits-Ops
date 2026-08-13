@@ -1,0 +1,9 @@
+{
+  "backend_sqlite": "152 passed, 1 skipped, 2 warnings",
+  "backend_postgresql": "153 passed, 2 warnings",
+  "frontend_unit": "12 files, 32 tests passed",
+  "frontend_build": "passed",
+  "backend_command": "PYTHONPATH=. pytest -q backend/tests",
+  "postgresql_command": "DATABASE_URL=postgresql+psycopg://ahmedsami@127.0.0.1:5432/dashboard_v2_bc_pg_20260813 APP_ENV=TEST SYNTHETIC_ONLY=true PYTHONPATH=. pytest -q backend/tests",
+  "frontend_commands": ["npm test -- --run", "npm run build"]
+}

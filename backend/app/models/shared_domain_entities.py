@@ -204,6 +204,47 @@ class RegulatoryRelation(Base, TimestampMixin):
     target_type: Mapped[str] = mapped_column(String(60), nullable=False)
     target_id: Mapped[str] = mapped_column(String(36), nullable=False)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="ACTIVE")
+
+
+class MasterContentApplicability(Base, TimestampMixin):
+    """Version-pinned regulatory applicability for a canonical source."""
+    __tablename__ = "master_content_applicability"
+    __table_args__ = (
+        UniqueConstraint("master_content_item_id", "source_document_version_id", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id", name="uq_master_content_applicability_version"),
+        Index("ix_master_content_applicability_context", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    master_content_item_id: Mapped[str] = mapped_column(ForeignKey("master_content_items.id"), nullable=False, index=True)
+    source_document_version_id: Mapped[str] = mapped_column(ForeignKey("document_versions.id"), nullable=False, index=True)
+    external_body_id: Mapped[str] = mapped_column(ForeignKey("external_bodies.id"), nullable=False, index=True)
+    jurisdiction_id: Mapped[str | None] = mapped_column(ForeignKey("jurisdictions.id"), index=True)
+    service_type_id: Mapped[str] = mapped_column(ForeignKey("service_types.id"), nullable=False, index=True)
+    lifecycle_phase_id: Mapped[str | None] = mapped_column(ForeignKey("regulatory_lifecycle_phases.id"), index=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="DRAFT", index=True)
+    effective_from: Mapped[date | None] = mapped_column(Date)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+    confirmed_by: Mapped[str | None] = mapped_column(String(200))
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    notes: Mapped[str | None] = mapped_column(Text)
+    supersedes_id: Mapped[str | None] = mapped_column(ForeignKey("master_content_applicability.id"))
+
+
+class AutomationReadinessAssessment(Base, TimestampMixin):
+    """Immutable evidence snapshot for derived AUTOMATED_USE_READY state."""
+    __tablename__ = "automation_readiness_assessments"
+    __table_args__ = (Index("ix_automation_readiness_profile", "profile_id", "evaluated_at"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("form_automation_profiles.id"), nullable=False, index=True)
+    master_content_item_id: Mapped[str] = mapped_column(ForeignKey("master_content_items.id"), nullable=False, index=True)
+    source_document_version_id: Mapped[str] = mapped_column(ForeignKey("document_versions.id"), nullable=False, index=True)
+    mapping_release_id: Mapped[str | None] = mapped_column(ForeignKey("form_mapping_releases.id"), index=True)
+    state: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    blocking_reasons: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    evidence_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    evaluated_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     provenance_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
 
 
@@ -295,6 +336,11 @@ class RequirementPolicyLineage(Base, TimestampMixin):
     document_version_id: Mapped[str] = mapped_column(ForeignKey("document_versions.id"), nullable=False, index=True)
     source_section_id: Mapped[str | None] = mapped_column(ForeignKey("master_content_source_sections.id"), index=True)
     relation_type: Mapped[str] = mapped_column(String(40), nullable=False, default="SOURCE_OF_POLICY")
+    source_role: Mapped[str] = mapped_column(String(40), nullable=False, default="PRIMARY")
+    governance_status: Mapped[str] = mapped_column(String(30), nullable=False, default="DRAFT", index=True)
+    governance_note: Mapped[str | None] = mapped_column(Text)
+    confirmed_by: Mapped[str | None] = mapped_column(String(200))
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class RequirementApplicabilityDecision(Base, TimestampMixin):
@@ -402,6 +448,11 @@ class TechnicalRuleLineage(Base, TimestampMixin):
     document_version_id: Mapped[str] = mapped_column(ForeignKey("document_versions.id"), nullable=False, index=True)
     source_section_id: Mapped[str | None] = mapped_column(ForeignKey("master_content_source_sections.id"), index=True)
     relation_type: Mapped[str] = mapped_column(String(40), nullable=False, default="SOURCE_OF_RULE")
+    source_role: Mapped[str] = mapped_column(String(40), nullable=False, default="PRIMARY")
+    governance_status: Mapped[str] = mapped_column(String(30), nullable=False, default="DRAFT", index=True)
+    governance_note: Mapped[str | None] = mapped_column(Text)
+    confirmed_by: Mapped[str | None] = mapped_column(String(200))
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class TechnicalRuleEvaluation(Base, TimestampMixin):
@@ -476,8 +527,23 @@ class FormMappingRelease(Base, TimestampMixin):
     version: Mapped[str] = mapped_column(String(40), nullable=False)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="DRAFT")
     mapping_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    master_content_item_id: Mapped[str | None] = mapped_column(ForeignKey("master_content_items.id"), index=True)
+    source_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    normalized_rendition_ref: Mapped[str | None] = mapped_column(String(500))
+    normalized_rendition_hash: Mapped[str | None] = mapped_column(String(128))
+    semantic_contract_version: Mapped[str | None] = mapped_column(String(40))
+    renderer_type: Mapped[str | None] = mapped_column(String(50))
+    renderer_version: Mapped[str | None] = mapped_column(String(60))
+    mapping_checksum: Mapped[str | None] = mapped_column(String(128), index=True)
+    reviewed_by: Mapped[str | None] = mapped_column(String(200))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     approved_by: Mapped[str | None] = mapped_column(String(200))
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    released_by: Mapped[str | None] = mapped_column(String(200))
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    retired_by: Mapped[str | None] = mapped_column(String(200))
+    retired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    invalidation_reason: Mapped[str | None] = mapped_column(Text)
 
 
 class FormMappingRule(Base, TimestampMixin):
@@ -551,10 +617,25 @@ class FormQARun(Base, TimestampMixin):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     generated_artifact_id: Mapped[str] = mapped_column(ForeignKey("generated_artifacts.id"), nullable=False)
+    mapping_release_id: Mapped[str | None] = mapped_column(ForeignKey("form_mapping_releases.id"), index=True)
+    qa_type: Mapped[str] = mapped_column(String(50), nullable=False, default="STRUCTURAL_MAPPING")
+    executed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     result: Mapped[str] = mapped_column(String(30), nullable=False)
     checks_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     synthetic_only: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class FormMappingReleaseQAGate(Base, TimestampMixin):
+    """Links an executed shared-runtime QA run to a release gate."""
+    __tablename__ = "form_mapping_release_qa_gates"
+    __table_args__ = (UniqueConstraint("mapping_release_id", "qa_run_id", "qa_type", name="uq_form_mapping_release_qa_gate"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    mapping_release_id: Mapped[str] = mapped_column(ForeignKey("form_mapping_releases.id"), nullable=False, index=True)
+    qa_run_id: Mapped[str] = mapped_column(ForeignKey("form_qa_runs.id"), nullable=False, index=True)
+    qa_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
 class FormSignatureRequirement(Base, TimestampMixin):

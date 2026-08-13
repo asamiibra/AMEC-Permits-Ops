@@ -31,8 +31,9 @@ def seed():
         reset_order = [
             # Shared-domain foundation records are reset before their
             # canonical master-content/project parents in disposable TEST.
-            SignaturePacket, FormSignatureRequirement, FormQARun, FormValidationResult, GeneratedArtifact, FormInstance,
+            SignaturePacket, FormSignatureRequirement, FormMappingReleaseQAGate, AutomationReadinessAssessment, FormQARun, FormValidationResult, GeneratedArtifact, FormInstance,
             FormMappingRule, FormMappingRelease, SemanticValueAssertion, SemanticKeyDefinition, FormAutomationProfile,
+            MasterContentApplicability,
             TechnicalRuleEvaluation, TechnicalRuleLineage, TechnicalRule, TechnicalRuleSetVersion,
             RequirementDecision, RequirementEvidenceEvaluation, RequirementEvaluation, RequirementApplicabilityDecision,
             RequirementPolicyLineage, RequirementEvidenceConstraint, RequirementPolicyItem, RequirementGroup, RequirementPolicyVersion, RequirementDefinition,

@@ -29,6 +29,7 @@ from ..models import (
     FormMappingRelease,
     FormMappingRule,
     FormQARun,
+    FormMappingReleaseQAGate,
     FormSignatureRequirement,
     FormValidationResult,
     GeneratedArtifact,
@@ -635,9 +636,18 @@ def run_form_qa(artifact_id: str, payload: dict[str, Any] = Body(default={}), re
     require_role(role, AUTOMATION_EXECUTE_ROLES)
     if not db.get(GeneratedArtifact, artifact_id):
         raise _missing("GeneratedArtifact")
-    item = FormQARun(generated_artifact_id=artifact_id, result=payload.get("result", "PASS"), checks_json=payload.get("checks_json", {}), synthetic_only=True, created_by=actor(role))
+    artifact = db.get(GeneratedArtifact, artifact_id)
+    qa_type = payload.get("qa_type", "STRUCTURAL_MAPPING")
+    if qa_type not in {"STRUCTURAL_MAPPING", "SYNTHETIC_FILL", "READ_BACK", "VISUAL", "ARABIC_RTL", "BILINGUAL", "REPEATING_GRID", "SIGNATURE_ZONE", "WRITER_OWNERSHIP", "NORMALIZED_RENDITION"}:
+        raise HTTPException(422, {"code": "QA_TYPE_INVALID"})
+    item = FormQARun(generated_artifact_id=artifact_id, mapping_release_id=artifact.mapping_release_id if artifact else None, qa_type=qa_type, result=payload.get("result", "PASS"), checks_json=payload.get("checks_json", {}), synthetic_only=True, created_by=actor(role))
     db.add(item)
-    return _commit(db, item, request, event="FORM_ARTIFACT_QA_RECORDED", role=role)
+    result = _commit(db, item, request, event="FORM_ARTIFACT_QA_RECORDED", role=role)
+    if item.mapping_release_id:
+        gate = FormMappingReleaseQAGate(mapping_release_id=item.mapping_release_id, qa_run_id=item.id, qa_type=qa_type, required=payload.get("required", True))
+        db.add(gate)
+        db.commit()
+    return result
 
 
 @router.get("/shared-domain/future-seam")

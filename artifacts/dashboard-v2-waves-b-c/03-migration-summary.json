@@ -1,0 +1,8 @@
+{
+  "migration": "0041_dashboard_v2_waves_b_c",
+  "postgresql_current": "0041_dashboard_v2_waves_b_c (head)",
+  "sqlite_round_trip": "upgrade to head -> downgrade to 0040 -> upgrade to head passed",
+  "postgresql_round_trip": "upgrade to head -> downgrade to 0040 -> upgrade to head passed",
+  "database": "dashboard_v2_bc_pg_20260813",
+  "disposable": true
+}
