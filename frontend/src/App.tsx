@@ -49,6 +49,7 @@ import { OpportunitiesPage } from "./Opportunities";
 import { ProposalsContractsPage } from "./ProposalsContracts";
 import { EngineeringCloseoutPage } from "./EngineeringCloseout";
 import { ProjectEngineeringPage } from "./ProjectEngineering";
+import { EngineeringDrawingReviewPage } from "./EngineeringDrawingReview";
 import { AboutPermitOpsPage } from "./AboutPermitOps";
 import { AdministrationOwnerPage } from "./AdministrationOwner";
 import { AMECWorkPage } from "./AMECWork";
@@ -179,6 +180,7 @@ const pageFromPath = () => {
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/engineering") return "project-engineering";
+  if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
   if (path === "/work" || path === "/") return "my-work";
@@ -510,6 +512,7 @@ function App() {
         </div>
       </aside>
       <main className="main">
+        {page === "engineering-drawing-review" && <EngineeringDrawingReviewPage />}
         <header className="topbar">
           <div className="topbar-heading">
             <AmecLogo size="sm" className="mobile-topbar-amec-logo" />

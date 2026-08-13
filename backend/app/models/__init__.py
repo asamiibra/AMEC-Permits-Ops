@@ -23,4 +23,5 @@ from .admin_contract_commercial_entities import *
 from .bd_proposal_entities import *
 from .owner_decision_entities import *
 from .project_engineering_entities import *
+from .engineering_review_entities import *
 from .preparation_submission_entities import *

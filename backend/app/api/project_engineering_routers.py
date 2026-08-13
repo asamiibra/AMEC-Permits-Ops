@@ -14,19 +14,21 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy import select, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
 from ..models import (
-    ApprovedDesignBaseline, ApprovedDesignBaselineMember, Document, DocumentApprovalState,
+    ApprovedDesignBaseline, ApprovedDesignBaselineMember, AuthorityCase, AuthorityCaseFinding, Document, DocumentApprovalState,
     DocumentType, DocumentVersion, DesignChangeRequest, EngineeringCalculationRecord,
     EngineeringDeliverable, EngineeringDeliverableRevision, EngineeringMaterialTest,
     EngineeringProfessionalApproval, EngineeringProjectMember, EngineeringRendition,
     EngineeringReviewFinding, EngineeringTechnicalCheck, EngineeringWorkPackage,
-    LineageEdge, ProfessionalCredential, Project, ProjectEngineeringReview, Role, TechnicalRule, TechnicalRuleSetVersion,
+    EngineeringAICommentArtifact, EngineeringAuthorityFindingLink, EngineeringCategoryAssignment, EngineeringInternalReviewComment, EngineeringReviewCategory, LineageEdge, ProfessionalCredential, Project, ProjectEngineeringReview, Role, TechnicalRule, TechnicalRuleSetVersion,
 )
 from ..services.backend_realignment import domain_error, require_capability
 
@@ -51,7 +53,7 @@ def _json(value: Any) -> Any:
 
 
 def _row(item: Any) -> dict[str, Any]:
-    return {key: _json(value) for key, value in item.__dict__.items() if not key.startswith("_")}
+    return {key: _json(value) for key, value in item.__dict__.items() if not key.startswith("_") and key != "synthetic_content"}
 
 
 def _project(db: Session, project_id: str) -> Project:
@@ -103,6 +105,56 @@ def _active_findings(db: Session, revision_id: str) -> list[EngineeringReviewFin
     return db.scalars(select(EngineeringReviewFinding).join(ProjectEngineeringReview, ProjectEngineeringReview.id == EngineeringReviewFinding.review_id).where(ProjectEngineeringReview.revision_id == revision_id, EngineeringReviewFinding.status.in_(["OPEN", "RESPONDED"]), EngineeringReviewFinding.severity.in_(["BLOCKING", "CRITICAL", "MAJOR"]))).all()
 
 
+def _category(db: Session, category_id: str) -> EngineeringReviewCategory:
+    item = db.get(EngineeringReviewCategory, category_id)
+    if not item or not item.active:
+        raise domain_error(404, "ENGINEERING_REVIEW_CATEGORY_NOT_FOUND", category_id=category_id)
+    return item
+
+
+def _review_project(db: Session, review_id: str, project_id: str) -> ProjectEngineeringReview:
+    review = db.get(ProjectEngineeringReview, review_id)
+    if not review or review.project_id != project_id:
+        raise domain_error(404, "ENGINEERING_REVIEW_NOT_FOUND", review_id=review_id)
+    return review
+
+
+def _revision_policy() -> dict[str, Any]:
+    return {"business_format": "R{sequence}", "sequence_start": 1, "zero_based_literal_codes": False, "document_version_is_separate": True, "owner_confirmation_required_for_change": True}
+
+
+def _drawing_review_row(db: Session, review: ProjectEngineeringReview) -> dict[str, Any]:
+    revision = db.get(EngineeringDeliverableRevision, review.revision_id)
+    deliverable = db.get(EngineeringDeliverable, revision.deliverable_id) if revision else None
+    package = db.get(EngineeringWorkPackage, deliverable.work_package_id) if deliverable else None
+    category = db.get(EngineeringReviewCategory, review.review_category_id) if review.review_category_id else None
+    renditions = db.scalars(select(EngineeringRendition).where(EngineeringRendition.revision_id == review.revision_id).order_by(EngineeringRendition.rendition_kind)).all()
+    documents = {item.id: item for item in db.scalars(select(DocumentVersion).where(DocumentVersion.id.in_([item.document_version_id for item in renditions]))).all()} if renditions else {}
+    findings = db.scalars(select(EngineeringReviewFinding).where(EngineeringReviewFinding.review_id == review.id).order_by(EngineeringReviewFinding.finding_ref)).all()
+    internal_comments = db.scalars(select(EngineeringInternalReviewComment).where(EngineeringInternalReviewComment.review_id == review.id).order_by(EngineeringInternalReviewComment.created_at)).all()
+    links = db.scalars(select(EngineeringAuthorityFindingLink).where(EngineeringAuthorityFindingLink.review_id == review.id).order_by(EngineeringAuthorityFindingLink.created_at)).all()
+    open_blockers = [item for item in findings if item.status in {"OPEN", "RESPONDED"} and item.severity in {"BLOCKING", "CRITICAL", "MAJOR"}]
+    return {"id": review.id, "project_id": review.project_id, "project": _row(db.get(Project, review.project_id)), "review_category": _row(category), "discipline": deliverable.discipline if deliverable else None, "work_package": _row(package), "deliverable": _row(deliverable), "revision": _row(revision), "revision_policy": _revision_policy(), "date": review.created_at.isoformat() if review.created_at else None, "status": review.status, "lane": "NEED_ACTION" if open_blockers else "READY_CLOSE" if revision and revision.approval_status == "PROFESSIONALLY_APPROVED" else "AUTHORITY_REVIEW" if links else "ALL", "action": "SUBMIT_FOR_INTERNAL_REVIEW" if review.status in {"OPEN", "CREATED"} else "SEND_TO_PROFESSIONAL_APPROVAL_QUEUE" if review.status in {"COMPLETED", "REVIEWED"} else "OPEN_NEXT_REVISION_STEP" if revision and revision.approval_status == "PROFESSIONALLY_APPROVED" else "REVIEW_REQUIRED", "renditions": [{**_row(item), "document_version": _row(documents.get(item.document_version_id)), "exact_reference": True} for item in renditions], "findings": [_row(item) for item in findings], "internal_comments": [_row(item) for item in internal_comments], "ai_comment_artifacts": [_row(item) for item in db.scalars(select(EngineeringAICommentArtifact).where(EngineeringAICommentArtifact.review_id == review.id).order_by(EngineeringAICommentArtifact.generated_at.desc())).all()], "authority_links": [_row(item) for item in links], "authority_review_meaning": "INTERNAL_ENGINEERING_REVIEW_OR_CANONICAL_EXTERNAL_LINK_ONLY; NOT_EXTERNAL_AUTHORITY_APPROVAL", "professional_approval": [_row(item) for item in db.scalars(select(EngineeringProfessionalApproval).where(EngineeringProfessionalApproval.revision_id == review.revision_id)).all()]}
+
+
+def _exact_rendition(db: Session, review: ProjectEngineeringReview, rendition_id: str) -> tuple[EngineeringRendition, DocumentVersion]:
+    rendition = db.get(EngineeringRendition, rendition_id)
+    if not rendition or rendition.project_id != review.project_id or rendition.revision_id != review.revision_id:
+        raise domain_error(404, "ENGINEERING_EXACT_RENDITION_NOT_FOUND", rendition_id=rendition_id, review_id=review.id)
+    document_version = db.get(DocumentVersion, rendition.document_version_id)
+    if not document_version:
+        raise domain_error(409, "ENGINEERING_RENDITION_DOCUMENT_VERSION_MISSING", rendition_id=rendition.id)
+    return rendition, document_version
+
+
+def _authority_finding_for_project(db: Session, finding_id: str, project_id: str) -> AuthorityCaseFinding:
+    finding = db.get(AuthorityCaseFinding, finding_id)
+    case = db.get(AuthorityCase, finding.authority_case_id) if finding else None
+    if not finding or not case or case.subject_type != "PROJECT" or case.subject_id != project_id:
+        raise domain_error(404, "ENGINEERING_AUTHORITY_FINDING_NOT_FOUND", finding_id=finding_id)
+    return finding
+
+
 @router.get("/projects/{project_id}/engineering")
 def engineering_summary(project_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     project = _project(db, project_id)
@@ -111,6 +163,240 @@ def engineering_summary(project_id: str, request: Request, db: Session = Depends
     deliverables = db.scalars(select(EngineeringDeliverable).where(EngineeringDeliverable.project_id == project.id).order_by(EngineeringDeliverable.created_at)).all()
     baselines = db.scalars(select(ApprovedDesignBaseline).where(ApprovedDesignBaseline.project_id == project.id).order_by(ApprovedDesignBaseline.created_at)).all()
     return {"project": {"id": project.id, "project_number": project.project_number, "project_name": project.project_name, "activated": bool(project.activated_at)}, "work_packages": [_row(x) for x in packages], "deliverables": [_row(x) for x in deliverables], "baselines": [_row(x) for x in baselines], "authority_approval_created": False, "construction_release_created": False, "submission_package_created": False}
+
+
+@router.get("/engineering/review-categories")
+def list_review_categories(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "ENGINEERING_PROJECT_READ")
+    return {"items": [_row(item) for item in db.scalars(select(EngineeringReviewCategory).order_by(EngineeringReviewCategory.sort_order, EngineeringReviewCategory.name)).all()], "taxonomy": "CONFIGURED_ENGINEERING_REVIEW_CATEGORY", "discipline_is_separate": True, "sketch_abbreviations_interpreted": False}
+
+
+@router.post("/engineering/review-categories")
+def create_review_category(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "ENGINEERING_CATEGORY_ASSIGNMENT_MANAGE")
+    actor = _actor(request, payload)
+    code = str(payload.get("code") or "").strip().upper()
+    name = str(payload.get("name") or "").strip()
+    if not code or not name:
+        raise domain_error(422, "ENGINEERING_REVIEW_CATEGORY_FIELDS_REQUIRED")
+    if db.scalar(select(EngineeringReviewCategory).where(EngineeringReviewCategory.code == code)):
+        raise domain_error(409, "ENGINEERING_REVIEW_CATEGORY_CODE_EXISTS", code=code)
+    item = EngineeringReviewCategory(code=code, name=name, description=payload.get("description"), discipline=payload.get("discipline"), stage_class=payload.get("stage_class"), active=bool(payload.get("active", True)), sort_order=int(payload.get("sort_order", 100)), source_kind=str(payload.get("source_kind") or "OWNER_CONFIGURED"), created_by=actor)
+    db.add(item); db.flush(); audit(db, correlation_id=_corr(request), event_type="ENGINEERING_REVIEW_CATEGORY_CREATED", entity_type="EngineeringReviewCategory", entity_id=item.id, actor_id=actor, after={**_row(item), "discipline_is_separate": True, "global_role_created": False}); db.commit()
+    return _row(item)
+
+
+@router.get("/projects/{project_id}/engineering/review-categories")
+def project_review_categories(project_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _project(db, project_id); _authorized(db, project_id, role, _actor(request))
+    assignments = db.scalars(select(EngineeringCategoryAssignment).where(EngineeringCategoryAssignment.project_id == project.id).order_by(EngineeringCategoryAssignment.created_at)).all()
+    return {"project": _row(project), "categories": [_row(item) for item in db.scalars(select(EngineeringReviewCategory).where(EngineeringReviewCategory.active.is_(True)).order_by(EngineeringReviewCategory.sort_order, EngineeringReviewCategory.name)).all()], "assignments": [_row(item) for item in assignments], "visible_global_roles": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"]}
+
+
+@router.post("/projects/{project_id}/engineering/review-categories/{category_id}/assignments")
+def assign_review_category(project_id: str, category_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _active_project(db, project_id); actor = _actor(request, payload); require_capability(role, "ENGINEERING_CATEGORY_ASSIGNMENT_MANAGE")
+    category = _category(db, category_id)
+    package = db.get(EngineeringWorkPackage, payload.get("work_package_id")) if payload.get("work_package_id") else None
+    if package and package.project_id != project.id:
+        raise domain_error(409, "ENGINEERING_ASSIGNMENT_WORK_PACKAGE_PROJECT_MISMATCH")
+    assignee = str(payload.get("assignee_actor") or "").strip()
+    if not assignee:
+        raise domain_error(422, "ENGINEERING_ASSIGNMENT_ASSIGNEE_REQUIRED")
+    existing = db.scalar(select(EngineeringCategoryAssignment).where(EngineeringCategoryAssignment.project_id == project.id, EngineeringCategoryAssignment.work_package_id == (package.id if package else None), EngineeringCategoryAssignment.review_category_id == category.id))
+    if existing:
+        existing.assignee_actor = assignee; existing.team = payload.get("team"); existing.responsibility = str(payload.get("responsibility") or existing.responsibility); existing.capability = str(payload.get("capability") or existing.capability); existing.effective_state = str(payload.get("effective_state") or "ACTIVE")
+        item = existing; event = "ENGINEERING_CATEGORY_ASSIGNMENT_CHANGED"
+    else:
+        item = EngineeringCategoryAssignment(project_id=project.id, work_package_id=package.id if package else None, review_category_id=category.id, assignee_actor=assignee, team=payload.get("team"), responsibility=str(payload.get("responsibility") or "ENGINEERING_REVIEW"), capability=str(payload.get("capability") or "ENGINEERING_REVIEW"), effective_state=str(payload.get("effective_state") or "ACTIVE"), created_by=actor)
+        db.add(item); event = "ENGINEERING_CATEGORY_ASSIGNMENT_CREATED"
+    db.flush(); _lineage(db, project.id, "EngineeringReviewCategory", category.id, "EngineeringCategoryAssignment", item.id, "ENGINEERING_CATEGORY_ASSIGNED", request, category.code); audit(db, correlation_id=_corr(request), event_type=event, entity_type="EngineeringCategoryAssignment", entity_id=item.id, actor_id=actor, after={**_row(item), "global_role_created": False, "professional_approval_granted": False}); db.commit()
+    return {"assignment": _row(item), "category": _row(category), "visible_global_roles": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"]}
+
+
+@router.get("/projects/{project_id}/engineering/drawing-review")
+def drawing_review_list(project_id: str, request: Request, lane: str | None = None, q: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _project(db, project_id)
+    _authorized(db, project_id, role, _actor(request))
+    reviews = db.scalars(select(ProjectEngineeringReview).where(ProjectEngineeringReview.project_id == project.id).order_by(ProjectEngineeringReview.created_at.desc())).all()
+    items = [_drawing_review_row(db, review) for review in reviews]
+    if lane and lane.upper() != "ALL":
+        items = [item for item in items if item["lane"] == lane.upper()]
+    if q:
+        needle = q.casefold()
+        items = [item for item in items if needle in json.dumps(item, default=str).casefold()]
+    return {"project": _row(project), "columns": ["project", "review_category", "revision", "date", "status", "action"], "lanes": ["ALL", "NEED_ACTION", "AUTHORITY_REVIEW", "READY_CLOSE"], "items": items, "authority_review_label": "Internal engineering review / canonical external link only"}
+
+
+@router.get("/projects/{project_id}/engineering/drawing-review/{review_id}")
+def drawing_review_detail(project_id: str, review_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _project(db, project_id)
+    _authorized(db, project_id, role, _actor(request))
+    return _drawing_review_row(db, _review_project(db, review_id, project_id))
+
+
+@router.post("/projects/{project_id}/engineering/reviews/{review_id}/review-category")
+def set_review_category(project_id: str, review_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _active_project(db, project_id)
+    actor = _actor(request, payload)
+    _authorized(db, project_id, role, actor, "ENGINEERING_CATEGORY_ASSIGNMENT_MANAGE")
+    review = _review_project(db, review_id, project.id)
+    category = _category(db, str(payload.get("review_category_id") or ""))
+    revision = _revision_project(db, review.revision_id, project.id)
+    review.review_category_id = category.id
+    _lineage(db, project.id, "EngineeringReviewCategory", category.id, "ProjectEngineeringReview", review.id, "ENGINEERING_REVIEW_CATEGORY_APPLIED", request, category.code)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_REVIEW_CATEGORY_CHANGED", entity_type="ProjectEngineeringReview", entity_id=review.id, actor_id=actor, after={"review_category_id": category.id, "discipline": db.get(EngineeringDeliverable, revision.deliverable_id).discipline})
+    db.commit()
+    return _drawing_review_row(db, review)
+
+
+@router.post("/projects/{project_id}/engineering/drawing-review/{review_id}/proceed")
+def proceed_drawing_review(project_id: str, review_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _active_project(db, project_id)
+    actor = _actor(request, payload)
+    _authorized(db, project_id, role, actor, "ENGINEERING_REVIEW")
+    review = _review_project(db, review_id, project.id)
+    action = str(payload.get("action") or "").upper()
+    transitions = {"SUBMIT_FOR_INTERNAL_REVIEW": "INTERNAL_REVIEW", "SEND_TO_PROFESSIONAL_APPROVAL_QUEUE": "READY_FOR_PROFESSIONAL_APPROVAL", "OPEN_NEXT_REVISION_STEP": "NEXT_REVISION_REQUIRED"}
+    if action not in transitions:
+        raise domain_error(422, "ENGINEERING_DRAWING_REVIEW_ACTION_INVALID", allowed_actions=list(transitions))
+    review.status = transitions[action]
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_DRAWING_REVIEW_PROCEEDED", entity_type="ProjectEngineeringReview", entity_id=review.id, actor_id=actor, after={"action": action, "status": review.status, "external_authority_approval": False, "construction_release": False})
+    db.commit()
+    return _drawing_review_row(db, review)
+
+
+@router.get("/projects/{project_id}/engineering/drawing-review/{review_id}/renditions/{rendition_id}/open")
+def open_drawing_rendition(project_id: str, review_id: str, rendition_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _project(db, project_id)
+    actor = _actor(request)
+    _authorized(db, project_id, role, actor)
+    review = _review_project(db, review_id, project.id)
+    rendition, document_version = _exact_rendition(db, review, rendition_id)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_DRAWING_RENDITION_OPENED", entity_type="EngineeringRendition", entity_id=rendition.id, actor_id=actor, after={"review_id": review.id, "revision_id": review.revision_id, "document_version_id": document_version.id, "exact_reference": True})
+    db.commit()
+    return {"rendition": _row(rendition), "document_version": _row(document_version), "exact_reference": True, "latest_lookup_used": False}
+
+
+@router.get("/projects/{project_id}/engineering/drawing-review/{review_id}/renditions/{rendition_id}/download")
+def download_drawing_rendition(project_id: str, review_id: str, rendition_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _project(db, project_id)
+    actor = _actor(request)
+    _authorized(db, project_id, role, actor)
+    review = _review_project(db, review_id, project.id)
+    rendition, document_version = _exact_rendition(db, review, rendition_id)
+    content = document_version.synthetic_content or b""
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_DRAWING_RENDITION_DOWNLOADED", entity_type="EngineeringRendition", entity_id=rendition.id, actor_id=actor, after={"review_id": review.id, "revision_id": review.revision_id, "document_version_id": document_version.id, "sha256": document_version.sha256, "exact_reference": True})
+    db.commit()
+    return Response(content=content, media_type=document_version.mime_type or "application/octet-stream", headers={"Content-Disposition": f'attachment; filename="{document_version.source_filename}"', "X-Engineering-Document-Version": document_version.id, "X-Engineering-Exact-Revision": review.revision_id})
+
+
+@router.post("/projects/{project_id}/engineering/drawing-review/{review_id}/internal-comments")
+def add_internal_drawing_comment(project_id: str, review_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _active_project(db, project_id)
+    actor = _actor(request, payload)
+    _authorized(db, project_id, role, actor, "ENGINEERING_REVIEW")
+    review = _review_project(db, review_id, project.id)
+    revision = _revision_project(db, review.revision_id, project.id)
+    document_version_id = str(payload.get("document_version_id") or "")
+    if not document_version_id or not db.scalar(select(EngineeringRendition).where(EngineeringRendition.revision_id == revision.id, EngineeringRendition.document_version_id == document_version_id)):
+        raise domain_error(409, "ENGINEERING_INTERNAL_COMMENT_EXACT_DOCUMENT_REQUIRED")
+    text = str(payload.get("comment_text") or "").strip()
+    if not text:
+        raise domain_error(422, "ENGINEERING_INTERNAL_COMMENT_TEXT_REQUIRED")
+    item = EngineeringInternalReviewComment(project_id=project.id, review_id=review.id, revision_id=revision.id, drawing_document_version_id=document_version_id, comment_text=text, location_reference=payload.get("location_reference"), created_by=actor)
+    db.add(item); db.flush()
+    _lineage(db, project.id, "DocumentVersion", document_version_id, "EngineeringInternalReviewComment", item.id, "ENGINEERING_INTERNAL_COMMENT_EXACT_DRAWING", request)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_INTERNAL_REVIEW_COMMENT_CREATED", entity_type="EngineeringInternalReviewComment", entity_id=item.id, actor_id=actor, after={**_row(item), "external_authority_comment": False})
+    db.commit()
+    return _row(item)
+
+
+@router.post("/projects/{project_id}/engineering/drawing-review/{review_id}/ai-comments")
+def generate_ai_drawing_comment(project_id: str, review_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _active_project(db, project_id)
+    actor = _actor(request, payload)
+    _authorized(db, project_id, role, actor, "ENGINEERING_REVIEW")
+    review = _review_project(db, review_id, project.id)
+    revision = _revision_project(db, review.revision_id, project.id)
+    rendition = db.scalar(select(EngineeringRendition).where(EngineeringRendition.revision_id == revision.id, EngineeringRendition.rendition_kind == "PUBLISHED"))
+    if not rendition:
+        raise domain_error(409, "ENGINEERING_AI_PUBLISHED_RENDITION_REQUIRED")
+    findings = db.scalars(select(EngineeringReviewFinding).where(EngineeringReviewFinding.review_id == review.id).order_by(EngineeringReviewFinding.finding_ref)).all()
+    comments = db.scalars(select(EngineeringInternalReviewComment).where(EngineeringInternalReviewComment.review_id == review.id).order_by(EngineeringInternalReviewComment.created_at)).all()
+    summary = "; ".join([f"{item.finding_ref}: {item.description}" for item in findings] + [f"Internal comment: {item.comment_text}" for item in comments]) or "No human findings or internal comments recorded."
+    draft = f"AI-assisted / draft — Review {review.id} for exact revision {revision.revision_code}. Candidate review summary: {summary} This artifact is not professional approval, an authority finding, or an authority response."
+    document_version = db.get(DocumentVersion, rendition.document_version_id)
+    item = EngineeringAICommentArtifact(project_id=project.id, review_id=review.id, revision_id=revision.id, drawing_document_version_id=rendition.document_version_id, draft_text=draft, metadata_json={"pinned_project_id": project.id, "pinned_deliverable_revision_id": revision.id, "pinned_drawing_document_version_id": rendition.document_version_id, "prompt_version": "ENGINEERING-DRAWING-COMMENTS-1.0", "runtime": "DETERMINISTIC_SYNTHETIC_REVIEW_ASSISTANT", "generated_at": datetime.now(timezone.utc).isoformat()}, generated_by=actor)
+    db.add(item); db.flush()
+    _lineage(db, project.id, "ProjectEngineeringReview", review.id, "EngineeringAICommentArtifact", item.id, "AI_REVIEW_DRAFT", request)
+    _lineage(db, project.id, "DocumentVersion", rendition.document_version_id, "EngineeringAICommentArtifact", item.id, "AI_DRAFT_PINNED_DRAWING", request, document_version.sha256 if document_version else None)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_AI_COMMENT_GENERATED", entity_type="EngineeringAICommentArtifact", entity_id=item.id, actor_id=actor, after={**_row(item), "approval_changed": False, "authority_finding_created": False})
+    db.commit()
+    return _row(item)
+
+
+@router.get("/projects/{project_id}/engineering/drawing-review/{review_id}/ai-comments/{artifact_id}/download")
+def download_ai_drawing_comment(project_id: str, review_id: str, artifact_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _project(db, project_id)
+    actor = _actor(request)
+    _authorized(db, project_id, role, actor)
+    review = _review_project(db, review_id, project.id)
+    item = db.get(EngineeringAICommentArtifact, artifact_id)
+    if not item or item.project_id != project.id or item.review_id != review.id:
+        raise domain_error(404, "ENGINEERING_AI_COMMENT_ARTIFACT_NOT_FOUND", artifact_id=artifact_id)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_AI_COMMENT_DOWNLOADED", entity_type="EngineeringAICommentArtifact", entity_id=item.id, actor_id=actor, after={"status": item.status, "approval_changed": False, "authority_finding_created": False})
+    db.commit()
+    return JSONResponse(content={"artifact": _row(item), "label": "AI-assisted / draft", "professional_approval": False, "authority_response": False}, headers={"Content-Disposition": f'attachment; filename="engineering-review-{review.id}-ai-draft.json"'})
+
+
+@router.get("/projects/{project_id}/engineering/drawing-review/{review_id}/authority-comment-seam")
+def authority_comment_seam(project_id: str, review_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _project(db, project_id)
+    _authorized(db, project_id, role, _actor(request))
+    review = _review_project(db, review_id, project.id)
+    links = db.scalars(select(EngineeringAuthorityFindingLink).where(EngineeringAuthorityFindingLink.review_id == review.id)).all()
+    return {"canonical_type": "AuthorityCaseFinding", "exists_in_current_runtime": True, "creates_external_truth": False, "engineering_can_close_finding": False, "link_contract": {"upstream_type": "AuthorityCaseFinding", "downstream_type": "EngineeringDeliverableRevision", "review_category_supported": True, "project_scope_required": True, "dependency_kind": "AUTHORITY_FINDING_AFFECTS_ENGINEERING_REVISION"}, "links": [_row(item) for item in links], "required_downstream_statement": "ENGINEERING_EXTERNAL_AUTHORITY_COMMENT_SEAM_COMPATIBLE_WITH_AUTHORITY_FINDING"}
+
+
+@router.post("/projects/{project_id}/engineering/drawing-review/{review_id}/authority-findings/{finding_id}/link")
+def link_authority_finding(project_id: str, review_id: str, finding_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _active_project(db, project_id)
+    actor = _actor(request)
+    _authorized(db, project_id, role, actor, "ENGINEERING_REVIEW")
+    review = _review_project(db, review_id, project.id)
+    finding = _authority_finding_for_project(db, finding_id, project.id)
+    existing = db.scalar(select(EngineeringAuthorityFindingLink).where(EngineeringAuthorityFindingLink.authority_finding_id == finding.id, EngineeringAuthorityFindingLink.revision_id == review.revision_id))
+    if existing:
+        return _row(existing)
+    item = EngineeringAuthorityFindingLink(project_id=project.id, review_id=review.id, revision_id=review.revision_id, review_category_id=review.review_category_id, authority_finding_id=finding.id, created_by=actor)
+    db.add(item); db.flush()
+    _lineage(db, project.id, "AuthorityCaseFinding", finding.id, "EngineeringDeliverableRevision", review.revision_id, "AUTHORITY_FINDING_AFFECTS_ENGINEERING_REVISION", request)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_AUTHORITY_FINDING_LINKED", entity_type="EngineeringAuthorityFindingLink", entity_id=item.id, actor_id=actor, after={"authority_finding_id": finding.id, "revision_id": review.revision_id, "engineering_can_close_finding": False})
+    db.commit()
+    return _row(item)
+
+
+@router.post("/projects/{project_id}/engineering/drawing-review/{review_id}/authority-findings/{finding_id}/design-change")
+def design_change_from_authority_finding(project_id: str, review_id: str, finding_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    project = _active_project(db, project_id)
+    actor = _actor(request, payload)
+    _authorized(db, project_id, role, actor, "ENGINEERING_PROJECT_EDIT")
+    review = _review_project(db, review_id, project.id)
+    finding = _authority_finding_for_project(db, finding_id, project.id)
+    link = db.scalar(select(EngineeringAuthorityFindingLink).where(EngineeringAuthorityFindingLink.authority_finding_id == finding.id, EngineeringAuthorityFindingLink.revision_id == review.revision_id))
+    if not link:
+        raise domain_error(409, "ENGINEERING_AUTHORITY_FINDING_LINK_REQUIRED")
+    baseline = db.get(ApprovedDesignBaseline, payload.get("from_baseline_id"))
+    if not baseline or baseline.project_id != project.id or baseline.status != "APPROVED":
+        raise domain_error(409, "DESIGN_CHANGE_APPROVED_BASELINE_REQUIRED")
+    change_ref = str(payload.get("change_ref") or f"DCF-{finding.external_finding_id or finding.id[:8]}")
+    item = DesignChangeRequest(project_id=project.id, change_ref=change_ref, from_baseline_id=baseline.id, reason=str(payload.get("reason") or f"Engineering response to canonical AuthorityCaseFinding {finding.id}"), regulatory_impact="AUTHORITY_FINDING_LINKED", commercial_impact=str(payload.get("commercial_impact") or "UNKNOWN"), created_by=actor)
+    db.add(item); db.flush()
+    _lineage(db, project.id, "AuthorityCaseFinding", finding.id, "DesignChangeRequest", item.id, "AUTHORITY_FINDING_DESIGN_CHANGE", request)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_DESIGN_CHANGE_REQUEST_FROM_AUTHORITY_FINDING", entity_type="DesignChangeRequest", entity_id=item.id, actor_id=actor, after={"authority_finding_id": finding.id, "status": item.status, "authority_finding_closed": False})
+    db.commit()
+    return _row(item)
 
 
 @router.post("/projects/{project_id}/engineering/members")
@@ -167,7 +453,7 @@ def create_deliverable(project_id: str, payload: dict[str, Any], request: Reques
 @router.post("/projects/{project_id}/engineering/deliverables/{deliverable_id}/revisions")
 def create_revision(project_id: str, deliverable_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     project = _active_project(db, project_id); actor = _actor(request, payload); _authorized(db, project_id, role, actor, "ENGINEERING_PROJECT_EDIT")
-    deliverable = db.get(EngineeringDeliverable, deliverable_id)
+    deliverable = db.scalar(select(EngineeringDeliverable).where(EngineeringDeliverable.id == deliverable_id).with_for_update())
     if not deliverable or deliverable.project_id != project.id: raise domain_error(409, "ENGINEERING_DELIVERABLE_PROJECT_MISMATCH")
     if payload.get("idempotency_key"):
         existing = db.scalar(select(EngineeringDeliverableRevision).where(EngineeringDeliverableRevision.idempotency_key == str(payload["idempotency_key"])))
@@ -178,7 +464,13 @@ def create_revision(project_id: str, deliverable_id: str, payload: dict[str, Any
     code = str(payload.get("revision_code") or f"R{sequence}")
     if db.scalar(select(EngineeringDeliverableRevision).where(EngineeringDeliverableRevision.deliverable_id == deliverable.id, EngineeringDeliverableRevision.revision_code == code)): raise domain_error(409, "ENGINEERING_REVISION_CODE_EXISTS")
     item = EngineeringDeliverableRevision(project_id=project.id, deliverable_id=deliverable.id, revision_code=code, sequence=sequence, title=str(payload.get("title") or deliverable.title), issue_purpose=str(payload.get("issue_purpose") or "FOR_REVIEW"), prepared_by=actor, supersedes_revision_id=previous.id if previous else None, idempotency_key=str(payload["idempotency_key"]) if payload.get("idempotency_key") else None)
-    db.add(item); db.flush(); deliverable.current_revision_id = item.id; deliverable.status = "IN_PROGRESS"; _lineage(db, project.id, "EngineeringDeliverableRevision", previous.id if previous else deliverable.id, "EngineeringDeliverableRevision", item.id, "ENGINEERING_REVISION_SUPERSEDES" if previous else "ENGINEERING_REVISION_CREATED", request); audit(db, correlation_id=_corr(request), event_type="ENGINEERING_DELIVERABLE_REVISION_CREATED", entity_type="EngineeringDeliverableRevision", entity_id=item.id, actor_id=actor, after=_row(item)); db.commit()
+    db.add(item)
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise domain_error(409, "ENGINEERING_REVISION_SEQUENCE_CONFLICT", deliverable_id=deliverable.id)
+    deliverable.current_revision_id = item.id; deliverable.status = "IN_PROGRESS"; _lineage(db, project.id, "EngineeringDeliverableRevision", previous.id if previous else deliverable.id, "EngineeringDeliverableRevision", item.id, "ENGINEERING_REVISION_SUPERSEDES" if previous else "ENGINEERING_REVISION_CREATED", request); audit(db, correlation_id=_corr(request), event_type="ENGINEERING_REVISION_ALLOCATED", entity_type="EngineeringDeliverableRevision", entity_id=item.id, actor_id=actor, after={**_row(item), "allocation_policy": _revision_policy(), "document_version_is_separate": True}); db.commit()
     return _row(item)
 
 
@@ -221,8 +513,12 @@ def start_review(project_id: str, revision_id: str, payload: dict[str, Any], req
     revision = _revision_project(db, revision_id, project.id)
     if not db.scalars(select(EngineeringRendition).where(EngineeringRendition.revision_id == revision.id)).first(): raise domain_error(409, "ENGINEERING_REVIEW_RENDITION_REQUIRED")
     number = (db.scalar(select(func.max(ProjectEngineeringReview.review_number)).where(ProjectEngineeringReview.revision_id == revision.id)) or 0) + 1
-    item = ProjectEngineeringReview(project_id=project.id, revision_id=revision.id, review_number=number, started_by=actor)
-    db.add(item); db.flush(); revision.status = "UNDER_REVIEW"; audit(db, correlation_id=_corr(request), event_type="ENGINEERING_REVIEW_STARTED", entity_type="ProjectEngineeringReview", entity_id=item.id, actor_id=actor, after=_row(item)); db.commit(); return _row(item)
+    category = _category(db, str(payload["review_category_id"])) if payload.get("review_category_id") else None
+    item = ProjectEngineeringReview(project_id=project.id, revision_id=revision.id, review_category_id=category.id if category else None, review_number=number, started_by=actor)
+    db.add(item); db.flush(); revision.status = "UNDER_REVIEW"
+    if category:
+        _lineage(db, project.id, "EngineeringReviewCategory", category.id, "ProjectEngineeringReview", item.id, "ENGINEERING_REVIEW_CATEGORY_APPLIED", request, category.code)
+    audit(db, correlation_id=_corr(request), event_type="ENGINEERING_REVIEW_STARTED", entity_type="ProjectEngineeringReview", entity_id=item.id, actor_id=actor, after=_row(item)); db.commit(); return _row(item)
 
 
 @router.post("/projects/{project_id}/engineering/reviews/{review_id}/findings")

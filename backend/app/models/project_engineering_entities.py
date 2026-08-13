@@ -67,7 +67,7 @@ class EngineeringDeliverable(Base):
 
 class EngineeringDeliverableRevision(Base):
     __tablename__ = "engineering_deliverable_revisions"
-    __table_args__ = (UniqueConstraint("deliverable_id", "revision_code", name="uq_engineering_deliverable_revision"), Index("ix_engineering_revision_status", "status", "approval_status"), Index("ix_engineering_revision_deliverable", "deliverable_id", "sequence"))
+    __table_args__ = (UniqueConstraint("deliverable_id", "revision_code", name="uq_engineering_deliverable_revision"), UniqueConstraint("deliverable_id", "sequence", name="uq_engineering_deliverable_revision_sequence"), Index("ix_engineering_revision_status", "status", "approval_status"), Index("ix_engineering_revision_deliverable", "deliverable_id", "sequence"))
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False)
     deliverable_id: Mapped[str] = mapped_column(ForeignKey("engineering_deliverables.id"), nullable=False)
@@ -106,6 +106,7 @@ class ProjectEngineeringReview(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False)
     revision_id: Mapped[str] = mapped_column(ForeignKey("engineering_deliverable_revisions.id"), nullable=False)
+    review_category_id: Mapped[str | None] = mapped_column(ForeignKey("engineering_review_categories.id"), index=True)
     review_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="OPEN")
     started_by: Mapped[str] = mapped_column(String(200), nullable=False)
