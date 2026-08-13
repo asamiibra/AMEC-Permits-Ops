@@ -1,0 +1,8 @@
+{
+  "upgrade_from": "0036_dashboard_forms_governance_wave_a",
+  "upgrade_to": "0040_form_automation_runtime",
+  "downgrade_to": "0036_dashboard_forms_governance_wave_a",
+  "reupgrade_to": "0040_form_automation_runtime",
+  "sqlite": "PASS",
+  "postgresql_fresh_upgrade": "PASS"
+}

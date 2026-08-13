@@ -1,0 +1,10 @@
+{
+  "starting_sha": "56ce49a77237bfcb10d55de0a7818eea2233d6cc",
+  "origin_main_matched": true,
+  "working_tree_clean": true,
+  "alembic_before": "0036_dashboard_forms_governance_wave_a",
+  "dashboard_v1_route": "/dashboard",
+  "dashboard_v2_route": "/dashboard-v2",
+  "synthetic_only": true,
+  "overlapping_changes": false
+}

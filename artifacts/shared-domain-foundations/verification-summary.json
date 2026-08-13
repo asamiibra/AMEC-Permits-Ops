@@ -1,0 +1,14 @@
+{
+  "status": "CODE_FROZEN",
+  "alembic_head": "0040_form_automation_runtime",
+  "sqlite_backend": "151 passed, 1 skipped",
+  "postgres_backend": "152 passed",
+  "frontend": "32 passed",
+  "build": "PASS",
+  "real_stack_browser": "4 passed",
+  "dashboard_v2_wave_b_dependencies": "READY",
+  "dashboard_v2_wave_c_dependencies": "READY",
+  "deployment_provenance": "BLOCKED_EXTERNAL",
+  "real_synology": "BLOCKED_EXTERNAL",
+  "synthetic_only": true
+}

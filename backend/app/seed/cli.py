@@ -29,6 +29,15 @@ def seed():
         db.execute(update(EngineeringReview).values(current_scope_id=None))
         db.execute(update(Invoice).values(requirement_decision_id=None))
         reset_order = [
+            # Shared-domain foundation records are reset before their
+            # canonical master-content/project parents in disposable TEST.
+            SignaturePacket, FormSignatureRequirement, FormQARun, FormValidationResult, GeneratedArtifact, FormInstance,
+            FormMappingRule, FormMappingRelease, SemanticValueAssertion, SemanticKeyDefinition, FormAutomationProfile,
+            TechnicalRuleEvaluation, TechnicalRuleLineage, TechnicalRule, TechnicalRuleSetVersion,
+            RequirementDecision, RequirementEvidenceEvaluation, RequirementEvaluation, RequirementApplicabilityDecision,
+            RequirementPolicyLineage, RequirementEvidenceConstraint, RequirementPolicyItem, RequirementGroup, RequirementPolicyVersion, RequirementDefinition,
+            AuthorityOutcome, ExternalInteractionProfile, AuthorityCaseWorkPeriod, AuthorityCaseIdentifier, AuthorityCase,
+            RegulatoryJourney, RegulatoryLifecyclePhase, ServiceTypeVersion, ServiceType, ExternalBodyUnit, ExternalBody, Jurisdiction,
             *EXPANSION_RESET_MODELS,
             ProductionModeDecision, G10EvidenceItem, RoleReadinessMatrix, PilotWorkflowApproval, ShadowDefectDisposition, AcceptanceMetric, AcceptanceRehearsalRun,
             RoleTrainingChecklist, KillSwitchReadiness, RestoreRehearsal, RecoveryManifest, IncidentImpactAssessment, WorkflowSafetyHold, IntegrityIncident, SupportCase,

@@ -1,0 +1,8 @@
+{
+  "spec": "frontend/browser-real-stack/shared-domain-foundations.spec.ts",
+  "shared_foundation_smoke": "PASS",
+  "dashboard_v1_v2_split_regression": "PASS",
+  "tests": 4,
+  "database": "PostgreSQL",
+  "migration": "0040_form_automation_runtime"
+}
