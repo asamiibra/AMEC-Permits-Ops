@@ -17,3 +17,5 @@ Proposal acceptance, Contract authority, and Project Activation remain distinct 
 `REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL`
 
 `ADMIN_CONTRACT_OWNER_SKETCH_RECONCILIATION_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL`
+
+`BILLING_INVOICE_CONTRACT_DEPENDENCIES_READY` (local Contract dependency gate proven; Invoice implementation remains deferred).
