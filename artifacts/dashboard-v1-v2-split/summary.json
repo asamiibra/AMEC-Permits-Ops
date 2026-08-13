@@ -1,0 +1,15 @@
+{
+  "surface": "Dashboard V1 / Dashboard V2 split",
+  "starting_sha": "f694a145dc927426d022e50f7e86348fa9ef879d",
+  "reference_sha": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "final_sha": "5e5fb43b57c8d0fb92f5e7fe9c3124b1ad341512",
+  "remote_sha": "5e5fb43b57c8d0fb92f5e7fe9c3124b1ad341512",
+  "alembic_head": "0036_dashboard_forms_governance_wave_a",
+  "backend": {"passed": 150, "skipped": 1, "failed": 0},
+  "frontend": {"passed": 32, "failed": 0},
+  "browser": {"passed": 3, "failed": 0},
+  "build": "passed",
+  "visual_artifacts": ["home-dual-dashboards.png", "dashboard-v1.png", "dashboard-v2.png"],
+  "deployment_provenance": "blocked_external",
+  "real_synology": "blocked_external"
+}

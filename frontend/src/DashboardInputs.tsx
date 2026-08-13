@@ -56,16 +56,16 @@ const currentSummary = (item: InputItem) =>
     .join(" · ") ||
   "No current value recorded.";
 
-function useDashboardInputs() {
+function useDashboardInputs(includeGovernance = false) {
   const [data, setData] = useState<InputPayload | null>(null);
   const [error, setError] = useState("");
   const load = () =>
-    api<InputPayload>("/api/dashboard-inputs?include_governance=true")
+    api<InputPayload>(`/api/dashboard-inputs${includeGovernance ? "?include_governance=true" : ""}`)
       .then(setData)
       .catch((reason) => setError(String(reason)));
   useEffect(() => {
     void load();
-  }, []);
+  }, [includeGovernance]);
   return { data, error, reload: load };
 }
 
@@ -101,12 +101,14 @@ function SummaryHeader({ summary }: { summary: InputPayload["summary"] }) {
 export function DashboardInputsLauncher({
   role,
   onNavigate,
+  includeGovernance = false,
 }: {
   role: string;
   onNavigate: (page: string) => void;
+  includeGovernance?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const { data, error } = useDashboardInputs();
+  const { data, error } = useDashboardInputs(includeGovernance);
   const unresolved = useMemo(
     () =>
       (data?.items || []).filter(
@@ -367,11 +369,15 @@ function InputCard({
 export function DashboardInputsPage({
   role,
   onNavigate,
+  governanceMode = false,
+  backPage = "dashboard",
 }: {
   role: string;
   onNavigate: (page: string) => void;
+  governanceMode?: boolean;
+  backPage?: string;
 }) {
-  const { data, error, reload } = useDashboardInputs();
+  const { data, error, reload } = useDashboardInputs(governanceMode);
   const update = async (key: string, action: string, notes?: string) => {
     await api(`/api/dashboard-inputs/${key}`, {
       method: "PATCH",
@@ -393,7 +399,7 @@ export function DashboardInputsPage({
         </div>
         <button
           className="button-secondary"
-          onClick={() => onNavigate("dashboard")}
+          onClick={() => onNavigate(backPage)}
         >
           ← Back to Dashboard
         </button>

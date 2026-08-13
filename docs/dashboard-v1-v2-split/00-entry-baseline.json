@@ -1,0 +1,12 @@
+{
+  "branch": "main",
+  "starting_sha": "f694a145dc927426d022e50f7e86348fa9ef879d",
+  "remote_sha": "f694a145dc927426d022e50f7e86348fa9ef879d",
+  "working_tree": "clean",
+  "alembic_head": "0036_dashboard_forms_governance_wave_a",
+  "pre_wave_a_baseline": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "routes": ["/work", "/dashboard", "/dashboard/inputs-go-live"],
+  "canonical_apis": ["/api/master-content", "/api/master-content/categories", "/api/definitions", "/api/dashboard-inputs"],
+  "wave_a_governance_model_file": "backend/app/models/forms_governance_entities.py",
+  "reference_worktree": "/tmp/proposalops-wave-a-v1-reference"
+}

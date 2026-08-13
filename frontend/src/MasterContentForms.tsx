@@ -60,11 +60,13 @@ export function CanonicalFormsLibrary({
   role,
   surface = "DASHBOARD",
   compact = false,
+  governanceMode = false,
   filters,
 }: {
   role: string;
   surface?: "DASHBOARD" | "ADMINISTRATION";
   compact?: boolean;
+  governanceMode?: boolean;
   filters?: Filters;
 }) {
   const [forms, setForms] = useState<CanonicalForm[]>([]);
@@ -92,7 +94,7 @@ export function CanonicalFormsLibrary({
       if (filters?.category) params.set("category_label", filters.category);
       if (filters?.status) params.set("status", filters.status);
       if (filters?.module) params.set("module", filters.module);
-      Object.entries(governanceFilters).forEach(([key, value]) => { if (value) params.set(key, value); });
+      if (governanceMode) Object.entries(governanceFilters).forEach(([key, value]) => { if (value) params.set(key, value); });
       const [content, categoryRows] = await Promise.all([
         api<CanonicalForm[]>(`/api/master-content?${params}`),
         api<Category[]>("/api/master-content/categories"),
@@ -109,7 +111,7 @@ export function CanonicalFormsLibrary({
   };
   useEffect(() => {
     void load();
-  }, [filters?.q, filters?.category, filters?.status, filters?.module, governanceFilters.ownership, governanceFilters.artifact_kind, governanceFilters.currentness, governanceFilters.readiness, governanceFilters.quality_state, governanceFilters.restricted_sample, governanceFilters.language]);
+  }, [filters?.q, filters?.category, filters?.status, filters?.module, governanceMode, governanceFilters.ownership, governanceFilters.artifact_kind, governanceFilters.currentness, governanceFilters.readiness, governanceFilters.quality_state, governanceFilters.restricted_sample, governanceFilters.language]);
   const save = async (request: SaveRequest) => {
     setBusy(true);
     setError("");
@@ -157,7 +159,7 @@ export function CanonicalFormsLibrary({
     <section
       id="forms"
       className={`panel dashboard-section canonical-forms-library ${compact ? "canonical-forms-library-compact" : ""}`}
-      data-testid={`${surface.toLowerCase()}-forms`}
+      data-testid={`${governanceMode ? "dashboard-v2" : surface.toLowerCase()}-forms`}
     >
       <div className="dashboard-section-head">
         <div>
@@ -188,13 +190,13 @@ export function CanonicalFormsLibrary({
           Business Development, and Permit workflows.
         </p>
       )}
-      <details className="forms-advanced-filters">
+      {governanceMode && <details className="forms-advanced-filters">
         <summary>Advanced governance filters</summary>
         <div className="dashboard-filter-bar forms-governance-filters">
           {([['ownership', 'Content ownership', ['AMEC_OWNED', 'EXTERNAL_OFFICIAL', 'EXTERNAL_REFERENCE', 'REFERENCE_SAMPLE', 'NEEDS_REVIEW']], ['artifact_kind', 'Artifact kind', ['AUTHORITY_FORM', 'AMEC_FORM', 'CHECKLIST', 'AUTHORIZATION', 'SERVICE_REQUEST', 'OTHER', 'UNKNOWN']], ['currentness', 'Currentness', ['UNVERIFIED', 'VERIFIED_CURRENT', 'VERIFIED_NOT_CURRENT', 'NEEDS_REVIEW']], ['readiness', 'Readiness', ['REFERENCE_ONLY', 'BLOCKED', 'MANUAL_USE_READY', 'SUPERSEDED']], ['quality_state', 'Quality state', ['OPEN', 'ACCEPTED_RISK', 'RESOLVED']], ['language', 'Language', ['AR', 'EN', 'AR_EN_BILINGUAL', 'OTHER']]] as const).map(([key, label, options]) => <label key={key}>{label}<select aria-label={label} value={governanceFilters[key]} onChange={(event) => setGovernanceFilters((current) => ({ ...current, [key]: event.target.value }))}><option value="">All</option>{options.map((option) => <option key={option} value={option}>{option.replaceAll('_', ' ')}</option>)}</select></label>)}
           <label>Restricted sample<select aria-label="Restricted sample" value={governanceFilters.restricted_sample} onChange={(event) => setGovernanceFilters((current) => ({ ...current, restricted_sample: event.target.value }))}><option value="">All</option><option value="true">Restricted</option><option value="false">Not restricted</option></select></label>
         </div>
-      </details>
+      </details>}
       {error && (
         <div className="dashboard-error" role="alert">
           <b>Forms unavailable</b>
@@ -214,6 +216,7 @@ export function CanonicalFormsLibrary({
         <FormTable
           forms={forms}
           canWrite={canWrite}
+          governanceMode={governanceMode}
           onEdit={setEditor}
           onOpen={async (form) => setDetails(await api<CanonicalForm>(`/api/master-content/${form.id}`))}
           onHistory={async (form) => {
@@ -240,7 +243,7 @@ export function CanonicalFormsLibrary({
       {history && (
         <FormHistory history={history} onClose={() => setHistory(null)} />
       )}
-      {details && <FormDetails item={details} onClose={() => setDetails(null)} />}
+      {details && <FormDetails item={details} governanceMode={governanceMode} onClose={() => setDetails(null)} />}
     </section>
   );
 }
@@ -248,12 +251,14 @@ export function CanonicalFormsLibrary({
 function FormTable({
   forms,
   canWrite,
+  governanceMode,
   onEdit,
   onOpen,
   onHistory,
 }: {
   forms: CanonicalForm[];
   canWrite: boolean;
+  governanceMode: boolean;
   onEdit: (item: CanonicalForm) => void;
   onOpen: (item: CanonicalForm) => void;
   onHistory: (item: CanonicalForm) => void;
@@ -264,6 +269,7 @@ function FormTable({
         <thead>
           <tr>
             <th>S/N</th>
+            {!governanceMode && <th>Version</th>}
             <th>Reference</th>
             <th>Form</th>
             <th>Category</th>
@@ -275,13 +281,13 @@ function FormTable({
           {forms.map((form, index) => (
             <tr key={form.id}>
               <td>{form.serial_number || index + 1}</td>
+              {!governanceMode && <td>{versionLabel(form.version)}</td>}
               <td>
                 <code className="content-reference">{form.ref}</code>
               </td>
               <td>
                 <b>{form.title}</b>
-                <small className="table-subline">Version {form.version || "—"}</small>
-                <div className="governance-badges">{(form.governance?.badges || []).slice(0, 2).map((badge) => <span key={badge} className="tag">{badge}</span>)}</div>
+                {governanceMode && <><small className="table-subline">Version {form.version || "—"}</small><div className="governance-badges">{(form.governance?.badges || []).slice(0, 2).map((badge) => <span key={badge} className="tag">{badge}</span>)}</div></>}
               </td>
               <td>{form.category?.label || "Uncategorized"}</td>
               <td
@@ -315,10 +321,16 @@ function FormTable({
   );
 }
 
-function FormDetails({ item, onClose }: { item: CanonicalForm; onClose: () => void }) {
+function FormDetails({ item, governanceMode, onClose }: { item: CanonicalForm; governanceMode: boolean; onClose: () => void }) {
   const governance = item.governance || {};
   const profile = governance.profile || {};
   const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
+  if (!governanceMode) return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
+    <div className="content-detail-grid"><div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div><div><span>Version</span><b>{versionLabel(item.version)}</b></div><div><span>Status</span><b>{friendlyStatus(item.version_status, Boolean(item.version))}</b></div><div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div></div>
+    <p className="detail-description">{item.description || "No description"}</p>
+    <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}</div>
+    {!profile.restricted_reference_sample && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+  </Drawer>;
   return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <section className="form-governance-section"><h3>Overview</h3><div className="content-detail-grid">
       <div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div>

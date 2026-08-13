@@ -75,7 +75,7 @@ type MasterType = "REPORT" | "ENGINEERING_WORK";
 
 const ownerRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
 
-export function DashboardPage({ role }: { role: string }) {
+export function DashboardPage({ role, governanceMode = false }: { role: string; governanceMode?: boolean }) {
   const [items, setItems] = useState<MasterItem[]>([]);
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -211,10 +211,11 @@ export function DashboardPage({ role }: { role: string }) {
       <header className="dashboard-page-header">
         <div>
           <span className="eyebrow">AMEC · MASTER / REFERENCE CONTENT</span>
-          <h2>Dashboard</h2>
+          <h2>{governanceMode ? "Dashboard V2" : "Dashboard"}</h2>
           <p>
-            Maintain reusable Forms, Reports, Engineering Works, and Definitions
-            inside ProposalOps.
+            {governanceMode
+              ? "Govern the shared Forms, Reports, Engineering Works, and Definitions foundation."
+              : "Maintain reusable Forms, Reports, Engineering Works, and Definitions inside ProposalOps."}
           </p>
         </div>
         <div className="dashboard-counts">
@@ -236,6 +237,11 @@ export function DashboardPage({ role }: { role: string }) {
           <span>
             <b>{definitions.length}</b> Definitions
           </span>
+          {governanceMode && (
+            <a className="button-secondary" href="/dashboard-v2/inputs-go-live">
+              Inputs &amp; Go-Live
+            </a>
+          )}
         </div>
       </header>
       <section id="categories" className="dashboard-filter-bar" aria-label="Dashboard filters">
@@ -317,6 +323,7 @@ export function DashboardPage({ role }: { role: string }) {
         <>
           <CanonicalFormsLibrary
             role={role}
+            governanceMode={governanceMode}
             filters={{ q: query, category, status, module }}
           />
           <MasterSection

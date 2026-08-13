@@ -171,6 +171,7 @@ const statusClass = (status: string) =>
 const pageFromPath = () => {
   const path = window.location.pathname;
   if (path === "/dashboard") return "dashboard";
+  if (path === "/dashboard-v2") return "dashboard-v2";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/engineering") return "engineering-closeout";
@@ -202,6 +203,7 @@ const pageFromPath = () => {
     return "about";
   if (path === "/admin") return "administration";
   if (path === "/dashboard/inputs-go-live") return "dashboard-inputs";
+  if (path === "/dashboard-v2/inputs-go-live") return "dashboard-v2-inputs";
   if (path === "/admin/go-live-readiness") return "go-live-readiness";
   if (path === "/admin/control-diagnostics") return "control-loop";
   if (path.startsWith("/admin/")) return "administration";
@@ -327,6 +329,12 @@ function App() {
       window.history.replaceState({}, "", "/work");
     }
   }, [role]);
+  useEffect(() => {
+    if ((page === "dashboard-v2" || page === "dashboard-v2-inputs") && !adminRoles.has(role)) {
+      setPage("dashboard");
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, [page, role]);
   const navigate = (next: string) => {
     const navItem = businessNav.find((item) => item.id === next);
     const nextPage = navItem?.page || next;
@@ -347,6 +355,10 @@ function App() {
                 ? "/admin/go-live-readiness"
                 : nextPage === "dashboard-inputs"
                   ? "/dashboard/inputs-go-live"
+                  : nextPage === "dashboard-v2"
+                    ? "/dashboard-v2"
+                    : nextPage === "dashboard-v2-inputs"
+                      ? "/dashboard-v2/inputs-go-live"
                   : `/${nextPage}`;
     window.history.pushState({}, "", path);
   };
@@ -419,6 +431,8 @@ function App() {
         ? "Administration"
         : page === "go-live-readiness"
           ? "Go-Live Setup"
+          : page === "dashboard-v2" || page === "dashboard-v2-inputs"
+            ? "Dashboard V2"
           : page === "dashboard-inputs"
             ? "Master Content Setup & Go-Live"
             : visibleBusinessNav.find((item) => item.page === page)?.label ||
@@ -552,6 +566,7 @@ function App() {
           page.startsWith("admin-") ||
           page === "go-live-readiness" ||
           page === "dashboard-inputs" ||
+          page === "dashboard-v2-inputs" ||
           page === "about" ||
           window.location.pathname === "/proposals/new" ? null : (
             <div className="synthetic-note compact-environment-badge">
@@ -559,6 +574,7 @@ function App() {
             </div>
           )}
           {page === "dashboard" && <DashboardPage role={role} />}{" "}
+          {page === "dashboard-v2" && <DashboardPage role={role} governanceMode />}
           {page === "my-work" && (
             <MyWorkPage
               projects={projects}
@@ -629,6 +645,7 @@ function App() {
             <DashboardInputsPage onNavigate={navigate} role={role} />
           )}{" "}
           {page === "expansion-foundation" && <ExpansionFoundation />}{" "}
+          {page === "dashboard-v2-inputs" && <DashboardInputsPage onNavigate={navigate} role={role} governanceMode backPage="dashboard-v2" />}
           {page === "projects" && (
             <Projects projects={projects} apps={apps} open={openProject} />
           )}{" "}
