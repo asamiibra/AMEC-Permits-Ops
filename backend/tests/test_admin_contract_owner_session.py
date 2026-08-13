@@ -60,8 +60,34 @@ def clean_owner_fixture():
             if client_ids:
                 db.query(ClientAccount).filter(ClientAccount.id.in_(client_ids), ~ClientAccount.id.in_(db.query(Opportunity.client_account_id))).delete(synchronize_session=False)
         if project_ids:
+            # PostgreSQL enforces the shared LineageEdge project FK; the
+            # canonical fixture project may have lineage from an earlier test
+            # even when it is not attached to the disposable contract set.
+            db.query(LineageEdge).filter(LineageEdge.project_id.in_(project_ids)).delete(synchronize_session=False)
             db.query(Project).filter(Project.id.in_(project_ids)).delete(synchronize_session=False)
-        db.query(Project).filter(Project.project_number == "PRJ-DEMO-001").delete(synchronize_session=False)
+        canonical_project = db.query(Project).filter(Project.project_number == "PRJ-DEMO-001").first()
+        if canonical_project:
+            canonical_contracts = db.query(Contract).filter(Contract.project_id == canonical_project.id).all()
+            canonical_contract_ids = [item.id for item in canonical_contracts]
+            if canonical_contract_ids:
+                db.query(ProjectActivation).filter(ProjectActivation.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(ContractTemplateSnapshot).filter(ContractTemplateSnapshot.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(ContractPaymentTerm).filter(ContractPaymentTerm.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(ContractDeliverableCommitment).filter(ContractDeliverableCommitment.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(ContractClientInputRequirement).filter(ContractClientInputRequirement.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(ContractAdminInput).filter(ContractAdminInput.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(NotificationEvent).filter(NotificationEvent.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                task_ids = [item.id for item in db.query(WorkflowTask).filter(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id.in_(canonical_contract_ids)).all()]
+                if task_ids:
+                    db.query(NotificationEvent).filter(NotificationEvent.workflow_task_id.in_(task_ids)).delete(synchronize_session=False)
+                    db.query(AssistantHandoff).filter(AssistantHandoff.workflow_task_id.in_(task_ids)).delete(synchronize_session=False)
+                    db.query(WorkflowTask).filter(WorkflowTask.id.in_(task_ids)).delete(synchronize_session=False)
+                db.query(AuditEvent).filter(AuditEvent.entity_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(ContractRevision).filter(ContractRevision.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+                db.query(Contract).filter(Contract.id.in_(canonical_contract_ids)).delete(synchronize_session=False)
+            db.query(LineageEdge).filter(LineageEdge.project_id == canonical_project.id).delete(synchronize_session=False)
+            db.query(Project).filter(Project.id == canonical_project.id).delete(synchronize_session=False)
         db.commit()
 
 

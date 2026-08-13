@@ -35,6 +35,7 @@ def _cleanup(project_id: str) -> None:
         revision_ids = select(EngineeringDeliverableRevision.id).where(EngineeringDeliverableRevision.project_id == project_id)
         review_ids = select(ProjectEngineeringReview.id).where(ProjectEngineeringReview.project_id == project_id)
         document_ids = select(Document.id).where(Document.project_id == project_id)
+        db.execute(update(EngineeringDeliverable).where(EngineeringDeliverable.project_id == project_id).values(current_revision_id=None))
         for model, field in (
             (EngineeringAuthorityFindingLink, EngineeringAuthorityFindingLink.project_id),
             (EngineeringAICommentArtifact, EngineeringAICommentArtifact.project_id),
@@ -43,16 +44,15 @@ def _cleanup(project_id: str) -> None:
             (EngineeringRendition, EngineeringRendition.project_id),
             (ProjectEngineeringReview, ProjectEngineeringReview.project_id),
             (EngineeringDeliverableRevision, EngineeringDeliverableRevision.project_id),
+            (EngineeringDeliverable, EngineeringDeliverable.project_id),
             (EngineeringCategoryAssignment, EngineeringCategoryAssignment.project_id),
             (EngineeringProjectMember, EngineeringProjectMember.project_id),
             (EngineeringWorkPackage, EngineeringWorkPackage.project_id),
             (LineageEdge, LineageEdge.project_id),
         ):
             db.execute(delete(model).where(field == project_id))
-        db.execute(update(EngineeringDeliverable).where(EngineeringDeliverable.project_id == project_id).values(current_revision_id=None))
         db.execute(delete(DocumentVersion).where(DocumentVersion.document_id.in_(document_ids)))
         db.execute(delete(Document).where(Document.project_id == project_id))
-        db.execute(delete(EngineeringDeliverable).where(EngineeringDeliverable.project_id == project_id))
         db.execute(delete(Project).where(Project.id == project_id))
         db.commit()
 

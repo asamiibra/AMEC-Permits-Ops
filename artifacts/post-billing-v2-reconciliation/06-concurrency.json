@@ -1,0 +1,1 @@
+{"invoice_reference":"PASS: FOR UPDATE numbering policy lock and full PostgreSQL suite","milestone_overbilling":"PASS","delivery_idempotency":"PASS: one event on retry","payment_allocation_idempotency":"PASS","duplicate_invoice_refs":0,"overbilling":0,"double_allocations":0}

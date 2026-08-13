@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 
-from sqlalchemy import delete
+from sqlalchemy import delete, update
 
 from backend.app.db import SessionLocal
 from backend.app.models import (
@@ -49,8 +49,13 @@ from backend.app.models import (
     MasterContentApplicability,
     AuthorityCaseCreateRequest,
     AuthorityCasePolicyBinding,
+    AuthorityCaseSubject,
+    PartyRoleAssignment,
+    AuthorizationGrant,
+    ContactPoint,
     RequirementInstance,
     CaseEvidenceSelection,
+    CasePartySnapshot,
     PhysicalEvidenceItem,
     AuthorityFindingResponse,
     AuthorityCaseFinding,
@@ -93,7 +98,7 @@ def _cleanup_foundations():
     models = [
         AuthorityFindingResponse, AuthorityCaseFinding, AuthorityCaseOutcome, AuthoritySubmissionCycle,
         ExternalSubmissionSnapshot, SubmissionAttempt, SubmissionPrecheckCheck, SubmissionPrecheckRun,
-        SubmissionPackageItem, SubmissionPackage, PreparationRevision, PhysicalEvidenceItem, CaseEvidenceSelection,
+        SubmissionPackageItem, SubmissionPackage, CasePartySnapshot, PreparationRevision, PhysicalEvidenceItem, CaseEvidenceSelection,
         RequirementInstance, AuthorityCasePolicyBinding, AuthorityCaseCreateRequest,
         SignaturePacket, FormSignatureRequirement, FormMappingReleaseQAGate, FormQARun, FormValidationResult, GeneratedArtifact, FormInstance,
         AutomationReadinessAssessment, MasterContentApplicability,
@@ -101,10 +106,11 @@ def _cleanup_foundations():
         TechnicalRuleEvaluation, TechnicalRuleLineage, TechnicalRule, TechnicalRuleSetVersion,
         RequirementDecision, RequirementEvidenceEvaluation, RequirementEvaluation, RequirementApplicabilityDecision,
         RequirementPolicyLineage, RequirementEvidenceConstraint, RequirementPolicyItem, RequirementGroup, RequirementPolicyVersion, RequirementDefinition,
-        AuthorityOutcome, ExternalInteractionProfile, AuthorityCaseWorkPeriod, AuthorityCaseIdentifier, AuthorityCase,
+        AuthorityOutcome, ExternalInteractionProfile, AuthorityCaseWorkPeriod, AuthorityCaseIdentifier, PartyRoleAssignment, AuthorizationGrant, ContactPoint, AuthorityCaseSubject, AuthorityCase,
         RegulatoryRelation, RegulatoryJourney, RegulatoryLifecyclePhase, ServiceTypeVersion, ServiceType, ExternalBodyUnit, ExternalBody, Jurisdiction,
     ]
     with SessionLocal() as db:
+        db.execute(update(PreparationRevision).values(case_party_snapshot_id=None))
         for model in models:
             db.execute(delete(model))
         db.commit()

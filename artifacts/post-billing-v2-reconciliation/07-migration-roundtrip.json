@@ -1,0 +1,1 @@
+{"postgresql":{"fresh_upgrade":"PASS","downgrade":"0048","reupgrade":"PASS","head":"0049_billing_v2_communication_due_events"},"sqlite":{"fresh_upgrade":"PASS","downgrade":"0048","reupgrade":"PASS","head":"0049_billing_v2_communication_due_events"}}

@@ -7,7 +7,7 @@
 .billing-lane.active { background: #eef4ff; color: #174ea6; box-shadow: inset 0 -2px #174ea6; }
 .billing-lane strong { margin-left: 8px; }
 .billing-table { overflow-x: auto; border: 1px solid var(--line, #e4e7ec); border-radius: 12px; background: #fff; }
-.billing-row { min-width: 920px; display: grid; grid-template-columns: 1.2fr 1fr 1.5fr .8fr .9fr .55fr; gap: 14px; align-items: center; padding: 14px 16px; border-top: 1px solid var(--line, #e4e7ec); }
+.billing-row { min-width: 1100px; display: grid; grid-template-columns: 1.1fr 1fr 1.45fr .75fr .85fr 1fr .5fr; gap: 14px; align-items: center; padding: 14px 16px; border-top: 1px solid var(--line, #e4e7ec); }
 .billing-row:first-child { border-top: 0; }
 .billing-head { background: #f8fafc; color: #667085; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
 .billing-row small, .billing-summary-grid small, .billing-line small { display: block; color: #667085; font-size: 12px; margin-top: 4px; }

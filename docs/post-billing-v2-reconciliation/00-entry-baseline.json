@@ -1,0 +1,30 @@
+{
+  "branch": "main",
+  "head": "789014228bff19e48023b73b0a12b034733b2da9",
+  "origin_main": "789014228bff19e48023b73b0a12b034733b2da9",
+  "working_tree": "CLEAN",
+  "alembic_current": "0048_billing_invoice_full",
+  "latest_entry_migration": "0048_billing_invoice_full.py",
+  "runtime": {"python": "3.14.2", "node": "v24.13.0", "npm": "11.6.2"},
+  "postgresql": {"database": "permitops_dev", "provider": "PostgreSQL", "entry_schema": "0048"},
+  "sqlite": {"config": "DATABASE_URL override with isolated pytest database"},
+  "frontend": {"tests": "Vitest", "build": "Vite", "browser": "Playwright real-stack"},
+  "entry_counts": {
+    "BillingPlan": 0,
+    "BillingPlanRevision": 0,
+    "BillingMilestone": 0,
+    "Invoice": 0,
+    "InvoiceRevision": 0,
+    "InvoiceIssueEvent": 0,
+    "InvoiceDeliveryEvent": 0,
+    "InvoiceAcknowledgment": 0,
+    "PaymentReceipt": 0,
+    "InvoicePaymentAllocation": 0,
+    "AuthorityCaseFinding": 0,
+    "Contract": 0,
+    "ContractRevision": 0,
+    "ExternalAgreement": "TABLE_NOT_PRESENT",
+    "Project": 0,
+    "ProjectActivation": 0
+  }
+}

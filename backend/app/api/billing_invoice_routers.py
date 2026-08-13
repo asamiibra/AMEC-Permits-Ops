@@ -28,7 +28,7 @@ from ..models import (
     ClientAccount, Contract, ContractAdminEvidence, ContractPaymentTerm,
     ContractRevision, Document, DocumentVersion, FinancialAccountMaster, RenderedArtifact,
     FinancialAccountVersion, Invoice, InvoiceAcceptRecord, InvoiceApprovalRecord, InvoiceRevision,
-    InvoiceIssueEvent, InvoiceLineItem, InvoiceNumberingPolicy, InvoicePaymentAllocation,
+    InvoiceIssueEvent, InvoiceDeliveryEvent, InvoiceAcknowledgment, InvoiceLineItem, InvoiceNumberingPolicy, InvoicePaymentAllocation,
     InvoiceReference, LineageEdge, PaymentReceipt, Project, ProjectActivation,
     ReceivableFollowUp, Role, TemplateDefinition, TemplateVersion,
 )
@@ -42,6 +42,9 @@ router = APIRouter(prefix="/api/billing", tags=["billing-invoice"])
 OWNER = {Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN}
 PLAN_WRITE = OWNER | {Role.PROCESS_CHAMPION}
 VIEW = PLAN_WRITE | {Role.RESPONSIBLE_ENGINEER, Role.PERMIT_PREPARER, Role.REQUIREMENT_STEWARD}
+DELIVERY_CHANNELS = {"EMAIL", "PORTAL", "IN_PERSON", "COURIER", "OTHER"}
+DUE_DATE_BASES = {"INVOICE_DATE", "ISSUE_DATE", "DELIVERY_DATE", "ACKNOWLEDGMENT_DATE", "CLIENT_APPROVAL_DATE", "FIXED_DATE", "OTHER_VERIFIED_EVENT"}
+ELIGIBLE_AMEC_CONTRACT_TYPES = {"AMEC_PROFESSIONAL_SERVICES", "AMEC_SERVICE_CONTRACT"}
 
 
 def _actor(request: Request, payload: dict[str, Any] | None = None) -> str:
@@ -82,6 +85,80 @@ def _money(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
+def _eligible_contract_type(db: Session, contract: Contract, revision: ContractRevision | None = None) -> str:
+    configured = runtime_decision_value(db, "BILLING_ELIGIBLE_CONTRACT_TYPES", sorted(ELIGIBLE_AMEC_CONTRACT_TYPES))
+    allowed = {str(item).upper() for item in (configured if isinstance(configured, list) else [configured])}
+    value = str(getattr(contract, "agreement_type", None) or getattr(revision, "agreement_type", None) or "").upper()
+    if value not in allowed:
+        raise HTTPException(409, {"code": "CONTRACT_NOT_ELIGIBLE_FOR_AMEC_BILLING", "agreement_type": value or "UNCLASSIFIED", "allowed_types": sorted(allowed)})
+    return value
+
+
+def _due_basis(value: Any) -> str | None:
+    if value is None or str(value).strip() == "":
+        return None
+    basis = str(value).strip().upper().replace(" ", "_")
+    aliases = {"INVOICE": "INVOICE_DATE", "ISSUE": "ISSUE_DATE", "DELIVERY": "DELIVERY_DATE", "ACK": "ACKNOWLEDGMENT_DATE", "APPROVAL": "CLIENT_APPROVAL_DATE"}
+    basis = aliases.get(basis, basis)
+    if basis not in DUE_DATE_BASES:
+        raise HTTPException(422, {"code": "DUE_DATE_BASIS_NOT_SUPPORTED", "basis": basis})
+    return basis
+
+
+def _configure_due_date(revision: InvoiceRevision, *, invoice_date: date, basis: str | None, offset_days: int | None, fixed_date: date | None) -> None:
+    revision.due_date_basis = basis
+    revision.due_date_offset_days = offset_days
+    revision.due_date_fixed_date = fixed_date
+    revision.due_date_source_event_type = None
+    revision.due_date_source_event_id = None
+    revision.due_date_derived_at = None
+    if basis == "FIXED_DATE":
+        if not fixed_date:
+            raise HTTPException(422, {"code": "FIXED_DUE_DATE_REQUIRED"})
+        revision.due_date = fixed_date
+        revision.due_date_status = "DERIVED"
+    elif basis == "INVOICE_DATE":
+        if offset_days is None:
+            raise HTTPException(422, {"code": "DUE_DATE_OFFSET_REQUIRED"})
+        revision.due_date = invoice_date + timedelta(days=offset_days)
+        revision.due_date_status = "DERIVED"
+    elif basis in {"ISSUE_DATE", "DELIVERY_DATE", "ACKNOWLEDGMENT_DATE", "CLIENT_APPROVAL_DATE", "OTHER_VERIFIED_EVENT"}:
+        revision.due_date = None
+        revision.due_date_status = "PENDING_EVENT"
+    else:
+        revision.due_date = None
+        revision.due_date_status = "NOT_CONFIGURED"
+
+
+def _derive_due_date(revision: InvoiceRevision, *, event_type: str, event_id: str, event_at: datetime | date) -> bool:
+    basis = revision.due_date_basis
+    expected = {"ISSUE_DATE": "ISSUE", "DELIVERY_DATE": "DELIVERY", "ACKNOWLEDGMENT_DATE": "ACKNOWLEDGMENT", "CLIENT_APPROVAL_DATE": "CLIENT_APPROVAL"}.get(basis or "")
+    if not expected or event_type != expected:
+        return False
+    event_date = event_at.date() if isinstance(event_at, datetime) else event_at
+    revision.due_date = event_date + timedelta(days=revision.due_date_offset_days or 0)
+    revision.due_date_status = "DERIVED"
+    revision.due_date_source_event_type = event_type
+    revision.due_date_source_event_id = event_id
+    revision.due_date_derived_at = datetime.now(timezone.utc)
+    return True
+
+
+def _communication_state(db: Session, invoice_id: str) -> str:
+    issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice_id))
+    if not issue:
+        invoice = db.get(Invoice, invoice_id)
+        return "ACCEPTED" if invoice and invoice.status == "ACCEPTED_INTERNAL" else "DRAFT"
+    delivery = db.scalar(select(InvoiceDeliveryEvent).where(InvoiceDeliveryEvent.invoice_id == invoice_id, InvoiceDeliveryEvent.status == "RECORDED").order_by(InvoiceDeliveryEvent.delivered_at.desc()))
+    if not delivery:
+        return "ISSUED"
+    approval = db.scalar(select(InvoiceApprovalRecord).join(InvoiceRevision).where(InvoiceRevision.invoice_id == invoice_id, InvoiceApprovalRecord.approval_type.in_({"CLIENT_APPROVAL", "CLIENT_CERTIFICATION"}), InvoiceApprovalRecord.status.in_({"VERIFIED", "APPROVED", "CLIENT_APPROVED"})).order_by(InvoiceApprovalRecord.verified_at.desc()))
+    if approval:
+        return "CLIENT_APPROVED"
+    acknowledgment = db.scalar(select(InvoiceAcknowledgment).where(InvoiceAcknowledgment.invoice_id == invoice_id, InvoiceAcknowledgment.status == "RECORDED").order_by(InvoiceAcknowledgment.acknowledged_at.desc()))
+    return "ACKNOWLEDGED" if acknowledgment else "DELIVERED"
+
+
 def _date(value: Any, *, field: str) -> date:
     if isinstance(value, date):
         return value
@@ -101,6 +178,7 @@ def _contract_context(db: Session, contract_id: str, revision_id: str | None = N
         raise HTTPException(409, {"code": "EXACT_FINALIZED_CONTRACT_REVISION_REQUIRED"})
     if not contract_revision_is_finalized(revision):
         raise HTTPException(409, {"code": "CONTRACT_REVISION_NOT_FINALIZED", "status": revision.status})
+    _eligible_contract_type(db, contract, revision)
     if not contract.client_account_id or not db.get(ClientAccount, contract.client_account_id):
         raise HTTPException(409, {"code": "CANONICAL_CLIENT_REQUIRED"})
     context = contract_billing_context(db, contract, revision.id)
@@ -112,6 +190,14 @@ def _contract_context(db: Session, contract_id: str, revision_id: str | None = N
 def _scope_project(db: Session, project_id: str | None, contract: Contract, project: Project | None) -> None:
     if project_id and (not project or project.id != project_id):
         raise HTTPException(403, {"code": "CROSS_PROJECT_BILLING_CONTEXT_DENIED"})
+
+
+def _require_issue_project_policy(db: Session, project: Project | None) -> None:
+    if project:
+        return
+    policy = str(runtime_decision_value(db, "BILLING_PREACTIVATION_ISSUE_POLICY", "PROJECT_REQUIRED")).upper()
+    if policy not in {"PRE_ACTIVATION_ALLOWED", "ALLOW"}:
+        raise HTTPException(409, {"code": "PROJECT_ACTIVATION_REQUIRED_FOR_ISSUE", "policy": policy})
 
 
 def _audit(db: Session, request: Request, event: str, entity_type: str, entity_id: str, actor: str, after: dict[str, Any] | None = None) -> None:
@@ -228,7 +314,7 @@ def _precheck(db: Session, invoice: Invoice, contract: Contract, revision: Invoi
     lines = _lines(db, revision.id)
     checks.append({"code": "LINE_CALCULATION", "status": "PASS" if lines and all(_line_total(x) >= 0 for x in lines) else "BLOCKED", "reason": "Invoice lines have deterministic non-negative calculated amounts."})
     checks.append({"code": "CURRENCY", "status": "PASS" if revision.currency and plan_revision and revision.currency.upper() == plan_revision.currency.upper() else "BLOCKED", "reason": "Invoice and BillingPlan currency match."})
-    checks.append({"code": "DUE_DATE", "status": "PASS" if revision.due_date else "NEEDS_REVIEW", "reason": "Due date is explicit or derived from a verified due-days term."})
+    checks.append({"code": "DUE_DATE", "status": "PASS" if revision.due_date or revision.due_date_basis in DUE_DATE_BASES else "NEEDS_REVIEW", "reason": "Due date is derived from the pinned basis; event-based terms may remain pending until the verified event arrives."})
     milestone_ok = True
     overbilling_ok = True
     overbilling_reasons: list[str] = []
@@ -290,7 +376,7 @@ def create_billing_plan(payload: dict[str, Any], request: Request, db: Session =
         return {"plan": _row(existing), "revision": _row(db.get(BillingPlanRevision, existing.current_revision_id))}
     plan = BillingPlan(contract_id=contract.id, contract_revision_id=revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, currency=currency, automation_mode=str(payload.get("automation_mode") or "MANUAL").upper(), status="DRAFT", created_by=_actor(request, payload))
     db.add(plan); db.flush()
-    plan_revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=1, contract_id=contract.id, contract_revision_id=revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(revision, contract), currency=currency, valuation_amount=revision.valuation_amount, valuation_currency=revision.valuation_currency, valuation_status=revision.valuation_status, status="DRAFT", created_by=_actor(request, payload), source_snapshot={"contract_billing_context": context, "project_activation_status": context.get("project_activation_status")})
+    plan_revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=1, contract_id=contract.id, contract_revision_id=revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(revision, contract), currency=currency, valuation_amount=revision.valuation_amount, valuation_currency=revision.valuation_currency, valuation_status=revision.valuation_status, contract_project_context_snapshot=context.get("contract_project_context_snapshot") or {}, status="DRAFT", created_by=_actor(request, payload), source_snapshot={"contract_billing_context": context, "project_activation_status": context.get("project_activation_status"), "agreement_type": contract.agreement_type})
     db.add(plan_revision); db.flush(); plan.current_revision_id = plan_revision.id
     _lineage(db, request, project.id if project else None, "ContractRevision", revision.id, "BillingPlanRevision", plan_revision.id, "BILLING_PLAN_FROM_EXACT_CONTRACT_REVISION")
     _audit(db, request, "BILLING_PLAN_CREATED", "BillingPlan", plan.id, _actor(request, payload), {"contract_revision_id": revision.id, "project_id": project.id if project else None, "automation_mode": plan.automation_mode})
@@ -318,7 +404,7 @@ def revise_billing_plan(plan_id: str, payload: dict[str, Any], request: Request,
     previous = db.get(BillingPlanRevision, plan.current_revision_id)
     contract, contract_revision, context, project = _contract_context(db, plan.contract_id, plan.contract_revision_id)
     number = (db.scalar(select(func.max(BillingPlanRevision.revision_number)).where(BillingPlanRevision.billing_plan_id == plan.id)) or 0) + 1
-    revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=number, contract_id=contract.id, contract_revision_id=contract_revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(contract_revision, contract), currency=str(payload.get("currency") or plan.currency).upper(), valuation_amount=contract_revision.valuation_amount, valuation_currency=contract_revision.valuation_currency, valuation_status=contract_revision.valuation_status, status="DRAFT", supersedes_revision_id=previous.id if previous else None, created_by=_actor(request, payload), source_snapshot={"reason": payload.get("reason"), "contract_billing_context": context})
+    revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=number, contract_id=contract.id, contract_revision_id=contract_revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(contract_revision, contract), currency=str(payload.get("currency") or plan.currency).upper(), valuation_amount=contract_revision.valuation_amount, valuation_currency=contract_revision.valuation_currency, valuation_status=contract_revision.valuation_status, contract_project_context_snapshot=context.get("contract_project_context_snapshot") or {}, status="DRAFT", supersedes_revision_id=previous.id if previous else None, created_by=_actor(request, payload), source_snapshot={"reason": payload.get("reason"), "contract_billing_context": context, "agreement_type": contract.agreement_type})
     db.add(revision); db.flush(); plan.current_revision_id = revision.id; plan.status = "DRAFT"
     _lineage(db, request, project.id if project else None, "BillingPlanRevision", previous.id if previous else contract_revision.id, "BillingPlanRevision", revision.id, "BILLING_PLAN_REVISION_SUPERSEDES")
     _audit(db, request, "BILLING_PLAN_REVISED", "BillingPlanRevision", revision.id, _actor(request, payload), {"supersedes_revision_id": previous.id if previous else None})
@@ -418,11 +504,16 @@ def create_invoice(payload: dict[str, Any], request: Request, db: Session = Depe
     invoice_date = _date(payload.get("invoice_date") or date.today().isoformat(), field="invoice_date")
     if payload.get("due_date") and role not in OWNER:
         raise HTTPException(403, {"code": "DUE_DATE_OVERRIDE_OWNER_ONLY"})
-    due_date = _date(payload["due_date"], field="due_date") if payload.get("due_date") else None
     due_days = [item.due_days for item in milestones if item.due_days is not None]
-    if due_date is None and due_days and len(set(due_days)) == 1:
-        due_date = invoice_date + timedelta(days=due_days[0])
-    revision = InvoiceRevision(invoice_id=invoice.id, revision_number=1, controlling_contract_revision_id=contract_revision.id, billing_plan_revision_id=plan_revision.id, status="DRAFT", invoice_date=invoice_date, due_date=due_date, due_date_basis=f"DUE_DAYS:{due_days[0]}" if due_days and len(set(due_days)) == 1 else "HUMAN_ENTERED" if due_date else None, description=payload.get("description") or "Billing milestone invoice", currency=plan_revision.currency, source_snapshot={"contract_id": contract.id, "contract_revision_id": contract_revision.id, "billing_plan_revision_id": plan_revision.id, "milestone_ids": ids, "client_account_id": contract.client_account_id, "project_id": project.id if project else None})
+    requested_basis = _due_basis(payload.get("due_date_basis"))
+    explicit_due_date = _date(payload["due_date"], field="due_date") if payload.get("due_date") else None
+    if requested_basis is None:
+        requested_basis = "FIXED_DATE" if explicit_due_date else "INVOICE_DATE" if due_days and len(set(due_days)) == 1 else None
+    offset_days = int(payload["due_days"]) if payload.get("due_days") is not None else due_days[0] if due_days and len(set(due_days)) == 1 else None
+    if offset_days is not None and offset_days < 0:
+        raise HTTPException(422, {"code": "DUE_DATE_OFFSET_INVALID"})
+    revision = InvoiceRevision(invoice_id=invoice.id, revision_number=1, controlling_contract_revision_id=contract_revision.id, billing_plan_revision_id=plan_revision.id, status="DRAFT", invoice_date=invoice_date, description=payload.get("description") or "Billing milestone invoice", currency=plan_revision.currency, contract_project_context_snapshot=plan_revision.contract_project_context_snapshot or {}, source_snapshot={"contract_id": contract.id, "contract_revision_id": contract_revision.id, "billing_plan_revision_id": plan_revision.id, "milestone_ids": ids, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "contract_project_context_snapshot": plan_revision.contract_project_context_snapshot or {}, "agreement_type": contract.agreement_type})
+    _configure_due_date(revision, invoice_date=invoice_date, basis=requested_basis, offset_days=offset_days, fixed_date=explicit_due_date)
     db.add(revision); db.flush(); invoice.current_revision_id = revision.id
     sequence = 1
     for item in milestones:
@@ -462,7 +553,7 @@ def list_invoices(project_id: str | None = None, contract_id: str | None = None,
         stage = "AUTHORITY_REVIEW" if invoice.status in {"ACCEPTED_INTERNAL", "FINANCE_REVIEW"} else "READY_CLOSE" if invoice.status == "ISSUED" else "NEED_ACTION" if invoice.status in {"DRAFT", "NEEDS_REVALIDATION"} else "ALL"
         if lane and lane not in {"ALL", stage, receivable.get("state")}:
             continue
-        items.append({"invoice": _row(invoice), "revision": _row(revision), "stage": stage, "receivable": receivable})
+        items.append({"invoice": _row(invoice), "project": _row(db.get(Project, invoice.project_id)) if invoice.project_id else None, "revision": _row(revision), "stage": stage, "receivable": receivable})
     return {"items": items, "total": len(items), "lanes": {"all": len(rows), "need_action": sum(x["stage"] == "NEED_ACTION" for x in items), "authority_review": sum(x["stage"] == "AUTHORITY_REVIEW" for x in items), "ready_close": sum(x["stage"] == "READY_CLOSE" for x in items)}}
 
 
@@ -474,7 +565,9 @@ def get_invoice(invoice_id: str, db: Session = Depends(get_db), role: Role = Dep
     approvals = db.scalars(select(InvoiceApprovalRecord).where(InvoiceApprovalRecord.invoice_revision_id == revision.id)).all()
     issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice.id))
     artifact = db.get(RenderedArtifact, issue.rendered_artifact_id) if issue else None
-    return {"invoice": _row(invoice), "contract": _row(contract), "project": _row(project), "revision": _row(revision), "lines": [_row(x) for x in _lines(db, revision.id)], "references": [_row(x) for x in references], "approvals": [_row(x) for x in approvals], "issue": _row(issue), "artifact": _row(artifact), "receivable": _receivable(db, invoice, revision), "settlement": "DEFERRED_TO_FINANCIAL_SETTLEMENT"}
+    deliveries = db.scalars(select(InvoiceDeliveryEvent).where(InvoiceDeliveryEvent.invoice_id == invoice.id).order_by(InvoiceDeliveryEvent.delivered_at)).all()
+    acknowledgments = db.scalars(select(InvoiceAcknowledgment).where(InvoiceAcknowledgment.invoice_id == invoice.id).order_by(InvoiceAcknowledgment.acknowledged_at)).all()
+    return {"invoice": _row(invoice), "contract": _row(contract), "project": _row(project), "revision": _row(revision), "lines": [_row(x) for x in _lines(db, revision.id)], "references": [_row(x) for x in references], "approvals": [_row(x) for x in approvals], "issue": _row(issue), "artifact": _row(artifact), "communications": {"state": _communication_state(db, invoice.id), "deliveries": [_row(x) for x in deliveries], "acknowledgments": [_row(x) for x in acknowledgments]}, "receivable": _receivable(db, invoice, revision), "settlement": "DEFERRED_TO_FINANCIAL_SETTLEMENT"}
 
 
 @router.post("/invoices/{invoice_id}/revisions")
@@ -486,7 +579,9 @@ def create_invoice_revision(invoice_id: str, payload: dict[str, Any], request: R
     if not plan_revision:
         raise HTTPException(409, {"code": "BILLING_PLAN_REVISION_REQUIRED"})
     number = (db.scalar(select(func.max(InvoiceRevision.revision_number)).where(InvoiceRevision.invoice_id == invoice.id)) or 0) + 1
-    next_revision = InvoiceRevision(invoice_id=invoice.id, revision_number=number, controlling_contract_revision_id=previous.controlling_contract_revision_id, billing_plan_revision_id=previous.billing_plan_revision_id, status="DRAFT", supersedes_revision_id=previous.id, invoice_date=_date(payload.get("invoice_date") or previous.invoice_date or date.today().isoformat(), field="invoice_date"), due_date=_date(payload["due_date"], field="due_date") if payload.get("due_date") else previous.due_date, due_date_basis=previous.due_date_basis, description=payload.get("description") or previous.description, currency=previous.currency, source_snapshot={**(previous.source_snapshot or {}), "supersedes_revision_id": previous.id, "reason": payload.get("reason")})
+    next_invoice_date = _date(payload.get("invoice_date") or previous.invoice_date or date.today().isoformat(), field="invoice_date")
+    next_revision = InvoiceRevision(invoice_id=invoice.id, revision_number=number, controlling_contract_revision_id=previous.controlling_contract_revision_id, billing_plan_revision_id=previous.billing_plan_revision_id, status="DRAFT", supersedes_revision_id=previous.id, invoice_date=next_invoice_date, description=payload.get("description") or previous.description, currency=previous.currency, contract_project_context_snapshot=previous.contract_project_context_snapshot or {}, source_snapshot={**(previous.source_snapshot or {}), "supersedes_revision_id": previous.id, "reason": payload.get("reason")})
+    _configure_due_date(next_revision, invoice_date=next_invoice_date, basis=_due_basis(payload.get("due_date_basis")) or previous.due_date_basis, offset_days=int(payload["due_days"]) if payload.get("due_days") is not None else previous.due_date_offset_days, fixed_date=_date(payload["due_date"], field="due_date") if payload.get("due_date") else previous.due_date_fixed_date)
     db.add(next_revision); db.flush()
     prior_lines = _lines(db, previous.id)
     for line in prior_lines:
@@ -536,11 +631,94 @@ def add_invoice_reference(revision_id: str, payload: dict[str, Any], request: Re
 
 @router.post("/invoice-revisions/{revision_id}/approvals")
 def add_invoice_approval(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _role(role, PLAN_WRITE, "INVOICE_APPROVAL_VERIFY")
+    _role(role, OWNER, "INVOICE_APPROVAL_VERIFY")
     revision = db.get(InvoiceRevision, revision_id)
     if not revision or revision.status == "ISSUED": raise HTTPException(409, {"code": "INVOICE_REVISION_IMMUTABLE"})
     item = InvoiceApprovalRecord(invoice_revision_id=revision.id, approval_type=str(payload.get("approval_type") or "CONFIGURED_APPROVAL"), status=str(payload.get("status") or "PENDING").upper(), approval_reference=payload.get("approval_reference"), approving_party_or_body=payload.get("approving_party_or_body"), decision_date=_date(payload["decision_date"], field="decision_date") if payload.get("decision_date") else None, source_document_version_id=payload.get("source_document_version_id"), notes=payload.get("notes"), verified_by=_actor(request, payload) if str(payload.get("status") or "").upper() == "VERIFIED" else None, verified_at=datetime.now(timezone.utc) if str(payload.get("status") or "").upper() == "VERIFIED" else None)
-    db.add(item); db.flush(); _audit(db, request, "INVOICE_APPROVAL_REFERENCE_RECORDED", "InvoiceApprovalRecord", item.id, _actor(request, payload), {"approval_type": item.approval_type, "status": item.status}); db.commit(); return _row(item)
+    db.add(item); db.flush()
+    invoice = db.get(Invoice, revision.invoice_id)
+    if item.status in {"VERIFIED", "APPROVED", "CLIENT_APPROVED"}:
+        _derive_due_date(revision, event_type="CLIENT_APPROVAL" if item.approval_type in {"CLIENT_APPROVAL", "CLIENT_CERTIFICATION"} else "OTHER_VERIFIED_EVENT", event_id=item.id, event_at=item.decision_date or datetime.now(timezone.utc))
+    _lineage(db, request, invoice.project_id if invoice else None, "InvoiceRevision", revision.id, "InvoiceApprovalRecord", item.id, "INVOICE_APPROVAL_REFERENCE")
+    _audit(db, request, "INVOICE_APPROVAL_REFERENCE_RECORDED", "InvoiceApprovalRecord", item.id, _actor(request, payload), {"approval_type": item.approval_type, "status": item.status, "due_date_derived": revision.due_date_source_event_id == item.id}); db.commit(); return _row(item)
+
+
+@router.post("/invoice-revisions/{revision_id}/deliveries")
+def record_invoice_delivery(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, OWNER, "INVOICE_DELIVERY_RECORD")
+    revision = db.get(InvoiceRevision, revision_id)
+    if not revision:
+        raise HTTPException(404, {"code": "INVOICE_REVISION_NOT_FOUND"})
+    invoice = db.get(Invoice, revision.invoice_id)
+    issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice.id, InvoiceIssueEvent.invoice_revision_id == revision.id))
+    if not issue or revision.status != "ISSUED":
+        raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
+    key = str(payload.get("idempotency_key") or "").strip()
+    if not key:
+        raise HTTPException(422, {"code": "DELIVERY_IDEMPOTENCY_KEY_REQUIRED"})
+    prior = db.scalar(select(InvoiceDeliveryEvent).where(InvoiceDeliveryEvent.idempotency_key == key))
+    if prior:
+        return {"delivery": _row(prior), "invoice": _row(invoice), "revision": _row(revision), "receivable": _receivable(db, invoice, revision)}
+    channel = str(payload.get("channel") or "").upper()
+    if channel not in DELIVERY_CHANNELS:
+        raise HTTPException(422, {"code": "DELIVERY_CHANNEL_NOT_SUPPORTED", "allowed": sorted(DELIVERY_CHANNELS)})
+    delivered_at = datetime.fromisoformat(str(payload.get("delivered_at") or datetime.now(timezone.utc).isoformat()))
+    evidence_id = payload.get("evidence_document_version_id")
+    if evidence_id:
+        evidence_version = db.get(DocumentVersion, evidence_id)
+        evidence_document = db.get(Document, evidence_version.document_id) if evidence_version else None
+        if not evidence_version or not evidence_document:
+            raise HTTPException(404, {"code": "DELIVERY_EVIDENCE_NOT_FOUND"})
+        if invoice.project_id and evidence_document.project_id not in {None, invoice.project_id}:
+            raise HTTPException(403, {"code": "CROSS_PROJECT_BILLING_CONTEXT_DENIED"})
+    delivery = InvoiceDeliveryEvent(invoice_id=invoice.id, issued_revision_id=revision.id, issue_event_id=issue.id, channel=channel, recipient_snapshot=payload.get("recipient_snapshot") or {}, delivered_at=delivered_at, delivery_reference=payload.get("delivery_reference"), evidence_document_version_id=evidence_id, recorded_by=_actor(request, payload), status="RECORDED", notes=payload.get("notes"), idempotency_key=key)
+    db.add(delivery); db.flush()
+    _derive_due_date(revision, event_type="DELIVERY", event_id=delivery.id, event_at=delivered_at)
+    _lineage(db, request, invoice.project_id, "InvoiceIssueEvent", issue.id, "InvoiceDeliveryEvent", delivery.id, "INVOICE_DELIVERY_RECORD")
+    _audit(db, request, "INVOICE_DELIVERY_RECORDED", "InvoiceDeliveryEvent", delivery.id, _actor(request, payload), {"invoice_id": invoice.id, "channel": channel, "due_date_derived": revision.due_date_source_event_id == delivery.id})
+    db.commit()
+    return {"delivery": _row(delivery), "invoice": _row(invoice), "revision": _row(revision), "receivable": _receivable(db, invoice, revision)}
+
+
+@router.get("/invoices/{invoice_id}/communications")
+def invoice_communications(invoice_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    invoice = db.get(Invoice, invoice_id)
+    if not invoice:
+        raise HTTPException(404, {"code": "INVOICE_NOT_FOUND"})
+    return {"communication_state": _communication_state(db, invoice.id), "issues": [_row(x) for x in db.scalars(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice.id).order_by(InvoiceIssueEvent.issued_at)).all()], "deliveries": [_row(x) for x in db.scalars(select(InvoiceDeliveryEvent).where(InvoiceDeliveryEvent.invoice_id == invoice.id).order_by(InvoiceDeliveryEvent.delivered_at)).all()], "acknowledgments": [_row(x) for x in db.scalars(select(InvoiceAcknowledgment).where(InvoiceAcknowledgment.invoice_id == invoice.id).order_by(InvoiceAcknowledgment.acknowledged_at)).all()]}
+
+
+@router.post("/invoices/{invoice_id}/acknowledgments")
+def record_invoice_acknowledgment(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, OWNER, "INVOICE_ACKNOWLEDGMENT_RECORD")
+    invoice = db.get(Invoice, invoice_id)
+    issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice_id)) if invoice else None
+    revision = db.get(InvoiceRevision, issue.invoice_revision_id) if issue else None
+    if not invoice or not issue or not revision:
+        raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
+    key = str(payload.get("idempotency_key") or "").strip()
+    if not key:
+        raise HTTPException(422, {"code": "ACKNOWLEDGMENT_IDEMPOTENCY_KEY_REQUIRED"})
+    prior = db.scalar(select(InvoiceAcknowledgment).where(InvoiceAcknowledgment.idempotency_key == key))
+    if prior:
+        return {"acknowledgment": _row(prior), "receivable": _receivable(db, invoice, revision)}
+    acknowledged_at = datetime.fromisoformat(str(payload.get("acknowledged_at") or datetime.now(timezone.utc).isoformat()))
+    evidence_id = payload.get("source_document_version_id")
+    if evidence_id:
+        evidence_version = db.get(DocumentVersion, evidence_id)
+        evidence_document = db.get(Document, evidence_version.document_id) if evidence_version else None
+        if not evidence_version or not evidence_document:
+            raise HTTPException(404, {"code": "ACKNOWLEDGMENT_EVIDENCE_NOT_FOUND"})
+        if invoice.project_id and evidence_document.project_id not in {None, invoice.project_id}:
+            raise HTTPException(403, {"code": "CROSS_PROJECT_BILLING_CONTEXT_DENIED"})
+    item = InvoiceAcknowledgment(invoice_id=invoice.id, issued_revision_id=revision.id, acknowledgment_reference=payload.get("acknowledgment_reference"), acknowledged_at=acknowledged_at, source_document_version_id=evidence_id, recorded_by=_actor(request, payload), status="RECORDED", notes=payload.get("notes"), idempotency_key=key)
+    db.add(item); db.flush()
+    _derive_due_date(revision, event_type="ACKNOWLEDGMENT", event_id=item.id, event_at=acknowledged_at)
+    _lineage(db, request, invoice.project_id, "InvoiceDeliveryEvent", issue.id, "InvoiceAcknowledgment", item.id, "INVOICE_ACKNOWLEDGMENT_RECORD")
+    _audit(db, request, "INVOICE_ACKNOWLEDGMENT_RECORDED", "InvoiceAcknowledgment", item.id, _actor(request, payload), {"invoice_id": invoice.id, "due_date_derived": revision.due_date_source_event_id == item.id})
+    db.commit()
+    return {"acknowledgment": _row(item), "revision": _row(revision), "receivable": _receivable(db, invoice, revision)}
 
 
 @router.post("/invoice-revisions/{revision_id}/accept")
@@ -603,15 +781,18 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
     if prior: return {"invoice": _row(invoice), "revision": _row(revision), "issue": _row(prior)}
     existing = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice.id))
     if existing: raise HTTPException(409, {"code": "INVOICE_ALREADY_ISSUED", "issue_event_id": existing.id})
+    _require_issue_project_policy(db, project)
     if revision.status != "ACCEPTED_INTERNAL": raise HTTPException(409, {"code": "INVOICE_ACCEPT_REQUIRED"})
     precheck = _precheck(db, invoice, contract, revision, plan_revision)
     if precheck["result"] != "PASS": raise HTTPException(409, {"code": "INVOICE_ISSUE_PRECHECK_BLOCKED", "precheck": precheck})
     issue_date = revision.invoice_date or date.today()
+    issue_event_id = str(uuid4())
+    _derive_due_date(revision, event_type="ISSUE", event_id=issue_event_id, event_at=issue_date)
     account = _resolve_account(db, revision.currency or plan_revision.currency, issue_date, payload.get("financial_account_version_id"))
     template = select_template(db, payload.get("template_version_id"), "INVOICE")
     official_ref = _allocate_invoice_ref(db, issue_date, _actor(request, payload))
-    artifact = render_artifact(db, artifact_type="INVOICE", context_type="INVOICE_REVISION", context_id=revision.id, payload={"invoice_reference": official_ref, "contract_reference": contract.contract_reference, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "description": revision.description, "currency": revision.currency, "lines": [_row(x) for x in _lines(db, revision.id)], "gross_charge_total": str(revision.gross_charge_total), "payable_total": str(revision.payable_total), "amount_in_words": revision.amount_in_words, "invoice_date": issue_date.isoformat(), "due_date": revision.due_date.isoformat() if revision.due_date else None, "financial_account_version_id": account.id, "source_sample_policy": "REFERENCE_ONLY"}, source_revision_ids=[contract.id, revision.controlling_contract_revision_id, plan_revision.id if plan_revision else revision.id], template_version_id=template.id, actor=_actor(request, payload), correlation_id=_corr(request), project_id=project.id if project else None)
-    event = InvoiceIssueEvent(invoice_id=invoice.id, invoice_revision_id=revision.id, official_invoice_ref=official_ref, invoice_date=issue_date, issued_by=_actor(request, payload), idempotency_key=key, template_version_id=template.id, financial_account_version_id=account.id, rendered_artifact_id=artifact.id, source_snapshot={"contract_revision_id": revision.controlling_contract_revision_id, "billing_plan_revision_id": revision.billing_plan_revision_id, "financial_account_version_id": account.id, "template_version_id": template.id, "artifact_id": artifact.id})
+    artifact = render_artifact(db, artifact_type="INVOICE", context_type="INVOICE_REVISION", context_id=revision.id, payload={"invoice_reference": official_ref, "contract_reference": contract.contract_reference, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "project_context": revision.contract_project_context_snapshot or {}, "description": revision.description, "currency": revision.currency, "lines": [_row(x) for x in _lines(db, revision.id)], "gross_charge_total": str(revision.gross_charge_total), "payable_total": str(revision.payable_total), "amount_in_words": revision.amount_in_words, "invoice_date": issue_date.isoformat(), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "financial_account_version_id": account.id, "source_sample_policy": "REFERENCE_ONLY"}, source_revision_ids=[contract.id, revision.controlling_contract_revision_id, plan_revision.id if plan_revision else revision.id], template_version_id=template.id, actor=_actor(request, payload), correlation_id=_corr(request), project_id=project.id if project else None)
+    event = InvoiceIssueEvent(id=issue_event_id, invoice_id=invoice.id, invoice_revision_id=revision.id, official_invoice_ref=official_ref, invoice_date=issue_date, issued_by=_actor(request, payload), idempotency_key=key, template_version_id=template.id, financial_account_version_id=account.id, rendered_artifact_id=artifact.id, source_snapshot={"contract_revision_id": revision.controlling_contract_revision_id, "billing_plan_revision_id": revision.billing_plan_revision_id, "financial_account_version_id": account.id, "template_version_id": template.id, "artifact_id": artifact.id})
     db.add(event); db.flush(); invoice.invoice_reference = official_ref; invoice.invoice_ref_status = "ALLOCATED"; invoice.status = "ISSUED"; revision.status = "ISSUED"
     for line in _lines(db, revision.id):
         if line.billing_milestone_id and line.affects_payable_total:
@@ -629,11 +810,12 @@ def _allocate_invoice_ref(db: Session, issue_date: date, actor: str) -> str:
 
 
 def _receivable(db: Session, invoice: Invoice, revision: InvoiceRevision | None) -> dict[str, Any]:
-    if not revision or invoice.status != "ISSUED": return {"state": "NOT_ISSUED", "issued_payable_amount": None, "verified_paid_amount": "0.00", "outstanding_amount": None, "overpayment_amount": "0.00"}
+    if not revision or invoice.status != "ISSUED": return {"state": "NOT_ISSUED", "issued_payable_amount": None, "verified_paid_amount": "0.00", "outstanding_amount": None, "overpayment_amount": "0.00", "due_date": None, "communication_state": _communication_state(db, invoice.id)}
     paid = sum((_d(item.allocated_amount) for item in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id == invoice.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()), Decimal("0"))
     payable = _d(revision.payable_total or 0); outstanding = payable - paid; over = max(Decimal("0"), -outstanding); now = date.today()
-    state = "PAID" if outstanding <= 0 else "PARTIALLY_PAID" if paid > 0 else "OVERDUE" if revision.due_date and revision.due_date < now else "DUE" if revision.due_date and revision.due_date <= now else "NOT_DUE"
-    return {"state": state, "issued_payable_amount": str(_money(payable)), "verified_paid_amount": str(_money(paid)), "outstanding_amount": str(_money(max(Decimal("0"), outstanding))), "overpayment_amount": str(_money(over)), "due_date": revision.due_date.isoformat() if revision.due_date else None}
+    communication_state = _communication_state(db, invoice.id)
+    state = "PAID" if outstanding <= 0 else "PARTIALLY_PAID" if paid > 0 else "AWAITING_DUE_EVENT" if revision.due_date_status == "PENDING_EVENT" or not revision.due_date else "OVERDUE" if revision.due_date < now else "DUE" if revision.due_date <= now else "NOT_DUE"
+    return {"state": state, "communication_state": communication_state, "issued_payable_amount": str(_money(payable)), "verified_paid_amount": str(_money(paid)), "outstanding_amount": str(_money(max(Decimal("0"), outstanding))), "overpayment_amount": str(_money(over)), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "due_date_status": revision.due_date_status}
 
 
 @router.get("/invoices/{invoice_id}/receivable")

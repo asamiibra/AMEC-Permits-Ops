@@ -1,0 +1,1 @@
+{"provider":"PostgreSQL","database":"permitops_v2_full8","migration_head":"0049_billing_v2_communication_due_events","command":"python3 -m pytest -q backend/tests","passed":165,"skipped":0,"failed":0,"errors":0,"warnings":2,"duration_seconds":34.59}

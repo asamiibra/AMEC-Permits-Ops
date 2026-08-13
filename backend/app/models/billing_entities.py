@@ -50,6 +50,7 @@ class BillingPlanRevision(Base):
     valuation_amount: Mapped[float | None] = mapped_column(Numeric(18, 2))
     valuation_currency: Mapped[str | None] = mapped_column(String(20))
     valuation_status: Mapped[str] = mapped_column(String(50), default="UNKNOWN_NON_AUTHORITATIVE", nullable=False)
+    contract_project_context_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="DRAFT", nullable=False, index=True)
     supersedes_revision_id: Mapped[str | None] = mapped_column(String(36))
     source_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
@@ -179,6 +180,44 @@ class InvoiceIssueEvent(Base):
     financial_account_version_id: Mapped[str] = mapped_column(ForeignKey("financial_account_versions.id"), nullable=False)
     rendered_artifact_id: Mapped[str] = mapped_column(ForeignKey("rendered_artifacts.id"), nullable=False)
     source_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+
+
+class InvoiceDeliveryEvent(Base):
+    __tablename__ = "invoice_delivery_events"
+    __table_args__ = (
+        UniqueConstraint("idempotency_key", name="uq_invoice_delivery_idempotency"),
+        Index("ix_invoice_delivery_invoice_time", "invoice_id", "delivered_at"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    invoice_id: Mapped[str] = mapped_column(ForeignKey("invoices.id"), nullable=False, index=True)
+    issued_revision_id: Mapped[str] = mapped_column(ForeignKey("invoice_revisions.id"), nullable=False, index=True)
+    issue_event_id: Mapped[str] = mapped_column(ForeignKey("invoice_issue_events.id"), nullable=False, index=True)
+    channel: Mapped[str] = mapped_column(String(40), nullable=False)
+    recipient_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    delivered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    delivery_reference: Mapped[str | None] = mapped_column(String(200))
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    recorded_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), default="RECORDED", nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class InvoiceAcknowledgment(Base):
+    __tablename__ = "invoice_acknowledgments"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_invoice_acknowledgment_idempotency"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    invoice_id: Mapped[str] = mapped_column(ForeignKey("invoices.id"), nullable=False, index=True)
+    issued_revision_id: Mapped[str] = mapped_column(ForeignKey("invoice_revisions.id"), nullable=False, index=True)
+    acknowledgment_reference: Mapped[str | None] = mapped_column(String(200))
+    acknowledged_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    recorded_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), default="RECORDED", nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
 
 
 class InvoiceNumberingPolicy(Base):

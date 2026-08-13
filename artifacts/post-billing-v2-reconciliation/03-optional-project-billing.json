@@ -1,0 +1,1 @@
+{"billing_plan_project_nullable":true,"invoice_project_nullable":true,"snapshot":"contract_project_context_snapshot","default_project_policy":"REQUIRED","preactivation_setup_supported":"PRE_ACTIVATION_ALLOWED runtime policy","preactivation_issue_default":"PROJECT_REQUIRED","fake_projects_created_by_billing":0,"historical_invoice_rewrites":0}
