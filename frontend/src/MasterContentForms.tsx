@@ -37,6 +37,14 @@ export type CanonicalForm = {
   current_source_filename?: string;
   updated?: string;
   versions?: Version[];
+  governance?: {
+    profile?: Record<string, any>;
+    provenance?: any[];
+    quality_flags?: any[];
+    source_sections?: any[];
+    readiness?: { state: string; blocking_reasons: string[]; warnings: string[]; last_evaluated_at?: string | null };
+    badges?: string[];
+  };
 };
 
 const ownerRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
@@ -73,6 +81,7 @@ export function CanonicalFormsLibrary({
   } | null>(null);
   const [details, setDetails] = useState<CanonicalForm | null>(null);
   const [busy, setBusy] = useState(false);
+  const [governanceFilters, setGovernanceFilters] = useState({ ownership: "", artifact_kind: "", currentness: "", readiness: "", quality_state: "", restricted_sample: "", language: "" });
   const canWrite = ownerRoles.has(role);
   const load = async () => {
     setLoading(true);
@@ -83,6 +92,7 @@ export function CanonicalFormsLibrary({
       if (filters?.category) params.set("category_label", filters.category);
       if (filters?.status) params.set("status", filters.status);
       if (filters?.module) params.set("module", filters.module);
+      Object.entries(governanceFilters).forEach(([key, value]) => { if (value) params.set(key, value); });
       const [content, categoryRows] = await Promise.all([
         api<CanonicalForm[]>(`/api/master-content?${params}`),
         api<Category[]>("/api/master-content/categories"),
@@ -99,7 +109,7 @@ export function CanonicalFormsLibrary({
   };
   useEffect(() => {
     void load();
-  }, [filters?.q, filters?.category, filters?.status, filters?.module]);
+  }, [filters?.q, filters?.category, filters?.status, filters?.module, governanceFilters.ownership, governanceFilters.artifact_kind, governanceFilters.currentness, governanceFilters.readiness, governanceFilters.quality_state, governanceFilters.restricted_sample, governanceFilters.language]);
   const save = async (request: SaveRequest) => {
     setBusy(true);
     setError("");
@@ -178,6 +188,13 @@ export function CanonicalFormsLibrary({
           Business Development, and Permit workflows.
         </p>
       )}
+      <details className="forms-advanced-filters">
+        <summary>Advanced governance filters</summary>
+        <div className="dashboard-filter-bar forms-governance-filters">
+          {([['ownership', 'Content ownership', ['AMEC_OWNED', 'EXTERNAL_OFFICIAL', 'EXTERNAL_REFERENCE', 'REFERENCE_SAMPLE', 'NEEDS_REVIEW']], ['artifact_kind', 'Artifact kind', ['AUTHORITY_FORM', 'AMEC_FORM', 'CHECKLIST', 'AUTHORIZATION', 'SERVICE_REQUEST', 'OTHER', 'UNKNOWN']], ['currentness', 'Currentness', ['UNVERIFIED', 'VERIFIED_CURRENT', 'VERIFIED_NOT_CURRENT', 'NEEDS_REVIEW']], ['readiness', 'Readiness', ['REFERENCE_ONLY', 'BLOCKED', 'MANUAL_USE_READY', 'SUPERSEDED']], ['quality_state', 'Quality state', ['OPEN', 'ACCEPTED_RISK', 'RESOLVED']], ['language', 'Language', ['AR', 'EN', 'AR_EN_BILINGUAL', 'OTHER']]] as const).map(([key, label, options]) => <label key={key}>{label}<select aria-label={label} value={governanceFilters[key]} onChange={(event) => setGovernanceFilters((current) => ({ ...current, [key]: event.target.value }))}><option value="">All</option>{options.map((option) => <option key={option} value={option}>{option.replaceAll('_', ' ')}</option>)}</select></label>)}
+          <label>Restricted sample<select aria-label="Restricted sample" value={governanceFilters.restricted_sample} onChange={(event) => setGovernanceFilters((current) => ({ ...current, restricted_sample: event.target.value }))}><option value="">All</option><option value="true">Restricted</option><option value="false">Not restricted</option></select></label>
+        </div>
+      </details>
       {error && (
         <div className="dashboard-error" role="alert">
           <b>Forms unavailable</b>
@@ -247,7 +264,6 @@ function FormTable({
         <thead>
           <tr>
             <th>S/N</th>
-            <th>Version</th>
             <th>Reference</th>
             <th>Form</th>
             <th>Category</th>
@@ -259,12 +275,13 @@ function FormTable({
           {forms.map((form, index) => (
             <tr key={form.id}>
               <td>{form.serial_number || index + 1}</td>
-              <td>{versionLabel(form.version)}</td>
               <td>
                 <code className="content-reference">{form.ref}</code>
               </td>
               <td>
                 <b>{form.title}</b>
+                <small className="table-subline">Version {form.version || "—"}</small>
+                <div className="governance-badges">{(form.governance?.badges || []).slice(0, 2).map((badge) => <span key={badge} className="tag">{badge}</span>)}</div>
               </td>
               <td>{form.category?.label || "Uncategorized"}</td>
               <td
@@ -299,16 +316,24 @@ function FormTable({
 }
 
 function FormDetails({ item, onClose }: { item: CanonicalForm; onClose: () => void }) {
+  const governance = item.governance || {};
+  const profile = governance.profile || {};
+  const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
   return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
-    <div className="content-detail-grid">
+    <section className="form-governance-section"><h3>Overview</h3><div className="content-detail-grid">
       <div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div>
       <div><span>Version</span><b>{versionLabel(item.version)}</b></div>
       <div><span>Status</span><b>{friendlyStatus(item.version_status, Boolean(item.version))}</b></div>
       <div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div>
-    </div>
-    <p className="detail-description">{item.description || "No description"}</p>
+      <div><span>Artifact kind</span><b>{String(profile.artifact_kind || "UNKNOWN").replaceAll("_", " ")}</b></div>
+      <div><span>Readiness</span><b>{readiness.state.replaceAll("_", " ")}</b></div>
+    </div><p className="detail-description">{item.description || "No description"}</p></section>
+    <section className="form-governance-section"><h3>Source &amp; Authority</h3><div className="content-detail-grid"><div><span>Ownership</span><b>{String(profile.content_ownership_class || "NEEDS_REVIEW").replaceAll("_", " ")}</b></div><div><span>Publisher / Origin</span><b>{profile.publisher_name || "Not recorded"}</b></div><div><span>Official Form No.</span><b>{profile.official_form_no || "Not recorded"}</b></div><div><span>Issue / Date</span><b>{[profile.official_issue_no, profile.official_issue_date].filter(Boolean).join(" · ") || "Not recorded"}</b></div><div><span>Language</span><b>{String(profile.language_profile || "OTHER").replaceAll("_", " ")}</b></div><div><span>Currentness</span><b>{String(profile.currentness_status || "UNVERIFIED").replaceAll("_", " ")}</b></div></div></section>
+    <section className="form-governance-section"><h3>Quality &amp; Sensitivity</h3><p>{profile.sensitivity_flags?.length ? `Sensitive flags: ${profile.sensitivity_flags.join(", ")}` : "No sensitivity flags recorded."}</p>{(governance.quality_flags || []).map((flag: any) => <div className={`quality-flag quality-${String(flag.severity).toLowerCase()}`} key={flag.id}><b>{String(flag.code).replaceAll("_", " ")}</b><span>{flag.status} · {flag.description}</span></div>)}</section>
+    <section className="form-governance-section"><h3>Source Sections</h3>{(governance.source_sections || []).length ? (governance.source_sections || []).map((section: any) => <div className="source-section-row" key={section.id}><b>{section.label}</b><span>{section.locator_type} {section.page_start ? `· p.${section.page_start}${section.page_end && section.page_end !== section.page_start ? `–${section.page_end}` : ""}` : ""} · exact version {section.document_version_id.slice(0, 8)}</span></div>) : <p>No exact source sections pinned.</p>}</section>
+    <section className="form-governance-section readiness-panel"><h3>Readiness</h3><strong>{readiness.state.replaceAll("_", " ")}</strong>{readiness.blocking_reasons.length > 0 && <><b>Blocking reasons</b><ul>{readiness.blocking_reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></>}{readiness.warnings.length > 0 && <><b>Warnings</b><ul>{readiness.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></>}</section>
     <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}</div>
-    <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>
+    {!profile.restricted_reference_sample && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
   </Drawer>;
 }
 

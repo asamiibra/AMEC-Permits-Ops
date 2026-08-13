@@ -1,0 +1,15 @@
+{
+  "status": "DASHBOARD_FORMS_GOVERNANCE_WAVE_A_NOT_READY",
+  "baseline_sha": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "alembic_head": "0036_dashboard_forms_governance_wave_a",
+  "backend_postgresql": {"passed": 151, "failed": 0, "skipped": 0},
+  "targeted": {"passed": 23, "failed": 0, "skipped": 0},
+  "frontend_tests": {"test_files": 11, "passed": 29, "failed": 0},
+  "build": "PASS",
+  "browser_real_stack": {"passed": 3, "failed": 0},
+  "deployment": "DEPLOYMENT_VERIFICATION_BLOCKED",
+  "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
+  "local_sha_before_evidence_amend": "f0b0500",
+  "remote_sha": "PENDING_PUSH_VERIFICATION",
+  "working_tree": "CLEAN_EXPECTED_AFTER_AMEND_PUSH"
+}

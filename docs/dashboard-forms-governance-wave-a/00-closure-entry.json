@@ -1,0 +1,20 @@
+{
+  "date": "2026-08-13",
+  "branch": "main",
+  "head": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "remote_main": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "pre_wave_a_baseline_sha": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "working_tree": "DIRTY_PRESERVED_WAVE_A_IMPLEMENTATION",
+  "alembic_head": "0036_dashboard_forms_governance_wave_a",
+  "previous_migration": "0035_owner_decision_closure",
+  "diff_check": "PASS",
+  "wave_b_or_c_started": false,
+  "open_blockers": [
+    "full_suite_adjudication",
+    "skip_adjudication",
+    "deployment",
+    "commit_push_sha_proof",
+    "clean_tree_proof",
+    "real_synology_external"
+  ]
+}

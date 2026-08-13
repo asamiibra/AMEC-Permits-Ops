@@ -1,0 +1,27 @@
+{
+  "baseline_sha": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "command": "env APP_ENV=TEST DATABASE_URL=postgresql+psycopg://... SYNTHETIC_ONLY=true pytest -q backend/tests",
+  "database_isolation": {
+    "baseline": "wave_a_baseline_20260813",
+    "wave_a": "wave_a_current_20260813"
+  },
+  "baseline": {"passed": 146, "failed": 0, "skipped": 0, "errors": 0},
+  "wave_a_pre_repair": {"passed": 151, "failed": 0, "skipped": 0, "errors": 0},
+  "wave_a_final": {"passed": 151, "failed": 0, "skipped": 0, "errors": 0},
+  "classifications": [
+    {
+      "issue": "backend-working-directory path resolution",
+      "classification": "TEST_HARNESS_FAILURE",
+      "observed": "three failures when launched from backend",
+      "canonical_result": "root invocation passed"
+    },
+    {
+      "issue": "legacy Alembic version column too short for revision 0036",
+      "classification": "ENVIRONMENT_CONFIGURATION_FAILURE",
+      "observed": "existing-state 0035 to 0036 upgrade failed at VARCHAR(32)",
+      "repair": "0036 widens alembic_version.version_num to VARCHAR(64) before head update",
+      "final_result": "clean and existing-state upgrades passed"
+    }
+  ],
+  "unknown_count": 0
+}

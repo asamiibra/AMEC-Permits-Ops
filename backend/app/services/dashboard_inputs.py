@@ -16,10 +16,41 @@ from ..models import (
     DashboardInputItem,
     MasterContentItem,
     MasterContentReferenceSequence,
+    MasterContentGovernanceProfile,
+    MasterContentQualityFlag,
 )
 from .master_content import ENGINEERING_DISCIPLINES, ENGINEERING_SOURCE_TYPES, resolve_master_content_purpose
+from .forms_governance import source_blocker_rollup
 
 CONTEXT_KEY = "DASHBOARD_MASTER_CONTENT"
+GOVERNANCE_CONTEXT_KEY = "DASHBOARD_FORMS_GOVERNANCE"
+# Keep the original response contract stable for existing consumers. Wave A
+# governance inputs are opt-in through the dashboard UI query parameter.
+LEGACY_INPUT_KEYS = {
+    "DASHBOARD_CATEGORY_TAXONOMY",
+    "DASHBOARD_CATEGORY_SEMANTICS",
+    "DASHBOARD_REFERENCE_NUMBERING",
+    "DASHBOARD_ENGINEERING_SOURCE_TYPES",
+    "DASHBOARD_ENGINEERING_DISCIPLINES",
+    "DASHBOARD_FORM_REFERENCE_POLICY",
+    "DASHBOARD_REPORT_REFERENCE_POLICY",
+    "DASHBOARD_ENGINEERING_REFERENCE_POLICY",
+    "DASHBOARD_DEFINITION_REFERENCE_POLICY",
+    "DASHBOARD_MODULE_USAGE_POLICY",
+    "DASHBOARD_ENGINEERING_ACTIVATION_POLICY",
+    "DASHBOARD_REPORT_SCOPE_POLICY",
+    "DASHBOARD_MASTER_WRITE_PERMISSIONS",
+    "DASHBOARD_OFFICIAL_PROPOSAL_TEMPLATE",
+    "DASHBOARD_OFFICIAL_PROPOSAL_CHECKLIST",
+    "DASHBOARD_OFFICIAL_CONTRACT_TEMPLATE",
+    "DASHBOARD_FORMS_CONTENT_READINESS",
+    "DASHBOARD_REPORTS_CONTENT_READINESS",
+    "DASHBOARD_ENGINEERING_CONTENT_READINESS",
+    "DASHBOARD_DEFINITIONS_CONTENT_READINESS",
+    "DASHBOARD_SYNOLOGY_CONNECTION",
+    "DASHBOARD_FILE_POLICY",
+    "DASHBOARD_DEFINITION_ARABIC_ALIASES",
+}
 OPEN_STATUSES = {"NEEDS_CONFIRMATION", "PROPOSED_DEFAULT", "NEEDS_DECISION", "NEEDS_CONTENT", "IN_PROGRESS", "WAITING_ON_AMEC_IT"}
 CONFIRMED_STATUSES = {"CONFIRMED", "COMPLETE", "NOT_APPLICABLE"}
 FRIENDLY_STATUS = {
@@ -65,15 +96,34 @@ SPECS: list[dict[str, Any]] = [
     {"key": "DASHBOARD_SYNOLOGY_CONNECTION", "group": "TECHNICAL_GO_LIVE", "title": "Synology connection", "what": "Provide AMEC IT connection details and complete a real Synology health verification for the document source of record.", "why": "Production master-content files must be read from the AMEC-controlled source of record, not the synthetic connector.", "status": "WAITING_ON_AMEC_IT", "blocking": "EXTERNAL_TECHNICAL", "route": "/admin"},
     {"key": "DASHBOARD_FILE_POLICY", "group": "TECHNICAL_GO_LIVE", "title": "File policy", "what": "Confirm the production file policy for DOCX and PDF, including configurable size and version limits.", "why": "A clear file policy keeps uploads predictable and protects source-of-record storage.", "status": "PROPOSED_DEFAULT", "blocking": "TECHNICAL", "route": "/dashboard"},
     {"key": "DASHBOARD_DEFINITION_ARABIC_ALIASES", "group": "OPTIONAL_FUTURE", "title": "Arabic definition aliases", "what": "Decide later whether canonical English terms should have maintained Arabic aliases.", "why": "Aliases can improve bilingual discovery without creating a second definition authority.", "status": "OPTIONAL", "blocking": "OPTIONAL", "route": "/dashboard#definitions"},
+    {"key": "MASTER_CONTENT_OWNERSHIP_POLICY", "group": "BUSINESS_DECISION", "title": "Content ownership policy", "what": "Confirm the governed ownership classes: AMEC owned, external official, external reference, and restricted reference sample.", "why": "Ownership determines which source actions AMEC may perform and whether a source can enter production use.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "FORM_ARTIFACT_KIND_TAXONOMY", "group": "BUSINESS_DECISION", "title": "Form artifact kinds", "what": "Confirm the configurable Form artifact-kind vocabulary without changing the four Dashboard libraries.", "why": "Artifact kind is distinct from Category, Purpose, Used In, and Engineering Source Type.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "FORM_SOURCE_CURRENTNESS_AUTHORITY", "group": "BUSINESS_DECISION", "title": "Source currentness authority", "what": "Confirm who may verify, revoke, or mark an external official source not current.", "why": "Upload provenance is not proof of current official status.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "FORM_SOURCE_PROVENANCE_POLICY", "group": "BUSINESS_DECISION", "title": "Source provenance policy", "what": "Confirm the minimum evidence recorded for each exact source version.", "why": "Provenance and currentness must remain independently auditable.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "EXTERNAL_FORM_CONTENT_EDIT_POLICY", "group": "BUSINESS_DECISION", "title": "External official source edits", "what": "Confirm that legal source content is replaced only by ingesting a new immutable official version.", "why": "AMEC metadata governance must not mutate external legal source content in place.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "RESTRICTED_REFERENCE_SAMPLE_POLICY", "group": "BUSINESS_DECISION", "title": "Restricted reference samples", "what": "Confirm who may preview or download restricted samples and how they remain excluded from production resolution.", "why": "Sensitive/project-specific examples need backend-enforced access controls.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "MASTER_CONTENT_QUALITY_FLAG_POLICY", "group": "BUSINESS_DECISION", "title": "Source-quality flags", "what": "Confirm the governed blocker catalog, severity, resolution, and evidence expectations.", "why": "Structured blockers make source readiness explainable and auditable.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "MASTER_CONTENT_ACCEPTED_RISK_AUTHORITY", "group": "BUSINESS_DECISION", "title": "Accepted-risk authority", "what": "Confirm who may accept a source-quality risk and what evidence is required.", "why": "Accepted risk is not an automatic readiness promotion.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "MASTER_CONTENT_MANUAL_READINESS_POLICY", "group": "BUSINESS_DECISION", "title": "Manual-use readiness policy", "what": "Confirm the Wave A gates for Reference Only, Blocked, Manual Use Ready, and Superseded.", "why": "The evaluator must not imply Form automation readiness.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "MASTER_CONTENT_MATERIAL_CHANGE_POLICY", "group": "BUSINESS_DECISION", "title": "Governance material changes", "what": "Confirm which source-governance changes require downstream revalidation.", "why": "Material changes must propagate deterministically without duplicate work.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
+    {"key": "SOURCE_SECTION_GOVERNANCE_POLICY", "group": "BUSINESS_DECISION", "title": "Source section governance", "what": "Confirm who may pin and maintain exact source sections on immutable DocumentVersions.", "why": "Source sections are the future lineage seam and must never silently move between versions.", "status": "PROPOSED_DEFAULT", "blocking": "BUSINESS", "route": "/dashboard#forms"},
 ]
 
 
 def ensure_dashboard_input_registry(db: Session) -> None:
-    existing = {item.input_key: item for item in db.scalars(select(DashboardInputItem).where(DashboardInputItem.context_key == CONTEXT_KEY)).all()}
+    existing_rows = db.scalars(select(DashboardInputItem).where(DashboardInputItem.context_key.in_((CONTEXT_KEY, GOVERNANCE_CONTEXT_KEY)))).all()
+    existing = {(item.context_key, item.input_key): item for item in existing_rows}
     for spec in SPECS:
-        item = existing.get(spec["key"])
+        context_key = CONTEXT_KEY if spec["key"] in LEGACY_INPUT_KEYS else GOVERNANCE_CONTEXT_KEY
+        # Move development versions of the Wave A items out of the legacy
+        # context so the original persistent-count contract remains stable.
+        item = existing.get((context_key, spec["key"]))
+        if not item and context_key == GOVERNANCE_CONTEXT_KEY:
+            item = existing.get((CONTEXT_KEY, spec["key"]))
+            if item:
+                item.context_key = GOVERNANCE_CONTEXT_KEY
         if not item:
-            item = DashboardInputItem(context_key=CONTEXT_KEY, input_key=spec["key"], group_name=spec["group"], title=spec["title"], why_needed=spec["why"], requested_input=spec["what"], status=spec["status"], blocking_level=spec["blocking"], owner_role="OWNER", linked_route=spec.get("route"), current_value_json={})
+            item = DashboardInputItem(context_key=context_key, input_key=spec["key"], group_name=spec["group"], title=spec["title"], why_needed=spec["why"], requested_input=spec["what"], status=spec["status"], blocking_level=spec["blocking"], owner_role="OWNER", linked_route=spec.get("route"), current_value_json={})
             db.add(item)
         else:
             item.group_name = spec["group"]
@@ -156,13 +206,14 @@ def project_input(db: Session, item: DashboardInputItem) -> dict[str, Any]:
     return {"key": item.input_key, "title": item.title, "group": item.group_name, "group_label": GROUP_LABELS[item.group_name], "what": item.requested_input, "why": item.why_needed, "current": state, "status": status, "status_label": FRIENDLY_STATUS.get(status, "Needs review"), "blocking": item.blocking_level, "blocking_label": "Technical dependency" if item.blocking_level == "EXTERNAL_TECHNICAL" else "Optional" if item.blocking_level == "OPTIONAL" else "Business input" if item.blocking_level == "BUSINESS" else "Content input" if item.blocking_level == "CONTENT" else "Technical input", "notes": item.notes, "route": item.linked_route, "confirmed_by": item.confirmed_by, "confirmed_at": item.confirmed_at.isoformat() if item.confirmed_at else None, "history": _history(db, item.id)}
 
 
-def dashboard_inputs_payload(db: Session) -> dict[str, Any]:
+def dashboard_inputs_payload(db: Session, *, include_governance: bool = False) -> dict[str, Any]:
     ensure_dashboard_input_registry(db)
-    stored = {item.input_key: item for item in db.scalars(select(DashboardInputItem).where(DashboardInputItem.context_key == CONTEXT_KEY)).all()}
-    items = [project_input(db, stored[spec["key"]]) for spec in SPECS if spec["key"] in stored]
+    contexts = (CONTEXT_KEY, GOVERNANCE_CONTEXT_KEY) if include_governance else (CONTEXT_KEY,)
+    stored = {item.input_key: item for item in db.scalars(select(DashboardInputItem).where(DashboardInputItem.context_key.in_(contexts))).all()}
+    items = [project_input(db, stored[spec["key"]]) for spec in SPECS if spec["key"] in stored and (include_governance or spec["key"] in LEGACY_INPUT_KEYS)]
     unresolved = [item for item in items if item["status"] not in {"CONFIRMED", "COMPLETE", "NOT_APPLICABLE", "OPTIONAL"}]
     technical = [item for item in unresolved if item["blocking"] == "EXTERNAL_TECHNICAL"]
-    return {"context_key": CONTEXT_KEY, "summary": {"confirmed": len(items) - len(unresolved) - sum(1 for item in items if item["status"] == "OPTIONAL"), "remaining": len(unresolved), "technical_remaining": len(technical), "ready": not unresolved}, "groups": [{"key": key, "label": label, "items": [item for item in items if item["group"] == key]} for key, label in GROUP_LABELS.items() if any(item["group"] == key for item in items)], "items": items}
+    return {"context_key": CONTEXT_KEY, "summary": {"confirmed": len(items) - len(unresolved) - sum(1 for item in items if item["status"] == "OPTIONAL"), "remaining": len(unresolved), "technical_remaining": len(technical), "ready": not unresolved}, "source_blocker_rollup": source_blocker_rollup(db), "groups": [{"key": key, "label": label, "items": [item for item in items if item["group"] == key]} for key, label in GROUP_LABELS.items() if any(item["group"] == key for item in items)], "items": items}
 
 
 def default_status(input_key: str) -> str:

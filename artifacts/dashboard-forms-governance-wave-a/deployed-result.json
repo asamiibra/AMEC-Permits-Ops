@@ -1,0 +1,9 @@
+{
+  "status": "DEPLOYMENT_VERIFICATION_BLOCKED",
+  "environment": "NOT_DEPLOYED",
+  "deployed_sha": null,
+  "migration_head": "0036_dashboard_forms_governance_wave_a",
+  "local_real_stack": "PASS",
+  "reason": "No deployment target credentials or deploy CLI were available in the closure environment.",
+  "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+}

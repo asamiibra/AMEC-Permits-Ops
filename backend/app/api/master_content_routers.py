@@ -16,7 +16,7 @@ from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
 from ..config.settings import get_settings
-from ..models import ContentCategory, DefinitionEntry, DefinitionRevision, DocumentVersion, LineageEdge, MasterContentChangeEvent, MasterContentDependency, MasterContentItem, MasterContentModuleBinding, MasterContentReferenceSequence, Role
+from ..models import ContentCategory, DefinitionEntry, DefinitionRevision, DocumentVersion, LineageEdge, MasterContentChangeEvent, MasterContentDependency, MasterContentItem, MasterContentModuleBinding, MasterContentReferenceSequence, MasterContentQualityFlag, MasterContentGovernanceProfile, Role
 from ..services.backend_realignment import persona_for_role, require_capability
 from ..services.master_content import (
     CONTENT_TYPES,
@@ -44,6 +44,18 @@ from ..services.master_content import (
     ENGINEERING_SOURCE_TYPES,
     ENGINEERING_DISCIPLINES,
     resolve_master_content_purpose,
+)
+from ..services.forms_governance import (
+    add_provenance,
+    add_quality_flag,
+    add_source_section,
+    evaluate_readiness,
+    governance_projection,
+    resolve_quality_flag,
+    set_currentness,
+    source_blocker_rollup,
+    update_source_section,
+    update_governance,
 )
 
 router = APIRouter(prefix="/api", tags=["master-content"])
@@ -165,6 +177,78 @@ class DependencyCreate(BaseModel):
     dependency_kind: str = "CURRENT_SOURCE"
 
 
+class GovernancePatch(BaseModel):
+    content_ownership_class: str | None = None
+    artifact_kind: str | None = None
+    publisher_name: str | None = None
+    publisher_unit: str | None = None
+    jurisdiction_text: str | None = None
+    official_form_no: str | None = None
+    official_issue_no: str | None = None
+    official_issue_date: Any | None = None
+    language_profile: str | None = None
+    sensitivity_class: str | None = None
+    contains_pii: bool | None = None
+    contains_signature: bool | None = None
+    contains_stamp: bool | None = None
+    contains_financial_data: bool | None = None
+    contains_project_specific_data: bool | None = None
+    restricted_reference_sample: bool | None = None
+    currentness_verification_note: str | None = None
+
+
+class CurrentnessPayload(BaseModel):
+    action: str
+    note: str | None = None
+
+
+class ProvenancePayload(BaseModel):
+    obtained_from: str = Field(min_length=1)
+    obtained_by: str | None = None
+    obtained_at: Any | None = None
+    source_reference: str | None = None
+    ingest_batch: str | None = None
+    provenance_note: str | None = None
+    evidence_reference: str | None = None
+
+
+class QualityFlagPayload(BaseModel):
+    code: str
+    severity: str = "WARNING"
+    description: str = Field(min_length=1)
+    evidence_note: str | None = None
+    recommended_next_action: str | None = None
+    document_version_id: str | None = None
+
+
+class QualityFlagResolution(BaseModel):
+    status: str
+    resolution: str = Field(min_length=1)
+
+
+class SourceSectionPayload(BaseModel):
+    document_version_id: str
+    section_key: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    locator_type: str = "PAGE_RANGE"
+    page_start: int | None = None
+    page_end: int | None = None
+    locator_payload: dict[str, Any] = {}
+    description: str | None = None
+
+
+class SourceSectionPatch(BaseModel):
+    document_version_id: str | None = None
+    section_key: str | None = None
+    label: str | None = None
+    locator_type: str | None = None
+    page_start: int | None = None
+    page_end: int | None = None
+    locator_payload: dict[str, Any] | None = None
+    description: str | None = None
+    status: str | None = None
+
+
 @router.get("/master-content/categories")
 def categories(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     seed_categories(db)
@@ -256,7 +340,7 @@ def consumer_resolvers(consumer: str, db: Session = Depends(get_db), role: Role 
 
 
 @router.get("/master-content")
-def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, module: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, module: str | None = None, ownership: str | None = None, artifact_kind: str | None = None, publisher: str | None = None, currentness: str | None = None, readiness: str | None = None, quality_state: str | None = None, restricted_sample: bool | None = None, language: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     query = select(MasterContentItem).order_by(MasterContentItem.content_type, MasterContentItem.ref)
     if status:
         query = query.where(MasterContentItem.status == status.upper())
@@ -268,13 +352,29 @@ def list_master_content(q: str = "", content_type: str | None = None, category_i
         query = query.where(MasterContentItem.category_id == category_id)
     if q.strip():
         needle = f"%{q.strip()}%"
-        query = query.where(or_(MasterContentItem.title.ilike(needle), MasterContentItem.ref.ilike(needle), MasterContentItem.description.ilike(needle)))
+        query = query.outerjoin(MasterContentGovernanceProfile, MasterContentGovernanceProfile.master_content_item_id == MasterContentItem.id).where(or_(MasterContentItem.title.ilike(needle), MasterContentItem.ref.ilike(needle), MasterContentItem.description.ilike(needle), MasterContentGovernanceProfile.official_form_no.ilike(needle)))
     rows = [item_projection(db, item) for item in db.scalars(query).all()]
     rows = [row for row in rows if _role_can_see(role, row)]
+    if q.strip():
+        needle = q.strip().lower()
+        rows = [row for row in rows if needle in row.get("title", "").lower() or needle in row.get("ref", "").lower() or needle in (row.get("description") or "").lower() or needle in (row.get("governance", {}).get("profile", {}).get("official_form_no") or "").lower()]
     if category_label:
         rows = [row for row in rows if (row.get("category") or {}).get("label") == category_label]
     if module:
         rows = [row for row in rows if module.upper() in row.get("used_in", [])]
+    def matches(row: dict[str, Any]) -> bool:
+        governance = row.get("governance", {})
+        profile = governance.get("profile", {})
+        readiness_row = governance.get("readiness", {})
+        flags = governance.get("quality_flags", [])
+        return all((not value or expected in actual) for value, expected, actual in (
+            (ownership, ownership.upper() if ownership else "", profile.get("content_ownership_class", "")),
+            (artifact_kind, artifact_kind.upper() if artifact_kind else "", profile.get("artifact_kind", "")),
+            (currentness, currentness.upper() if currentness else "", profile.get("currentness_status", "")),
+            (readiness, readiness.upper() if readiness else "", readiness_row.get("state", "")),
+            (language, language.upper() if language else "", profile.get("language_profile", "")),
+        )) and (not publisher or publisher.lower() in " ".join(filter(None, [profile.get("publisher_name"), profile.get("publisher_unit")])).lower()) and (restricted_sample is None or profile.get("restricted_reference_sample") is restricted_sample) and (not quality_state or any(flag.get("status") == quality_state.upper() for flag in flags))
+    rows = [row for row in rows if matches(row)]
     return [{**row, "serial_number": index + 1} for index, row in enumerate(rows)]
 
 
@@ -321,6 +421,94 @@ def get_content(item_id: str, db: Session = Depends(get_db), role: Role = Depend
     if not _role_can_see(role, projection):
         raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE", "persona": persona_for_role(role)})
     return projection
+
+
+def _governed_item(db: Session, item_id: str) -> MasterContentItem:
+    item = db.get(MasterContentItem, item_id)
+    if not item:
+        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    return item
+
+
+@router.get("/master-content/governance/options")
+def governance_options(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    return {"ownership": ["AMEC_OWNED", "EXTERNAL_OFFICIAL", "EXTERNAL_REFERENCE", "REFERENCE_SAMPLE", "NEEDS_REVIEW"], "artifact_kind": ["AUTHORITY_FORM", "AMEC_FORM", "CHECKLIST", "UNDERTAKING", "AUTHORIZATION", "SERVICE_REQUEST", "CERTIFICATE_DECLARATION", "TECHNICAL_WORKSHEET", "INVOICE", "HANDOVER", "OTHER", "UNKNOWN"], "currentness": ["UNVERIFIED", "VERIFIED_CURRENT", "VERIFIED_NOT_CURRENT", "NEEDS_REVIEW"], "language": ["AR", "EN", "AR_EN_BILINGUAL", "OTHER"], "quality_state": ["OPEN", "ACCEPTED_RISK", "RESOLVED", "NOT_APPLICABLE"]}
+
+
+@router.get("/master-content/governance/blocker-rollup")
+def governance_blocker_rollup(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    return source_blocker_rollup(db)
+
+
+@router.get("/master-content/{item_id}/governance")
+def get_governance(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    item = _governed_item(db, item_id)
+    projection = item_projection(db, item, include_history=True)
+    if not _role_can_see(role, projection):
+        raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE"})
+    return projection["governance"]
+
+
+@router.patch("/master-content/{item_id}/governance")
+def patch_governance(item_id: str, payload: GovernancePatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_CONTENT_GOVERNANCE_WRITE")
+    return update_governance(db, _governed_item(db, item_id), payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+
+
+@router.post("/master-content/{item_id}/currentness")
+def currentness(item_id: str, payload: CurrentnessPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_SOURCE_VERIFY_CURRENTNESS")
+    return set_currentness(db, _governed_item(db, item_id), action=payload.action, actor=_actor(role), note=payload.note, correlation_id=request.state.correlation_id)
+
+
+@router.post("/master-content/{item_id}/provenance")
+def provenance(item_id: str, payload: ProvenancePayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_CONTENT_GOVERNANCE_WRITE")
+    item = _governed_item(db, item_id)
+    version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+    if not version: raise HTTPException(409, {"code": "METADATA_REQUIRES_CURRENT_VERSION"})
+    return add_provenance(db, item, version, payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+
+
+@router.post("/master-content/{item_id}/quality-flags")
+def create_quality_flag(item_id: str, payload: QualityFlagPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
+    return add_quality_flag(db, _governed_item(db, item_id), payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+
+
+@router.patch("/master-content/{item_id}/quality-flags/{flag_id}")
+def patch_quality_flag(item_id: str, flag_id: str, payload: QualityFlagResolution, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
+    item = _governed_item(db, item_id)
+    flag = db.get(MasterContentQualityFlag, flag_id)
+    if not flag or flag.master_content_item_id != item.id: raise HTTPException(404, {"code": "QUALITY_FLAG_NOT_FOUND"})
+    return resolve_quality_flag(db, item, flag, status=payload.status, resolution=payload.resolution, actor=_actor(role), correlation_id=request.state.correlation_id)
+
+
+@router.post("/master-content/{item_id}/source-sections")
+def create_source_section(item_id: str, payload: SourceSectionPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_SOURCE_SECTION_MANAGE")
+    return add_source_section(db, _governed_item(db, item_id), payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+
+
+@router.patch("/master-content/{item_id}/source-sections/{section_id}")
+def patch_source_section(item_id: str, section_id: str, payload: SourceSectionPatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_SOURCE_SECTION_MANAGE")
+    item = _governed_item(db, item_id)
+    from ..models import MasterContentSourceSection
+    section = db.get(MasterContentSourceSection, section_id)
+    if not section or section.master_content_item_id != item.id: raise HTTPException(404, {"code": "SOURCE_SECTION_NOT_FOUND"})
+    return update_source_section(db, item, section, payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+
+
+@router.post("/master-content/{item_id}/readiness/evaluate")
+def evaluate_content_readiness(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_READINESS_EVALUATE")
+    item = _governed_item(db, item_id)
+    result = evaluate_readiness(db, item, persist=True)
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_READINESS_EVALUATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after=result)
+    db.commit()
+    return result
 
 
 @router.get("/master-content/{item_id}/dependencies")
@@ -424,6 +612,11 @@ def put_module_bindings(item_id: str, payload: list[BindingPayload], request: Re
         else:
             db.add(MasterContentModuleBinding(master_content_id=item_id, module=module, usage_type=usage_type, active=True, created_by=_actor(role)))
     item.used_in = sorted({module for module, _ in seen})
+    # A frozen canonical consumer purpose is deterministic proof for these
+    # AMEC templates; unrelated Forms remain unclassified until governed.
+    if any(usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"} for _, usage_type in seen):
+        from ..services.forms_governance import ensure_profile
+        ensure_profile(db, item, ownership="AMEC_OWNED").content_ownership_class = "AMEC_OWNED"
     audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MODULE_BINDINGS_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after={"used_in": item.used_in})
     db.commit()
     return item_projection(db, item, include_history=True)
@@ -462,6 +655,8 @@ def download_current(item_id: str, db: Session = Depends(get_db), role: Role = D
     if not item or not item.current_document_version_id:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
     version = db.get(DocumentVersion, item.current_document_version_id)
+    if item_projection(db, item).get("governance", {}).get("profile", {}).get("restricted_reference_sample"):
+        require_capability(role, "MASTER_RESTRICTED_SAMPLE_DOWNLOAD")
     return _download(db, version)
 
 
@@ -471,6 +666,8 @@ def download_version(item_id: str, version_id: str, db: Session = Depends(get_db
     version = db.get(DocumentVersion, version_id) if item else None
     if not item or not version or version.document_id != item.document_id:
         raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
+    if item_projection(db, item).get("governance", {}).get("profile", {}).get("restricted_reference_sample"):
+        require_capability(role, "MASTER_RESTRICTED_SAMPLE_DOWNLOAD")
     return _download(db, version)
 
 
@@ -482,6 +679,8 @@ def download_rendition(item_id: str, version_id: str, db: Session = Depends(get_
         raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
     if version.rendition_status != "SOURCE_PDF" or not version.rendition_path_or_reference:
         raise HTTPException(409, {"code": "RENDITION_NOT_AVAILABLE"})
+    if item_projection(db, item).get("governance", {}).get("profile", {}).get("restricted_reference_sample"):
+        require_capability(role, "MASTER_RESTRICTED_SAMPLE_VIEW")
     return _download(db, version, path_override=version.rendition_path_or_reference, mime_override=version.rendition_mime_type or "application/pdf")
 
 

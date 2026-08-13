@@ -1,0 +1,9 @@
+{
+  "date": "2026-08-13",
+  "branch": "main",
+  "remote_main": "0ccb61a2b7ac483a17590c27eca594b16b505bb7",
+  "backend": {"failed": 3, "passed": 142, "skipped": 1},
+  "frontend": {"test_files": 11, "tests": 29, "build": "PASS"},
+  "postgresql": "AVAILABLE",
+  "baseline_status": "BROKEN_BEFORE_WAVE_A"
+}

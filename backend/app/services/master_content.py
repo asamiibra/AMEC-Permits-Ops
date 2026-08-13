@@ -45,6 +45,7 @@ from ..models import (
     WorkflowTaskStatus,
     LineageEdge,
 )
+from .forms_governance import ensure_profile, governance_projection
 
 CONTENT_TYPES = {"FORM", "REPORT", "ENGINEERING_WORK"}
 ENGINEERING_SOURCE_TYPES = ("REGULATION", "QCS", "MUNICIPALITY_COMMENT", "AUTHORITY_GUIDANCE", "ENGINEERING_STANDARD", "DESIGN_GUIDE", "TECHNICAL_REFERENCE", "OTHER")
@@ -272,6 +273,20 @@ def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str)
     resolved = []
     for item in rows:
         version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+        governance = governance_projection(db, item)
+        if item.content_type == "FORM":
+            # Preserve the frozen purpose bindings for AMEC-owned canonical
+            # proposal/contract forms while keeping external, restricted, and
+            # reference-only forms out of downstream resolution.
+            frozen_purpose = usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
+            profile = governance["profile"]
+            is_frozen_amec_form = (
+                frozen_purpose
+                and profile.get("content_ownership_class") == "AMEC_OWNED"
+                and not profile.get("restricted_reference_sample")
+            )
+            if not is_frozen_amec_form and governance["readiness"]["state"] != "MANUAL_USE_READY":
+                continue
         if version:
             resolved.append({"id": item.id, "ref": item.ref, "title": item.title, "content_type": item.content_type, "version_id": version.id, "version": version.version_number, "hash": version.sha256, "source_filename": version.source_filename, "module": module, "purpose": usage_type, "canonical": True})
     return {"module": module, "purpose": usage_type, "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED", "canonical_count": len(resolved), "item": resolved[0] if len(resolved) == 1 else None, "candidates": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
@@ -592,6 +607,7 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         "storage_status": "Storage verified" if current and _status(current) == "CURRENT" else "Storage unavailable",
         "current_version_id": current.id if current else None,
         "preview": {"status": current.rendition_status, "available": current.rendition_status == "SOURCE_PDF"} if current else {"status": "RENDITION_NOT_AVAILABLE", "available": False},
+        "governance": governance_projection(db, item, include_history=include_history),
     }
     if include_history:
         versions = db.scalars(select(DocumentVersion).where(DocumentVersion.document_id == item.document_id).order_by(DocumentVersion.version_number.desc())).all()
@@ -723,6 +739,7 @@ def create_master_content(
     item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, source_type_code=source_type_code.upper() if source_type_code else None, status="ACTIVE", document=document, created_by=actor)
     db.add(item)
     db.flush()
+    ensure_profile(db, item, ownership="AMEC_OWNED" if actor == "owner-demo-seed" else "NEEDS_REVIEW")
     version = DocumentVersion(document_id=document.id, version_number=1, source_filename=_safe_filename(filename, ref, 1), source_path_or_reference="PENDING", sha256=digest, mime_type=mime_type or "application/octet-stream", file_size=len(content), language="en", approval_state=DocumentApprovalState.WORKING, source_system="MASTER_CONTENT", metadata_json={"master_status": "PENDING_WRITE", "content_type": content_type, "business_ref": ref, "title": title, "description": description, "used_in": modules, "engineering_metadata": engineering_metadata or {}, "reference_generated": reference_generated, "change_kind": "CREATE", "change_reason": "Initial version"})
     db.add(version)
     db.flush()

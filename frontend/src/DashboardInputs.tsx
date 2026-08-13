@@ -31,6 +31,7 @@ type InputPayload = {
   };
   groups: { key: string; label: string; items: InputItem[] }[];
   items: InputItem[];
+  source_blocker_rollup?: { blocking: number; needs_review: number; restricted_samples: number; currentness_unknown: number };
 };
 
 const statusClass = (value: string) =>
@@ -59,7 +60,7 @@ function useDashboardInputs() {
   const [data, setData] = useState<InputPayload | null>(null);
   const [error, setError] = useState("");
   const load = () =>
-    api<InputPayload>("/api/dashboard-inputs")
+    api<InputPayload>("/api/dashboard-inputs?include_governance=true")
       .then(setData)
       .catch((reason) => setError(String(reason)));
   useEffect(() => {
@@ -167,6 +168,7 @@ export function DashboardInputsLauncher({
               {data && (
                 <>
                   <SummaryHeader summary={data.summary} />
+                  {data.source_blocker_rollup && <section className="source-blocker-rollup"><h3>Master Content Source Blockers</h3><div className="source-blocker-grid"><span><b>{data.source_blocker_rollup.blocking}</b>Blocking</span><span><b>{data.source_blocker_rollup.needs_review}</b>Needs review</span><span><b>{data.source_blocker_rollup.restricted_samples}</b>Restricted samples</span><span><b>{data.source_blocker_rollup.currentness_unknown}</b>Currentness unknown</span></div></section>}
                   <section>
                     <h3>What we need from AMEC</h3>
                     <div className="dashboard-input-summary-list">

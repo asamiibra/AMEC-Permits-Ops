@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -13,7 +13,7 @@ from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
 from ..models import DashboardInputItem, Role
-from ..services.dashboard_inputs import CONFIRMED_STATUSES, CONTEXT_KEY, dashboard_inputs_payload, default_status
+from ..services.dashboard_inputs import CONFIRMED_STATUSES, CONTEXT_KEY, GOVERNANCE_CONTEXT_KEY, dashboard_inputs_payload, default_status
 from ..services.owner_decisions import LEGACY_ALIASES, apply_action, get_decision, sync_legacy_projection
 
 router = APIRouter(prefix="/api/dashboard-inputs", tags=["dashboard-inputs"])
@@ -31,8 +31,8 @@ def owner_only(role: Role) -> None:
 
 
 @router.get("")
-def dashboard_inputs(db: Session = Depends(get_db), _role: Role = Depends(current_user_role)):
-    payload = dashboard_inputs_payload(db)
+def dashboard_inputs(include_governance: bool = Query(default=False), db: Session = Depends(get_db), _role: Role = Depends(current_user_role)):
+    payload = dashboard_inputs_payload(db, include_governance=include_governance)
     db.commit()
     return payload
 
@@ -40,11 +40,11 @@ def dashboard_inputs(db: Session = Depends(get_db), _role: Role = Depends(curren
 @router.patch("/{input_key}")
 def update_dashboard_input(input_key: str, payload: DashboardInputUpdate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     owner_only(role)
-    item = db.scalar(select(DashboardInputItem).where(DashboardInputItem.context_key == CONTEXT_KEY, DashboardInputItem.input_key == input_key))
+    item = db.scalar(select(DashboardInputItem).where(DashboardInputItem.context_key.in_((CONTEXT_KEY, GOVERNANCE_CONTEXT_KEY)), DashboardInputItem.input_key == input_key))
     if not item:
         # The GET path is idempotent and also establishes the registry.
         dashboard_inputs_payload(db)
-        item = db.scalar(select(DashboardInputItem).where(DashboardInputItem.context_key == CONTEXT_KEY, DashboardInputItem.input_key == input_key))
+        item = db.scalar(select(DashboardInputItem).where(DashboardInputItem.context_key.in_((CONTEXT_KEY, GOVERNANCE_CONTEXT_KEY)), DashboardInputItem.input_key == input_key))
     if not item:
         raise HTTPException(status_code=404, detail={"code": "DASHBOARD_INPUT_NOT_FOUND"})
     action = (payload.action or "").lower()
