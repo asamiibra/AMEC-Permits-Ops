@@ -6,6 +6,7 @@ from backend.app.db import SessionLocal
 from backend.app.models import (
     AssistantHandoff, AuditEvent, ClientAccount, Contract, ContractAdminEvidence, ContractAdminInput,
     ContractRevision, ContractTemplateSnapshot, LineageEdge, NotificationEvent,
+    ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm,
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
@@ -24,11 +25,15 @@ def clean_owner_fixture():
         proposal_ids = [item.id for item in proposals]
         contracts = db.query(Contract).filter(Contract.proposal_id.in_(proposal_ids)).all() if proposal_ids else []
         contract_ids = [item.id for item in contracts]
-        project_ids = [item.project_id for item in contracts if item.project_id]
+        activation_project_ids = [item.project_id for item in db.query(ProjectActivation).filter(ProjectActivation.contract_id.in_(contract_ids)).all()] if contract_ids else []
+        project_ids = list({item.project_id for item in contracts if item.project_id} | set(activation_project_ids))
         if contract_ids:
             db.query(ProjectActivation).filter(ProjectActivation.contract_id.in_(contract_ids)).delete(synchronize_session=False)
             db.query(ContractTemplateSnapshot).filter(ContractTemplateSnapshot.contract_id.in_(contract_ids)).delete(synchronize_session=False)
             db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id.in_(contract_ids)).delete(synchronize_session=False)
+            db.query(ContractPaymentTerm).filter(ContractPaymentTerm.contract_id.in_(contract_ids)).delete(synchronize_session=False)
+            db.query(ContractDeliverableCommitment).filter(ContractDeliverableCommitment.contract_id.in_(contract_ids)).delete(synchronize_session=False)
+            db.query(ContractClientInputRequirement).filter(ContractClientInputRequirement.contract_id.in_(contract_ids)).delete(synchronize_session=False)
             db.query(ContractAdminInput).filter(ContractAdminInput.contract_id.in_(contract_ids)).delete(synchronize_session=False)
             task_ids = [item.id for item in db.query(WorkflowTask).filter(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id.in_(contract_ids)).all()]
             if task_ids:
@@ -56,6 +61,7 @@ def clean_owner_fixture():
                 db.query(ClientAccount).filter(ClientAccount.id.in_(client_ids), ~ClientAccount.id.in_(db.query(Opportunity.client_account_id))).delete(synchronize_session=False)
         if project_ids:
             db.query(Project).filter(Project.id.in_(project_ids)).delete(synchronize_session=False)
+        db.query(Project).filter(Project.project_number == "PRJ-DEMO-001").delete(synchronize_session=False)
         db.commit()
 
 
@@ -142,3 +148,40 @@ def test_contract_manual_policy_permissions_and_explicit_project_activation(clie
     go_live = client.get("/api/admin/contracts/inputs/go-live", headers=headers("OWNER_SPONSOR"))
     assert go_live.status_code == 200
     assert len(go_live.json()["items"]) >= 22
+
+
+def test_contract_reconciliation_read_model_and_billing_seam(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post("/api/admin/contracts", headers=headers("OWNER_SPONSOR"), json={"proposal_id": proposal_id})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    patched = client.patch(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR"), json={"payment_condition_text": "30% advance; 70% on approved deliverable", "contracted_scope_text": "Detailed permit design and authority coordination", "reason": "Owner recorded Contract commercial terms"})
+    assert patched.status_code == 200, patched.text
+    term = client.post(f"/api/admin/contracts/{contract_id}/commercial-terms", headers=headers("OWNER_SPONSOR"), json={"sequence": 1, "label": "Advance", "term_text": "30% advance", "percentage": "30", "currency": "QAR", "human_verified": True})
+    assert term.status_code == 200, term.text
+    assert term.json()["payment_terms"][0]["status"] == "VERIFIED"
+    deliverable = client.post(f"/api/admin/contracts/{contract_id}/deliverables", headers=headers("OWNER_SPONSOR"), json={"sequence": 1, "name": "Permit design package", "description": "Detailed works package"})
+    assert deliverable.status_code == 200, deliverable.text
+    client_input = client.post(f"/api/admin/contracts/{contract_id}/client-inputs", headers=headers("OWNER_SPONSOR"), json={"sequence": 1, "title": "Signed LPO", "source_type": "CLIENT_DOCUMENT"})
+    assert client_input.status_code == 200, client_input.text
+    missing_exact = client.post(f"/api/admin/contracts/{contract_id}/evidence", headers=headers("OWNER_SPONSOR"), json={"evidence_type": "LPO", "source_role": "LPO", "source_reference": "lpo.pdf"})
+    assert missing_exact.status_code == 422
+    detail = client.get(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR"))
+    assert detail.status_code == 200
+    body = detail.json()
+    assert body["contract"]["payment_condition_text"] == "30% advance; 70% on approved deliverable"
+    assert body["deliverables"][0]["name"] == "Permit design package"
+    assert body["client_inputs"][0]["title"] == "Signed LPO"
+    before = client.get(f"/api/admin/contracts/{contract_id}/billing-context", headers=headers("OWNER_SPONSOR")).json()
+    assert before["status"] == "NEEDS_CONTRACT_AUTHORITY"
+    authority = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR"), json={"decision": "APPROVE", "reason": "Owner authority review complete"})
+    assert authority.status_code == 200, authority.text
+    activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-RECON-001", "start_date": "2026-08-13", "idempotency_key": "reconciliation-activation-v1"})
+    assert activation.status_code == 200, activation.text
+    billing = client.get(f"/api/admin/contracts/{contract_id}/billing-context", headers=headers("OWNER_SPONSOR")).json()
+    assert billing["status"] == "READY_FOR_BILLING_SETUP"
+    assert billing["invoice_created"] is False
+    assert billing["billing_milestone_created"] is False
+    immutable = client.patch(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR"), json={"amount": "QAR 999", "reason": "Should be blocked after approval"})
+    assert immutable.status_code == 409

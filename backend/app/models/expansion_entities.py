@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TimestampMixin, utcnow
@@ -200,6 +200,12 @@ class Contract(Base, TimestampMixin):
     expected_close_date: Mapped[date | None] = mapped_column(Date)
     actual_close_date: Mapped[date | None] = mapped_column(Date)
     close_date_meaning: Mapped[str | None] = mapped_column(String(120))
+    payment_condition_text: Mapped[str | None] = mapped_column(Text)
+    contracted_scope_text: Mapped[str | None] = mapped_column(Text)
+    valuation_amount: Mapped[float | None] = mapped_column(Numeric(18, 2))
+    valuation_currency: Mapped[str | None] = mapped_column(String(20))
+    valuation_basis: Mapped[str | None] = mapped_column(String(160))
+    valuation_status: Mapped[str] = mapped_column(String(50), default="UNKNOWN_NON_AUTHORITATIVE", nullable=False)
     authority_state: Mapped[str] = mapped_column(String(50), default="NOT_REVIEWED", nullable=False)
     last_activity_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     field_provenance: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
@@ -227,6 +233,12 @@ class ContractRevision(Base):
     duration: Mapped[str | None] = mapped_column(String(120))
     expected_close_date: Mapped[date | None] = mapped_column(Date)
     actual_close_date: Mapped[date | None] = mapped_column(Date)
+    payment_condition_text: Mapped[str | None] = mapped_column(Text)
+    contracted_scope_text: Mapped[str | None] = mapped_column(Text)
+    valuation_amount: Mapped[float | None] = mapped_column(Numeric(18, 2))
+    valuation_currency: Mapped[str | None] = mapped_column(String(20))
+    valuation_basis: Mapped[str | None] = mapped_column(String(160))
+    valuation_status: Mapped[str] = mapped_column(String(50), default="UNKNOWN_NON_AUTHORITATIVE", nullable=False)
     admin_input_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     __table_args__ = (UniqueConstraint("contract_id", "revision_number", name="uq_contract_revision_number"),)

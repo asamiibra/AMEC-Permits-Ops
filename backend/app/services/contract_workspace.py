@@ -12,8 +12,9 @@ from sqlalchemy.orm import Session
 
 from ..audit.service import audit
 from ..models import (
-    AuditEvent, ClientAccount, Contract, ContractAdminEvidence, ContractAdminInput,
-    ContractReferenceSequence, ContractRevision, ContractTemplateSnapshot,
+    AuditEvent, ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractAdminInput,
+    ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm,
+    ContractReferenceSequence, ContractRevision, ContractTemplateSnapshot, DocumentVersion,
     Finding, LineageEdge, NotificationEvent, Opportunity, Project, ProjectActivation,
     ProposalAcceptedRevision, Quotation, QuotationRevision, WorkflowTask,
 )
@@ -23,6 +24,7 @@ from .owner_decisions import runtime_decision_value
 
 
 CONTRACT_STAGES = ("DRAFT", "NEEDS_ACTION", "AUTHORITY_REVIEW", "READY", "ACTIVE", "CLOSED")
+FINALIZED_CONTRACT_REVISION_STATUSES = {"APPROVED", "EXECUTED_EVIDENCE_RECORDED", "FINALIZED"}
 DEFAULT_CONTRACT_INPUTS = {
     "manual_contract_policy": {"value": "SELECT_ACCEPTED_PROPOSAL_ONLY", "status": "SAFE_DEFAULT"},
     "contract_close_date_meaning": {"value": "EXPECTED_CLOSE_DATE_UNTIL_OWNER_CONFIRMED", "status": "SAFE_DEFAULT"},
@@ -91,6 +93,86 @@ def effective_required_evidence(db: Session) -> list[str]:
 
 def effective_activation_fields(db: Session) -> list[str]:
     return list(runtime_decision_value(db, "PROJECT_ACTIVATION_REQUIRED_FIELDS", ["CONTRACT", "ACCEPTED_PROPOSAL_REVISION", "PROJECT_CODE", "START_DATE", "CLIENT"]))
+
+
+def contract_revision_is_finalized(revision: ContractRevision | None) -> bool:
+    return bool(revision and str(revision.status or "").upper() in FINALIZED_CONTRACT_REVISION_STATUSES)
+
+
+def _document_version_projection(db: Session, document_version_id: str | None) -> dict[str, Any] | None:
+    if not document_version_id:
+        return None
+    version = db.get(DocumentVersion, document_version_id)
+    if not version:
+        return {"id": document_version_id, "status": "MISSING"}
+    return {"id": version.id, "document_id": version.document_id, "version_number": version.version_number, "filename": version.source_filename, "source_reference": version.source_path_or_reference, "sha256": version.sha256, "approval_state": str(version.approval_state.value if hasattr(version.approval_state, "value") else version.approval_state)}
+
+
+def _revision_terms(db: Session, revision_id: str | None) -> tuple[list[ContractPaymentTerm], list[ContractDeliverableCommitment], list[ContractClientInputRequirement]]:
+    if not revision_id:
+        return [], [], []
+    return (
+        db.scalars(select(ContractPaymentTerm).where(ContractPaymentTerm.contract_revision_id == revision_id).order_by(ContractPaymentTerm.sequence)).all(),
+        db.scalars(select(ContractDeliverableCommitment).where(ContractDeliverableCommitment.contract_revision_id == revision_id).order_by(ContractDeliverableCommitment.sequence)).all(),
+        db.scalars(select(ContractClientInputRequirement).where(ContractClientInputRequirement.contract_revision_id == revision_id).order_by(ContractClientInputRequirement.sequence)).all(),
+    )
+
+
+def contract_billing_context(db: Session, contract: Contract, revision_id: str | None = None) -> dict[str, Any]:
+    """Return a read-only Contract-to-Billing setup context.
+
+    This function has no Invoice, Payment, BillingMilestone, or settlement
+    writes.  It is intentionally a dependency/readiness seam for a later
+    billing workstream.
+    """
+    revision = db.get(ContractRevision, revision_id) if revision_id else (db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None)
+    if revision and revision.contract_id != contract.id:
+        revision = None
+    payment_terms, deliverables, client_inputs = _revision_terms(db, revision.id if revision else None)
+    activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
+    evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == (revision.id if revision else None))).all() if revision else []
+    lpo_evidence = [item for item in evidence if item.source_role in {"LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"}]
+    blockers: list[dict[str, str]] = []
+    if not revision:
+        blockers.append({"code": "CONTRACT_REVISION_REQUIRED", "label": "Current Contract revision"})
+    elif not contract_revision_is_finalized(revision):
+        blockers.append({"code": "CONTRACT_AUTHORITY_REQUIRED", "label": "Contract authority / finalized revision"})
+    if not contract.client_account_id:
+        blockers.append({"code": "CLIENT_CONTEXT_REQUIRED", "label": "Canonical Client"})
+    if not contract.amount_value or not contract.currency:
+        blockers.append({"code": "CONTRACT_AMOUNT_CURRENCY_REQUIRED", "label": "Contract Amount and Currency"})
+    if not activation:
+        blockers.append({"code": "PROJECT_ACTIVATION_HUMAN_ACTION_REQUIRED", "label": "Explicit Project Activation"})
+    if not payment_terms or any(str(item.status).upper() not in {"VERIFIED", "HUMAN_VERIFIED", "CONFIRMED"} for item in payment_terms):
+        blockers.append({"code": "PAYMENT_TERMS_REVIEW_REQUIRED", "label": "Human-verified Contract payment terms"})
+    if not contract.payment_condition_text:
+        blockers.append({"code": "PAYMENT_CONDITION_REVIEW_REQUIRED", "label": "Contract Payment Condition"})
+    if contract.valuation_status not in {"UNKNOWN_NON_AUTHORITATIVE", "NOT_PROVIDED", "OWNER_CONFIRMED"} and contract.valuation_amount is None:
+        blockers.append({"code": "VALUATION_DATA_INCONSISTENT", "label": "Valuation basis"})
+    status = "READY_FOR_BILLING_SETUP" if not blockers else "NEEDS_PAYMENT_TERM_REVIEW" if any(item["code"].startswith("PAYMENT_") for item in blockers) else "NEEDS_CONTRACT_AUTHORITY" if any(item["code"] == "CONTRACT_AUTHORITY_REQUIRED" for item in blockers) else "NEEDS_PROJECT_ACTIVATION" if any(item["code"] == "PROJECT_ACTIVATION_HUMAN_ACTION_REQUIRED" for item in blockers) else "NOT_READY"
+    return {
+        "contract_id": contract.id,
+        "contract_reference": contract.contract_reference,
+        "revision": {"id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "content_hash": revision.content_hash} if revision else None,
+        "status": status,
+        "blockers": blockers,
+        "client_account_id": contract.client_account_id,
+        "project_id": contract.project_id,
+        "project_code": activation.project_code if activation else None,
+        "project_start_date": activation.start_date.isoformat() if activation else None,
+        "contract_amount": {"value": contract.amount_value, "currency": contract.currency},
+        "valuation": {"value": str(contract.valuation_amount) if contract.valuation_amount is not None else None, "currency": contract.valuation_currency, "basis": contract.valuation_basis, "status": contract.valuation_status},
+        "payment_condition": contract.payment_condition_text,
+        "duration": contract.duration,
+        "contracted_scope": contract.contracted_scope_text,
+        "payment_terms": [{"id": item.id, "sequence": item.sequence, "label": item.label, "term_text": item.term_text, "basis_type": item.basis_type, "percentage": str(item.percentage) if item.percentage is not None else None, "fixed_amount": str(item.fixed_amount) if item.fixed_amount is not None else None, "currency": item.currency, "trigger_type": item.trigger_type, "trigger_description": item.trigger_description, "due_days": item.due_days, "source_clause": item.source_clause, "source_document": _document_version_projection(db, item.source_document_version_id), "status": item.status, "human_verified_by": item.human_verified_by, "human_verified_at": item.human_verified_at.isoformat() if item.human_verified_at else None} for item in payment_terms],
+        "deliverables": [{"id": item.id, "sequence": item.sequence, "commitment_ref": item.commitment_ref, "name": item.name, "description": item.description, "due_trigger_description": item.due_trigger_description, "status": item.status, "source_document": _document_version_projection(db, item.source_document_version_id), "human_verified_by": item.human_verified_by} for item in deliverables],
+        "client_inputs": [{"id": item.id, "sequence": item.sequence, "input_code": item.input_code, "title": item.title, "description": item.description, "required": item.required, "status": item.status, "source_type": item.source_type, "source_document": _document_version_projection(db, item.source_document_version_id), "human_verified_by": item.human_verified_by} for item in client_inputs],
+        "lpo_or_client_evidence": [{"id": item.id, "type": item.evidence_type, "source_role": item.source_role, "document": _document_version_projection(db, item.document_version_id), "source_reference": item.source_reference, "status": item.status} for item in lpo_evidence],
+        "invoice_created": False,
+        "billing_milestone_created": False,
+        "invoice_implementation": "BILLING_INVOICE_IMPLEMENTATION_DEFERRED_TO_NEXT_WORKSTREAM",
+    }
 
 
 def fields_from_revision(revision: ProposalAcceptedRevision) -> dict[str, Any]:
@@ -162,10 +244,10 @@ def create_contract_from_proposal(db: Session, *, proposal: Opportunity, accepte
     reference = requested_reference or _next_reference(db)
     if db.scalar(select(Contract).where(Contract.contract_reference == reference)):
         raise ValueError("CONTRACT_REFERENCE_NOT_UNIQUE")
-    contract = Contract(client_account_id=proposal.client_account_id, quotation_id=quotation.id, contract_reference=reference, status="DRAFT", stage="DRAFT", contract_name=f"{proposal.title} Contract", proposal_id=proposal.id, accepted_proposal_revision_id=accepted.id, project_id=proposal.project_id, project_opportunity_ref=accepted.snapshot.get("project_reference") or proposal.canonical_project_reference or proposal.provisional_reference, amount_value=fields.get("price"), currency=fields.get("currency"), duration=fields.get("duration") or fields.get("period"), field_provenance={key: {"source": "PROPOSAL_ACCEPTED_REVISION", "accepted_revision_id": accepted.id, "content_hash": accepted.content_hash} for key in ("contract_name", "project_opportunity_ref", "amount_value", "currency", "duration")}, last_activity_at=now())
+    contract = Contract(client_account_id=proposal.client_account_id, quotation_id=quotation.id, contract_reference=reference, status="DRAFT", stage="DRAFT", contract_name=f"{proposal.title} Contract", proposal_id=proposal.id, accepted_proposal_revision_id=accepted.id, project_id=proposal.project_id, project_opportunity_ref=accepted.snapshot.get("project_reference") or proposal.canonical_project_reference or proposal.provisional_reference, amount_value=fields.get("price"), currency=fields.get("currency"), duration=fields.get("duration") or fields.get("period"), payment_condition_text=fields.get("payment_condition") or fields.get("payment_terms"), contracted_scope_text=fields.get("scope") or fields.get("scope_of_work"), valuation_amount=fields.get("valuation_amount"), valuation_currency=fields.get("valuation_currency"), valuation_basis=fields.get("valuation_basis"), valuation_status=fields.get("valuation_status") or "UNKNOWN_NON_AUTHORITATIVE", field_provenance={key: {"source": "PROPOSAL_ACCEPTED_REVISION", "accepted_revision_id": accepted.id, "content_hash": accepted.content_hash} for key in ("contract_name", "project_opportunity_ref", "amount_value", "currency", "duration")}, last_activity_at=now())
     db.add(contract)
     db.flush()
-    revision = ContractRevision(contract_id=contract.id, revision_number=1, controlling_quotation_revision_id=quotation_revision.id, accepted_proposal_revision_id=accepted.id, source_snapshot=accepted.snapshot, contract_name=contract.contract_name, stage=contract.stage, amount_value=contract.amount_value, currency=contract.currency, duration=contract.duration, status="DRAFT", content_hash=stable_hash({"accepted_revision_id": accepted.id, "fields": fields}), commercial_terms_snapshot={**fields, "proposal_accepted_revision_id": accepted.id, "proposal_content_hash": accepted.content_hash})
+    revision = ContractRevision(contract_id=contract.id, revision_number=1, controlling_quotation_revision_id=quotation_revision.id, accepted_proposal_revision_id=accepted.id, source_snapshot=accepted.snapshot, contract_name=contract.contract_name, stage=contract.stage, amount_value=contract.amount_value, currency=contract.currency, duration=contract.duration, payment_condition_text=contract.payment_condition_text, contracted_scope_text=contract.contracted_scope_text, valuation_amount=contract.valuation_amount, valuation_currency=contract.valuation_currency, valuation_basis=contract.valuation_basis, valuation_status=contract.valuation_status, status="DRAFT", content_hash=stable_hash({"accepted_revision_id": accepted.id, "fields": fields}), commercial_terms_snapshot={**fields, "proposal_accepted_revision_id": accepted.id, "proposal_content_hash": accepted.content_hash})
     db.add(revision)
     db.flush()
     contract.current_revision_id = revision.id
@@ -267,6 +349,7 @@ def contract_projection(db: Session, contract: Contract, *, include_history: boo
         quotation = db.get(Quotation, contract.quotation_id)
         proposal = db.get(Opportunity, quotation.opportunity_id) if quotation else None
     client = db.get(ClientAccount, contract.client_account_id) if contract.client_account_id else None
+    contacts = db.scalars(select(ClientContact).where(ClientContact.client_account_id == contract.client_account_id, ClientContact.status == "ACTIVE").order_by(ClientContact.name)).all() if contract.client_account_id else []
     project = db.get(Project, contract.project_id) if contract.project_id else None
     accepted = db.get(ProposalAcceptedRevision, contract.accepted_proposal_revision_id) if contract.accepted_proposal_revision_id else None
     revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
@@ -278,4 +361,6 @@ def contract_projection(db: Session, contract: Contract, *, include_history: boo
     notifications = db.scalars(select(NotificationEvent).where(NotificationEvent.contract_id == contract.id).order_by(NotificationEvent.created_at.desc())).all()
     history = db.scalars(select(AuditEvent).where(AuditEvent.entity_type.in_(("Contract", "Project")), AuditEvent.entity_id.in_([contract.id] + ([project.id] if project else []))).order_by(AuditEvent.occurred_at.desc()).limit(50)).all() if include_history else []
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
+    billing = contract_billing_context(db, contract)
+    payment_terms, deliverables, client_inputs = _revision_terms(db, revision.id if revision else None)
     return {"id": contract.id, "contract": {"id": contract.id, "name": contract.contract_name, "reference": contract.contract_reference, "stage": contract.stage or contract.status, "status": contract.status, "amount": contract.amount_value, "currency": contract.currency, "duration": contract.duration, "expected_close_date": contract.expected_close_date.isoformat() if contract.expected_close_date else None, "actual_close_date": contract.actual_close_date.isoformat() if contract.actual_close_date else None, "close_date_meaning": contract.close_date_meaning, "last_activity": (contract.last_activity_at or contract.updated_at).isoformat(), "authority_state": contract.authority_state}, "client": {"id": client.id, "reference": client.client_reference, "name": client.display_name} if client else None, "project": {"id": project.id, "reference": project.project_number, "code": project.project_code, "name": project.project_name, "start_date": project.start_date.isoformat() if project and project.start_date else None, "status": project.status} if project else None, "origin": {"proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "title": proposal.title, "accepted_revision_id": accepted.id, "revision_number": accepted.revision_number, "content_hash": accepted.content_hash, "snapshot": accepted.snapshot} if proposal and accepted else None, "current_revision": {"id": revision.id, "revision_number": revision.revision_number, "accepted_proposal_revision_id": revision.accepted_proposal_revision_id, "content_hash": revision.content_hash, "status": revision.status} if revision else None, "template": {"ref": template.master_content_ref, "version": template.version, "version_id": template.document_version_id, "hash": template.content_hash, "master_content_id": template.master_content_id} if template else None, "inputs": [{"key": item.input_key, "value": item.value_json, "entered_by": item.entered_by, "reason": item.reason, "updated_at": item.updated_at.isoformat()} for item in inputs], "evidence": [{"id": item.id, "type": item.evidence_type, "source_reference": item.source_reference, "hash": item.content_hash, "status": item.status, "recorded_by": item.recorded_by} for item in evidence], "readiness": readiness(db, contract), "activation": {"id": activation.id, "project_id": activation.project_id, "project_code": activation.project_code, "start_date": activation.start_date.isoformat(), "activated_by": activation.activated_by, "activated_at": activation.activated_at.isoformat()} if activation else None, "my_work": [{"id": item.id, "title": item.title, "status": item.status, "next_action_code": item.next_action_code, "deep_link": item.deep_link} for item in tasks], "issues": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "blocking": item.blocking, "deep_link": item.deep_link} for item in issues], "notifications": [{"id": item.id, "event_type": item.event_type, "status": item.status, "subject": item.subject, "created_at": item.created_at.isoformat()} for item in notifications], "history": [{"id": item.id, "event_type": item.event_type, "entity_type": item.entity_type, "occurred_at": item.occurred_at.isoformat(), "actor": item.actor_id, "after": item.after_json} for item in history], "effective_policies": {"stage": runtime_decision_value(db, "CONTRACT_STAGE_POLICY", {"stages": list(CONTRACT_STAGES)}), "authority_review_meaning": runtime_decision_value(db, "CONTRACT_AUTHORITY_REVIEW_MEANING", "OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION"), "ready_close": runtime_decision_value(db, "CONTRACT_READY_CLOSE_POLICY", "REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION"), "close_date": runtime_decision_value(db, "CONTRACT_CLOSE_DATE_MEANING", "EXPECTED_CLOSE_DATE_UNTIL_OWNER_CONFIRMS_ACTUAL_CLOSE"), "reference": effective_contract_reference_policy(db), "required_fields": effective_required_fields(db), "required_evidence": effective_required_evidence(db), "authority": runtime_decision_value(db, "CONTRACT_AUTHORITY_POLICY", "OWNER_ONLY_FOR_AUTHORITY_AND_EXECUTION_STATE"), "manual_new": runtime_decision_value(db, "MANUAL_NEW_CONTRACT_POLICY", "SELECT_ACCEPTED_PROPOSAL_ONLY"), "amount_change": runtime_decision_value(db, "CONTRACT_AMOUNT_CHANGE_AUTHORITY", "OWNER_ONLY_WITH_REASON_AND_NEW_REVISION"), "artifact_strategy": runtime_decision_value(db, "CONTRACT_ARTIFACT_STRATEGY", "CANONICAL_TEMPLATE_RENDER_PLUS_EVIDENCE"), "reopen": runtime_decision_value(db, "CONTRACT_REOPEN_POLICY", "OWNER_DECISION_REQUIRED_WITH_PROSPECTIVE_REVALIDATION"), "activation_trigger": runtime_decision_value(db, "CONTRACT_TO_PROJECT_TRIGGER", "EXPLICIT_OWNER_ACTION_AFTER_CONTRACT_READINESS"), "activation_authority": runtime_decision_value(db, "PROJECT_ACTIVATION_AUTHORITY", "OWNER_ONLY_HUMAN_ACTION"), "code_assignment": runtime_decision_value(db, "PROJECT_CODE_ASSIGNMENT_METHOD", "OWNER_ENTERED_UNIQUE"), "code_format": runtime_decision_value(db, "PROJECT_CODE_FORMAT", {"pattern": "AMEC-YYYY-NNN", "example": "AMEC-2026-001"}), "code_mutability": runtime_decision_value(db, "PROJECT_CODE_MUTABILITY_POLICY", "IMMUTABLE_AFTER_ACTIVATION"), "start_date": runtime_decision_value(db, "PROJECT_START_DATE_SEMANTICS", "ORIGINAL_HUMAN_ACTIVATION_DATE"), "activation_fields": effective_activation_fields(db), "close_vs_activation": runtime_decision_value(db, "CONTRACT_CLOSE_VS_PROJECT_ACTIVATION", "SEPARATE_EVENTS_WITH_LINEAGE")}}

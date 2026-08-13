@@ -60,6 +60,8 @@ class ContractAdminEvidence(Base):
     contract_id: Mapped[str] = mapped_column(ForeignKey("contracts.id"), nullable=False, index=True)
     contract_revision_id: Mapped[str | None] = mapped_column(ForeignKey("contract_revisions.id"), index=True)
     evidence_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    source_role: Mapped[str] = mapped_column(String(80), default="GENERAL", nullable=False)
+    document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
     source_reference: Mapped[str] = mapped_column(String(600), nullable=False)
     content_hash: Mapped[str | None] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(40), default="RECORDED", nullable=False)
