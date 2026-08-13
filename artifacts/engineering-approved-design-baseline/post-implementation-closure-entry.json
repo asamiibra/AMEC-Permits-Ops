@@ -1,0 +1,13 @@
+{
+  "date": "2026-08-13",
+  "branch": "main",
+  "head": "5431d7ec9d5f21fb09de651732cf1e49ec085895",
+  "origin_main": "5431d7ec9d5f21fb09de651732cf1e49ec085895",
+  "alembic_current_local_sqlite": "0021_e7_unified_task_context",
+  "alembic_head": "0043_project_engineering_approved_design_baseline",
+  "known_artifact": "mock-systems/excel/permit_tracker 2.xlsx",
+  "overlapping_intentional_code_changes": false,
+  "prior_engineering_status": "ENGINEERING_APPROVED_DESIGN_BASELINE_NOT_READY",
+  "prior_blocker": "known untracked workbook",
+  "scope": "surgical closure only; no Engineering rebuild; no Preparation + Submission"
+}

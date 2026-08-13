@@ -1,0 +1,38 @@
+{
+  "date": "2026-08-13",
+  "overall": "ENGINEERING_APPROVED_DESIGN_BASELINE_CODE_FROZEN",
+  "deployment_token": "ENGINEERING_APPROVED_DESIGN_BASELINE_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+  "preparation_submission_dependencies": "PREPARATION_SUBMISSION_ENGINEERING_DEPENDENCIES_READY",
+  "starting_sha": "5431d7ec9d5f21fb09de651732cf1e49ec085895",
+  "tested_implementation_sha": "5431d7ec9d5f21fb09de651732cf1e49ec085895",
+  "remote_sha_before_closure_evidence": "5431d7ec9d5f21fb09de651732cf1e49ec085895",
+  "alembic_local_current": "0021_e7_unified_task_context",
+  "alembic_head": "0043_project_engineering_approved_design_baseline",
+  "migration_round_trip": "0043 upgrade, 0042_bd_proposal_forms_driven_v2 downgrade, 0043 re-upgrade passed on fresh SQLite",
+  "artifact": {
+    "path": "mock-systems/excel/permit_tracker 2.xlsx",
+    "classification": ["A_EXACT_DUPLICATE", "D_DISPOSABLE_DUPLICATE"],
+    "canonical_path": "mock-systems/excel/permit_tracker.xlsx",
+    "sha256": "b9c56421492c97885ee7ba59d85dea9cdeecfbd4ab791dc126422339150d0bc5",
+    "canonical_sha256": "b9c56421492c97885ee7ba59d85dea9cdeecfbd4ab791dc126422339150d0bc5",
+    "comparison": "identical 8135-byte XLSX archives; identical 13-entry structure, sheets, cells, dimensions, and no formulas/tables/defined names/sensitive indicators",
+    "disposition": "reversibly moved outside repository to /tmp/engineering-approved-design-baseline-cleanup-20260813/permit_tracker 2.xlsx",
+    "generator_fix_required": false,
+    "reappeared_after_tests": false
+  },
+  "tests": {
+    "postgresql": "156 passed, 2 warnings",
+    "sqlite": "155 passed, 1 skipped, 2 warnings",
+    "sqlite_skip_adjudication": "EXECUTED_AND_PASSED_ON_POSTGRESQL",
+    "engineering_targeted": "1 passed",
+    "frontend": "12 files, 32 tests passed",
+    "build": "passed with existing chunk-size advisory",
+    "browser": "passed; implementation unchanged from prior real-stack proof",
+    "compile_and_diff_check": "passed",
+    "cleanup": "clean tree after evidence commit; numbered duplicate absent"
+  },
+  "deployment": "ENGINEERING_APPROVED_DESIGN_BASELINE_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+  "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
+  "preparation_submission_started": false,
+  "historical_not_ready_preserved": true
+}
