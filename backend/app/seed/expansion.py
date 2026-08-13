@@ -11,6 +11,11 @@ from ..services.proposals_sor import ingest_project_artifact
 
 
 EXPANSION_RESET_MODELS = [
+    DesignChangeRequest, ApprovedDesignBaselineMember, ApprovedDesignBaseline, EngineeringMaterialTest,
+    EngineeringCalculationRecord, EngineeringTechnicalCheck, EngineeringProfessionalApproval,
+    EngineeringReviewFinding, ProjectEngineeringReview, EngineeringRendition,
+    EngineeringDeliverableRevision, EngineeringDeliverable, EngineeringWorkPackage,
+    EngineeringProjectMember,
     ProjectArtifactRecord, ExpansionFixtureResource, ProposalIntakeArtifact, EvidenceArtifact, QuotationRelease, ProjectStatusProjection, AdminDocumentComment, SystemBlock,
     ContractExecutionEvidence, ClientResponse, QuotationFieldObservation, ExecutionAuthorityConfig,
     ExpansionFixtureResource, AssistantCapabilityDefinition,

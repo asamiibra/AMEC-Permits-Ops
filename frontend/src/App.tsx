@@ -48,6 +48,7 @@ import { ExpansionFoundation } from "./ExpansionFoundation";
 import { OpportunitiesPage } from "./Opportunities";
 import { ProposalsContractsPage } from "./ProposalsContracts";
 import { EngineeringCloseoutPage } from "./EngineeringCloseout";
+import { ProjectEngineeringPage } from "./ProjectEngineering";
 import { AboutPermitOpsPage } from "./AboutPermitOps";
 import { AdministrationOwnerPage } from "./AdministrationOwner";
 import { AMECWorkPage } from "./AMECWork";
@@ -106,7 +107,7 @@ const businessNav: BusinessNavItem[] = [
   },
   {
     id: "engineering",
-    page: "engineering-closeout",
+    page: "project-engineering",
     label: "Engineering",
     canonicalLabel: "Engineering & Closeout",
     icon: "⌁",
@@ -174,7 +175,7 @@ const pageFromPath = () => {
   if (path === "/dashboard-v2") return "dashboard-v2";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
-  if (path === "/engineering") return "engineering-closeout";
+  if (path === "/engineering") return "project-engineering";
   if (path === "/permit") return "permits";
   if (path === "/work" || path === "/") return "my-work";
   if (
@@ -586,6 +587,7 @@ function App() {
           {page === "about" && <AboutPermitOpsPage onNavigate={navigate} />}{" "}
           {page === "opportunities" && <OpportunitiesPage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
+          {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
           {page === "engineering-closeout" && <EngineeringCloseoutPage />}{" "}
           {page === "permits" && (
             <ProposalsContractsPage

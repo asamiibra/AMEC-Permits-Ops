@@ -1,0 +1,16 @@
+{
+  "date": "2026-08-13",
+  "starting_sha": "bcc5061a2dea388ce5a2ec6b2432e27fc3b3b9ac",
+  "remote_sha": "bcc5061a2dea388ce5a2ec6b2432e27fc3b3b9ac",
+  "bd_tokens": [
+    "BD_PROPOSAL_FORMS_DRIVEN_V2_CODE_FROZEN",
+    "BD_PROPOSAL_FORMS_DRIVEN_V2_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+    "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+  ],
+  "repository_alembic_head": "0042_bd_proposal_forms_driven_v2",
+  "local_default_alembic_current": "0021_e7_unified_task_context",
+  "unrelated_untracked_artifact": "mock-systems/excel/permit_tracker 2.xlsx",
+  "overlapping_concurrent_changes": false,
+  "scope": "Project Engineering / Approved Design Baseline only",
+  "authority_case_submission_construction_out_of_scope": true
+}

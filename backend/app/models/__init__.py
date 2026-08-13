@@ -21,3 +21,4 @@ from .shared_domain_entities import *
 from .admin_contract_entities import *
 from .bd_proposal_entities import *
 from .owner_decision_entities import *
+from .project_engineering_entities import *

@@ -1,0 +1,19 @@
+{
+  "overall": "ENGINEERING_APPROVED_DESIGN_BASELINE_NOT_READY",
+  "reason": "strict clean-tree gate blocked by preserved unrelated untracked user artifact",
+  "starting_sha": "bcc5061a2dea388ce5a2ec6b2432e27fc3b3b9ac",
+  "bd_token": "BD_PROPOSAL_FORMS_DRIVEN_V2_CODE_FROZEN",
+  "bd_deployment_token": "BD_PROPOSAL_FORMS_DRIVEN_V2_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+  "alembic_after": "0043_project_engineering_approved_design_baseline",
+  "postgresql": "156 passed, 2 warnings",
+  "sqlite": "155 passed, 1 skipped, 2 warnings",
+  "frontend": "12 files, 32 tests passed",
+  "build": "passed",
+  "browser": "passed",
+  "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL",
+  "preserved_untracked_artifact": "mock-systems/excel/permit_tracker 2.xlsx",
+  "authority_approval_created": 0,
+  "construction_release_created": 0,
+  "submission_package_created": 0,
+  "preparation_submission_started": false
+}

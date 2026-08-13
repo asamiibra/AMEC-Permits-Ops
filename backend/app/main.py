@@ -34,6 +34,7 @@ from .api.master_content_routers import router as master_content_router
 from .api.bd_proposal_routers import router as bd_proposal_router
 from .api.dashboard_inputs_routers import router as dashboard_inputs_router
 from .api.contract_workspace_routers import router as contract_workspace_router
+from .api.project_engineering_routers import router as project_engineering_router
 from .api.owner_decision_routers import router as owner_decision_router
 from .api.shared_domain_routers import router as shared_domain_router
 from .api.dashboard_v2_routers import router as dashboard_v2_router
@@ -218,6 +219,7 @@ app.include_router(master_content_router)
 app.include_router(bd_proposal_router)
 app.include_router(dashboard_inputs_router)
 app.include_router(contract_workspace_router)
+app.include_router(project_engineering_router)
 app.include_router(owner_decision_router)
 app.include_router(shared_domain_router)
 app.include_router(dashboard_v2_router)

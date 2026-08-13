@@ -1,0 +1,12 @@
+{
+  "artifact": "engineering-approved-design-baseline-entry",
+  "starting_sha": "bcc5061a2dea388ce5a2ec6b2432e27fc3b3b9ac",
+  "remote_sha": "bcc5061a2dea388ce5a2ec6b2432e27fc3b3b9ac",
+  "bd_entry": "BD_PROPOSAL_FORMS_DRIVEN_V2_CODE_FROZEN",
+  "deployment_provenance": "BD_PROPOSAL_FORMS_DRIVEN_V2_DEPLOYMENT_PROVENANCE_BLOCKED_EXTERNAL",
+  "repository_alembic_head": "0042_bd_proposal_forms_driven_v2",
+  "default_local_sqlite_current": "0021_e7_unified_task_context",
+  "unrelated_untracked_artifact_preserved": "mock-systems/excel/permit_tracker 2.xlsx",
+  "overlap_gate": "passed",
+  "implementation_started_after_entry_evidence": true
+}
