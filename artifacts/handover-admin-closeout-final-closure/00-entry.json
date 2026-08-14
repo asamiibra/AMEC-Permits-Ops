@@ -1,0 +1,8 @@
+{
+  "entry_sha": "7feb8743e1426b5e1a5af7506011ea586a9e11ee",
+  "branch": "main",
+  "entry_matches_origin_main": true,
+  "working_tree_clean_at_entry": true,
+  "alembic_head": "0053_handover_admin_closeout",
+  "classification": "EVIDENCE_TOKEN_GAP"
+}

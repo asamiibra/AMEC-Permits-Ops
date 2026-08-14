@@ -1,0 +1,8 @@
+{
+  "database": "PostgreSQL",
+  "dataset": {"projects": 200, "services": 400, "packages": 400, "revisions": 400, "items": 8000, "requirements": 400, "distributions": 400, "receipts": 400, "punches": 4000},
+  "expected_counts": {"all_packages": 400, "project_packages": 2, "workspace_items": 20, "workspace_requirements": 1, "workspace_distributions": 1, "workspace_receipts": 1, "workspace_punch": 10},
+  "timings_ms": {"list_all": {"median": 12.33, "p95": 152.29}, "list_project": {"median": 2.78, "p95": 3.73}, "workspace": {"median": 11.38, "p95": 20.6}},
+  "production_slo_claimed": false,
+  "severe_software_scale_defect": false
+}

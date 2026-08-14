@@ -1,0 +1,6 @@
+{
+  "bridge_command": "DATABASE_URL=postgresql+psycopg://<local-user>@localhost:5432/<fresh-db> PYTHONPATH=. pytest -q backend/tests/test_handover_final_closure_bridge.py",
+  "full_postgresql_command": "DATABASE_URL=postgresql+psycopg://<local-user>@localhost:5432/<fresh-db> PYTHONPATH=. pytest -q backend/tests",
+  "sqlite_command": "env -u DATABASE_URL PYTHONPATH=. pytest -q backend/tests",
+  "frontend_commands": ["npm test -- --run", "npm run build"]
+}

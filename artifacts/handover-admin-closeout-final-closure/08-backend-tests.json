@@ -1,0 +1,4 @@
+{
+  "postgresql": {"passed": 185, "failed": 0, "warnings": 2},
+  "sqlite": {"passed": 177, "skipped": 8, "failed": 0, "warnings": 2}
+}

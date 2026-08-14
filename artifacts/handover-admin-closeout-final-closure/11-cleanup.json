@@ -1,0 +1,6 @@
+{
+  "temporary_databases_dropped": ["handover_bridge_test_20260814", "handover_bridge_scale_20260814", "handover_bridge_roundtrip_20260814"],
+  "temporary_servers_stopped": true,
+  "generated_seed_workbook_restored": true,
+  "repo_local_synthetic_data_left": false
+}

@@ -1,0 +1,7 @@
+{
+  "head": "0053_handover_admin_closeout",
+  "fresh_upgrade": "PASS",
+  "downgrade_0053_to_0052": "PASS",
+  "reupgrade_to_head": "PASS",
+  "new_migration": false
+}

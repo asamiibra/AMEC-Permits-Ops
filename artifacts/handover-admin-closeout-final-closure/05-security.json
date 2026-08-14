@@ -1,0 +1,7 @@
+{
+  "owner_action_role_gates": "PASS",
+  "engineer_denied_owner_lock_release": "PASS",
+  "exact_project_service_contract_revision_match": "PASS",
+  "new_global_roles_introduced": false,
+  "synthetic_auth_model": "global development roles; real tenant identity is not claimed"
+}

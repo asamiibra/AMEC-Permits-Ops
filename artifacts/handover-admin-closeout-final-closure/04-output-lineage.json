@@ -1,0 +1,9 @@
+{
+  "workspace_projection": true,
+  "source_ids_exposed": true,
+  "exact_contract_revision_lineage": true,
+  "generated_handover_artifact_implemented": false,
+  "external_send_implemented": false,
+  "portal_submission_implemented": false,
+  "truthful_status": "OUTPUT_ARTIFACT_AND_FORM_SOURCE_REMAIN_POLICY_OR_EXTERNAL_GATES"
+}

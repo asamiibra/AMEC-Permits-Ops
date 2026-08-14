@@ -1,0 +1,9 @@
+{
+  "suite": "backend/tests/test_handover_final_closure_bridge.py",
+  "database": "PostgreSQL",
+  "fresh_database": true,
+  "passed": 7,
+  "failed": 0,
+  "skipped": 0,
+  "warnings": 1
+}

@@ -1,0 +1,9 @@
+{
+  "surface": "local real-stack browser",
+  "frontend": "http://127.0.0.1:5173",
+  "api": "http://127.0.0.1:8000",
+  "route": "/handover",
+  "rendered": true,
+  "expected_empty_source_policy_gate": true,
+  "production_claim": false
+}

@@ -1,0 +1,11 @@
+{
+  "database": "PostgreSQL",
+  "workers": 8,
+  "failure_count": 0,
+  "distribution": {"requests": 8, "durable_rows": 1, "non_idempotent_winners": 1},
+  "receipt": {"requests": 8, "durable_rows": 1, "non_idempotent_winners": 1},
+  "acceptance": {"requests": 8, "successful_terminal_events": 1},
+  "service_close": {"requests": 8, "durable_closures": 1},
+  "revision_allocation": {"requests": 8, "revision_numbers": [1, 2]},
+  "lock": {"requests": 8, "successful_locks": 1}
+}
