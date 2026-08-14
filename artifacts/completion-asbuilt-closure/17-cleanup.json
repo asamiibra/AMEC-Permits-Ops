@@ -1,0 +1,11 @@
+{
+  "temporary_databases": [
+    "completion_closure_pg_20260813",
+    "completion_targeted_pg_20260813",
+    "completion_matrix_*_20260813"
+  ],
+  "temporary_workspace": "removed",
+  "evidence": "retained",
+  "tracked_db_fixtures": "preserved",
+  "repo_local_new_db": false
+}

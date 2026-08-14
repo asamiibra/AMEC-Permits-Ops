@@ -6,7 +6,8 @@ from pathlib import Path
 import pytest
 
 os.environ.setdefault("APP_ENV", "TEST")
-database_url = os.environ.setdefault("DATABASE_URL", "sqlite:///./test_permitops.db")
+_sqlite_test_path = Path(tempfile.gettempdir()) / f"permitops_pytest_{os.getpid()}.db"
+database_url = os.environ.setdefault("DATABASE_URL", f"sqlite:///{_sqlite_test_path}")
 os.environ.setdefault("SYNTHETIC_ONLY", "true")
 _synthetic_test_root = Path(tempfile.mkdtemp(prefix="permitops-test-workspace-"))
 os.environ.setdefault("SYNTHETIC_TEST_ROOT", str(_synthetic_test_root))
@@ -20,7 +21,7 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(scope="session", autouse=True)
 def seeded_environment():
-    db_path = Path("test_permitops.db")
+    db_path = _sqlite_test_path
     if database_url.startswith("sqlite") and db_path.exists(): db_path.unlink()
     seed()
     yield

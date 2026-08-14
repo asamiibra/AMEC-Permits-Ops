@@ -1,0 +1,19 @@
+{
+  "postgresql_case_start": "PASS",
+  "case_lock": "AuthorityCase with_for_update",
+  "mutation_scopes": [
+    "building_asset",
+    "snapshot",
+    "revision",
+    "baseline",
+    "comparison",
+    "variance",
+    "preparation",
+    "package",
+    "precheck",
+    "submit_authorization",
+    "external_confirmation"
+  ],
+  "deadlocks": 0,
+  "duplicate_case_starts": 0
+}

@@ -16,7 +16,19 @@
 .completion-overview { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
 .completion-detail { display: grid; gap: 10px; }
 .completion-detail h3 { margin: 8px 0 0; }
+.completion-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; }
+.completion-tab { border: 1px solid #d7e1e8; border-radius: 999px; padding: 8px 12px; background: #fff; color: #466177; cursor: pointer; }
+.completion-tab.active { border-color: #2c6f73; background: #e7f3f1; color: #17324d; font-weight: 700; }
+.completion-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid #edf1f3; }
+.completion-row span { color: #617485; text-align: right; }
+.completion-facts { display: grid; grid-template-columns: minmax(130px, 180px) 1fr; gap: 10px 18px; margin: 0; }
+.completion-facts dt { color: #617485; }
+.completion-facts dd { margin: 0; color: #17324d; overflow-wrap: anywhere; }
+.completion-inline-form { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0; }
+.completion-inline-form input { min-width: 180px; padding: 9px 10px; border: 1px solid #cbd7df; border-radius: 8px; }
+.completion-inline-form .button { align-self: stretch; }
+.completion-detail code { color: #2c6f73; }
 .completion-blocker { display: grid; gap: 3px; padding: 10px 12px; border-left: 3px solid #c8834c; background: #fff8f1; }
 .completion-blocker span, .error-copy { color: #8a4f2b; }
 .completion-empty { color: #617485; }
-@media (max-width: 900px) { .completion-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .completion-list-item { grid-template-columns: 1fr; } .completion-banner, .completion-overview { align-items: start; flex-direction: column; } }
+@media (max-width: 900px) { .completion-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .completion-list-item { grid-template-columns: 1fr; } .completion-banner, .completion-overview { align-items: start; flex-direction: column; } .completion-row { align-items: start; flex-direction: column; } .completion-row span { text-align: left; } }

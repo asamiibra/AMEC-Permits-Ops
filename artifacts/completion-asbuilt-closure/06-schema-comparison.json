@@ -1,0 +1,18 @@
+{
+  "components": [
+    "tables",
+    "columns",
+    "indexes",
+    "unique_constraints",
+    "foreign_keys"
+  ],
+  "equal": {
+    "fresh": true,
+    "strict_0051": true,
+    "preconstruction": true,
+    "roundtrip": true
+  },
+  "as_built_package_fk_count": 1,
+  "construction_idempotency_index": true,
+  "construction_idempotency_unique": true
+}

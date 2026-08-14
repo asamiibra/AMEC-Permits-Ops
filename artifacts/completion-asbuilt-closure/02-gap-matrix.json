@@ -1,0 +1,11 @@
+{
+  "completion_lifecycle": "PASS",
+  "migration_matrix": "PASS",
+  "sqlite": "PASS",
+  "frontend": "PASS",
+  "authoritative_browser": "PASS",
+  "full_browser": "26 passed / 6 adjudicated unrelated failures",
+  "production_sources": "BLOCKED",
+  "external_checks": "NOT_PERFORMED",
+  "handover": "OUT_OF_SCOPE"
+}

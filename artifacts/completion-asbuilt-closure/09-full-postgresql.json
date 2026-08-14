@@ -1,0 +1,11 @@
+{
+  "provider": "PostgreSQL",
+  "server": "16.14",
+  "head": "0052_completion_asbuilt_core",
+  "passed": 176,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "warnings": 2,
+  "duration_seconds": 29.71
+}

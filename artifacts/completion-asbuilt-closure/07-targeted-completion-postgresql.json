@@ -1,0 +1,7 @@
+{
+  "command": "pytest -q backend/tests/test_completion_asbuilt.py",
+  "passed": 7,
+  "failed": 0,
+  "warnings": 1,
+  "duration_seconds": 2.57
+}

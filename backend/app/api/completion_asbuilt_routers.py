@@ -63,6 +63,14 @@ def _case_project(db: Session, case_id: str) -> Project:
     return project
 
 
+def _lock_case(db: Session, case_id: str) -> AuthorityCase:
+    """Serialize Completion mutations for one canonical AuthorityCase scope."""
+    case = db.scalar(select(AuthorityCase).where(AuthorityCase.id == case_id).with_for_update())
+    if not case:
+        raise HTTPException(404, "Completion case not found")
+    return case
+
+
 def _execution(db: Session, execution_id: str) -> ConstructionExecution:
     execution = db.get(ConstructionExecution, execution_id)
     if not execution:
@@ -350,6 +358,7 @@ def create_building_asset(payload: BuildingAssetRequest, request: Request, db: S
 @router.post("/{case_id}/building-assets")
 def add_building_asset(case_id: str, payload: BuildingAssetRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, ENGINEERING_ROLES)
+    _lock_case(db, case_id)
     project = _case_project(db, case_id)
     if payload.property_id:
         prop = db.get(Property, payload.property_id)
@@ -364,6 +373,7 @@ def add_building_asset(case_id: str, payload: BuildingAssetRequest, request: Req
 @router.post("/{case_id}/building-snapshots")
 def create_building_snapshot(case_id: str, payload: BuildingSnapshotRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, ENGINEERING_ROLES)
+    _lock_case(db, case_id)
     project = _case_project(db, case_id)
     asset = db.get(BuildingAsset, payload.building_asset_id)
     if not asset or asset.project_id != project.id:
@@ -380,6 +390,7 @@ def create_building_snapshot(case_id: str, payload: BuildingSnapshotRequest, req
 @router.post("/{case_id}/as-built/revisions")
 def create_as_built_revision(case_id: str, payload: AsBuiltRevisionRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, ENGINEERING_ROLES)
+    _lock_case(db, case_id)
     project = _case_project(db, case_id)
     deliverable = db.get(EngineeringDeliverable, payload.deliverable_id) if payload.deliverable_id else None
     if deliverable and deliverable.project_id != project.id:
@@ -404,6 +415,7 @@ def create_as_built_revision(case_id: str, payload: AsBuiltRevisionRequest, requ
 @router.post("/{case_id}/as-built/revisions/{revision_id}/review")
 def review_as_built_revision(case_id: str, revision_id: str, payload: ReviewRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, ENGINEERING_ROLES)
+    _lock_case(db, case_id)
     project = _case_project(db, case_id)
     revision = db.get(EngineeringDeliverableRevision, revision_id)
     if not revision or revision.project_id != project.id or payload.status not in {"BLOCKED", "APPROVED"}:
@@ -424,6 +436,7 @@ def review_as_built_revision(case_id: str, revision_id: str, payload: ReviewRequ
 @router.post("/{case_id}/as-built/baselines")
 def create_as_built_baseline(case_id: str, payload: BaselineRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, ENGINEERING_ROLES)
+    _lock_case(db, case_id)
     link = _case_link(db, case_id); project = _case_project(db, case_id)
     members_payload = payload.members
     if not members_payload:
@@ -448,6 +461,7 @@ def create_as_built_baseline(case_id: str, payload: BaselineRequest, request: Re
 @router.post("/{case_id}/as-built/baselines/{baseline_id}/approve")
 def approve_as_built_baseline(case_id: str, baseline_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, OWNER_ROLES)
+    _lock_case(db, case_id)
     project = _case_project(db, case_id); baseline = db.get(AsBuiltBaseline, baseline_id)
     if not baseline or baseline.project_id != project.id or baseline.authority_case_id != case_id:
         raise HTTPException(404, "AS_BUILT_BASELINE_NOT_FOUND")
@@ -455,12 +469,16 @@ def approve_as_built_baseline(case_id: str, baseline_id: str, request: Request, 
         return _row(baseline)
     if not db.scalar(select(AsBuiltBaselineMember.id).where(AsBuiltBaselineMember.baseline_id == baseline.id)):
         raise HTTPException(409, "AS_BUILT_BASELINE_MEMBER_REQUIRED")
-    baseline.status = "APPROVED"; baseline.approved_by = _actor(role); baseline.approved_at = _now(); baseline.immutable_at = _now(); _audit(db, request, "AS_BUILT_BASELINE_APPROVED", "AsBuiltBaseline", baseline.id, role, {"immutable": True}); db.commit(); return _row(baseline)
+    prior = db.scalars(select(AsBuiltBaseline).where(AsBuiltBaseline.project_id == project.id, AsBuiltBaseline.construction_execution_id == baseline.construction_execution_id, AsBuiltBaseline.status == "APPROVED", AsBuiltBaseline.id != baseline.id)).all()
+    for item in prior:
+        item.status = "SUPERSEDED"
+    baseline.status = "APPROVED"; baseline.approved_by = _actor(role); baseline.approved_at = _now(); baseline.immutable_at = _now(); _audit(db, request, "AS_BUILT_BASELINE_APPROVED", "AsBuiltBaseline", baseline.id, role, {"immutable": True, "superseded_baseline_ids": [x.id for x in prior]}); db.commit(); return _row(baseline)
 
 
 @router.post("/{case_id}/comparisons")
 def run_comparison(case_id: str, payload: ComparisonRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, REVIEW_ROLES)
+    _lock_case(db, case_id)
     project = _case_project(db, case_id); baseline = db.get(AsBuiltBaseline, payload.baseline_id); approved = db.get(BuildingSnapshot, payload.approved_snapshot_id); as_built = db.get(BuildingSnapshot, payload.as_built_snapshot_id)
     if not baseline or baseline.project_id != project.id or baseline.status != "APPROVED": raise HTTPException(409, "APPROVED_AS_BUILT_BASELINE_REQUIRED")
     if not approved or approved.project_id != project.id or approved.snapshot_type != "AUTHORITY_APPROVED": raise HTTPException(409, "AUTHORITY_APPROVED_SNAPSHOT_REQUIRED")
@@ -486,7 +504,8 @@ def comparison_workspace(db: Session, run: AsBuiltComparisonRun) -> dict[str, An
 @router.patch("/{case_id}/variances/{variance_id}/disposition")
 def dispose_variance(case_id: str, variance_id: str, payload: VarianceDispositionRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, ENGINEERING_ROLES)
-    project = _case_project(db, case_id); variance = db.get(AsBuiltVariance, variance_id)
+    _lock_case(db, case_id)
+    project = _case_project(db, case_id); variance = db.scalar(select(AsBuiltVariance).where(AsBuiltVariance.id == variance_id).with_for_update())
     if not variance or variance.project_id != project.id: raise HTTPException(404, "AS_BUILT_VARIANCE_NOT_FOUND")
     allowed = {"ACCEPTABLE_NO_ACTION", "NEEDS_DOCUMENT_CORRECTION", "NEEDS_ENGINEERING_REVIEW", "REQUIRES_DESIGN_CHANGE", "REQUIRES_AUTHORITY_MODIFICATION", "NOT_APPLICABLE"}
     if payload.disposition not in allowed: raise HTTPException(422, "INVALID_VARIANCE_DISPOSITION")
@@ -601,7 +620,7 @@ def generate_completion_report(case_id: str, payload: ReportRequest, request: Re
 
 @router.post("/{case_id}/preparations")
 def create_completion_preparation(case_id: str, payload: PreparationRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, REVIEW_ROLES); link = _case_link(db, case_id); project = _case_project(db, case_id); baseline = db.scalar(select(AsBuiltBaseline).where(AsBuiltBaseline.authority_case_id == case_id, AsBuiltBaseline.status == "APPROVED").order_by(AsBuiltBaseline.version_number.desc()))
+    _require(role, REVIEW_ROLES); _lock_case(db, case_id); link = _case_link(db, case_id); project = _case_project(db, case_id); baseline = db.scalar(select(AsBuiltBaseline).where(AsBuiltBaseline.authority_case_id == case_id, AsBuiltBaseline.status == "APPROVED").order_by(AsBuiltBaseline.version_number.desc()))
     if not baseline: raise HTTPException(409, "APPROVED_AS_BUILT_BASELINE_REQUIRED")
     policy_id = payload.policy_version_id or (db.scalar(select(AuthorityCasePolicyBinding.policy_version_id).where(AuthorityCasePolicyBinding.authority_case_id == case_id)))
     sequence = (db.scalar(select(func.max(PreparationRevision.authority_revision_number)).where(PreparationRevision.authority_case_id == case_id)) or 0) + 1
@@ -611,7 +630,7 @@ def create_completion_preparation(case_id: str, payload: PreparationRequest, req
 
 @router.post("/{case_id}/preparations/{preparation_id}/lock")
 def lock_completion_preparation(case_id: str, preparation_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, OWNER_ROLES); _case_project(db, case_id); prep = db.get(PreparationRevision, preparation_id)
+    _require(role, OWNER_ROLES); _lock_case(db, case_id); _case_project(db, case_id); prep = db.scalar(select(PreparationRevision).where(PreparationRevision.id == preparation_id).with_for_update())
     if not prep or prep.authority_case_id != case_id: raise HTTPException(404, "PREPARATION_NOT_FOUND")
     if prep.authority_state == "LOCKED": return _row(prep)
     prep.authority_state = "LOCKED"; prep.status = "READY_FOR_SUBMISSION"; prep.authority_locked_at = _now(); prep.authority_snapshot_hash = _hash(prep.authority_snapshot_json); _audit(db, request, "COMPLETION_PREPARATION_LOCKED", "PreparationRevision", prep.id, role, {"snapshot_hash": prep.authority_snapshot_hash}); db.commit(); return _row(prep)
@@ -619,7 +638,7 @@ def lock_completion_preparation(case_id: str, preparation_id: str, request: Requ
 
 @router.post("/{case_id}/packages")
 def create_completion_package(case_id: str, preparation_revision_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, REVIEW_ROLES); _case_project(db, case_id); prep = db.get(PreparationRevision, preparation_revision_id)
+    _require(role, REVIEW_ROLES); _lock_case(db, case_id); _case_project(db, case_id); prep = db.get(PreparationRevision, preparation_revision_id)
     if not prep or prep.authority_case_id != case_id: raise HTTPException(404, "PREPARATION_NOT_FOUND")
     existing = db.scalar(select(SubmissionPackage).where(SubmissionPackage.preparation_revision_id == prep.id));
     if existing: return _row(existing)
@@ -628,7 +647,7 @@ def create_completion_package(case_id: str, preparation_revision_id: str, reques
 
 @router.post("/{case_id}/packages/{package_id}/items")
 def add_completion_package_item(case_id: str, package_id: str, payload: PackageItemRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, REVIEW_ROLES); project = _case_project(db, case_id); package = db.get(SubmissionPackage, package_id)
+    _require(role, REVIEW_ROLES); _lock_case(db, case_id); project = _case_project(db, case_id); package = db.get(SubmissionPackage, package_id)
     if not package or package.authority_case_id != case_id: raise HTTPException(404, "SUBMISSION_PACKAGE_NOT_FOUND")
     if package.state != "DRAFT": raise HTTPException(409, "LOCKED_PACKAGE_IMMUTABLE")
     order = (db.scalar(select(func.max(SubmissionPackageItem.display_order)).where(SubmissionPackageItem.package_id == package.id)) or 0) + 1
@@ -640,7 +659,7 @@ def add_completion_package_item(case_id: str, package_id: str, payload: PackageI
 
 @router.post("/{case_id}/packages/{package_id}/lock")
 def lock_completion_package(case_id: str, package_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, OWNER_ROLES); _case_project(db, case_id); package = db.get(SubmissionPackage, package_id)
+    _require(role, OWNER_ROLES); _lock_case(db, case_id); _case_project(db, case_id); package = db.get(SubmissionPackage, package_id)
     if not package or package.authority_case_id != case_id: raise HTTPException(404, "SUBMISSION_PACKAGE_NOT_FOUND")
     items = db.scalars(select(SubmissionPackageItem).where(SubmissionPackageItem.package_id == package.id).order_by(SubmissionPackageItem.display_order)).all()
     if package.state == "LOCKED": return _row(package)
@@ -649,7 +668,7 @@ def lock_completion_package(case_id: str, package_id: str, request: Request, db:
 
 @router.post("/{case_id}/precheck")
 def completion_precheck(case_id: str, preparation_revision_id: str, submission_package_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, REVIEW_ROLES); link = _case_link(db, case_id); prep = db.get(PreparationRevision, preparation_revision_id); package = db.get(SubmissionPackage, submission_package_id)
+    _require(role, REVIEW_ROLES); _lock_case(db, case_id); link = _case_link(db, case_id); prep = db.get(PreparationRevision, preparation_revision_id); package = db.get(SubmissionPackage, submission_package_id)
     if not prep or not package or prep.authority_case_id != case_id or package.authority_case_id != case_id: raise HTTPException(404, "PRECHECK_CONTEXT_NOT_FOUND")
     readiness = _readiness(db, link); checks = []
     checks.append(("AS_BUILT_BASELINE", "PASS" if readiness["baseline_id"] and not any("AS_BUILT_BASELINE" in x["code"] for x in readiness["blockers"]) else "BLOCKED", "Approved AsBuiltBaseline is required"))
@@ -664,7 +683,7 @@ def completion_precheck(case_id: str, preparation_revision_id: str, submission_p
 
 @router.post("/{case_id}/submit-authorization")
 def authorize_completion_submission(case_id: str, payload: SubmitRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, OWNER_ROLES); _case_project(db, case_id); existing = db.scalar(select(SubmissionAttempt).where(SubmissionAttempt.idempotency_key == payload.idempotency_key))
+    _require(role, OWNER_ROLES); _lock_case(db, case_id); _case_project(db, case_id); existing = db.scalar(select(SubmissionAttempt).where(SubmissionAttempt.idempotency_key == payload.idempotency_key))
     if existing: return _row(existing)
     prep = db.get(PreparationRevision, payload.preparation_revision_id); package = db.get(SubmissionPackage, payload.submission_package_id); precheck = db.get(SubmissionPrecheckRun, payload.precheck_run_id)
     if not prep or not package or not precheck or prep.authority_case_id != case_id or package.authority_case_id != case_id or precheck.authority_case_id != case_id: raise HTTPException(404, "SUBMISSION_CONTEXT_NOT_FOUND")
@@ -675,7 +694,7 @@ def authorize_completion_submission(case_id: str, payload: SubmitRequest, reques
 
 @router.post("/{case_id}/submission-attempts/{attempt_id}/external-confirmation")
 def confirm_completion_submission(case_id: str, attempt_id: str, payload: ConfirmRequest, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    _require(role, OWNER_ROLES); _case_project(db, case_id); attempt = db.get(SubmissionAttempt, attempt_id)
+    _require(role, OWNER_ROLES); _lock_case(db, case_id); _case_project(db, case_id); attempt = db.get(SubmissionAttempt, attempt_id)
     if not attempt or attempt.authority_case_id != case_id: raise HTTPException(404, "SUBMISSION_ATTEMPT_NOT_FOUND")
     existing = db.scalar(select(ExternalSubmissionSnapshot).where(ExternalSubmissionSnapshot.submission_attempt_id == attempt.id))
     if existing: return {"snapshot": _row(existing), "cycle": _row(db.scalar(select(AuthoritySubmissionCycle).where(AuthoritySubmissionCycle.external_submission_snapshot_id == existing.id)))}

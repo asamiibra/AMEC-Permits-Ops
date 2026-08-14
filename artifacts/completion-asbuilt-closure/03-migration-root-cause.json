@@ -1,0 +1,19 @@
+{
+  "root_cause": "0050 current Base.metadata materialized later 0051 construction inspection idempotency objects",
+  "repaired": [
+    "0044",
+    "0048",
+    "0049",
+    "0050",
+    "0051",
+    "0052"
+  ],
+  "full_scan_legacy_flags": [
+    "0001-0009",
+    "0011-0018",
+    "0037-0043",
+    "0045-0047"
+  ],
+  "completion_path_mutable_metadata_risk": "0",
+  "legacy_pre_completion_risk": "PRE_EXISTING_AND_EXPLICITLY_RECORDED"
+}

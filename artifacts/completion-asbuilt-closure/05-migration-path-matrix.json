@@ -1,0 +1,12 @@
+{
+  "postgresql": "16.14",
+  "paths": {
+    "fresh_to_head": "PASS",
+    "strict_0051_to_head": "PASS",
+    "preconstruction_0049_to_head": "PASS",
+    "downgrade_0051_reupgrade": "PASS"
+  },
+  "head": "0052_completion_asbuilt_core",
+  "multiple_heads": false,
+  "normalized_schema_equal": true
+}

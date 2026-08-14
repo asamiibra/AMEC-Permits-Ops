@@ -1,0 +1,10 @@
+{
+  "initial_no_api": "INVALID_ENVIRONMENT_BACKEND_UNAVAILABLE",
+  "cors_attempt": "INVALID_ENVIRONMENT_ORIGIN_MISMATCH",
+  "full_suite": {
+    "passed": 26,
+    "failed": 6
+  },
+  "completion_caused_failures": 0,
+  "unadjudicated": 0
+}

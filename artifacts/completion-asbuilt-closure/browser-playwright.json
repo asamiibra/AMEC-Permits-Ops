@@ -1,0 +1,134 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.real-stack.config.ts",
+      "browser-real-stack/completion-asbuilt.spec.ts"
+    ],
+    "configFile": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/playwright.real-stack.config.ts",
+    "rootDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
+        "testIgnore": [
+          "**/accessibility.spec.ts",
+          "**/issue-detail-final.spec.ts",
+          "**/new-proposal-final.spec.ts",
+          "**/owner-rehearsal.spec.ts",
+          "**/proposals-contracts-final.spec.ts",
+          "**/stage1-confirm-project-sources.spec.ts",
+          "**/visual-qa.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../artifacts/completion-asbuilt-closure/browser-playwright.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 5,
+    "webServer": {
+      "command": "npm run dev -- --host 127.0.0.1",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "completion-asbuilt.spec.ts",
+      "file": "completion-asbuilt.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner can operate the real Completion / As-Built workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1065,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:06:28.863Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e7f2f3707b22fb1f2d75-c7293813eb3f8dbbae6d",
+          "file": "completion-asbuilt.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-14T01:06:28.281Z",
+    "duration": 1830.5069999999998,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

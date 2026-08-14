@@ -1,0 +1,8 @@
+{
+  "passed": 175,
+  "failed": 0,
+  "skipped": 1,
+  "warnings": 2,
+  "path": "/tmp/permitops_pytest_<pid>.db",
+  "repo_local_new_db": false
+}

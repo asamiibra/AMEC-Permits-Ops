@@ -1,0 +1,7 @@
+{
+  "building_assets": 1000,
+  "threshold_seconds": 1.5,
+  "workspace": "PASS",
+  "n_plus_one": "not observed",
+  "pagination": "existing bounded API limits"
+}

@@ -1,0 +1,1527 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.real-stack.config.ts"
+    ],
+    "configFile": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/playwright.real-stack.config.ts",
+    "rootDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 5
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack",
+        "testIgnore": [
+          "**/accessibility.spec.ts",
+          "**/issue-detail-final.spec.ts",
+          "**/new-proposal-final.spec.ts",
+          "**/owner-rehearsal.spec.ts",
+          "**/proposals-contracts-final.spec.ts",
+          "**/stage1-confirm-project-sources.spec.ts",
+          "**/visual-qa.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../artifacts/completion-asbuilt-closure/browser-full-playwright.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 5,
+    "webServer": {
+      "command": "npm run dev -- --host 127.0.0.1",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "admin-forms-real-stack.spec.ts",
+      "file": "admin-forms-real-stack.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Administration Forms and Dashboard are two doors into one canonical library",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11768,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:06:58.711Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "179185a1231334ad218b-3861df71fa7da14cd591",
+          "file": "admin-forms-real-stack.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "Administration remains Owner-only for the Forms management surface",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 967,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:10.835Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "179185a1231334ad218b-cfb48da315bbc980da0e",
+          "file": "admin-forms-real-stack.spec.ts",
+          "line": 69,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "admin-owner-ready.spec.ts",
+      "file": "admin-owner-ready.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner can navigate the business Administration surface and persist a setting",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1843,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:06:58.716Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8625165b55f60629a651-be68e956c98e68d9db47",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "Owner Administration sections load real backend projections",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:00.908Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8625165b55f60629a651-99b21e19e75bf893d562",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "BD and Engineering cannot retain privileged Administration access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 755,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:02.458Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8625165b55f60629a651-bb10a002d3e14581edb5",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "Administration remains usable on a narrow viewport",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 377,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:03.218Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8625165b55f60629a651-279189b3f12fe2f58bfa",
+          "file": "admin-owner-ready.spec.ts",
+          "line": 42,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "administration-final-audit.spec.ts",
+      "file": "administration-final-audit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "every Owner Administration route is directly reachable and uses current business language",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 2,
+                  "status": "failed",
+                  "duration": 12459,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Contract workflow configuration', level: 3 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Contract workflow configuration', level: 3 })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Contract workflow configuration', level: 3 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Contract workflow configuration', level: 3 })\u001b[22m\n\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/administration-final-audit.spec.ts:21:74",
+                    "location": {
+                      "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/administration-final-audit.spec.ts",
+                      "column": 74,
+                      "line": 21
+                    },
+                    "snippet": "  19 |   for (const [route, heading] of routes) {\n  20 |     await page.goto(route);\n> 21 |     await expect(page.getByRole(\"heading\", { name: heading, level: 3 })).toBeVisible();\n     |                                                                          ^\n  22 |     const body = (await page.locator(\"body\").innerText()).toLowerCase();\n  23 |     expect(body).not.toContain(\"persona\");\n  24 |     expect(body).not.toContain(\"quotation\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/administration-final-audit.spec.ts",
+                        "column": 74,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Contract workflow configuration', level: 3 })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Contract workflow configuration', level: 3 })\u001b[22m\n\n\n  19 |   for (const [route, heading] of routes) {\n  20 |     await page.goto(route);\n> 21 |     await expect(page.getByRole(\"heading\", { name: heading, level: 3 })).toBeVisible();\n     |                                                                          ^\n  22 |     const body = (await page.locator(\"body\").innerText()).toLowerCase();\n  23 |     expect(body).not.toContain(\"persona\");\n  24 |     expect(body).not.toContain(\"quotation\");\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/administration-final-audit.spec.ts:21:74"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:06:58.712Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/administration-final-audit-7dce5-s-current-business-language/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/administration-final-audit-7dce5-s-current-business-language/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/administration-final-audit.spec.ts",
+                    "column": 74,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "c87752378484a96e6c52-90778386eed8550b0dd1",
+          "file": "administration-final-audit.spec.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "Owner Administration cards and bounded actions remain wired",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 2959,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:11.995Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c87752378484a96e6c52-5d3d4df77411fcd60102",
+          "file": "administration-final-audit.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "Owner Administration stays usable on mobile and role changes re-evaluate direct routes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 908,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:15.120Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c87752378484a96e6c52-229f0f16334dc599456a",
+          "file": "administration-final-audit.spec.ts",
+          "line": 48,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "bd-proposal-forms-driven-v2.spec.ts",
+      "file": "bd-proposal-forms-driven-v2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "BD Proposal Forms-Driven v2 exposes the governed owner workspace",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 3,
+                  "status": "failed",
+                  "duration": 745,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0042_bd_proposal_forms_driven_v2\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0042_bd_proposal_forms_driven_v2\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/bd-proposal-forms-driven-v2.spec.ts:9:39",
+                    "location": {
+                      "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/bd-proposal-forms-driven-v2.spec.ts",
+                      "column": 39,
+                      "line": 9
+                    },
+                    "snippet": "   7 |   const healthBody = await health.json();\n   8 |   expect(healthBody.database_dialect).toBe(\"postgresql\");\n>  9 |   expect(healthBody.alembic_versions).toContain(\"0042_bd_proposal_forms_driven_v2\");\n     |                                       ^\n  10 |\n  11 |   let proposals = await request.get(\"/api/bd/proposals\", { headers: owner });\n  12 |   expect(proposals.ok()).toBeTruthy();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/bd-proposal-forms-driven-v2.spec.ts",
+                        "column": 39,
+                        "line": 9
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0042_bd_proposal_forms_driven_v2\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m\n\n   7 |   const healthBody = await health.json();\n   8 |   expect(healthBody.database_dialect).toBe(\"postgresql\");\n>  9 |   expect(healthBody.alembic_versions).toContain(\"0042_bd_proposal_forms_driven_v2\");\n     |                                       ^\n  10 |\n  11 |   let proposals = await request.get(\"/api/bd/proposals\", { headers: owner });\n  12 |   expect(proposals.ok()).toBeTruthy();\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/bd-proposal-forms-driven-v2.spec.ts:9:39"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:06:58.714Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/bd-proposal-forms-driven-v-7e546-he-governed-owner-workspace/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/bd-proposal-forms-driven-v-7e546-he-governed-owner-workspace/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/bd-proposal-forms-driven-v2.spec.ts",
+                    "column": 39,
+                    "line": 9
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "675811c85bec9e050b76-fd72053473489f8ec6ab",
+          "file": "bd-proposal-forms-driven-v2.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "completion-asbuilt.spec.ts",
+      "file": "completion-asbuilt.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner can operate the real Completion / As-Built workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 2474,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:06:58.677Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e7f2f3707b22fb1f2d75-c7293813eb3f8dbbae6d",
+          "file": "completion-asbuilt.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "construction-post-approval.spec.ts",
+      "file": "construction-post-approval.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Construction post-approval surface enforces the human start gate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1373,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:00.612Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "69a14c4884f0624c0d11-5bfedb1257cfa102192d",
+          "file": "construction-post-approval.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "dashboard-v1-v2-split.spec.ts",
+      "file": "dashboard-v1-v2-split.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "home exposes the legacy Dashboard and Owner-only Dashboard V2 destinations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 2445,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:01.557Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "143535f8a9aa4f67fac3-6292a07346832f808eb8",
+          "file": "dashboard-v1-v2-split.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "non-owner direct navigation is redirected away from Dashboard V2",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 689,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:04.017Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "143535f8a9aa4f67fac3-5f02abcc2163bc3e5ac2",
+          "file": "dashboard-v1-v2-split.spec.ts",
+          "line": 23,
+          "column": 1
+        },
+        {
+          "title": "captures sanitized visual evidence for the split surfaces",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 4,
+                  "status": "passed",
+                  "duration": 1022,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:04.724Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "143535f8a9aa4f67fac3-f651f22c4a77823acb53",
+          "file": "dashboard-v1-v2-split.spec.ts",
+          "line": 33,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "dashboard-v2-waves-b-c.spec.ts",
+      "file": "dashboard-v2-waves-b-c.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Dashboard V2 exposes the canonical Waves B+C governance facade and detail surface",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 3,
+                  "status": "failed",
+                  "duration": 200,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0042_bd_proposal_forms_driven_v2\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0042_bd_proposal_forms_driven_v2\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/dashboard-v2-waves-b-c.spec.ts:9:39",
+                    "location": {
+                      "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/dashboard-v2-waves-b-c.spec.ts",
+                      "column": 39,
+                      "line": 9
+                    },
+                    "snippet": "   7 |   const healthBody = await health.json();\n   8 |   expect(healthBody.database_dialect).toBe(\"postgresql\");\n>  9 |   expect(healthBody.alembic_versions).toContain(\"0042_bd_proposal_forms_driven_v2\");\n     |                                       ^\n  10 |\n  11 |   const catalogs = await request.get(\"/api/dashboard-v2/catalogs\", { headers: owner });\n  12 |   expect(catalogs.ok()).toBeTruthy();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/dashboard-v2-waves-b-c.spec.ts",
+                        "column": 39,
+                        "line": 9
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0042_bd_proposal_forms_driven_v2\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m\n\n   7 |   const healthBody = await health.json();\n   8 |   expect(healthBody.database_dialect).toBe(\"postgresql\");\n>  9 |   expect(healthBody.alembic_versions).toContain(\"0042_bd_proposal_forms_driven_v2\");\n     |                                       ^\n  10 |\n  11 |   const catalogs = await request.get(\"/api/dashboard-v2/catalogs\", { headers: owner });\n  12 |   expect(catalogs.ok()).toBeTruthy();\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/dashboard-v2-waves-b-c.spec.ts:9:39"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:02.271Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/dashboard-v2-waves-b-c-Das-521e2-e-facade-and-detail-surface/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/dashboard-v2-waves-b-c-Das-521e2-e-facade-and-detail-surface/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/dashboard-v2-waves-b-c.spec.ts",
+                    "column": 39,
+                    "line": 9
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "754106473889be06e683-99557e50656171bc9c91",
+          "file": "dashboard-v2-waves-b-c.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "homepage-owner-ready.spec.ts",
+      "file": "homepage-owner-ready.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner AMEC Work is one canonical business worklist",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 983,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:03.245Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-9e9c2a91c182e83f6636",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "Owner filters compose with KPI and domain filters",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:04.470Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-844f1d36ced6e71f7fc0",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 23,
+          "column": 1
+        },
+        {
+          "title": "Business Development and Engineering receive scoped work without team impersonation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 738,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:05.069Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-d80df39a742e13813ffa",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work remains readable on mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 413,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:05.817Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-ea67f3ac2ee2d6f2ce1c",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 44,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work shows a controlled error and recovers without a fake empty state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 772,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:06.246Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-62aa7a49bcdf7a7f4e2e",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work has one summary row and no legacy duplicate dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 386,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:07.025Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-23f914a278d4dec7c101",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 67,
+          "column": 1
+        },
+        {
+          "title": "AMEC Work has no critical or serious accessibility violations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1110,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:07.422Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55d416c5c4f969e45678-de2b415ca0c6cefc2d74",
+          "file": "homepage-owner-ready.spec.ts",
+          "line": 75,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "master-content-owner-dashboard.spec.ts",
+      "file": "master-content-owner-dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner Dashboard golden paths use the real API and propagate a governed Engineering change",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 7455,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/master-content-owner-dashboard.spec.ts:73:115",
+                    "location": {
+                      "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/master-content-owner-dashboard.spec.ts",
+                      "column": 115,
+                      "line": 73
+                    },
+                    "snippet": "  71 |   const issues = await page.request.get(\"/api/issues?persona=ENGINEERING\", { headers: { \"X-Dev-Role\": \"RESPONSIBLE_ENGINEER\" } });\n  72 |   expect(issues.ok()).toBeTruthy();\n> 73 |   expect((await issues.json()).issues.some((issue: { title: string }) => issue.title.startsWith(engineeringRef))).toBeTruthy();\n     |                                                                                                                   ^\n  74 |   const work = await page.request.get(\"/api/work?team=ENGINEERING\", { headers: { \"X-Dev-Role\": \"RESPONSIBLE_ENGINEER\" } });\n  75 |   expect(work.ok()).toBeTruthy();\n  76 |   expect((await work.json()).items.some((entry: { source_type: string; title: string }) => entry.source_type === \"WORKFLOW_TASK\" && entry.title.startsWith(\"Revalidate\"))).toBeTruthy();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/master-content-owner-dashboard.spec.ts",
+                        "column": 115,
+                        "line": 73
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  71 |   const issues = await page.request.get(\"/api/issues?persona=ENGINEERING\", { headers: { \"X-Dev-Role\": \"RESPONSIBLE_ENGINEER\" } });\n  72 |   expect(issues.ok()).toBeTruthy();\n> 73 |   expect((await issues.json()).issues.some((issue: { title: string }) => issue.title.startsWith(engineeringRef))).toBeTruthy();\n     |                                                                                                                   ^\n  74 |   const work = await page.request.get(\"/api/work?team=ENGINEERING\", { headers: { \"X-Dev-Role\": \"RESPONSIBLE_ENGINEER\" } });\n  75 |   expect(work.ok()).toBeTruthy();\n  76 |   expect((await work.json()).items.some((entry: { source_type: string; title: string }) => entry.source_type === \"WORKFLOW_TASK\" && entry.title.startsWith(\"Revalidate\"))).toBeTruthy();\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/master-content-owner-dashboard.spec.ts:73:115"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:03.617Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/master-content-owner-dashb-63829-governed-Engineering-change/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/master-content-owner-dashb-63829-governed-Engineering-change/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/master-content-owner-dashboard.spec.ts",
+                    "column": 115,
+                    "line": 73
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ba86dcd7d7847ecfdcba-eeb4304d4bc17822a905",
+          "file": "master-content-owner-dashboard.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "owner-decision-closure.spec.ts",
+      "file": "owner-decision-closure.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Owner Decision Center canonical closure",
+          "file": "owner-decision-closure.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows one truthful 50-decision register and computed go-live blockers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 1733,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-14T01:07:05.763Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7e9ae59df0deaba82130-7fb372a5b3f7dd6e97b0",
+              "file": "owner-decision-closure.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "Owner confirmation is audited, runtime-read back, and technical facts stay protected",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 3092,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-14T01:07:07.505Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7e9ae59df0deaba82130-1397429586bf3075fa93",
+              "file": "owner-decision-closure.spec.ts",
+              "line": 14,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "persona-issues-notifications.spec.ts",
+      "file": "persona-issues-notifications.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real stack serves persona-aware issues and notifications without interception",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 1124,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:08.551Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2fdf5d7e03b669a82746-bf76cea725f8a320c832",
+          "file": "persona-issues-notifications.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "post-billing-v2-reconciliation.spec.ts",
+      "file": "post-billing-v2-reconciliation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Billing V2 real stack renders project-safe invoice context and communication history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "passed",
+                  "duration": 894,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:09.691Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a1ae384d8ae97445f384-36f76518197e1b3cb0b3",
+          "file": "post-billing-v2-reconciliation.spec.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "shared-domain-foundations.spec.ts",
+      "file": "shared-domain-foundations.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real stack exposes the shared-foundation contracts on Postgres",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 3,
+                  "status": "failed",
+                  "duration": 53,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0040_form_automation_runtime\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0040_form_automation_runtime\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/shared-domain-foundations.spec.ts:11:39",
+                    "location": {
+                      "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/shared-domain-foundations.spec.ts",
+                      "column": 39,
+                      "line": 11
+                    },
+                    "snippet": "   9 |   const healthBody = await health.json();\n  10 |   expect(healthBody.database_dialect).toBe(\"postgresql\");\n> 11 |   expect(healthBody.alembic_versions).toContain(\"0040_form_automation_runtime\");\n     |                                       ^\n  12 |\n  13 |   for (const path of [\n  14 |     \"/api/regulatory/external-bodies\","
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/shared-domain-foundations.spec.ts",
+                        "column": 39,
+                        "line": 11
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected value: \u001b[32m\"0040_form_automation_runtime\"\u001b[39m\nReceived array: \u001b[31m[\"0052_completion_asbuilt_core\"]\u001b[39m\n\n   9 |   const healthBody = await health.json();\n  10 |   expect(healthBody.database_dialect).toBe(\"postgresql\");\n> 11 |   expect(healthBody.alembic_versions).toContain(\"0040_form_automation_runtime\");\n     |                                       ^\n  12 |\n  13 |   for (const path of [\n  14 |     \"/api/regulatory/external-bodies\",\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/shared-domain-foundations.spec.ts:11:39"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-14T01:07:10.606Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/shared-domain-foundations--78da5-ation-contracts-on-Postgres/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/shared-domain-foundations--78da5-ation-contracts-on-Postgres/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/shared-domain-foundations.spec.ts",
+                    "column": 39,
+                    "line": 11
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e4a6ecefd830efc742ac-16085b5d14d37e229ecd",
+          "file": "shared-domain-foundations.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "universal-design-audit.spec.ts",
+      "file": "universal-design-audit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ProposalOps universal design and functional audit",
+          "file": "universal-design-audit.spec.ts",
+          "line": 34,
+          "column": 6,
+          "specs": [
+            {
+              "title": "direct route/persona crawl captures design contracts, leakage, screenshots, and navigation evidence",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 39725,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-14T01:07:10.622Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "047e2fd0115d8ef63754-d26ee265cf0e9dfc8a72",
+              "file": "universal-design-audit.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "API failure states preserve context and expose retry instead of fake success",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 1162,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-14T01:07:50.354Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "047e2fd0115d8ef63754-7297cce7d5b4c5cd618e",
+              "file": "universal-design-audit.spec.ts",
+              "line": 98,
+              "column": 3
+            },
+            {
+              "title": "role matrix and current-stage authority evidence",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 13100,
+                      "error": {
+                        "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Project & Sources', { exact: true }).first() to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Project & Sources', { exact: true }).first() to be visible\u001b[22m\n\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/universal-design-audit.spec.ts:140:116",
+                        "location": {
+                          "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/universal-design-audit.spec.ts",
+                          "column": 116,
+                          "line": 140
+                        },
+                        "snippet": "  138 |       await page.goto(item.route, { waitUntil: \"domcontentloaded\" });\n  139 |       await page.waitForTimeout(260);\n> 140 |       if (item.name.includes(\"permit-context\")) await page.getByText(\"Project & Sources\", { exact: true }).first().waitFor({ state: \"visible\", timeout: 10_000 });\n      |                                                                                                                    ^\n  141 |       const body = await page.locator(\"body\").innerText();\n  142 |       const url = new URL(page.url()).pathname;\n  143 |       const result = { name: item.name, role: item.role, route: item.route, observed_url: url, url_ok: url.startsWith(item.expectedUrl), copy_ok: item.expected.test(body), body_excerpt: body.replace(/\\s+/g, \" \").slice(0, 280) };"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/universal-design-audit.spec.ts",
+                            "column": 116,
+                            "line": 140
+                          },
+                          "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Project & Sources', { exact: true }).first() to be visible\u001b[22m\n\n\n  138 |       await page.goto(item.route, { waitUntil: \"domcontentloaded\" });\n  139 |       await page.waitForTimeout(260);\n> 140 |       if (item.name.includes(\"permit-context\")) await page.getByText(\"Project & Sources\", { exact: true }).first().waitFor({ state: \"visible\", timeout: 10_000 });\n      |                                                                                                                    ^\n  141 |       const body = await page.locator(\"body\").innerText();\n  142 |       const url = new URL(page.url()).pathname;\n  143 |       const result = { name: item.name, role: item.role, route: item.route, observed_url: url, url_ok: url.startsWith(item.expectedUrl), copy_ok: item.expected.test(body), body_excerpt: body.replace(/\\s+/g, \" \").slice(0, 280) };\n    at /Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/universal-design-audit.spec.ts:140:116"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-14T01:07:51.520Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/universal-design-audit-Pro-59bf5-nt-stage-authority-evidence/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/test-results/universal-design-audit-Pro-59bf5-nt-stage-authority-evidence/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev/frontend/browser-real-stack/universal-design-audit.spec.ts",
+                        "column": 116,
+                        "line": 140
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "047e2fd0115d8ef63754-8d5cfbd8c0103d356a99",
+              "file": "universal-design-audit.spec.ts",
+              "line": 120,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-14T01:06:57.890Z",
+    "duration": 66923.042,
+    "expected": 26,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "backend": "FastAPI",
+  "database": "PostgreSQL 16.14",
+  "api_interception": false,
+  "real_auth": "Owner role",
+  "passed": 1,
+  "failed": 0,
+  "screenshots": 6
+}

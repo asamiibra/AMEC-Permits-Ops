@@ -1,0 +1,11 @@
+# Historical migration repair exception
+
+This closure uses HISTORICAL_MIGRATION_REPAIR_EXCEPTION. Old/new SHA256:
+
+| File | Old | New |
+|---|---|---|
+| 0050 | cf838e261dbe0334afbc87f0bf00f053b13943a1de3ee3dcedd83b72f313e30b | bda8cc61b2246c89112e9d520d0b1caa6769d75b55b112176ccd100bba0c6986 |
+| 0051 at strict baseline | 992c5debd03a18fe5fca3fe876edec24289956cf08352c1f1c488739cee41f6d | 741358b9f3207bf839968af175be09a72959cdee7757960980ca35b1db5d857c |
+| 0052 | ecc707dafc547f001ef35cefb11370861d1f83787563cd56318888d273a92954 | 38f91535bef51552c8f39a463e0a62d68d87341a8d27c5ec04e6dc281d5f1ec9 |
+
+A forward-only migration cannot repair a fresh-install failure before that revision is reached. Existing databases retain intended objects; fresh and downgrade/re-upgrade paths converge.
