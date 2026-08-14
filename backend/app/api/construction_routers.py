@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -182,6 +183,7 @@ class CorrespondenceCreate(BaseModel):
 
 class InspectionCreate(BaseModel):
     inspection_kind: str
+    idempotency_key: str | None = None
     authority_case_id: str | None = None
     scheduled_at: datetime | None = None
     inspector_party_id: str | None = None
@@ -573,8 +575,22 @@ def request_inspection(execution_id: str, payload: InspectionCreate, request: Re
     if payload.inspection_kind not in {"INTERNAL_SITE", "AUTHORITY"}:
         raise HTTPException(422, "inspection_kind must be INTERNAL_SITE or AUTHORITY")
     item = _execution(db, execution_id)
+    if payload.idempotency_key:
+        existing = db.scalar(select(ConstructionInspection).where(ConstructionInspection.construction_execution_id == item.id, ConstructionInspection.idempotency_key == payload.idempotency_key))
+        if existing:
+            return _columns(existing)
     inspection = ConstructionInspection(project_id=item.project_id, construction_execution_id=item.id, inspection_kind=payload.inspection_kind, requested_at=datetime.now(timezone.utc), recorded_by=role.value, **payload.model_dump(exclude={"inspection_kind"}))
-    db.add(inspection); db.flush(); _audit(db, request, "CONSTRUCTION_INSPECTION_REQUESTED", "ConstructionInspection", inspection.id, _columns(inspection), role)
+    db.add(inspection)
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        if payload.idempotency_key:
+            existing = db.scalar(select(ConstructionInspection).where(ConstructionInspection.construction_execution_id == item.id, ConstructionInspection.idempotency_key == payload.idempotency_key))
+            if existing:
+                return _columns(existing)
+        raise
+    _audit(db, request, "CONSTRUCTION_INSPECTION_REQUESTED", "ConstructionInspection", inspection.id, _columns(inspection), role)
     db.commit(); db.refresh(inspection); return _columns(inspection)
 
 

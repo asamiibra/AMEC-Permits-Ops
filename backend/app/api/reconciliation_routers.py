@@ -27,8 +27,7 @@ def safe_row(item):
 
 
 def workbook_path() -> Path:
-    configured = Path(settings.mock_systems_root)
-    return (repo_root() / CANONICAL_WORKBOOK) if not configured.is_absolute() else configured / "excel/permit_tracker.xlsx"
+    return canonical_workbook_path()
 
 
 def next_project_number(db: Session, year: int = 2026) -> str:

@@ -2,6 +2,8 @@
 
 import hashlib
 import json
+import os
+from pathlib import Path
 from typing import Any
 
 
@@ -34,6 +36,29 @@ CANONICAL_FORMS = [
     "AUTHORIZATION", "OWNER_UNDERTAKING", "CONSULTANT_UNDERTAKING",
     "ENGINEER_UNDERTAKING", "PROFESSIONAL_DECLARATION", "AUTHORITY_DECLARATION",
 ]
+
+
+def synthetic_workspace_root() -> Path:
+    """Return the isolated root used for generated synthetic test fixtures."""
+    configured = os.getenv("SYNTHETIC_TEST_ROOT")
+    return Path(configured) if configured else Path(__file__).resolve().parents[3]
+
+
+def synthetic_mock_systems_root() -> Path:
+    configured = os.getenv("MOCK_SYSTEMS_ROOT")
+    return Path(configured) if configured else synthetic_workspace_root() / "mock-systems"
+
+
+def canonical_workbook_path() -> Path:
+    return synthetic_mock_systems_root() / "excel" / "permit_tracker.xlsx"
+
+
+def synthetic_documents_root() -> Path:
+    return synthetic_workspace_root() / "synthetic-data" / "documents" / "week2"
+
+
+def canonical_sor_root() -> Path:
+    return synthetic_mock_systems_root() / "synology"
 
 
 def _manifest() -> dict[str, Any]:

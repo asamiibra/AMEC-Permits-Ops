@@ -285,13 +285,17 @@ class ProjectCorrespondence(Base):
 
 class ConstructionInspection(Base):
     __tablename__ = "construction_inspections"
-    __table_args__ = (Index("ix_construction_inspection_execution", "construction_execution_id", "inspection_kind", "status"),)
+    __table_args__ = (
+        Index("ix_construction_inspection_execution", "construction_execution_id", "inspection_kind", "status"),
+        UniqueConstraint("construction_execution_id", "idempotency_key", name="uq_construction_inspection_idempotency"),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)
     construction_execution_id: Mapped[str] = mapped_column(ForeignKey("construction_executions.id"), nullable=False, index=True)
     authority_case_id: Mapped[str | None] = mapped_column(ForeignKey("authority_cases.id"), index=True)
     inspection_kind: Mapped[str] = mapped_column(String(30), nullable=False)  # INTERNAL_SITE or AUTHORITY
+    idempotency_key: Mapped[str | None] = mapped_column(String(200), index=True)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="REQUESTED")
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

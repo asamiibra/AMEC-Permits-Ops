@@ -5,7 +5,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 from backend.app.adapters.excel.adapter import MockExcelAdapter, WorkbookLockedError
-from backend.app.fixtures.canonical import CANONICAL_FIXTURE_MANIFEST, CANONICAL_WORKBOOK, CANONICAL_WORKBOOK_SHEETS, fixture_metadata
+from backend.app.fixtures.canonical import CANONICAL_FIXTURE_MANIFEST, CANONICAL_WORKBOOK, CANONICAL_WORKBOOK_SHEETS, canonical_workbook_path, fixture_metadata
 from backend.app.services.canonical_workbook import canonical_workbook_contract
 
 
@@ -29,7 +29,7 @@ def test_recording_derived_excel_contract_and_safe_projection(client):
     assert all(sheet in contract["sheets"] for sheet in CANONICAL_WORKBOOK_SHEETS)
     assert contract["system_owned_projection"]["sheet"] == "PERMITOPS SYSTEM PROJECTION"
     project = canonical_project(client)
-    path = Path(CANONICAL_WORKBOOK)
+    path = canonical_workbook_path()
     before = load_workbook(path, data_only=False)
     human_before = before["GENERAL FOLLOW UP"]["F2"].value
     result = client.post(f"/api/reconciliation/excel-projection/{project['id']}", json={"canonical_plot_number":"001234","canonical_pin":"PIN-000123"})
@@ -40,7 +40,7 @@ def test_recording_derived_excel_contract_and_safe_projection(client):
 
 
 def test_locked_workbook_is_a_controlled_exception():
-    path = Path(CANONICAL_WORKBOOK)
+    path = canonical_workbook_path()
     lock = path.with_suffix(path.suffix + ".lock")
     lock.write_text("synthetic lock", encoding="utf-8")
     try:

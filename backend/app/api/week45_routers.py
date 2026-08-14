@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..audit.service import audit
 from ..db import get_db
-from ..fixtures.canonical import CANONICAL_PROJECTION_SHEET, CANONICAL_WORKBOOK, fixture_metadata
+from ..fixtures.canonical import CANONICAL_PROJECTION_SHEET, CANONICAL_WORKBOOK, canonical_workbook_path, fixture_metadata
 from ..models import *
 from ..services.rendering import render_target_value
 from ..services.week45 import build_package, current_assertions, evaluate_readiness, latest_evaluation, revision_view, row, snapshot_for_revision, stable_hash
@@ -191,7 +191,7 @@ def apply_excel_projection(projection_id: str, request: Request, db: Session = D
     if not projection: raise HTTPException(404, "Excel projection not found")
     if projection.ownership != "PERMITOPS_OWNED":
         projection.status = "BLOCKED_OWNERSHIP"; audit(db, correlation_id=cid(request), event_type="EXCEL_PROJECTION_BLOCKED", entity_type="ExcelProjection", entity_id=projection.id, after={"reason": "HUMAN_OWNED_OR_NON_SYSTEM_REGION"}, metadata=fixture_metadata()); db.commit(); raise HTTPException(409, "EXCEL_PROJECTION_BLOCKED_OWNERSHIP")
-    path = repo_root() / projection.workbook_ref
+    path = canonical_workbook_path() if projection.workbook_ref == CANONICAL_WORKBOOK else repo_root() / projection.workbook_ref
     if not path.exists(): raise HTTPException(404, "Workbook not found")
     try:
         result = MockExcelAdapter(str(path)).write_system_projection(projection.row_key, {projection.target_column: projection.rendered_value or "PENDING", "Projection Status": "WEEK45_WRITTEN"})

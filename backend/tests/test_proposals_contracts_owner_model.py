@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from backend.app.db import SessionLocal
-from backend.app.config.settings import repo_root
+from backend.app.fixtures.canonical import canonical_sor_root
 from backend.app.models import Contract, PermitApplication, Project, ProjectArtifactRecord, SynologyProjectBootstrap
 from backend.app.services.proposals_sor import EXPECTED_PROJECT_FOLDERS
 
@@ -34,7 +34,7 @@ def test_permit_transition_requires_manual_source_and_preserves_same_project_lin
         bootstrap = db.query(SynologyProjectBootstrap).filter(SynologyProjectBootstrap.project_id == project_id).first()
         if not bootstrap:
             root_path = f"2026/TEST-{contract_id}"
-            generated_root = repo_root() / "mock-systems" / "synology" / root_path
+            generated_root = canonical_sor_root() / root_path
             for folder in EXPECTED_PROJECT_FOLDERS:
                 (generated_root / folder).mkdir(parents=True, exist_ok=True)
             bootstrap = SynologyProjectBootstrap(project_id=project_id, root_path=root_path, subfolders_json=EXPECTED_PROJECT_FOLDERS, template_applied=True, template_manifest_json=[], status="CREATED")
@@ -57,7 +57,7 @@ def test_permit_transition_requires_manual_source_and_preserves_same_project_lin
         assert record.contract_id == contract_id
         assert linked.project_id == project_id
         assert linked.controlling_contract_id == contract_id
-        sor_file = repo_root() / "mock-systems" / "synology" / record.sor_path
+        sor_file = canonical_sor_root() / record.sor_path
         db.delete(record)
         db.commit()
     if sor_file.exists():

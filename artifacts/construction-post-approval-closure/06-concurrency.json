@@ -1,0 +1,1 @@
+{"threads":8,"notification":{"statuses":8,"unique_persisted_ids":1},"inspection":{"statuses":8,"unique_persisted_ids":1},"keys":["AuthorityNotification","ConstructionInspection"],"migration":"0051_construction_inspection_idempotency","result":"PASS"}

@@ -7,6 +7,7 @@ from backend.app.db import SessionLocal
 from backend.app.models import ConsultancyOffice, Contract, Document, DocumentVersion, EvidenceArtifact, LineageEdge, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, Quotation
 from backend.app.api import proposals_main_routers
 from backend.app.main import app
+from backend.app.fixtures.canonical import canonical_sor_root
 
 
 def _project():
@@ -25,7 +26,7 @@ def test_main_page_kpis_are_derived_and_manual_intake_is_verified(client):
     assert payload["persona"]["amount_visible"] is True
 
     filename = "proposal-main-contract-test.txt"
-    sor_file = Path("mock-systems/synology/2026/GHCE-2026-0142_Al-Noor-Villa/01_Client") / filename
+    sor_file = canonical_sor_root() / "2026/GHCE-2026-0142_Al-Noor-Villa/01_Client" / filename
     form = {"action": "CLIENT_LIST", "project_id": project_id, "project_reference": project_reference, "actor": "owner@amec.synthetic", "actor_role": "SYSTEM_ADMIN", "idempotency_key": "proposal-main-contract-test-v1"}
     try:
         first = client.post("/api/proposals-main/intake", data=form, files={"file": (filename, b"client list source", "text/plain")})
@@ -112,7 +113,7 @@ def test_provisional_sources_promote_to_canonical_sor_idempotently(client):
     with SessionLocal() as db:
         second_project_id = db.query(Project).order_by(Project.project_number).offset(1).first().id
 
-    source_root = Path("mock-systems/synology/proposal-intake")
+    source_root = canonical_sor_root() / "proposal-intake"
     first = client.post("/api/proposals-main/intake", data={"action": "TENDER_DOCUMENT", "proposal_description": "G11 promotion proof", "actor": "owner@amec.synthetic", "actor_role": "SYSTEM_ADMIN", "idempotency_key": "g11-promotion-tender-v1"}, files={"file": ("g11-promotion.txt", b"tender evidence", "text/plain")})
     assert first.status_code == 200
     opportunity_id = first.json()["opportunity_id"]
@@ -142,7 +143,7 @@ def test_provisional_sources_promote_to_canonical_sor_idempotently(client):
         assert len(canonical_rows) == 2
         assert len([edge for edge in promotion_edges if edge.upstream_id in {row.id for row in source_rows}]) == 2
         assert all(row.project_id == project_id for row in canonical_rows)
-        assert all((Path("mock-systems/synology") / row.sor_path).read_bytes() for row in canonical_rows)
+        assert all((canonical_sor_root() / row.sor_path).read_bytes() for row in canonical_rows)
 
     cross_project = client.post(f"/api/proposals-main/proposals/{opportunity_id}/promote/{second_project_id}", data={"actor": "owner@amec.synthetic"})
     assert cross_project.status_code == 409
@@ -152,7 +153,7 @@ def test_provisional_sources_promote_to_canonical_sor_idempotently(client):
         if path.is_dir() and any(candidate.name.startswith("g11-") for candidate in path.rglob("*")):
             shutil.rmtree(path)
     for filename in ("g11-promotion.txt", "g11-proposal-form.txt"):
-        candidate = Path("mock-systems/synology/2026/GHCE-2026-0142_Al-Noor-Villa/03_Design") / filename
+        candidate = canonical_sor_root() / "2026/GHCE-2026-0142_Al-Noor-Villa/03_Design" / filename
         if candidate.exists():
             candidate.unlink()
 

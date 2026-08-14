@@ -1,10 +1,17 @@
 import os
+import atexit
+import shutil
+import tempfile
 from pathlib import Path
 import pytest
 
 os.environ.setdefault("APP_ENV", "TEST")
 database_url = os.environ.setdefault("DATABASE_URL", "sqlite:///./test_permitops.db")
 os.environ.setdefault("SYNTHETIC_ONLY", "true")
+_synthetic_test_root = Path(tempfile.mkdtemp(prefix="permitops-test-workspace-"))
+os.environ.setdefault("SYNTHETIC_TEST_ROOT", str(_synthetic_test_root))
+os.environ.setdefault("MOCK_SYSTEMS_ROOT", str(_synthetic_test_root / "mock-systems"))
+atexit.register(lambda: shutil.rmtree(_synthetic_test_root, ignore_errors=True))
 
 from backend.app.seed.cli import seed
 from backend.app.main import app

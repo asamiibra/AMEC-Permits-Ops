@@ -1,0 +1,1 @@
+{"provider":"local PostgreSQL 16 / psycopg","database":"construction_closure_pg_20260813","migration":"0051_construction_inspection_idempotency","passed":169,"skipped":0,"failed":0,"errors":0,"warnings":2}

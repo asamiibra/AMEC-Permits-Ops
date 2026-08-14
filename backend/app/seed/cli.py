@@ -101,7 +101,7 @@ def seed():
         for project, application in zip(projects, apps):
             ensure_project_sources_task(db, project, application)
         db.commit()
-    create_fixtures(repo_root())
+    create_fixtures(synthetic_workspace_root())
     ensure_primary_proposal_sources()
     ensure_proposals_contracts_demo_state()
 
@@ -211,11 +211,15 @@ def create_fixtures(root: Path):
             shutil.rmtree(stale_root)
     (root / "mock-systems/municipality").mkdir(parents=True, exist_ok=True)
     (root / "synthetic-data/fixtures").mkdir(parents=True, exist_ok=True)
+    for folder in ["master-content/forms", "master-content/reports", "master-content/engineering-works", "proposal-intake"]:
+        (root / "mock-systems/synology" / folder).mkdir(parents=True, exist_ok=True)
     for project_number, name in zip(CANONICAL_PROJECT_IDS, ["Al-Noor-Villa", "West-Bay-Residence", "Lusail-Office-Annex", "Pearl-Community-Clinic"]):
         base = root / f"mock-systems/synology/2026/{project_number}_{name}"
         for folder in ["01_Client", "02_Property", "03_Design", "04_Permits", "05_Correspondence"]: (base / folder).mkdir(parents=True, exist_ok=True)
         for rel in ["01_Client/authorization_SAMPLE.pdf", "02_Property/title_deed_SAMPLE.pdf", "03_Design/drawing_R01_SAMPLE.pdf"]:
             target = base / rel
+            if target.exists():
+                continue
             canvas = Canvas(str(target), pagesize=(612, 792))
             canvas.setFont("Helvetica-Bold", 16); canvas.drawString(72, 700, "SYNTHETIC TEST DOCUMENT")
             canvas.setFont("Helvetica", 12); canvas.drawString(72, 675, "NOT A REAL QATAR GOVERNMENT DOCUMENT")
@@ -271,12 +275,13 @@ def seed_week2(db, projects):
         (2,"lusail_drawing.pdf","DRAWING_SET",f"DRAWING SET\nPROJECT: {CANONICAL_PROJECT_IDS[2]}\nPLOT: 009876\nREVISION: R03\nZONE: Z-11",{"revision_label":"R03"}),
         (2,"missing_data.pdf","OTHER",f"OTHER\nSTAMP OCCLUSION\nPROJECT: {CANONICAL_PROJECT_IDS[2]}",{"poor_ocr":True}),
     ]
-    corpus_root = repo_root() / "synthetic-data/documents/week2"; corpus_root.mkdir(parents=True, exist_ok=True)
+    corpus_root = synthetic_documents_root(); corpus_root.mkdir(parents=True, exist_ok=True)
     for idx,(project_idx, filename, type_code, text, metadata) in enumerate(corpus):
         path = corpus_root / filename
-        canvas = Canvas(str(path), pagesize=(612,792)); canvas.setFont("Helvetica-Bold", 13); canvas.drawString(54, 735, "SYNTHETIC TEST DOCUMENT - NOT A REAL GOVERNMENT OR CLIENT DOCUMENT"); canvas.setFont("Helvetica", 10); y=700
-        for line in text.splitlines(): canvas.drawString(60,y,line); y-=16
-        canvas.save()
+        if not path.exists():
+            canvas = Canvas(str(path), pagesize=(612,792)); canvas.setFont("Helvetica-Bold", 13); canvas.drawString(54, 735, "SYNTHETIC TEST DOCUMENT - NOT A REAL GOVERNMENT OR CLIENT DOCUMENT"); canvas.setFont("Helvetica", 10); y=700
+            for line in text.splitlines(): canvas.drawString(60,y,line); y-=16
+            canvas.save()
         logical = filename.rsplit(".",1)[0].replace("_R02","").replace("_R01","")
         version = register_version(db, project_id=projects[project_idx].id, document_type=type_code, logical_name=logical, language="AR/EN" if "arabic" in filename or "bilingual" in filename else "EN", source_system="SYNTHETIC_SYNOLOGY", source_filename=filename, source_path=str(path), content=text, metadata={**metadata,"gold_class":type_code,"synthetic":True}, correlation_id="seed-week2")
         if type_code == "NOC":
@@ -364,8 +369,9 @@ def seed_week3(db, projects):
 
 def seed_week4(db, projects):
     """Reconcile the Week 1–3 seed into one recording-derived synthetic universe."""
-    workbook_path = repo_root() / CANONICAL_WORKBOOK
-    ensure_canonical_workbook(workbook_path)
+    workbook_path = canonical_workbook_path()
+    if not workbook_path.exists():
+        ensure_canonical_workbook(workbook_path)
     fixture = SyntheticFixtureSet(
         fixture_set_id=CANONICAL_FIXTURE_ID,
         name=CANONICAL_FIXTURE_ID,

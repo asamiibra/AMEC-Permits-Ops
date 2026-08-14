@@ -18,7 +18,7 @@ class SynologyAdapter(Protocol):
 
 class MockSynologyAdapter:
     def __init__(self, root: str):
-        self.root = Path(root)
+        self.root = Path(root).resolve()
 
     def list_project_roots(self) -> list[str]:
         return [str(p.relative_to(self.root)) for p in self.root.glob("2026/PRJ-*") if p.is_dir()]

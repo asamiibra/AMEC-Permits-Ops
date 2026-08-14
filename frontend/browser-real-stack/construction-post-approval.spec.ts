@@ -32,6 +32,6 @@ test("Construction post-approval surface enforces the human start gate", async (
   await expect(page.getByRole("heading", { name: "Construction execution", level: 1 })).toBeVisible();
   await expect(page.getByText("Human-gated boundary", { exact: true })).toBeVisible();
   await expect(page.getByText("CONSTRUCTION START GATE", { exact: true })).toBeVisible();
-  await page.screenshot({ path: "../artifacts/construction-post-approval/visual/construction-start-gate.png", fullPage: true });
+  await page.screenshot({ path: process.env.CONSTRUCTION_SCREENSHOT_PATH || "../artifacts/construction-post-approval-closure/construction-start-gate-closure.png", fullPage: true });
   await expect(page.locator("body")).not.toContainText(/financial settlement performed/i);
 });

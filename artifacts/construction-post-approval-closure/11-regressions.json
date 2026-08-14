@@ -1,0 +1,1 @@
+{"postgresql":"169 passed, 0 skipped, 0 failed","sqlite":"168 passed, 1 skipped, 0 failed","sqlite_skip":"PostgreSQL row-locking concurrency test","frontend_tests":"32 passed","frontend_build":"passed with existing large-chunk warning","targeted_browser":"1 passed","broad_browser_diagnostic":"mixed unrelated legacy/current failures; not the Construction gate"}
