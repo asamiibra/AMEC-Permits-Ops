@@ -44,6 +44,7 @@ from .api.permit_ux_routers import router as permit_ux_router
 from .api.billing_invoice_routers import router as billing_invoice_router
 from .api.construction_routers import router as construction_router
 from .api.completion_asbuilt_routers import router as completion_asbuilt_router
+from .api.handover_closeout_routers import router as handover_closeout_router
 
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO), format='%(message)s')
@@ -235,3 +236,4 @@ app.include_router(permit_ux_router)
 app.include_router(billing_invoice_router)
 app.include_router(construction_router)
 app.include_router(completion_asbuilt_router)
+app.include_router(handover_closeout_router)

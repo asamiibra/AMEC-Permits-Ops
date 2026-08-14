@@ -1,0 +1,1 @@
+{"targeted_handover":"2 passed","postgresql_full":"178 passed, 2 warnings","sqlite_full":"177 passed, 1 skipped, 2 warnings","frontend_build":"passed","browser_real_stack":"passed","migration_roundtrip":"passed","one_alembic_head":"0053_handover_admin_closeout"}

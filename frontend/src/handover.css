@@ -1,0 +1,24 @@
+.handover-page { display: grid; gap: 18px; }
+.handover-banner { display: flex; justify-content: space-between; gap: 18px; align-items: center; padding: 14px 16px; border: 1px solid #d7e1e8; border-radius: 14px; background: #f4f8fa; color: #17324d; }
+.handover-banner span { color: #617485; font-size: 13px; }
+.handover-list { display: grid; gap: 10px; }
+.handover-list-item { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; align-items: center; text-align: left; border: 1px solid #d7e1e8; border-radius: 12px; padding: 15px 16px; background: white; cursor: pointer; }
+.handover-list-item:hover { border-color: #5d9b9b; }
+.handover-list-item span { display: grid; gap: 4px; }
+.handover-list-item small { color: #617485; }
+.handover-status { color: #2c6f73; font-size: 13px; font-weight: 700; }
+.handover-empty { color: #617485; }
+.handover-token { color: #8a4f2b; font-size: 12px; font-weight: 700; }
+.handover-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.handover-section { display: grid; gap: 8px; min-height: 72px; }
+.handover-section strong { color: #17324d; }
+.handover-overview { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+.handover-detail { display: grid; gap: 10px; }
+.handover-detail h3 { margin: 8px 0 0; }
+.handover-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; }
+.handover-tab { border: 1px solid #d7e1e8; border-radius: 999px; padding: 8px 12px; background: #fff; color: #466177; cursor: pointer; }
+.handover-tab.active { border-color: #2c6f73; background: #e7f3f1; color: #17324d; font-weight: 700; }
+.handover-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid #edf1f3; }
+.handover-row span { color: #617485; text-align: right; }
+.handover-detail code { color: #2c6f73; }
+@media (max-width: 900px) { .handover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .handover-list-item { grid-template-columns: 1fr; } .handover-banner, .handover-overview { align-items: start; flex-direction: column; } .handover-row { align-items: start; flex-direction: column; } .handover-row span { text-align: left; } }

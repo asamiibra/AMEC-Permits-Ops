@@ -68,10 +68,12 @@ import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuth
 import { BillingInvoicePage } from "./BillingInvoice";
 import { ConstructionPage } from "./Construction";
 import { CompletionPage } from "./Completion";
+import { HandoverPage } from "./Handover";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./construction.css";
 import "./completion.css";
+import "./handover.css";
 
 type Decision = {
   id: string;
@@ -192,6 +194,7 @@ const pageFromPath = () => {
   if (path === "/engineering") return "project-engineering";
   if (path === "/construction" || path.startsWith("/construction/")) return "construction";
   if (path === "/completion" || path.startsWith("/completion/")) return "completion";
+  if (path === "/handover" || path.startsWith("/handover/")) return "handover";
   if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
@@ -445,6 +448,8 @@ function App() {
         ? "Permit"
       : page === "administration"
         ? "Administration"
+        : page === "handover"
+          ? "Handover / Admin Closeout"
         : page === "go-live-readiness"
           ? "Go-Live Setup"
           : page === "dashboard-v2" || page === "dashboard-v2-inputs"
@@ -528,6 +533,7 @@ function App() {
         </div>
       </aside>
       <main className="main">
+        {page === "handover" && <HandoverPage />}
         {page === "engineering-drawing-review" && <EngineeringDrawingReviewPage />}
         <header className="topbar">
           <div className="topbar-heading">
