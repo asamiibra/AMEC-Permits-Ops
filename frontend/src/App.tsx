@@ -67,9 +67,11 @@ import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
 import { BillingInvoicePage } from "./BillingInvoice";
 import { ConstructionPage } from "./Construction";
+import { CompletionPage } from "./Completion";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./construction.css";
+import "./completion.css";
 
 type Decision = {
   id: string;
@@ -121,6 +123,7 @@ const businessNav: BusinessNavItem[] = [
     icon: "⌁",
   },
   { id: "construction", page: "construction", label: "Construction", icon: "▥" },
+  { id: "completion", page: "completion", label: "Completion / As-Built", icon: "✓" },
   {
     id: "permit",
     page: "permit-portfolio",
@@ -188,6 +191,7 @@ const pageFromPath = () => {
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
   if (path === "/engineering") return "project-engineering";
   if (path === "/construction" || path.startsWith("/construction/")) return "construction";
+  if (path === "/completion" || path.startsWith("/completion/")) return "completion";
   if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
@@ -414,6 +418,7 @@ function App() {
         "my-work",
         "bd",
         "billing",
+        "completion",
         "permit",
         "authority-cases",
         "issues",
@@ -425,6 +430,7 @@ function App() {
         "my-work",
         "engineering",
         "construction",
+        "completion",
         "permit",
         "authority-cases",
         "issues",
@@ -602,6 +608,7 @@ function App() {
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
           {page === "construction" && <ConstructionPage />}{" "}
+          {page === "completion" && <CompletionPage />}{" "}
           {page === "authority-cases" && <AuthorityCaseWorkspacePage />}{" "}
           {page === "engineering-closeout" && <EngineeringCloseoutPage />}{" "}
           {page === "permit-portfolio" && <PermitPortfolioPage />} {" "}

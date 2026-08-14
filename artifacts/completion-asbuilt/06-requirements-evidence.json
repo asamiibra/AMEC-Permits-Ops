@@ -1,0 +1,1 @@
+{"status":"IMPLEMENTED_AND_VERIFIED","purpose":"COMPLETION_CLOSEOUT","policy_selection":"exactly_one_active_policy","applicability_unknown_blocks":true,"evidence_kinds":["DOCUMENT","AUTHORITY_CERTIFICATE","CONFORMITY_CERTIFICATE","SITE_ACTION","PHYSICAL_SAMPLE","INTERNAL_DECLARATION"],"physical_items_distinct":true,"production_policy_currentness":"BLOCKED_EXTERNAL"}

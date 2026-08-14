@@ -130,6 +130,7 @@ class SubmissionPackageItem(Base):
     form_instance_id: Mapped[str | None] = mapped_column(ForeignKey("form_instances.id"), index=True)
     baseline_id: Mapped[str | None] = mapped_column(ForeignKey("approved_design_baselines.id"), index=True)
     baseline_member_id: Mapped[str | None] = mapped_column(ForeignKey("approved_design_baseline_members.id"), index=True)
+    as_built_baseline_id: Mapped[str | None] = mapped_column(ForeignKey("as_built_baselines.id"), index=True)
     physical_evidence_item_id: Mapped[str | None] = mapped_column(ForeignKey("physical_evidence_items.id"), index=True)
     display_order: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     section: Mapped[str | None] = mapped_column(String(120))

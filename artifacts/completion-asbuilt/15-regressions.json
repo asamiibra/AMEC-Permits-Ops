@@ -1,0 +1,1 @@
+{"status":"PASS","postgresql":{"passed":176,"warnings":2,"skipped":0},"sqlite":{"passed":175,"skipped":1,"skip_reason":"existing dashboard master content concurrency proof requires PostgreSQL row locking"},"frontend_tests":{"passed":32},"build":{"status":"PASS","modules":75},"registry_safety":{"status":"PASS","machine_final_submit_capability":"ABSENT"}}

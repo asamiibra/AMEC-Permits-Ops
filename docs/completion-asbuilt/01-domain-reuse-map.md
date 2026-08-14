@@ -1,0 +1,7 @@
+# Domain Reuse Map
+
+The repository has canonical RegulatoryJourney, AuthorityCase, RegulatoryRelation, AuthorityOutcome, AuthorityCaseSubject, CasePartySnapshot, RequirementPolicyVersion, RequirementInstance, CaseEvidenceSelection, PhysicalEvidenceItem, FormAutomationProfile, FormInstance, SignaturePacket, MasterContentItem, DocumentVersion, EngineeringDeliverable, EngineeringDeliverableRevision, EngineeringRendition, EngineeringMaterialTest, ApprovedDesignBaseline, DesignChangeRequest, PreparationRevision, SubmissionPackage, SubmissionPackageItem, SubmissionPrecheckRun, SubmissionAttempt, ExternalSubmissionSnapshot, AuthoritySubmissionCycle, AuthorityCaseFinding, AuthorityFindingResponse, Party, PartyRoleAssignment, AuthorizationGrant, ContactPoint, AuditEvent, and LineageEdge models.
+
+No duplicate CompletionRequirement, CompletionCase, CompletionFinding, CompletionParty, CompletionProperty, CompletionDocument, CompletionForm, or CompletionSubmission engine will be introduced. The new canonical technical objects required by the brief are limited to AsBuiltBaseline/member, AS_BUILT BuildingSnapshot, AsBuiltComparisonRun, and AsBuiltVariance, plus the smallest shared Completion handoff/read-model records where existing tables cannot safely carry the semantics.
+
+Existing `AuthorityOutcome` is the repository’s current equivalent for verified authority outcomes; Completion outcome will reuse it and will not create a parallel AuthorityDecision truth.

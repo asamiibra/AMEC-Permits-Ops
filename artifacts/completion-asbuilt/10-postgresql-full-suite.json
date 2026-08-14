@@ -1,0 +1,1 @@
+{"status":"PASS","database":"completion_asbuilt_pg_20260814b","migration":"0052_completion_asbuilt_core","tests_passed":176,"warnings":2,"skipped":0,"fresh_schema":true}
