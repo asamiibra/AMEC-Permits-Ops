@@ -1,0 +1,8 @@
+{
+  "status": "NOT_PERFORMED",
+  "write": false,
+  "read_back": false,
+  "hash_match": false,
+  "token": "REAL_SYNOLOGY_VERIFIED_WITHHELD",
+  "evidence": "docs/final-platform-closure/20-synology-write-readback-hash.md"
+}

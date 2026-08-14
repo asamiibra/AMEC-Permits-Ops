@@ -1,0 +1,7 @@
+{
+  "status": "NOT_PERFORMED",
+  "failover": false,
+  "recovery": false,
+  "performance_slo": false,
+  "evidence": "docs/final-platform-closure/21-synology-recovery-performance.md"
+}

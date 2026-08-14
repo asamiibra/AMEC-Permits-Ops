@@ -1,0 +1,9 @@
+{
+  "status": "PASS_LOCAL",
+  "passed": 185,
+  "failed": 0,
+  "warnings": 2,
+  "duration_seconds": 44.72,
+  "database": "fresh local PostgreSQL",
+  "evidence": "docs/final-platform-closure/41-full-postgresql-regression.md"
+}

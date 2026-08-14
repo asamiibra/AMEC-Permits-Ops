@@ -1,0 +1,5 @@
+{
+  "decision": "NO_GO",
+  "required_gates": {"G1": "PASS", "G2": "BLOCKED", "G3": "BLOCKED", "G4": "BLOCKED", "G5": "BLOCKED", "G6": "BLOCKED", "G7": "PARTIAL", "G8": "BLOCKED", "G9": "BLOCKED", "G10": "BLOCKED", "G11": "PARTIAL", "G12": "PARTIAL", "G13": "BLOCKED", "G14": "BLOCKED"},
+  "evidence": "docs/final-platform-closure/09-go-live-gate-register.md"
+}

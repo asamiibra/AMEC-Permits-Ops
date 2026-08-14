@@ -1,0 +1,8 @@
+{
+  "status": "NOT_CERTIFIED",
+  "mode": "NONE",
+  "selection": "OWNER_INPUT_REQUIRED",
+  "synthetic_certified": false,
+  "pilot_certified": false,
+  "evidence": "docs/final-platform-closure/14-golden-vertical-slice.md"
+}

@@ -1,0 +1,6 @@
+{
+  "status": "NOT_CERTIFIED",
+  "source_to_output_trace": false,
+  "audit_reconstruction": false,
+  "evidence": "docs/final-platform-closure/15-golden-slice-lineage.md"
+}

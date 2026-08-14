@@ -1,0 +1,8 @@
+{
+  "status": "UNPROVEN",
+  "provider_backup": false,
+  "isolated_restore": false,
+  "comparison": false,
+  "verified": false,
+  "evidence": "docs/final-platform-closure/24-database-backup-restore.md"
+}

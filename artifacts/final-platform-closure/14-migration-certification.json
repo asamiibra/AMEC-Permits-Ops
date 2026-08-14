@@ -1,0 +1,8 @@
+{
+  "status": "LOCAL_PASS_PRODUCTION_UNVERIFIED",
+  "fresh_upgrade": "PASS",
+  "downgrade_reupgrade": "PASS",
+  "production_prior_head": false,
+  "target_head": "0053_handover_admin_closeout",
+  "evidence": "docs/final-platform-closure/23-migration-certification.md"
+}

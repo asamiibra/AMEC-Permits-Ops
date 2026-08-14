@@ -1,0 +1,8 @@
+{
+  "status": "PARTIAL_BLOCKED",
+  "synthetic_role_tests": "PASS",
+  "production_authentication": false,
+  "production_authorization_matrix": false,
+  "secrets_attestation": false,
+  "evidence": "docs/final-platform-closure/28-security-certification.md"
+}

@@ -1,0 +1,6 @@
+{
+  "status": "PARTIAL",
+  "synthetic_failure_tests": "PASS",
+  "production_outage_rehearsal": false,
+  "evidence": "docs/final-platform-closure/31-reliability-failure-rehearsal.md"
+}

@@ -1,0 +1,7 @@
+{
+  "status": "PARTIAL",
+  "prior_handover_bridge_targeted_passes": 7,
+  "dedicated_final_platform_suite": false,
+  "critical_external_gates_proven": false,
+  "evidence": "docs/final-platform-closure/42-targeted-final-platform-regression.md"
+}

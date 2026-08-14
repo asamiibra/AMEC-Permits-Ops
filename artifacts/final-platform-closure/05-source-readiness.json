@@ -1,0 +1,10 @@
+{
+  "status": "BLOCKED",
+  "master_content_items": 0,
+  "governance_profiles": 0,
+  "form_mapping_releases": 0,
+  "dashboard_v2_catalog": {"external_bodies": 0, "jurisdictions": 0, "service_types": 0, "lifecycle_phases": 0},
+  "dashboard_v2_forms": 0,
+  "current_authority_source": false,
+  "evidence": "docs/final-platform-closure/08-production-source-readiness.md"
+}

@@ -1,0 +1,8 @@
+{
+  "status": "FROZEN_FOR_CLOSURE",
+  "code_token": "FINAL_PLATFORM_CODE_FROZEN",
+  "branch": "main",
+  "evidence": ["docs/final-platform-closure/00-entry-baseline.md", "docs/final-platform-closure/01-upstream-freeze-register.md"],
+  "new_major_business_modules": false,
+  "scope": "cross-cutting closure evidence, reconciliation, hygiene, and Owner handover documentation"
+}

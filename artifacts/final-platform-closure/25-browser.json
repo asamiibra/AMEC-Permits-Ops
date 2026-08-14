@@ -1,0 +1,8 @@
+{
+  "status": "LOCAL_SYNTHETIC_PASS",
+  "route": "/handover",
+  "rendered": true,
+  "real_authentication": false,
+  "production": false,
+  "evidence": "docs/final-platform-closure/46-real-stack-browser.md"
+}

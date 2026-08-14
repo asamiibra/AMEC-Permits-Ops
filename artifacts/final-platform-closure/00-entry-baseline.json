@@ -1,0 +1,12 @@
+{
+  "status": "RECORDED",
+  "repository": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev",
+  "branch": "main",
+  "entry_head": "fb38d253bf23bdde665c8a4d05a1516633fec66f",
+  "origin_main_at_entry": "fb38d253bf23bdde665c8a4d05a1516633fec66f",
+  "entry_visible_worktree_dirty": false,
+  "repo_local_generated_db_count_at_entry": 20,
+  "generated_db_quarantine": "/tmp/final-platform-closure-db-quarantine.dxsZBo",
+  "alembic_source_head": "0053_handover_admin_closeout",
+  "runtime": {"python": "3.14.2", "node": "24.13.0", "npm": "11.6.2"}
+}

@@ -1,0 +1,6 @@
+{
+  "status": "PARTIAL",
+  "handover_bridge_concurrency": "PASS",
+  "full_final_platform_matrix": "NOT_PERFORMED",
+  "evidence": "docs/final-platform-closure/43-concurrency.md"
+}

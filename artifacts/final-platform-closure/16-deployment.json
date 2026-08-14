@@ -1,0 +1,8 @@
+{
+  "status": "UNVERIFIED",
+  "authorized_deployment": false,
+  "final_deployed_sha": null,
+  "build_digest": null,
+  "rollback_target": null,
+  "evidence": "docs/final-platform-closure/25-deployment-provenance.md"
+}

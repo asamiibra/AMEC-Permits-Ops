@@ -1,0 +1,7 @@
+{
+  "status": "PARTIAL",
+  "selected_negative_tests": "PASS",
+  "full_cross_project_matrix": "NOT_PERFORMED",
+  "download_export_matrix": "NOT_PERFORMED",
+  "evidence": "docs/final-platform-closure/29-cross-project-isolation.md"
+}

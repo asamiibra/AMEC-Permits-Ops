@@ -1,0 +1,16 @@
+{
+  "status": "HANDOVER_SCALE_ONLY",
+  "projects": 200,
+  "services_packages_revisions": 400,
+  "items": 8000,
+  "requirements_distributions_receipts": 400,
+  "punches": 4000,
+  "list_all_median_ms": 12.33,
+  "list_all_p95_ms": 152.29,
+  "project_list_median_ms": 2.78,
+  "project_list_p95_ms": 3.73,
+  "workspace_median_ms": 11.38,
+  "workspace_p95_ms": 20.60,
+  "full_platform_scale": false,
+  "evidence": "docs/final-platform-closure/36-performance-scale.md"
+}

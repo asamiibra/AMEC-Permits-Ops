@@ -1,0 +1,10 @@
+{
+  "status": "IN_PROGRESS_UNTIL_COMMIT",
+  "generated_db_target_count": 0,
+  "quarantine": "/tmp/final-platform-closure-db-quarantine.dxsZBo",
+  "temporary_postgresql_database": "final_platform_audit_20260813",
+  "temporary_database_drop_required": true,
+  "workbook_restore_required": true,
+  "production_data_deleted": false,
+  "evidence": "docs/final-platform-closure/51-cleanup.md"
+}

@@ -1,0 +1,8 @@
+{
+  "status": "BLOCKED",
+  "configured": false,
+  "adapter": "MockSynologyAdapter",
+  "real_synology_verified": false,
+  "production_endpoint": false,
+  "evidence": "docs/final-platform-closure/18-real-synology.md"
+}

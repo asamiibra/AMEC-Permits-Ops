@@ -1,0 +1,14 @@
+{
+  "status": "BLOCKED",
+  "shared_catalog": false,
+  "production_ready": false,
+  "families": [
+    {"family": "proposal", "route_evidence": "backend/app/bd_proposal_routers.py"},
+    {"family": "engineering", "route_evidence": "engineering drawing and AI comment download routes"},
+    {"family": "permit", "route_evidence": "permit tracker CSV route"},
+    {"family": "billing", "route_evidence": "invoice download route"},
+    {"family": "completion", "route_evidence": "completion report routes"},
+    {"family": "handover", "route_evidence": "handover render routes"}
+  ],
+  "gap": "no final shared output catalog, final filename/hash contract, or end-to-end regression proof"
+}

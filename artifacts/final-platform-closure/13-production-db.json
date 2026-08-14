@@ -1,0 +1,9 @@
+{
+  "status": "LOCAL_AUDIT_ONLY",
+  "provider": "UNKNOWN",
+  "production": false,
+  "database": "final_platform_audit_20260813",
+  "migration_head": "0053_handover_admin_closeout",
+  "durable_postgresql": true,
+  "evidence": "docs/final-platform-closure/22-production-database.md"
+}

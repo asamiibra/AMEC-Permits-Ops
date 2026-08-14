@@ -1,0 +1,9 @@
+{
+  "status": "OWNER_UAT_PENDING",
+  "backend_synthetic": {"passed": 185, "failed": 0, "warnings": 2},
+  "frontend_synthetic": {"passed": 32, "failed": 0},
+  "owner_uat": false,
+  "pilot": false,
+  "acceptance": "PENDING",
+  "evidence": "docs/final-platform-closure/40-uat-defect-register.md"
+}

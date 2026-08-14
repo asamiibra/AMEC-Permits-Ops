@@ -1,0 +1,7 @@
+{
+  "status": "SYNTHETIC_ONLY",
+  "correlation_middleware": "PRESENT",
+  "health_checks": "PASS",
+  "production_metrics_alerts": false,
+  "evidence": "docs/final-platform-closure/32-observability.md"
+}

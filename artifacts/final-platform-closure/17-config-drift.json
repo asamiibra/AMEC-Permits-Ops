@@ -1,0 +1,7 @@
+{
+  "status": "PRODUCTION_UNKNOWN",
+  "audited_test_configuration": {"synthetic_only": true, "dev_role_header": true, "mock_adapters": true},
+  "production_parity": false,
+  "drift_verified": false,
+  "evidence": "docs/final-platform-closure/26-configuration-drift.md"
+}

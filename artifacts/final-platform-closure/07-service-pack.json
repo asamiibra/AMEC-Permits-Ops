@@ -1,0 +1,9 @@
+{
+  "status": "NOT_PROVEN",
+  "service_pack_model_found": false,
+  "service_pack_version_model": "not found",
+  "output_definition_model": "not found",
+  "golden_service_selected": false,
+  "production_approved": false,
+  "evidence": "docs/final-platform-closure/10-service-pack-design.md"
+}
