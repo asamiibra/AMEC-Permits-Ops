@@ -1,0 +1,7 @@
+{
+  "status": "PENDING_FINAL_DEPLOYMENT",
+  "base_url": "https://amec-permits-ops.vercel.app",
+  "required_landmarks": 4,
+  "pre_fix_screenshot": "artifacts/dashboard-v2-final-closure/pre-fix-current-dashboard.png",
+  "post_deployment_update_required": true
+}

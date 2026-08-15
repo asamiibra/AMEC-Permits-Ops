@@ -1,0 +1,11 @@
+{
+  "HISTORICAL_V1_ROOT_IDENTIFIED": 1,
+  "route": "/dashboard",
+  "file": "frontend/src/Dashboard.tsx",
+  "component": "DashboardPage",
+  "introducing_commit": "135b6c2",
+  "last_simplified_v1_commit": "227d91d",
+  "last_active_pre_promotion_commit": "227d91d",
+  "children": ["CanonicalFormsLibrary", "MasterSection", "DefinitionSection", "MasterEditor", "DefinitionEditor", "HistoryDrawer", "ContentDetails"],
+  "api_clients": ["/api/master-content", "/api/definitions", "/api/master-content/categories"]
+}

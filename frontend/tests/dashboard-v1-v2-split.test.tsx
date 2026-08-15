@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DashboardPage } from "../src/Dashboard";
+import { CurrentDashboard } from "../src/Dashboard";
 
 const form = {
   id: "shared-form-1",
@@ -31,9 +31,13 @@ beforeEach(() => {
   }));
 });
 
-describe("single current Dashboard", () => {
-  it("shows the promoted governance-capable Dashboard with canonical forms", async () => {
-    render(<DashboardPage role="SYSTEM_ADMIN" />);
+describe("current Dashboard V2 root identity", () => {
+  it("mounts the evolved V2 root with canonical forms", async () => {
+    render(<CurrentDashboard role="SYSTEM_ADMIN" />);
+    expect(screen.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "v2-evolution");
+    expect(screen.getByTestId("dashboard-governance-overview")).toBeVisible();
+    expect(screen.getByTestId("dashboard-library-navigation")).toBeVisible();
+    expect(screen.getByTestId("dashboard-source-authority-panel")).toBeVisible();
     await waitFor(() => expect(screen.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible());
     await waitFor(() => expect(screen.getByText("Shared synthetic form")).toBeVisible());
     expect(screen.getByText("Advanced governance filters")).toBeVisible();
@@ -45,7 +49,7 @@ describe("single current Dashboard", () => {
   });
 
   it("renders one canonical item through one active Dashboard surface", async () => {
-    render(<DashboardPage role="SYSTEM_ADMIN" />);
+    render(<CurrentDashboard role="SYSTEM_ADMIN" />);
     await waitFor(() => expect(screen.getByText("Shared synthetic form")).toBeVisible());
     expect(screen.getAllByText("F-0001", { exact: true })).toHaveLength(1);
   });

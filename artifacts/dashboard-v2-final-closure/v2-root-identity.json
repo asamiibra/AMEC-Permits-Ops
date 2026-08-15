@@ -1,0 +1,12 @@
+{
+  "HISTORICAL_V2_ROOT_IDENTIFIED": 1,
+  "route": "/dashboard-v2",
+  "file": "frontend/src/Dashboard.tsx",
+  "component": "DashboardPage",
+  "mode": "governanceMode",
+  "introducing_commit": "56ce49a",
+  "wave_b_c_commit": "9690e56",
+  "representative_commit": "9690e56",
+  "children": ["CanonicalFormsLibrary", "advanced governance filters", "FormDetails", "FormHistory", "FormEditor", "Reports", "Engineering Works", "Definitions", "Inputs & Go-Live"],
+  "api_clients": ["/api/master-content", "/api/definitions", "/api/dashboard-v2/catalogs", "/api/dashboard-v2/forms"]
+}

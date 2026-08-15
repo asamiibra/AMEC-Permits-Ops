@@ -1,0 +1,6 @@
+{
+  "status": "PENDING_FINAL_DEPLOYMENT",
+  "required_remaining": ["commit source closure", "deploy exact pushed SHA", "capture Vercel network trace", "capture Vercel browser screenshot"],
+  "truthful_tokens_until_final_gate": ["REAL_DOCUMENT_STORAGE_CERTIFIED=0", "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"],
+  "PR_READY_FOR_MAIN_CONSOLIDATION": 0
+}

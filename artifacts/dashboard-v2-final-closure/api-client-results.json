@@ -1,0 +1,8 @@
+{
+  "CURRENT_DASHBOARD_V1_API_CLIENT_USAGE_COUNT": 0,
+  "DUPLICATE_DASHBOARD_BUSINESS_IMPLEMENTATION_COUNT": 0,
+  "DASHBOARD_UI_VERSION_BUSINESS_BRANCH_COUNT": 0,
+  "current_dashboard_client": "shared api client",
+  "canonical_calls": ["/api/master-content", "/api/definitions", "/api/master-content/categories", "/api/dashboard-v2/catalogs", "/api/dashboard-v2/forms"],
+  "dashboard_v2_namespace_is": "shared governance facade over canonical records"
+}

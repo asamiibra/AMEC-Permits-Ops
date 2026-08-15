@@ -1,0 +1,10 @@
+{
+  "CURRENT_DASHBOARD_ROOT_IDENTIFIED": 1,
+  "pre_fix_classification": "SHARED_HYBRID_ROOT",
+  "pre_fix_secondary_classification": "PARTIAL_V2_REHOME",
+  "final_classification": "TRUE_V2_ROOT",
+  "route": "/dashboard",
+  "final_root_component": "CurrentDashboard",
+  "final_import_tree": ["App", "CurrentDashboard", "DashboardGovernanceOverview", "DashboardLibraryNavigation", "CanonicalFormsLibrary", "FormDetails/FormHistory/FormEditor", "MasterSection", "DefinitionSection"],
+  "CURRENT_DASHBOARD_ROOT_IS_V2_EVOLUTION_PASS": 1
+}

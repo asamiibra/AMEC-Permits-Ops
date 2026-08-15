@@ -60,7 +60,7 @@ import {
 } from "./ProductionReadiness";
 import { AmecLogo } from "./AmecLogo";
 import { readDemoRole } from "./rebrand";
-import { DashboardPage } from "./Dashboard";
+import { CurrentDashboard } from "./Dashboard";
 import { DashboardInputsPage } from "./DashboardInputs";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
@@ -595,7 +595,7 @@ function App() {
               SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
             </div>
           )}
-          {page === "dashboard" && <DashboardPage role={role} />}{" "}
+          {page === "dashboard" && <CurrentDashboard role={role} />}{" "}
           {page === "my-work" && (
             <MyWorkPage
               projects={projects}

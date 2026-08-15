@@ -1,0 +1,10 @@
+{
+  "DASHBOARD_CURRENT_RESOLVER_PASS": 1,
+  "DASHBOARD_NEEDS_REVIEW_RESOLVER_EXCLUSION_PASS": 1,
+  "DASHBOARD_INACTIVE_RESOLVER_EXCLUSION_PASS": 1,
+  "PROPOSAL_TEMPLATE_RESOLVER_PASS": 1,
+  "PROPOSAL_CHECKLIST_RESOLVER_PASS": 1,
+  "CONTRACT_TEMPLATE_RESOLVER_PASS": 1,
+  "historical_exact_document_version_pass": 1,
+  "source": "prior focused PostgreSQL promotion suite, retained unchanged"
+}

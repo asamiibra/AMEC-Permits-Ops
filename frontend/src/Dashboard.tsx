@@ -75,7 +75,13 @@ type MasterType = "REPORT" | "ENGINEERING_WORK";
 
 const ownerRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
 
-export function DashboardPage({ role }: { role: string }) {
+type DashboardFormSummary = {
+  owner_status?: "Current" | "Needs Review" | "Inactive";
+  needs_review?: boolean;
+  current_document_version_id?: string | null;
+};
+
+export function CurrentDashboard({ role }: { role: string }) {
   const [items, setItems] = useState<MasterItem[]>([]);
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -207,7 +213,7 @@ export function DashboardPage({ role }: { role: string }) {
     }
   };
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="v2-evolution" data-testid="current-dashboard">
       <header className="dashboard-page-header">
         <div>
           <span className="eyebrow">AMEC · MASTER / REFERENCE CONTENT</span>
@@ -238,6 +244,8 @@ export function DashboardPage({ role }: { role: string }) {
           </a>
         </div>
       </header>
+      <DashboardGovernanceOverview />
+      <DashboardLibraryNavigation />
       <section id="categories" className="dashboard-filter-bar" aria-label="Dashboard filters">
         <label>
           Search
@@ -403,6 +411,52 @@ export function DashboardPage({ role }: { role: string }) {
       )}
       {details && <ContentDetails item={details} onClose={() => setDetails(null)} />}
     </div>
+  );
+}
+
+function DashboardGovernanceOverview() {
+  const [forms, setForms] = useState<DashboardFormSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    void api<DashboardFormSummary[]>("/api/master-content?content_type=FORM")
+      .then(setForms)
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const count = (status: DashboardFormSummary["owner_status"]) =>
+    forms.filter((form) => form.owner_status === status).length;
+
+  return (
+    <section className="dashboard-v2-overview" aria-label="Dashboard governance overview" data-testid="dashboard-governance-overview">
+      <div className="dashboard-v2-overview-heading">
+        <div>
+          <span className="eyebrow">GOVERNANCE OVERVIEW</span>
+          <h3>Canonical control plane</h3>
+          <p>One governed view of currentness, review state, source authority, and immutable version history.</p>
+        </div>
+        <span className="dashboard-v2-overview-state">{error ? "Summary unavailable" : loading ? "Reading canonical Forms…" : String(forms.length) + " canonical Forms"}</span>
+      </div>
+      <div className="dashboard-v2-overview-grid">
+        <article className="dashboard-v2-summary-card" data-testid="dashboard-current-summary"><span>Current</span><strong>{loading ? "—" : count("Current")}</strong><small>Eligible business status</small></article>
+        <article className="dashboard-v2-summary-card dashboard-v2-summary-review" data-testid="dashboard-review-summary"><span>Needs Review</span><strong>{loading ? "—" : count("Needs Review")}</strong><small>Visible, not resolver eligible</small></article>
+        <article className="dashboard-v2-summary-card" data-testid="dashboard-inactive-summary"><span>Inactive</span><strong>{loading ? "—" : count("Inactive")}</strong><small>Historical versions retained</small></article>
+        <article className="dashboard-v2-source-card" data-testid="dashboard-source-authority-panel"><span className="eyebrow">SOURCE / VERSION</span><strong>Canonical records remain linked</strong><small>MasterContentItem → Document → DocumentVersion</small></article>
+      </div>
+    </section>
+  );
+}
+
+function DashboardLibraryNavigation() {
+  return (
+    <nav className="dashboard-v2-library-nav" aria-label="Dashboard master libraries" data-testid="dashboard-library-navigation">
+      <a href="#forms"><span className="eyebrow">PRIMARY LIBRARY</span><strong>Forms</strong><small>Governed templates and automation readiness</small></a>
+      <a href="#reports"><span className="eyebrow">REFERENCE LIBRARY</span><strong>Reports</strong><small>Reusable reporting references</small></a>
+      <a href="#engineering-works"><span className="eyebrow">TECHNICAL LIBRARY</span><strong>Engineering Works</strong><small>Controlled technical references</small></a>
+      <a href="#definitions"><span className="eyebrow">SEMANTIC LIBRARY</span><strong>Definitions</strong><small>Shared business language</small></a>
+    </nav>
   );
 }
 

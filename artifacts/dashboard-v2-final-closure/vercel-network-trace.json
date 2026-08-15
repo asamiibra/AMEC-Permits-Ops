@@ -1,0 +1,7 @@
+{
+  "status": "PENDING_FINAL_DEPLOYMENT",
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "required_assertions": ["/dashboard requests canonical Master Content and governance services", "no V1-only Dashboard endpoint calls", "dashboard-v2 compatibility redirect only"],
+  "post_deployment_update_required": true
+}

@@ -23,6 +23,10 @@ test("Current Dashboard exposes the canonical Waves B+C governance facade and de
 
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible();
+  await expect(page.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "v2-evolution");
+  await expect(page.getByTestId("dashboard-governance-overview")).toBeVisible();
+  await expect(page.getByTestId("dashboard-library-navigation")).toBeVisible();
+  await expect(page.getByTestId("dashboard-source-authority-panel")).toBeVisible();
   await expect(page.getByText("Advanced governance filters")).toBeVisible();
   await page.getByText("Advanced governance filters").click();
   await expect(page.getByLabel("External body")).toBeVisible();
