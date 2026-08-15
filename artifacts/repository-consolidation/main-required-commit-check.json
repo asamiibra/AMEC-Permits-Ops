@@ -1,0 +1,6 @@
+{
+  "required_commits": ["227d91d", "a77b11c", "076d834", "1728bfc", "3ad241a", "3ccfc97", "2e3cff6", "dc91d0f", "aa0ea00", "bacb1f8", "e3b488f", "cc604f8", "cfc5374"],
+  "checked_against": "pending_final_main_sha",
+  "REQUIRED_CURRENT_COMMIT_MISSING_FROM_TARGET_MAIN_COUNT": null,
+  "note": "Populate after the non-destructive fast-forward and final-main verification."
+}

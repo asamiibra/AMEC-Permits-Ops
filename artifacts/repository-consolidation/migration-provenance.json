@@ -1,0 +1,16 @@
+{
+  "heads": ["0058_source_intake_ledger"],
+  "ALEMBIC_SINGLE_HEAD_PASS": 1,
+  "MIGRATION_ORPHAN_COUNT": 0,
+  "MIGRATION_REACHABILITY_FROM_TARGET_MAIN_PASS": 0,
+  "target_current_sha": "cfc5374b6183aba5c6522963789652ecc022763a",
+  "head_lineage_tail": [
+    {"revision":"0054_bd_proposal_stage1_reconciliation","down_revision":"0053_handover_admin_closeout","introducing_commit":"a4dd4a01b9dc59fa873aea6135c9f29be3feed33"},
+    {"revision":"0055_bd_proposal_final_hardening","down_revision":"0054_bd_proposal_stage1_reconciliation","introducing_commit":"a7f724c5b79522edaecf2876b1f732918c014d77"},
+    {"revision":"0056_storage_operation_journal","down_revision":"0055_bd_proposal_final_hardening","introducing_commit":"227d91d71570c4ae3b83d5ea0e8b94b8d44e6a4f"},
+    {"revision":"0057_owner_form_review_status","down_revision":"0056_storage_operation_journal","introducing_commit":"227d91d71570c4ae3b83d5ea0e8b94b8d44e6a4f"},
+    {"revision":"0058_source_intake_ledger","down_revision":"0057_owner_form_review_status","introducing_commit":"1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb"}
+  ],
+  "orphan_revisions": [],
+  "note": "The feature branch currently carries 0056-0058; final main reachability becomes true only after fast-forward integration."
+}

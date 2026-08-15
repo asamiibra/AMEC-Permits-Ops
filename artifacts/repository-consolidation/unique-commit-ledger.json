@@ -1,0 +1,22 @@
+{
+  "UNKNOWN_UNIQUE_COMMIT_COUNT": 0,
+  "REQUIRED_CURRENT_COMMIT_COUNT": 13,
+  "SUPERSEDED_BUT_PRESERVE_HISTORY_COUNT": 0,
+  "ABANDONED_COUNT": 0,
+  "main_only_count": 0,
+  "commits": [
+    {"sha":"227d91d71570c4ae3b83d5ea0e8b94b8d44e6a4f","subject":"Simplify Owner Forms dashboard and harden storage seam","classification":"REQUIRED_CURRENT","modules":["Dashboard / Master Content","Document / Storage"],"tests_or_evidence":["backend/tests/test_document_storage_service.py","docs/storage-integration"]},
+    {"sha":"a77b11c1368a4ec80982099c0f20be2b34f09d06","subject":"Certify SMB storage integration lab","classification":"REQUIRED_CURRENT","modules":["SMB"],"tests_or_evidence":["backend/tests/test_smb_integration.py","artifacts/storage-integration"]},
+    {"sha":"076d834d8ab41049081b3f0481aaaadad4e30e75","subject":"Exclude reviewed masters from consumer resolvers","classification":"REQUIRED_CURRENT","modules":["Dashboard Governance V2","BD / Proposal"],"tests_or_evidence":["backend/tests/test_owner_form_review_status.py"]},
+    {"sha":"1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb","subject":"Add v1.4 source intake reconciliation and Samba roles","classification":"REQUIRED_CURRENT","modules":["Source Intake","FORME","SMB"],"tests_or_evidence":["backend/tests/test_source_intake_service.py","docs/storage-integration-v1_4"]},
+    {"sha":"3ad241ae8c5ec582d3a9c95a9328fec7231ca146","subject":"Close integrated local crash and concurrency gates","classification":"REQUIRED_CURRENT","modules":["Source Intake","Storage","Shared platform"],"tests_or_evidence":["backend/scripts/integrated_local_closure.py","artifacts/integrated-local-closure"]},
+    {"sha":"3ccfc97d791ce26ca349ff73e5ff44f07327f5ce","subject":"Record closure entry graph provenance","classification":"TEST/EVIDENCE_ONLY_CURRENT","modules":["Repository evidence"],"tests_or_evidence":["artifacts/integrated-local-closure/entry-and-commit-graph.json"]},
+    {"sha":"2e3cff6bb5781aaaa4b8751f6f41f0455b20c369","subject":"Isolate FORME acceptance workbook writes","classification":"REQUIRED_CURRENT","modules":["FORME","User-change protection"],"tests_or_evidence":["backend/scripts/forme_acceptance_v1_4.py"]},
+    {"sha":"dc91d0f5abe59d2d6e77d474bad71d2adfc3eff8","subject":"Make Vercel migration upgrade cycle-safe","classification":"REQUIRED_CURRENT","modules":["Vercel","Database / migrations"],"tests_or_evidence":["backend/migrations/versions/0043_project_engineering_approved_design_baseline.py"]},
+    {"sha":"aa0ea0025aef3c28838ffba93986933ccf4287c0","subject":"Complete Vercel legacy schema migration ordering","classification":"REQUIRED_CURRENT","modules":["Vercel","Database / migrations"],"tests_or_evidence":["backend/migrations/versions/0043_project_engineering_approved_design_baseline.py"]},
+    {"sha":"bacb1f8941e50603d8b9293ae397c048a45b6e84","subject":"Harden Vercel schema bootstrap for legacy databases","classification":"REQUIRED_CURRENT","modules":["Vercel"],"tests_or_evidence":["backend/scripts/vercel_data_bootstrap.py"]},
+    {"sha":"e3b488f122ea82b15e7572e8be375e165c3207c7","subject":"Certify Vercel MVP runtime compatibility","classification":"REQUIRED_CURRENT","modules":["Vercel"],"tests_or_evidence":["artifacts/vercel-mvp-certification"]},
+    {"sha":"cc604f814573442ee7326cd8fdc5ad2d0aa1a483","subject":"Promote Dashboard V2 to canonical Dashboard","classification":"REQUIRED_CURRENT","modules":["Dashboard","Dashboard Governance V2"],"tests_or_evidence":["docs/dashboard-v2-promotion","frontend/browser-real-stack/dashboard-v1-v2-split.spec.ts"]},
+    {"sha":"cfc5374b6183aba5c6522963789652ecc022763a","subject":"Fix packaged backend imports for governance APIs","classification":"REQUIRED_CURRENT","modules":["BD / Proposal","Dashboard Governance V2","Vercel"],"tests_or_evidence":["backend/tests","artifacts/dashboard-v2-promotion"]}
+  ]
+}

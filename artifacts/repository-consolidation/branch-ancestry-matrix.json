@@ -1,0 +1,9 @@
+{
+  "base": "origin/main",
+  "rows": [
+    {"ref": "main", "merge_base": "7a923fb875de8a46d94699280ef90eb012fedcf1", "base_is_ancestor": true, "ref_is_ancestor_of_base": true, "left_right_count_base_then_ref": "0 0"},
+    {"ref": "branch/owner-form-simple-dashboard", "merge_base": "7a923fb875de8a46d94699280ef90eb012fedcf1", "base_is_ancestor": true, "ref_is_ancestor_of_base": false, "left_right_count_base_then_ref": "0 13", "unique_ref_commits": ["227d91d71570c4ae3b83d5ea0e8b94b8d44e6a4f", "a77b11c1368a4ec80982099c0f20be2b34f09d06", "076d834d8ab41049081b3f0481aaaadad4e30e75", "1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb", "3ad241ae8c5ec582d3a9c95a9328fec7231ca146", "3ccfc97d791ce26ca349ff73e5ff44f07327f5ce", "2e3cff6bb5781aaaa4b8751f6f41f0455b20c369", "dc91d0f5abe59d2d6e77d474bad71d2adfc3eff8", "aa0ea0025aef3c28838ffba93986933ccf4287c0", "bacb1f8941e50603d8b9293ae397c048a45b6e84", "e3b488f122ea82b15e7572e8be375e165c3207c7", "cc604f814573442ee7326cd8fdc5ad2d0aa1a483", "cfc5374b6183aba5c6522963789652ecc022763a"]},
+    {"ref": "origin/branch/owner-form-simple-dashboard", "merge_base": "7a923fb875de8a46d94699280ef90eb012fedcf1", "base_is_ancestor": true, "ref_is_ancestor_of_base": false, "left_right_count_base_then_ref": "0 13"}
+  ],
+  "UNRECONCILED_MAIN_ONLY_COMMIT_COUNT": 0
+}

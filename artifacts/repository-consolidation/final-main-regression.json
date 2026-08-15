@@ -1,0 +1,7 @@
+{
+  "checked_against": "pending_final_main_sha",
+  "FINAL_MAIN_ALEMBIC_SINGLE_HEAD_PASS": null,
+  "FINAL_MAIN_FRESH_MIGRATION_PASS": null,
+  "FINAL_MAIN_FULL_REGRESSION_PASS": null,
+  "note": "Populate only from tests actually run on the resulting main SHA."
+}

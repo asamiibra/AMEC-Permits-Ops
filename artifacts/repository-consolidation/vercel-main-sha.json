@@ -1,0 +1,7 @@
+{
+  "checked_against": "pending_final_main_sha",
+  "frontend_project": "amec-permits-ops",
+  "backend_project": "amec-permits-ops-backend",
+  "VERCEL_DEPLOYED_MAIN_SHA_PARITY_PASS": null,
+  "note": "The prior feature deployment was cfc5374; final-main deployment must be from the resulting origin/main SHA."
+}

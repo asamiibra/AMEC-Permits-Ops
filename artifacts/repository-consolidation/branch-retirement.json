@@ -1,0 +1,10 @@
+{
+  "branch": "branch/owner-form-simple-dashboard",
+  "pre_integration_unique_commit_count": 13,
+  "FEATURE_BRANCH_UNMERGED_COMMIT_COUNT": null,
+  "FEATURE_BRANCH_RETIREMENT_SAFE": null,
+  "remote_deleted": false,
+  "local_deleted": false,
+  "other_branches_changed": false,
+  "note": "Do not delete until final origin/main containment, worktree, deployment, and classification gates pass."
+}

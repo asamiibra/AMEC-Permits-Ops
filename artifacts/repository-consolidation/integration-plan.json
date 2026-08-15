@@ -1,0 +1,15 @@
+{
+  "source_ref": "origin/branch/owner-form-simple-dashboard",
+  "source_sha": "cfc5374b6183aba5c6522963789652ecc022763a",
+  "target_ref": "main",
+  "target_before_sha": "7a923fb875de8a46d94699280ef90eb012fedcf1",
+  "topology": "CASE_A_MAIN_IS_ANCESTOR_OF_FEATURE",
+  "order": ["run feature regression", "push/verify feature SHA if needed", "checkout main in clean temporary worktree", "pull --ff-only origin main", "merge --ff-only origin/branch/owner-form-simple-dashboard", "run final-main regression", "push origin main", "verify remote parity", "deploy Vercel from final main SHA"],
+  "expected_conflicts": [],
+  "migrations_affected": ["0056", "0057", "0058"],
+  "modules_affected": ["Dashboard", "Storage / SMB", "Source Intake", "Vercel", "Proposal", "shared resolvers"],
+  "retirement_candidate_after_gates": "branch/owner-form-simple-dashboard",
+  "other_branches_changed": false,
+  "no_force_push": true,
+  "no_rebase": true
+}

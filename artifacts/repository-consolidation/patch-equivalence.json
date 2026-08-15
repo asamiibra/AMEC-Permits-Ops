@@ -1,0 +1,7 @@
+{
+  "base": "origin/main",
+  "candidate": "origin/branch/owner-form-simple-dashboard",
+  "git_cherry_result": "all 13 candidate commits marked +",
+  "patch_equivalent_pairs": [],
+  "action": "No duplicate cherry-picks or equivalent patches were introduced; integrate the descendant with --ff-only."
+}
