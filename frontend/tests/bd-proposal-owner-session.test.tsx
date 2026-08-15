@@ -41,4 +41,45 @@ describe("BD Proposal owner register", () => {
     await waitFor(() => expect(mockedApi).toHaveBeenCalledWith(expect.stringContaining("client=Lane+Search+Company"), expect.anything()));
     expect(mockedApi).toHaveBeenCalledWith(expect.stringContaining("lane=NEED_ACTION"), expect.anything());
   });
+
+  it("renders the mature Proposal workspace seams and historical-review prompts", async () => {
+    mockedApi.mockReset();
+    mockedApi
+      .mockResolvedValueOnce({
+        items: [{ id: "proposal-1", proposal: "Hardening proposal", proposal_reference: "AMEC-SYN-PROP-0001", project_ref: "PROJ-01", client: "Client", stage: "Accepted", amount: "QAR 100", last_activity: null, next_action: { label: "Review Proposal" } }],
+        lane_counts: { ALL: 1, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 },
+      })
+      .mockResolvedValueOnce({
+        id: "proposal-1",
+        proposal_reference: "AMEC-SYN-PROP-0001",
+        project_reference: "PROJ-01",
+        title: "Hardening proposal",
+        stage: "ACCEPTED",
+        next_actor: "Business Development",
+        updated_at: "2026-08-15T00:00:00+00:00",
+        fields: { client_name: "Client", scope_of_work: "AMEC scope", price: "QAR 100", currency: "QAR", duration: "30 days" },
+        validation: { ready: true, blockers: [], warnings: [], template: { item: { ref: "F-0003", version: "1" } }, checklist: { item: { ref: "F-0004", version: "1" } } },
+        intake_readiness: { ready: true, blockers: [], warnings: [] },
+        forms_v2: { stakeholders: [], assumptions: [], conflicts: [], proposal_form: [{ filename: "proposal-form.pdf", verification_state: "READ_BACK_VERIFIED", source_revision: "v1" }], expected_client_inputs: { status: "POLICY_RESOLVED" }, regulatory_scope_intents: [], external_cost_assumptions: [], engineering_contributions: [] },
+        hardening: { current_information_changed: true, active_staleness: [{ id: "stale-1", reason_code: "SOURCE_VERSION_CHANGED", impacted_sections: ["commercial"] }], unknowns: [{ id: "unknown-1", statement: "Unknown client input", materiality: "MATERIAL", status: "OPEN", acknowledged: false }], conflicts: [{ id: "conflict-1", field_code: "site.area", source_a: "Tender", source_b: "Email", value_a: "500 m2", value_b: "750 m2", materiality: "MATERIAL", status: "OPEN", acknowledged: false }], material_open_unknowns: [{ id: "unknown-1" }], material_open_conflicts: [{ id: "conflict-1" }], client_responses: [], commercial_outcome: null, boundaries: { acknowledged_is_not_resolved: true } },
+        authority: { status: "READY", status_label: "Human review ready", government_authority: false, readiness_blockers: [] },
+        proposal_breakdown: { items: [], commercial_summary: {} },
+        configuration: { proposal_template: { label: "Proposal Template", status: "READY", ref: "F-0003", version: "1", purpose: "PROPOSAL_TEMPLATE" }, proposal_checklist: { label: "Proposal Checklist", status: "READY", ref: "F-0004", version: "1", purpose: "PROPOSAL_CHECKLIST" }, definitions: { count: 0 }, engineering_references: { status: "DEFERRED", items: [] } },
+        outputs: { available: true, proposal: { filename: "proposal.txt" }, checklist: { filename: "checklist.txt" } },
+        current_revision: { id: "revision-1", revision_number: 1, template: { ref: "F-0003", version: "1" }, checklist: { ref: "F-0004", version: "1" } },
+        revision_history: [{ id: "revision-1", revision_number: 1, accepted_by: "OWNER", accepted_at: "2026-08-15T00:00:00+00:00", content_hash: "abcdef1234567890" }],
+        sources: [], notes: [], site_photos: [], amec_input: {}, additional_information: null,
+      });
+    render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Open →" }));
+    expect(await screen.findByText("Known / Candidate Stakeholders")).toBeVisible();
+    expect(screen.getByText("Regulatory Scoping".replace(" ", " "))).toBeVisible();
+    expect(screen.getByText("Proposal Form · existing Proposal context")).toBeVisible();
+    expect(screen.getByText("Decision context")).toBeVisible();
+    expect(screen.getAllByText("Client Response").length).toBeGreaterThan(1);
+    expect(screen.getByText("Outcome separate from Ready / Close")).toBeVisible();
+    expect(screen.getByText("Current information has changed since this Proposal was accepted")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Create new Proposal revision" })).toBeVisible();
+    expect(screen.getByText(/Expected Inputs \/ Dashboard/)).toBeVisible();
+  });
 });

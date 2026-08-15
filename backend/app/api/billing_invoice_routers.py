@@ -540,21 +540,27 @@ def _calculate_revision(db: Session, revision: InvoiceRevision) -> InvoiceRevisi
 
 
 @router.get("/invoices")
-def list_invoices(project_id: str | None = None, contract_id: str | None = None, lane: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_invoices(project_id: str | None = None, contract_id: str | None = None, lane: str | None = None, q: str = "", db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _role(role, VIEW, "BILLING_VIEW")
     query = select(Invoice).order_by(Invoice.created_at.desc())
     if project_id: query = query.where(Invoice.project_id == project_id)
     if contract_id: query = query.where(Invoice.contract_id == contract_id)
     rows = db.scalars(query).all()
-    items = []
+    needle = q.strip().lower()
+    all_items = []
     for invoice in rows:
         revision = db.get(InvoiceRevision, invoice.current_revision_id) if invoice.current_revision_id else None
         receivable = _receivable(db, invoice, revision) if revision else {"state": "NOT_ISSUED", "outstanding": None}
         stage = "AUTHORITY_REVIEW" if invoice.status in {"ACCEPTED_INTERNAL", "FINANCE_REVIEW"} else "READY_CLOSE" if invoice.status == "ISSUED" else "NEED_ACTION" if invoice.status in {"DRAFT", "NEEDS_REVALIDATION"} else "ALL"
-        if lane and lane not in {"ALL", stage, receivable.get("state")}:
+        contract = db.get(Contract, invoice.contract_id)
+        project = db.get(Project, invoice.project_id) if invoice.project_id else None
+        client = db.get(ClientAccount, invoice.client_account_id) if invoice.client_account_id else None
+        searchable = " ".join(str(value or "") for value in (invoice.invoice_reference, contract.contract_reference if contract else None, contract.contract_name if contract else None, contract.project_opportunity_ref if contract else None, client.display_name if client else None, project.project_code if project else None, project.project_number if project else None)).lower()
+        if needle and needle not in searchable:
             continue
-        items.append({"invoice": _row(invoice), "project": _row(db.get(Project, invoice.project_id)) if invoice.project_id else None, "revision": _row(revision), "stage": stage, "receivable": receivable})
-    return {"items": items, "total": len(items), "lanes": {"all": len(rows), "need_action": sum(x["stage"] == "NEED_ACTION" for x in items), "authority_review": sum(x["stage"] == "AUTHORITY_REVIEW" for x in items), "ready_close": sum(x["stage"] == "READY_CLOSE" for x in items)}}
+        all_items.append({"invoice": _row(invoice), "contract": _row(contract), "client": _row(client), "project": _row(project), "revision": _row(revision), "stage": stage, "receivable": receivable})
+    items = [item for item in all_items if not lane or lane.upper() in {"ALL", item["stage"], str(item["receivable"].get("state") or "").upper()}]
+    return {"items": items, "total": len(items), "lanes": {"all": len(all_items), "need_action": sum(x["stage"] == "NEED_ACTION" for x in all_items), "authority_review": sum(x["stage"] == "AUTHORITY_REVIEW" for x in all_items), "ready_close": sum(x["stage"] == "READY_CLOSE" for x in all_items)}, "search": q, "lane": lane or "ALL"}
 
 
 @router.get("/invoices/{invoice_id}")

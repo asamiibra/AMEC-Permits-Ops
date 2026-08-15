@@ -1,0 +1,7 @@
+{
+  "template": "consumed by ref/version/hash and pinned in accepted snapshot",
+  "checklist": "consumed by ref/version/hash and pinned in accepted snapshot",
+  "definitions": "semantic lookup only; no Proposal transaction truth duplication",
+  "engineering_works": "resolved only for Engineering Preparation when current/eligible",
+  "accepted_proposal_rewrite": false
+}

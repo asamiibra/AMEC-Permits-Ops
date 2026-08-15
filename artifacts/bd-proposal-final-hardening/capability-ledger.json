@@ -1,0 +1,11 @@
+{
+  "capabilities": [
+    {"capability":"BD_PROPOSAL_READ","effect":"register/detail/validation/outputs"},
+    {"capability":"BD_PROPOSAL_WRITE","effect":"draft/source/forms/risk/response/outcome writes"},
+    {"capability":"EDIT_TECHNICAL","effect":"engineering technical preparation only"},
+    {"capability":"BD_PROPOSAL_ACCEPT","effect":"material acknowledgment and human Accept"},
+    {"capability":"BD_PROPOSAL_OWNER_SETTINGS","effect":"Owner settings and test cleanup"}
+  ],
+  "ai_accept": false,
+  "authority_case_created_by_accept": false
+}

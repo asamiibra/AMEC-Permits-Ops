@@ -157,7 +157,10 @@ def v2_readiness(db: Session, proposal: Opportunity, base_validation: dict[str, 
     if open_material:
         blockers.append({"code": "MATERIAL_ASSUMPTION_ACKNOWLEDGEMENT_REQUIRED", "label": "Acknowledge material commercial assumptions"})
     conflict_sources = [row for row in (proposal.proposal_fields_json or {}).get("conflicts", []) if isinstance(row, dict) and row.get("status", "OPEN") == "OPEN"]
-    if conflict_sources or v2["source_conflicts"]:
+    source_rows = list(db.scalars(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.status == "CONFLICT")).all())
+    current_sources = list(db.scalars(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.status == "CURRENT")).all())
+    active_source_conflicts = [row for row in source_rows if not any(current.supersedes_id == row.id for current in current_sources)]
+    if conflict_sources or active_source_conflicts:
         blockers.append({"code": "MATERIAL_CONFLICT_REQUIRES_DECISION", "label": "Resolve or explicitly accept material conflicts"})
     if not v2["regulatory_scope_intents"]:
         warnings.append({"code": "REGULATORY_SCOPE_UNKNOWN", "label": "Regulatory scoping intent is not yet recorded"})

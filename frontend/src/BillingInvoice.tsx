@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 
-type BillingItem = { invoice: any; project: any; revision: any; stage: string; receivable: any };
+type BillingItem = { invoice: any; contract?: any; client?: any; project: any; revision: any; stage: string; receivable: any };
 
 const lanes = [
   ["ALL", "All"],
@@ -18,11 +18,12 @@ export function BillingInvoicePage() {
   const [lane, setLane] = useState("ALL");
   const [detail, setDetail] = useState<any>(null);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
 
   const load = () => {
     setError("");
     const invoiceId = path.split("/")[3];
-    const request = invoiceId ? api<any>(`/api/billing/invoices/${invoiceId}`) : api<any>("/api/billing/invoices");
+    const request = invoiceId ? api<any>(`/api/billing/invoices/${invoiceId}`) : api<any>(`/api/billing/invoices?q=${encodeURIComponent(query)}`);
     request.then((data) => invoiceId ? setDetail(data) : setItems(data.items || [])).catch((cause) => setError(cause instanceof Error ? cause.message : "Billing is unavailable."));
   };
   useEffect(() => {
@@ -32,16 +33,19 @@ export function BillingInvoicePage() {
   }, []);
   useEffect(() => { load(); }, [path]);
 
-  const open = (invoiceId: string) => { window.history.pushState({}, "", `/billing/invoices/${invoiceId}`); window.dispatchEvent(new PopStateEvent("popstate")); };
-  const back = () => { window.history.pushState({}, "", "/billing/invoices"); window.dispatchEvent(new PopStateEvent("popstate")); };
+  const adminSurface = path.startsWith("/admin/invoices");
+  const basePath = adminSurface ? "/admin/invoices" : "/billing/invoices";
+  const open = (invoiceId: string) => { window.history.pushState({}, "", `${basePath}/${invoiceId}`); window.dispatchEvent(new PopStateEvent("popstate")); };
+  const back = () => { window.history.pushState({}, "", basePath); window.dispatchEvent(new PopStateEvent("popstate")); };
   const filtered = useMemo(() => items.filter((item) => lane === "ALL" || item.stage === lane), [items, lane]);
 
   if (detail) return <InvoiceWorkspace detail={detail} onBack={back} onRefresh={load} />;
   return <section className="billing-page">
-    <div className="billing-intro"><div><span className="eyebrow">AMEC · BILLING / INVOICE</span><h2>Billing &amp; Invoice</h2><p>Human-controlled billing plans, milestone eligibility, invoice revisions, and receivables.</p></div><span className="tag owner-chip">Source-safe · synthetic</span></div>
+    <div className="billing-intro"><div><span className="eyebrow">AMEC · {adminSurface ? "ADMINISTRATION / INVOICES" : "BILLING / INVOICE"}</span><h2>{adminSurface ? "Invoices" : "Billing &amp; Invoice"}</h2><p>{adminSurface ? "Controlled invoice preparation, review, issue, delivery, and receivable follow-up." : "Human-controlled billing plans, milestone eligibility, invoice revisions, and receivables."}</p></div><span className="tag owner-chip">Source-safe · synthetic</span></div>
     <div className="billing-lanes" role="tablist" aria-label="Invoice lanes">{lanes.map(([key, label]) => <button key={key} role="tab" aria-selected={lane === key} className={lane === key ? "billing-lane active" : "billing-lane"} onClick={() => setLane(key)}>{label}<strong>{key === "ALL" ? items.length : items.filter((item) => item.stage === key).length}</strong></button>)}</div>
+    <div className="billing-search"><input aria-label="Search Invoices" placeholder="Search invoice, Contract, Client, or Project" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void load(); }} /><button className="button-secondary" onClick={() => void load()}>Search</button></div>
     {error && <div className="error-banner" role="alert">{error}</div>}
-    <div className="billing-table" role="table" aria-label="Invoices"><div className="billing-row billing-head" role="row"><b>Invoice</b><b>Invoice Ref</b><b>Contract / Project context</b><b>Amount</b><b>Due Date</b><b>Status</b><b>Open</b></div>{filtered.map((item) => <div className="billing-row" role="row" key={item.invoice.id}><div><b>{item.invoice.invoice_reference}</b><small>{human(item.stage)}</small></div><span>{item.invoice.invoice_ref_status === "ALLOCATED" ? item.invoice.invoice_reference : "Not allocated"}</span><span>{item.invoice.contract_id}<small>{item.project?.project_code ? `Project Code: ${item.project.project_code}` : item.invoice.project_id ? "Activated project" : "Project context from Contract snapshot"}</small></span><span>{item.revision?.payable_total ?? "—"} {item.revision?.currency || ""}</span><span>{item.revision?.due_date || (item.revision?.due_date_status === "PENDING_EVENT" ? "Pending event" : "—")}</span><span>{human(item.receivable?.communication_state || item.invoice.status)}<small>{human(item.receivable?.state)}</small></span><button className="text-button" onClick={() => open(item.invoice.id)}>Open →</button></div>)}{!filtered.length && <div className="billing-empty"><b>No invoices in this lane.</b><p>Invoice drafts appear only from an eligible Billing Milestone.</p></div>}</div>
+    <div className="billing-table" role="table" aria-label="Invoices"><div className="billing-row billing-head" role="row"><b>Invoice</b><b>Invoice Ref</b><b>Contract / Project</b><b>Amount</b><b>Due Date</b><b>Stage</b><b>Open</b></div>{filtered.map((item) => <div className="billing-row" role="row" key={item.invoice.id}><div><b>{item.invoice.invoice_reference}</b><small>{human(item.stage)}</small></div><span>{item.invoice.invoice_ref_status === "ALLOCATED" ? item.invoice.invoice_reference : "Not allocated"}</span><span>{item.contract?.contract_reference || "Contract context"}<small>{item.client?.display_name || "Client pending"}{item.project?.project_code ? ` · Project Code: ${item.project.project_code}` : item.project ? " · Activated project" : " · Project context from Contract"}</small></span><span>{item.revision?.payable_total ?? "—"} {item.revision?.currency || ""}</span><span>{item.revision?.due_date || (item.revision?.due_date_status === "PENDING_EVENT" ? "Pending event" : "—")}</span><span>{human(item.invoice.status)}<small>{human(item.receivable?.state)}</small></span><button className="text-button" onClick={() => open(item.invoice.id)}>Open →</button></div>)}{!filtered.length && <div className="billing-empty"><b>No invoices in this lane.</b><p>Invoice drafts appear only from an eligible Billing Milestone.</p></div>}</div>
     <div className="billing-safe-note"><b>Control boundary</b><span>Accept and Issue remain separate human actions. Payment verification changes receivables only; no accounting or financial settlement is performed.</span></div>
   </section>;
 }

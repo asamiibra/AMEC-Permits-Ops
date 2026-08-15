@@ -1,0 +1,7 @@
+{
+  "accepted_revision_immutable": true,
+  "current_information_changed_indicator": true,
+  "post_accept_revision": "draft from latest accepted snapshot; base_accepted_revision_id retained",
+  "duplicate_unchanged_accept": "PROPOSAL_ALREADY_ACCEPTED",
+  "supersession": "new accepted revision points to prior; prior remains queryable"
+}

@@ -20,6 +20,9 @@
 .bd-summary-grid p { margin:6px 0 0; color:#475467; white-space:pre-wrap; line-height:1.45; }
 .bd-amec-label { display:grid; gap:6px; margin-top:14px; color:#344054; font-size:12px; font-weight:700; }
 .bd-authority-panel { border-color:#b9ded7; background:#fbfffe; }
+.bd-stale-panel { border-color:#efd58a; background:#fffaf0; }
+.bd-accept-review-panel { border-color:#c8b9e5; background:#fcfaff; }
+.bd-stale-panel h3, .bd-accept-review-panel h3 { margin-bottom:4px; }
 .bd-workspace-header { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; }
 .bd-workspace-header small, .bd-workspace-header b { display: block; }
 .bd-workspace-header small { color: var(--muted, #667085); text-transform: uppercase; letter-spacing: .08em; font-size: 10px; margin-bottom: 6px; }

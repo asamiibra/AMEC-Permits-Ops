@@ -22,6 +22,7 @@ from ..models import (
     ProposalOwnerSetting,
     ProposalSourceEvidence,
     ProposalNote,
+    ProposalIntakeArtifact,
 )
 from .master_content import definition_lookup, resolve_master_content_purpose
 from .master_content import definition_projection, governance_projection
@@ -420,6 +421,9 @@ def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
         blockers.append({"code": "SOURCE_CONFLICTS_UNRESOLVED", "label": "Resolve conflicting source evidence"})
     if not (fields.get("inclusions") or fields.get("exclusions")):
         warnings.append({"code": "COMMERCIAL_BOUNDARIES_REVIEW", "label": "Confirm inclusions and exclusions"})
+    from .proposal_final_hardening import hardening_projection
+    hardening = hardening_projection(db, proposal)
+    blockers.extend(hardening["accept_blockers"])
     definition_terms = fields.get("definition_terms") or []
     return {
         "ready": not blockers,
@@ -432,6 +436,7 @@ def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "definitions": definitions_for_proposal(db, definition_terms),
         "ai_assist": {"enabled": False, "response": None, "typed_error": "AI_ASSIST_DISABLED"},
         "authority": "OWNER_DECISION_REQUIRED",
+        "hardening": hardening,
     }
 
 
@@ -453,6 +458,8 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     site_photos = [item for item in sources if item.source_type == "SITE_PHOTO" and item.status == "CURRENT"]
     forms = forms_v2_projection(db, proposal)
     breakdown = proposal_breakdown(db, proposal, forms)
+    from .proposal_final_hardening import hardening_projection
+    hardening = hardening_projection(db, proposal, forms)
     current_owner = "Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development"
     blockers = _blocking_items(validation, readiness, intake)
     next_action = (
@@ -485,6 +492,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "next_action": {"label": next_action, "eligible": intake["ready"] if proposal.status in {"RECEIVED", "IN_REVIEW"} else not blockers},
         "amount": fields.get("price"),
         "last_activity": proposal.updated_at.isoformat() if proposal.updated_at else None,
+        "updated_at": proposal.updated_at.isoformat() if proposal.updated_at else None,
         "fields": fields,
         "provenance": fields.get("provenance", {}),
         "amec_input": fields.get("amec_input", {}),
@@ -496,8 +504,9 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "configuration": configuration,
         "notes": [{"id": row.id, "note_type": row.note_type, "content": row.content, "entered_by": row.entered_by, "related_contact": row.related_contact, "status": row.status, "provenance": row.provenance, "created_at": row.created_at.isoformat()} for row in notes],
         "site_photos": [_source_projection(item) for item in site_photos],
-        "forms_v2": forms,
+        "forms_v2": {**forms, "proposal_form": [{"id": item.id, "filename": item.source_filename, "source_reference": item.sor_path, "source_revision": item.source_revision, "verification_state": item.verification_state, "status": item.status, "created_at": item.created_at.isoformat()} for item in db.scalars(select(ProposalIntakeArtifact).where(ProposalIntakeArtifact.opportunity_id == proposal.id, ProposalIntakeArtifact.semantic_class == "PROPOSAL_FORM").order_by(ProposalIntakeArtifact.created_at.desc())).all()]},
         "proposal_breakdown": breakdown,
+        "hardening": hardening,
         "authority": authority,
         "owner_lane": lanes,
         "outputs": {
@@ -527,6 +536,9 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
     fields.pop("provenance", None)
     fields.pop("amec_input", None)
     source_ids = [item.id for item in _sources(db, proposal.id) if item.status == "CURRENT"]
+    forms_snapshot = snapshot_forms_v2(db, proposal)
+    from .proposal_final_hardening import hardening_projection, material_fingerprint
+    hardening = hardening_projection(db, proposal, forms_snapshot)
     return {
         "proposal_id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
@@ -543,7 +555,9 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
         "checklist": validation["checklist"]["item"],
         "definitions": validation["definitions"],
         "dashboard_configuration": proposal_configuration(db, proposal),
-        "forms_driven_v2": snapshot_forms_v2(db, proposal),
+        "forms_driven_v2": forms_snapshot,
+        "hardening": {"unknowns": hardening["unknowns"], "conflicts": hardening["conflicts"], "material_acknowledgments": hardening["material_acknowledgments"], "active_staleness": hardening["active_staleness"], "client_responses": hardening["client_responses"], "commercial_outcome": hardening["commercial_outcome"]},
+        "material_fingerprint": material_fingerprint(db, proposal, forms_snapshot),
         "accepted_at": _now().isoformat(),
     }
 

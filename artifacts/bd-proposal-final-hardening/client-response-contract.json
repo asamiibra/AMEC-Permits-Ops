@@ -1,0 +1,7 @@
+{
+  "types": ["PENDING","ACCEPTED","DECLINED","CHANGE_REQUESTED","EXPIRED","WITHDRAWN"],
+  "idempotency": true,
+  "accepted_revision_pinned": true,
+  "amec_accept_is_client_accept": false,
+  "change_requested_revision": "explicit ProposalRevision path"
+}

@@ -145,6 +145,130 @@ class ProposalAssumption(Base, TimestampMixin):
     acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
+class ProposalUnknown(Base, TimestampMixin):
+    """A distinct unresolved fact; it is not an assumption or a generic issue."""
+
+    __tablename__ = "proposal_unknowns"
+    __table_args__ = (Index("ix_proposal_unknown_proposal_status", "proposal_id", "status"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    category: Mapped[str] = mapped_column(String(80), nullable=False)
+    statement: Mapped[str] = mapped_column(Text, nullable=False)
+    materiality: Mapped[str] = mapped_column(String(30), nullable=False, default="INFORMATIONAL")
+    source_type: Mapped[str] = mapped_column(String(40), nullable=False, default="HUMAN_ENTERED")
+    source_reference: Mapped[str | None] = mapped_column(String(300))
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="OPEN")
+    resolution: Mapped[str | None] = mapped_column(Text)
+    resolved_by: Mapped[str | None] = mapped_column(String(200))
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ProposalConflict(Base, TimestampMixin):
+    """Proposal-scoped source disagreement with both values retained."""
+
+    __tablename__ = "proposal_conflicts"
+    __table_args__ = (Index("ix_proposal_conflict_proposal_status", "proposal_id", "status"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    field_code: Mapped[str] = mapped_column(String(100), nullable=False)
+    source_a: Mapped[str] = mapped_column(String(300), nullable=False)
+    value_a: Mapped[str | None] = mapped_column(Text)
+    source_b: Mapped[str] = mapped_column(String(300), nullable=False)
+    value_b: Mapped[str | None] = mapped_column(Text)
+    materiality: Mapped[str] = mapped_column(String(30), nullable=False, default="MATERIAL")
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="OPEN")
+    resolution: Mapped[str | None] = mapped_column(Text)
+    resolver: Mapped[str | None] = mapped_column(String(200))
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ProposalMaterialAcknowledgment(Base, TimestampMixin):
+    """Human acceptance of commercial risk; acknowledgement is not resolution."""
+
+    __tablename__ = "proposal_material_acknowledgments"
+    __table_args__ = (UniqueConstraint("proposal_id", "target_type", "target_id", name="uq_proposal_material_ack_target"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    target_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    target_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    target_revision_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    acknowledged_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    acknowledged_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    note: Mapped[str | None] = mapped_column(Text)
+
+
+class ProposalStalenessEvent(Base, TimestampMixin):
+    """Material source/configuration change requiring Proposal review."""
+
+    __tablename__ = "proposal_staleness_events"
+    __table_args__ = (Index("ix_proposal_staleness_proposal_status", "proposal_id", "status"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    trigger_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    trigger_reference: Mapped[str | None] = mapped_column(String(300))
+    reason_code: Mapped[str] = mapped_column(String(100), nullable=False)
+    impacted_sections: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="ACTIVE")
+    detected_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    cleared_by: Mapped[str | None] = mapped_column(String(200))
+    cleared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ProposalRevision(Base):
+    """Explicit mutable working revision created from an accepted revision."""
+
+    __tablename__ = "proposal_revisions"
+    __table_args__ = (UniqueConstraint("proposal_id", "revision_number", name="uq_proposal_revision_number"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    base_accepted_revision_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="DRAFT")
+    change_summary: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    created_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    superseded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ProposalClientResponse(Base):
+    """Recorded external commercial response, distinct from AMEC Accept."""
+
+    __tablename__ = "proposal_client_responses"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_proposal_client_response_idempotency"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    accepted_revision_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    response_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    evidence_reference: Mapped[str | None] = mapped_column(String(600))
+    notes: Mapped[str | None] = mapped_column(Text)
+    recorded_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class ProposalCommercialOutcome(Base, TimestampMixin):
+    """Commercial outcome kept separate from lifecycle lane and stage."""
+
+    __tablename__ = "proposal_commercial_outcomes"
+    __table_args__ = (UniqueConstraint("proposal_id", name="uq_proposal_commercial_outcome"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    accepted_revision_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    outcome: Mapped[str] = mapped_column(String(50), nullable=False)
+    reason: Mapped[str | None] = mapped_column(Text)
+    evidence_reference: Mapped[str | None] = mapped_column(String(600))
+    recorded_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
 class ProposalExternalCostAssumption(Base, TimestampMixin):
     __tablename__ = "proposal_external_cost_assumptions"
     __table_args__ = (Index("ix_proposal_external_cost_proposal", "proposal_id"),)

@@ -1,0 +1,10 @@
+{
+  "url": "http://localhost:5173/opportunities",
+  "stack": "Vite 5173 + FastAPI 8000 + SQLite synthetic browser DB",
+  "register": true,
+  "sections_visible": ["Known / Candidate Stakeholders","Regulatory Scoping","Expected Client Inputs — Preliminary","Proposal Form · existing Proposal context","Decision context","Client Response","Outcome separate from Ready / Close","ACCEPT REVIEW · EXACT REVISION CANDIDATE"],
+  "authority_case_affordance": false,
+  "target_runtime": "PostgreSQL 16",
+  "playwright_targeted_tests": 3,
+  "browser_failure_count": 0
+}

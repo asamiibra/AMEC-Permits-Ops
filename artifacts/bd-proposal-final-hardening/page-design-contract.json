@@ -1,0 +1,5 @@
+{
+  "register": ["lane tabs","client search","activity search","location search","reference search","stage filter"],
+  "workspace": ["client/contact","site/property","stakeholders","regulatory scoping","expected client inputs","client request","engineering preparation","commercial","proposal breakdown","decision context","client response","commercial outcome","accept review","authority","history"],
+  "source_of_truth": "backend projection over canonical Proposal and shared domains"
+}

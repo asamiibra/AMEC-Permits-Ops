@@ -1,0 +1,9 @@
+{
+  "sqlite_root": {"passed":196,"skipped":8,"failed":0},
+  "postgresql_16": {"passed":204,"failed":0,"migration_head":"0055_bd_proposal_final_hardening"},
+  "frontend_vitest": {"passed":35,"failed":0},
+  "frontend_build": {"failed":0},
+  "browser_targeted_playwright": {"passed":3,"failed":0,"database":"PostgreSQL 16","migration_head":"0055_bd_proposal_final_hardening"},
+  "focused_hardening": {"backend_passed":1,"frontend_passed":1},
+  "cross_module_regression": 0
+}

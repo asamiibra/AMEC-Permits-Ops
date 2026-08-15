@@ -1,0 +1,5 @@
+{
+  "preserved_families": ["list","detail","sources","contact","site-context","scope-items","regulatory-scope","assumptions","expected-client-inputs","engineering-contributions","validation","accept","outputs","handoff/contract"],
+  "hardened_routes": ["unknowns","conflicts","acknowledgments","staleness/review","revisions","client-responses","commercial-outcome"],
+  "concurrency": "PATCH expected_updated_at; Accept row lock and duplicate unchanged rejection"
+}

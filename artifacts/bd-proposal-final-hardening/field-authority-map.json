@@ -1,0 +1,7 @@
+{
+  "Proposal": ["client request","AMEC fee","currency","duration","validity","inclusions","exclusions","assumptions","unknowns","conflicts"],
+  "Engineering": ["scope_of_work","process_of_work","technical assumptions","technical deliverables","engineering contributions"],
+  "Dashboard": ["Proposal Template","Proposal Checklist","Definitions","Engineering Works"],
+  "Owner": ["Accept authority","material acknowledgment","staleness review","production content decisions"],
+  "government_authority": "not a Proposal field authority"
+}

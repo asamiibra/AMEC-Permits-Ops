@@ -7,7 +7,7 @@ test("BD Proposal Forms-Driven v2 exposes the governed owner workspace", async (
   expect(health.ok()).toBeTruthy();
   const healthBody = await health.json();
   expect(healthBody.database_dialect).toBe("postgresql");
-  expect(healthBody.alembic_versions).toContain("0054_bd_proposal_stage1_reconciliation");
+  expect(healthBody.alembic_versions).toContain("0055_bd_proposal_final_hardening");
 
   let proposals = await request.get("/api/bd/proposals", { headers: owner });
   expect(proposals.ok()).toBeTruthy();
@@ -27,9 +27,9 @@ test("BD Proposal Forms-Driven v2 exposes the governed owner workspace", async (
   }
   expect(proposalBody.items?.length).toBeGreaterThan(0);
 
-  await page.goto("/bd/proposals");
-  await expect(page.getByRole("heading", { name: "Proposal Intake", level: 2 })).toBeVisible();
-  await page.getByRole("button", { name: /Open Proposal/ }).first().click();
+  await page.goto("/opportunities");
+  await expect(page.getByRole("heading", { name: "Proposal Register", level: 2 })).toBeVisible();
+  await page.getByRole("button", { name: "Open →" }).first().click();
   await expect(page.getByText("CLIENT & CONTACTS")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Site / Property context", level: 3 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Known / Candidate Stakeholders", level: 3 })).toBeVisible();

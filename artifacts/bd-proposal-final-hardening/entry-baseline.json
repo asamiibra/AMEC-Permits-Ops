@@ -1,0 +1,7 @@
+{
+  "branch": "main",
+  "pre_change_head": "491e6c536f2303c3258737ae4c073c673fe8371b",
+  "final_migration_head": "0055_bd_proposal_final_hardening",
+  "synthetic_only": true,
+  "protected_evidence_present": true
+}

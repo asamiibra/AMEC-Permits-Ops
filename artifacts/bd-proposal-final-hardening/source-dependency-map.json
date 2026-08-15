@@ -1,0 +1,8 @@
+{
+  "TENDER_DOCUMENT": ["client_request","site_property","engineering_preparation","regulatory_scoping","commercial","expected_client_inputs","readiness"],
+  "TENDER_EMAIL": ["client_request","stakeholders","commercial","readiness"],
+  "TENDER_PHOTO": ["site_property","area_semantics","readiness"],
+  "CLIENT_DATA": ["client_contacts","stakeholders","site_property","client_request","readiness"],
+  "SITE_PHOTO": ["site_property","readiness"],
+  "change_rule": "prior source retained; new current source supersedes; active staleness requires review"
+}

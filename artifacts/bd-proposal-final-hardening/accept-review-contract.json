@@ -1,0 +1,5 @@
+{
+  "required_sections": ["client_contact","site_property","amec_scope","regulatory_intent","commercial","assumptions_unknowns_conflicts","expected_client_inputs","dashboard_readiness","source_freshness","authority"],
+  "accept_effect": "immutable accepted revision plus explicitly lineage-marked outputs",
+  "blocked_effects": ["no AI accept","no automatic Contract","no AuthorityCase"]
+}

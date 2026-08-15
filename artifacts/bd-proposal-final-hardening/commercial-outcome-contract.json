@@ -1,0 +1,6 @@
+{
+  "types": ["WON","LOST","WITHDRAWN","EXPIRED","CONVERTED","SUPERSEDED"],
+  "ready_close_is_outcome": false,
+  "terminal_lifecycle": ["LOST","WITHDRAWN","EXPIRED","SUPERSEDED"],
+  "history_rewrite": false
+}
