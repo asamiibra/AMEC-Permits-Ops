@@ -22,7 +22,8 @@ async function downloadHistoryVersion(page: import("@playwright/test").Page, ind
   const download = page.getByRole("link", { name: "Download" }).nth(index);
   const href = await download.getAttribute("href");
   if (!href) throw new Error("Download target unavailable");
-  const response = await page.request.get(new URL(href, page.url()).toString(), {
+  const apiBase = process.env.API_BASE_URL || new URL(page.url()).origin;
+  const response = await page.request.get(new URL(href, `${apiBase}/`).toString(), {
     headers: { "X-Dev-Role": "SYSTEM_ADMIN" },
   });
   if (!response.ok()) throw new Error(`Download target returned ${response.status()}: ${await response.text()}`);
@@ -33,6 +34,8 @@ test("Administration Forms and Dashboard are two doors into one canonical librar
   const ref = `E2E-AF-${Date.now().toString(36)}`;
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Administration", level: 2 })).toBeVisible();
+  await page.getByRole("button", { name: /Setup & Controls/ }).click();
+  await expect(page.getByRole("heading", { name: "Setup & Controls", level: 3 })).toBeVisible();
   await expect(page.getByRole("button", { name: /^Forms/ })).toBeVisible();
   await page.getByRole("button", { name: /^Forms/ }).click();
   await expect(page.getByRole("heading", { name: "Forms", level: 2 })).toBeVisible();

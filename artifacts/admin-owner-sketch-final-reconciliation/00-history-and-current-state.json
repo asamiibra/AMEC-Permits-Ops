@@ -1,0 +1,6 @@
+{
+  "status": "RECONCILED",
+  "canonical_chain": ["Proposal", "AcceptedProposalRevision", "Contract", "ContractRevision", "HumanContractAuthority", "ProjectActivation", "Project", "ServiceEngagement", "ContractBillingContext", "BillingPlan", "BillingMilestone", "Invoice", "InvoiceRevision", "HumanAccept", "Issue", "Delivery", "Receivable", "VerifiedPaymentAllocation"],
+  "preserved_secondary_domains": ["HandoverCloseout", "SetupControls", "AMECWork", "Issues", "Notifications", "DashboardMasterContent", "AuditLineage"],
+  "duplicate_datastores_added": 0
+}

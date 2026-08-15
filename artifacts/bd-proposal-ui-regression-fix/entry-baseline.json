@@ -1,0 +1,7 @@
+{
+  "branch": "main",
+  "entry_head": "a7f724c5b79522edaecf2876b1f732918c014d77",
+  "database_head": "0055_bd_proposal_final_hardening",
+  "scope": "BD Proposal register, New Proposal source cards, existing Proposal detail render, Forms-v2 preservation",
+  "preexisting_worktree_changes_preserved": true
+}

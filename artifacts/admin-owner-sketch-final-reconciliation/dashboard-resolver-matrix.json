@@ -1,0 +1,6 @@
+{
+  "contract_template": {"owner": "Dashboard Forms", "consumer": "Administration Contract", "purpose": "CONTRACT_TEMPLATE", "copy_created": false},
+  "invoice_template": {"owner": "Dashboard Forms when canonical purpose exists", "consumer": "Billing/Administration Invoice", "purpose": "INVOICE_TEMPLATE", "copy_created": false},
+  "definitions": {"owner": "Dashboard Definitions", "consumer": "Contract/Invoice semantics", "values_rewritten": false},
+  "dashboard_v1_v2": "shared canonical master/reference content over distinct UI surfaces"
+}

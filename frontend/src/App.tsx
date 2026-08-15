@@ -209,7 +209,7 @@ const pageFromPath = () => {
     path.startsWith("/contracts/")
   )
     return "permits";
-  if (path === "/opportunities") return "opportunities";
+  if (path === "/opportunities" || path.startsWith("/opportunities/")) return "opportunities";
   if (path === "/engineering-closeout") return "engineering-closeout";
   if (path === "/reviews") return "reviews";
   if (path === "/issues") return "issues";
@@ -372,6 +372,7 @@ function App() {
                       ? "/dashboard-v2/inputs-go-live"
                   : `/${nextPage}`;
     window.history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
   };
   const openPermit = (
     projectId: string,

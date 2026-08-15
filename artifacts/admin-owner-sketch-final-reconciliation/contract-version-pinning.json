@@ -1,0 +1,6 @@
+{
+  "contract_revision_pins": ["accepted_proposal_revision_id", "contract_template_master_content", "contract_template_document_version", "renderer_mapping_identity", "evidence_document_versions"],
+  "finalized_revision_mutable": false,
+  "amendment_strategy": "new superseding/prospective revision",
+  "historical_template_rewrite": 0
+}

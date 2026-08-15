@@ -1,0 +1,37 @@
+{
+  "contract": {
+    "Client": "canonical Client/Party; historical snapshot in finalized revision",
+    "Contact": "canonical ContactPoint/ClientContact; snapshot where required",
+    "Project Description": "Contract revision, source-lined",
+    "Contract Amount": "Contract revision; human Contract edit/authority",
+    "Currency": "Contract revision; human verified",
+    "Payment Condition": "ContractPaymentTerm/raw Contract text; not BillingMilestone",
+    "Project Duration": "Contract truth; not Project Start Date",
+    "Valuation": "Contract field; non-authoritative unless verified",
+    "Detailed Works / Scope": "Contracted scope revision",
+    "Client Input": "ContractClientInputRequirement",
+    "Deliverable": "ContractDeliverableCommitment",
+    "LPO": "DocumentVersion evidence; not authority",
+    "Contract Template": "Dashboard MasterContentItem/DocumentVersion pin",
+    "Contract authority": "bounded human authority command",
+    "Project Code": "ProjectActivation policy/unique canonical Project",
+    "Start Date": "ProjectActivation; owner semantic pending"
+  },
+  "invoice": {
+    "Invoice Ref": "Billing issue/numbering policy",
+    "Invoice Date": "InvoiceRevision",
+    "Due Date": "InvoiceRevision / configured event basis",
+    "Contract Revision": "InvoiceRevision controlling revision",
+    "Billing Milestone": "Billing operational source",
+    "line items": "InvoiceRevision",
+    "amount": "InvoiceLineItem payable total",
+    "Accept": "human bounded command",
+    "Issue": "human bounded command with account/version/template guards",
+    "Delivery": "InvoiceDeliveryEvent",
+    "Approval": "InvoiceApproval evidence",
+    "Receivable": "Billing projection",
+    "Payment evidence": "PaymentReceipt",
+    "Verification": "human payment verification",
+    "Allocation": "InvoicePaymentAllocation"
+  }
+}

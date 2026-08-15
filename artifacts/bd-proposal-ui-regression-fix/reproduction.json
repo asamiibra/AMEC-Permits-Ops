@@ -1,0 +1,11 @@
+{
+  "exact_safe_recovery_stack_reproduced": false,
+  "source_matched_canonical_stack_valid_detail_http": 200,
+  "environment_mismatch_observed": "Vite 5175 used VITE_API_URL=127.0.0.1:8002 while canonical backend was 8000",
+  "pre_fix_defects": [
+    "frontend rendered missing register counts as numeric zero",
+    "source-card selection did not change the create request",
+    "detail rendering assumed optional fields and did not fully isolate load failures"
+  ],
+  "final_not_found_http": 404
+}

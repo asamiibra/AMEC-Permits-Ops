@@ -1,0 +1,15 @@
+{
+  "contract": {
+    "ALL": {"api_filter": "ALL", "predicate": "all accessible Contract records"},
+    "NEEDS_ACTION": {"api_filter": "NEEDS_ACTION", "predicate": "readiness blockers / current Next Action"},
+    "AUTHORITY_REVIEW": {"api_filter": "AUTHORITY_REVIEW", "predicate": "Contract stage is authority review"},
+    "READY_CLOSE": {"api_filter": "READY_CLOSE", "predicate": "derived ready/active/closed operational lane"}
+  },
+  "invoice": {
+    "ALL": {"api_lane": "ALL", "predicate": "all accessible Invoice records"},
+    "NEED_ACTION": {"api_lane": "NEED_ACTION", "predicate": "draft/revalidation or current billing action"},
+    "AUTHORITY_REVIEW": {"api_lane": "AUTHORITY_REVIEW", "predicate": "internal finance/authority review statuses"},
+    "READY_CLOSE": {"api_lane": "READY_CLOSE", "predicate": "issued/ready operational lane; not settlement"}
+  },
+  "count_source": "same backend filtered result used for list; no frontend partial-page counting"
+}

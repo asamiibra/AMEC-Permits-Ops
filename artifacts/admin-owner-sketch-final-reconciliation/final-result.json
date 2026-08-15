@@ -1,0 +1,11 @@
+{
+  "status": "IMPLEMENTED_SYNTHETIC_REAL_STACK_VERIFIED_EXTERNAL_BLOCKED",
+  "owner_primary_experience": "Contracts and Invoices",
+  "contract_register": "backend-derived lanes and accepted-Proposal-gated creation",
+  "invoice_register": "BillingInvoice reuse with backend search and lanes",
+  "setup_controls_preserved": true,
+  "handover_closeout_preserved": true,
+  "production_readiness": "not claimed",
+  "owner_input_required": ["official Contract Template", "Contract authority/stage policy", "standalone Contract policy", "Project Code policy", "Project Start Date semantics", "official Invoice Template", "Invoice numbering", "Invoice issue authority", "financial account approval"],
+  "external_blockers": ["PostgreSQL/Docker verification unavailable in this environment", "Real Synology verification", "official production Invoice issuance/delivery/payment integrations"]
+}

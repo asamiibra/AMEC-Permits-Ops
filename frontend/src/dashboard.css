@@ -30,6 +30,10 @@
 .bd-source-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .bd-source-card { display: grid; gap: 8px; padding: 14px; border: 1px solid #d9dee8; border-radius: 12px; background: #fbfcfe; }
 .bd-source-card.complete { border-color: #6eb28a; background: #f4fbf6; }
+.bd-source-card[aria-pressed="true"] { border-color: #2f6fed; box-shadow: 0 0 0 2px rgba(47,111,237,.16); background: #f2f6ff; }
+.bd-source-card:focus-visible { outline: 3px solid rgba(47,111,237,.35); outline-offset: 2px; }
+.bd-source-intake-panel { margin-top: 16px; padding: 16px; border: 1px solid #c9d6ee; border-radius: 12px; background: #f8faff; }
+.bd-source-intake-panel h4 { margin: 0 0 6px; }
 .bd-source-card small { color: #667085; min-height: 32px; }
 .bd-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
 .bd-form-grid label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; color: #475467; }

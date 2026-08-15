@@ -55,6 +55,27 @@ def _actor(role: Role, supplied: str | None = None) -> str:
     return supplied or getattr(role, "value", str(role))
 
 
+def _create_proposal_record(payload: ProposalCreate, request: Request, db: Session, role: Role) -> Opportunity:
+    """Create the canonical Proposal row without committing a source transaction."""
+    office = db.scalar(select(ConsultancyOffice).order_by(ConsultancyOffice.office_code))
+    if not office:
+        raise HTTPException(503, "OFFICE_CONTEXT_REQUIRED")
+    client_id = payload.client_account_id
+    if not client_id and payload.client_name:
+        client = ClientAccount(client_reference=f"AMEC-SYN-CLIENT-{db.query(ClientAccount).count() + 1:04d}", legal_name=payload.client_name.strip(), display_name=payload.client_name.strip(), client_type="COMPANY", data_classification="SYNTHETIC", status="ACTIVE")
+        db.add(client)
+        db.flush()
+        client_id = client.id
+    reference = allocate_proposal_reference(db)
+    fields = {"client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"client_name": "manual", "project_reference": "manual"}}
+    fields = {key: value for key, value in fields.items() if value is not None}
+    item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, provisional_reference=reference, canonical_project_reference=payload.project_reference)
+    db.add(item)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_DRAFT_CREATED", entity_type="Opportunity", entity_id=item.id, actor_id=_actor(role), after={"proposal_reference": reference, "status": item.status})
+    return item
+
+
 def _list_row(db: Session, item: Opportunity) -> dict[str, Any]:
     projection = proposal_projection(db, item)
     client = db.get(ClientAccount, item.client_account_id) if item.client_account_id else None
@@ -65,6 +86,32 @@ def _list_row(db: Session, item: Opportunity) -> dict[str, Any]:
     activity = fields.get("project_description") or fields.get("activity") or item.title
     search_text = " ".join(str(value or "") for value in (item.title, item.opportunity_reference, projection["project_reference"], client_label, activity, fields.get("client_scope_of_work"), fields.get("scope_of_work") or fields.get("sow"), location, projection["stage_label"], item.status)).lower()
     return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": client_label, "activity": activity, "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": location or None, "current_owner": projection["current_owner"], "next_action": projection["next_action"], "owner_lane": projection["owner_lane"], "contract_eligible": projection["contract_eligible"], "validation": projection["validation"], "_search_text": search_text}
+
+
+def _register_predicate(rows: list[dict[str, Any]], *, q: str, stage: str | None, lane: str | None, client: str | None, activity: str | None, location: str | None) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Single register predicate used for visible rows and lane counts."""
+    needle = q.strip().lower()
+    if needle:
+        rows = [row for row in rows if needle in row["_search_text"]]
+    if client and client.strip():
+        client_needle = client.strip().lower()
+        rows = [row for row in rows if client_needle in str(row.get("client") or "").lower()]
+    if activity and activity.strip():
+        activity_needle = activity.strip().lower()
+        rows = [row for row in rows if activity_needle in str(row.get("activity") or "").lower() or activity_needle in row["_search_text"]]
+    if stage:
+        rows = [row for row in rows if row["stage_code"] == stage.upper()]
+    if location and location.strip():
+        location_needle = location.strip().lower()
+        rows = [row for row in rows if location_needle in str(row.get("location") or "").lower()]
+    definitions = owner_lane_definitions()
+    lane_counts = {definition["code"]: sum(1 for row in rows if definition["code"] in row["owner_lane"]["memberships"]) for definition in definitions}
+    if lane:
+        lane_code = lane.upper()
+        if lane_code not in {definition["code"] for definition in definitions}:
+            raise HTTPException(422, {"code": "PROPOSAL_LANE_INVALID", "allowed": [definition["code"] for definition in definitions]})
+        rows = [row for row in rows if lane_code in row["owner_lane"]["memberships"]]
+    return rows, lane_counts
 
 
 @router.post("/test-support/cleanup")
@@ -125,51 +172,16 @@ def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db
 @router.get("")
 def list_proposals(q: str = "", stage: str | None = None, lane: str | None = None, client: str | None = None, activity: str | None = None, location: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
-    rows = [_list_row(db, item) for item in db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()]
-    needle = q.strip().lower()
-    if needle:
-        rows = [row for row in rows if needle in row["_search_text"]]
-    if client and client.strip():
-        client_needle = client.strip().lower()
-        rows = [row for row in rows if client_needle in str(row.get("client") or "").lower()]
-    if activity and activity.strip():
-        activity_needle = activity.strip().lower()
-        rows = [row for row in rows if activity_needle in str(row.get("activity") or "").lower() or activity_needle in row["_search_text"]]
-    if stage:
-        rows = [row for row in rows if row["stage_code"] == stage.upper()]
-    if location:
-        location_needle = location.strip().lower()
-        rows = [row for row in rows if location_needle in str(row.get("location") or "").lower()]
-    lane_counts = {definition["code"]: sum(1 for row in rows if definition["code"] in row["owner_lane"]["memberships"]) for definition in owner_lane_definitions()}
-    if lane:
-        lane_code = lane.upper()
-        if lane_code not in {definition["code"] for definition in owner_lane_definitions()}:
-            raise HTTPException(422, {"code": "PROPOSAL_LANE_INVALID", "allowed": [definition["code"] for definition in owner_lane_definitions()]})
-        rows = [row for row in rows if lane_code in row["owner_lane"]["memberships"]]
+    rows, lane_counts = _register_predicate([_list_row(db, item) for item in db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()], q=q, stage=stage, lane=lane, client=client, activity=activity, location=location)
     for row in rows:
         row.pop("_search_text", None)
-    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True}
+    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True}
 
 
 @router.post("")
 def create_proposal(payload: ProposalCreate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_WRITE")
-    office = db.scalar(select(ConsultancyOffice).order_by(ConsultancyOffice.office_code))
-    if not office:
-        raise HTTPException(503, "OFFICE_CONTEXT_REQUIRED")
-    client_id = payload.client_account_id
-    if not client_id and payload.client_name:
-        client = ClientAccount(client_reference=f"AMEC-SYN-CLIENT-{db.query(ClientAccount).count() + 1:04d}", legal_name=payload.client_name.strip(), display_name=payload.client_name.strip(), client_type="COMPANY", data_classification="SYNTHETIC", status="ACTIVE")
-        db.add(client)
-        db.flush()
-        client_id = client.id
-    reference = allocate_proposal_reference(db)
-    fields = {"client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"client_name": "manual", "project_reference": "manual"}}
-    fields = {key: value for key, value in fields.items() if value is not None}
-    item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, provisional_reference=reference, canonical_project_reference=payload.project_reference)
-    db.add(item)
-    db.flush()
-    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_DRAFT_CREATED", entity_type="Opportunity", entity_id=item.id, actor_id=_actor(role), after={"proposal_reference": reference, "status": item.status})
+    item = _create_proposal_record(payload, request, db, role)
     db.commit()
     return proposal_projection(db, item)
 
@@ -545,32 +557,26 @@ def proceed_to_engineering(proposal_id: str, request: Request, db: Session = Dep
     return {"result": "TRANSITIONED", "proposal": proposal_projection(db, proposal), "handoff": handoff, "next_route": f"/proposals/{proposal.id}/preparation"}
 
 
-@router.post("/{proposal_id}/sources")
-async def add_source(proposal_id: str, request: Request, source_type: str = Form(...), file: UploadFile = File(...), source_revision: str | None = Form(default=None), actor: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role), x_synthetic_sor: str | None = Header(default=None)):
-    require_capability(role, "BD_PROPOSAL_WRITE")
-    proposal = db.get(Opportunity, proposal_id)
+async def _register_source_content(*, proposal: Opportunity, request: Request, source_type: str, source_filename: str, content_type: str, content: bytes, source_revision: str | None, actor: str, idempotency_key: str | None, source_metadata: dict[str, Any] | None, db: Session, role: Role) -> dict[str, Any]:
     source_type = source_type.upper()
-    if not proposal:
-        raise HTTPException(404, "PROPOSAL_NOT_FOUND")
     if source_type not in SOURCE_TYPES:
         raise HTTPException(422, {"code": "SOURCE_TYPE_REQUIRED", "allowed": list(SOURCE_TYPES)})
-    content = await file.read()
     semantic = SOURCE_TO_SEMANTIC[source_type]
     digest = hashlib.sha256(content).hexdigest()
     # Vercel TEST has durable PostgreSQL but a read-only deployment bundle.
     # Preserve the verified source index and hash there; local TEST continues
     # to exercise the MockSynologyAdapter filesystem path.
     if app_settings().app_env.upper() == "TEST" and os.environ.get("VERCEL"):
-        result = {"id": str(uuid4()), "source_filename": file.filename or "source.bin", "sor_path": f"synthetic://proposal-source/{proposal.opportunity_reference}/{source_type.lower()}/{digest}", "content_hash": digest, "verification_state": "READ_BACK_VERIFIED", "semantic_class": semantic}
+        result = {"id": str(uuid4()), "source_filename": source_filename, "sor_path": f"synthetic://proposal-source/{proposal.opportunity_reference}/{source_type.lower()}/{digest}", "content_hash": digest, "verification_state": "READ_BACK_VERIFIED", "semantic_class": semantic}
     else:
-        result = ingest_provisional_intake_artifact(db, opportunity=proposal, semantic_class=semantic, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, actor=_actor(role, actor), source_revision=source_revision, idempotency_key=idempotency_key, correlation_id=request.state.correlation_id)
+        result = ingest_provisional_intake_artifact(db, opportunity=proposal, semantic_class=semantic, source_filename=source_filename, content_type=content_type, content=content, actor=actor, source_revision=source_revision, idempotency_key=idempotency_key, correlation_id=request.state.correlation_id)
     existing = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.source_type == source_type, ProposalSourceEvidence.status == "CURRENT").order_by(ProposalSourceEvidence.created_at.desc()))
     if existing and existing.content_hash != digest:
         existing.status = "CONFLICT"
         db.add(ProposalStalenessEvent(proposal_id=proposal.id, trigger_type="SOURCE_VERSION", trigger_reference=f"{source_type}:{digest}", reason_code="SOURCE_VERSION_CHANGED", impacted_sections=impacted_sections_for_source(source_type), status="ACTIVE", detected_by=_actor(role, actor)))
     evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.source_type == source_type, ProposalSourceEvidence.content_hash == digest))
     if not evidence:
-        evidence = ProposalSourceEvidence(proposal_id=proposal.id, source_type=source_type, source_filename=result["source_filename"], source_reference=result["sor_path"], content_hash=digest, content_type=file.content_type or "application/octet-stream", source_revision=source_revision, provenance={"kind": "source", "source_artifact_id": result["id"], "semantic_class": semantic, "verification": result["verification_state"]}, conflict_key=source_type, status="CURRENT", verification_state=result["verification_state"], supersedes_id=existing.id if existing else None, created_by=_actor(role, actor))
+        evidence = ProposalSourceEvidence(proposal_id=proposal.id, source_type=source_type, source_filename=result["source_filename"], source_reference=result["sor_path"], content_hash=digest, content_type=content_type, source_revision=source_revision, provenance={"kind": "source", "source_artifact_id": result["id"], "semantic_class": semantic, "verification": result["verification_state"], **(source_metadata or {})}, conflict_key=source_type, status="CURRENT", verification_state=result["verification_state"], supersedes_id=existing.id if existing else None, created_by=actor)
         db.add(evidence)
         db.flush()
     document = db.scalar(select(Document).where(Document.logical_name == f"{proposal.opportunity_reference}:{source_type}:{digest}"))
@@ -578,7 +584,7 @@ async def add_source(proposal_id: str, request: Request, source_type: str = Form
         document = Document(project_id=proposal.project_id, document_type=DocumentType.OTHER, logical_name=f"{proposal.opportunity_reference}:{source_type}:{digest}", language="EN", source_system="PROPOSAL_INTAKE", current_version_id=None)
         db.add(document)
         db.flush()
-        version = DocumentVersion(document_id=document.id, version_number=1, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=file.content_type or "application/octet-stream", file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+        version = DocumentVersion(document_id=document.id, version_number=1, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
         db.add(version)
         db.flush()
         document.current_version_id = version.id
@@ -586,15 +592,50 @@ async def add_source(proposal_id: str, request: Request, source_type: str = Form
         version = db.scalar(select(DocumentVersion).where(DocumentVersion.document_id == document.id, DocumentVersion.sha256 == digest))
         if not version:
             next_version = (db.scalar(select(DocumentVersion.version_number).where(DocumentVersion.document_id == document.id).order_by(DocumentVersion.version_number.desc())) or 0) + 1
-            version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=file.content_type or "application/octet-stream", file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+            version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
             db.add(version)
             db.flush()
             document.current_version_id = version.id
     if not db.scalar(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal.id, ProposalSourceLink.document_version_id == version.id, ProposalSourceLink.source_role == source_type)):
         db.add(ProposalSourceLink(proposal_id=proposal.id, source_evidence_id=evidence.id, document_id=document.id, document_version_id=version.id, source_role=source_type, added_by=_actor(role, actor)))
-    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SOURCE_REGISTERED", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role, actor), after={"source_type": source_type, "source_evidence_id": evidence.id, "content_hash": digest, "conflict": bool(existing and existing.content_hash != digest)})
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SOURCE_REGISTERED", entity_type="Opportunity", entity_id=proposal.id, actor_id=actor, after={"source_type": source_type, "source_evidence_id": evidence.id, "content_hash": digest, "conflict": bool(existing and existing.content_hash != digest), "initial_source": bool(source_metadata and source_metadata.get("initial_source"))})
+    return {"source": {"id": evidence.id, "source_type": evidence.source_type, "content_hash": evidence.content_hash, "verification_state": evidence.verification_state, "status": evidence.status, "source_reference": evidence.source_reference}}
+
+
+@router.post("/intake")
+async def create_proposal_intake(request: Request, proposal_description: str = Form(...), project_reference: str | None = Form(default=None), client_name: str | None = Form(default=None), client_account_id: str | None = Form(default=None), project_id: str | None = Form(default=None), initial_source_type: str | None = Form(default=None), source_title: str | None = Form(default=None), source_date: str | None = Form(default=None), source_notes: str | None = Form(default=None), source_revision: str | None = Form(default=None), file: UploadFile | None = File(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Create a Proposal and its optional initial source in one DB transaction."""
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    source_type = initial_source_type.upper() if initial_source_type else None
+    if source_type and source_type not in SOURCE_TYPES:
+        raise HTTPException(422, {"code": "SOURCE_TYPE_REQUIRED", "allowed": list(SOURCE_TYPES)})
+    if source_type and not file:
+        raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_REQUIRED", "source_type": source_type})
+    proposal = _create_proposal_record(ProposalCreate(proposal_description=proposal_description, project_reference=project_reference, client_account_id=client_account_id, client_name=client_name, project_id=project_id), request, db, role)
+    result: dict[str, Any] = {}
+    try:
+        if source_type and file:
+            content = await file.read()
+            if not content:
+                raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_EMPTY", "source_type": source_type})
+            result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or source_title or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role), idempotency_key=None, source_metadata={"initial_source": True, "title": source_title, "source_date": source_date, "notes": source_notes}, db=db, role=role)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    return {**result, "proposal": proposal_projection(db, proposal), "next_route": f"/opportunities/{proposal.id}"}
+
+
+@router.post("/{proposal_id}/sources")
+async def add_source(proposal_id: str, request: Request, source_type: str = Form(...), file: UploadFile = File(...), source_revision: str | None = Form(default=None), actor: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role), x_synthetic_sor: str | None = Header(default=None)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = db.get(Opportunity, proposal_id)
+    if not proposal:
+        raise HTTPException(404, "PROPOSAL_NOT_FOUND")
+    content = await file.read()
+    result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role, actor), idempotency_key=idempotency_key, source_metadata=None, db=db, role=role)
     db.commit()
-    return {"source": {"id": evidence.id, "source_type": evidence.source_type, "content_hash": evidence.content_hash, "verification_state": evidence.verification_state, "status": evidence.status, "source_reference": evidence.source_reference}, "proposal": proposal_projection(db, proposal)}
+    return {**result, "proposal": proposal_projection(db, proposal)}
 
 
 @router.get("/{proposal_id}/validation")

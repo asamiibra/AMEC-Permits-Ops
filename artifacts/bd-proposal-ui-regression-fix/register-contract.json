@@ -1,0 +1,14 @@
+{
+  "predicate_version": "bd-proposal-register-v2",
+  "final_postgresql_snapshot": {
+    "count": 2,
+    "lane_counts": {"ALL": 2, "NEED_ACTION": 2, "AUTHORITY_REVIEW": 0, "READY_CLOSE": 0},
+    "rows_count_gt_zero": true
+  },
+  "reconciliation_rules": [
+    "ALL lane count equals ALL visible items",
+    "selected lane count equals selected lane visible items",
+    "global q/client/activity/location/stage filters apply before lane counts and rows"
+  ],
+  "fake_zero_count": 0
+}

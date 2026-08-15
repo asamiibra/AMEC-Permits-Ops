@@ -1,5 +1,5 @@
 export default async function globalTeardown() {
-  const base = process.env.BASE_URL || "http://127.0.0.1:5173";
+  const base = process.env.API_BASE_URL || process.env.BASE_URL || "http://127.0.0.1:5173";
   try {
     const response = await fetch(`${base}/api/test-support/master-content/owner-cleanup`, { method: "POST", headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
     if (!response.ok) throw new Error(`cleanup returned ${response.status}`);

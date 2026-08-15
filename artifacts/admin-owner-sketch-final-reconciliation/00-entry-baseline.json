@@ -1,0 +1,8 @@
+{
+  "branch": "main",
+  "entry_sha": "a7f724c5b79522edaecf2876b1f732918c014d77",
+  "remote_sha": "a7f724c5b79522edaecf2876b1f732918c014d77",
+  "prior_bd_dashboard_gate": "PASS",
+  "alembic_head": "0055_bd_proposal_final_hardening",
+  "working_tree_note": "Only generated permitops.db was present at entry and is excluded from evidence."
+}

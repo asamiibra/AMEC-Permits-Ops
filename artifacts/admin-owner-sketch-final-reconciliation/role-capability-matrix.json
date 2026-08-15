@@ -1,0 +1,7 @@
+{
+  "Owner": {"administration_view": true, "setup_controls": true, "contract_authority": "configured capability", "project_activation": "configured capability", "invoice_accept_issue": "configured capability"},
+  "Business Development": {"contract_commercial_work": "existing capability", "global_setup": false, "bypass_contract_authority": false},
+  "Engineering": {"project_contract_context": "read applicable context", "contract_commercial_edit": false, "invoice_approval_issue": false},
+  "new_global_persona_added": false,
+  "server_side_enforcement": true
+}

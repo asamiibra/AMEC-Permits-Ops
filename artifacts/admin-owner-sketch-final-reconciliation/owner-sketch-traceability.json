@@ -1,0 +1,15 @@
+{
+  "status": "MAPPED",
+  "elements": {
+    "Admin": {"route": "/admin", "result": "ADAPTED"},
+    "Contract": {"route": "/admin/contracts", "result": "EXACT_LABEL_BACKEND_DERIVED"},
+    "New": {"route": "/admin/contracts", "result": "ACCEPTED_PROPOSAL_GATED"},
+    "Contract_lanes": {"result": "BACKEND_FILTERS"},
+    "Contract_columns": {"result": "COMPACT_OWNER_PROJECTION"},
+    "Project_Code_Start_Date": {"route": "/admin/contracts/{id}", "result": "EXPLICIT_ACTIVATION"},
+    "Invoice": {"route": "/admin/invoices", "result": "BILLING_REUSE"},
+    "Invoice_lanes": {"result": "BACKEND_STAGE_PROJECTION"},
+    "Invoice_columns": {"result": "COMPACT_OWNER_PROJECTION"},
+    "Automatic": {"result": "DRAFT_PREPARATION_ONLY"}
+  }
+}

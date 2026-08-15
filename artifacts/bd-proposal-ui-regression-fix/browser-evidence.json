@@ -1,0 +1,12 @@
+{
+  "base_url": "http://127.0.0.1:5173",
+  "backend": "http://127.0.0.1:8000",
+  "database": "bd_proposal_ui_regression_20260815",
+  "migration_head": "0055_bd_proposal_final_hardening",
+  "command": "BASE_URL=http://127.0.0.1:5173 npx playwright test -c playwright.real-stack.config.ts browser-real-stack/bd-proposal-ui-regression.spec.ts browser-real-stack/bd-proposal-forms-driven-v2.spec.ts",
+  "passed": 3,
+  "failed": 0,
+  "safe_recovery_valid_detail": 0,
+  "unexpected_page_or_application_console_errors": 0,
+  "intentional_not_found_http": 404
+}

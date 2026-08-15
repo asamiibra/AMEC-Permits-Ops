@@ -1,0 +1,9 @@
+{
+  "method": "GET",
+  "path": "/api/bd/proposals/{proposal_id}",
+  "capability": "BD_PROPOSAL_READ",
+  "required_detail_fields": ["id", "title", "stage"],
+  "guarded_optional_areas": ["sources", "forms_v2", "hardening", "validation", "intake_readiness", "configuration", "proposal_breakdown", "authority"],
+  "invalid_contract_behavior": "controlled PROPOSAL_DETAIL_CONTRACT_INVALID error",
+  "api_failure_behavior": "controlled loading/error/not-found surface, never a fabricated empty Proposal"
+}

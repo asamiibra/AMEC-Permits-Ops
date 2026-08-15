@@ -1,0 +1,10 @@
+{
+  "route": "/admin",
+  "primary_tabs": ["Contracts", "Invoices"],
+  "secondary_links": ["Handover & Closeout", "Setup & Controls"],
+  "required_states": ["loading", "error_with_retry", "empty", "synthetic_banner", "owner_role", "responsive"],
+  "owner_visible_raw_uuid": 0,
+  "owner_visible_raw_enum": 0,
+  "primary_config_tiles_before_business_work": false,
+  "canonical_reuse": ["ContractWorkspace", "BillingInvoicePage", "DashboardMasterContent", "HandoverPage"]
+}

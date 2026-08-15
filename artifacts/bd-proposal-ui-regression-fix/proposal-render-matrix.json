@@ -1,0 +1,13 @@
+{
+  "valid_detail": "PASS",
+  "engineering_preparation": "PASS",
+  "contract_handoff": "PASS",
+  "accepted_api_contract": "PASS",
+  "empty_optional_collections": "PASS",
+  "full_forms_v2_payload": "PASS",
+  "controlled_not_found": "PASS",
+  "safe_recovery_on_valid_detail": 0,
+  "direct_route": "PASS",
+  "refresh": "PASS",
+  "back_forward_route_state": "PASS"
+}

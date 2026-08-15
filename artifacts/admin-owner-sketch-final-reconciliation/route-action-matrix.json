@@ -1,0 +1,13 @@
+{
+  "unwired_controls": 0,
+  "noop_controls": 0,
+  "actions": [
+    {"page": "/admin", "label": "Contracts", "route": "/admin/contracts", "type": "navigation"},
+    {"page": "/admin", "label": "Invoices", "route": "/admin/invoices", "type": "navigation"},
+    {"page": "/admin", "label": "Handover & Closeout", "route": "/handover", "type": "navigation"},
+    {"page": "/admin", "label": "Setup & Controls", "route": "/admin/setup-controls", "type": "navigation"},
+    {"page": "/admin/contracts", "label": "+ New Contract", "api": "POST /api/admin/contracts", "command": "create_contract_from_accepted_proposal", "type": "bounded mutation"},
+    {"page": "/admin/contracts", "label": "Open", "route": "/admin/contracts/{id}", "type": "navigation"},
+    {"page": "/admin/invoices", "label": "Open", "route": "/admin/invoices/{id}", "type": "navigation"}
+  ]
+}

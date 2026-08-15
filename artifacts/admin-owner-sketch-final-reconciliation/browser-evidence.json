@@ -1,0 +1,13 @@
+{
+  "status": "PASS_SYNTHETIC_REAL_STACK",
+  "spec": "frontend/browser-real-stack/admin-owner-ready.spec.ts",
+  "required_journeys": ["Administration → Contracts", "Contract lane counts", "Administration → Invoices", "Setup & Controls", "role denial", "responsive", "direct route/refresh"],
+  "real_frontend_backend_postgresql": false,
+  "synthetic_storage_label": true,
+  "commands": [
+    "BASE_URL=http://127.0.0.1:5177 API_BASE_URL=http://127.0.0.1:8003 npx playwright test browser-real-stack/admin-owner-ready.spec.ts -c playwright.real-stack.config.ts",
+    "BASE_URL=http://127.0.0.1:5177 API_BASE_URL=http://127.0.0.1:8003 npx playwright test browser-real-stack/administration-final-audit.spec.ts browser-real-stack/admin-forms-real-stack.spec.ts -c playwright.real-stack.config.ts"
+  ],
+  "results": { "owner_ready": "5 passed", "adjacent_regressions": "5 passed", "cleanup": "PASS" },
+  "postgresql": "BLOCKED_DOCKER_UNAVAILABLE"
+}

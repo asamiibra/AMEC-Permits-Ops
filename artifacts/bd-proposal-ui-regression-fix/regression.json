@@ -1,0 +1,10 @@
+{
+  "backend_sqlite_full": {"passed": 205, "skipped": 8, "warnings": 2},
+  "backend_postgresql_full": {"passed": 213, "skipped": 0, "warnings": 2},
+  "backend_focused_proposal": {"passed": 12, "warnings": 1},
+  "frontend_unit": {"passed": 36},
+  "frontend_build": "PASS",
+  "browser_real_stack": {"passed": 3, "failed": 0},
+  "forms_v2_preserved": true,
+  "migrations_added": 0
+}

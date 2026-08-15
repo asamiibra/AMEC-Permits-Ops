@@ -1,0 +1,15 @@
+{
+  "status": "INVENTORIED",
+  "frontend_routes": ["/admin", "/admin/contracts", "/admin/contracts/{id}", "/admin/invoices", "/admin/invoices/{id}", "/admin/setup-controls", "/admin/contract-setup", "/handover", "/billing/invoices", "/proposals/{id}", "/contracts/{id}", "/dashboard", "/dashboard-v2"],
+  "canonical_api_groups": {
+    "proposal": "/api/bd/proposals and /api/proposals-main",
+    "contract": "/api/admin/contracts",
+    "billing": "/api/billing",
+    "admin_setup": "/api/admin",
+    "dashboard_master_content": "/api/master-content",
+    "handover": "/api/handover",
+    "project_engineering": "/api/projects/{project_id}/engineering"
+  },
+  "duplicate_business_logic": 0,
+  "new_business_datastore": false
+}

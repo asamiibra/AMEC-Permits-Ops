@@ -9,6 +9,7 @@ const mockedApi = vi.mocked(api);
 
 describe("BD Proposal owner register", () => {
   beforeEach(() => {
+    window.history.pushState({}, "", "/opportunities");
     mockedApi.mockReset();
     mockedApi.mockResolvedValue({
       items: [{ id: "proposal-1", proposal: "Harbor design activity", proposal_reference: "AMEC-SYN-PROP-0001", project_ref: "PROJ-WEST-01", client: "Lane Search Company", stage: "Intake & Sources", amount: null, last_activity: null, next_action: { label: "Resolve intake blockers" } }],
@@ -81,5 +82,20 @@ describe("BD Proposal owner register", () => {
     expect(screen.getByText("Current information has changed since this Proposal was accepted")).toBeVisible();
     expect(screen.getByRole("button", { name: "Create new Proposal revision" })).toBeVisible();
     expect(screen.getByText(/Expected Inputs \/ Dashboard/)).toBeVisible();
+  });
+
+  it("turns each initial source card into a selected, source-specific intake panel", async () => {
+    mockedApi.mockReset();
+    mockedApi.mockResolvedValue({ items: [], lane_counts: { ALL: 0, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 } });
+    render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: "＋ New Proposal" }));
+    fireEvent.click(screen.getByRole("button", { name: /Tender Email/ }));
+    expect(screen.getByRole("button", { name: /Tender Email.*Selected/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: "Tender Email intake" })).toBeVisible();
+    expect(screen.getByLabelText("Tender Email source file")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Create Proposal & Add Tender Email" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /Tender Document/ }));
+    expect(screen.getByRole("heading", { name: "Tender Document intake" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Tender Email intake" })).toBeNull();
   });
 });

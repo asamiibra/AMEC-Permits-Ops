@@ -1,0 +1,11 @@
+{
+  "source_types": ["TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_PHOTO", "CLIENT_DATA"],
+  "ui_labels": {"TENDER_EMAIL": "Tender Email", "TENDER_DOCUMENT": "Tender Document", "TENDER_PHOTO": "Tender Photo / Image", "CLIENT_DATA": "Client Information"},
+  "selected_card_has_aria_pressed": true,
+  "selected_card_opens_source_specific_panel": true,
+  "selected_source_requires_file": true,
+  "initial_endpoint": "POST /api/bd/proposals/intake",
+  "without_source_endpoint": "POST /api/bd/proposals",
+  "single_transaction": true,
+  "automatic_workflow_transition": false
+}

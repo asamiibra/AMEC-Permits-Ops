@@ -1,0 +1,6 @@
+{
+  "invoice_revision_pins": ["controlling_contract_revision_id", "billing_plan_revision_id", "invoice_template_document_version", "renderer_mapping_identity", "financial_account_version"],
+  "issued_invoice_mutable": false,
+  "historical_template_rewrite": 0,
+  "production_template_status": "OWNER_CONFIRMATION_REQUIRED"
+}
