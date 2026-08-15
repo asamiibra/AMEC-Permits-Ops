@@ -6,5 +6,11 @@
   "PROPOSAL_CHECKLIST_RESOLVER_PASS": 1,
   "CONTRACT_TEMPLATE_RESOLVER_PASS": 1,
   "historical_exact_document_version_pass": 1,
-  "source": "prior focused PostgreSQL promotion suite, retained unchanged"
+  "source": "focused PostgreSQL promotion suite plus deployed backend probes",
+  "vercel_resolvers": {
+    "PROPOSAL_TEMPLATE": {"http": 200, "ref": "BD-PROP-001", "version": 1},
+    "PROPOSAL_CHECKLIST": {"http": 200, "ref": "BD-CHK-001", "version": 1},
+    "CONTRACT_TEMPLATE": {"http": 200, "ref": "CT-001", "version": 1}
+  },
+  "VERCEL_CRITICAL_MASTER_RESOLVER_PASS": 1
 }
