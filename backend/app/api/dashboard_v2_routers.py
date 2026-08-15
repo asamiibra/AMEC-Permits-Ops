@@ -17,6 +17,7 @@ from ..api.dependencies import current_user_role
 from ..db import get_db
 from ..models import (
     ExternalBody,
+    AutomationReadinessAssessment,
     FormAutomationProfile,
     FormMappingRelease,
     FormMappingRule,
@@ -344,7 +345,7 @@ def evaluate_readiness(profile_id: str, db: Session = Depends(get_db), role: Rol
 @router.get("/profiles/{profile_id}/readiness/history")
 def readiness_history(profile_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    rows = list(db.scalars(select(__import__("backend.app.models", fromlist=["AutomationReadinessAssessment"]).AutomationReadinessAssessment).where(__import__("backend.app.models", fromlist=["AutomationReadinessAssessment"]).AutomationReadinessAssessment.profile_id == profile_id).order_by(__import__("backend.app.models", fromlist=["AutomationReadinessAssessment"]).AutomationReadinessAssessment.evaluated_at.desc())).all())
+    rows = list(db.scalars(select(AutomationReadinessAssessment).where(AutomationReadinessAssessment.profile_id == profile_id).order_by(AutomationReadinessAssessment.evaluated_at.desc())).all())
     return projections(rows)
 
 

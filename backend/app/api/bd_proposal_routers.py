@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import AssistantHandoff, AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, NotificationEvent, Opportunity, ProposalAcceptedRevision, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
+from ..models import AssistantHandoff, AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, ExternalBody, Jurisdiction, NotificationEvent, Opportunity, Party, ProposalAcceptedRevision, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, ServiceType, WorkflowTask, WorkflowTaskStatus
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
@@ -283,7 +283,7 @@ def link_client_party(proposal_id: str, payload: dict[str, Any], request: Reques
     party_id = payload.get("canonical_party_id")
     if not client or not party_id:
         raise HTTPException(422, {"code": "COMMERCIAL_CLIENT_AND_PARTY_REQUIRED"})
-    if not db.get(__import__("backend.app.models", fromlist=["Party"]).Party, party_id):
+    if not db.get(Party, party_id):
         raise HTTPException(422, {"code": "PARTY_NOT_FOUND", "party_id": party_id})
     client.canonical_party_id = party_id
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_CLIENT_PARTY_LINKED", entity_type="ClientAccount", entity_id=client.id, actor_id=_actor(role), after={"canonical_party_id": party_id})
@@ -295,7 +295,7 @@ def link_client_party(proposal_id: str, payload: dict[str, Any], request: Reques
 def add_stakeholder(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_WRITE")
     proposal = _proposal_or_404(proposal_id, db)
-    if payload.get("party_id") and not db.get(__import__("backend.app.models", fromlist=["Party"]).Party, payload["party_id"]):
+    if payload.get("party_id") and not db.get(Party, payload["party_id"]):
         raise HTTPException(422, {"code": "PARTY_NOT_FOUND", "party_id": payload["party_id"]})
     row = ProposalStakeholderIntent(proposal_id=proposal.id, role_code=payload.get("role_code", "OTHER"), party_id=payload.get("party_id"), display_snapshot=payload.get("display_snapshot"), status=payload.get("status", "UNKNOWN"), source_type=payload.get("source_type", "HUMAN_ENTERED"), source_document_version_id=payload.get("source_document_version_id"), note=payload.get("note"))
     db.add(row)
@@ -334,7 +334,8 @@ def add_regulatory_scope(proposal_id: str, payload: dict[str, Any], request: Req
     require_capability(role, "BD_PROPOSAL_WRITE")
     proposal = _proposal_or_404(proposal_id, db)
     for model, key, code in (("external_body_id", "ExternalBody", "EXTERNAL_BODY_NOT_FOUND"), ("service_type_id", "ServiceType", "SERVICE_TYPE_NOT_FOUND"), ("jurisdiction_id", "Jurisdiction", "JURISDICTION_NOT_FOUND")):
-        if payload.get(model) and not db.get(__import__("backend.app.models", fromlist=[key]).__dict__[key], payload[model]):
+        model_class = {"ExternalBody": ExternalBody, "ServiceType": ServiceType, "Jurisdiction": Jurisdiction}[key]
+        if payload.get(model) and not db.get(model_class, payload[model]):
             raise HTTPException(422, {"code": code, "id": payload[model]})
     row = ProposalRegulatoryScopeIntent(proposal_id=proposal.id, proposal_scope_item_id=payload.get("proposal_scope_item_id"), external_body_id=payload.get("external_body_id"), service_type_id=payload.get("service_type_id"), service_type_version_id=payload.get("service_type_version_id"), jurisdiction_id=payload.get("jurisdiction_id"), status=payload.get("status", "DRAFT"), source_type=payload.get("source_type", "HUMAN_ENTERED"), source_document_version_id=payload.get("source_document_version_id"), source_assertion_id=payload.get("source_assertion_id"), rationale=payload.get("rationale"), confidence=payload.get("confidence"), notes=payload.get("notes"))
     db.add(row)

@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from ..audit.service import audit
 from ..models import (
     ClientAccount,
+    DocumentVersion,
     ExternalBody,
     Jurisdiction,
     Opportunity,
@@ -212,7 +213,7 @@ def add_source_link(db: Session, proposal: Opportunity, payload: dict[str, Any],
     version_id = payload.get("document_version_id")
     if not version_id:
         raise HTTPException(422, {"code": "EXACT_DOCUMENT_VERSION_REQUIRED"})
-    version = db.get(__import__("backend.app.models", fromlist=["DocumentVersion"]).DocumentVersion, version_id)
+    version = db.get(DocumentVersion, version_id)
     if not version:
         raise HTTPException(422, {"code": "DOCUMENT_VERSION_NOT_FOUND", "document_version_id": version_id})
     row = ProposalSourceLink(proposal_id=proposal.id, source_evidence_id=payload.get("source_evidence_id"), document_id=version.document_id, document_version_id=version.id, source_role=payload.get("source_role", "OTHER"), added_by=actor, note=payload.get("note"))

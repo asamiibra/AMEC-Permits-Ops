@@ -10,6 +10,7 @@ from ..services.week2_workflows import register_version, classify_version, extra
 from ..services.configuration import scenario, evaluate_requirements, evaluate_drawing_controls
 from ..services.spike import run_spike
 from ..services.week8 import ensure_project_lineage, record_material_change
+from ..config.settings import get_settings
 
 router = APIRouter(prefix="/api")
 mock_router = APIRouter(prefix="/mock-authority")
@@ -191,7 +192,7 @@ def update_evaluation_gate(payload: GatePatch, request: Request, db: Session = D
 def spikes(db: Session = Depends(get_db)): return config_rows(db, ExtractionSpikeRun)
 @router.post("/evaluation/spikes")
 def create_spike(payload: SpikeCreate, request: Request, db: Session = Depends(get_db)):
-    settings = __import__("backend.app.config.settings", fromlist=["get_settings"]).get_settings()
+    settings = get_settings()
     gate = db.scalar(select(RealDocumentTestGate).limit(1))
     if payload.dataset_type == DatasetType.APPROVED_REAL_TEST and (not gate or not gate.real_document_test_approved):
         audit(db, correlation_id=cid(request), event_type="REAL_DOCUMENT_SPIKE_DENIED", entity_type="ExtractionSpikeRun", entity_id="not-created", after={"reason":"REAL_DOCUMENT_TEST_NOT_APPROVED"}); db.commit(); raise HTTPException(403, "REAL_DOCUMENT_TEST_NOT_APPROVED")

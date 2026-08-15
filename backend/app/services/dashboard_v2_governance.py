@@ -20,6 +20,9 @@ from ..models import (
     FormMappingReleaseQAGate,
     FormMappingRule,
     FormQARun,
+    DocumentVersion,
+    MasterContentGovernanceProfile,
+    SemanticKeyDefinition,
     Jurisdiction,
     MasterContentApplicability,
     MasterContentItem,
@@ -101,7 +104,7 @@ def _current_version_id(item: MasterContentItem) -> str:
 
 
 def _version_matches_form(db: Session, item: MasterContentItem, version_id: str) -> None:
-    version = db.get(__import__("backend.app.models", fromlist=["DocumentVersion"]).DocumentVersion, version_id)
+    version = db.get(DocumentVersion, version_id)
     if not version or version.document_id != item.document_id:
         raise _error("SOURCE_VERSION_FORM_MISMATCH")
 
@@ -112,7 +115,7 @@ def _date_match(row: Any, effective: date) -> bool:
 
 def _wave_a_state(db: Session, item: MasterContentItem) -> dict[str, Any]:
     result = evaluate_wave_a_readiness(db, item, persist=False)
-    profile = db.scalar(select(__import__("backend.app.models", fromlist=["MasterContentGovernanceProfile"]).MasterContentGovernanceProfile).where(__import__("backend.app.models", fromlist=["MasterContentGovernanceProfile"]).MasterContentGovernanceProfile.master_content_item_id == item.id))
+    profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == item.id))
     flags = list(db.scalars(select(MasterContentQualityFlag).where(MasterContentQualityFlag.master_content_item_id == item.id, MasterContentQualityFlag.status == "OPEN")).all())
     return {"readiness": result, "profile": profile, "quality_flags": flags}
 
@@ -292,7 +295,7 @@ def validate_release(db: Session, release: FormMappingRelease) -> dict[str, Any]
             reasons.append("MAPPING_NEEDS_REVALIDATION")
     if not rules:
         reasons.append("MAPPING_HAS_NO_RULES")
-    keys = {row.semantic_key for row in db.scalars(select(__import__("backend.app.models", fromlist=["SemanticKeyDefinition"]).SemanticKeyDefinition).where(__import__("backend.app.models", fromlist=["SemanticKeyDefinition"]).SemanticKeyDefinition.status == "ACTIVE")).all()}
+    keys = {row.semantic_key for row in db.scalars(select(SemanticKeyDefinition).where(SemanticKeyDefinition.status == "ACTIVE")).all()}
     for rule in rules:
         if rule.logical_field_key not in keys:
             reasons.append(f"SEMANTIC_KEY_NOT_FOUND:{rule.logical_field_key}")
