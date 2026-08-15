@@ -1,0 +1,16 @@
+{
+  "purpose": "Owner-facing copy map and diagnostic boundary for the Administration home and Contract workspace repair.",
+  "entries": [
+    {"internal_code": "CONTRACT_AMOUNT_REQUIRED", "owner_label": "Contract Amount is required.", "owner_explanation": "Enter the Contract amount before acceptance.", "diagnostic_visibility": "Owner blocker and diagnostics"},
+    {"internal_code": "PROJECT_OPPORTUNITY_REFERENCE_REQUIRED", "owner_label": "Project / Opportunity Reference is required.", "owner_explanation": "Add the business reference used to identify this Contract.", "diagnostic_visibility": "Owner blocker and diagnostics"},
+    {"internal_code": "CONTRACT_TEMPLATE_REQUIRED", "owner_label": "A Contract Template must be configured in Dashboard.", "owner_explanation": "Open Dashboard to configure the controlled Contract template.", "diagnostic_visibility": "Owner blocker and diagnostics"},
+    {"internal_code": "CONTRACT_ACCEPTANCE_REQUIRED", "owner_label": "Accept Contract before Project Activation.", "owner_explanation": "Project Activation stays unavailable until the exact Contract revision is accepted.", "diagnostic_visibility": "Owner blocker, server response, and diagnostics"},
+    {"internal_code": "OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION", "owner_label": "Owner review is required before this Contract can be accepted.", "owner_explanation": "This is internal AMEC approval, not legal execution or external signature.", "diagnostic_visibility": "Owner workspace; technical code diagnostics only"},
+    {"internal_code": "BILLING_INVOICE_IMPLEMENTATION_DEFERRED_TO_NEXT_WORKSTREAM", "owner_label": "Billing setup is not configured.", "owner_explanation": "Billing and Invoice records are managed in the Invoice workspace.", "diagnostic_visibility": "Diagnostics only; never raw in normal Contract UI"},
+    {"internal_code": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL", "owner_label": "Production document storage is not connected.", "owner_explanation": "The synthetic test store is available in this environment; production verification remains an external go-live dependency.", "diagnostic_visibility": "Inputs & Go-Live and diagnostics only"},
+    {"internal_code": "CONTRACT_HANDOVER", "owner_label": "Handover & Closeout", "owner_explanation": "Review the operational handover and closeout queue.", "diagnostic_visibility": "Administration home secondary action"},
+    {"internal_code": "DRAFT", "owner_label": "Draft", "owner_explanation": "The Contract is still being prepared.", "diagnostic_visibility": "Owner stage label"},
+    {"internal_code": "NOT_REVIEWED", "owner_label": "Not yet reviewed", "owner_explanation": "The current Contract revision has not completed Owner review.", "diagnostic_visibility": "Owner review label"},
+    {"internal_code": "NOT_READY", "owner_label": "Not ready", "owner_explanation": "One or more required Contract inputs remain unresolved.", "diagnostic_visibility": "Owner status label"}
+  ]
+}

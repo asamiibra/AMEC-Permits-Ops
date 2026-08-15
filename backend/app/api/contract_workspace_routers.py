@@ -582,6 +582,9 @@ def get_activation(contract_id: str, db: Session = Depends(get_db), role: Role =
 def activate_project(contract_id: str, payload: ActivationPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "PROJECT_ACTIVATE")
     contract = _contract_or_404(db, contract_id)
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    if not contract_revision_is_finalized(revision):
+        raise domain_error(409, "CONTRACT_ACCEPTANCE_REQUIRED", blockers=[{"code": "CONTRACT_ACCEPTANCE_REQUIRED", "label": "Accept Contract before Project Activation"}])
     check = readiness(db, contract)
     if not check["ready"]:
         raise domain_error(409, "PROJECT_ACTIVATION_BLOCKED", blockers=check["blockers"])

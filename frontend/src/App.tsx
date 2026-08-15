@@ -116,7 +116,6 @@ const businessNav: BusinessNavItem[] = [
     canonicalLabel: "Opportunities",
     icon: "↗",
   },
-  { id: "billing", page: "billing", label: "Billing / Invoice", icon: "▤" },
   {
     id: "engineering",
     page: "project-engineering",

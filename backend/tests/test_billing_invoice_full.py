@@ -29,6 +29,8 @@ def _activated_contract(client, name: str = "Billing Lifecycle Fixture"):
     contract_id = created.json()["id"]
     authority = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR"), json={"decision": "APPROVE", "reason": "Billing fixture authority"})
     assert authority.status_code == 200, authority.text
+    accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-billing-contract:{contract_id}"})
+    assert accepted.status_code == 200, accepted.text
     activated = client.post(
         f"/api/admin/contracts/{contract_id}/activate-project",
         headers=headers("OWNER_SPONSOR"),

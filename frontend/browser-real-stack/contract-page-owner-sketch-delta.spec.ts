@@ -11,11 +11,14 @@ test("Owner Contract detail exposes the six owner-sketch delta surfaces", async 
   const contract = contracts.items?.[0];
   expect(contract?.id).toBeTruthy();
   await page.goto(`/admin/contracts/${contract.id}`);
-  await expect(page.getByRole("heading", { name: "Contract inputs, source lineage, and acceptance", level: 3 })).toBeVisible();
-  for (const label of ["Client Document", "LPO", "Client Name", "Client Company", "CR No.", "Mobile No.", "PIN No.", "Client Email", "Project Description", "Documents Needed", "Deliverables", "Contract Documents & Sources", "Accept Contract", "Explicit Project Activation"]) {
+  await expect(page.getByRole("heading", { name: /SYN-CTR-|Contract/, level: 3 }).first()).toBeVisible();
+  for (const label of ["Client Document", "LPO", "Client Name", "Client Company", "CR No.", "Mobile No.", "PIN No.", "Client Email", "Project Description", "Client Inputs & Documents Needed", "Deliverables / Contracted Works", "Contract Documents & Sources", "Accept Contract", "Project Activation", "Billing & Invoices"]) {
     await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
   }
   await expect(page.getByText("Owner definition required", { exact: false })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Activate Project", exact: true })).toBeDisabled();
+  await expect(page.locator("body")).not.toContainText(/CONTRACT WORKBENCH|Mark Ready \/ Close|Authority policy and readiness seam|IMPLEMENTATION_DEFERRED|BLOCKED_EXTERNAL|OWNER_REVIEW_REQUIRED/);
 });
 
 test("Owner Contract detail remains usable at narrow width", async ({ page }) => {
@@ -24,6 +27,6 @@ test("Owner Contract detail remains usable at narrow width", async ({ page }) =>
   const response = await page.request.get(`${apiBase}/api/admin/contracts`, { headers: { "X-Dev-Role": "OWNER_SPONSOR" } });
   const contracts = await response.json();
   await page.goto(`/admin/contracts/${contracts.items?.[0]?.id}`);
-  await expect(page.getByRole("heading", { name: "Contract inputs, source lineage, and acceptance", level: 3 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /SYN-CTR-|Contract/, level: 3 }).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBeFalsy();
 });

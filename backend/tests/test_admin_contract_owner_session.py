@@ -251,6 +251,11 @@ def test_contract_manual_policy_permissions_and_explicit_project_activation(clie
     assert client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("COMMERCIAL_APPROVER"), json={"project_code": "AMEC-DEMO-001", "start_date": "2026-08-12", "idempotency_key": "activation-denied"}).status_code == 403
     assert client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("RESPONSIBLE_ENGINEER"), json={"project_code": "AMEC-DEMO-001", "start_date": "2026-08-12", "idempotency_key": "activation-denied-engineering"}).status_code == 403
     assert client.patch(f"/api/admin/contracts/{contract_id}", headers=headers("RESPONSIBLE_ENGINEER"), json={"amount": "QAR 1", "reason": "not authorized"}).status_code == 403
+    blocked_activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-DEMO-001", "start_date": "2026-08-12", "idempotency_key": "activation-before-accept"})
+    assert blocked_activation.status_code == 409
+    assert blocked_activation.json()["detail"]["code"] == "CONTRACT_ACCEPTANCE_REQUIRED"
+    accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-activation:{contract_id}"})
+    assert accepted.status_code == 200, accepted.text
     activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-DEMO-001", "start_date": "2026-08-12", "idempotency_key": "activation-skyline-v1"})
     assert activation.status_code == 200, activation.text
     first = activation.json()
@@ -295,6 +300,8 @@ def test_contract_reconciliation_read_model_and_billing_seam(client):
     assert before["status"] == "NEEDS_CONTRACT_AUTHORITY"
     authority = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR"), json={"decision": "APPROVE", "reason": "Owner authority review complete"})
     assert authority.status_code == 200, authority.text
+    accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-reconciliation:{contract_id}"})
+    assert accepted.status_code == 200, accepted.text
     activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-RECON-001", "start_date": "2026-08-13", "idempotency_key": "reconciliation-activation-v1"})
     assert activation.status_code == 200, activation.text
     billing = client.get(f"/api/admin/contracts/{contract_id}/billing-context", headers=headers("OWNER_SPONSOR")).json()
