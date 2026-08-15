@@ -5,9 +5,12 @@
   "real_frontend_backend_postgresql": false,
   "synthetic_storage_label": true,
   "commands": [
-    "BASE_URL=http://127.0.0.1:5177 API_BASE_URL=http://127.0.0.1:8003 npx playwright test browser-real-stack/admin-owner-ready.spec.ts -c playwright.real-stack.config.ts",
-    "BASE_URL=http://127.0.0.1:5177 API_BASE_URL=http://127.0.0.1:8003 npx playwright test browser-real-stack/administration-final-audit.spec.ts browser-real-stack/admin-forms-real-stack.spec.ts -c playwright.real-stack.config.ts"
+    "BASE_URL=http://127.0.0.1:5177 API_BASE_URL=http://127.0.0.1:8003 npx playwright test browser-real-stack/admin-owner-ready.spec.ts -c playwright.real-stack.config.ts --workers=1",
+    "BASE_URL=http://127.0.0.1:5177 API_BASE_URL=http://127.0.0.1:8003 npx playwright test browser-real-stack/admin-forms-real-stack.spec.ts -c playwright.real-stack.config.ts --workers=1",
+    "BASE_URL=http://127.0.0.1:5177 API_BASE_URL=http://127.0.0.1:8003 npx playwright test browser-real-stack/administration-final-audit.spec.ts -c playwright.real-stack.config.ts --workers=1"
   ],
-  "results": { "owner_ready": "5 passed", "adjacent_regressions": "5 passed", "cleanup": "PASS" },
+  "execution_mode": "serial_workers_1_shared_synthetic_db",
+  "results": { "owner_ready": "5 passed", "forms_reuse": "2 passed", "administration_audit": "3 passed", "cleanup": "PASS" },
+  "parallel_shared_fixture_note": "The combined 3-worker run is not used as evidence because stateful synthetic cleanup interferes across workers; serial runs pass.",
   "postgresql": "BLOCKED_DOCKER_UNAVAILABLE"
 }

@@ -5,8 +5,9 @@
   "billing_post_billing": "targeted tests available",
   "handover_closeout": "existing routes/models preserved",
   "engineering_preparation_permit_construction_completion": "no route/domain ownership change",
-  "backend_tests": "198 passed, 8 skipped",
-  "frontend_tests": "35 passed",
+  "backend_tests": "205 passed, 8 skipped",
+  "focused_admin_contract_billing_tests": "8 passed",
+  "frontend_tests": "36 passed",
   "build": "PASS",
   "migration_smoke": "PASS through 0055_bd_proposal_final_hardening",
   "postgresql": "NOT_RUN_DOCKER_UNAVAILABLE"
