@@ -26,6 +26,7 @@ from ..models import (
 from .master_content import definition_lookup, resolve_master_content_purpose
 from .master_content import definition_projection, governance_projection
 from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
+from .owner_decisions import runtime_decision_value
 
 SOURCE_TYPES = ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA")
 SOURCE_TO_SEMANTIC = {
@@ -230,6 +231,151 @@ def intake_readiness(db: Session, proposal: Opportunity) -> dict[str, Any]:
     return {"ready": not blockers, "blockers": blockers, "warnings": warnings, "source_count": len(current), "current_owner": "Business Development" if not blockers else "Business Development", "next_actor": "Engineering" if not blockers else "Business Development"}
 
 
+def _blocking_items(validation: dict[str, Any], readiness: dict[str, Any], intake: dict[str, Any]) -> list[dict[str, Any]]:
+    return [*(validation.get("blockers") or []), *(readiness.get("blocking") or []), *(intake.get("blockers") or [])]
+
+
+def proposal_breakdown(db: Session, proposal: Opportunity, forms: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Project the existing Proposal scope/contribution data for Owner readability.
+
+    This is deliberately a read projection. ProposalServiceScopeItem,
+    ProposalEngineeringContribution, and ProposalExternalCostAssumption remain
+    the authoritative structured sources; no ProposalBreakdown table is added.
+    """
+    fields = proposal.proposal_fields_json or {}
+    forms = forms or forms_v2_projection(db, proposal)
+    items: list[dict[str, Any]] = []
+    for item in forms.get("service_scope_items") or []:
+        items.append({
+            "id": item["id"],
+            "kind": "Service scope",
+            "label": item["description"],
+            "included": item["included"],
+            "status": item.get("status"),
+            "source": "AMEC Scope / Engineering Preparation",
+            "lineage": {"entity": "ProposalServiceScopeItem", "id": item["id"]},
+        })
+    for item in forms.get("engineering_contributions") or []:
+        items.append({
+            "id": item["id"],
+            "kind": "Technical input",
+            "label": item.get("contribution_type", "Engineering contribution").replace("_", " ").title(),
+            "detail": item["content"],
+            "discipline": item.get("discipline_code"),
+            "status": item.get("status"),
+            "source": "Engineering Preparation",
+            "lineage": {"entity": "ProposalEngineeringContribution", "id": item["id"]},
+        })
+    for item in forms.get("external_cost_assumptions") or []:
+        items.append({
+            "id": item["id"],
+            "kind": "External / pass-through assumption",
+            "label": item["description"],
+            "detail": item.get("rationale"),
+            "amount": item.get("estimated_amount"),
+            "currency": item.get("currency"),
+            "status": item.get("status"),
+            "source": "Commercial planning",
+            "lineage": {"entity": "ProposalExternalCostAssumption", "id": item["id"]},
+        })
+    technical_deliverables = fields.get("technical_deliverables")
+    if technical_deliverables:
+        values = technical_deliverables if isinstance(technical_deliverables, list) else [technical_deliverables]
+        for index, value in enumerate(values):
+            detail = value if isinstance(value, str) else value.get("description") or value.get("title") or str(value)
+            items.append({
+                "id": f"technical-deliverable-{index}",
+                "kind": "Technical deliverable",
+                "label": detail,
+                "source": "Engineering Preparation",
+                "lineage": {"field": "technical_deliverables", "index": index},
+            })
+    return {
+        "source": "Current ProposalServiceScopeItem, ProposalEngineeringContribution, ProposalExternalCostAssumption, and technical-deliverable projection",
+        "items": items,
+        "commercial_summary": {
+            "price": fields.get("price"),
+            "currency": fields.get("currency") or "QAR",
+            "duration": fields.get("duration") or fields.get("period"),
+            "payment_terms": fields.get("payment_terms") or fields.get("payment_condition"),
+            "inclusions": fields.get("inclusions"),
+            "exclusions": fields.get("exclusions"),
+        },
+        "has_content": bool(items or any((fields.get(key) for key in ("inclusions", "exclusions", "price", "duration", "payment_terms", "payment_condition")))),
+        "truth": "PROPOSAL_TRANSACTION_PROJECTION",
+    }
+
+
+def proposal_authority(db: Session, proposal: Opportunity, validation: dict[str, Any], readiness: dict[str, Any], intake: dict[str, Any], current: ProposalAcceptedRevision | None = None) -> dict[str, Any]:
+    policy = str(runtime_decision_value(db, "PROPOSAL_ACCEPT_AUTHORITY", "OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER")).upper()
+    required_authority = "Owner" if policy == "OWNER_ONLY" else "Owner or authorized Commercial Approver"
+    blockers = _blocking_items(validation, readiness, intake)
+    commercial_states = {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"}
+    if current:
+        status = "ACCEPTED"
+        status_label = "Accepted Proposal revision recorded"
+        last_decision = f"Accepted by {current.accepted_by} on {current.accepted_at.isoformat()}"
+    elif proposal.status in commercial_states and blockers:
+        status = "BLOCKED"
+        status_label = "Proposal review blocked by readiness"
+        last_decision = "No human Proposal review recorded"
+    elif proposal.status in commercial_states:
+        status = "REVIEW_REQUIRED"
+        status_label = "Proposal Review / Authority Required"
+        last_decision = "No human Proposal review recorded"
+    elif proposal.status == "CLOSED":
+        status = "CLOSED"
+        status_label = "Proposal commercially closed"
+        last_decision = "No further Proposal acceptance action"
+    else:
+        status = "NOT_YET_REQUIRED"
+        status_label = "Review becomes relevant after Engineering Preparation"
+        last_decision = "No human Proposal review recorded"
+    return {
+        "status": status,
+        "status_label": status_label,
+        "required_authority": required_authority,
+        "current_reviewer": "Business Development" if proposal.status in commercial_states else ("Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development"),
+        "readiness_blockers": blockers,
+        "last_review_decision": last_decision,
+        "next_action": "Accept Proposal" if status == "REVIEW_REQUIRED" else "Resolve Proposal readiness blockers" if status == "BLOCKED" else "Proceed to Contract handoff" if status == "ACCEPTED" else "Review Proposal when technically ready",
+        "accept_eligible": status == "REVIEW_REQUIRED" and not blockers,
+        "policy_source": "PROPOSAL_ACCEPT_AUTHORITY runtime Owner decision",
+        "government_authority": False,
+    }
+
+
+def owner_lane_memberships(proposal: Opportunity, validation: dict[str, Any], readiness: dict[str, Any], intake: dict[str, Any], authority: dict[str, Any]) -> dict[str, Any]:
+    blockers = _blocking_items(validation, readiness, intake)
+    need_action = bool(blockers) or proposal.status == "CLIENT_RESPONSE_PENDING"
+    authority_review = authority["status"] == "REVIEW_REQUIRED" and not need_action
+    ready_close = proposal.status in {"CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"} and not need_action
+    memberships = ["ALL"]
+    if need_action:
+        memberships.append("NEED_ACTION")
+    if authority_review:
+        memberships.append("AUTHORITY_REVIEW")
+    if ready_close:
+        memberships.append("READY_CLOSE")
+    primary = "NEED_ACTION" if need_action else "AUTHORITY_REVIEW" if authority_review else "READY_CLOSE" if ready_close else "ALL"
+    return {
+        "primary": primary,
+        "memberships": memberships,
+        "reason_codes": [item.get("code") for item in blockers],
+        "reason_labels": [item.get("label") for item in blockers],
+        "predicate_version": "bd-proposal-owner-lanes-v1",
+    }
+
+
+def owner_lane_definitions() -> list[dict[str, str]]:
+    return [
+        {"code": "ALL", "label": "All", "predicate": "accessible Proposal rows after current search/stage/project isolation"},
+        {"code": "NEED_ACTION", "label": "Need Action", "predicate": "current validation/readiness/intake blockers or client response follow-up"},
+        {"code": "AUTHORITY_REVIEW", "label": "Authority Review", "predicate": "commercial review lifecycle, no blockers, human Proposal Accept authority required"},
+        {"code": "READY_CLOSE", "label": "Ready / Close", "predicate": "client response, accepted, contract handoff, or closed lifecycle with no active blockers"},
+    ]
+
+
 def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
     fields = proposal.proposal_fields_json or {}
     sources = _sources(db, proposal.id)
@@ -305,8 +451,24 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     configuration = proposal_configuration(db, proposal)
     notes = db.scalars(select(ProposalNote).where(ProposalNote.proposal_id == proposal.id).order_by(ProposalNote.created_at.desc())).all()
     site_photos = [item for item in sources if item.source_type == "SITE_PHOTO" and item.status == "CURRENT"]
+    forms = forms_v2_projection(db, proposal)
+    breakdown = proposal_breakdown(db, proposal, forms)
     current_owner = "Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development"
-    next_action = "Open Engineering Preparation" if proposal.status == "PROPOSAL_PREPARATION" else "Proceed to Engineering Preparation" if proposal.status in {"RECEIVED", "IN_REVIEW"} and intake["ready"] else "Review intake blockers" if proposal.status in {"RECEIVED", "IN_REVIEW"} else "Review Proposal"
+    blockers = _blocking_items(validation, readiness, intake)
+    next_action = (
+        "Complete technical Proposal preparation" if proposal.status == "PROPOSAL_PREPARATION" else
+        "Resolve intake blockers" if proposal.status in {"RECEIVED", "IN_REVIEW"} and blockers else
+        "Proceed to Engineering Preparation" if proposal.status in {"RECEIVED", "IN_REVIEW"} else
+        "Resolve Proposal readiness blockers" if proposal.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} and blockers else
+        "Review Proposal Authority" if proposal.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} else
+        "Follow up client response" if proposal.status == "CLIENT_RESPONSE_PENDING" else
+        "Proceed to Contract handoff" if proposal.status in {"ACCEPTED", "CONTRACT_HANDOVER"} else
+        "No further Proposal action" if proposal.status == "CLOSED" else
+        "Review Proposal"
+    )
+    authority = proposal_authority(db, proposal, validation, readiness, intake, current)
+    lanes = owner_lane_memberships(proposal, validation, readiness, intake, authority)
+    outputs = db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.proposal_id == proposal.id).order_by(ProposalOutputArtifact.created_at.desc())).all()
     return {
         "id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
@@ -320,12 +482,13 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "lifecycle": [{"number": 1, "label": "Intake & Sources", "active": proposal.status in {"RECEIVED", "IN_REVIEW"}}, {"number": 2, "label": "Engineering Preparation", "active": proposal.status == "PROPOSAL_PREPARATION"}, {"number": 3, "label": "Commercial Review", "active": proposal.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"}}, {"number": 4, "label": "Client Response", "active": proposal.status == "CLIENT_RESPONSE_PENDING"}, {"number": 5, "label": "Contract Handoff", "active": proposal.status in {"ACCEPTED", "CONTRACT_HANDOVER"}}],
         "current_owner": current_owner,
         "next_actor": "Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development",
-        "next_action": {"label": next_action, "eligible": intake["ready"] if proposal.status in {"RECEIVED", "IN_REVIEW"} else True},
+        "next_action": {"label": next_action, "eligible": intake["ready"] if proposal.status in {"RECEIVED", "IN_REVIEW"} else not blockers},
         "amount": fields.get("price"),
         "last_activity": proposal.updated_at.isoformat() if proposal.updated_at else None,
         "fields": fields,
         "provenance": fields.get("provenance", {}),
         "amec_input": fields.get("amec_input", {}),
+        "additional_information": fields.get("additional_information"),
         "sources": [_source_projection(item) for item in sources],
         "validation": validation,
         "readiness_v2": readiness,
@@ -333,7 +496,16 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "configuration": configuration,
         "notes": [{"id": row.id, "note_type": row.note_type, "content": row.content, "entered_by": row.entered_by, "related_contact": row.related_contact, "status": row.status, "provenance": row.provenance, "created_at": row.created_at.isoformat()} for row in notes],
         "site_photos": [_source_projection(item) for item in site_photos],
-        "forms_v2": forms_v2_projection(db, proposal),
+        "forms_v2": forms,
+        "proposal_breakdown": breakdown,
+        "authority": authority,
+        "owner_lane": lanes,
+        "outputs": {
+            "available": bool(current and outputs),
+            "proposal": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "PROPOSAL"), None),
+            "checklist": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "CHECKLIST"), None),
+            "pre_accept_message": "Available after human Proposal Accept" if not current else None,
+        },
         "current_revision": {
             "id": current.id,
             "revision_number": current.revision_number,
@@ -363,6 +535,8 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
         "client_account_id": proposal.client_account_id,
         "fields": fields,
         "amec_input": (proposal.proposal_fields_json or {}).get("amec_input", {}),
+        "additional_information": (proposal.proposal_fields_json or {}).get("additional_information"),
+        "proposal_breakdown": proposal_breakdown(db, proposal),
         "provenance": (proposal.proposal_fields_json or {}).get("provenance", {}),
         "source_ids": source_ids,
         "template": validation["template"]["item"],

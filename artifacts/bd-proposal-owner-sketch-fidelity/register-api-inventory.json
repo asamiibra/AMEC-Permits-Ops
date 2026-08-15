@@ -1,0 +1,10 @@
+{
+  "route": "GET /api/bd/proposals",
+  "query": ["q", "client", "activity", "location", "stage", "lane"],
+  "lane_options": ["ALL", "NEED_ACTION", "AUTHORITY_REVIEW", "READY_CLOSE"],
+  "count_source": "same backend rows and owner_lane.memberships predicate as filtered items",
+  "columns": ["proposal", "project_ref", "client", "activity", "location", "stage", "amount", "next_action", "last_activity", "id"],
+  "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"],
+  "detail_route": "GET /api/bd/proposals/{proposal_id}",
+  "duplicate_owner_datastore": false
+}

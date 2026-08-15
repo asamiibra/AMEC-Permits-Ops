@@ -1,0 +1,8 @@
+{
+  "route": "GET /api/bd/proposals",
+  "backend_only": true,
+  "parameters": {"q": "full Proposal/client/activity/location/reference context", "client": "Client name/company contains", "activity": "project/proposal description and scope contains", "location": "ProposalSiteContext location/site text contains", "stage": "exact lifecycle code", "lane": "derived lane code"},
+  "no_audit_text_primary_search": true,
+  "project_isolation": "canonical list authorization and project context",
+  "tests": ["client", "activity", "location", "reference", "no unrelated leakage"]
+}

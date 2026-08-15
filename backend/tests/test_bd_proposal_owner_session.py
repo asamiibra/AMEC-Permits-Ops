@@ -1,5 +1,8 @@
 """BD Proposal owner-session vertical acceptance tests."""
 
+from backend.app.db import SessionLocal
+from backend.app.models import Opportunity
+
 
 def _headers(role: str) -> dict[str, str]:
     return {"X-Dev-Role": role}
@@ -150,3 +153,40 @@ def test_bd_proposal_acceptance_pins_template_and_checklist_history(client):
     assert second["current_revision"]["template"]["version"] == "2"
     assert second["current_revision"]["checklist"]["version"] == "2"
     assert history[1]["content_hash"] != second["current_revision"]["content_hash"]
+
+
+def test_bd_proposal_owner_lanes_search_and_projection_contract(client):
+    _ensure_dashboard_proposal_templates(client)
+    bd = _headers("COMMERCIAL_APPROVER")
+
+    need = client.post("/api/bd/proposals", headers=bd, json={"proposal_description": "Lane blocker activity", "client_name": "Lane Need Client"}).json()
+    need_id = need["id"]
+    need_rows = client.get("/api/bd/proposals", params={"lane": "NEED_ACTION"}, headers=bd).json()
+    assert need_id in {row["id"] for row in need_rows["items"]}
+    assert need_rows["lane_counts"]["NEED_ACTION"] == need_rows["count"]
+
+    searchable = client.post("/api/bd/proposals", headers=bd, json={"proposal_description": "Harbor design activity", "project_reference": "PROJ-WEST-01", "client_name": "Lane Search Company"}).json()
+    search_id = searchable["id"]
+    assert client.patch(f"/api/bd/proposals/{search_id}", headers=bd, json={"fields": {"project_description": "Harbor design activity", "client_scope_of_work": "West Bay fit-out"}}).status_code == 200
+    assert client.put(f"/api/bd/proposals/{search_id}/site-context", headers=bd, json={"location_text": "West Bay", "status": "UNRESOLVED"}).status_code == 200
+    for params in ({"client": "Lane Search Company"}, {"activity": "Harbor design"}, {"location": "West Bay"}, {"q": "PROJ-WEST-01"}):
+        result = client.get("/api/bd/proposals", params=params, headers=bd).json()
+        assert search_id in {row["id"] for row in result["items"]}
+
+    complete = client.post("/api/bd/proposals", headers=bd, json={"proposal_description": "Authority review activity", "project_reference": "PROJ-AUTH-01", "client_name": "Authority Review Client"}).json()
+    authority_id = complete["id"]
+    for source_type in ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA"):
+        response = client.post(f"/api/bd/proposals/{authority_id}/sources", headers=bd, data={"source_type": source_type}, files={"file": (f"{source_type}.txt", b"authority fixture", "text/plain")})
+        assert response.status_code == 200
+    assert client.patch(f"/api/bd/proposals/{authority_id}", headers=bd, json={"fields": {"scope_of_work": "AMEC scope", "client_scope_of_work": "Client scope", "price": "QAR 200", "duration": "20 days", "inclusions": ["Design"], "exclusions": ["Authority fees"]}, "amec_input": {"assumption": "Human review"}}).status_code == 200
+    with SessionLocal() as db:
+        row = db.get(Opportunity, authority_id)
+        row.status = "PROPOSAL_HANDOVER"
+        db.commit()
+    authority_rows = client.get("/api/bd/proposals", params={"lane": "AUTHORITY_REVIEW"}, headers=bd).json()
+    assert authority_id in {row["id"] for row in authority_rows["items"]}
+    detail = client.get(f"/api/bd/proposals/{authority_id}", headers=bd).json()
+    assert detail["authority"]["status"] == "REVIEW_REQUIRED"
+    assert detail["authority"]["government_authority"] is False
+    assert detail["proposal_breakdown"]["commercial_summary"]["price"] == "QAR 200"
+    assert detail["amec_input"]["assumption"] == "Human review"

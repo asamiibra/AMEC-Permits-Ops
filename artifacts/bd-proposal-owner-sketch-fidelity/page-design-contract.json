@@ -1,0 +1,10 @@
+{
+  "register_route": "/bd-proposals via canonical Opportunities surface",
+  "detail_route": "/bd-proposals/{proposal_id} via one Proposal workspace",
+  "sections": ["header", "sources", "client_project", "client_request", "site_property", "engineering_preparation", "commercial", "proposal_breakdown", "information_amec_input", "readiness_authority_review", "client_response", "accept_outputs", "history_lineage"],
+  "role_behavior": {"BD": "edit intake/commercial/AMEC Input and Accept according to capability", "Engineering": "read broad workspace; edit technical preparation only", "Owner": "visibility follows capability policy; no automatic bypass"},
+  "error": "controlled error/retry; never authoritative zero rows",
+  "empty": "controlled empty state only after successful backend response",
+  "responsive": "register table remains horizontally usable; workspace sections stack below 900/620px",
+  "accessibility": ["lane tabs expose selected state", "search fields have labels", "stage/status includes text", "Authority panel is textual", "download links have names"]
+}

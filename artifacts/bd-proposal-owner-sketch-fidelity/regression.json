@@ -1,0 +1,19 @@
+{
+  "stage1_source_intake": "protected",
+  "dashboard_template_checklist_definitions_engineering_works": "protected",
+  "workflow_task_handoff": "protected",
+  "accepted_revision_contract_handoff": "protected",
+  "authority_case_boundary": "protected",
+  "duplicate_truth_created": false,
+  "notifications_changed_by_view_delta": false,
+  "project_created_prematurely": false,
+  "billing_impact": false,
+  "real_synology": "not claimed",
+  "sqlite_backend": {"passed": 195, "skipped": 8, "warnings": 2},
+  "postgresql_backend": {"passed": 203, "skipped": 0, "warnings": 2, "fresh_database_removed": true},
+  "frontend": {"test_files": 13, "passed": 34},
+  "build": "PASS",
+  "browser": "PASS",
+  "rbac": "PASS",
+  "concurrency_idempotency_failures": 0
+}

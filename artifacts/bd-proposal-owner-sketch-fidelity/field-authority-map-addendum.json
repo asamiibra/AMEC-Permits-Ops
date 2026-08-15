@@ -1,0 +1,9 @@
+{
+  "fields": {
+    "Proposal Breakdown": {"read_roles": ["BD", "Engineering", "Owner"], "write_roles": ["Engineering via canonical scope/contribution commands", "BD via existing commercial fields"], "revision_behavior": "derived until Accept; immutable in AcceptedProposalRevision", "source": "ProposalServiceScopeItem, ProposalEngineeringContribution, ProposalExternalCostAssumption"},
+    "Additional Information": {"read_roles": ["BD", "Engineering", "Owner"], "write_roles": ["BD_PROPOSAL_WRITE"], "revision_behavior": "draft updates audited; accepted snapshot pinned", "source": "Opportunity.proposal_fields_json"},
+    "AMEC Input": {"read_roles": ["BD", "Engineering"], "write_roles": ["BD_PROPOSAL_WRITE"], "revision_behavior": "draft updates audited; accepted snapshot pinned", "source": "Opportunity.proposal_fields_json.amec_input", "visibility": "internal AMEC by default"},
+    "Authority / Review": {"read_roles": ["BD", "Engineering", "Owner"], "write_roles": ["existing Proposal Accept command only"], "revision_behavior": "runtime policy and accepted revision history", "source": "validation/readiness + PROPOSAL_ACCEPT_AUTHORITY Owner decision"}
+  },
+  "server_enforced": true
+}

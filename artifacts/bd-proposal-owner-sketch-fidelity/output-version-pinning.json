@@ -1,0 +1,8 @@
+{
+  "pre_accept": {"proposal": "unavailable", "checklist": "unavailable", "message": "Available after human Proposal Accept"},
+  "post_accept": {"source": "ProposalAcceptedRevision", "proposal_output": "accepted revision + exact Dashboard Proposal Template DocumentVersion", "checklist_output": "accepted revision + exact Dashboard Proposal Checklist DocumentVersion"},
+  "historical_pinning": true,
+  "accepted_revision_immutable": true,
+  "client_acceptance_collapsed": false,
+  "contract_execution_collapsed": false
+}

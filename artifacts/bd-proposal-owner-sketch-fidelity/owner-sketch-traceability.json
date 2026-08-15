@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "mapped_concepts": 30,
+  "silent_omissions": 0,
+  "concepts": ["BD", "Proposal", "New", "All", "Need Action", "Authority Review", "Ready / Close", "Proposal Description", "Project Ref", "Stage", "Amount", "Last Activity", "Open", "Client name", "Activity", "Location", "Tender Document", "Tender Email", "Tender Photo", "Client Information", "Proposal Contact", "Mobile", "Project Description", "Client Requested Scope", "AMEC Scope", "Area", "Project Photo", "Process of Work", "Price", "Duration", "Proposal Breakdown", "Exclusions", "Inclusions", "Information", "AMEC Input", "Authority", "Accept", "Proposal Download", "Checklist Download"]
+}

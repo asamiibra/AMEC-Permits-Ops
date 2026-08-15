@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "stack": {"frontend": "http://127.0.0.1:5175", "api": "http://127.0.0.1:8002", "database": "synthetic local seeded"},
+  "journeys": ["BD register lanes/search", "New Proposal", "four source families", "Proceed to Engineering", "Engineering technical edit with commercial controls disabled", "BD return", "Proposal Breakdown", "AMEC Input", "human Accept", "Proposal Download + Checklist Download", "hard refresh", "Ready / Close row"],
+  "same_proposal_identity": true,
+  "exact_output_versions_visible": true,
+  "real_synology_claim": false
+}

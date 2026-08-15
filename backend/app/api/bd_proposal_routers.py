@@ -21,7 +21,7 @@ from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, Con
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
-from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
+from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, owner_lane_definitions, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
 from ..services.proposals_sor import ingest_provisional_intake_artifact
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
@@ -55,8 +55,13 @@ def _actor(role: Role, supplied: str | None = None) -> str:
 def _list_row(db: Session, item: Opportunity) -> dict[str, Any]:
     projection = proposal_projection(db, item)
     client = db.get(ClientAccount, item.client_account_id) if item.client_account_id else None
-    client_label = projection["client_name"] or (client.display_name if client else None) or item.client_account_id or "Not recorded"
-    return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": client_label, "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": (item.proposal_fields_json or {}).get("location"), "contract_eligible": projection["contract_eligible"], "validation": projection["validation"]}
+    fields = item.proposal_fields_json or {}
+    site = (projection.get("forms_v2") or {}).get("site_context") or {}
+    client_label = projection["client_name"] or ((projection.get("forms_v2") or {}).get("commercial_client") or {}).get("display_name") or (client.display_name if client else None) or item.client_account_id or "Not recorded"
+    location = site.get("location_text") or fields.get("location") or site.get("site_description") or ""
+    activity = fields.get("project_description") or fields.get("activity") or item.title
+    search_text = " ".join(str(value or "") for value in (item.title, item.opportunity_reference, projection["project_reference"], client_label, activity, fields.get("client_scope_of_work"), fields.get("scope_of_work") or fields.get("sow"), location, projection["stage_label"], item.status)).lower()
+    return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": client_label, "activity": activity, "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": location or None, "current_owner": projection["current_owner"], "next_action": projection["next_action"], "owner_lane": projection["owner_lane"], "contract_eligible": projection["contract_eligible"], "validation": projection["validation"], "_search_text": search_text}
 
 
 @router.post("/test-support/cleanup")
@@ -108,17 +113,32 @@ def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db
 
 
 @router.get("")
-def list_proposals(q: str = "", stage: str | None = None, location: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_proposals(q: str = "", stage: str | None = None, lane: str | None = None, client: str | None = None, activity: str | None = None, location: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
     rows = [_list_row(db, item) for item in db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()]
     needle = q.strip().lower()
     if needle:
-        rows = [row for row in rows if needle in " ".join(str(row.get(key) or "").lower() for key in ("proposal", "proposal_reference", "project_ref", "client", "location"))]
+        rows = [row for row in rows if needle in row["_search_text"]]
+    if client and client.strip():
+        client_needle = client.strip().lower()
+        rows = [row for row in rows if client_needle in str(row.get("client") or "").lower()]
+    if activity and activity.strip():
+        activity_needle = activity.strip().lower()
+        rows = [row for row in rows if activity_needle in str(row.get("activity") or "").lower() or activity_needle in row["_search_text"]]
     if stage:
         rows = [row for row in rows if row["stage_code"] == stage.upper()]
     if location:
-        rows = [row for row in rows if str(row.get("location") or "").lower() == location.lower()]
-    return {"items": rows, "rows": rows, "count": len(rows), "filters": {"q": q, "stage": stage, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at", "synthetic_only": True}
+        location_needle = location.strip().lower()
+        rows = [row for row in rows if location_needle in str(row.get("location") or "").lower()]
+    lane_counts = {definition["code"]: sum(1 for row in rows if definition["code"] in row["owner_lane"]["memberships"]) for definition in owner_lane_definitions()}
+    if lane:
+        lane_code = lane.upper()
+        if lane_code not in {definition["code"] for definition in owner_lane_definitions()}:
+            raise HTTPException(422, {"code": "PROPOSAL_LANE_INVALID", "allowed": [definition["code"] for definition in owner_lane_definitions()]})
+        rows = [row for row in rows if lane_code in row["owner_lane"]["memberships"]]
+    for row in rows:
+        row.pop("_search_text", None)
+    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True}
 
 
 @router.post("")
@@ -360,7 +380,12 @@ def proposal_intake_readiness(proposal_id: str, db: Session = Depends(get_db), r
 
 @router.patch("/{proposal_id}")
 def patch_proposal(proposal_id: str, payload: ProposalFieldsPatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    require_capability(role, "BD_PROPOSAL_WRITE")
+    technical_keys = {"scope_of_work", "sow", "process_of_work", "technical_assumptions", "technical_deliverables"}
+    field_keys = set((payload.fields or {}).keys())
+    if role == Role.RESPONSIBLE_ENGINEER and field_keys and field_keys <= technical_keys and payload.amec_input is None and payload.provenance is None:
+        require_capability(role, "EDIT_TECHNICAL")
+    else:
+        require_capability(role, "BD_PROPOSAL_WRITE")
     item = db.get(Opportunity, proposal_id)
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
@@ -372,7 +397,7 @@ def patch_proposal(proposal_id: str, payload: ProposalFieldsPatch, request: Requ
         current["provenance"] = {**(current.get("provenance") or {}), **payload.provenance}
     item.proposal_fields_json = current
     item.status = item.status if item.status not in {"RECEIVED", "IN_REVIEW"} else "IN_REVIEW"
-    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_FIELDS_UPDATED", entity_type="Opportunity", entity_id=item.id, actor_id=_actor(role), after={"field_keys": sorted(payload.fields.keys()), "amec_input_updated": payload.amec_input is not None})
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_FIELDS_UPDATED", entity_type="Opportunity", entity_id=item.id, actor_id=_actor(role), after={"field_keys": sorted(payload.fields.keys()), "amec_input_updated": payload.amec_input is not None, "authority": "EDIT_TECHNICAL" if role == Role.RESPONSIBLE_ENGINEER else "BD_PROPOSAL_WRITE"})
     db.commit()
     return proposal_projection(db, item)
 

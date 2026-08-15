@@ -1,0 +1,11 @@
+{
+  "entry_sha": "acff5431950f612eee7b8b0a5d51e1b4b3348a9c",
+  "remote_sha": "acff5431950f612eee7b8b0a5d51e1b4b3348a9c",
+  "branch": "main",
+  "working_tree": "clean",
+  "diff_check": "clean",
+  "alembic_current": "default SQLite URL returned no revision because local database was absent",
+  "alembic_head": "0054_bd_proposal_stage1_reconciliation",
+  "prior_stage1_protected": true,
+  "prior_dashboard_integration_protected": true
+}

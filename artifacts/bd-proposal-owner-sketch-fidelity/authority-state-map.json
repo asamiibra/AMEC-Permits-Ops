@@ -1,0 +1,13 @@
+{
+  "government_authority_case_created": false,
+  "states": [
+    {"code": "NOT_YET_REQUIRED", "label": "Review becomes relevant after Engineering Preparation"},
+    {"code": "BLOCKED", "label": "Proposal review blocked by readiness"},
+    {"code": "REVIEW_REQUIRED", "label": "Proposal Review / Authority Required"},
+    {"code": "ACCEPTED", "label": "Accepted Proposal revision recorded"},
+    {"code": "CLOSED", "label": "Proposal commercially closed"}
+  ],
+  "authority_source": "PROPOSAL_ACCEPT_AUTHORITY runtime Owner decision",
+  "raw_capability_ids_exposed": false,
+  "ai_accept": false
+}
