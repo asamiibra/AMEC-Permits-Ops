@@ -39,7 +39,11 @@ def target_for(store, path: str = "contract"):
 
 
 def test_contract_health_capabilities_and_round_trip(store):
-    assert store.health().state == "HEALTHY"
+    health = store.health()
+    assert health.state == "HEALTHY"
+    if isinstance(store, SMBBinaryStore):
+        assert health.detail["negotiated_dialect"] in {"SMB_2_0_2", "SMB_2_1", "SMB_3_0", "SMB_3_0_2", "SMB_3_1_1"}
+        assert health.detail["signing_required"] is True
     assert store.capabilities().safe_finalize is True
     target = target_for(store)
     content = "ملف عربي / Unicode".encode("utf-8")

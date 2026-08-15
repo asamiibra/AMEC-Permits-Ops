@@ -1,0 +1,10 @@
+{
+  "storage_operation_journal": true,
+  "audit_event": "DOCUMENT_VERSION_STORED",
+  "transactional_outbox": true,
+  "high_cardinality_metric_labels": false,
+  "credentials_logged": false,
+  "raw_content_logged": false,
+  "negotiated_smb_characteristics_recorded": true,
+  "document_version_and_outbox_protocol_live_samba": true
+}

@@ -11,7 +11,10 @@ database_url = os.environ.setdefault("DATABASE_URL", f"sqlite:///{_sqlite_test_p
 os.environ.setdefault("SYNTHETIC_ONLY", "true")
 _synthetic_test_root = Path(tempfile.mkdtemp(prefix="permitops-test-workspace-"))
 os.environ.setdefault("SYNTHETIC_TEST_ROOT", str(_synthetic_test_root))
-os.environ.setdefault("MOCK_SYSTEMS_ROOT", str(_synthetic_test_root / "mock-systems"))
+if os.getenv("APP_ENV", "TEST").upper() == "TEST":
+    os.environ["MOCK_SYSTEMS_ROOT"] = str(_synthetic_test_root / "mock-systems")
+else:
+    os.environ.setdefault("MOCK_SYSTEMS_ROOT", str(_synthetic_test_root / "mock-systems"))
 atexit.register(lambda: shutil.rmtree(_synthetic_test_root, ignore_errors=True))
 
 from backend.app.seed.cli import seed

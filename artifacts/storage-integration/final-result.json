@@ -1,0 +1,10 @@
+{
+  "status": "LOCAL_SAMBA_LAB_CERTIFIED",
+  "tokens": ["MOCK_STORAGE_UNIT_TESTED", "SMB_STORAGE_CONTRACT_VERIFIED", "LOCAL_SAMBA_STORAGE_LAB_FROZEN", "POSTGRESQL_BACKEND_SUITE_VERIFIED"],
+  "verification_date": "2026-08-15",
+  "samba_evidence": "11 live tests passed against Docker Samba on 127.0.0.1:1445; SMB 3.1.1; mandatory signing",
+  "postgresql_evidence": "225 passed, 5 skipped, 2 warnings in the repository backend suite",
+  "frontend_evidence": "38 tests passed; production build passed",
+  "not_claimed": ["SYNOLOGY_DSM_STORAGE_PARITY_VERIFIED", "OWNER_SYNOLOGY_INTEGRATION_VERIFIED", "OWNER_SYNOLOGY_GOLDEN_SERVICE_VERIFIED", "PRODUCTION_STORAGE_READY"],
+  "external_blockers": ["Owner Synology inventory", "approved private network", "service identity", "share/root", "direct File Explorer edit policy", "backup/retention/scanning decisions", "process-termination crash harness not available in repository"]
+}

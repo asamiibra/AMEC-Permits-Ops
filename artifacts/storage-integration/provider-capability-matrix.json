@@ -1,0 +1,5 @@
+{
+  "MockBinaryStore": {"read": true, "write_new": true, "safe_finalize": true, "range_read": true, "environment": "unit_test"},
+  "SMBBinaryStore": {"read": true, "write_new": true, "safe_finalize": true, "range_read": true, "environment": "Local_Docker_Samba_certified; Synology_unverified"},
+  "DSM_API": {"core_binary_dependency": false, "status": "not_implemented_until_owner_inventory"}
+}

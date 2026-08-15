@@ -133,7 +133,18 @@ class SMBBinaryStore(BinaryStorePort):
         try:
             client = self._client()
             client.stat(self._unc(self.config.root or "."), **self._session_kwargs())
-            return StorageHealth("HEALTHY", self.config.provider_id, (time.perf_counter() - started) * 1000, {"server": self.config.server, "share": self.config.share, "auth_mode": self.config.auth_mode.lower()})
+            connection = next(iter(self._connection_cache.values()), None)
+            dialect = getattr(connection, "dialect", None)
+            dialect_name = {514: "SMB_2_0_2", 528: "SMB_2_1", 770: "SMB_3_0", 771: "SMB_3_0_2", 785: "SMB_3_1_1"}.get(dialect, str(dialect) if dialect is not None else None)
+            return StorageHealth("HEALTHY", self.config.provider_id, (time.perf_counter() - started) * 1000, {
+                "server": self.config.server,
+                "port": self.config.port,
+                "share": self.config.share,
+                "auth_mode": self.config.auth_mode.lower(),
+                "negotiated_dialect": dialect_name,
+                "signing_required": bool(getattr(connection, "require_signing", self.config.require_signing)),
+                "encryption_required": self.config.require_encryption,
+            })
         except StorageError as exc:
             state = "AUTH_FAILED" if exc.code == StorageErrorCode.AUTH_FAILED else "UNAVAILABLE"
             return StorageHealth(state, self.config.provider_id, (time.perf_counter() - started) * 1000, {"error_class": exc.code.value})

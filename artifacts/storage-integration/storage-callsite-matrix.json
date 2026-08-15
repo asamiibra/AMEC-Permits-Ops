@@ -1,0 +1,13 @@
+{
+  "legacy_fixture_callers": [
+    {"module": "backend/app/services/master_content.py", "status": "isolated_compatibility_seam", "guard": "STORAGE_PROVIDER=mock only"},
+    {"module": "backend/app/services/proposals_sor.py", "status": "isolated_compatibility_seam", "guard": "STORAGE_PROVIDER=mock only"},
+    {"module": "backend/app/api/admin_owner_ready.py", "status": "synthetic diagnostics", "guard": "synthetic configuration"}
+  ],
+  "permanent_seam": "backend/app/storage/port.py",
+  "service": "backend/app/storage/service.py",
+  "durable_journal": "storage_operations",
+  "publication_outbox": "storage_outbox_events",
+  "direct_business_smb_call_count": 0,
+  "owner_synology_verification": "NOT_RUN"
+}

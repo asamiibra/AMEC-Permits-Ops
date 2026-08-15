@@ -1,0 +1,12 @@
+{
+  "stream_hash": true,
+  "fresh_readback_hash": true,
+  "external_drift_detection": true,
+  "immutable_no_replace_finalize": true,
+  "hash_used_as_business_identity": false,
+  "physical_disk_durability_claimed": false,
+  "live_samba_stream_hash_and_readback": true,
+  "unicode_arabic_filename": true,
+  "temporary_retry_and_cleanup": true,
+  "delete_missing_object_detection": true
+}

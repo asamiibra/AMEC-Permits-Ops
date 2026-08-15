@@ -1,0 +1,6 @@
+{
+  "same_idempotency_key": "SERVICE_TESTED",
+  "independent_versions": "6 concurrent independent SMBBinaryStore instances passed",
+  "multi_replica_postgresql_coordination": "225-test PostgreSQL backend suite passed; process-level crash harness not available",
+  "process_local_lock_required": false
+}

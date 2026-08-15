@@ -1,0 +1,14 @@
+{
+  "provider": "SMBBinaryStore",
+  "suite": [
+    "backend/tests/test_binary_store_contract.py",
+    "backend/tests/test_document_storage_service.py",
+    "backend/tests/test_smb_integration.py"
+  ],
+  "status": "PASSED",
+  "samba_execution": "11 passed via make storage-contract on clean Docker Samba lab",
+  "negotiated_dialect": "SMB_3_1_1",
+  "signing_required": true,
+  "encryption_required": false,
+  "owner_execution": "NOT_RUN"
+}

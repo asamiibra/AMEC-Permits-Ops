@@ -20,7 +20,7 @@ storage-lab-down:
 	docker compose -f dev/storage-lab/docker-compose.storage.yml down
 
 storage-contract:
-	PYTHONPATH=. STORAGE_CONTRACT_PROVIDER=mock $(PYTHON) -m pytest backend/tests/test_binary_store_contract.py backend/tests/test_document_storage_service.py -q
+	PYTHONPATH=. APP_ENV=TEST SYNTHETIC_ONLY=true STORAGE_CONTRACT_PROVIDER=$${STORAGE_CONTRACT_PROVIDER:-smb} SMB_SERVER=$${SMB_SERVER:-127.0.0.1} SMB_PORT=$${SMB_PORT:-1445} SMB_SHARE=$${SMB_SHARE:-ProposalOpsLab} SMB_ROOT=$${SMB_ROOT:-proposalops} SMB_USERNAME=$${SMB_USERNAME:-proposalops_rw} SMB_PASSWORD=$${SMB_PASSWORD:-proposalops_rw_dev} SMB_AUTH_MODE=$${SMB_AUTH_MODE:-ntlm} SMB_REQUIRE_SIGNING=$${SMB_REQUIRE_SIGNING:-true} $(PYTHON) -m pytest backend/tests/test_binary_store_contract.py backend/tests/test_document_storage_service.py backend/tests/test_smb_integration.py -q
 
 up:
 	docker compose up --build -d

@@ -1,0 +1,8 @@
+{
+  "dashboard": "LEGACY_SYNTHETIC_REGRESSION_PRESERVED",
+  "proposal": "LEGACY_SYNTHETIC_REGRESSION_PRESERVED",
+  "contract": "LEGACY_SYNTHETIC_REGRESSION_PRESERVED",
+  "engineering": "LEGACY_SYNTHETIC_REGRESSION_PRESERVED",
+  "regulatory_completion_handover": "FULL_POSTGRESQL_BACKEND_REGRESSION_PASSED",
+  "no_production_fallback_to_mock": true
+}

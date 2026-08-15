@@ -1,0 +1,6 @@
+{
+  "proposalops_rw": {"ProposalOpsLab": ["read", "write", "temp_rename", "temp_cleanup"], "observed": "PASSED"},
+  "proposalops_ro": {"ProposalOpsLab": ["read", "write_denied"], "observed": "PASSED"},
+  "proposalops_denied": {"ProposalOpsLab": ["access_denied"], "observed": "PASSED"},
+  "owner_synology": "PENDING_OWNER_INVENTORY"
+}

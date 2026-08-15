@@ -1,0 +1,9 @@
+{
+  "design_version": "1.3",
+  "repository": "ProposalOps",
+  "date": "2026-08-15",
+  "storage_provider_before": "MockSynologyAdapter",
+  "storage_provider_after": ["MockBinaryStore", "SMBBinaryStore"],
+  "owner_synology_connected": false,
+  "synthetic_data_only": true
+}

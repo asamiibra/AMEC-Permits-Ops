@@ -1,0 +1,30 @@
+{
+  "date": "2026-08-15",
+  "samba_lab": {
+    "compose_service": "storage-lab-samba-1",
+    "endpoint": "127.0.0.1:1445",
+    "share": "ProposalOpsLab",
+    "root": "proposalops",
+    "health": "healthy",
+    "dialect": "SMB_3_1_1",
+    "signing": "mandatory",
+    "encryption": "not required by lab"
+  },
+  "commands": {
+    "live_storage": "make storage-contract",
+    "postgres_migration": "docker compose run --rm backend python -m alembic -c alembic.ini upgrade head",
+    "postgres_backend": "docker compose run --rm -e APP_ENV=TEST -e SYNTHETIC_ONLY=true backend python -m pytest backend/tests -q --tb=short",
+    "frontend_tests": "npm test -- --run",
+    "frontend_build": "npm run build"
+  },
+  "results": {
+    "live_storage": "11 passed",
+    "postgres_backend": "225 passed, 5 skipped",
+    "frontend_tests": "38 passed",
+    "frontend_build": "passed"
+  },
+  "not_run": [
+    "Synology DSM/Owner environment certification",
+    "process termination crash-boundary harness"
+  ]
+}
