@@ -1,0 +1,10 @@
+{
+  "status": "PASS_LOCAL_ONLY",
+  "tokens": ["SOURCE_INTAKE_PROTOCOL_VERIFIED_LOCAL", "FORME_PACKAGE_DISPOSITION_VERIFIED_LOCAL"],
+  "synology_claim": false,
+  "owner_approval_claim": false,
+  "production_claim": false,
+  "crash_recovery_claim": false,
+  "concurrency_claim": false,
+  "owner_dashboard_changed": false
+}

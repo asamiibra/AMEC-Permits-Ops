@@ -22,6 +22,25 @@
     create mask = 0660
     directory mask = 0770
 
+[ProposalOpsManaged]
+    path = /srv/shares/ProposalOpsManaged
+    browseable = yes
+    read only = no
+    valid users = proposalops_rw
+    write list = proposalops_rw
+    force group = proposalops
+    create mask = 0660
+    directory mask = 0770
+
+[OwnerExternal]
+    path = /srv/shares/OwnerExternal
+    browseable = yes
+    read only = yes
+    valid users = external_ro
+    force group = proposalops
+    create mask = 0660
+    directory mask = 0770
+
 [Marketing]
     path = /srv/shares/Marketing
     browseable = yes

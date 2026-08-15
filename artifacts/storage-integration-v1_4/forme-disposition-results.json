@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "token": "FORME_PACKAGE_DISPOSITION_VERIFIED_LOCAL",
+  "archive_sha256": "98ef79581a55e0207d83bfff9788c2eaa3b83d125e78da4bbdeeede22ebcf475",
+  "item_count": 24,
+  "promoted_current": 7,
+  "promoted_needs_review": 7,
+  "transactional_or_historical": 6,
+  "reference_only": 1,
+  "blocked_ambiguous": 2,
+  "source_gaps": 1,
+  "unresolved": 0,
+  "no_source_move": true,
+  "evidence_scope": "local archive + local Samba storage lab only; not Synology/Owner/production"
+}

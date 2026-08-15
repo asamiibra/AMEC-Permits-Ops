@@ -31,3 +31,4 @@ from .construction_entities import *
 from .completion_asbuilt_entities import *
 from .handover_closeout_entities import *
 from .storage_entities import *
+from .source_intake_entities import *

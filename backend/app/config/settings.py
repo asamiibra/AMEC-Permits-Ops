@@ -29,12 +29,23 @@ class Settings(BaseSettings):
     smb_require_encryption: bool = False
     smb_connect_timeout_seconds: float = 10
     smb_operation_timeout_seconds: float = 60
+    # Optional owner/external source root. It is intentionally separate from
+    # the managed root and is never used as a write destination.
+    smb_external_server: str = ""
+    smb_external_port: int = 445
+    smb_external_share: str = ""
+    smb_external_root: str = ""
+    smb_external_username: str = ""
+    smb_external_password: str = ""
+    smb_external_auth_mode: str = "ntlm"
+    smb_external_require_signing: bool = False
+    smb_external_require_encryption: bool = False
     # This is deliberately an environment/configuration value. The checked-in
     # default is a synthetic test mapping; production folders must be supplied
     # by deployment configuration and are never accepted from the browser.
     master_sor_mapping_json: str = '{"MASTER_FORM":"master-content/forms","MASTER_REPORT":"master-content/reports","MASTER_ENGINEERING_WORK":"master-content/engineering-works"}'
     master_sor_max_file_size: int = 10485760
-    master_sor_allowed_extensions: str = ".pdf,.docx,.doc,.xlsx,.xls,.txt,.csv"
+    master_sor_allowed_extensions: str = ".pdf,.docx,.doc,.xlsx,.xls,.txt,.csv,.jpg,.jpeg,.png"
     log_level: str = "INFO"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
 

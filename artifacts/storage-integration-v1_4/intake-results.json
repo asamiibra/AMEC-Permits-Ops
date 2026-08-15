@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "batch_item_identity": "batch + ordinal + original relative path",
+  "forme_ledger_items": 24,
+  "empty_source_gaps": 1,
+  "manifest_omissions": 0,
+  "source_intake_protocol_token": "SOURCE_INTAKE_PROTOCOL_VERIFIED_LOCAL"
+}

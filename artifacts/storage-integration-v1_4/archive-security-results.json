@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "extraction_to_filesystem": false,
+  "focused_tests_passed": 9,
+  "guards": ["absolute", "UNC", "drive", "traversal", "NUL", "duplicate", "case-collision", "symlink", "encrypted", "nested", "entry-limit", "size-limit", "compression-ratio"]
+}

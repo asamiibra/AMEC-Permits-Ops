@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "local_backend": {"passed": 228, "skipped": 14, "warnings": 2},
+  "postgres_backend": {"passed": 236, "skipped": 6, "warnings": 2},
+  "frontend_tests": 38,
+  "frontend_build": "PASS",
+  "live_samba_contract": 12,
+  "migration_head": "0058_source_intake_ledger",
+  "diff_check": "PASS"
+}

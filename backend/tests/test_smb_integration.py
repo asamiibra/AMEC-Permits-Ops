@@ -99,3 +99,23 @@ def test_independent_provider_instances_can_write_concurrently():
     with ThreadPoolExecutor(max_workers=6) as pool:
         locators = list(pool.map(write_one, range(6)))
     assert len(set(locators)) == 6
+
+
+def test_managed_rw_and_owner_external_ro_roles_are_separate():
+    managed = make_store(share="ProposalOpsManaged")
+    managed_target = StorageTarget("smb", "ProposalOpsManaged", f"v14/{uuid4()}")
+    content = b"managed-role-check"
+    temporary = managed.write_temporary(managed_target, io.BytesIO(content), operation_id=str(uuid4()), expected_size=len(content), expected_sha256=hashlib.sha256(content).hexdigest())
+    managed_final = managed.finalize(temporary, StorageTarget("smb", "ProposalOpsManaged", f"v14/{uuid4()}/documents/file.txt"))
+    with managed.open_read(managed_final) as stream:
+        assert stream.read() == content
+
+    external = SMBBinaryStore(SMBConfig(
+        server=os.getenv("SMB_SERVER", "127.0.0.1"), port=int(os.getenv("SMB_PORT", "1445")), share="OwnerExternal", root="",
+        username=os.getenv("SMB_EXTERNAL_USERNAME", "external_ro"), password=os.getenv("SMB_EXTERNAL_PASSWORD", "external_ro_dev"),
+        auth_mode=os.getenv("SMB_AUTH_MODE", "ntlm"), require_signing=True,
+    ))
+    assert external.health().state == "HEALTHY"
+    with pytest.raises(StorageError) as error:
+        external.write_temporary(StorageTarget("smb", "OwnerExternal", f"blocked/{uuid4()}"), io.BytesIO(b"no"), operation_id=str(uuid4()), expected_size=2, expected_sha256=hashlib.sha256(b"no").hexdigest())
+    assert error.value.code in {StorageErrorCode.ACCESS_DENIED, StorageErrorCode.UNAVAILABLE}

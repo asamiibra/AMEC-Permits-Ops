@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "forme_current_promotions": 7,
+  "forme_needs_review_promotions": 7,
+  "transactional_or_historical": 6,
+  "reference_only": 1,
+  "blocked_ambiguous": 2,
+  "verified_copy_protocol": true,
+  "source_mutated": false
+}

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "managed_share": "ProposalOpsManaged",
+  "managed_identity": "proposalops_rw",
+  "external_share": "OwnerExternal",
+  "external_identity": "external_ro",
+  "external_write_denied": true,
+  "source_move_or_delete": false
+}

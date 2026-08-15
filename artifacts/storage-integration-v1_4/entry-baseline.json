@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "branch": "branch/owner-form-simple-dashboard",
+  "entry_commit": "076d834d8ab41049081b3f0481aaaadad4e30e75",
+  "migration_head": "0058_source_intake_ledger",
+  "scope": "local repository and local Docker services",
+  "pre_existing_worktree_changes_preserved": true
+}

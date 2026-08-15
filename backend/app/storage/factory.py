@@ -36,3 +36,23 @@ def create_binary_store() -> BinaryStorePort:
         ))
     raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "Unsupported STORAGE_PROVIDER")
 
+
+def create_external_source_store() -> BinaryStorePort:
+    settings = get_settings()
+    if not all((settings.smb_external_server, settings.smb_external_share, settings.smb_external_username, settings.smb_external_password)):
+        raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External SMB source credentials are required")
+    return SMBBinaryStore(SMBConfig(
+        server=settings.smb_external_server,
+        port=settings.smb_external_port,
+        share=settings.smb_external_share,
+        root=settings.smb_external_root,
+        username=settings.smb_external_username,
+        password=settings.smb_external_password,
+        auth_mode=settings.smb_external_auth_mode,
+        require_signing=settings.smb_external_require_signing,
+        require_encryption=settings.smb_external_require_encryption,
+        connect_timeout_seconds=settings.smb_connect_timeout_seconds,
+        operation_timeout_seconds=settings.smb_operation_timeout_seconds,
+        provider_id="smb-external",
+        environment=settings.app_env,
+    ))

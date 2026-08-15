@@ -1,0 +1,5 @@
+{
+  "status": "NOT_RUN",
+  "claim": false,
+  "reason": "No process-termination harness was executed in this local pass"
+}

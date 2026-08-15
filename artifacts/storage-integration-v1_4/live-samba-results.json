@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "tests_passed": 12,
+  "provider": "Docker Samba lab",
+  "endpoint": "127.0.0.1:1445",
+  "signing_required": true,
+  "synology_claim": false
+}
