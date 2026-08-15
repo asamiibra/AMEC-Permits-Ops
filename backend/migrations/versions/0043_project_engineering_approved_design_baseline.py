@@ -31,8 +31,16 @@ TABLES = (
 
 
 def upgrade() -> None:
-    for name in TABLES:
-        Base.metadata.tables[name].create(bind=op.get_bind(), checkfirst=True)
+    # Deliverables and revisions reference each other. Creating each table
+    # independently makes PostgreSQL reject an upgrade from the deployed
+    # 0042 schema because the referenced table does not exist yet. Let
+    # SQLAlchemy sort the table set and emit cyclic foreign keys afterward.
+    bind = op.get_bind()
+    Base.metadata.create_all(
+        bind=bind,
+        tables=[Base.metadata.tables[name] for name in TABLES],
+        checkfirst=True,
+    )
 
 
 def downgrade() -> None:
