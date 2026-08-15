@@ -1,0 +1,129 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "header": {
+    "selector": ".topbar",
+    "top": 0,
+    "height": 92,
+    "width": 1190,
+    "marginTop": "0px",
+    "marginBottom": "0px",
+    "padding": "20px 36px",
+    "borderRadius": "0px",
+    "fontSize": "14px"
+  },
+  "content": {
+    "selector": ".content",
+    "top": 92,
+    "height": 4080,
+    "width": 1190,
+    "marginTop": "0px",
+    "marginBottom": "0px",
+    "padding": "34px 36px",
+    "borderRadius": "0px",
+    "fontSize": "14px"
+  },
+  "dashboard": {
+    "selector": ".dashboard-page",
+    "top": 208,
+    "height": 3930,
+    "width": 1118,
+    "marginTop": "0px",
+    "marginBottom": "0px",
+    "padding": "32px 36px 72px",
+    "borderRadius": "0px",
+    "fontSize": "14px"
+  },
+  "title": {
+    "selector": ".dashboard-page-header h2",
+    "top": 264,
+    "height": 40,
+    "width": 509,
+    "marginTop": "7px",
+    "marginBottom": "6px",
+    "padding": "0px",
+    "borderRadius": "0px",
+    "fontSize": "34px"
+  },
+  "synthetic": {
+    "selector": ".synthetic-note",
+    "top": 146,
+    "height": 42,
+    "width": 427,
+    "marginTop": "20px",
+    "marginBottom": "20px",
+    "padding": "12px 14px",
+    "borderRadius": "6px",
+    "fontSize": "11px"
+  },
+  "toolbar": {
+    "selector": ".dashboard-filter-bar",
+    "top": 720,
+    "height": 95,
+    "width": 1046,
+    "marginTop": "0px",
+    "marginBottom": "20px",
+    "padding": "16px",
+    "borderRadius": "16px",
+    "fontSize": "14px"
+  },
+  "forms": {
+    "selector": ".canonical-forms-library",
+    "top": 835,
+    "height": 2296,
+    "width": 1046,
+    "marginTop": "18px",
+    "marginBottom": "18px",
+    "padding": "22px",
+    "borderRadius": "8px",
+    "fontSize": "14px"
+  },
+  "table": {
+    "selector": ".canonical-forms-library .dashboard-table",
+    "top": 1003,
+    "height": 2104,
+    "width": 1075,
+    "marginTop": "0px",
+    "marginBottom": "0px",
+    "padding": "0px",
+    "borderRadius": "0px",
+    "fontSize": "14px"
+  },
+  "tableHeader": {
+    "selector": ".canonical-forms-library .dashboard-table thead",
+    "top": 1003,
+    "height": 37,
+    "width": 1075,
+    "marginTop": "0px",
+    "marginBottom": "0px",
+    "padding": "0px",
+    "borderRadius": "0px",
+    "fontSize": "14px"
+  },
+  "firstRow": {
+    "height": 122
+  },
+  "controls": [
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42
+  ],
+  "rowCount": 18,
+  "bodyScrollHeight": 4172
+}

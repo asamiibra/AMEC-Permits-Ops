@@ -1,0 +1,32 @@
+{
+  "branch": "branch/ui-productionization",
+  "base_commit": "7250b52",
+  "visual_source_files": 3,
+  "backend_files_changed": false,
+  "frontend_tests": {
+    "status": "PASS",
+    "test_files": 13,
+    "tests": 37
+  },
+  "frontend_production_build": "PASS",
+  "browser_regression": {
+    "status": "PASS",
+    "focused_tests": 8
+  },
+  "accessibility_representative": {
+    "status": "PASS",
+    "routes": 8,
+    "serious_or_critical_violations": 0
+  },
+  "responsive": {
+    "status": "PASS",
+    "widths": [1920, 1440, 1280, 1024],
+    "horizontal_overflow_failures": 0,
+    "console_error_failures": 0
+  },
+  "filter_result_parity": "PASS",
+  "functional_drift": 0,
+  "domain_model_changes": 0,
+  "backend_schema_changes": 0,
+  "hosted_runtime_verified": false
+}

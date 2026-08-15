@@ -1,0 +1,186 @@
+{
+  "baseline": {
+    "columns": [
+      "S/N",
+      "Reference",
+      "Form",
+      "Category",
+      "Description",
+      "Used In",
+      "Status",
+      "Actions"
+    ],
+    "actions": [
+      "Open",
+      "Modify",
+      "History"
+    ],
+    "sidebar": [
+      "▦Dashboard",
+      "⌂AMEC WorkAMEC Work",
+      "↗BDOpportunities",
+      "⌁EngineeringEngineering & Closeout",
+      "▥Construction",
+      "✓Completion / As-Built",
+      "▣PermitPermit Portfolio",
+      "◈Authority Cases",
+      "!Issues",
+      "◌Notifications",
+      "⚙AdminAdministration",
+      "?Operating Guide"
+    ]
+  },
+  "categoryOptions": [
+    {
+      "value": "",
+      "label": "All categories"
+    },
+    {
+      "value": "Administration",
+      "label": "Administration"
+    },
+    {
+      "value": "Architecture",
+      "label": "Architecture"
+    },
+    {
+      "value": "Authority Comment",
+      "label": "Authority Comment"
+    },
+    {
+      "value": "Authority Guidance",
+      "label": "Authority Guidance"
+    },
+    {
+      "value": "Business Development",
+      "label": "Business Development"
+    },
+    {
+      "value": "Civil",
+      "label": "Civil"
+    },
+    {
+      "value": "Client",
+      "label": "Client"
+    },
+    {
+      "value": "Commercial",
+      "label": "Commercial"
+    },
+    {
+      "value": "Consultant",
+      "label": "Consultant"
+    },
+    {
+      "value": "Contract",
+      "label": "Contract"
+    },
+    {
+      "value": "Design",
+      "label": "Design"
+    },
+    {
+      "value": "Design Guide",
+      "label": "Design Guide"
+    },
+    {
+      "value": "Engineering",
+      "label": "Engineering"
+    },
+    {
+      "value": "Finance",
+      "label": "Finance"
+    },
+    {
+      "value": "Fire & Life Safety",
+      "label": "Fire & Life Safety"
+    },
+    {
+      "value": "General",
+      "label": "General"
+    },
+    {
+      "value": "Handover",
+      "label": "Handover"
+    },
+    {
+      "value": "MEP",
+      "label": "MEP"
+    },
+    {
+      "value": "Municipality",
+      "label": "Municipality"
+    },
+    {
+      "value": "Other",
+      "label": "Other"
+    },
+    {
+      "value": "Permit",
+      "label": "Permit"
+    },
+    {
+      "value": "Project",
+      "label": "Project"
+    },
+    {
+      "value": "Proposal",
+      "label": "Proposal"
+    },
+    {
+      "value": "QCS",
+      "label": "QCS"
+    },
+    {
+      "value": "Regulation",
+      "label": "Regulation"
+    },
+    {
+      "value": "Structural",
+      "label": "Structural"
+    },
+    {
+      "value": "System",
+      "label": "System"
+    },
+    {
+      "value": "Technical Reference",
+      "label": "Technical Reference"
+    }
+  ],
+  "requestEvidence": {
+    "afterSearch": [
+      "http://127.0.0.1:5175/api/definitions?q=proposal",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal",
+      "http://127.0.0.1:5175/api/master-content/categories"
+    ],
+    "afterCategory": [
+      "http://127.0.0.1:5175/api/definitions?q=proposal&category=Administration",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal&category_label=Administration",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal&category_label=Administration",
+      "http://127.0.0.1:5175/api/master-content/categories"
+    ],
+    "afterStatus": [
+      "http://127.0.0.1:5175/api/definitions?q=proposal&category=Administration&status=CURRENT",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal&category_label=Administration&owner_status=CURRENT",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal&category_label=Administration&owner_status=CURRENT",
+      "http://127.0.0.1:5175/api/master-content/categories"
+    ],
+    "afterUsedIn": [
+      "http://127.0.0.1:5175/api/definitions?q=proposal&category=Administration&status=CURRENT&module=MY_WORK",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal&category_label=Administration&owner_status=CURRENT&module=MY_WORK",
+      "http://127.0.0.1:5175/api/master-content/categories",
+      "http://127.0.0.1:5175/api/master-content?content_type=FORM&q=proposal&category_label=Administration&owner_status=CURRENT&module=MY_WORK",
+      "http://127.0.0.1:5175/api/master-content/categories"
+    ]
+  },
+  "route": "http://127.0.0.1:5175/dashboard"
+}
