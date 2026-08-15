@@ -13,10 +13,10 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..adapters.synology.adapter import MockSynologyAdapter
 from ..audit.service import audit
 from ..config.settings import get_settings, repo_root
 from ..models import Document, DocumentApprovalState, DocumentType, DocumentVersion, EvidenceArtifact, LineageEdge, Opportunity, Project, ProjectArtifactRecord, ProposalIntakeArtifact, SynologyProjectBootstrap
+from ..storage.legacy import legacy_synthetic_adapter
 
 
 SOR_TEMPLATE_VERSION = "SYN-AMEC-PROJECT-FOLDERS-1.0"
@@ -74,12 +74,8 @@ def _safe_filename(filename: str) -> str:
     return name[:280]
 
 
-def _adapter() -> MockSynologyAdapter:
-    settings = get_settings()
-    root = Path(settings.mock_systems_root)
-    if not root.is_absolute():
-        root = repo_root() / root
-    return MockSynologyAdapter(str(root / "synology"))
+def _adapter():
+    return legacy_synthetic_adapter()
 
 
 def intake_sor_root() -> Path:
@@ -164,7 +160,7 @@ def resolve_project_target(db: Session, project_id: str, project_reference: str 
     return {"project": project, "bootstrap": bootstrap, "adapter": adapter, "structure": structure, "template_version": SOR_TEMPLATE_VERSION}
 
 
-def _versioned_filename(adapter: MockSynologyAdapter, root_path: str, folder: str, filename: str, digest: str) -> tuple[str, int, str | None]:
+def _versioned_filename(adapter, root_path: str, folder: str, filename: str, digest: str) -> tuple[str, int, str | None]:
     existing = [item for item in adapter.list_project_files(root_path) if item["path"].startswith(f"{root_path}/{folder}/")]
     same_name = [item for item in existing if item["name"] == filename]
     if any(item.get("sha256") == digest for item in same_name):

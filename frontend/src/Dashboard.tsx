@@ -108,7 +108,7 @@ export function DashboardPage({ role, governanceMode = false }: { role: string; 
     try {
       const params = new URLSearchParams({ q: query });
       if (category) params.set("category_label", category);
-      if (status) params.set("status", status);
+      if (status) params.set("owner_status", status);
       if (module) params.set("module", module);
       const defParams = new URLSearchParams({ q: query });
       if (category) defParams.set("category", category);
@@ -277,8 +277,9 @@ export function DashboardPage({ role, governanceMode = false }: { role: string; 
             onChange={(event) => setStatus(event.target.value)}
           >
             <option value="">All statuses</option>
-            <option value="ACTIVE">Current</option>
-            <option value="ARCHIVED">Archived</option>
+            <option value="CURRENT">Current</option>
+            <option value="NEEDS_REVIEW">Needs Review</option>
+            <option value="INACTIVE">Inactive</option>
           </select>
         </label>
         <label>

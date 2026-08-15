@@ -10,7 +10,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..adapters.synology.adapter import MockSynologyAdapter
+from ..storage.legacy import legacy_synthetic_adapter
 from ..config.settings import get_settings, repo_root
 from ..models import (
     AuditEvent,
@@ -224,7 +224,7 @@ def ensure_register(db: Session) -> None:
 def _system_state(db: Session, item: OwnerDecision) -> dict[str, Any]:
     key = item.decision_key
     if key == "REAL_SYNOLOGY_CONNECTION":
-        health = MockSynologyAdapter(str(Path(get_settings().mock_systems_root) / "synology")).health_check()
+        health = legacy_synthetic_adapter().health_check()
         return {"summary": "Synthetic adapter is available; real Synology health verification is not configured.", "synthetic": health, "verified": False, "status": "NOT_CONFIGURED", "source": item.system_fact_source}
     if key.startswith("OFFICIAL_"):
         usage = {"OFFICIAL_PROPOSAL_TEMPLATE": ("BD", "PROPOSAL_TEMPLATE"), "OFFICIAL_PROPOSAL_CHECKLIST": ("BD", "PROPOSAL_CHECKLIST"), "OFFICIAL_CONTRACT_TEMPLATE": ("ADMIN", "CONTRACT_TEMPLATE")}[key]

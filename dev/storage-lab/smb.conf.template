@@ -1,0 +1,53 @@
+[global]
+    workgroup = PROPOSALOPS
+    server string = ProposalOps SMB integration lab
+    security = user
+    map to guest = never
+    guest ok = no
+    server min protocol = SMB2
+    server max protocol = SMB3
+    smb encrypt = desired
+    server signing = mandatory
+    load printers = no
+    disable spoolss = yes
+    log level = 1
+
+[ProposalOpsLab]
+    path = /srv/shares/ProposalOpsLab
+    browseable = yes
+    read only = yes
+    valid users = proposalops_rw proposalops_ro owner_test bd_test engineering_test
+    write list = proposalops_rw owner_test bd_test engineering_test
+    force group = proposalops
+    create mask = 0660
+    directory mask = 0770
+
+[Marketing]
+    path = /srv/shares/Marketing
+    browseable = yes
+    read only = no
+    valid users = proposalops_rw proposalops_ro owner_test bd_test engineering_test
+
+[pro]
+    path = /srv/shares/pro
+    browseable = yes
+    read only = no
+    valid users = proposalops_rw proposalops_ro owner_test bd_test engineering_test
+
+[Tenders]
+    path = /srv/shares/Tenders
+    browseable = yes
+    read only = no
+    valid users = proposalops_rw proposalops_ro owner_test bd_test engineering_test
+
+[Supervision]
+    path = /srv/shares/Supervision
+    browseable = yes
+    read only = no
+    valid users = proposalops_rw proposalops_ro owner_test bd_test engineering_test
+
+[Services Provider]
+    path = /srv/shares/Services Provider
+    browseable = yes
+    read only = no
+    valid users = proposalops_rw proposalops_ro owner_test bd_test engineering_test

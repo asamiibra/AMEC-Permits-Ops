@@ -117,6 +117,13 @@ def health():
         "status": "SYNTHETIC_DURABLE_DB_BACKED" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",
         "real_synology": "NOT_CONFIGURED" if settings.synthetic_only else "CONFIGURED_NOT_VERIFIED",
     }
+    storage_health = None
+    try:
+        from .storage.factory import create_binary_store
+        storage_health = create_binary_store().health()
+        storage_health = {"state": storage_health.state, "provider_id": storage_health.provider_id, "latency_ms": storage_health.latency_ms, "detail": {"error_class": storage_health.detail.get("error_class"), "synthetic": storage_health.detail.get("synthetic", False)}}
+    except Exception as exc:
+        storage_health = {"state": "MISCONFIGURED", "provider_id": settings.storage_provider, "error_class": type(exc).__name__}
     return {
         "status": "ok",
         "service": "permitops",
@@ -127,6 +134,7 @@ def health():
         "database_durable": database_dialect == "postgresql",
         "sqlite_fallback_active": not database_configured and database_dialect == "sqlite",
         "database_connection_valid": connection_valid,
+        "document_storage": storage_health,
         "alembic_versions": migration_versions,
         "alembic_state": migration_state,
         "master_content_sor": master_content_sor,
@@ -173,6 +181,8 @@ def adapter_health():
     from .adapters.municipality.adapter import MockMunicipalityAdapter
     from pathlib import Path
     root = Path(settings.mock_systems_root)
+    from .storage.factory import create_binary_store
+    binary_store_health = create_binary_store().health()
     return {
         "synology": MockSynologyAdapter(str(root / "synology")).health_check(),
         "synology_configuration": {
@@ -181,6 +191,12 @@ def adapter_health():
             "share_configured": bool(settings.synology_share),
             "secret_reference_configured": bool(settings.synology_secret_ref),
             "raw_endpoint_exposed": False,
+        },
+        "binary_store": {
+            "provider": settings.storage_provider,
+            "state": binary_store_health.state,
+            "provider_id": binary_store_health.provider_id,
+            "capabilities": create_binary_store().capabilities().__dict__,
         },
         "master_content_sor": {
             "mode": "SYNTHETIC_TEST" if settings.synthetic_only else "REAL_CONFIGURED",

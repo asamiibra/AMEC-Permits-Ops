@@ -36,7 +36,8 @@ export function moduleLabel(value: string) {
 export function friendlyStatus(value?: string, hasVersion = true) {
   if (!hasVersion || value === "NO_VERSION") return "Draft";
   if (value === "CURRENT" || value === "ACTIVE") return "Current";
-  if (value === "ARCHIVED") return "Archived";
+  if (value === "ARCHIVED") return "Inactive";
+  if (value === "Needs Review" || value === "NEEDS_REVIEW") return "Needs Review";
   if (value === "SUPERSEDED") return "Superseded";
   return value ? value.replaceAll("_", " ").toLowerCase().replace(/^./, char => char.toUpperCase()) : "Draft";
 }

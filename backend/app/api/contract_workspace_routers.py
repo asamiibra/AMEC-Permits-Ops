@@ -22,6 +22,11 @@ from ..services.admin_contract_read_model import owner_contract_extensions
 from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, contract_projection, contract_revision_is_finalized, create_contract_from_proposal, effective_contract_stages, now, project_activation, readiness
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
+from ..config.settings import get_settings
+from ..storage.factory import create_binary_store
+from ..storage.port import StorageTarget
+from ..storage.service import DocumentStorageService
+from ..storage.errors import StorageError
 
 
 router = APIRouter(prefix="/api/admin/contracts", tags=["administration-contract-owner-session"])
@@ -486,9 +491,29 @@ def add_contract_document(contract_id: str, payload: ContractDocumentPayload, re
     if previous and previous.sha256 == digest:
         return {"status": "ALREADY_CURRENT", "document_version_id": previous.id, "contract": contract_projection(db, contract)}
     version_number = (previous.version_number + 1) if previous else 1
-    version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=payload.source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=payload.mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "source_role": source_role, "read_back_verified": True, "synthetic_only": True})
-    db.add(version)
-    db.flush()
+    if get_settings().storage_provider.lower() == "smb":
+        try:
+            store = create_binary_store()
+            version = DocumentStorageService(store).store_version(
+                db,
+                document=document,
+                content=content,
+                filename=payload.source_filename,
+                mime_type=payload.mime_type,
+                target=StorageTarget(store.provider_id, store.config.share, f"contracts/{contract.id}/{source_role.lower()}"),
+                actor=actor_name(role),
+                correlation_id=request.state.correlation_id,
+                idempotency_key=f"contract:{contract.id}:{source_role}:{digest}",
+                source_system="CONTRACT_WORKSPACE",
+                metadata={"contract_id": contract.id, "source_role": source_role},
+                version_number=version_number,
+            ).version
+        except StorageError as exc:
+            raise HTTPException(502, {"code": exc.code.value}) from exc
+    else:
+        version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=payload.source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=payload.mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "source_role": source_role, "read_back_verified": True, "synthetic_only": True})
+        db.add(version)
+        db.flush()
     document.current_version_id = version.id
     if previous:
         previous.superseded_by = version.id
@@ -504,7 +529,14 @@ def add_contract_document(contract_id: str, payload: ContractDocumentPayload, re
 def download_contract_document(contract_id: str, version_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_READ")
     version = _document_for_contract(db, contract_id, version_id)
-    if version.synthetic_content is not None:
+    if version.source_path_or_reference.startswith("storage://"):
+        try:
+            store = create_binary_store()
+            with DocumentStorageService(store).read_verified(version) as stream:
+                content = stream.read()
+        except StorageError as exc:
+            raise HTTPException(502, {"code": exc.code.value}) from exc
+    elif version.synthetic_content is not None:
         content = version.synthetic_content
     else:
         path = Path(version.source_path_or_reference)

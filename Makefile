@@ -13,6 +13,15 @@ seed:
 test:
 	PYTHONPATH=. $(PYTHON) -m pytest backend/tests -q
 
+storage-lab-up:
+	docker compose -f dev/storage-lab/docker-compose.storage.yml up --build -d
+
+storage-lab-down:
+	docker compose -f dev/storage-lab/docker-compose.storage.yml down
+
+storage-contract:
+	PYTHONPATH=. STORAGE_CONTRACT_PROVIDER=mock $(PYTHON) -m pytest backend/tests/test_binary_store_contract.py backend/tests/test_document_storage_service.py -q
+
 up:
 	docker compose up --build -d
 

@@ -34,6 +34,9 @@ export type CanonicalForm = {
   source_type_code?: string | null;
   version?: number;
   version_status: string;
+  owner_status?: "Current" | "Needs Review" | "Inactive";
+  needs_review?: boolean;
+  review_note?: string | null;
   current_source_filename?: string;
   updated?: string;
   versions?: Version[];
@@ -318,11 +321,12 @@ function FormTable({
         <thead>
           <tr>
             <th>S/N</th>
-            {!governanceMode && <th>Version</th>}
             <th>Reference</th>
             <th>Form</th>
             <th>Category</th>
             <th>Description</th>
+            {!governanceMode && <th>Used In</th>}
+            {!governanceMode && <th>Status</th>}
             <th>Actions</th>
           </tr>
         </thead>
@@ -330,12 +334,12 @@ function FormTable({
           {forms.map((form, index) => (
             <tr key={form.id}>
               <td>{form.serial_number || index + 1}</td>
-              {!governanceMode && <td>{versionLabel(form.version)}</td>}
               <td>
                 <code className="content-reference">{form.ref}</code>
               </td>
               <td>
                 <b>{form.title}</b>
+                {!governanceMode && <small className="table-subline">Version {form.version || "—"}</small>}
                 {governanceMode && <><small className="table-subline">Version {form.version || "—"}</small><div className="governance-badges">{(form.governance?.badges || []).slice(0, 2).map((badge) => <span key={badge} className="tag">{badge}</span>)}</div></>}
               </td>
               <td>{form.category?.label || "Uncategorized"}</td>
@@ -345,6 +349,8 @@ function FormTable({
               >
                 {form.description || "No description"}
               </td>
+              {!governanceMode && <td><UsedInChips values={form.used_in} /></td>}
+              {!governanceMode && <td><StatusBadge value={form.owner_status || form.version_status} hasVersion={Boolean(form.version)} /></td>}
               <td className="dashboard-actions">
                 <button className="table-action action-view" onClick={() => onOpen(form)}>Open</button>
                 {canWrite && (
@@ -352,7 +358,7 @@ function FormTable({
                     className="table-action action-edit"
                     onClick={() => onEdit(form)}
                   >
-                    Edit
+                    Modify
                   </button>
                 )}
                 <button
@@ -375,10 +381,11 @@ function FormDetails({ item, governanceMode, role, onRefresh, onClose }: { item:
   const profile = governance.profile || {};
   const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
   if (!governanceMode) return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
-    <div className="content-detail-grid"><div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div><div><span>Version</span><b>{versionLabel(item.version)}</b></div><div><span>Status</span><b>{friendlyStatus(item.version_status, Boolean(item.version))}</b></div><div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div></div>
+    <div className="content-detail-grid"><div><span>Reference</span><b>{item.ref}</b></div><div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div><div><span>Current Version</span><b>{versionLabel(item.version)}</b></div><div><span>Status</span><StatusBadge value={item.owner_status} hasVersion={Boolean(item.version)} /></div><div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div></div>
     <p className="detail-description">{item.description || "No description"}</p>
-    <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}</div>
-    {!profile.restricted_reference_sample && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+    {item.owner_status === "Needs Review" && item.review_note && <p className="review-note"><b>Review note:</b> {item.review_note}</p>}
+    <div className="detail-purpose-list"><h3>Used In</h3><UsedInChips values={item.used_in} /></div>
+    <div className="detail-actions"><a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Open / Download current file</a><span>Version history is available from the Forms list.</span></div>
   </Drawer>;
   return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <section className="form-governance-section"><h3>Overview</h3><div className="content-detail-grid">
@@ -453,6 +460,8 @@ function FormEditor({
   const [description, setDescription] = useState(item?.description || "");
   const [usedIn, setUsedIn] = useState(item?.used_in || []);
   const [reason, setReason] = useState("");
+  const [needsReview, setNeedsReview] = useState(Boolean(item?.needs_review));
+  const [reviewNote, setReviewNote] = useState(item?.review_note || "");
   const [file, setFile] = useState<File | null>(null);
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -464,6 +473,8 @@ function FormEditor({
       if (category) form.append("category_id", category);
       form.append("description", description);
       form.append("used_in", JSON.stringify(usedIn));
+      form.append("needs_review", String(needsReview));
+      if (reviewNote.trim()) form.append("review_note", reviewNote.trim());
       form.append("file", file as File);
       void onSave({ form });
       return;
@@ -476,6 +487,8 @@ function FormEditor({
       if (category) form.append("category_id", category);
       form.append("description", description);
       form.append("used_in", JSON.stringify(usedIn));
+      form.append("needs_review", String(needsReview));
+      if (reviewNote.trim()) form.append("review_note", reviewNote.trim());
       form.append("file", file);
       void onSave({ form });
     } else
@@ -485,6 +498,8 @@ function FormEditor({
           category_id: category || null,
           description,
           used_in: usedIn,
+          needs_review: needsReview,
+          review_note: needsReview ? reviewNote.trim() : null,
           change_reason: reason,
         },
       });
@@ -565,6 +580,11 @@ function FormEditor({
           </label>
         </section>
         <UsedInPicker type="FORM" value={usedIn} onChange={setUsedIn} />
+        <section className="editor-group">
+          <h3>Status</h3>
+          <label className="status-choice"><input type="checkbox" checked={needsReview} onChange={(event) => setNeedsReview(event.target.checked)} /> Needs Review</label>
+          {needsReview && <label>Review note<small>Keep this short and useful to the Owner.</small><textarea maxLength={500} value={reviewNote} onChange={(event) => setReviewNote(event.target.value)} placeholder="Why does this form need review?" required /></label>}
+        </section>
         <section className="editor-group">
           <h3>Source Document</h3>
           {item && (

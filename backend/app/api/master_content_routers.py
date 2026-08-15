@@ -135,6 +135,8 @@ class MetadataPatch(BaseModel):
     engineering_metadata: dict[str, Any] | None = None
     source_type_code: str | None = None
     change_reason: str = Field(min_length=1)
+    needs_review: bool | None = None
+    review_note: str | None = Field(default=None, max_length=500)
 
 
 class BindingPayload(BaseModel):
@@ -340,8 +342,11 @@ def consumer_resolvers(consumer: str, db: Session = Depends(get_db), role: Role 
 
 
 @router.get("/master-content")
-def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, module: str | None = None, ownership: str | None = None, artifact_kind: str | None = None, publisher: str | None = None, currentness: str | None = None, readiness: str | None = None, quality_state: str | None = None, restricted_sample: bool | None = None, language: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, owner_status: str | None = None, module: str | None = None, ownership: str | None = None, artifact_kind: str | None = None, publisher: str | None = None, currentness: str | None = None, readiness: str | None = None, quality_state: str | None = None, restricted_sample: bool | None = None, language: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     query = select(MasterContentItem).order_by(MasterContentItem.content_type, MasterContentItem.ref)
+    normalized_owner_status = owner_status.replace("_", " ").upper() if owner_status else None
+    if normalized_owner_status == "INACTIVE":
+        include_archived = True
     if status:
         query = query.where(MasterContentItem.status == status.upper())
     elif not include_archived:
@@ -355,6 +360,8 @@ def list_master_content(q: str = "", content_type: str | None = None, category_i
         query = query.outerjoin(MasterContentGovernanceProfile, MasterContentGovernanceProfile.master_content_item_id == MasterContentItem.id).where(or_(MasterContentItem.title.ilike(needle), MasterContentItem.ref.ilike(needle), MasterContentItem.description.ilike(needle), MasterContentGovernanceProfile.official_form_no.ilike(needle)))
     rows = [item_projection(db, item) for item in db.scalars(query).all()]
     rows = [row for row in rows if _role_can_see(role, row)]
+    if normalized_owner_status:
+        rows = [row for row in rows if row.get("owner_status", "").upper() == normalized_owner_status]
     if q.strip():
         needle = q.strip().lower()
         rows = [row for row in rows if needle in row.get("title", "").lower() or needle in row.get("ref", "").lower() or needle in (row.get("description") or "").lower() or needle in (row.get("governance", {}).get("profile", {}).get("official_form_no") or "").lower()]
@@ -399,6 +406,8 @@ async def create_content(
     used_in: str | None = Form(default=None),
     source_type_code: str | None = Form(default=None),
     engineering_metadata: str | None = Form(default=None),
+    needs_review: bool = Form(default=False),
+    review_note: str | None = Form(default=None),
     file: UploadFile = File(...),
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
     source_surface: str = Header(default="DASHBOARD", alias="X-Source-Surface"),
@@ -409,7 +418,7 @@ async def create_content(
     require_capability(role, _write_capability(content_type))
     payload = await file.read()
     parsed_metadata = _json_object(engineering_metadata)
-    return create_master_content(db, content_type=content_type, ref=ref, title=title, category_id=category_id, description=description, filename=file.filename or "document.bin", mime_type=file.content_type or "application/octet-stream", content=payload, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata)
+    return create_master_content(db, content_type=content_type, ref=ref, title=title, category_id=category_id, description=description, filename=file.filename or "document.bin", mime_type=file.content_type or "application/octet-stream", content=payload, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata, needs_review=needs_review, review_note=review_note)
 
 
 @router.get("/master-content/{item_id}")
@@ -571,6 +580,9 @@ def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: S
         modules = _parse_modules(payload.used_in)
         item.used_in = modules
         _sync_module_bindings(db, item_id=item.id, modules=modules, actor=_actor(role))
+    if payload.needs_review is not None:
+        item.needs_review = payload.needs_review
+        item.review_note = (payload.review_note or None) if payload.needs_review else None
     if payload.engineering_metadata is not None:
         item.engineering_metadata = payload.engineering_metadata
     if payload.source_type_code is not None:
@@ -634,6 +646,8 @@ async def create_version(
     used_in: str | None = Form(default=None),
     source_type_code: str | None = Form(default=None),
     engineering_metadata: str | None = Form(default=None),
+    needs_review: bool | None = Form(default=None),
+    review_note: str | None = Form(default=None),
     file: UploadFile | None = File(default=None),
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
     source_surface: str = Header(default="DASHBOARD", alias="X-Source-Surface"),
@@ -646,7 +660,7 @@ async def create_version(
     require_capability(role, _write_capability(item.content_type))
     payload = await file.read() if file else None
     parsed_metadata = _json_object(engineering_metadata)
-    return create_master_content_version(db, item_id=item_id, expected_current_version=expected_current_version, filename=file.filename if file else None, mime_type=file.content_type if file else None, content=payload, title=title, category_id=category_id, description=description, change_reason=change_reason, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata)
+    return create_master_content_version(db, item_id=item_id, expected_current_version=expected_current_version, filename=file.filename if file else None, mime_type=file.content_type if file else None, content=payload, title=title, category_id=category_id, description=description, change_reason=change_reason, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata, needs_review=needs_review, review_note=review_note)
 
 
 @router.get("/master-content/{item_id}/download")

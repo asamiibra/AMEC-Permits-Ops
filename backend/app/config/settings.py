@@ -15,6 +15,20 @@ class Settings(BaseSettings):
     synology_endpoint: str = ""
     synology_share: str = ""
     synology_secret_ref: str = ""
+    # Permanent document-binary provider. MOCK is test-only; production must
+    # select SMB and obtain credentials from the deployment secret manager.
+    storage_provider: str = "mock"
+    smb_server: str = ""
+    smb_port: int = 445
+    smb_share: str = ""
+    smb_root: str = ""
+    smb_username: str = ""
+    smb_password: str = ""
+    smb_auth_mode: str = "ntlm"
+    smb_require_signing: bool = False
+    smb_require_encryption: bool = False
+    smb_connect_timeout_seconds: float = 10
+    smb_operation_timeout_seconds: float = 60
     # This is deliberately an environment/configuration value. The checked-in
     # default is a synthetic test mapping; production folders must be supplied
     # by deployment configuration and are never accepted from the browser.
@@ -42,6 +56,16 @@ class Settings(BaseSettings):
                 raise ValueError("PROD requires SYNOLOGY_MODE=REAL")
             if not self.synology_endpoint or not self.synology_share or not self.synology_secret_ref:
                 raise ValueError("PROD requires Synology endpoint, share, and secret reference")
+            if self.storage_provider.lower() != "smb":
+                raise ValueError("PROD requires STORAGE_PROVIDER=smb; mock fallback is forbidden")
+            if not self.smb_server or not self.smb_share or not self.smb_username:
+                raise ValueError("PROD requires an SMB server, share and service identity")
+            if self.smb_auth_mode.lower() not in {"ntlm", "kerberos", "negotiate"}:
+                raise ValueError("PROD requires an explicit supported SMB authentication mode")
+            if self.smb_auth_mode.lower() == "negotiate" and os.getenv("SMB_ALLOW_NEGOTIATE", "false").lower() != "true":
+                raise ValueError("SMB negotiate fallback requires explicit SMB_ALLOW_NEGOTIATE=true")
+            if self.smb_server.replace(".", "").isdigit():
+                raise ValueError("Kerberos-capable production SMB configuration must use an approved hostname")
         if self.app_env.upper() != "PROD" and any(token in self.database_url.lower() for token in ("ministry", "qatar.gov", "municipality.gov")):
             raise ValueError("Non-PROD environments cannot use a production authority URL")
         if os.getenv("VERCEL") and self.app_env.upper() in {"TEST", "PROD"}:

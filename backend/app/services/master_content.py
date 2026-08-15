@@ -18,7 +18,6 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..adapters.synology.adapter import MockSynologyAdapter
 from ..audit.service import audit
 from ..config.settings import get_settings, repo_root
 from ..models import (
@@ -51,6 +50,11 @@ from ..models import (
     WorkflowTaskStatus,
     LineageEdge,
 )
+from ..storage.legacy import legacy_synthetic_adapter
+from ..storage.factory import create_binary_store
+from ..storage.port import StorageTarget
+from ..storage.service import DocumentStorageService
+from ..storage.errors import StorageError
 from .forms_governance import ensure_profile, governance_projection
 
 CONTENT_TYPES = {"FORM", "REPORT", "ENGINEERING_WORK"}
@@ -108,20 +112,12 @@ def _actor(role: Any) -> str:
     return getattr(role, "value", str(role))
 
 
-def _adapter() -> MockSynologyAdapter:
-    settings = get_settings()
-    if os.getenv("VERCEL") and settings.synthetic_only:
-        # Vercel's bundled filesystem is read-only. Keep the synthetic SOR
-        # contract executable for deployed TEST builds in an explicitly
-        # ephemeral /tmp root; production must provide a real Synology SOR.
+def _adapter():
+    if os.getenv("VERCEL") and get_settings().synthetic_only:
         root = Path(os.getenv("SYNTHETIC_SOR_ROOT", "/tmp/permitops-synology"))
         for folder in ("master-content/forms", "master-content/reports", "master-content/engineering-works"):
             (root / "synology" / folder).mkdir(parents=True, exist_ok=True)
-    else:
-        root = Path(settings.mock_systems_root)
-        if not root.is_absolute():
-            root = repo_root() / root
-    return MockSynologyAdapter(str(root / "synology"))
+    return legacy_synthetic_adapter()
 
 
 def _deployed_synthetic() -> bool:
@@ -132,6 +128,12 @@ def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
     """Read verified master bytes, retaining a durable synthetic TEST fallback."""
     if _deployed_synthetic() and version.synthetic_content is not None:
         return version.synthetic_content
+    if version.source_path_or_reference.startswith("storage://"):
+        try:
+            with DocumentStorageService(create_binary_store()).read_verified(version) as stream:
+                return stream.read()
+        except StorageError as exc:
+            raise _error(exc.code.value, 502) from exc
     return _adapter().read_configured_artifact(version.source_path_or_reference)
 
 
@@ -273,6 +275,7 @@ def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str)
             MasterContentModuleBinding.usage_type == usage_type,
             MasterContentModuleBinding.active.is_(True),
             MasterContentItem.status == "ACTIVE",
+            MasterContentItem.needs_review.is_(False),
         )
         .order_by(MasterContentItem.updated_at.desc(), MasterContentItem.ref)
     ).all()
@@ -451,7 +454,7 @@ def revalidate_dependency(db: Session, *, dependency_id: str, actor: str, correl
 
 def eligible_master_content(db: Session, *, use: str = "ENGINEERING_AI") -> list[dict[str, Any]]:
     rows = []
-    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE").order_by(MasterContentItem.ref)).all():
+    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE", MasterContentItem.needs_review.is_(False)).order_by(MasterContentItem.ref)).all():
         version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
         if not version or _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
             continue
@@ -627,6 +630,9 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         "source_type_code": item.source_type_code,
         "engineering_metadata": item.engineering_metadata or {},
         "status": item.status,
+        "needs_review": bool(item.needs_review),
+        "review_note": item.review_note,
+        "owner_status": "Inactive" if item.status != "ACTIVE" else "Needs Review" if item.needs_review else "Current",
         "version": current.version_number if current else None,
         "version_status": _status(current) if current else "NO_VERSION",
         "current_source_filename": current.source_filename if current else None,
@@ -658,28 +664,30 @@ def _verify_and_promote(
     category_changed: bool = False,
     used_in_changed: bool = False,
 ) -> None:
-    adapter = _adapter()
-    try:
-        target = adapter.resolve_configured_path(configured_destination)
-        existing_same_hash = None
-        if previous and previous.sha256 == version.sha256 and previous.source_path_or_reference:
-            try:
-                existing_same_hash = adapter.verify_artifact(previous.source_path_or_reference, version.sha256, version.file_size)
-            except (FileNotFoundError, ValueError, OSError):
-                existing_same_hash = None
-        if existing_same_hash and existing_same_hash.get("verified"):
-            sor_metadata = existing_same_hash
-            version.source_path_or_reference = previous.source_path_or_reference
-        else:
-            stored = adapter.put_configured_artifact(configured_destination, version.source_filename, content)
-            version.source_path_or_reference = stored["path"]
-            sor_metadata = adapter.verify_artifact(stored["path"], version.sha256, version.file_size)
-        if not sor_metadata.get("verified"):
-            version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_HASH_MISMATCH"}
-            db.commit()
-            raise _error("SOR_HASH_MISMATCH", 502)
-        if sor_metadata.get("path", "").startswith("/") or target is None:
-            raise _error("SOR_READBACK_FAILED", 502)
+    if get_settings().storage_provider.lower() == "smb":
+        try:
+            store = create_binary_store()
+            service = DocumentStorageService(store)
+            target = StorageTarget(getattr(store, "provider_id", "smb"), getattr(getattr(store, "config", None), "share", ""), configured_destination)
+            service.store_version(
+                db,
+                document=document,
+                content=content,
+                filename=version.source_filename,
+                mime_type=version.mime_type,
+                target=target,
+                actor=actor,
+                correlation_id=correlation_id,
+                idempotency_key=f"master-content:{version.id}:{version.sha256}",
+                source_system="MASTER_CONTENT",
+                metadata={"master_content_id": item.id, "content_type": item.content_type},
+                version_number=version.version_number,
+                candidate_version_id=version.id,
+            )
+        except StorageError as exc:
+            version.metadata_json = {**(version.metadata_json or {}), "master_status": exc.code.value}
+            db.flush()
+            raise _error(exc.code.value, 502) from exc
         if _deployed_synthetic():
             version.synthetic_content = content
         if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
@@ -689,21 +697,60 @@ def _verify_and_promote(
             version.rendition_mime_type = version.mime_type
             version.rendition_file_size = version.file_size
         else:
-            # DOCX and other source formats remain authoritative and truthful
-            # when no safe server-side converter is configured.
             version.rendition_status = "RENDITION_NOT_AVAILABLE"
             version.rendition_path_or_reference = None
             version.rendition_sha256 = None
             version.rendition_mime_type = None
             version.rendition_file_size = None
-        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "verified_at": version.ingested_at.isoformat()}
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "smb"}
         db.flush()
-    except HTTPException:
-        raise
-    except (FileNotFoundError, ValueError, OSError, RuntimeError) as exc:
-        version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_WRITE_FAILED", "failure": str(exc)}
-        db.commit()
-        raise _error("SOR_UNAVAILABLE" if isinstance(exc, FileNotFoundError) else "SOR_WRITE_FAILED", 502) from exc
+    else:
+        adapter = _adapter()
+        try:
+            target = adapter.resolve_configured_path(configured_destination)
+            existing_same_hash = None
+            if previous and previous.sha256 == version.sha256 and previous.source_path_or_reference:
+                try:
+                    existing_same_hash = adapter.verify_artifact(previous.source_path_or_reference, version.sha256, version.file_size)
+                except (FileNotFoundError, ValueError, OSError):
+                    existing_same_hash = None
+            if existing_same_hash and existing_same_hash.get("verified"):
+                sor_metadata = existing_same_hash
+                version.source_path_or_reference = previous.source_path_or_reference
+            else:
+                stored = adapter.put_configured_artifact(configured_destination, version.source_filename, content)
+                version.source_path_or_reference = stored["path"]
+                sor_metadata = adapter.verify_artifact(stored["path"], version.sha256, version.file_size)
+            if not sor_metadata.get("verified"):
+                version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_HASH_MISMATCH"}
+                db.commit()
+                raise _error("SOR_HASH_MISMATCH", 502)
+            if sor_metadata.get("path", "").startswith("/") or target is None:
+                raise _error("SOR_READBACK_FAILED", 502)
+            if _deployed_synthetic():
+                version.synthetic_content = content
+            if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
+                version.rendition_status = "SOURCE_PDF"
+                version.rendition_path_or_reference = version.source_path_or_reference
+                version.rendition_sha256 = version.sha256
+                version.rendition_mime_type = version.mime_type
+                version.rendition_file_size = version.file_size
+            else:
+                # DOCX and other source formats remain authoritative and truthful
+                # when no safe server-side converter is configured.
+                version.rendition_status = "RENDITION_NOT_AVAILABLE"
+                version.rendition_path_or_reference = None
+                version.rendition_sha256 = None
+                version.rendition_mime_type = None
+                version.rendition_file_size = None
+            version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "verified_at": version.ingested_at.isoformat()}
+            db.flush()
+        except HTTPException:
+            raise
+        except (FileNotFoundError, ValueError, OSError, RuntimeError) as exc:
+            version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_WRITE_FAILED", "failure": str(exc)}
+            db.commit()
+            raise _error("SOR_UNAVAILABLE" if isinstance(exc, FileNotFoundError) else "SOR_WRITE_FAILED", 502) from exc
 
     if previous:
         previous.metadata_json = {**(previous.metadata_json or {}), "master_status": "SUPERSEDED"}
@@ -741,6 +788,8 @@ def create_master_content(
     used_in: Any = None,
     source_type_code: str | None = None,
     engineering_metadata: dict[str, Any] | None = None,
+    needs_review: bool = False,
+    review_note: str | None = None,
 ) -> dict[str, Any]:
     content_type = content_type.upper().strip()
     title = title.strip()
@@ -764,7 +813,7 @@ def create_master_content(
     digest = hashlib.sha256(content).hexdigest()
     document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=title, language="en", source_system="MASTER_CONTENT")
     modules = _parse_modules(used_in)
-    item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, source_type_code=source_type_code.upper() if source_type_code else None, status="ACTIVE", document=document, created_by=actor)
+    item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, source_type_code=source_type_code.upper() if source_type_code else None, status="ACTIVE", needs_review=needs_review, review_note=(review_note or None), document=document, created_by=actor)
     db.add(item)
     db.flush()
     ensure_profile(db, item, ownership="AMEC_OWNED" if actor == "owner-demo-seed" else "NEEDS_REVIEW")
@@ -802,6 +851,8 @@ def create_master_content_version(
     used_in: Any = None,
     engineering_metadata: dict[str, Any] | None = None,
     source_type_code: str | None = None,
+    needs_review: bool | None = None,
+    review_note: str | None = None,
 ) -> dict[str, Any]:
     item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
     if not item:
@@ -834,6 +885,9 @@ def create_master_content_version(
     if description is not None:
         item.description = description
     item.used_in = modules
+    if needs_review is not None:
+        item.needs_review = needs_review
+        item.review_note = (review_note or None) if needs_review else None
     if engineering_metadata is not None:
         item.engineering_metadata = engineering_metadata
     if source_type_code is not None:

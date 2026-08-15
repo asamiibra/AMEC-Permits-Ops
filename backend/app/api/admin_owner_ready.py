@@ -13,7 +13,6 @@ from sqlalchemy.orm import Session
 
 from ..adapters.excel.adapter import MockExcelAdapter
 from ..adapters.municipality.adapter import MockMunicipalityAdapter
-from ..adapters.synology.adapter import MockSynologyAdapter
 from ..audit.service import audit
 from ..api.dependencies import current_user_role
 from ..config.settings import get_settings, repo_root
@@ -27,6 +26,8 @@ from ..models import (
     TargetRenderingRule, TemplateDefinition, TemplateVersion, User, WorkflowTask,
 )
 from ..services.proposals_sor import ACTION_CONFIG, SEMANTIC_FOLDER_CONFIG
+from ..storage.factory import create_binary_store
+from ..storage.legacy import legacy_synthetic_adapter
 
 router = APIRouter(prefix="/api/admin", tags=["owner-administration"])
 settings = get_settings()
@@ -111,7 +112,12 @@ def _connection_test_state(db: Session | None) -> dict[str, Any]:
 def _connections(db: Session | None = None) -> list[dict[str, Any]]:
     root = Path(settings.mock_systems_root)
     tested = _connection_test_state(db)
-    synology = MockSynologyAdapter(str(root / "synology")).health_check()
+    if settings.storage_provider.lower() == "mock":
+        synology = legacy_synthetic_adapter().health_check()
+    else:
+        store = create_binary_store()
+        health = store.health()
+        synology = {"status": health.state, "provider": settings.storage_provider, "healthy": health.state == "HEALTHY"}
     excel = MockExcelAdapter(str(root / "excel/permit_tracker.xlsx")).health_check()
     municipality = MockMunicipalityAdapter({}).health_check()
     return [
@@ -178,6 +184,30 @@ def admin_users(db: Session = Depends(get_db), _role: Role = Depends(owner_admin
 @router.get("/permissions")
 def admin_permissions(_role: Role = Depends(owner_admin)):
     return {"roles": ["Owner", "Business Development", "Engineering"], "rows": _capability_rows(), "protected_boundaries": ["Professional Engineering authority", "Human final Municipality submission", "Commercial release rules", "Credential handling"]}
+
+
+@router.get("/storage/status")
+def storage_status(_role: Role = Depends(owner_admin)):
+    """Owner-only storage diagnostics with no raw path or credential output."""
+    try:
+        store = create_binary_store()
+        health = store.health()
+        return {
+            "provider": settings.storage_provider,
+            "state": health.state,
+            "latency_ms": health.latency_ms,
+            "capabilities": store.capabilities().__dict__,
+            "configuration": {
+                "server_configured": bool(settings.smb_server),
+                "share_configured": bool(settings.smb_share),
+                "root_configured": bool(settings.smb_root),
+                "auth_mode": settings.smb_auth_mode,
+                "signing_required": settings.smb_require_signing,
+                "encryption_required": settings.smb_require_encryption,
+            },
+        }
+    except Exception as exc:
+        return {"provider": settings.storage_provider, "state": "MISCONFIGURED", "error_class": type(exc).__name__}
 
 
 @router.get("/connections")

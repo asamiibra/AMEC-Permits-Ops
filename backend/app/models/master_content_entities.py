@@ -28,6 +28,11 @@ class MasterContentItem(Base, TimestampMixin):
     engineering_metadata: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     source_type_code: Mapped[str | None] = mapped_column(String(80), index=True)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="ACTIVE", index=True)
+    # Small Owner-facing review overlay.  The underlying governance profile
+    # remains available for internal controls, but it is not the Owner's
+    # lifecycle taxonomy.
+    needs_review: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
+    review_note: Mapped[str | None] = mapped_column(String(500))
     document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), nullable=False, unique=True)
     current_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)

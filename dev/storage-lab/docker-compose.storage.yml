@@ -1,0 +1,26 @@
+services:
+  samba:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: proposalops-samba
+    environment:
+      SMB_PASSWORD_RW: proposalops_rw_dev
+      SMB_PASSWORD_RO: proposalops_ro_dev
+      SMB_PASSWORD_DENIED: proposalops_denied_dev
+      SMB_PASSWORD_OWNER: owner_test_dev
+      SMB_PASSWORD_BD: bd_test_dev
+      SMB_PASSWORD_ENGINEERING: engineering_test_dev
+    ports:
+      - "127.0.0.1:1445:445"
+    networks:
+      - proposalops-storage-net
+    healthcheck:
+      test: ["CMD-SHELL", "smbclient -L localhost -U 'proposalops_rw%proposalops_rw_dev' -m SMB3 -g >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+networks:
+  proposalops-storage-net:
+    name: proposalops-storage-net

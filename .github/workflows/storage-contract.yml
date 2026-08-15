@@ -1,0 +1,37 @@
+name: storage-contract
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  samba-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Start synthetic Samba endpoint
+        run: docker compose -f dev/storage-lab/docker-compose.storage.yml up --build -d --wait
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements.txt
+      - name: Run provider and document protocol tests
+        env:
+          PYTHONPATH: .
+          APP_ENV: TEST
+          DATABASE_URL: sqlite:///./storage-contract-ci.db
+          SYNTHETIC_ONLY: "true"
+          STORAGE_CONTRACT_PROVIDER: smb
+          SMB_SERVER: 127.0.0.1
+          SMB_PORT: "1445"
+          SMB_SHARE: ProposalOpsLab
+          SMB_ROOT: proposalops
+          SMB_USERNAME: proposalops_rw
+          SMB_PASSWORD: proposalops_rw_dev
+          SMB_AUTH_MODE: ntlm
+          SMB_REQUIRE_SIGNING: "true"
+        run: python -m pytest backend/tests/test_binary_store_contract.py backend/tests/test_document_storage_service.py -q
+      - name: Stop Samba endpoint
+        if: always()
+        run: docker compose -f dev/storage-lab/docker-compose.storage.yml down
