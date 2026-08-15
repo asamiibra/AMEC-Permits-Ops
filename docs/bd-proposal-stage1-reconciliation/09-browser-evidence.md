@@ -1,0 +1,3 @@
+# Browser evidence
+
+Entry browser evidence exists under `artifacts/universal-design-audit` and prior BD records under `artifacts/bd-proposal-forms-driven-v2`. Verified in the in-app browser at `http://127.0.0.1:5174/bd`: direct load and refresh render Proposal Intake; the primary screen contains Proposal-first identity, the five-stage lifecycle, and Tender Email, Tender Document, Tender Photo / Image, and Client Information entry choices. Interactive upload/handoff was not run in-browser because it would create additional local fixture state; the same command is covered by the executable backend test. No real Synology claim is made; synthetic/local SOR evidence remains explicitly synthetic.

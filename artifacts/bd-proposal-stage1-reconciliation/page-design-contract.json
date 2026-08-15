@@ -1,0 +1,14 @@
+{
+  "route": ["/bd", "/opportunities", "/bd/proposals"],
+  "title": "Proposal Intake",
+  "subtitle": "One Proposal identity from client inputs through Engineering and Contract Handoff.",
+  "primary_identity": "Proposal reference + description; Opportunity Ref is secondary/provisional context",
+  "lifecycle": ["Intake & Sources", "Engineering Preparation", "Commercial Review", "Client Response", "Contract Handoff"],
+  "sections": ["Tender & Client Sources", "Client & Contact", "Client Request", "Site / Property", "Notes & Client Conversations", "Missing / Conflicting Information", "Intake Readiness", "Advanced / History"],
+  "source_actions": ["Tender Email", "Tender Document", "Tender Photo / Image", "Client Information"],
+  "primary_cta": "Proceed to Engineering Preparation",
+  "empty_state": "No Proposal records match the current filter. Create a draft to begin the controlled source flow.",
+  "error_state": "Controlled error with retry; never render zero data as success.",
+  "role_behavior": {"business_development": "create intake, add sources/notes, proceed, commercial review", "engineering": "read same Proposal after handoff; technical preparation only", "owner": "business-readable visibility and configured approval capability"},
+  "advanced_details": ["raw UUIDs", "DocumentVersion/hash", "source provenance", "legacy Opportunity/Quotation lineage"]
+}

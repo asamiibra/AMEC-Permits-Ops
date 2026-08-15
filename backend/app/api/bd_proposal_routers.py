@@ -17,11 +17,11 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalAssumption, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalServiceScopeItem, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, Quotation, QuotationRevision, ReferenceNumber, Role
+from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalAssumption, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalServiceScopeItem, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
-from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal
+from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
 from ..services.proposals_sor import ingest_provisional_intake_artifact
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
@@ -344,6 +344,12 @@ def proposal_readiness(proposal_id: str, db: Session = Depends(get_db), role: Ro
     return v2_readiness(db, proposal, validate_proposal(db, proposal))
 
 
+@router.get("/{proposal_id}/intake-readiness")
+def proposal_intake_readiness(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_READ")
+    return intake_readiness(db, _proposal_or_404(proposal_id, db))
+
+
 @router.patch("/{proposal_id}")
 def patch_proposal(proposal_id: str, payload: ProposalFieldsPatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_WRITE")
@@ -361,6 +367,60 @@ def patch_proposal(proposal_id: str, payload: ProposalFieldsPatch, request: Requ
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_FIELDS_UPDATED", entity_type="Opportunity", entity_id=item.id, actor_id=_actor(role), after={"field_keys": sorted(payload.fields.keys()), "amec_input_updated": payload.amec_input is not None})
     db.commit()
     return proposal_projection(db, item)
+
+
+@router.post("/{proposal_id}/notes")
+def add_note(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    content = str(payload.get("content") or "").strip()
+    if not content:
+        raise HTTPException(422, {"code": "NOTE_CONTENT_REQUIRED"})
+    note = ProposalNote(proposal_id=proposal.id, note_type=str(payload.get("note_type") or "INTERNAL_INTAKE"), content=content, entered_by=_actor(role, payload.get("entered_by")), related_contact=payload.get("related_contact"), provenance={"kind": "human_note", "source": "client_conversation" if str(payload.get("note_type") or "").startswith(("CALL", "MEETING", "CLIENT")) else "internal_intake", "verification": "UNVERIFIED_CONTEXT"})
+    db.add(note)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_NOTE_ADDED", entity_type="ProposalNote", entity_id=note.id, actor_id=note.entered_by, after={"note_type": note.note_type, "verified_fact": False})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/site-photos")
+async def add_site_photo(proposal_id: str, request: Request, file: UploadFile = File(...), source_revision: str | None = Form(default=None), actor: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    content = await file.read()
+    if not content:
+        raise HTTPException(422, {"code": "SITE_PHOTO_EMPTY"})
+    digest = hashlib.sha256(content).hexdigest()
+    existing = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.source_type == "SITE_PHOTO", ProposalSourceEvidence.content_hash == digest))
+    if not existing:
+        existing = ProposalSourceEvidence(proposal_id=proposal.id, source_type="SITE_PHOTO", source_filename=file.filename or "site-photo", source_reference=f"synthetic://proposal-site-photo/{proposal.opportunity_reference}/{digest}", content_hash=digest, content_type=file.content_type or "image/*", source_revision=source_revision, provenance={"kind": "site_context", "semantic_class": "SITE_PROJECT_PHOTO", "verification": "READ_BACK_VERIFIED", "idempotency_key": idempotency_key}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by=_actor(role, actor))
+        db.add(existing)
+        db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SITE_PHOTO_REGISTERED", entity_type="ProposalSourceEvidence", entity_id=existing.id, actor_id=_actor(role, actor), after={"source_type": "SITE_PHOTO", "content_hash": digest})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/proceed")
+def proceed_to_engineering(proposal_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), actor: str | None = None):
+    require_capability(role, "PROCEED")
+    proposal = _proposal_or_404(proposal_id, db)
+    if proposal.status == "PROPOSAL_PREPARATION":
+        task = db.scalar(select(WorkflowTask).where(WorkflowTask.context_type == "OPPORTUNITY", WorkflowTask.context_id == proposal.id, WorkflowTask.task_type == "PROPOSAL_PREPARATION", WorkflowTask.status.in_((WorkflowTaskStatus.OPEN, WorkflowTaskStatus.IN_PROGRESS))).order_by(WorkflowTask.created_at.desc()))
+        return {"result": "IDEMPOTENT", "proposal": proposal_projection(db, proposal), "handoff": {"task_id": task.id if task else None, "created": False}, "next_route": f"/proposals/{proposal.id}/preparation"}
+    if proposal.status not in {"RECEIVED", "IN_REVIEW"}:
+        raise domain_error(409, "PROPOSAL_NOT_IN_INTAKE", status=proposal.status)
+    readiness = intake_readiness(db, proposal)
+    if not readiness["ready"]:
+        raise domain_error(409, "PROPOSAL_INTAKE_BLOCKED", blockers=readiness["blockers"], warnings=readiness["warnings"])
+    from .proposals_main_routers import _create_handoff_task
+    current_source = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.status == "CURRENT").order_by(ProposalSourceEvidence.created_at.desc()))
+    proposal.status = "PROPOSAL_PREPARATION"
+    handoff = _create_handoff_task(db, action="NEW_PROPOSAL", project_id=proposal.project_id, opportunity_id=proposal.id, correlation_id=request.state.correlation_id, actor=_actor(role, actor), artifact_id=current_source.id if current_source else "SOURCE_EVIDENCE")
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_PROCEEDED_TO_ENGINEERING", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role, actor), after={"status": proposal.status, "handoff": handoff, "next_actor": "Engineering"})
+    db.commit()
+    return {"result": "TRANSITIONED", "proposal": proposal_projection(db, proposal), "handoff": handoff, "next_route": f"/proposals/{proposal.id}/preparation"}
 
 
 @router.post("/{proposal_id}/sources")

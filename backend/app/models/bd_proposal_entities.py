@@ -191,3 +191,19 @@ class ProposalExpectedInputPreview(Base, TimestampMixin):
     evaluated_by: Mapped[str] = mapped_column(String(200), nullable=False)
     superseded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+
+
+class ProposalNote(Base, TimestampMixin):
+    """Human-entered intake context; never promoted to external fact implicitly."""
+
+    __tablename__ = "proposal_notes"
+    __table_args__ = (Index("ix_proposal_notes_proposal_created", "proposal_id", "created_at"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    note_type: Mapped[str] = mapped_column(String(40), nullable=False, default="INTERNAL_INTAKE")
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    entered_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    related_contact: Mapped[str | None] = mapped_column(String(240))
+    provenance: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="UNVERIFIED_CONTEXT")

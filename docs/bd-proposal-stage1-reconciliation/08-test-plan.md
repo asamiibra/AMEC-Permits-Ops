@@ -1,0 +1,3 @@
+# Test plan
+
+Targeted coverage must prove Proposal-first labels, all four source entry actions, source history/dedup/read-back, exact readiness blockers, Proceed idempotency and work synchronization, Engineering technical authority, BD commercial authority, immutable accepted revisions, exact Contract handoff pinning, legacy Opportunity/Quotation readability, fake-empty/fake-success protection, and direct API negative paths. Run the existing PostgreSQL-capable backend suite, frontend tests/build, and real-stack browser checks where the runtime is available. Existing unrelated working-tree changes must not be reverted.

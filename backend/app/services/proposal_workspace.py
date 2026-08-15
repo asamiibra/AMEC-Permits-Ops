@@ -21,6 +21,7 @@ from ..models import (
     ProposalOutputArtifact,
     ProposalOwnerSetting,
     ProposalSourceEvidence,
+    ProposalNote,
 )
 from .master_content import definition_lookup, resolve_master_content_purpose
 from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
@@ -82,6 +83,33 @@ def _source_projection(item: ProposalSourceEvidence) -> dict[str, Any]:
         "created_by": item.created_by,
         "created_at": item.created_at.isoformat() if item.created_at else None,
     }
+
+
+def intake_readiness(db: Session, proposal: Opportunity) -> dict[str, Any]:
+    """Stage 1 readiness; intentionally narrower than final Proposal Accept."""
+    fields = proposal.proposal_fields_json or {}
+    sources = _sources(db, proposal.id)
+    current = [item for item in sources if item.status == "CURRENT"]
+    blockers: list[dict[str, str]] = []
+    if not proposal.client_account_id:
+        blockers.append({"code": "CLIENT_REQUIRED", "label": "Client context required", "section": "client"})
+    if not current:
+        blockers.append({"code": "SOURCE_EVIDENCE_REQUIRED", "label": "No source evidence received", "section": "sources"})
+    if not proposal.title.strip():
+        blockers.append({"code": "DESCRIPTION_REQUIRED", "label": "Proposal description required", "section": "client_request"})
+    if proposal.reference_state not in {"PROVISIONAL", "CANONICAL"}:
+        blockers.append({"code": "REFERENCE_STATE_INVALID", "label": "Proposal reference state is invalid", "section": "header"})
+    if any(item.verification_state != "READ_BACK_VERIFIED" for item in current):
+        blockers.append({"code": "SOURCE_VERIFICATION_REQUIRED", "label": "Source verification incomplete", "section": "sources"})
+    conflicts = [item for item in sources if item.status == "CONFLICT" and not any(row.supersedes_id == item.id for row in current)]
+    if conflicts:
+        blockers.append({"code": "IDENTITY_CONFLICT_UNRESOLVED", "label": "Identity or source conflict unresolved", "section": "conflicts"})
+    warnings = []
+    if not fields.get("client_scope_of_work"):
+        warnings.append({"code": "CLIENT_SCOPE_REVIEW", "label": "Client Requested Scope needs review", "section": "client_request"})
+    if not (fields.get("location") or fields.get("site_context")):
+        warnings.append({"code": "SITE_REVIEW", "label": "Site / Property context needs review", "section": "site"})
+    return {"ready": not blockers, "blockers": blockers, "warnings": warnings, "source_count": len(current), "current_owner": "Business Development" if not blockers else "Business Development", "next_actor": "Engineering" if not blockers else "Business Development"}
 
 
 def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
@@ -150,6 +178,16 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     current = revisions[0] if revisions else None
     validation = validate_proposal(db, proposal)
     readiness = v2_readiness(db, proposal, validation)
+    stage_labels = {
+        "RECEIVED": "Intake & Sources", "IN_REVIEW": "Intake & Sources", "PROPOSAL_PREPARATION": "Engineering Preparation",
+        "PROPOSAL_HANDOVER": "Commercial Review", "COMMERCIAL_REVIEW": "Commercial Review", "QUOTATION_IN_PROGRESS": "Commercial Review",
+        "CLIENT_RESPONSE_PENDING": "Client Response", "ACCEPTED": "Contract Handoff", "CONTRACT_HANDOVER": "Contract Handoff", "CLOSED": "Closed",
+    }
+    intake = intake_readiness(db, proposal)
+    notes = db.scalars(select(ProposalNote).where(ProposalNote.proposal_id == proposal.id).order_by(ProposalNote.created_at.desc())).all()
+    site_photos = [item for item in sources if item.source_type == "SITE_PHOTO" and item.status == "CURRENT"]
+    current_owner = "Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development"
+    next_action = "Open Engineering Preparation" if proposal.status == "PROPOSAL_PREPARATION" else "Proceed to Engineering Preparation" if proposal.status in {"RECEIVED", "IN_REVIEW"} and intake["ready"] else "Review intake blockers" if proposal.status in {"RECEIVED", "IN_REVIEW"} else "Review Proposal"
     return {
         "id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
@@ -159,7 +197,11 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "client_name": fields.get("client_name"),
         "title": proposal.title,
         "stage": proposal.status,
-        "stage_label": proposal.status.replace("_", " ").title(),
+        "stage_label": stage_labels.get(proposal.status, proposal.status.replace("_", " ").title()),
+        "lifecycle": [{"number": 1, "label": "Intake & Sources", "active": proposal.status in {"RECEIVED", "IN_REVIEW"}}, {"number": 2, "label": "Engineering Preparation", "active": proposal.status == "PROPOSAL_PREPARATION"}, {"number": 3, "label": "Commercial Review", "active": proposal.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"}}, {"number": 4, "label": "Client Response", "active": proposal.status == "CLIENT_RESPONSE_PENDING"}, {"number": 5, "label": "Contract Handoff", "active": proposal.status in {"ACCEPTED", "CONTRACT_HANDOVER"}}],
+        "current_owner": current_owner,
+        "next_actor": "Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development",
+        "next_action": {"label": next_action, "eligible": intake["ready"] if proposal.status in {"RECEIVED", "IN_REVIEW"} else True},
         "amount": fields.get("price"),
         "last_activity": proposal.updated_at.isoformat() if proposal.updated_at else None,
         "fields": fields,
@@ -168,6 +210,9 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "sources": [_source_projection(item) for item in sources],
         "validation": validation,
         "readiness_v2": readiness,
+        "intake_readiness": intake,
+        "notes": [{"id": row.id, "note_type": row.note_type, "content": row.content, "entered_by": row.entered_by, "related_contact": row.related_contact, "status": row.status, "provenance": row.provenance, "created_at": row.created_at.isoformat()} for row in notes],
+        "site_photos": [_source_projection(item) for item in site_photos],
         "forms_v2": forms_v2_projection(db, proposal),
         "current_revision": {
             "id": current.id,

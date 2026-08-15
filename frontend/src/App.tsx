@@ -609,7 +609,7 @@ function App() {
             />
           )}{" "}
           {page === "about" && <AboutPermitOpsPage onNavigate={navigate} />}{" "}
-          {page === "opportunities" && <OpportunitiesPage />}{" "}
+          {page === "opportunities" && <OpportunitiesPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />}{" "}
           {page === "billing" && <BillingInvoicePage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}

@@ -1,0 +1,16 @@
+{
+  "entry": {"branch": "main", "sha": "01b5c3dd19a515fa88e791175f83611511e988a6", "remote_sha": "01b5c3dd19a515fa88e791175f83611511e988a6", "alembic_head": "0053_handover_admin_closeout", "working_tree_preexisting_changes": true},
+  "precedence": ["current executable repository", "current tests/migrations", "explicit owner/product decisions", "forms-driven Proposal v2", "historical implementation"],
+  "classifications": {
+    "Opportunity": {"classification": "CURRENT_SUPPORTING_CONTEXT", "action": "REHOME", "evidence": ["backend/app/models/expansion_entities.py", "backend/app/api/bd_proposal_routers.py"]},
+    "Quotation": {"classification": "LEGACY_COMPATIBILITY", "action": "HIDE_FROM_PRIMARY_UX", "evidence": ["backend/app/models/expansion_entities.py", "backend/app/services/contract_workspace.py"]},
+    "Proposal": {"classification": "CURRENT_CANONICAL", "action": "KEEP", "evidence": ["backend/app/api/bd_proposal_routers.py", "backend/app/services/proposal_workspace.py"]},
+    "AcceptedProposalRevision": {"classification": "CURRENT_CANONICAL", "action": "KEEP", "evidence": ["backend/app/models/week15_entities.py", "backend/app/api/bd_proposal_routers.py"]},
+    "source_families": {"classification": "CURRENT_CANONICAL", "action": "KEEP", "values": ["TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_PHOTO", "CLIENT_DATA"]},
+    "notes": {"classification": "PARTIAL_CURRENT", "action": "ADAPT", "evidence": ["frontend/src/BDProposalOwnerSession.tsx", "proposal_fields_json.amec_input"]},
+    "proceed": {"classification": "MISSING_COMMAND", "action": "IMPLEMENT", "evidence": ["no current typed ProceedProposal command found in Proposal API"]},
+    "contract_handoff": {"classification": "CURRENT_CANONICAL", "action": "KEEP", "evidence": ["backend/app/api/bd_proposal_routers.py", "backend/app/services/contract_workspace.py"]}
+  },
+  "historical_generations": ["Early PermitOps/AMEC expansion", "RFQ/Tender/Opportunity/Quotation", "Owner-session Proposal", "Forms-driven Proposal v2"],
+  "current_defect": "frontend/src/Opportunities.tsx remains an Opportunity/Quotation primary workspace while mature Proposal-first APIs and Forms v2 exist"
+}

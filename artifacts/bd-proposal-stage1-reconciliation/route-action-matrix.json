@@ -1,0 +1,8 @@
+[
+  {"route":"/bd","meaning":"Proposal Intake compatibility route","opens":"Proposal-first list/workspace","legacy":"was Opportunity list"},
+  {"route":"/opportunities","meaning":"Proposal Intake compatibility route","opens":"Proposal-first list/workspace","legacy":"was Opportunity list"},
+  {"route":"/bd/proposals","meaning":"Proposal list/workspace","opens":"canonical BD Proposal surface","legacy":"none"},
+  {"route":"/proposals/new","meaning":"generic source-driven New Proposal","opens":"selected-source intake","legacy":"generic upload repaired"},
+  {"route":"/proposals/{id}/preparation","meaning":"Engineering Proposal Preparation","opens":"same Proposal identity","legacy":"none"},
+  {"route":"/contracts/{id}","meaning":"Contract-owned detail","opens":"exact accepted revision lineage","legacy":"not Stage 1"}
+]
