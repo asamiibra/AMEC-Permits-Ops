@@ -7,6 +7,8 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
+import tempfile
 from pathlib import Path
 
 
@@ -22,6 +24,14 @@ def main() -> int:
     manifest_path = Path(args.manifest)
     payload = archive_path.read_bytes()
     manifest = json.loads(manifest_path.read_text())
+
+    # Keep seed/projection writes in an isolated synthetic copy. The canonical
+    # workbook is an unrelated user fixture and must never be mutated by an
+    # acceptance run.
+    repo_root = Path(__file__).resolve().parents[2]
+    isolated_root = Path(tempfile.mkdtemp(prefix="proposalops-forme-closure-"))
+    shutil.copytree(repo_root / "mock-systems", isolated_root / "mock-systems")
+    os.environ["MOCK_SYSTEMS_ROOT"] = str(isolated_root / "mock-systems")
 
     # The repository seed intentionally uses the legacy synthetic SOR for its
     # baseline fixtures. Seed that baseline first, then switch the intake
