@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "starting_branch": "branch/owner-form-simple-dashboard",
+  "starting_sha": "1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb",
+  "dashboard_commit_contained": "076d834d8ab41049081b3f0481aaaadad4e30e75",
+  "storage_commit_contained": "1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb",
+  "integration_action": "NO MERGE; both commits were already ancestors",
+  "migration_head": "0058_source_intake_ledger"
+}
