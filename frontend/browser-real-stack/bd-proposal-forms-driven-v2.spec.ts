@@ -2,11 +2,12 @@ import { expect, test } from "@playwright/test";
 
 test("BD Proposal Forms-Driven v2 exposes the governed owner workspace", async ({ page, request }) => {
   const owner = { "X-Dev-Role": "SYSTEM_ADMIN" };
+  await page.addInitScript(() => sessionStorage.setItem("proposalops-role", "SYSTEM_ADMIN"));
   const health = await request.get("/health");
   expect(health.ok()).toBeTruthy();
   const healthBody = await health.json();
   expect(healthBody.database_dialect).toBe("postgresql");
-  expect(healthBody.alembic_versions).toContain("0042_bd_proposal_forms_driven_v2");
+  expect(healthBody.alembic_versions).toContain("0054_bd_proposal_stage1_reconciliation");
 
   let proposals = await request.get("/api/bd/proposals", { headers: owner });
   expect(proposals.ok()).toBeTruthy();
@@ -27,8 +28,8 @@ test("BD Proposal Forms-Driven v2 exposes the governed owner workspace", async (
   expect(proposalBody.items?.length).toBeGreaterThan(0);
 
   await page.goto("/bd/proposals");
-  await expect(page.getByRole("heading", { name: "Proposal list", level: 2 })).toBeVisible();
-  await page.getByText("Open workspace", { exact: false }).first().click();
+  await expect(page.getByRole("heading", { name: "Proposal Intake", level: 2 })).toBeVisible();
+  await page.getByRole("button", { name: /Open Proposal/ }).first().click();
   await expect(page.getByText("CLIENT & CONTACTS")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Site / Property context", level: 3 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Known / Candidate Stakeholders", level: 3 })).toBeVisible();

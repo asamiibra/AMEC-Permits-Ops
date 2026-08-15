@@ -49,7 +49,12 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   const item = (await engineeringItem.json())[0];
   const projectsResponse = await page.request.get("/api/projects", { headers: ownerHeaders });
   expect(projectsResponse.ok()).toBeTruthy();
-  const project = (await projectsResponse.json())[0];
+  const projects = await projectsResponse.json();
+  const project = (await Promise.all(projects.map(async (candidate: { id: string }) => {
+    const response = await page.request.get(`/api/projects/${candidate.id}`, { headers: ownerHeaders });
+    return response.ok() ? response.json() : null;
+  }))).find((candidate: { applications?: unknown[] } | null) => (candidate?.applications?.length || 0) > 0);
+  expect(project).toBeTruthy();
   const dependencyResponse = await page.request.post(`/api/master-content/${item.id}/dependencies`, { headers: { ...ownerHeaders, "Content-Type": "application/json" }, data: { downstream_type: "EngineeringReview", downstream_id: `browser-review-${suffix}`, project_id: project.id } });
   expect(dependencyResponse.ok()).toBeTruthy();
 

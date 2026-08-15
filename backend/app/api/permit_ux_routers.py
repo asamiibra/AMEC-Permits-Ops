@@ -289,7 +289,7 @@ def case_workspace(case_id: str, request: Request, db: Session = Depends(get_db)
     party_ids = [x.party_id for x in db.scalars(select(PropertyOwnership).join(Property, Property.id == PropertyOwnership.property_id).where(Property.project_id == project.id)).all()]
     parties = db.scalars(select(Party).where(Party.id.in_(party_ids)) if party_ids else select(Party).where(False)).all()
     properties = db.scalars(select(Property).where(Property.project_id == project.id)).all()
-    audit = db.scalars(select(AuditEvent).where(or_(and_(AuditEvent.entity_type == "AuthorityCase", AuditEvent.entity_id == case.id), and_(AuditEvent.entity_type == "Project", AuditEvent.entity_id == project.id))).order_by(AuditEvent.created_at.desc()).limit(100)).all()
+    audit = db.scalars(select(AuditEvent).where(or_(and_(AuditEvent.entity_type == "AuthorityCase", AuditEvent.entity_id == case.id), and_(AuditEvent.entity_type == "Project", AuditEvent.entity_id == project.id))).order_by(AuditEvent.occurred_at.desc()).limit(100)).all()
     status = _status_projection(db, case)
     drawing_items = []
     for member in members:

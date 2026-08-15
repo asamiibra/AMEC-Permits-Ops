@@ -5,7 +5,7 @@ const routes = [
   ["/admin/data-connections", "Source Connections"],
   ["/admin/project-folder-setup", "References and project identity"],
   ["/admin/proposal-setup", "Proposal workflow configuration"],
-  ["/admin/contract-setup", "Contract workflow configuration"],
+  ["/admin/contract-setup", "Contract register"],
   ["/admin/permit-setup", "Requirements and attachments"],
   ["/admin/templates", "Controlled template catalog"],
   ["/admin/notifications", "Notification audiences and follow-up"],

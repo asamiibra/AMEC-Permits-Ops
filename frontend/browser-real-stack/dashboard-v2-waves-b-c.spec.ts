@@ -6,7 +6,7 @@ test("Dashboard V2 exposes the canonical Waves B+C governance facade and detail 
   expect(health.ok()).toBeTruthy();
   const healthBody = await health.json();
   expect(healthBody.database_dialect).toBe("postgresql");
-  expect(healthBody.alembic_versions).toContain("0042_bd_proposal_forms_driven_v2");
+  expect(healthBody.alembic_versions).toContain("0054_bd_proposal_stage1_reconciliation");
 
   const catalogs = await request.get("/api/dashboard-v2/catalogs", { headers: owner });
   expect(catalogs.ok()).toBeTruthy();

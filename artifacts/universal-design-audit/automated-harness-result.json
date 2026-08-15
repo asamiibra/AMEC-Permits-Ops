@@ -1,19 +1,41 @@
 {
-  "generated_at": "2026-08-10T15:20:44.847Z",
-  "base_url": "https://amec-permits-ops.vercel.app",
+  "generated_at": "2026-08-15T01:03:56.754Z",
+  "base_url": "http://127.0.0.1:5173",
   "route_count": 66,
   "contract_count": 37,
   "role_combinations": 104,
   "screenshots": 104,
   "navigation_labels_discovered": [
-    "⌂AMEC Work",
-    "▦Proposals & Contracts",
+    "▦Dashboard",
+    "⌂AMEC WorkAMEC Work",
+    "↗BDOpportunities",
+    "▤Billing / Invoice",
+    "⌁EngineeringEngineering & Closeout",
+    "▥Construction",
+    "✓Completion / As-Built",
+    "▣PermitPermit Portfolio",
+    "◈Authority Cases",
     "!Issues",
     "◌Notifications",
-    "⚙Administration",
+    "⚙AdminAdministration",
     "?Operating Guide",
     "ⓘInputs & Go-Live8",
-    "SA"
+    "SA",
+    "View Inputs & Go-Live",
+    "People & AccessUsers, roles, and capability permissionsConfigured→",
+    "Data & ConnectionsSource systems with simulator and production statusSimulator Ready · Production Not Connected→",
+    "Project & Folder SetupReferences, folder structure, and semantic mappingsConfigured for demo→",
+    "Proposal SetupProposal fields, intake sources, stages, and handoffsConfigured for demo→",
+    "Contract SetupContract rules, fields, and Permit handoffConfigured for demo→",
+    "FormsCanonical Forms used across AMEC workflowsCanonical library→",
+    "Templates & DocumentsControlled Proposal, Contract, and Permit templatesSynthetic stand-ins→",
+    "Master Content Setup & Go-LiveConfiguration and statusCanonical decision register→",
+    "Permit Workflow SetupRequirements, applicability, attachments, and Municipality modeConfigured for demo→",
+    "Notifications & Follow-upAudiences, reminders, and follow-up rulesConfigured→",
+    "Data, Security & RetentionData mode, access, MFA, retention, and backupsConfigured for demo→",
+    "Integration HealthCross-system checks using the canonical status truthSimulator Ready→",
+    "Audit HistoryOwner-readable operational historyAvailable→",
+    "Advanced DiagnosticsTechnical evidence and adapter diagnosticsSecondary→"
   ],
   "results": [
     {
@@ -27,7 +49,9 @@
         "AMEC Work",
         "What needs attention",
         "See how ProposalOps works",
-        "17 open items",
+        "Dashboard",
+        "Dashboard V2 NEW",
+        "27 open items",
         "What changed"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -35,7 +59,10 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
+      "raw_enums": [
+        "CATEGORYATTACHMENT_WRONG_CATEGORYGHCE",
+        "ENGINEERING_WORK"
+      ],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -56,6 +83,7 @@
         "AMEC Work",
         "What needs attention",
         "See how ProposalOps works",
+        "Dashboard",
         "6 open items",
         "What changed"
       ],
@@ -85,7 +113,8 @@
         "AMEC Work",
         "What needs attention",
         "See how ProposalOps works",
-        "14 open items",
+        "Dashboard",
+        "22 open items",
         "What changed"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -93,7 +122,10 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
+      "raw_enums": [
+        "CATEGORYATTACHMENT_WRONG_CATEGORYGHCE",
+        "ENGINEERING_WORK"
+      ],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -109,17 +141,13 @@
       "contract_id": "proposals-contracts",
       "role": "Owner",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
+        "ProposalOps",
         "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [
-        "Client List",
-        "Proposal Form",
-        "Open Proposals",
-        "Open Contracts"
-      ],
+      "required_missing": [],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -139,16 +167,14 @@
       "contract_id": "proposals-contracts",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
+        "ProposalOps",
         "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "Client List",
-        "Proposal Form",
-        "Open Proposals",
-        "Open Contracts"
+        "Proposal Form"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -169,16 +195,14 @@
       "contract_id": "proposals-contracts",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
+        "ProposalOps",
         "Proposals & Contracts"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "Client List",
-        "Proposal Form",
-        "Open Proposals",
-        "Open Contracts"
+        "Client List"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -199,12 +223,12 @@
       "contract_id": "new-proposal",
       "role": "Owner",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "New Proposal",
         "1. Proposal details",
-        "2. Source evidence"
+        "2. Choose the first source"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -231,12 +255,12 @@
       "contract_id": "new-proposal",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "New Proposal",
         "1. Proposal details",
-        "2. Source evidence"
+        "2. Choose the first source"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -259,23 +283,23 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "route": "/proposals/c0d4db16-69e5-4c15-b429-f079986c2fc5",
       "contract_id": "proposal-detail",
       "role": "Owner",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts"
+        "ProposalOps",
+        "Synthetic Engineering Proposal Intake",
+        "Proposal fields",
+        "Related Contract(s)",
+        "Source evidence",
+        "Linked Issues & history"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "Proposal Description",
-        "reference",
-        "status",
-        "client",
-        "sources",
-        "issues",
-        "history"
+        "reference"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -292,13 +316,13 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "route": "/proposals/c0d4db16-69e5-4c15-b429-f079986c2fc5",
       "contract_id": "proposal-detail",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "Synthetic Engineering Proposal Intake",
         "Proposal fields",
         "Related Contract(s)",
@@ -325,13 +349,13 @@
     },
     {
       "route_id": "S02B",
-      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738",
+      "route": "/proposals/c0d4db16-69e5-4c15-b429-f079986c2fc5",
       "contract_id": "proposal-detail",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "Synthetic Engineering Proposal Intake",
         "Proposal fields",
         "Related Contract(s)",
@@ -358,13 +382,13 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "route": "/proposals/c0d4db16-69e5-4c15-b429-f079986c2fc5/preparation",
       "contract_id": "proposal-preparation",
       "role": "Owner",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "Proposal Preparation",
         "Inputs & Sources",
         "Technical preparation"
@@ -392,22 +416,23 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "route": "/proposals/c0d4db16-69e5-4c15-b429-f079986c2fc5/preparation",
       "contract_id": "proposal-preparation",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts"
+        "ProposalOps",
+        "Proposal Preparation",
+        "Inputs & Sources",
+        "Technical preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "Proposal identity",
         "Project/reference context",
-        "Inputs & Sources",
         "Process of Work",
-        "technical exclusions",
-        "handoff"
+        "technical exclusions"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -424,13 +449,13 @@
     },
     {
       "route_id": "S02C",
-      "route": "/proposals/a5f0f946-739f-4530-8707-fb5bf842c738/preparation",
+      "route": "/proposals/c0d4db16-69e5-4c15-b429-f079986c2fc5/preparation",
       "contract_id": "proposal-preparation",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "Proposal Preparation",
         "Inputs & Sources",
         "Technical preparation"
@@ -458,13 +483,13 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "route": "/contracts/f9fa1f88-5f76-428c-9073-1a041c80e13d",
       "contract_id": "contract-detail",
       "role": "Owner",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "SYN-CTR-0001",
         "Contract revisions",
         "Project context",
@@ -492,13 +517,13 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "route": "/contracts/f9fa1f88-5f76-428c-9073-1a041c80e13d",
       "contract_id": "contract-detail",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "SYN-CTR-0001",
         "Contract revisions",
         "Project context",
@@ -526,13 +551,13 @@
     },
     {
       "route_id": "S02D",
-      "route": "/contracts/5cc5057a-92c5-4f6f-bcca-9c2311f2bec8",
+      "route": "/contracts/f9fa1f88-5f76-428c-9073-1a041c80e13d",
       "contract_id": "contract-detail",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "Proposals & Contracts",
+      "heading": "ProposalOps",
       "headings": [
-        "Proposals & Contracts",
+        "ProposalOps",
         "SYN-CTR-0001",
         "Contract revisions",
         "Project context",
@@ -569,11 +594,11 @@
         "ProposalOps",
         "Reviews waiting for me",
         "Assigned reviews",
-        "Review Proposal release",
+        "Revalidate E2E-E-msto9ltu v2",
+        "Revalidate E2E-E-msto4e9u v2",
+        "Revalidate E2E-E-msto1qdh v2",
         "Verify project data",
-        "Confirm project & sources",
-        "Confirm project & sources",
-        "Confirm project & sources"
+        "ATTACHMENT WRONG CATEGORY"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -601,11 +626,11 @@
         "ProposalOps",
         "Reviews waiting for me",
         "Assigned reviews",
-        "Review Proposal release",
+        "Revalidate E2E-E-msto9ltu v2",
+        "Revalidate E2E-E-msto4e9u v2",
+        "Revalidate E2E-E-msto1qdh v2",
         "Verify project data",
-        "Confirm project & sources",
-        "Confirm project & sources",
-        "Confirm project & sources"
+        "ATTACHMENT WRONG CATEGORY"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
@@ -633,11 +658,11 @@
         "Issues",
         "Issues across AMEC work",
         "Owner actionable and contextual issues",
-        "Proposal SOW needs engineering confirmation",
-        "Review Proposal release",
-        "Client pricing clarification required",
-        "Contract scope differs from Proposal",
-        "Permit drawing revision requires technical review"
+        "E2E-E-msto9ltu requires review",
+        "E2E-E-msto4e9u requires review",
+        "E2E-E-msto1qdh requires review",
+        "ATTACHMENT WRONG CATEGORY",
+        "ATTACHMENT WRONG CATEGORY"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -648,7 +673,9 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
+      "raw_enums": [
+        "CATEGORYATTACHMENT_WRONG_CATEGORYGHCE"
+      ],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -667,20 +694,26 @@
       "heading": "Issues",
       "headings": [
         "Issues",
-        "Commercial & project issues"
+        "Commercial & project issues",
+        "Business Development actionable and contextual issues",
+        "ATTACHMENT WRONG CATEGORY",
+        "ATTACHMENT WRONG CATEGORY",
+        "Required attachment missing",
+        "Precheck: SYN-DRAWING-001",
+        "Official drawing comment"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "what is wrong",
         "severity",
-        "blocking",
-        "affected record",
         "actionability"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
+      "raw_enums": [
+        "CATEGORYATTACHMENT_WRONG_CATEGORYGHCE"
+      ],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -701,9 +734,11 @@
         "Issues",
         "Engineering issues",
         "Engineering actionable and contextual issues",
-        "Proposal SOW needs engineering confirmation",
-        "Permit drawing revision requires technical review",
-        "Authority returned a technical comment"
+        "E2E-E-msto9ltu requires review",
+        "E2E-E-msto4e9u requires review",
+        "E2E-E-msto1qdh requires review",
+        "ATTACHMENT WRONG CATEGORY",
+        "ATTACHMENT WRONG CATEGORY"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -714,7 +749,9 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
+      "raw_enums": [
+        "CATEGORYATTACHMENT_WRONG_CATEGORYGHCE"
+      ],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -726,14 +763,14 @@
     },
     {
       "route_id": "S04D",
-      "route": "/issues/0f219f24-8980-5ef4-aac2-30eff3773c59",
+      "route": "/issues/6a8121fe-26fe-47e8-8790-96efcd187a23",
       "contract_id": "issue-detail",
       "role": "Owner",
       "http_status": 200,
       "heading": "ProposalOps",
       "headings": [
         "ProposalOps",
-        "Proposal SOW needs engineering confirmation",
+        "E2E-E-msto9ltu requires review",
         "What is wrong",
         "Why it matters",
         "What needs to happen",
@@ -744,9 +781,12 @@
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
-      "raw_enums": [],
+      "raw_enums": [
+        "ENGINEERING_WORK",
+        "MASTER_CONTENT_REVALIDATION"
+      ],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -758,23 +798,22 @@
     },
     {
       "route_id": "S04D",
-      "route": "/issues/0f219f24-8980-5ef4-aac2-30eff3773c59",
+      "route": "/issues/6a8121fe-26fe-47e8-8790-96efcd187a23",
       "contract_id": "issue-detail",
       "role": "Business Development",
       "http_status": 200,
       "heading": "ProposalOps",
       "headings": [
-        "ProposalOps",
-        "Proposal SOW needs engineering confirmation",
+        "ProposalOps"
+      ],
+      "title": "ProposalOps · Proposal & Contract Workflow",
+      "required_missing": [
         "What is wrong",
         "Why it matters",
         "What needs to happen",
         "Affected business record",
-        "Evidence",
-        "Engineering owns this resolution"
+        "Activity & history"
       ],
-      "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -783,21 +822,24 @@
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S04D-Business-Development.png"
     },
     {
       "route_id": "S04D",
-      "route": "/issues/0f219f24-8980-5ef4-aac2-30eff3773c59",
+      "route": "/issues/6a8121fe-26fe-47e8-8790-96efcd187a23",
       "contract_id": "issue-detail",
       "role": "Engineering",
       "http_status": 200,
       "heading": "ProposalOps",
       "headings": [
         "ProposalOps",
-        "Proposal SOW needs engineering confirmation",
+        "E2E-E-msto9ltu requires review",
         "What is wrong",
         "Why it matters",
         "What needs to happen",
@@ -808,9 +850,12 @@
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
-      "raw_enums": [],
+      "raw_enums": [
+        "ENGINEERING_WORK",
+        "MASTER_CONTENT_REVALIDATION"
+      ],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
@@ -831,10 +876,11 @@
         "Notifications",
         "Owner notifications",
         "Owner notifications",
-        "Project sources confirmed",
-        "Proposal preparation completed",
-        "Client information requirement identified",
-        "Historical authority comment received"
+        "Definition updated: E2E verification term msto9ltu",
+        "Definition updated: E2E verification term msto9ltu",
+        "Definition updated: E2E verification term msto9ltu",
+        "E2E-E-msto9ltu updated",
+        "E2E-E-msto9ltu updated"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -847,8 +893,11 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "PERMIT_PREPARER",
+        "RESPONSIBLE_ENGINEER"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -866,11 +915,16 @@
       "heading": "Notifications",
       "headings": [
         "Notifications",
-        "Business Development notifications"
+        "Business Development notifications",
+        "Business Development notifications",
+        "Definition updated: E2E verification term msto9ltu",
+        "Definition updated: E2E verification term msto4e9u",
+        "Definition updated: Project Reference",
+        "Definition updated: Client ID",
+        "Definition updated: E2E verification term msto1qdh"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "event",
         "affected record",
         "actor",
         "time",
@@ -880,8 +934,11 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "PERMIT_PREPARER",
+        "RESPONSIBLE_ENGINEER"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -901,9 +958,11 @@
         "Notifications",
         "Engineering notifications",
         "Engineering notifications",
-        "Project sources confirmed",
-        "Proposal preparation completed",
-        "Historical authority comment received"
+        "Definition updated: E2E verification term msto9ltu",
+        "E2E-E-msto9ltu updated",
+        "Definition updated: E2E verification term msto4e9u",
+        "E2E-E-msto4e9u updated",
+        "Definition updated: Project Reference"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -916,8 +975,11 @@
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "PERMIT_PREPARER",
+        "RESPONSIBLE_ENGINEER"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1024,26 +1086,37 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Establish the permit workspace"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "Permit Application"
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
       ],
-      "forbidden_terms": [],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1054,84 +1127,107 @@
     },
     {
       "route_id": "S07",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Establish the permit workspace"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "Permit Application"
+        "Project",
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S07-Business-Development.png"
     },
     {
       "route_id": "S07",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/project-and-sources",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/project-and-sources",
       "contract_id": "permit-project-sources",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Establish the permit workspace"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "Permit Application"
+        "Project",
+        "Permit Application",
+        "Current stage",
+        "Viewing",
+        "source systems",
+        "confirmation evidence"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S07-Engineering.png"
     },
     {
       "route_id": "S08",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/verify-data",
       "contract_id": "permit-verify",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Verify the facts that drive the permit"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
-      "forbidden_terms": [],
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1142,80 +1238,104 @@
     },
     {
       "route_id": "S08",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/verify-data",
       "contract_id": "permit-verify",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Verify the facts that drive the permit"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S08-Business-Development.png"
     },
     {
       "route_id": "S08",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/verify-data",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/verify-data",
       "contract_id": "permit-verify",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Verify the facts that drive the permit"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "evidence",
+        "verification state",
+        "conflicts"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S08-Engineering.png"
     },
     {
       "route_id": "S09",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/prepare-package",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/prepare-package",
       "contract_id": "permit-package",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Prepare Package"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
-      "forbidden_terms": [],
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "blockers",
+        "evidence"
+      ],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1226,83 +1346,105 @@
     },
     {
       "route_id": "S09",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/prepare-package",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/prepare-package",
       "contract_id": "permit-package",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Prepare Package"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "requirements",
+        "blockers",
+        "evidence"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S09-Business-Development.png"
     },
     {
       "route_id": "S09",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/prepare-package",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/prepare-package",
       "contract_id": "permit-package",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Prepare Package"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "current stage",
+        "viewing",
+        "requirements",
+        "blockers",
+        "evidence"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S09-Engineering.png"
     },
     {
       "route_id": "S10",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Municipality Preparation"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
+        "Municipality",
+        "current stage",
+        "viewing",
         "read-back",
         "fallback"
       ],
-      "forbidden_terms": [],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1313,79 +1455,85 @@
     },
     {
       "route_id": "S10",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Municipality Preparation"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
+        "Municipality",
+        "Authority",
+        "current stage",
+        "viewing",
         "read-back",
         "fallback"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S10-Business-Development.png"
     },
     {
       "route_id": "S10",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/municipality-preparation",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/municipality-preparation",
       "contract_id": "permit-municipality",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Municipality Preparation"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
+        "Municipality",
+        "Authority",
+        "current stage",
+        "viewing",
         "read-back",
         "fallback"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S10-Engineering.png"
     },
     {
       "route_id": "S11",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/final-review",
       "contract_id": "permit-final-review",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Ready for a named human decision",
-        "GHCE-APP-0142"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -1393,11 +1541,19 @@
         "Final Submitter handoff",
         "human boundary"
       ],
-      "forbidden_terms": [],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1408,17 +1564,13 @@
     },
     {
       "route_id": "S11",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/final-review",
       "contract_id": "permit-final-review",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Ready for a named human decision",
-        "GHCE-APP-0142"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -1427,31 +1579,30 @@
         "human boundary"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S11-Business-Development.png"
     },
     {
       "route_id": "S11",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/final-review",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/final-review",
       "contract_id": "permit-final-review",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Ready for a named human decision",
-        "GHCE-APP-0142"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -1460,38 +1611,53 @@
         "human boundary"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S11-Engineering.png"
     },
     {
       "route_id": "S12",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/authority-review",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/authority-review",
       "contract_id": "permit-authority",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Read-only authority monitoring"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
-      "forbidden_terms": [],
+      "required_missing": [
+        "Authority status",
+        "last checked",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1502,80 +1668,104 @@
     },
     {
       "route_id": "S12",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/authority-review",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/authority-review",
       "contract_id": "permit-authority",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Read-only authority monitoring"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Authority status",
+        "last checked",
+        "comments",
+        "current stage",
+        "viewing"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S12-Business-Development.png"
     },
     {
       "route_id": "S12",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/authority-review",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/authority-review",
       "contract_id": "permit-authority",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Read-only authority monitoring"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Authority status",
+        "last checked",
+        "comments",
+        "current stage",
+        "viewing"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S12-Engineering.png"
     },
     {
       "route_id": "S13",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Comments & Corrections"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
-      "forbidden_terms": [],
+      "required_missing": [
+        "Findings",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1586,83 +1776,105 @@
     },
     {
       "route_id": "S13",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Comments & Corrections"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Findings",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S13-Business-Development.png"
     },
     {
       "route_id": "S13",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/comments-and-corrections",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/comments-and-corrections",
       "contract_id": "permit-corrections",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Comments & Corrections"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Findings",
+        "evidence",
+        "current stage",
+        "viewing"
+      ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S13-Engineering.png"
     },
     {
       "route_id": "S14",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/history",
       "contract_id": "permit-history",
       "role": "Owner",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Permit evidence timeline"
+        "Permit",
+        "COMP-GHCE-2026-0142-39888559",
+        "History"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "business event",
-        "result"
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
       ],
-      "forbidden_terms": [],
+      "forbidden_terms": [
+        "SYSTEM_ADMIN"
+      ],
       "raw_uuid": false,
       "raw_json": false,
-      "raw_enums": [],
-      "internal_actor": false,
+      "raw_enums": [
+        "SYSTEM_ADMINREADINESS_REVALIDATED",
+        "READINESS_BLOCKED",
+        "READINESS_READY",
+        "EXCEL_SYSTEM_PROJECTION_WRITTEN",
+        "PROJECT_CREATED"
+      ],
+      "internal_actor": true,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
@@ -1673,62 +1885,72 @@
     },
     {
       "route_id": "S14",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/history",
       "contract_id": "permit-history",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Permit evidence timeline"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "business event",
-        "result"
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S14-Business-Development.png"
     },
     {
       "route_id": "S14",
-      "route": "/permits/c05a4f2c-8e45-49da-bda3-70429f18c496/history",
+      "route": "/permits/84d2fcd5-dab8-49c1-963f-585d50e65b9d/history",
       "contract_id": "permit-history",
       "role": "Engineering",
       "http_status": 200,
-      "heading": "GHCE-2026-0142 · Al Noor Villa",
+      "heading": "Permit",
       "headings": [
-        "GHCE-2026-0142 · Al Noor Villa",
-        "GHCE-2026-0142 · Al Noor Villa",
-        "Verify project data",
-        "Permit evidence timeline"
+        "Permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
         "business event",
-        "result"
+        "record",
+        "actor",
+        "time",
+        "result",
+        "current stage",
+        "viewing"
       ],
       "forbidden_terms": [],
-      "raw_uuid": false,
+      "raw_uuid": true,
       "raw_json": false,
       "raw_enums": [],
       "internal_actor": false,
       "horizontal_overflow": false,
       "language": "en",
       "direction": "ltr",
-      "console_errors": [],
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
       "request_failures": [],
       "bad_responses": [],
       "screenshot": "artifacts/universal-design-audit/screenshots/S14-Engineering.png"
@@ -1921,10 +2143,12 @@
       "headings": [
         "Administration",
         "Contract Setup",
-        "Contract workflow configuration"
+        "Contract register"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [],
+      "required_missing": [
+        "Contract → Permit"
+      ],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -1947,16 +2171,12 @@
       "heading": "Administration",
       "headings": [
         "Administration",
-        "Permit Setup"
+        "Permit Setup",
+        "Requirements and attachments",
+        "Interactionmode.Assisted"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
-      "required_missing": [
-        "requirements",
-        "applicability",
-        "attachments",
-        "Municipality",
-        "MFA"
-      ],
+      "required_missing": [],
       "forbidden_terms": [],
       "raw_uuid": false,
       "raw_json": false,
@@ -1979,12 +2199,12 @@
       "heading": "Administration",
       "headings": [
         "Administration",
-        "Templates"
+        "Templates",
+        "Controlled template catalog"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
-        "template purpose",
-        "version"
+        "template purpose"
       ],
       "forbidden_terms": [],
       "raw_uuid": false,
@@ -2064,7 +2284,8 @@
       "heading": "Administration",
       "headings": [
         "Administration",
-        "Integration Health"
+        "Integration Health",
+        "Cross-system health"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
@@ -2101,7 +2322,6 @@
       "required_missing": [
         "business event",
         "actor",
-        "time",
         "outcome"
       ],
       "forbidden_terms": [],
@@ -2429,13 +2649,14 @@
       "contract_id": "opportunities",
       "role": "Owner",
       "http_status": 200,
-      "heading": "ProposalOps",
+      "heading": "BD",
       "headings": [
-        "ProposalOps",
-        "Opportunities"
+        "BD",
+        "Proposal Intake"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
+        "status",
         "follow-up"
       ],
       "forbidden_terms": [],
@@ -2457,13 +2678,14 @@
       "contract_id": "opportunities",
       "role": "Business Development",
       "http_status": 200,
-      "heading": "ProposalOps",
+      "heading": "BD",
       "headings": [
-        "ProposalOps",
-        "Opportunities"
+        "BD",
+        "Proposal Intake"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "required_missing": [
+        "status",
         "follow-up"
       ],
       "forbidden_terms": [],
@@ -3204,17 +3426,17 @@
     }
   ],
   "counts": {
-    "console_errors": 0,
+    "console_errors": 17,
     "overflow": 0,
-    "raw_uuid": 0,
+    "raw_uuid": 18,
     "raw_json": 0,
-    "internal_actor": 0,
-    "forbidden_terms": 0,
-    "missing_required": 76
+    "internal_actor": 11,
+    "forbidden_terms": 8,
+    "missing_required": 88
   },
   "gates": {
     "MATERIAL_ROUTE_WITHOUT_DESIGN_CONTRACT_ZERO": true,
-    "AUTOMATED_OWNER_TECHNICAL_LEAK_DETECTION_PASS": true,
+    "AUTOMATED_OWNER_TECHNICAL_LEAK_DETECTION_PASS": false,
     "SYNTHETIC_BANNER_CONSISTENCY_PASS": true
   }
 }

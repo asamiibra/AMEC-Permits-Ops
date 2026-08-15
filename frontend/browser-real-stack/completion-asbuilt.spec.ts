@@ -1,7 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-const projectId = "b8c8bd41-c06a-40cf-94e2-8e1af763303a";
-
 test("Owner can operate the real Completion / As-Built workspace", async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem("proposalops-role", "SYSTEM_ADMIN"));
   await page.goto("/completion");
@@ -11,8 +9,22 @@ test("Owner can operate the real Completion / As-Built workspace", async ({ page
 
   await page.getByRole("button", { name: "Start Completion" }).click();
   await expect(page.getByRole("heading", { name: "Choose a completed construction scope" })).toBeVisible();
-  await page.getByLabel("Project").selectOption(projectId);
-  await page.getByLabel("Construction execution").selectOption({ label: "BROWSER-COMPLETION-20260813 · COMPLETED" });
+  const projectsResponse = await page.request.get("/api/projects", { headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
+  expect(projectsResponse.ok()).toBeTruthy();
+  const projects = await projectsResponse.json();
+  const projectDetails = await Promise.all(projects.map(async (project: { id: string }) => {
+    const response = await page.request.get(`/api/projects/${project.id}`, { headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
+    return response.ok() ? response.json() : null;
+  }));
+  const project = projectDetails.find((candidate: { applications?: unknown[] } | null) => (candidate?.applications?.length || 0) > 0) || projects[0];
+  expect(project?.id).toBeTruthy();
+  const fixtureResponse = await page.request.post(`/api/construction/test-support/completed-execution?project_id=${encodeURIComponent(project.id)}`, { headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
+  expect(fixtureResponse.ok()).toBeTruthy();
+  const execution = await fixtureResponse.json();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Choose a completed construction scope" })).toBeVisible();
+  await page.getByLabel("Project").selectOption(project.id);
+  await page.getByLabel("Construction execution").selectOption(execution.id);
   await page.getByRole("button", { name: "Start Completion / As-Built" }).click();
 
   await expect(page.getByRole("heading", { name: "Completion / As-Built workspace" })).toBeVisible();

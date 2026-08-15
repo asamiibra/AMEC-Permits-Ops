@@ -21,7 +21,7 @@ from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, Con
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
-from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
+from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
 from ..services.proposals_sor import ingest_provisional_intake_artifact
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
@@ -149,6 +149,14 @@ def create_proposal(payload: ProposalCreate, request: Request, db: Session = Dep
 def proposal_master_content(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
     return {"proposal_template": master_content_purpose(db, "PROPOSAL_TEMPLATE"), "proposal_checklist": master_content_purpose(db, "PROPOSAL_CHECKLIST"), "definitions": {"lookup": "/api/definitions/lookup/{term}", "truth": "DASHBOARD_DEFINITIONS"}}
+
+
+@router.get("/{proposal_id}/configuration")
+def proposal_configuration_view(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Read-only Dashboard configuration consumed by this Proposal."""
+    require_capability(role, "BD_PROPOSAL_READ")
+    proposal = _proposal_or_404(proposal_id, db)
+    return proposal_configuration(db, proposal)
 
 
 @router.get("/{proposal_id}")

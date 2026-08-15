@@ -8,7 +8,7 @@ test("real stack exposes the shared-foundation contracts on Postgres", async ({ 
   expect(health.ok()).toBeTruthy();
   const healthBody = await health.json();
   expect(healthBody.database_dialect).toBe("postgresql");
-  expect(healthBody.alembic_versions).toContain("0040_form_automation_runtime");
+  expect(healthBody.alembic_versions).toContain("0054_bd_proposal_stage1_reconciliation");
 
   for (const path of [
     "/api/regulatory/external-bodies",

@@ -9,6 +9,7 @@ from datetime import date, datetime, timedelta, timezone
 import hashlib
 import json
 from typing import Any
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
@@ -18,6 +19,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
+from ..config.settings import get_settings
 from ..db import get_db
 from ..models import *
 from .dependencies import current_user_role
@@ -268,6 +270,33 @@ def create_execution(payload: ExecutionCreate, request: Request, db: Session = D
     item = ConstructionExecution(**payload.model_dump(), created_by=role.value)
     db.add(item); db.flush()
     _audit(db, request, "CONSTRUCTION_EXECUTION_CREATED", "ConstructionExecution", item.id, _columns(item), role)
+    db.commit(); db.refresh(item)
+    return _columns(item)
+
+
+@router.post("/test-support/completed-execution")
+def create_completed_test_execution(project_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Create a completed synthetic handoff for real-stack Completion UI tests.
+
+    This seam is deliberately unavailable outside TEST. It creates only the
+    upstream construction state needed to exercise the explicit Completion
+    start boundary; it never represents a production construction record.
+    """
+    if get_settings().app_env.upper() != "TEST":
+        raise HTTPException(404, {"code": "TEST_SUPPORT_NOT_AVAILABLE"})
+    _require(role, OWNER_ROLES)
+    _project(db, project_id)
+    if not db.scalar(select(ServiceType).where(ServiceType.code == "BUILDING_COMPLETION")):
+        db.add(ServiceType(code="BUILDING_COMPLETION", name_en="Synthetic Building Completion", status="ACTIVE", provenance_json={"synthetic": True, "test_support": True}))
+    if not db.scalar(select(ExternalBody).where(ExternalBody.code == "QATAR_MUNICIPALITY")):
+        db.add(ExternalBody(code="QATAR_MUNICIPALITY", name_en="Synthetic Municipality", body_type="AUTHORITY", status="ACTIVE", verification_state="SYNTHETIC_VERIFIED"))
+    if not db.scalar(select(Jurisdiction).where(Jurisdiction.code == "QATAR")):
+        db.add(Jurisdiction(code="QATAR", country_code="QA", name_en="Synthetic Qatar", status="ACTIVE"))
+    db.flush()
+    suffix = uuid4().hex[:12].upper()
+    item = ConstructionExecution(project_id=project_id, execution_ref=f"TEST-COMPLETION-{suffix}", title="Synthetic completed construction scope", scope_description="Real-stack synthetic Completion fixture", status="COMPLETED", work_state="COMPLETED", created_by=role.value)
+    db.add(item); db.flush()
+    _audit(db, request, "CONSTRUCTION_TEST_FIXTURE_CREATED", "ConstructionExecution", item.id, _columns(item), role, metadata={"synthetic_only": True, "test_support": True})
     db.commit(); db.refresh(item)
     return _columns(item)
 

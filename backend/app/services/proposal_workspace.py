@@ -24,6 +24,7 @@ from ..models import (
     ProposalNote,
 )
 from .master_content import definition_lookup, resolve_master_content_purpose
+from .master_content import definition_projection, governance_projection
 from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
 
 SOURCE_TYPES = ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA")
@@ -61,6 +62,123 @@ def definitions_for_proposal(db: Session, terms: list[str]) -> list[dict[str, An
         if item:
             result.append(item)
     return result
+
+
+def definitions_for_bd(db: Session) -> list[dict[str, Any]]:
+    """Return current semantic definitions bound to BD, never client values."""
+    rows = db.scalars(
+        select(DefinitionEntry)
+        .join(MasterContentModuleBinding, MasterContentModuleBinding.definition_id == DefinitionEntry.id)
+        .where(
+            MasterContentModuleBinding.module == "BD",
+            MasterContentModuleBinding.active.is_(True),
+            DefinitionEntry.status == "ACTIVE",
+        )
+        .order_by(DefinitionEntry.term)
+    ).all()
+    return [definition_projection(db, row) for row in rows if row.current_revision_id and db.get(DefinitionRevision, row.current_revision_id)]
+
+
+def engineering_references_for_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
+    """Resolve only verified/current Engineering Works during preparation."""
+    if proposal.status != "PROPOSAL_PREPARATION":
+        return {
+            "status": "DEFERRED",
+            "label": "Available during Engineering Preparation",
+            "items": [],
+            "truth": "DASHBOARD_MASTER_CONTENT",
+        }
+    rows = db.scalars(
+        select(MasterContentItem)
+        .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
+        .where(
+            MasterContentItem.content_type == "ENGINEERING_WORK",
+            MasterContentItem.status == "ACTIVE",
+            MasterContentModuleBinding.module == "ENGINEERING",
+            MasterContentModuleBinding.active.is_(True),
+            MasterContentModuleBinding.usage_type == "AVAILABLE",
+        )
+        .order_by(MasterContentItem.ref)
+    ).all()
+    items: list[dict[str, Any]] = []
+    for item in rows:
+        version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+        if not version or (version.metadata_json or {}).get("master_status") != "CURRENT":
+            continue
+        governance = governance_projection(db, item)
+        if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:
+            continue
+        items.append({
+            "id": item.id,
+            "ref": item.ref,
+            "title": item.title,
+            "version_id": version.id,
+            "version": version.version_number,
+            "hash": version.sha256,
+            "source_type": item.source_type_code,
+            "discipline": (item.engineering_metadata or {}).get("discipline"),
+            "managed_in": "/dashboard",
+        })
+    return {
+        "status": "RESOLVED" if items else "UNRESOLVED",
+        "label": "Current eligible Engineering Works",
+        "items": items,
+        "truth": "DASHBOARD_MASTER_CONTENT",
+    }
+
+
+def proposal_configuration(db: Session, proposal: Opportunity) -> dict[str, Any]:
+    """Business-facing Proposal consumption of Dashboard-governed content."""
+    template = master_content_purpose(db, "PROPOSAL_TEMPLATE")
+    checklist = master_content_purpose(db, "PROPOSAL_CHECKLIST")
+    definitions = definitions_for_bd(db)
+    accepted = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
+
+    def card(label: str, resolution: dict[str, Any]) -> dict[str, Any]:
+        item = resolution.get("item")
+        if item:
+            return {
+                "label": label,
+                "status": "READY",
+                "ref": item["ref"],
+                "title": item["title"],
+                "version": item["version"],
+                "master_content_id": item["id"],
+                "document_version_id": item["version_id"],
+                "hash": item["hash"],
+                "managed_in": "/dashboard",
+                "purpose": item["purpose"],
+            }
+        status = "CONFIGURATION_CONFLICT" if resolution.get("status") == "AMBIGUOUS" else "OWNER_CONFIRMATION_REQUIRED"
+        return {
+            "label": label,
+            "status": status,
+            "message": "Configuration needs Owner attention" if status == "CONFIGURATION_CONFLICT" else "Owner confirmation required before final Proposal generation/acceptance",
+            "managed_in": "/dashboard",
+            "purpose": resolution.get("purpose"),
+            "candidates": len(resolution.get("candidates", [])),
+        }
+
+    return {
+        "proposal_template": card("Proposal Template", template),
+        "proposal_checklist": card("Proposal Checklist", checklist),
+        "definitions": {
+            "status": "AVAILABLE" if definitions else "NONE_CONFIGURED",
+            "count": len(definitions),
+            "items": definitions,
+            "managed_in": "/dashboard",
+            "truth": "DASHBOARD_DEFINITION_SEMANTIC_ONLY",
+        },
+        "engineering_references": engineering_references_for_proposal(db, proposal),
+        "accepted_revision": {
+            "revision_number": accepted.revision_number,
+            "proposal_template": {"ref": accepted.template_ref, "version_id": accepted.template_version_id, "version": accepted.template_version, "hash": accepted.template_hash},
+            "proposal_checklist": {"ref": accepted.checklist_ref, "version_id": accepted.checklist_version_id, "version": accepted.checklist_version, "hash": accepted.checklist_hash},
+            "rule": "Accepted output remains pinned to this exact Dashboard content even after later publication.",
+        } if accepted else None,
+        "stage1_requiredness": "Dashboard configuration does not block initial intake; template/checklist readiness is enforced at final validation/acceptance.",
+        "transaction_boundary": "Proposal sources, client values, notes, and generated outputs remain Proposal transaction data.",
+    }
 
 
 def _sources(db: Session, proposal_id: str) -> list[ProposalSourceEvidence]:
@@ -184,6 +302,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "CLIENT_RESPONSE_PENDING": "Client Response", "ACCEPTED": "Contract Handoff", "CONTRACT_HANDOVER": "Contract Handoff", "CLOSED": "Closed",
     }
     intake = intake_readiness(db, proposal)
+    configuration = proposal_configuration(db, proposal)
     notes = db.scalars(select(ProposalNote).where(ProposalNote.proposal_id == proposal.id).order_by(ProposalNote.created_at.desc())).all()
     site_photos = [item for item in sources if item.source_type == "SITE_PHOTO" and item.status == "CURRENT"]
     current_owner = "Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development"
@@ -211,6 +330,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "validation": validation,
         "readiness_v2": readiness,
         "intake_readiness": intake,
+        "configuration": configuration,
         "notes": [{"id": row.id, "note_type": row.note_type, "content": row.content, "entered_by": row.entered_by, "related_contact": row.related_contact, "status": row.status, "provenance": row.provenance, "created_at": row.created_at.isoformat()} for row in notes],
         "site_photos": [_source_projection(item) for item in site_photos],
         "forms_v2": forms_v2_projection(db, proposal),
@@ -248,6 +368,7 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
         "template": validation["template"]["item"],
         "checklist": validation["checklist"]["item"],
         "definitions": validation["definitions"],
+        "dashboard_configuration": proposal_configuration(db, proposal),
         "forms_driven_v2": snapshot_forms_v2(db, proposal),
         "accepted_at": _now().isoformat(),
     }

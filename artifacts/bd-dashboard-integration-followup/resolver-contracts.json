@@ -1,0 +1,9 @@
+{
+  "proposal_configuration_endpoint": "/api/bd/proposals/{proposal_id}/configuration",
+  "proposal_projection_field": "configuration",
+  "template_resolver": "resolve_master_content_purpose(BD, PROPOSAL_TEMPLATE)",
+  "checklist_resolver": "resolve_master_content_purpose(BD, PROPOSAL_CHECKLIST)",
+  "definition_resolver": "definitions_for_bd -> current DefinitionRevision",
+  "engineering_resolver": "engineering_references_for_proposal; deferred before PROPOSAL_PREPARATION",
+  "frontend_rule": "Proposal consumes backend projections; it does not query Dashboard tables or choose versions"
+}

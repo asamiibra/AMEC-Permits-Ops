@@ -1,0 +1,11 @@
+{
+  "accepted_revision": {
+    "template": ["master_content_id", "ref", "document_version_id", "version", "hash"],
+    "checklist": ["master_content_id", "ref", "document_version_id", "version", "hash"],
+    "definitions": ["definition_id", "revision_id", "revision", "description", "used_in"],
+    "output_lineage": ["accepted_revision_id", "proposal_content_hash", "template_version_id", "checklist_version_id"]
+  },
+  "historical_rule": "accepted revisions never re-resolve current Dashboard content",
+  "draft_rule": "current resolver is re-evaluated before final validation/acceptance",
+  "mixed_version_fallback": false
+}

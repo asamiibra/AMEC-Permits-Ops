@@ -1,0 +1,8 @@
+{
+  "entry_sha": "a4dd4a01b9dc59fa873aea6135c9f29be3feed33",
+  "remote_sha": "a4dd4a01b9dc59fa873aea6135c9f29be3feed33",
+  "branch": "main",
+  "alembic_head": "0054_bd_proposal_stage1_reconciliation",
+  "prior_stage1_stable": true,
+  "unrelated_preexisting_worktree_changes": true
+}

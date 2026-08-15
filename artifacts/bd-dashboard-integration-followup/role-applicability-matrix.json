@@ -1,0 +1,5 @@
+[
+  {"persona":"Owner","role_permission":"manage master content where capability allows","binding":"can configure module/purpose bindings","applicability":"governance/currentness/readiness still applies","negative_test":"existing master-content governance/RBAC suite"},
+  {"persona":"Business Development","role_permission":"read/use applicable content; no global master write","binding":"BD purpose and active binding required","applicability":"current eligible version and governance readiness required","negative_test":"BD direct master-content write returns 403"},
+  {"persona":"Engineering","role_permission":"read/use applicable technical content; no global master write","binding":"Engineering binding required","applicability":"current verified governance-ready Engineering Work","negative_test":"existing engineering/master governance RBAC suite"}
+]

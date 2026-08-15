@@ -1,0 +1,8 @@
+{
+  "status":"ROUTE_AND_CONFIGURATION_COPY_VERIFIED",
+  "route":"http://127.0.0.1:5174/bd",
+  "checks":["Proposal Intake heading","Proposal-first lifecycle","four transactional source families","Dashboard canonical-source notice","read-only configuration language"],
+  "interactive_upload_acceptance":"NOT_RUN",
+  "reason":"Avoided persistent browser fixture creation; backend/API tests cover the executable path",
+  "real_synology":"SYNTHETIC_LOCAL_ONLY"
+}

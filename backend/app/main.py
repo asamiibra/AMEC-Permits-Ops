@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import time
 import uuid
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -63,6 +64,7 @@ app.add_middleware(CORSMiddleware, allow_origins=settings.origins, allow_credent
 
 @app.middleware("http")
 async def correlation_middleware(request: Request, call_next):
+    started = time.perf_counter()
     incoming = request.headers.get("X-Correlation-ID")
     correlation_id = incoming or str(uuid.uuid4())
     request.state.correlation_id = correlation_id
@@ -72,7 +74,17 @@ async def correlation_middleware(request: Request, call_next):
     # serve a cached GET after an Owner writes the same configuration.
     if request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store, max-age=0"
-    logger.info(json.dumps({"event": "request", "method": request.method, "path": request.url.path, "correlation_id": correlation_id}))
+    logger.info(json.dumps({
+        "event": "request",
+        "method": request.method,
+        "path": request.url.path,
+        "correlation_id": correlation_id,
+        "actor": request.headers.get("X-Dev-User") or request.headers.get("X-Actor-Id") or "anonymous",
+        "status_code": response.status_code,
+        "outcome": "SUCCESS" if response.status_code < 400 else "FAILED",
+        "latency_ms": round((time.perf_counter() - started) * 1000, 3),
+        "entity_context": request.url.path.split("/")[:4],
+    }))
     return response
 
 
@@ -118,6 +130,11 @@ def health():
         "alembic_versions": migration_versions,
         "alembic_state": migration_state,
         "master_content_sor": master_content_sor,
+        "runtime_provenance": {
+            "release_sha": os.getenv("RELEASE_SHA") or "UNSET",
+            "build_id": os.getenv("BUILD_ID") or os.getenv("VERCEL_DEPLOYMENT_ID") or "UNSET",
+            "migration_head": migration_versions[-1] if migration_versions else None,
+        },
     }
 
 
@@ -158,6 +175,13 @@ def adapter_health():
     root = Path(settings.mock_systems_root)
     return {
         "synology": MockSynologyAdapter(str(root / "synology")).health_check(),
+        "synology_configuration": {
+            "mode": settings.synology_mode.upper(),
+            "endpoint_configured": bool(settings.synology_endpoint),
+            "share_configured": bool(settings.synology_share),
+            "secret_reference_configured": bool(settings.synology_secret_ref),
+            "raw_endpoint_exposed": False,
+        },
         "master_content_sor": {
             "mode": "SYNTHETIC_TEST" if settings.synthetic_only else "REAL_CONFIGURED",
             "status": "SYNTHETIC_DURABLE_DB_BACKED" if os.getenv("VERCEL") and settings.synthetic_only else "SYNTHETIC_READY" if settings.synthetic_only else "REAL_SOR_REQUIRES_VERIFICATION",

@@ -1,0 +1,1 @@
+{"id":"10","status":"ADAPTER_CONTRACT_CERTIFIED","real_synology":"REAL_SYNOLOGY_REQUIRED","fault_modes":["before_write","during_write","hash_mismatch"],"idempotency":true}

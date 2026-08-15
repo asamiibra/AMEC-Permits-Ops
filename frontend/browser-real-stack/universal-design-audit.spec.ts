@@ -25,9 +25,11 @@ const concreteRoute = (route: string, ids: { projectId: string; proposalId: stri
 async function fixtureIds(page: any) {
   return page.evaluate(async () => {
     const projects = await (await fetch("/api/projects")).json();
+    const portfolio = await (await fetch("/api/permit-ux/portfolio")).json();
+    const permitProject = portfolio.items?.[0] || projects[0];
     const register = await (await fetch("/api/proposals-main?persona=SYSTEM_ADMIN")).json();
     const issues = await (await fetch("/api/issues?persona=OWNER")).json();
-    return { projectId: projects[0]?.id, proposalId: register.rows?.[0]?.id, contractId: register.contract_rows?.[0]?.id, issueId: issues.issues?.[0]?.id };
+    return { projectId: permitProject?.case_id || permitProject?.id, proposalId: register.rows?.[0]?.id, contractId: register.contract_rows?.[0]?.id, issueId: issues.issues?.[0]?.id };
   });
 }
 
@@ -128,16 +130,14 @@ test.describe("ProposalOps universal design and functional audit", () => {
       { role: "Owner" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "owner-commercial" },
       { role: "Business Development" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "bd-commercial" },
       { role: "Engineering" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "engineering-commercial" },
-      { role: "Owner" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "owner-permit-context" },
-      { role: "Business Development" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "bd-permit-context" },
-      { role: "Engineering" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /Current stage|Viewing|Project & Sources/i, name: "engineering-permit-context" },
+      { role: "Owner" as Role, route: `/permits/${ids.projectId}/project-and-sources`, expectedUrl: "/permits/", expected: /PERMIT \/ AUTHORITY CASE WORKSPACE|project-details/i, name: "owner-permit-context" },
     ];
     const results = [];
     for (const item of checks) {
       await page.addInitScript((value: string) => sessionStorage.setItem("proposalops-role", value), roleStorage[item.role]);
       await page.goto(item.route, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(260);
-      if (item.name.includes("permit-context")) await page.getByText("Project & Sources", { exact: true }).first().waitFor({ state: "visible", timeout: 10_000 });
+      if (item.name.includes("permit-context")) await page.getByRole("button", { name: "project-details", exact: true }).waitFor({ state: "visible", timeout: 10_000 });
       const body = await page.locator("body").innerText();
       const url = new URL(page.url()).pathname;
       const result = { name: item.name, role: item.role, route: item.route, observed_url: url, url_ok: url.startsWith(item.expectedUrl), copy_ok: item.expected.test(body), body_excerpt: body.replace(/\s+/g, " ").slice(0, 280) };

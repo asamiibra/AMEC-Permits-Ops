@@ -1,12 +1,18 @@
 import { expect, test } from "@playwright/test";
 
 test("Owner can navigate the business Administration surface and persist a setting", async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem("proposalops-role", "SYSTEM_ADMIN"));
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Administration", level: 2 })).toBeVisible();
   for (const label of ["People & Access", "Data & Connections", "Project & Folder Setup", "Proposal Setup", "Contract Setup", "Permit Workflow Setup", "Templates & Documents", "Notifications & Follow-up", "Data, Security & Retention", "Integration Health", "Audit History", "Advanced Diagnostics"]) {
     await expect(page.getByRole("button", { name: new RegExp(label) })).toBeVisible();
   }
   await page.getByRole("button", { name: /Notifications & Follow-up/ }).click();
+  await expect(page.getByRole("heading", { name: "Notification audiences and follow-up", level: 3 })).toBeVisible();
+  // The card navigation starts an async projection load; reload once the
+  // route is reached so the controlled input cannot be overwritten by that
+  // first response while the browser types.
+  await page.reload();
   await expect(page.getByRole("heading", { name: "Notification audiences and follow-up", level: 3 })).toBeVisible();
   await page.getByLabel("Follow-up reminder timing").fill("36");
   await page.getByRole("button", { name: "Save setting" }).click();

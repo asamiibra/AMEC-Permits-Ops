@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     frontend_origins: str = "http://localhost:5173"
     mock_systems_root: str = "./mock-systems"
     synthetic_only: bool = True
+    auth_mode: str = "DEV_HEADER"
+    synology_mode: str = "SYNTHETIC"
+    synology_endpoint: str = ""
+    synology_share: str = ""
+    synology_secret_ref: str = ""
     # This is deliberately an environment/configuration value. The checked-in
     # default is a synthetic test mapping; production folders must be supplied
     # by deployment configuration and are never accepted from the browser.
@@ -26,6 +31,17 @@ class Settings(BaseSettings):
     def validate_environment(self) -> None:
         if self.app_env.upper() in {"DEV", "TEST"} and not self.synthetic_only:
             raise ValueError("DEV and TEST require SYNTHETIC_ONLY=true")
+        if self.app_env.upper() == "PROD":
+            if self.synthetic_only:
+                raise ValueError("PROD requires SYNTHETIC_ONLY=false")
+            if self.auth_mode.upper() == "DEV_HEADER":
+                raise ValueError("PROD requires a configured non-development authentication mode")
+            if self.database_url.lower().startswith("sqlite"):
+                raise ValueError("PROD requires PostgreSQL, not SQLite")
+            if self.synology_mode.upper() != "REAL":
+                raise ValueError("PROD requires SYNOLOGY_MODE=REAL")
+            if not self.synology_endpoint or not self.synology_share or not self.synology_secret_ref:
+                raise ValueError("PROD requires Synology endpoint, share, and secret reference")
         if self.app_env.upper() != "PROD" and any(token in self.database_url.lower() for token in ("ministry", "qatar.gov", "municipality.gov")):
             raise ValueError("Non-PROD environments cannot use a production authority URL")
         if os.getenv("VERCEL") and self.app_env.upper() in {"TEST", "PROD"}:

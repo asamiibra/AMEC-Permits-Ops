@@ -1,0 +1,12 @@
+{
+  "targeted_backend":"4 passed",
+  "prior_stage1_targeted":"passed",
+  "full_backend":"194 passed, 8 skipped",
+  "frontend":"32 passed",
+  "build":"passed",
+  "browser":"Proposal Intake and Managed in Dashboard configuration panel verified; interactive upload/acceptance not run",
+  "postgresql":"NOT_RUN",
+  "migration":"No migration added; existing canonical schema represents the seam",
+  "cross_module":"full backend regression suite passed; dedicated PostgreSQL/cross-stack run not performed",
+  "synology":"synthetic/local only"
+}
