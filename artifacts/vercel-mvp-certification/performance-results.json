@@ -1,0 +1,7 @@
+{
+  "region": "iad1",
+  "db_latency_direct_measurement": "not exposed because Vercel masked DATABASE_URL values",
+  "route_samples_ms": {"health":{"p50":230.2,"p95":239.3},"dashboard":{"p50":263.5,"p95":1723.3},"master_content":{"p50":228.6,"p95":3148.3},"history":{"p50":341.0,"p95":389.6}},
+  "errors": 0,
+  "timeout_errors": 0
+}

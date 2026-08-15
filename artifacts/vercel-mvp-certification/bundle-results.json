@@ -1,0 +1,8 @@
+{
+  "backend_uncompressed_lambda_bytes": 48758172,
+  "backend_uncompressed_lambda_mib": 46.5,
+  "standard_limit_mb": 500,
+  "within_limit_pass": 1,
+  "frontend_build_pass": 1,
+  "frontend_chunk_warning": "index.js is approximately 792.52 kB minified; warning only"
+}

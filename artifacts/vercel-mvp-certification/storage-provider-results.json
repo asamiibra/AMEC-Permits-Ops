@@ -1,0 +1,10 @@
+{
+  "configured_provider": "mock",
+  "health_provider_id": "mock-test",
+  "mode": "synthetic_db_backed",
+  "durable": true,
+  "real_documents_authorized": false,
+  "silent_fallback_count": 0,
+  "real_document_storage_certified": 0,
+  "download_path_pass": 1
+}

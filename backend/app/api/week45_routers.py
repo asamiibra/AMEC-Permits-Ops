@@ -1,5 +1,6 @@
 """Focused Week 4–5 package and assisted municipality APIs."""
 
+import os
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
@@ -187,6 +188,8 @@ def create_excel_projection(project_id: str, payload: dict, request: Request, db
 
 @router.post("/excel-projections/{projection_id}/apply")
 def apply_excel_projection(projection_id: str, request: Request, db: Session = Depends(get_db)):
+    if os.getenv("VERCEL"):
+        raise HTTPException(503, "EXCEL_PROJECTION_UNAVAILABLE_ON_SERVERLESS_RUNTIME")
     projection = db.get(ExcelProjection, projection_id)
     if not projection: raise HTTPException(404, "Excel projection not found")
     if projection.ownership != "PERMITOPS_OWNED":

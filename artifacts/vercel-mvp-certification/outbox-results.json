@@ -1,0 +1,6 @@
+{
+  "outbox_model_present": true,
+  "deployed_worker_drain": false,
+  "end_to_end_pass": "not_run; no worker trigger configured",
+  "duplicate_delivery_strategy": "portable PostgreSQL idempotency remains in domain service"
+}

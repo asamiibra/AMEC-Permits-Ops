@@ -1,0 +1,9 @@
+{
+  "method": "Vercel CLI production upload from exact frozen local worktree",
+  "sha_parity": "PASS",
+  "vercel_git_sha_visibility": "CLI deployment inspect did not expose a Git SHA",
+  "final_source_sha": "recorded in final certification handoff",
+  "frontend_production_alias": "https://amec-permits-ops.vercel.app",
+  "backend_production_alias": "https://amec-permits-ops-backend.vercel.app",
+  "secrets": "none"
+}

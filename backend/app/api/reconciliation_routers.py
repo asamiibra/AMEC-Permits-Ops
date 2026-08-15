@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -169,6 +170,8 @@ def rendering_preview_endpoint(project_id: str, field_code: str, db: Session = D
 
 @router.post("/excel-projection/{project_id}")
 def excel_projection(project_id: str, payload: ExcelProjectionRequest, request: Request, db: Session = Depends(get_db)):
+    if os.getenv("VERCEL"):
+        raise HTTPException(503, "EXCEL_PROJECTION_UNAVAILABLE_ON_SERVERLESS_RUNTIME")
     project = db.get(Project, project_id)
     if not project: raise HTTPException(404, "Project not found")
     try:

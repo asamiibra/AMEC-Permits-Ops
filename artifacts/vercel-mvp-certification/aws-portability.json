@@ -1,0 +1,7 @@
+{
+  "portable": ["domain models","DocumentStorageService","BinaryStorePort","SMB adapter","PostgreSQL","source intake","outbox","RBAC","audit","resolvers"],
+  "vercel_only": ["FastAPI runtime entrypoint","build-time schema bootstrap compatibility","synthetic DB-backed document mode","serverless filesystem guards","request-size transport boundary"],
+  "aws_replacements": ["compute/runtime","secret manager","durable worker scheduler","durable object/SMB endpoint"],
+  "business_model_rewrite_required": false,
+  "portability_pass": 1
+}

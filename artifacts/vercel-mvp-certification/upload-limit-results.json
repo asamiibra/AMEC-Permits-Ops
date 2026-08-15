@@ -1,0 +1,13 @@
+{
+  "documented_request_body_limit": "4.5 MB",
+  "small_bytes": 1024,
+  "small_status": 422,
+  "near_limit_bytes": 4300000,
+  "near_limit_status": 422,
+  "oversize_bytes": 4700000,
+  "oversize_status": 413,
+  "oversize_behavior_pass": 1,
+  "forme_zip_bytes": 17009370,
+  "forme_zip_sha256": "98ef79581a55e0207d83bfff9788c2eaa3b83d125e78da4bbdeeede22ebcf475",
+  "upload_under_limit_pass": 1
+}

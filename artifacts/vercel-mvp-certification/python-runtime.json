@@ -1,0 +1,9 @@
+{
+  "python_version": "3.12",
+  "framework": "FastAPI",
+  "entrypoint": "app.main:app",
+  "import_pass": 1,
+  "dependency_lock_pass": 1,
+  "build_pass": 1,
+  "alembic_head": "0058_source_intake_ledger"
+}

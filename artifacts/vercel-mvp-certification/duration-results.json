@@ -1,0 +1,7 @@
+{
+  "region": "iad1",
+  "effective_max_duration_seconds": 300,
+  "proxied_request_timeout_seconds": 120,
+  "route_duration_budget_pass": 1,
+  "timeouts_observed": 0
+}

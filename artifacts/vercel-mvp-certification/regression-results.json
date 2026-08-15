@@ -1,0 +1,8 @@
+{
+  "backend_postgresql_tests": {"passed":236,"skipped":6,"warnings":2},
+  "frontend_tests": {"passed":38,"test_files":13},
+  "frontend_build": "PASS",
+  "changed_python_compile": "PASS",
+  "samba_owner_integration": "not run; external Synology not configured",
+  "unrelated_excel_change_preserved": true
+}

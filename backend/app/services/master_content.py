@@ -113,6 +113,8 @@ def _actor(role: Any) -> str:
 
 
 def _adapter():
+    if _deployed_synthetic():
+        raise _error("SYNTHETIC_SOR_NOT_PERSISTENT_ON_SERVERLESS_RUNTIME", 503)
     if os.getenv("VERCEL") and get_settings().synthetic_only:
         root = Path(os.getenv("SYNTHETIC_SOR_ROOT", "/tmp/permitops-synology"))
         for folder in ("master-content/forms", "master-content/reports", "master-content/engineering-works"):
@@ -664,7 +666,26 @@ def _verify_and_promote(
     category_changed: bool = False,
     used_in_changed: bool = False,
 ) -> None:
-    if get_settings().storage_provider.lower() == "smb":
+    if _deployed_synthetic():
+        # Vercel TEST has no durable binary provider. Keep synthetic bytes in
+        # the durable DocumentVersion row and never use instance or /tmp state.
+        version.synthetic_content = content
+        version.source_path_or_reference = f"synthetic-db://master-content/{item.id}/{version.id}"
+        if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
+            version.rendition_status = "SOURCE_PDF"
+            version.rendition_path_or_reference = version.source_path_or_reference
+            version.rendition_sha256 = version.sha256
+            version.rendition_mime_type = version.mime_type
+            version.rendition_file_size = version.file_size
+        else:
+            version.rendition_status = "RENDITION_NOT_AVAILABLE"
+            version.rendition_path_or_reference = None
+            version.rendition_sha256 = None
+            version.rendition_mime_type = None
+            version.rendition_file_size = None
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "synthetic-db"}
+        db.flush()
+    elif get_settings().storage_provider.lower() == "smb":
         try:
             store = create_binary_store()
             service = DocumentStorageService(store)
@@ -913,13 +934,10 @@ def reconcile_item(db: Session, item_id: str, correlation_id: str) -> dict[str, 
     if not item or not item.current_document_version_id:
         raise _error("CONTENT_NOT_FOUND", 404)
     version = db.get(DocumentVersion, item.current_document_version_id)
-    try:
+    if _deployed_synthetic() and version.synthetic_content is not None:
+        actual = {"verified": hashlib.sha256(version.synthetic_content).hexdigest() == version.sha256 and len(version.synthetic_content) == version.file_size}
+    else:
         actual = _adapter().verify_artifact(version.source_path_or_reference, version.sha256, version.file_size)
-    except (FileNotFoundError, ValueError, OSError):
-        if _deployed_synthetic() and version.synthetic_content is not None:
-            actual = {"verified": hashlib.sha256(version.synthetic_content).hexdigest() == version.sha256 and len(version.synthetic_content) == version.file_size}
-        else:
-            raise
     if not actual.get("verified"):
         audit(db, correlation_id=correlation_id, event_type="EXTERNAL_MUTATION_DETECTED", entity_type="MasterContentItem", entity_id=item.id, after={"ref": item.ref, "version": version.version_number}, metadata={"code": "SOR_EXTERNAL_MUTATION"})
         db.commit()

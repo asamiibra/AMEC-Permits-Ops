@@ -1,0 +1,12 @@
+{
+  "provider": "Neon integration indicated by Vercel environment inventory",
+  "dialect": "postgresql",
+  "database_durable": true,
+  "connection_valid": true,
+  "sqlite_fallback_active": false,
+  "alembic_head": "0058_source_intake_ledger",
+  "server_version": "not exposed by deployed health contract",
+  "region": "not exposed by deployed health contract",
+  "tls": "not independently exposed; secret values omitted",
+  "secrets": "none"
+}

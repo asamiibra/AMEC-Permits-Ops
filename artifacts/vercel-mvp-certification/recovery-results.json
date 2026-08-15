@@ -1,0 +1,6 @@
+{
+  "recovery_api_present": true,
+  "scheduled_recovery_job": false,
+  "deployment_startup_recovery": "PASS",
+  "recovery_job_pass": "deferred"
+}

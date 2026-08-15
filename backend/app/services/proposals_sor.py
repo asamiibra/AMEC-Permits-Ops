@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -78,6 +79,13 @@ def _adapter():
     return legacy_synthetic_adapter()
 
 
+def _reject_serverless_sor_write() -> None:
+    """Keep the temporary Vercel runtime from treating its filesystem as SOR."""
+    settings = get_settings()
+    if os.getenv("VERCEL") and settings.synthetic_only:
+        raise HTTPException(503, "SERVERLESS_DOCUMENT_TRANSFER_REQUIRED")
+
+
 def intake_sor_root() -> Path:
     settings = get_settings()
     root = Path(settings.mock_systems_root)
@@ -99,6 +107,7 @@ def ingest_provisional_intake_artifact(
     idempotency_key: str | None,
     correlation_id: str,
 ) -> dict[str, Any]:
+    _reject_serverless_sor_write()
     if semantic_class not in INTAKE_SEMANTIC_CONFIG:
         raise HTTPException(422, "UNSUPPORTED_INTAKE_SOURCE")
     if not content:
@@ -193,6 +202,7 @@ def ingest_project_artifact(
     simulate_sor: str | None = None,
     config_override: dict[str, str] | None = None,
 ) -> dict[str, Any]:
+    _reject_serverless_sor_write()
     if action not in ACTION_CONFIG and not config_override:
         raise HTTPException(422, "UNSUPPORTED_ORANGE_ACTION")
     if not content:

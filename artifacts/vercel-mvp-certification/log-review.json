@@ -1,0 +1,7 @@
+{
+  "secret_log_leak_count": 0,
+  "raw_document_log_leak_count": 0,
+  "unexplained_runtime_error_count": 0,
+  "browser_console_errors_observed": 0,
+  "download_probe_logged_bytes_only": true
+}

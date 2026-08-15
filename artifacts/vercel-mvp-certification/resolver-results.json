@@ -1,0 +1,9 @@
+{
+  "deployed": {
+    "BD/PROPOSAL_TEMPLATE": "RESOLVED",
+    "BD/PROPOSAL_CHECKLIST": "RESOLVED",
+    "ADMIN/CONTRACT_TEMPLATE": "RESOLVED"
+  },
+  "local_needs_review_exclusion": "covered by regression",
+  "deployed_fixture_counts": {"current":10,"needs_review":0,"inactive":0}
+}

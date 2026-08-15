@@ -1,0 +1,7 @@
+{
+  "team": "ahmed-samis-projects-c4276939",
+  "frontend": {"name":"amec-permits-ops","id":"prj_VFnILYm6UhREXZMV0h3ltXVz2nC4","root":"frontend","production_url":"https://amec-permits-ops.vercel.app","node":"24.x"},
+  "backend": {"name":"amec-permits-ops-backend","id":"prj_qZ3NPWcODQDA8ukyhdC3NprMcIKi","root":"backend","production_url":"https://amec-permits-ops-backend.vercel.app","python":"3.12","region":"iad1","effective_timeout_seconds":300},
+  "plan": "not exposed by CLI inspection",
+  "secrets": "names only; values omitted"
+}

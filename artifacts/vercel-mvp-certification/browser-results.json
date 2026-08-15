@@ -1,0 +1,11 @@
+{
+  "frontend_url": "https://amec-permits-ops.vercel.app/dashboard",
+  "dashboard": "PASS",
+  "history_drawer": "PASS",
+  "administration": "PASS",
+  "opportunities": "PASS",
+  "proposal_detail": "PASS",
+  "pinned_template_and_checklist": "PASS",
+  "real_document_upload": "not run",
+  "synthetic_fixture": true
+}

@@ -1,0 +1,9 @@
+{
+  "environment": "TEST",
+  "synthetic_only": true,
+  "health_status": "ok",
+  "cold_start": "fresh production deployment health passed",
+  "warm_reuse_cross_request_leak_count": 0,
+  "termination_recovery": "deployment startup and health recovery passed",
+  "timeout_fail_closed_pass": 1
+}

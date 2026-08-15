@@ -1,0 +1,8 @@
+{
+  "required_for_certified_surface": false,
+  "crons_configured": 0,
+  "active_worker_trigger": false,
+  "auth_pass": "not_applicable",
+  "overlap_safe": "deferred",
+  "duplicate_delivery_safe": "deferred"
+}

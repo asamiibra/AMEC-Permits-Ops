@@ -1,0 +1,11 @@
+{
+  "routes": {
+    "/health": {"requests":32,"successes":32,"errors":0,"p50_ms":230.2,"p95_ms":239.3,"max_ms":5601.0},
+    "/api/dashboard": {"requests":32,"successes":32,"errors":0,"p50_ms":263.5,"p95_ms":1723.3,"max_ms":2508.5},
+    "/api/master-content": {"requests":32,"successes":32,"errors":0,"p50_ms":228.6,"p95_ms":3148.3,"max_ms":3360.3},
+    "/api/master-content/{id}/versions": {"requests":32,"successes":32,"errors":0,"p50_ms":341.0,"p95_ms":389.6,"max_ms":400.3}
+  },
+  "deployed_concurrency_pass": 1,
+  "same_response_hash_distinct_count": 1,
+  "cross_request_leak_count": 0
+}

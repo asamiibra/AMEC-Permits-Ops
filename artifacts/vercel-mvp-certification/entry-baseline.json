@@ -1,0 +1,10 @@
+{
+  "branch": "branch/owner-form-simple-dashboard",
+  "pre_vercel_local_closure_sha": "2e3cff6bb5781aaaa4b8751f6f41f0455b20c369",
+  "alembic_head": "0058_source_intake_ledger",
+  "python_requirement": ">=3.12",
+  "dependency_lock": "backend/uv.lock",
+  "frontend_package_manager": "npm",
+  "unrelated_preserved_change": "mock-systems/excel/permit_tracker.xlsx",
+  "secrets": "none"
+}

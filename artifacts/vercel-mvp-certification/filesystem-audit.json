@@ -1,0 +1,7 @@
+{
+  "durable_local_file_write_count": 0,
+  "tmp_used_as_document_sor_count": 0,
+  "sqlite_persistence_count": 0,
+  "guards": ["SERVERLESS_DOCUMENT_TRANSFER_REQUIRED", "SYNTHETIC_SOR_NOT_PERSISTENT_ON_SERVERLESS_RUNTIME", "EXCEL_PROJECTION_UNAVAILABLE_ON_SERVERLESS_RUNTIME"],
+  "synthetic_master_bytes": "PostgreSQL DocumentVersion.synthetic_content"
+}

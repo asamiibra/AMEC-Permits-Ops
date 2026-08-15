@@ -1,0 +1,9 @@
+{
+  "forme_zip_bytes": 17009370,
+  "forme_zip_sha256": "98ef79581a55e0207d83bfff9788c2eaa3b83d125e78da4bbdeeede22ebcf475",
+  "bounded_archive_reader": "local regression covered",
+  "deployed_archive_route": false,
+  "continuation_worker": false,
+  "forme_sized_package_compatible_with_single_request": false,
+  "reason": "4.5 MB Vercel request-body limit"
+}
