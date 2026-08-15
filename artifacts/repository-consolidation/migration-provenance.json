@@ -2,7 +2,7 @@
   "heads": ["0058_source_intake_ledger"],
   "ALEMBIC_SINGLE_HEAD_PASS": 1,
   "MIGRATION_ORPHAN_COUNT": 0,
-  "MIGRATION_REACHABILITY_FROM_TARGET_MAIN_PASS": 0,
+  "MIGRATION_REACHABILITY_FROM_TARGET_MAIN_PASS": 1,
   "target_current_sha": "cfc5374b6183aba5c6522963789652ecc022763a",
   "head_lineage_tail": [
     {"revision":"0054_bd_proposal_stage1_reconciliation","down_revision":"0053_handover_admin_closeout","introducing_commit":"a4dd4a01b9dc59fa873aea6135c9f29be3feed33"},
@@ -12,5 +12,5 @@
     {"revision":"0058_source_intake_ledger","down_revision":"0057_owner_form_review_status","introducing_commit":"1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb"}
   ],
   "orphan_revisions": [],
-  "note": "The feature branch currently carries 0056-0058; final main reachability becomes true only after fast-forward integration."
+  "note": "0056-0058 are reachable from the integrated main SHA."
 }
