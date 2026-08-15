@@ -69,11 +69,14 @@ import { BillingInvoicePage } from "./BillingInvoice";
 import { ConstructionPage } from "./Construction";
 import { CompletionPage } from "./Completion";
 import { HandoverPage } from "./Handover";
+import { HomePage } from "./Home";
+import { NotificationBell } from "./NotificationBell";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./construction.css";
 import "./completion.css";
 import "./handover.css";
+import "./home-navigation.css";
 
 type Decision = {
   id: string;
@@ -97,49 +100,26 @@ type BusinessNavItem = {
   id: string;
   page: string;
   label: string;
-  canonicalLabel?: string;
   icon: string;
+  group: "home" | "business" | "cross-functional" | "system";
+  route: string;
+  roles?: string[];
 };
 const businessNav: BusinessNavItem[] = [
-  { id: "dashboard", page: "dashboard", label: "Dashboard", icon: "▦" },
-  {
-    id: "my-work",
-    page: "my-work",
-    label: "My Work",
-    canonicalLabel: "AMEC Work",
-    icon: "⌂",
-  },
-  {
-    id: "bd",
-    page: "opportunities",
-    label: "BD",
-    canonicalLabel: "Opportunities",
-    icon: "↗",
-  },
-  {
-    id: "engineering",
-    page: "project-engineering",
-    label: "Engineering",
-    canonicalLabel: "Engineering & Closeout",
-    icon: "⌁",
-  },
-  { id: "construction", page: "construction", label: "Construction", icon: "▥" },
-  { id: "completion", page: "completion", label: "Completion / As-Built", icon: "✓" },
-  {
-    id: "permit",
-    page: "permit-portfolio",
-    label: "Permit",
-    canonicalLabel: "Permit Portfolio",
-    icon: "▣",
-  },
-  { id: "authority-cases", page: "authority-cases", label: "Authority Cases", icon: "◈" },
-  { id: "issues", page: "issues", label: "Issues", icon: "!" },
-  {
-    id: "notifications",
-    page: "notifications",
-    label: "Notifications",
-    icon: "◌",
-  },
+  { id: "home", page: "home", label: "Home", icon: "⌂", group: "home", route: "/home" },
+  { id: "my-work", page: "my-work", label: "AMEC Work", icon: "◆", group: "home", route: "/work" },
+  { id: "intake", page: "opportunities", label: "Intake & Opportunity", icon: "↗", group: "business", route: "/opportunities" },
+  { id: "contract", page: "permits", label: "Contract & Mobilization", icon: "▤", group: "business", route: "/proposals-contracts", roles: ["SYSTEM_ADMIN", "OWNER_SPONSOR", "COMMERCIAL_APPROVER"] },
+  { id: "design", page: "project-engineering", label: "Design & Technical Delivery", icon: "⌁", group: "business", route: "/engineering" },
+  { id: "regulatory", page: "authority-cases", label: "Regulatory & Submissions", icon: "◈", group: "business", route: "/authority-cases" },
+  { id: "construction", page: "construction", label: "Construction & Post-Approval", icon: "▥", group: "business", route: "/construction" },
+  { id: "completion", page: "completion", label: "Completion & As-Built", icon: "✓", group: "business", route: "/completion" },
+  { id: "handover", page: "handover", label: "Handover & Closeout", icon: "→", group: "business", route: "/handover" },
+  { id: "finance", page: "billing", label: "Finance", icon: "¤", group: "cross-functional", route: "/billing", roles: ["SYSTEM_ADMIN", "OWNER_SPONSOR", "COMMERCIAL_APPROVER"] },
+  { id: "content-library", page: "dashboard", label: "Content Library", icon: "▦", group: "cross-functional", route: "/dashboard" },
+  { id: "issues", page: "issues", label: "Issues", icon: "!", group: "cross-functional", route: "/issues" },
+  { id: "admin", page: "administration", label: "Admin", icon: "⚙", group: "system", route: "/admin", roles: ["SYSTEM_ADMIN", "OWNER_SPONSOR"] },
+  { id: "operating-guide", page: "about", label: "Operating Guide", icon: "?", group: "system", route: "/operating-guide" },
 ];
 const legacyNav = [
   { id: "expansion-foundation", label: "Expansion foundation" },
@@ -184,8 +164,10 @@ const statusClass = (status: string) =>
   `status status-${status.toLowerCase().replaceAll("_", "-")}`;
 const pageFromPath = () => {
   const path = window.location.pathname;
+  if (path === "/home" || path === "/") return "home";
   if (path === "/dashboard") return "dashboard";
   if (path === "/dashboard-v2") return "dashboard";
+  if (path === "/content-library" || path === "/library" || path === "/master-content") return "dashboard";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
@@ -196,7 +178,7 @@ const pageFromPath = () => {
   if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
-  if (path === "/work" || path === "/") return "my-work";
+  if (path === "/work") return "my-work";
   if (path === "/permits" || path === "/projects") return "permit-portfolio";
   if (path === "/proposals-contracts") return "permits";
   if (path === "/permits/new") return "permit-new";
@@ -227,7 +209,7 @@ const pageFromPath = () => {
   if (path.startsWith("/admin/")) return "administration";
   if (path.startsWith("/proposals-contracts/"))
     return "permit-workspace";
-  return "my-work";
+  return "home";
 };
 const stageFromPath = (): WorkflowStage => {
   const part = window.location.pathname
@@ -260,6 +242,8 @@ function App() {
   const [governance] = useState({ environment_badge: "SYNTHETIC PROTOTYPE" });
   const [error, setError] = useState("");
   const [role, setRole] = useState<string>(() => readDemoRole());
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   useEffect(() => {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -345,8 +329,8 @@ function App() {
       window.location.pathname.startsWith("/admin") &&
       !adminRoles.has(role)
     ) {
-      setPage("my-work");
-      window.history.replaceState({}, "", "/work");
+      setPage("home");
+      window.history.replaceState({}, "", "/home");
     }
   }, [role]);
   const navigate = (next: string) => {
@@ -354,22 +338,22 @@ function App() {
     const nextPage = navItem?.page || next;
     setPage(nextPage);
     setSelected(null);
-    const path =
-      nextPage === "my-work"
+    const path = navItem?.route ||
+      (nextPage === "my-work"
         ? "/work"
         : nextPage === "permit-portfolio"
           ? "/permits"
           : nextPage === "permits"
             ? "/proposals-contracts"
-          : nextPage === "about"
-            ? "/operating-guide"
-            : nextPage === "administration"
-              ? "/admin"
-              : nextPage === "go-live-readiness"
-                ? "/admin/go-live-readiness"
-                : nextPage === "dashboard-inputs"
-                  ? "/dashboard/inputs-go-live"
-                  : `/${nextPage}`;
+            : nextPage === "about"
+              ? "/operating-guide"
+              : nextPage === "administration"
+                ? "/admin"
+                : nextPage === "go-live-readiness"
+                  ? "/admin/go-live-readiness"
+                  : nextPage === "dashboard-inputs"
+                    ? "/dashboard/inputs-go-live"
+                    : `/${nextPage}`);
     window.history.pushState({}, "", path);
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
@@ -413,37 +397,13 @@ function App() {
     );
   };
   const openProject = (p: Project) => openPermit(p.id);
-  const visibleBusinessNav = businessNav.filter((item) => {
-    if (role === "SYSTEM_ADMIN" || role === "OWNER_SPONSOR") return true;
-    if (role === "COMMERCIAL_APPROVER")
-      return [
-        "dashboard",
-        "my-work",
-        "bd",
-        "billing",
-        "completion",
-        "permit",
-        "authority-cases",
-        "issues",
-        "notifications",
-      ].includes(item.id);
-    if (role === "RESPONSIBLE_ENGINEER")
-      return [
-        "dashboard",
-        "my-work",
-        "engineering",
-        "construction",
-        "completion",
-        "permit",
-        "authority-cases",
-        "issues",
-        "notifications",
-      ].includes(item.id);
-    return ["my-work", "permit", "authority-cases", "issues", "notifications"].includes(item.id);
-  });
+  const visibleBusinessNav = businessNav.filter((item) => !item.roles || item.roles.includes(role));
+  const navTitle = visibleBusinessNav.find((item) => item.page === page && item.route === window.location.pathname) || visibleBusinessNav.find((item) => item.page === page && item.page !== "administration");
   const title =
     page === "permit-workspace" && selected
       ? `${selected.project_number} · ${selected.project_name}`
+      : page === "home"
+        ? "Home"
       : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
         ? "Permit"
       : page === "administration"
@@ -454,7 +414,7 @@ function App() {
           ? "Go-Live Setup"
           : page === "dashboard-inputs"
             ? "Master Content Setup & Go-Live"
-            : visibleBusinessNav.find((item) => item.page === page)?.label ||
+            : navTitle?.label ||
               legacyNav.find((item) => item.id === page)?.label ||
               (page === "project-detail" ? "Project detail" : "PermitOps");
   const permitSafetySurface = page === "permit-workspace";
@@ -478,44 +438,16 @@ function App() {
           <small>QEC-DOHA · SYNTHETIC DEV</small>
         </div>
         <nav aria-label="Primary navigation">
-          {visibleBusinessNav.map((item) => (
-            <button
-              key={item.id}
-              aria-label={item.canonicalLabel || item.label}
-              className={page === item.page ? "nav-item active" : "nav-item"}
-              onClick={() => navigate(item.id)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span>{item.label}</span>
-              {item.canonicalLabel && (
-                <span className="sr-only">{item.canonicalLabel}</span>
-              )}
-            </button>
-          ))}
-          {adminRoles.has(role) && (
-            <>
-              <div className="nav-divider" />
-              <button
-                aria-label="Administration"
-                className={
-                  page === "administration" ? "nav-item active" : "nav-item"
-                }
-                onClick={() => navigate("administration")}
-              >
-                <span className="nav-icon">⚙</span>
-                <span>Admin</span>
-                <span className="sr-only">Administration</span>
-              </button>
-            </>
-          )}
+          {(["home", "business", "cross-functional", "system"] as const).map((group) => {
+            const items = visibleBusinessNav.filter((item) => item.group === group);
+            if (!items.length) return null;
+            const label = group === "home" ? "HOME" : group === "business" ? "BUSINESS FLOW" : group === "cross-functional" ? "CROSS-FUNCTIONAL" : "SYSTEM";
+            return <div className="nav-group" key={group}><span className="nav-group-label">{label}</span>{items.map((item) => {
+              const active = item.id === "home" ? page === "home" : item.route === window.location.pathname || page === item.page && item.group !== "system";
+              return <button key={item.id} aria-label={item.label} className={active ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon">{item.icon}</span><span>{item.label}</span></button>;
+            })}</div>;
+          })}
         </nav>
-        <button
-          aria-label="About PermitOps"
-          className={page === "about" ? "nav-item active" : "nav-item"}
-          onClick={() => navigate("about")}
-        >
-          <span className="nav-icon">?</span>About PermitOps
-        </button>
         <div className="sidebar-foot">
           <span className="lock">▣</span>
           <span>
@@ -542,6 +474,15 @@ function App() {
             </div>
           </div>
           <div className="top-actions">
+            <div className="header-menu-control">
+              <button className="header-control" aria-label="Global search" aria-expanded={searchOpen} onClick={() => { setSearchOpen((value) => !value); setCreateOpen(false); }}>⌕</button>
+              {searchOpen && <div className="header-popover" role="dialog" aria-label="Global search"><b>Global search</b><p>Search is bounded to canonical workspaces. Use the workspace filters or open AMEC Work for a governed action list.</p><a href="/work">Open AMEC Work →</a><a href="/dashboard">Search Content Library →</a></div>}
+            </div>
+            <div className="header-menu-control">
+              <button className="header-control" aria-label="Quick create" aria-expanded={createOpen} onClick={() => { setCreateOpen((value) => !value); setSearchOpen(false); }}>＋</button>
+              {createOpen && <div className="header-popover quick-create-popover" role="dialog" aria-label="Quick create"><b>Quick create</b><p>Start only from supported canonical workflows.</p><a href="/proposals/new">New Proposal →</a><a href="/dashboard">Manage Content Library →</a></div>}
+            </div>
+            <NotificationBell persona={personaForRole(role)} />
             <ReadinessDrawer
               screenId={
                 window.location.pathname === "/proposals/new"
@@ -549,8 +490,8 @@ function App() {
                   : page === "permit-workspace"
                     ? getScreenDefinition(selectedStage).screenId
                     : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
-                      ? getScreenDefinition("permits").screenId
-                    : getScreenDefinition(page).screenId
+                    ? getScreenDefinition("permits").screenId
+                    : getScreenDefinition(page === "home" || page === "my-work" ? "my-work" : page).screenId
               }
               role={role}
               onNavigate={navigate}
@@ -595,6 +536,7 @@ function App() {
               SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
             </div>
           )}
+          {page === "home" && <HomePage role={role} />}{" "}
           {page === "dashboard" && <CurrentDashboard role={role} />}{" "}
           {page === "my-work" && (
             <MyWorkPage
