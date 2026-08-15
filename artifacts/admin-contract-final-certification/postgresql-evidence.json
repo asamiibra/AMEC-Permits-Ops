@@ -1,0 +1,10 @@
+{
+  "database":"PostgreSQL",
+  "version":"16.14 (Homebrew, Apple aarch64)",
+  "database_name":"admin_contract_final_cert_20260815",
+  "alembic_head":"0055_bd_proposal_final_hardening",
+  "full_backend":{"command":"APP_ENV=TEST SYNTHETIC_ONLY=true DATABASE_URL=postgresql+psycopg://... python3 -m pytest -q backend/tests","passed":214,"failed":0,"errors":0,"skipped":0,"warnings":2},
+  "targeted_cross_module":{"passed":32,"failed":0,"errors":0,"warnings":1},
+  "connection":"PASS",
+  "sqlite_final_proof":false
+}

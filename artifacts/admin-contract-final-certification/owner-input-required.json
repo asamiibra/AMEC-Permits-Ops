@@ -1,0 +1,6 @@
+{
+  "owner_decision_pending":["standalone Contract policy","authority/signing policy","PIN semantics","LPO requiredness","Documents Needed policy","Project code assignment","Project start-date semantics","invoice numbering/template/financial account policy","official close/settlement policy"],
+  "owner_content_pending":["official Contract template","official LPO/client documents","official deliverables/checklists","production notification and retention content"],
+  "safe_behavior":"unresolved or synthetic values remain visibly non-authoritative",
+  "software_gap":"none found in tested synthetic scope"
+}

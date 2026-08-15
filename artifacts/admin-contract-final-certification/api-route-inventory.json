@@ -1,0 +1,11 @@
+{
+  "source": ["backend/app/api/contract_workspace_routers.py", "backend/app/api/billing_routers.py", "backend/app/api/handover_routers.py"],
+  "route_families": {
+    "administration_contract": ["/api/admin/contracts", "/api/admin/contracts/{id}", "/history", "/authority", "/accept", "/client-fields", "/documents", "/billing-context", "/activate-project"],
+    "billing": ["/api/billing/plans", "/api/billing/milestones", "/api/billing/invoices", "/api/billing/invoice-revisions", "/api/billing/payments", "/api/billing/financial-accounts"],
+    "closeout": ["/api/handover", "/api/handover/{id}/service-close", "/api/handover/{id}/contract-admin-close", "/api/handover/projects/{id}/financial-settlement"],
+    "shared": ["/api/dashboard-v2", "/api/master-content", "/api/projects", "/api/my-work", "/api/issues", "/api/notifications", "/api/audit"]
+  },
+  "route_failure_policy": "typed_error_retry_not_empty_success",
+  "status": "VERIFIED_POSTGRESQL_AND_BROWSER"
+}

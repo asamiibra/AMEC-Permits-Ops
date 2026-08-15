@@ -1,0 +1,10 @@
+{
+  "predicate_source": "backend Contract register projection",
+  "lanes": [
+    {"lane":"ALL","count_source":"server","rows_source":"same server predicate","reconciled":true},
+    {"lane":"NEEDS_ACTION","count_source":"server","rows_source":"same server predicate","reconciled":true},
+    {"lane":"AUTHORITY_REVIEW","count_source":"server","rows_source":"same server predicate","reconciled":true},
+    {"lane":"READY_CLOSE","count_source":"server","rows_source":"same server predicate","reconciled":true}
+  ],
+  "browser_regression": "PASS"
+}

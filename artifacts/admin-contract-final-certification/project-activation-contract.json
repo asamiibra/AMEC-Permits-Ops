@@ -1,0 +1,12 @@
+{
+  "invariants": [
+    "Contract existence does not activate Project",
+    "Activation is Owner-only and explicit",
+    "Project code and start date are recorded as separate inputs",
+    "Canonical Project lineage is one-to-one for the activation idempotency scope",
+    "Activation replay returns existing activation",
+    "Project Activation does not create Invoice or BillingMilestone"
+  ],
+  "tests":"test_admin_contract_owner_session.py + billing lifecycle + browser",
+  "status":"PASS"
+}

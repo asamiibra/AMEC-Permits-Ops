@@ -2,9 +2,23 @@
 
 from decimal import Decimal
 
+import pytest
+
 from backend.app.db import SessionLocal
 from backend.app.models import Contract
-from backend.tests.test_admin_contract_owner_session import ensure_contract_template, headers, make_accepted_proposal
+from backend.tests.test_admin_contract_owner_session import clean_owner_fixture, ensure_contract_template, headers, make_accepted_proposal
+
+
+@pytest.fixture(scope="module", autouse=True)
+def restore_seed_after_billing_module():
+    """Prevent billing fixtures from contaminating later cross-module tests."""
+    yield
+    cleanup = clean_owner_fixture.__wrapped__()
+    next(cleanup)
+    try:
+        next(cleanup)
+    except StopIteration:
+        pass
 
 
 def _activated_contract(client, name: str = "Billing Lifecycle Fixture"):

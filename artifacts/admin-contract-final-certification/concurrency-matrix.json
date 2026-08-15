@@ -1,0 +1,12 @@
+{
+  "database":"PostgreSQL 16.14",
+  "checks": [
+    {"operation":"Contract acceptance replay","guarantee":"one accepted current revision; idempotent replay","result":"PASS"},
+    {"operation":"Project Activation replay","guarantee":"one canonical ProjectActivation","result":"PASS"},
+    {"operation":"Billing delivery replay","guarantee":"one delivery per idempotency key","result":"PASS"},
+    {"operation":"Handover terminal events","guarantee":"one terminal event under concurrent replay","result":"PASS"},
+    {"operation":"Shared master-content allocation","guarantee":"PostgreSQL row-lock concurrency safety","result":"PASS"}
+  ],
+  "direct_contract_parallel_acceptance":"not separately isolated beyond idempotent endpoint coverage",
+  "status":"VERIFIED_POSTGRESQL"
+}

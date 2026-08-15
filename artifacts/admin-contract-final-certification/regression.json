@@ -1,0 +1,10 @@
+{
+  "backend_full":"214 passed, 2 warnings",
+  "backend_targeted":"32 passed, 1 warning",
+  "frontend_unit":"36 passed",
+  "frontend_build":"PASS",
+  "browser_real_stack":"37 passed",
+  "test_harness_fix":"dependency-ordered cleanup of Billing/Invoice descendants before ContractRevision cleanup on PostgreSQL",
+  "ui_fix":"Billing & Invoice copy no longer renders literal HTML entity",
+  "status":"PASS"
+}

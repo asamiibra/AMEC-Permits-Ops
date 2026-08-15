@@ -11,6 +11,11 @@ from backend.app.models import (
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
     DocumentVersion,
+    BillingPlan, BillingPlanRevision, BillingMilestone, BillingMilestoneEligibility,
+    Invoice, InvoiceRevision, InvoiceMilestone, InvoiceApproval, InvoiceRequirementDecision,
+    InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
+    InvoiceIssueEvent, InvoiceDeliveryEvent, InvoiceAcknowledgment,
+    PaymentReceipt, InvoicePaymentAllocation, ReceivableFollowUp, AccountingHandoff, FinanceEvidence,
 )
 
 
@@ -22,13 +27,58 @@ def headers(role: str) -> dict[str, str]:
 def clean_owner_fixture():
     yield
     with SessionLocal() as db:
-        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Project Activation Fixture"])).all()
+        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Project Activation Fixture", "Contract Reconciliation Fixture", "Contract Page Owner Sketch Delta Fixture", "External Construction Agreement Boundary"])).all()
         proposal_ids = [item.id for item in proposals]
         contracts = db.query(Contract).filter(Contract.proposal_id.in_(proposal_ids)).all() if proposal_ids else []
         contract_ids = [item.id for item in contracts]
         activation_project_ids = [item.project_id for item in db.query(ProjectActivation).filter(ProjectActivation.contract_id.in_(contract_ids)).all()] if contract_ids else []
         project_ids = list({item.project_id for item in contracts if item.project_id} | set(activation_project_ids))
         if contract_ids:
+            # Billing/invoice rows are deliberately part of this shared owner
+            # fixture cleanup.  PostgreSQL correctly rejects deleting a
+            # ContractRevision while a BillingPlan or InvoiceRevision still
+            # points at it; SQLite had previously hidden this contamination.
+            billing_plan_ids = [item.id for item in db.query(BillingPlan).filter(BillingPlan.contract_id.in_(contract_ids)).all()]
+            billing_plan_revision_ids = [item.id for item in db.query(BillingPlanRevision).filter(BillingPlanRevision.contract_id.in_(contract_ids)).all()]
+            billing_milestone_ids = [item.id for item in db.query(BillingMilestone).filter(BillingMilestone.billing_plan_revision_id.in_(billing_plan_revision_ids)).all()] if billing_plan_revision_ids else []
+            invoice_ids = [item.id for item in db.query(Invoice).filter(Invoice.contract_id.in_(contract_ids)).all()]
+            invoice_revision_ids = [item.id for item in db.query(InvoiceRevision).filter(InvoiceRevision.invoice_id.in_(invoice_ids)).all()] if invoice_ids else []
+            issue_event_ids = [item.id for item in db.query(InvoiceIssueEvent).filter(InvoiceIssueEvent.invoice_id.in_(invoice_ids)).all()] if invoice_ids else []
+            payment_ids = [item.id for item in db.query(PaymentReceipt).filter(PaymentReceipt.contract_id.in_(contract_ids)).all()]
+            if invoice_revision_ids:
+                db.query(InvoiceLineItem).filter(InvoiceLineItem.invoice_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+                db.query(InvoiceReference).filter(InvoiceReference.invoice_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+                db.query(InvoiceApprovalRecord).filter(InvoiceApprovalRecord.invoice_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+                db.query(InvoiceAcceptRecord).filter(InvoiceAcceptRecord.invoice_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+                db.query(InvoiceApproval).filter(InvoiceApproval.invoice_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+                db.query(InvoiceAcknowledgment).filter(InvoiceAcknowledgment.issued_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+                db.query(InvoiceDeliveryEvent).filter(InvoiceDeliveryEvent.issued_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+                db.query(InvoiceIssueEvent).filter(InvoiceIssueEvent.invoice_revision_id.in_(invoice_revision_ids)).delete(synchronize_session=False)
+            if issue_event_ids:
+                db.query(InvoiceDeliveryEvent).filter(InvoiceDeliveryEvent.issue_event_id.in_(issue_event_ids)).delete(synchronize_session=False)
+            if invoice_ids:
+                db.query(InvoiceDeliveryEvent).filter(InvoiceDeliveryEvent.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(InvoiceAcknowledgment).filter(InvoiceAcknowledgment.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(InvoiceIssueEvent).filter(InvoiceIssueEvent.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(InvoiceMilestone).filter(InvoiceMilestone.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(InvoicePaymentAllocation).filter(InvoicePaymentAllocation.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(ReceivableFollowUp).filter(ReceivableFollowUp.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(AccountingHandoff).filter(AccountingHandoff.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(FinanceEvidence).filter(FinanceEvidence.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(InvoiceRevision).filter(InvoiceRevision.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(Invoice).filter(Invoice.id.in_(invoice_ids)).delete(synchronize_session=False)
+            if payment_ids:
+                db.query(InvoicePaymentAllocation).filter(InvoicePaymentAllocation.payment_receipt_id.in_(payment_ids)).delete(synchronize_session=False)
+                db.query(PaymentReceipt).filter(PaymentReceipt.id.in_(payment_ids)).delete(synchronize_session=False)
+            if billing_milestone_ids:
+                db.query(BillingMilestoneEligibility).filter(BillingMilestoneEligibility.billing_milestone_id.in_(billing_milestone_ids)).delete(synchronize_session=False)
+                db.query(InvoiceLineItem).filter(InvoiceLineItem.billing_milestone_id.in_(billing_milestone_ids)).delete(synchronize_session=False)
+                db.query(BillingMilestone).filter(BillingMilestone.id.in_(billing_milestone_ids)).delete(synchronize_session=False)
+            if billing_plan_revision_ids:
+                db.query(BillingPlanRevision).filter(BillingPlanRevision.id.in_(billing_plan_revision_ids)).delete(synchronize_session=False)
+            if billing_plan_ids:
+                db.query(BillingPlan).filter(BillingPlan.id.in_(billing_plan_ids)).delete(synchronize_session=False)
+            db.query(InvoiceRequirementDecision).filter(InvoiceRequirementDecision.contract_id.in_(contract_ids)).delete(synchronize_session=False)
             db.query(ProjectActivation).filter(ProjectActivation.contract_id.in_(contract_ids)).delete(synchronize_session=False)
             db.query(ContractTemplateSnapshot).filter(ContractTemplateSnapshot.contract_id.in_(contract_ids)).delete(synchronize_session=False)
             db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id.in_(contract_ids)).delete(synchronize_session=False)
@@ -69,8 +119,48 @@ def clean_owner_fixture():
         canonical_project = db.query(Project).filter(Project.project_number == "PRJ-DEMO-001").first()
         if canonical_project:
             canonical_contracts = db.query(Contract).filter(Contract.project_id == canonical_project.id).all()
+            # Preserve the durable seed chain used by the Proposal/Permit
+            # cross-module regression. Owner-session fixtures may temporarily
+            # attach disposable contracts to the same canonical project, but
+            # cleanup must never remove SYN-CTR-0001 or its Project.
+            if any(item.contract_reference == "SYN-CTR-0001" for item in canonical_contracts):
+                canonical_contracts = [item for item in canonical_contracts if item.contract_reference != "SYN-CTR-0001"]
             canonical_contract_ids = [item.id for item in canonical_contracts]
             if canonical_contract_ids:
+                canonical_plan_ids = [item.id for item in db.query(BillingPlan).filter(BillingPlan.contract_id.in_(canonical_contract_ids)).all()]
+                canonical_plan_revision_ids = [item.id for item in db.query(BillingPlanRevision).filter(BillingPlanRevision.contract_id.in_(canonical_contract_ids)).all()]
+                canonical_milestone_ids = [item.id for item in db.query(BillingMilestone).filter(BillingMilestone.billing_plan_revision_id.in_(canonical_plan_revision_ids)).all()] if canonical_plan_revision_ids else []
+                canonical_invoice_ids = [item.id for item in db.query(Invoice).filter(Invoice.contract_id.in_(canonical_contract_ids)).all()]
+                canonical_invoice_revision_ids = [item.id for item in db.query(InvoiceRevision).filter(InvoiceRevision.invoice_id.in_(canonical_invoice_ids)).all()] if canonical_invoice_ids else []
+                canonical_issue_ids = [item.id for item in db.query(InvoiceIssueEvent).filter(InvoiceIssueEvent.invoice_id.in_(canonical_invoice_ids)).all()] if canonical_invoice_ids else []
+                if canonical_invoice_revision_ids:
+                    db.query(InvoiceLineItem).filter(InvoiceLineItem.invoice_revision_id.in_(canonical_invoice_revision_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceReference).filter(InvoiceReference.invoice_revision_id.in_(canonical_invoice_revision_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceApprovalRecord).filter(InvoiceApprovalRecord.invoice_revision_id.in_(canonical_invoice_revision_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceAcceptRecord).filter(InvoiceAcceptRecord.invoice_revision_id.in_(canonical_invoice_revision_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceApproval).filter(InvoiceApproval.invoice_revision_id.in_(canonical_invoice_revision_ids)).delete(synchronize_session=False)
+                if canonical_issue_ids:
+                    db.query(InvoiceDeliveryEvent).filter(InvoiceDeliveryEvent.issue_event_id.in_(canonical_issue_ids)).delete(synchronize_session=False)
+                if canonical_invoice_ids:
+                    db.query(InvoiceDeliveryEvent).filter(InvoiceDeliveryEvent.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceAcknowledgment).filter(InvoiceAcknowledgment.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceIssueEvent).filter(InvoiceIssueEvent.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceMilestone).filter(InvoiceMilestone.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(InvoicePaymentAllocation).filter(InvoicePaymentAllocation.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(ReceivableFollowUp).filter(ReceivableFollowUp.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(AccountingHandoff).filter(AccountingHandoff.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(FinanceEvidence).filter(FinanceEvidence.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceRevision).filter(InvoiceRevision.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(Invoice).filter(Invoice.id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                if canonical_milestone_ids:
+                    db.query(BillingMilestoneEligibility).filter(BillingMilestoneEligibility.billing_milestone_id.in_(canonical_milestone_ids)).delete(synchronize_session=False)
+                    db.query(InvoiceLineItem).filter(InvoiceLineItem.billing_milestone_id.in_(canonical_milestone_ids)).delete(synchronize_session=False)
+                    db.query(BillingMilestone).filter(BillingMilestone.id.in_(canonical_milestone_ids)).delete(synchronize_session=False)
+                if canonical_plan_revision_ids:
+                    db.query(BillingPlanRevision).filter(BillingPlanRevision.id.in_(canonical_plan_revision_ids)).delete(synchronize_session=False)
+                if canonical_plan_ids:
+                    db.query(BillingPlan).filter(BillingPlan.id.in_(canonical_plan_ids)).delete(synchronize_session=False)
+                db.query(InvoiceRequirementDecision).filter(InvoiceRequirementDecision.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
                 db.query(ProjectActivation).filter(ProjectActivation.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
                 db.query(ContractTemplateSnapshot).filter(ContractTemplateSnapshot.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
                 db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
@@ -87,8 +177,9 @@ def clean_owner_fixture():
                 db.query(AuditEvent).filter(AuditEvent.entity_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
                 db.query(ContractRevision).filter(ContractRevision.contract_id.in_(canonical_contract_ids)).delete(synchronize_session=False)
                 db.query(Contract).filter(Contract.id.in_(canonical_contract_ids)).delete(synchronize_session=False)
-            db.query(LineageEdge).filter(LineageEdge.project_id == canonical_project.id).delete(synchronize_session=False)
-            db.query(Project).filter(Project.id == canonical_project.id).delete(synchronize_session=False)
+            if not db.query(Contract).filter(Contract.project_id == canonical_project.id, Contract.contract_reference == "SYN-CTR-0001").first():
+                db.query(LineageEdge).filter(LineageEdge.project_id == canonical_project.id).delete(synchronize_session=False)
+                db.query(Project).filter(Project.id == canonical_project.id).delete(synchronize_session=False)
         db.commit()
 
 

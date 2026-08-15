@@ -1,0 +1,14 @@
+{
+  "fields": [
+    {"field":"Client Name","canonical_source":"Client/Party","contract_start":"accepted proposal/client input","divergence":"Contract revision-owned","pin_safe":true},
+    {"field":"Client Company","canonical_source":"Client/Party","contract_start":"accepted proposal/client input","divergence":"Contract revision-owned","pin_safe":true},
+    {"field":"CR No.","canonical_source":"Client/Party","contract_start":"client input","divergence":"human confirmation","pin_safe":true},
+    {"field":"Mobile No.","canonical_source":"purpose-specific Client Contact","contract_start":"client input","divergence":"human confirmation","pin_safe":true},
+    {"field":"PIN No.","canonical_source":"unresolved owner policy","contract_start":"not guessed","divergence":"none","pin_safe":true},
+    {"field":"Client Email","canonical_source":"purpose-specific Client Contact","contract_start":"client input","divergence":"human confirmation","pin_safe":true},
+    {"field":"Project Description","canonical_source":"accepted proposal scope","contract_start":"accepted revision","divergence":"ContractRevision may diverge","pin_safe":true},
+    {"field":"Amount / Payment / Duration / Valuation / Works","canonical_source":"accepted proposal + ContractRevision","contract_start":"accepted revision","divergence":"explicit Contract-owned edits","pin_safe":true},
+    {"field":"Documents Needed / Deliverables","canonical_source":"Contract policy seam","contract_start":"revision-scoped requirements/commitments","divergence":"human confirmation","pin_safe":true}
+  ],
+  "status":"VERIFIED_POSTGRESQL"
+}

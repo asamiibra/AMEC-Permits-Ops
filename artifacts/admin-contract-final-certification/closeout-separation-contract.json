@@ -1,0 +1,9 @@
+{
+  "boundaries":[
+    {"operation":"service scope close","does":"closes one ServiceEngagement scope","does_not":"settle invoices or archive project"},
+    {"operation":"Contract Administrative Closure","does":"records administrative close after scoped services","does_not":"settle invoices or archive project"},
+    {"operation":"Financial Settlement","does":"records human settlement evidence","does_not":"prove payment or external accounting"},
+    {"operation":"Project Archive","does":"separate archive gate","does_not":"follow automatically from contract close"}
+  ],
+  "status":"PASS"
+}

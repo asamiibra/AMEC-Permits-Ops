@@ -1,0 +1,12 @@
+{
+  "result":"CERTIFIED_WITH_OWNER_AND_EXTERNAL_BOUNDARIES",
+  "software_status":"IMPLEMENTED_HARDENED_VERIFIED_POSTGRESQL_VERIFIED_BROWSER_RBAC_VERIFIED_CROSS_MODULE_VERIFIED_CODE_FROZEN",
+  "production_ready":false,
+  "postgresql_failures":0,
+  "postgresql_errors":0,
+  "browser_failures":0,
+  "owner_policy_or_content_pending":true,
+  "external_integrations_blocked":true,
+  "remaining_software_gaps":[],
+  "recommended_commit":"Finalize Administration and Contract module certification"
+}

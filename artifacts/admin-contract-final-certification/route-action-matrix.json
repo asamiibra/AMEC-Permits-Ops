@@ -1,0 +1,12 @@
+{
+  "actions": [
+    {"action":"create_from_accepted_proposal","role":"OWNER_SPONSOR","guard":"accepted revision exact","result":"PASS"},
+    {"action":"accept_contract","role":"OWNER_SPONSOR","guard":"current revision + readiness + idempotency","result":"PASS"},
+    {"action":"activate_project","role":"OWNER_SPONSOR","guard":"authority + explicit code/date + idempotency","result":"PASS"},
+    {"action":"upload_client_document_or_lpo","role":"OWNER_SPONSOR","guard":"canonical DocumentVersion + provenance","result":"PASS"},
+    {"action":"billing_accept_issue","role":"OWNER_SPONSOR","guard":"invoice revision + approval + account","result":"PASS"},
+    {"action":"payment_verify_allocate","role":"OWNER_SPONSOR","guard":"observed payment + verified allocation","result":"PASS"},
+    {"action":"administration_access","role":"COMMERCIAL_APPROVER","guard":"privileged route denied","result":"PASS"},
+    {"action":"administration_access","role":"RESPONSIBLE_ENGINEER","guard":"privileged route denied","result":"PASS"}
+  ]
+}

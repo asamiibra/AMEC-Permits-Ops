@@ -1,0 +1,7 @@
+{
+  "template_chain":["Dashboard/master-content version","ContractTemplateSnapshot","ContractRevision origin snapshot"],
+  "mutable_template_rewrite":false,
+  "dashboard_v2_browser":"PASS",
+  "master_content_browser":"PASS",
+  "official_production_template":"OWNER_CONTENT_PENDING"
+}

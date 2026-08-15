@@ -1,0 +1,12 @@
+{
+  "roles": ["OWNER_SPONSOR", "SYSTEM_ADMIN", "COMMERCIAL_APPROVER", "RESPONSIBLE_ENGINEER"],
+  "checks": [
+    {"surface":"Administration/Contract privileged actions","owner":"ALLOW","commercial":"DENY","engineering":"DENY"},
+    {"surface":"Contract read/detail","owner":"ALLOW","commercial":"scoped","engineering":"scoped"},
+    {"surface":"Project Activation","owner":"ALLOW","commercial":"DENY","engineering":"DENY"},
+    {"surface":"Invoice accept/issue","owner":"ALLOW","commercial":"role-specific deny/allow by action","engineering":"DENY"},
+    {"surface":"Owner route direct navigation","owner":"ALLOW","commercial":"redirect","engineering":"redirect"}
+  ],
+  "browser_role_matrix":"PASS",
+  "cross_project_guards":"PASS"
+}

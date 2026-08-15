@@ -1,0 +1,10 @@
+{
+  "edges": [
+    {"from":"AcceptedProposalRevision","to":"ContractRevision","relationship":"pinned starting source","mutable_source_rewrite":false},
+    {"from":"Dashboard Contract Template Version","to":"ContractTemplateSnapshot","relationship":"version snapshot","mutable_source_rewrite":false},
+    {"from":"Client Document/DocumentVersion","to":"ContractAdminEvidence","relationship":"exact evidence pointer","filename_only_claim":false},
+    {"from":"Contract Payment Term","to":"BillingMilestone source term","relationship":"downstream reference","automatic_invoice":false},
+    {"from":"ContractDeliverableCommitment","to":"Engineering/Project downstream","relationship":"separate domain seam","conflated":false}
+  ],
+  "status":"PASS"
+}

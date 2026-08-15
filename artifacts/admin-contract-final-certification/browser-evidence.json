@@ -1,0 +1,10 @@
+{
+  "stack":{"frontend":"Vite http://127.0.0.1:5173","backend":"uvicorn http://127.0.0.1:8000","database":"native PostgreSQL 16.14","api_interception":false},
+  "command":"BASE_URL=http://127.0.0.1:5173 API_BASE_URL=http://127.0.0.1:8000 npm run browser-real-stack -- --workers=1",
+  "tests":37,
+  "passed":37,
+  "failed":0,
+  "accessibility":"included",
+  "responsive":"included",
+  "suites":["Administration owner ready","Administration final audit","Forms","Contract owner-sketch delta","BD Proposal","Dashboard V1/V2","Dashboard V2 Waves B+C","AMEC Work","Billing V2","Handover/closeout adjacent","RBAC/persona","universal design/recovery"]
+}

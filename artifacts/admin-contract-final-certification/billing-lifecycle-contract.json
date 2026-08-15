@@ -1,0 +1,7 @@
+{
+  "sequence":["BillingPlan","BillingPlanRevision","BillingMilestone","eligibility","Invoice","InvoiceRevision","accept","issue","delivery","acknowledgment","receivable","payment observed","payment verified","allocation","follow-up"],
+  "separation":["Contract accepted != Invoice accepted","Invoice accepted != Invoice issued","Payment observed != Payment verified","Receivable paid != financial settlement"],
+  "postgresql_test":"test_billing_invoice_full.py",
+  "browser_test":"post-billing-v2-reconciliation.spec.ts",
+  "status":"PASS"
+}
