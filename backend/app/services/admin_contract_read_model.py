@@ -62,24 +62,30 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
     proposal = db.get(Opportunity, contract.proposal_id) if contract.proposal_id else None
     accepted = db.get(ProposalAcceptedRevision, contract.accepted_proposal_revision_id) if contract.accepted_proposal_revision_id else None
     lpo_policy = str(runtime_decision_value(db, "CONTRACT_LPO_REQUIREDNESS_POLICY", "OWNER_DEFINITION_REQUIRED"))
+    client_document_policy = str(runtime_decision_value(db, "CONTRACT_DOCUMENT_REQUIREDNESS_POLICY", "OWNER_DEFINITION_REQUIRED"))
+    def requirement(policy: str) -> dict[str, str]:
+        normalized = policy.upper()
+        labels = {"REQUIRED": "Required by approved Contract policy", "TEST": "Required by test policy", "OPTIONAL": "Optional", "CONDITIONAL": "Conditional", "NOT_APPLICABLE": "Not applicable", "OWNER_DEFINITION_REQUIRED": "Requirement not configured"}
+        return {"policy_source": normalized, "label": labels.get(normalized, "Requirement not configured")}
     def panel_document(role: str) -> dict[str, Any]:
         item = current_by_role.get(role)
         document = _document(db, item.document_version_id) if item else None
         if document:
             document["download"] = f"/api/admin/contracts/{contract.id}/documents/{document['id']}/download"
-        return {"status": item.status if item else "NEEDED", "document": document, "count": sum(1 for row in evidence if row.source_role == role), "history": [{"id": row.id, "status": row.status, "recorded_at": row.recorded_at.isoformat(), "document": _document(db, row.document_version_id)} for row in evidence if row.source_role == role]}
+        policy = requirement(lpo_policy if role == "LPO" else client_document_policy)
+        return {"status": item.status if item else "NOT_RECEIVED", "document": document, "count": sum(1 for row in evidence if row.source_role == role), "requiredness": policy, "history": [{"id": row.id, "status": row.status, "recorded_at": row.recorded_at.isoformat(), "document": _document(db, row.document_version_id)} for row in evidence if row.source_role == role]}
     lpo = panel_document("LPO")
     client_document = panel_document("CLIENT_DOCUMENT")
     source_panel = [
         {"key": "contract", "label": "Contract", "detail": f"Current Contract Revision {revision.revision_number}" if revision else "Current Contract Revision pending", "source": "ContractRevision", "open": None},
         {"key": "document_list", "label": "Document List", "detail": f"{len(client_inputs)} structured client input(s)", "source": "ContractClientInputRequirement", "open": f"/admin/contracts/{contract.id}#documents-needed"},
-        {"key": "proposal", "label": "Accepted Proposal", "detail": f"{proposal.opportunity_reference} · Revision {accepted.revision_number}" if proposal and accepted else "Accepted Proposal pending", "source": "AcceptedProposalRevision", "open": f"/opportunities/{proposal.id}" if proposal else None},
-        {"key": "lpo", "label": "LPO", "detail": lpo["document"]["filename"] if lpo["document"] else "Needed / not received", "source": "DocumentVersion", "open": lpo["document"]["download"] if lpo["document"] else None},
-        {"key": "client_document", "label": "Client Document", "detail": client_document["document"]["filename"] if client_document["document"] else "Needed / not received", "source": "DocumentVersion", "open": client_document["document"]["download"] if client_document["document"] else None},
-        {"key": "contract_template", "label": "Contract Template", "detail": f"Dashboard · v{template.version}" if template else "Dashboard template unresolved", "source": "Dashboard", "open": f"/api/master-content/{template.master_content_id}/download" if template else None},
+        {"key": "proposal", "label": "Accepted Proposal", "detail": f"{proposal.opportunity_reference} · Revision {accepted.revision_number}" if proposal and accepted else "Proposal origin requires reconciliation", "source": "AcceptedProposalRevision", "open": f"/opportunities/{proposal.id}" if proposal else None},
+        {"key": "lpo", "label": "LPO", "detail": lpo["document"]["filename"] if lpo["document"] else lpo["requiredness"]["label"], "source": "DocumentVersion", "open": lpo["document"]["download"] if lpo["document"] else None},
+        {"key": "client_document", "label": "Client Document", "detail": client_document["document"]["filename"] if client_document["document"] else client_document["requiredness"]["label"], "source": "DocumentVersion", "open": client_document["document"]["download"] if client_document["document"] else None},
+        {"key": "contract_template", "label": "Contract Template", "detail": f"Dashboard · v{template.version}" if template else "Not configured", "source": "Dashboard", "open": f"/admin/templates" if not template else f"/api/master-content/{template.master_content_id}/download"},
     ]
     return {
-        "contract": {"payment_condition_text": contract.payment_condition_text, "contracted_scope_text": contract.contracted_scope_text, "valuation_amount": str(contract.valuation_amount) if contract.valuation_amount is not None else None, "valuation_currency": contract.valuation_currency, "valuation_basis": contract.valuation_basis, "valuation_status": contract.valuation_status, "project_opportunity_ref": contract.project_opportunity_ref, "project_description": ((accepted.snapshot or {}).get("project_description") if accepted else None) or ((accepted.snapshot or {}).get("fields", {}).get("project_description") if accepted else None) or ((accepted.snapshot or {}).get("fields", {}).get("scope_of_work") if accepted else None)},
+        "contract": {"payment_condition_text": contract.payment_condition_text, "contracted_scope_text": contract.contracted_scope_text, "valuation_amount": str(contract.valuation_amount) if contract.valuation_amount is not None else None, "valuation_currency": contract.valuation_currency, "valuation_basis": contract.valuation_basis, "valuation_status": contract.valuation_status, "project_opportunity_ref": contract.project_opportunity_ref, "project_description": ((accepted.snapshot or {}).get("project_description") if accepted else None) or ((accepted.snapshot or {}).get("fields", {}).get("project_description") if accepted else None) or "Not provided"},
         "client_fields": client_fields["fields"],
         "field_lineage": client_fields,
         "client_contacts": [{"id": item.id, "name": item.name, "email": item.email, "phone": item.phone, "role_title": item.role_title} for item in contacts],
@@ -88,7 +94,9 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
         "client_inputs": [{"id": item.id, "sequence": item.sequence, "input_code": item.input_code, "title": item.title, "description": item.description, "required": item.required, "status": item.status, "source_type": item.source_type, "source_document": _document(db, item.source_document_version_id), "human_verified_by": item.human_verified_by} for item in client_inputs],
         "evidence_detail": [{"id": item.id, "type": item.evidence_type, "source_role": item.source_role, "source_reference": item.source_reference, "document": _document(db, item.document_version_id), "hash": item.content_hash, "status": item.status, "recorded_by": item.recorded_by} for item in evidence],
         "client_document": client_document,
-        "lpo": {**lpo, "requiredness": lpo_policy},
+        "lpo": lpo,
+        "client_document_policy": requirement(client_document_policy),
+        "origin_state": "ACCEPTED_PROPOSAL" if proposal and accepted else "RECONCILIATION_REQUIRED",
         "documents_needed": [{"id": item.id, "title": item.title, "description": item.description, "required": item.required, "status": item.status, "source_type": item.source_type, "evidence": _document(db, item.source_document_version_id)} for item in client_inputs],
         "deliverable_commitments": [{"id": item.id, "name": item.name, "description": item.description, "status": item.status, "due_trigger_description": item.due_trigger_description, "source_document": _document(db, item.source_document_version_id)} for item in deliverables],
         "source_panel": source_panel,

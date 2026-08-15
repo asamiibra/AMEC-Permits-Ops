@@ -1,0 +1,1 @@
+{"owner":["read","edit_contract","accept","activate_project"],"business_development":["read_proposal","proposal_accept"],"engineering":["proposal_engineering_ready","no_contract_accept"],"direct_api_negatives":["non-owner contract accept 403","non-owner project activation 403","pre-accept activation 409"]}

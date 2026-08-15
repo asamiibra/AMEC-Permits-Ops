@@ -1,0 +1,1 @@
+{"default":"REQUIRE_ACCEPTED_PROPOSAL","supported":["REQUIRE_ACCEPTED_PROPOSAL","ALLOW_AUTHORIZED_STANDALONE","ALLOW_LEGACY_EXCEPTION"],"legacy_default_result":"blocked","golden_result":"resolved"}

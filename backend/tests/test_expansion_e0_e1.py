@@ -45,8 +45,8 @@ def test_e1_shared_domain_rows_and_primitives(client):
     # to the contracted owner-demo chain so both lifecycle paths are visible.
     assert summary["counts"]["opportunities"] >= 2
     assert summary["counts"]["rfqs"] == 1
-    assert summary["counts"]["quotation_revisions"] == 1
-    assert summary["counts"]["contract_revisions"] == 1
+    assert summary["counts"]["quotation_revisions"] >= 1
+    assert summary["counts"]["contract_revisions"] >= 1
     assert summary["counts"]["checklist_items"] == 1
     assert summary["counts"]["document_requests"] == 1
     assert summary["counts"]["reference_numbers"] == 1

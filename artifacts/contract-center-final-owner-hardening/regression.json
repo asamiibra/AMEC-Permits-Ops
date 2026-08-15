@@ -1,0 +1,1 @@
+{"sqlite":{"passed":210,"skipped":8,"warnings":2},"postgresql":{"passed":218,"skipped":0,"warnings":2},"frontend_unit":{"passed":38},"frontend_build":"passed","browser":{"passed":2,"failed":0}}

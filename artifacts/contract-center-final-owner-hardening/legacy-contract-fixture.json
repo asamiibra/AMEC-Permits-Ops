@@ -1,0 +1,1 @@
+{"contract_id":"733c4cba-7711-4218-820e-9b2e4bad0e3c","contract_ref":"SYN-CTR-0001","origin_status":"RECONCILIATION_REQUIRED","origin_unresolved_reason":"No accepted Proposal revision","safe_display":"Legacy Contract; Proposal origin requires reconciliation","acceptance_blocker":"CONTRACT_ORIGIN_RECONCILIATION_REQUIRED","test_exception_policy":"Explicit runtime policy only"}

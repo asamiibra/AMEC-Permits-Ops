@@ -103,6 +103,7 @@ def clean_owner_fixture():
             # PostgreSQL enforces the direct Proposal FK on notifications;
             # SQLite's permissive cleanup previously hid this row family.
             db.query(NotificationEvent).filter(NotificationEvent.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
+            db.query(AssistantHandoff).filter(AssistantHandoff.opportunity_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalOutputArtifact).filter(ProposalOutputArtifact.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalAcceptedRevision).filter(ProposalAcceptedRevision.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalSourceLink).filter(ProposalSourceLink.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
@@ -372,3 +373,23 @@ def test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptanc
     assert repeat.json()["decision"] == "ALREADY_ACCEPTED"
     assert client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("RESPONSIBLE_ENGINEER"), json={}).status_code == 403
     assert client.patch(f"/api/admin/contracts/{contract_id}/client-fields", headers=headers("OWNER_SPONSOR"), json={"client_name": "Blocked after accept", "reason": "Expected immutable finalized revision"}).status_code == 409
+
+
+def test_contract_origin_safe_default_blocks_legacy_acceptance_and_activation(client):
+    rows = client.get("/api/admin/contracts", headers=headers("OWNER_SPONSOR")).json()["items"]
+    legacy = next((item for item in rows if item.get("contract_ref") == "SYN-CTR-0001" or item.get("contract_reference") == "SYN-CTR-0001"), None)
+    assert legacy, "the synthetic legacy Contract must remain separately testable"
+    detail = client.get(f"/api/admin/contracts/{legacy['id']}", headers=headers("OWNER_SPONSOR"))
+    assert detail.status_code == 200
+    body = detail.json()
+    assert body["origin"] is None
+    assert body["readiness"]["origin_policy"] == "REQUIRE_ACCEPTED_PROPOSAL"
+    assert body["readiness"]["origin_resolved"] is False
+    assert any(item["code"] == "CONTRACT_ORIGIN_RECONCILIATION_REQUIRED" for item in body["readiness"]["blockers"])
+    assert body["contract"].get("project_description") in {"Not provided", None}
+    blocked = client.post(f"/api/admin/contracts/{legacy['id']}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": "legacy-accept-blocked"})
+    assert blocked.status_code == 409
+    assert blocked.json()["detail"]["code"] == "CONTRACT_ACCEPT_BLOCKED"
+    activation = client.post(f"/api/admin/contracts/{legacy['id']}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-LEGACY-001", "start_date": "2026-08-15", "idempotency_key": "legacy-activation-blocked"})
+    assert activation.status_code == 409
+    assert activation.json()["detail"]["code"] == "CONTRACT_ACCEPTANCE_REQUIRED"

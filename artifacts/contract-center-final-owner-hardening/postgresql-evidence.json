@@ -1,0 +1,1 @@
+{"database":"admin_contract_final_cert_20260815","version":"PostgreSQL 16.14","dialect":"postgresql","alembic":["0055_bd_proposal_final_hardening"],"backend_tests":{"passed":218,"failed":0,"warnings":2},"durable":true}

@@ -105,6 +105,7 @@ def seed():
     create_fixtures(synthetic_workspace_root())
     ensure_primary_proposal_sources()
     ensure_proposals_contracts_demo_state()
+    ensure_contract_center_golden_state()
 
 
 def ensure_primary_proposal_sources():
@@ -215,6 +216,73 @@ def ensure_proposals_contracts_demo_state():
             technical_notification = db.scalar(select(NotificationEvent).where(NotificationEvent.correlation_id == "persona-issues-notifications-v1", NotificationEvent.event_type == "ENGINEERING_PROPOSAL_READY"))
             if technical_notification:
                 technical_notification.proposal_id = active.id
+        db.commit()
+
+
+def ensure_contract_center_golden_state():
+    """Keep the default Contract workspace Proposal-derived and deterministic."""
+    from ..services.contract_workspace import create_contract_from_proposal
+    from ..services.master_content import create_master_content
+
+    with SessionLocal() as db:
+        if db.bind.dialect.name != "postgresql":
+            return
+        base = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == "SYN-OPP-0002"))
+        proposal = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == "SYN-OPP-0007"))
+        if not proposal and base:
+            proposal = Opportunity(office_id=base.office_id, client_account_id=base.client_account_id, opportunity_reference="SYN-OPP-0007", title="Synthetic Engineering Advisory Proposal", status="CONTRACT_HANDOVER", source_type="TENDER_DOCUMENT", current_owner_user_id=base.current_owner_user_id, stage2_capability_scope=base.stage2_capability_scope, project_id=base.project_id, reference_state="CANONICAL", proposal_fields_json=dict(base.proposal_fields_json or {}), provisional_reference="SYN-OPP-0007", canonical_project_reference=base.canonical_project_reference, canonicalized_by="owner@amec.synthetic")
+            db.add(proposal)
+            db.flush()
+            source_content = b"SYNTHETIC GOLDEN CONTRACT PROPOSAL\nProposal-derived Contract owner demo evidence."
+            source_hash = hashlib.sha256(source_content).hexdigest()
+            db.add(ProposalSourceEvidence(proposal_id=proposal.id, source_type="TENDER_DOCUMENT", source_filename="golden_contract_proposal.txt", source_reference=f"synthetic://proposal-source/{proposal.opportunity_reference}/{source_hash}", content_hash=source_hash, content_type="text/plain", source_revision="S1", provenance={"golden_fixture": True, "verification": "READ_BACK_VERIFIED"}, conflict_key="TENDER_DOCUMENT", status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="owner@amec.synthetic"))
+            db.flush()
+        if not proposal or not proposal.client_account_id:
+            return
+        fields = dict(proposal.proposal_fields_json or {})
+        fields.update({
+            "client_name": fields.get("client_name") or "Synthetic Client Account",
+            "project_description": fields.get("project_description") or "Synthetic engineering advisory scope",
+            "client_scope_of_work": fields.get("client_scope_of_work") or "Synthetic client scope confirmed for engineering preparation",
+            "scope_of_work": fields.get("scope_of_work") or fields.get("sow") or "Synthetic engineering proposal preparation",
+            "price": fields.get("price") or "QAR 98,000",
+            "currency": fields.get("currency") or "QAR",
+            "duration": fields.get("duration") or fields.get("period") or "8 weeks",
+            "payment_condition": fields.get("payment_condition") or "30% on commencement; balance on deliverable acceptance",
+        })
+        proposal.proposal_fields_json = fields
+        accepted = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
+        if not accepted:
+            source_ids = [item.id for item in db.scalars(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.status == "CURRENT")).all()]
+            snapshot = {
+                "proposal_id": proposal.id,
+                "proposal_reference": proposal.opportunity_reference,
+                "title": proposal.title,
+                "project_reference": proposal.canonical_project_reference or proposal.provisional_reference,
+                "client_account_id": proposal.client_account_id,
+                "project_description": fields["project_description"],
+                "fields": fields,
+                "source_ids": source_ids,
+                "template": None,
+                "checklist": None,
+                "synthetic_only": True,
+                "golden_fixture": "contract-center-final-owner-hardening",
+            }
+            content_hash = stable_hash(snapshot)
+            accepted = ProposalAcceptedRevision(proposal_id=proposal.id, revision_number=1, snapshot=snapshot, validation_snapshot={"ready": True, "synthetic_fixture": True}, content_hash=content_hash, accepted_by="owner@amec.synthetic", accepted_at=datetime(2026, 8, 15, 12, 0, tzinfo=timezone.utc), status="ACCEPTED")
+            db.add(accepted)
+            db.flush()
+        contract = db.scalar(select(Contract).where(Contract.contract_reference == "SYN-CTR-0007"))
+        if not contract:
+            contract = create_contract_from_proposal(db, proposal=proposal, accepted=accepted, actor="owner@amec.synthetic", correlation_id="seed-contract-center-golden", requested_reference="SYN-CTR-0007")
+        template_item = db.scalar(select(MasterContentItem).where(MasterContentItem.ref == "CT-TEST-001"))
+        if not template_item:
+            create_master_content(db, content_type="FORM", ref="CT-TEST-001", title="Synthetic Test Contract Template", category_id=None, description="Synthetic test-only Contract Template", filename="CT-TEST-001.txt", mime_type="text/plain", content=b"SYNTHETIC TEST CONTRACT TEMPLATE", actor="owner-demo-seed", idempotency_key="seed-contract-center-template-v1", correlation_id="seed-contract-center-golden", used_in=["ADMIN"])
+            template_item = db.scalar(select(MasterContentItem).where(MasterContentItem.ref == "CT-TEST-001"))
+        template_version = db.get(DocumentVersion, template_item.current_document_version_id) if template_item and template_item.current_document_version_id else None
+        if template_item and template_version and not db.scalar(select(ContractTemplateSnapshot).where(ContractTemplateSnapshot.contract_id == contract.id)):
+            db.add(ContractTemplateSnapshot(contract_id=contract.id, contract_revision_id=contract.current_revision_id, master_content_id=template_item.id, master_content_ref=template_item.ref, document_version_id=template_version.id, version=str(template_version.version_number), content_hash=template_version.sha256, captured_by="owner@amec.synthetic"))
+        proposal.status = "CONTRACT_HANDOVER"
         db.commit()
 
 
