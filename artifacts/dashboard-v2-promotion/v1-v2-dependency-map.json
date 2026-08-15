@@ -1,0 +1,12 @@
+{
+  "unclassified_count": 0,
+  "dependencies": [
+    {"name": "DashboardPage default presentation", "classification": "REPOINT_TO_V2", "replacement": "DashboardPage current presentation"},
+    {"name": "DashboardPage governance presentation", "classification": "SHARED_KEEP", "replacement": "/dashboard"},
+    {"name": "CanonicalFormsLibrary", "classification": "SHARED_KEEP", "replacement": "single canonical library"},
+    {"name": "DashboardInputsPage", "classification": "REPOINT_TO_V2", "replacement": "/dashboard/inputs-go-live"},
+    {"name": "/api/master-content", "classification": "SHARED_KEEP", "replacement": "none"},
+    {"name": "/api/dashboard-v2/*", "classification": "SHARED_KEEP", "replacement": "governance facade over canonical data"},
+    {"name": "MasterContentItem/Document/DocumentVersion", "classification": "SHARED_KEEP", "replacement": "none"}
+  ]
+}

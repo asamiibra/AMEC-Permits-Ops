@@ -1,0 +1,5 @@
+{
+  "local": {"dashboard_promotion_and_redirects": "PASS", "tests": 4, "waves_bc": "PASS", "admin_forms_parity_history": "PASS", "admin_tests": 2},
+  "production_before_deployment": {"status": "FAIL_EXPECTED_STALE_FRONTEND", "dashboard_v2_redirect": false, "current_governance_surface": false},
+  "production_after_deployment": "PENDING"
+}

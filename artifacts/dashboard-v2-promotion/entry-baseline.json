@@ -1,0 +1,10 @@
+{
+  "captured_at": "2026-08-15",
+  "branch": "branch/owner-form-simple-dashboard",
+  "head": "e3b488f122ea82b15e7572e8be375e165c3207c7",
+  "remote_head": "e3b488f122ea82b15e7572e8be375e165c3207c7",
+  "working_tree": {"status": "dirty_only_preexisting_excel", "preserved": ["mock-systems/excel/permit_tracker.xlsx"]},
+  "alembic": {"local_current": "UNINITIALIZED_SQLITE_FALLBACK", "heads": ["0058_source_intake_ledger"]},
+  "vercel": {"frontend": "https://amec-permits-ops.vercel.app", "backend": "https://amec-permits-ops-backend.vercel.app", "backend_release_sha": "e3b488f122ea82b15e7572e8be375e165c3207c7", "backend_build_id": "dpl_HpW6Wnio9V1SDmrG91RhYxm2yY8m", "frontend_deployment": "NOT_EXPOSED_BY_PUBLIC_RUNTIME", "frontend_promotion_required": true},
+  "routes_before": ["/dashboard", "/dashboard-v2", "/dashboard/inputs-go-live", "/dashboard-v2/inputs-go-live"]
+}

@@ -369,15 +369,13 @@ function InputCard({
 export function DashboardInputsPage({
   role,
   onNavigate,
-  governanceMode = false,
   backPage = "dashboard",
 }: {
   role: string;
   onNavigate: (page: string) => void;
-  governanceMode?: boolean;
   backPage?: string;
 }) {
-  const { data, error, reload } = useDashboardInputs(governanceMode);
+  const { data, error, reload } = useDashboardInputs(true);
   const update = async (key: string, action: string, notes?: string) => {
     await api(`/api/dashboard-inputs/${key}`, {
       method: "PATCH",

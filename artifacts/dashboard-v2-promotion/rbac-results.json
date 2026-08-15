@@ -1,0 +1,7 @@
+{
+  "DASHBOARD_V2_PROMOTION_RBAC_PASS": 1,
+  "owner_write": "PASS",
+  "business_development_scope": "PASS",
+  "engineering_scope": "PASS",
+  "backend_enforced": true
+}

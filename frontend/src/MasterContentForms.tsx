@@ -102,13 +102,11 @@ export function CanonicalFormsLibrary({
   role,
   surface = "DASHBOARD",
   compact = false,
-  governanceMode = false,
   filters,
 }: {
   role: string;
   surface?: "DASHBOARD" | "ADMINISTRATION";
   compact?: boolean;
-  governanceMode?: boolean;
   filters?: Filters;
 }) {
   const [forms, setForms] = useState<CanonicalForm[]>([]);
@@ -133,23 +131,24 @@ export function CanonicalFormsLibrary({
     setLoading(true);
     setError("");
     try {
-      const params = new URLSearchParams(governanceMode ? {} : { content_type: "FORM" });
+      const params = new URLSearchParams({ content_type: "FORM" });
       if (filters?.q) params.set("q", filters.q);
-      if (!governanceMode) {
-        if (filters?.category) params.set("category_label", filters.category);
-        if (filters?.status) params.set("status", filters.status);
-        if (filters?.module) params.set("module", filters.module);
-        Object.entries(governanceFilters).forEach(([key, value]) => { if (value) params.set(key, value); });
-      } else Object.entries(v2Filters).forEach(([key, value]) => { if (value) params.set(key, value); });
-      const [contentResponse, categoryRows, catalogRows] = await Promise.all([
-        api<CanonicalForm[] | Record<string, unknown>>(governanceMode ? `/api/dashboard-v2/forms?${params}` : `/api/master-content?${params}`),
+      if (filters?.category) params.set("category_label", filters.category);
+      if (filters?.status) params.set("owner_status", filters.status);
+      if (filters?.module) params.set("module", filters.module);
+      Object.entries(governanceFilters).forEach(([key, value]) => { if (value) params.set(key, value); });
+      const v2Params = new URLSearchParams();
+      Object.entries(v2Filters).forEach(([key, value]) => { if (value) v2Params.set(key, value); });
+      const v2FilterActive = v2Params.size > 0;
+      if (v2FilterActive && filters?.q) v2Params.set("q", filters.q);
+      const [content, categoryRows, catalogRows] = await Promise.all([
+        api<CanonicalForm[]>(v2FilterActive ? `/api/dashboard-v2/forms?${v2Params}` : `/api/master-content?${params}`),
         api<Category[]>("/api/master-content/categories"),
-        governanceMode ? api<V2Catalogs>("/api/dashboard-v2/catalogs") : Promise.resolve(null),
+        api<V2Catalogs>("/api/dashboard-v2/catalogs"),
       ]);
-      const content = Array.isArray(contentResponse) ? contentResponse : governanceMode ? await api<CanonicalForm[]>("/api/master-content?content_type=FORM") : [];
       setForms(content);
       setCategories(categoryRows);
-      if (catalogRows) setCatalogs(catalogRows);
+      setCatalogs(catalogRows);
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Forms could not be loaded.",
@@ -160,7 +159,7 @@ export function CanonicalFormsLibrary({
   };
   useEffect(() => {
     void load();
-  }, [filters?.q, filters?.category, filters?.status, filters?.module, governanceMode, governanceFilters.ownership, governanceFilters.artifact_kind, governanceFilters.currentness, governanceFilters.readiness, governanceFilters.quality_state, governanceFilters.restricted_sample, governanceFilters.language, v2Filters.external_body_id, v2Filters.jurisdiction_id, v2Filters.service_type_id, v2Filters.lifecycle_phase_id, v2Filters.applicability_status, v2Filters.readiness]);
+  }, [filters?.q, filters?.category, filters?.status, filters?.module, governanceFilters.ownership, governanceFilters.artifact_kind, governanceFilters.currentness, governanceFilters.readiness, governanceFilters.quality_state, governanceFilters.restricted_sample, governanceFilters.language, v2Filters.external_body_id, v2Filters.jurisdiction_id, v2Filters.service_type_id, v2Filters.lifecycle_phase_id, v2Filters.applicability_status, v2Filters.readiness]);
   const save = async (request: SaveRequest) => {
     setBusy(true);
     setError("");
@@ -201,12 +200,12 @@ export function CanonicalFormsLibrary({
       setBusy(false);
     }
   };
-  const filtered = Boolean(filters?.q || filters?.category || filters?.status || filters?.module || Object.values(governanceMode ? v2Filters : governanceFilters).some(Boolean));
+  const filtered = Boolean(filters?.q || filters?.category || filters?.status || filters?.module || Object.values(v2Filters).some(Boolean) || Object.values(governanceFilters).some(Boolean));
   return (
     <section
       id="forms"
       className={`panel dashboard-section canonical-forms-library ${compact ? "canonical-forms-library-compact" : ""}`}
-      data-testid={`${governanceMode ? "dashboard-v2" : surface.toLowerCase()}-forms`}
+      data-testid={`${surface.toLowerCase()}-forms`}
     >
       <div className="dashboard-section-head">
         <div>
@@ -237,18 +236,18 @@ export function CanonicalFormsLibrary({
           Business Development, and Permit workflows.
         </p>
       )}
-      {governanceMode && <details className="forms-advanced-filters">
+      <details className="forms-advanced-filters">
         <summary>Advanced governance filters</summary>
         <div className="dashboard-filter-bar forms-governance-filters">
-          {governanceMode && <>
+          <>
             {([['external_body_id', 'External body', catalogs?.external_bodies || []], ['jurisdiction_id', 'Jurisdiction', catalogs?.jurisdictions || []], ['service_type_id', 'Service type', catalogs?.service_types || []], ['lifecycle_phase_id', 'Lifecycle phase', catalogs?.lifecycle_phases || []]] as const).map(([key, label, options]) => <label key={key}>{label}<select aria-label={label} value={v2Filters[key]} onChange={(event) => setV2Filters((current) => ({ ...current, [key]: event.target.value }))}><option value="">All</option>{options.map((option) => <option key={String(option.id)} value={String(option.id)}>{option.name_en || option.code || option.label || option.id}</option>)}</select></label>)}
             <label>Applicability status<select aria-label="Applicability status" value={v2Filters.applicability_status} onChange={(event) => setV2Filters((current) => ({ ...current, applicability_status: event.target.value }))}><option value="">All</option>{['DRAFT', 'ACTIVE', 'NEEDS_REVALIDATION', 'SUPERSEDED', 'RETIRED'].map((option) => <option key={option} value={option}>{option.replaceAll('_', ' ')}</option>)}</select></label>
             <label>Automation readiness<select aria-label="Automation readiness" value={v2Filters.readiness} onChange={(event) => setV2Filters((current) => ({ ...current, readiness: event.target.value }))}><option value="">All</option><option value="AUTOMATED_USE_READY">Automated use ready</option><option value="NEEDS_REVALIDATION">Needs revalidation</option><option value="BLOCKED">Blocked</option></select></label>
             {([['ownership', 'Content ownership', ['AMEC_OWNED', 'EXTERNAL_OFFICIAL', 'EXTERNAL_REFERENCE', 'REFERENCE_SAMPLE', 'NEEDS_REVIEW']], ['artifact_kind', 'Artifact kind', ['AUTHORITY_FORM', 'AMEC_FORM', 'CHECKLIST', 'AUTHORIZATION', 'SERVICE_REQUEST', 'OTHER', 'UNKNOWN']], ['currentness', 'Currentness', ['UNVERIFIED', 'VERIFIED_CURRENT', 'VERIFIED_NOT_CURRENT', 'NEEDS_REVIEW']], ['readiness', 'Wave A readiness', ['REFERENCE_ONLY', 'BLOCKED', 'MANUAL_USE_READY', 'SUPERSEDED']], ['quality_state', 'Quality state', ['OPEN', 'ACCEPTED_RISK', 'RESOLVED']], ['language', 'Language', ['AR', 'EN', 'AR_EN_BILINGUAL', 'OTHER']]] as const).map(([key, label, options]) => <label key={`wave-a-${key}`}>{label}<select aria-label={label} value={governanceFilters[key]} onChange={(event) => setGovernanceFilters((current) => ({ ...current, [key]: event.target.value }))}><option value="">All</option>{options.map((option) => <option key={option} value={option}>{option.replaceAll('_', ' ')}</option>)}</select></label>)}
             <label>Restricted sample<select aria-label="Restricted sample" value={governanceFilters.restricted_sample} onChange={(event) => setGovernanceFilters((current) => ({ ...current, restricted_sample: event.target.value }))}><option value="">All</option><option value="true">Restricted</option><option value="false">Not restricted</option></select></label>
-          </>}
+          </>
         </div>
-      </details>}
+      </details>
       {error && (
         <div className="dashboard-error" role="alert">
           <b>Forms unavailable</b>
@@ -268,12 +267,11 @@ export function CanonicalFormsLibrary({
         <FormTable
           forms={forms}
           canWrite={canWrite}
-          governanceMode={governanceMode}
           onEdit={setEditor}
-          onOpen={async (form) => setDetails(await api<CanonicalForm>(governanceMode ? `/api/dashboard-v2/forms/${form.id}` : `/api/master-content/${form.id}`))}
+          onOpen={async (form) => setDetails(await api<CanonicalForm>(`/api/dashboard-v2/forms/${form.id}`))}
           onHistory={async (form) => {
             const detail = await api<CanonicalForm>(
-              governanceMode ? `/api/dashboard-v2/forms/${form.id}` : `/api/master-content/${form.id}`,
+              `/api/dashboard-v2/forms/${form.id}`,
             );
             setHistory({
               itemId: form.id,
@@ -295,7 +293,7 @@ export function CanonicalFormsLibrary({
       {history && (
         <FormHistory history={history} onClose={() => setHistory(null)} />
       )}
-      {details && <FormDetails item={details} governanceMode={governanceMode} role={role} onRefresh={async () => setDetails(await api<CanonicalForm>(governanceMode ? `/api/dashboard-v2/forms/${details.id}` : `/api/master-content/${details.id}`))} onClose={() => setDetails(null)} />}
+      {details && <FormDetails item={details} role={role} onRefresh={async () => setDetails(await api<CanonicalForm>(`/api/dashboard-v2/forms/${details.id}`))} onClose={() => setDetails(null)} />}
     </section>
   );
 }
@@ -303,14 +301,12 @@ export function CanonicalFormsLibrary({
 function FormTable({
   forms,
   canWrite,
-  governanceMode,
   onEdit,
   onOpen,
   onHistory,
 }: {
   forms: CanonicalForm[];
   canWrite: boolean;
-  governanceMode: boolean;
   onEdit: (item: CanonicalForm) => void;
   onOpen: (item: CanonicalForm) => void;
   onHistory: (item: CanonicalForm) => void;
@@ -325,8 +321,8 @@ function FormTable({
             <th>Form</th>
             <th>Category</th>
             <th>Description</th>
-            {!governanceMode && <th>Used In</th>}
-            {!governanceMode && <th>Status</th>}
+            <th>Used In</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -339,8 +335,8 @@ function FormTable({
               </td>
               <td>
                 <b>{form.title}</b>
-                {!governanceMode && <small className="table-subline">Version {form.version || "—"}</small>}
-                {governanceMode && <><small className="table-subline">Version {form.version || "—"}</small><div className="governance-badges">{(form.governance?.badges || []).slice(0, 2).map((badge) => <span key={badge} className="tag">{badge}</span>)}</div></>}
+                <small className="table-subline">Version {form.version || "—"}</small>
+                <div className="governance-badges">{(form.governance?.badges || []).slice(0, 2).map((badge) => <span key={badge} className="tag">{badge}</span>)}</div>
               </td>
               <td>{form.category?.label || "Uncategorized"}</td>
               <td
@@ -349,8 +345,8 @@ function FormTable({
               >
                 {form.description || "No description"}
               </td>
-              {!governanceMode && <td><UsedInChips values={form.used_in} /></td>}
-              {!governanceMode && <td><StatusBadge value={form.owner_status || form.version_status} hasVersion={Boolean(form.version)} /></td>}
+              <td><UsedInChips values={form.used_in} /></td>
+              <td><StatusBadge value={form.owner_status || form.version_status} hasVersion={Boolean(form.version)} /></td>
               <td className="dashboard-actions">
                 <button className="table-action action-view" onClick={() => onOpen(form)}>Open</button>
                 {canWrite && (
@@ -376,26 +372,20 @@ function FormTable({
   );
 }
 
-function FormDetails({ item, governanceMode, role, onRefresh, onClose }: { item: CanonicalForm; governanceMode: boolean; role: string; onRefresh: () => Promise<void>; onClose: () => void }) {
+function FormDetails({ item, role, onRefresh, onClose }: { item: CanonicalForm; role: string; onRefresh: () => Promise<void>; onClose: () => void }) {
   const governance = item.governance || {};
   const profile = governance.profile || {};
   const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
-  if (!governanceMode) return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
-    <div className="content-detail-grid"><div><span>Reference</span><b>{item.ref}</b></div><div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div><div><span>Current Version</span><b>{versionLabel(item.version)}</b></div><div><span>Status</span><StatusBadge value={item.owner_status} hasVersion={Boolean(item.version)} /></div><div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div></div>
-    <p className="detail-description">{item.description || "No description"}</p>
-    {item.owner_status === "Needs Review" && item.review_note && <p className="review-note"><b>Review note:</b> {item.review_note}</p>}
-    <div className="detail-purpose-list"><h3>Used In</h3><UsedInChips values={item.used_in} /></div>
-    <div className="detail-actions"><a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Open / Download current file</a><span>Version history is available from the Forms list.</span></div>
-  </Drawer>;
   return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <section className="form-governance-section"><h3>Overview</h3><div className="content-detail-grid">
+      <div><span>Reference</span><b>{item.ref}</b></div>
       <div><span>Category</span><b>{item.category?.label || "Uncategorized"}</b></div>
-      <div><span>Version</span><b>{versionLabel(item.version)}</b></div>
-      <div><span>Status</span><b>{friendlyStatus(item.version_status, Boolean(item.version))}</b></div>
+      <div><span>Current Version</span><b>{versionLabel(item.version)}</b></div>
+      <div><span>Status</span><StatusBadge value={item.owner_status || item.version_status} hasVersion={Boolean(item.version)} /></div>
       <div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div>
       <div><span>Artifact kind</span><b>{String(profile.artifact_kind || "UNKNOWN").replaceAll("_", " ")}</b></div>
       <div><span>Readiness</span><b>{readiness.state.replaceAll("_", " ")}</b></div>
-    </div><p className="detail-description">{item.description || "No description"}</p></section>
+    </div><p className="detail-description">{item.description || "No description"}</p>{item.owner_status === "Needs Review" && item.review_note && <p className="review-note"><b>Review note:</b> {item.review_note}</p>}</section>
     <section className="form-governance-section"><h3>Source &amp; Authority</h3><div className="content-detail-grid"><div><span>Ownership</span><b>{String(profile.content_ownership_class || "NEEDS_REVIEW").replaceAll("_", " ")}</b></div><div><span>Publisher / Origin</span><b>{profile.publisher_name || "Not recorded"}</b></div><div><span>Official Form No.</span><b>{profile.official_form_no || "Not recorded"}</b></div><div><span>Issue / Date</span><b>{[profile.official_issue_no, profile.official_issue_date].filter(Boolean).join(" · ") || "Not recorded"}</b></div><div><span>Language</span><b>{String(profile.language_profile || "OTHER").replaceAll("_", " ")}</b></div><div><span>Currentness</span><b>{String(profile.currentness_status || "UNVERIFIED").replaceAll("_", " ")}</b></div></div></section>
     <section className="form-governance-section"><h3>Quality &amp; Sensitivity</h3><p>{profile.sensitivity_flags?.length ? `Sensitive flags: ${profile.sensitivity_flags.join(", ")}` : "No sensitivity flags recorded."}</p>{(governance.quality_flags || []).map((flag: any) => <div className={`quality-flag quality-${String(flag.severity).toLowerCase()}`} key={flag.id}><b>{String(flag.code).replaceAll("_", " ")}</b><span>{flag.status} · {flag.description}</span></div>)}</section>
     <section className="form-governance-section"><h3>Source Sections</h3>{(governance.source_sections || []).length ? (governance.source_sections || []).map((section: any) => <div className="source-section-row" key={section.id}><b>{section.label}</b><span>{section.locator_type} {section.page_start ? `· p.${section.page_start}${section.page_end && section.page_end !== section.page_start ? `–${section.page_end}` : ""}` : ""} · exact version {section.document_version_id.slice(0, 8)}</span></div>) : <p>No exact source sections pinned.</p>}</section>

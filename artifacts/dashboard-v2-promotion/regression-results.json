@@ -1,0 +1,9 @@
+{
+  "POSTGRESQL_FULL_REGRESSION_PASS": 1,
+  "postgresql": {"passed": 236, "skipped": 6, "warnings": 2},
+  "FRONTEND_FULL_REGRESSION_PASS": 1,
+  "frontend_tests": {"passed": 37, "failed": 0},
+  "FRONTEND_BUILD_PASS": 1,
+  "CROSS_MODULE_REGRESSION_PASS": 1,
+  "focused_postgresql": {"passed": 39, "warnings": 1}
+}

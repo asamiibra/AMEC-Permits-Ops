@@ -1,0 +1,6 @@
+{
+  "status": "PENDING_COMMIT_AND_FRONTEND_DEPLOYMENT",
+  "final_tokens": [],
+  "required_remaining": ["commit", "push", "frontend_deploy", "vercel_frontend_backend_sha_parity", "production_browser_proof"],
+  "truthful_storage_tokens": ["VERCEL_MVP_RUNTIME_CERTIFIED", "VERCEL_MVP_SYNTHETIC_DOCUMENT_MODE_CERTIFIED", "REAL_DOCUMENT_STORAGE_CERTIFIED=0", "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"]
+}

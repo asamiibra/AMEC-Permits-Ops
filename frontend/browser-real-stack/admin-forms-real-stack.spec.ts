@@ -12,7 +12,7 @@ async function saveNewForm(page: import("@playwright/test").Page, ref: string, b
 }
 
 async function saveVersion(page: import("@playwright/test").Page, row: import("@playwright/test").Locator, body: string, reason: string) {
-  await row.getByRole("button", { name: "Edit" }).click();
+  await row.getByRole("button", { name: "Modify" }).click();
   await page.getByLabel("Why are you making this change?").fill(reason);
   await page.getByLabel("File").setInputFiles({ name: `${reason.replaceAll(" ", "-")}.txt`, mimeType: "text/plain", buffer: Buffer.from(body) });
   await page.getByRole("button", { name: "Save as New Version" }).click();
@@ -44,7 +44,7 @@ test("Administration Forms and Dashboard are two doors into one canonical librar
   await page.goto("/dashboard");
   const dashboardRow = page.getByRole("row").filter({ hasText: ref });
   await expect(dashboardRow).toContainText("Version 1");
-  await saveVersion(page, dashboardRow, "dashboard-v2", "Dashboard version two");
+  await saveVersion(page, dashboardRow, "dashboard-current", "Dashboard current version");
   await expect(page.getByRole("row").filter({ hasText: ref })).toContainText("Version 2");
 
   await page.goto("/admin/forms");
@@ -53,7 +53,7 @@ test("Administration Forms and Dashboard are two doors into one canonical librar
   await adminRow.getByRole("button", { name: "History" }).click();
   await expect(page.getByText("IMMUTABLE HISTORY")).toBeVisible();
   expect(await downloadHistoryVersion(page, 1)).toEqual(Buffer.from("admin-v1"));
-  expect(await downloadHistoryVersion(page, 0)).toEqual(Buffer.from("dashboard-v2"));
+  expect(await downloadHistoryVersion(page, 0)).toEqual(Buffer.from("dashboard-current"));
   await page.getByRole("dialog").getByLabel("Close").click();
 
   await saveVersion(page, adminRow, "admin-v3", "Administration version three");
@@ -66,7 +66,7 @@ test("Administration Forms and Dashboard are two doors into one canonical librar
   await expect(page.getByText("IMMUTABLE HISTORY")).toBeVisible();
   expect(await page.getByRole("link", { name: "Download" }).count()).toBe(3);
   expect(await downloadHistoryVersion(page, 2)).toEqual(Buffer.from("admin-v1"));
-  expect(await downloadHistoryVersion(page, 1)).toEqual(Buffer.from("dashboard-v2"));
+  expect(await downloadHistoryVersion(page, 1)).toEqual(Buffer.from("dashboard-current"));
 });
 
 test("Administration remains Owner-only for the Forms management surface", async ({ page }) => {

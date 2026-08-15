@@ -1,0 +1,4 @@
+{
+  "owner_required_capability_lost_count": 0,
+  "capabilities": {"forms": "PASS", "reports": "PASS", "engineering_works": "PASS", "definitions": "PASS", "inputs_go_live": "PASS", "governance": "PASS", "admin_parity": "PASS"}
+}

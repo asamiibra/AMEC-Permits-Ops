@@ -1,0 +1,6 @@
+{
+  "DASHBOARD_ADMIN_CANONICAL_PARITY_PASS": 1,
+  "same_projection": ["MasterContentItem.id", "Document.id", "current_document_version_id", "owner_status", "review_note", "used_in", "versions"],
+  "local_browser_tests": 2,
+  "postgres_tests": 39
+}

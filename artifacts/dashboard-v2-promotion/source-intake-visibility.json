@@ -1,0 +1,7 @@
+{
+  "SOURCE_INTAKE_PROMOTED_MASTER_VISIBLE_IN_DASHBOARD_PASS": 1,
+  "fixture_mode": "synthetic",
+  "source_reimported": false,
+  "promotion_path": ["SourceIntakeBatch", "SourceIntakeItem", "SourceIntakeService.promote_batch", "MasterContentItem", "DocumentVersion", "canonical Dashboard API"],
+  "tests": ["test_intake_reconciles_every_observation_and_promotes_only_master_rows", "test_reader_preserves_unicode_spaces_and_empty_folder_without_extraction"]
+}

@@ -1,12 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-test("Dashboard V2 exposes the canonical Waves B+C governance facade and detail surface", async ({ page, request }) => {
+test("Current Dashboard exposes the canonical Waves B+C governance facade and detail surface", async ({ page, request }) => {
   const owner = { "X-Dev-Role": "SYSTEM_ADMIN" };
-  const health = await request.get("/health");
+  const apiBase = process.env.API_BASE_URL || "";
+  const health = await request.get(`${apiBase}/health`);
   expect(health.ok()).toBeTruthy();
   const healthBody = await health.json();
   expect(healthBody.database_dialect).toBe("postgresql");
-  expect(healthBody.alembic_versions).toContain("0055_bd_proposal_final_hardening");
+  expect(healthBody.alembic_versions).toContain("0058_source_intake_ledger");
 
   const catalogs = await request.get("/api/dashboard-v2/catalogs", { headers: owner });
   expect(catalogs.ok()).toBeTruthy();
@@ -20,15 +21,15 @@ test("Dashboard V2 exposes the canonical Waves B+C governance facade and detail 
   const forms = await formsResponse.json();
   expect(Array.isArray(forms)).toBeTruthy();
 
-  await page.goto("/dashboard-v2");
-  await expect(page.getByRole("heading", { name: "Dashboard V2", level: 2 })).toBeVisible();
+  await page.goto("/dashboard");
+  await expect(page.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible();
   await expect(page.getByText("Advanced governance filters")).toBeVisible();
   await page.getByText("Advanced governance filters").click();
   await expect(page.getByLabel("External body")).toBeVisible();
   await expect(page.getByLabel("Automation readiness")).toBeVisible();
 
   if (forms.length) {
-    const formsSection = page.getByTestId("dashboard-v2-forms");
+    const formsSection = page.getByTestId("dashboard-forms");
     await formsSection.getByRole("button", { name: "Open" }).first().click();
     await expect(page.getByRole("heading", { name: "Regulatory applicability", level: 3 })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Policy and technical source lineage", level: 3 })).toBeVisible();

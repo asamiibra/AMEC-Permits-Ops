@@ -1,0 +1,8 @@
+{
+  "status": "PENDING_FRONTEND_PROMOTION_DEPLOYMENT",
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "backend_health": {"http": 200, "database": "postgresql", "migration": "0058_source_intake_ledger", "release_sha": "e3b488f122ea82b15e7572e8be375e165c3207c7"},
+  "pre_deployment_browser": {"dashboard_v2_redirect": "FAIL_STALE_FRONTEND", "current_dashboard_governance_surface": "FAIL_STALE_FRONTEND"},
+  "required_paths": ["Dashboard", "Forms", "Reports", "Engineering Works", "Definitions", "Open", "Modify", "History", "New Form", "New Version", "status", "Used In", "Inputs & Go-Live", "Administration Forms"]
+}

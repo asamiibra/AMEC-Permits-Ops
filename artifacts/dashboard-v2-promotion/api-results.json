@@ -1,0 +1,8 @@
+{
+  "DASHBOARD_UI_VERSION_BUSINESS_BRANCH_COUNT": 0,
+  "DUPLICATE_DASHBOARD_BUSINESS_PROJECTION_COUNT": 0,
+  "canonical_list": "/api/master-content",
+  "canonical_definitions": "/api/definitions",
+  "governance_facade": "/api/dashboard-v2",
+  "status": "LOCAL_PASS"
+}

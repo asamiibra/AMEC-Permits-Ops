@@ -1,0 +1,6 @@
+{
+  "DASHBOARD_CURRENT_AUDIT_PASS": 1,
+  "DASHBOARD_CURRENT_IMMUTABLE_VERSION_PASS": 1,
+  "audit_path": "existing canonical Master Content audit events",
+  "version_path": "DocumentVersion append-only history with current pointer advancement"
+}
