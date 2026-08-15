@@ -18,6 +18,10 @@ TABLES = (
     "engineering_deliverables",
     "engineering_deliverable_revisions",
     "engineering_renditions",
+    # ProjectEngineeringReview has this optional FK in the current model;
+    # create the taxonomy table here so upgrades from the deployed 0042
+    # schema do not depend on the later 0046 companion migration ordering.
+    "engineering_review_categories",
     "project_engineering_reviews",
     "engineering_review_findings",
     "engineering_professional_approvals",
