@@ -97,6 +97,7 @@ def engineering_references_for_proposal(db: Session, proposal: Opportunity) -> d
         .where(
             MasterContentItem.content_type == "ENGINEERING_WORK",
             MasterContentItem.status == "ACTIVE",
+            MasterContentItem.needs_review.is_(False),
             MasterContentModuleBinding.module == "ENGINEERING",
             MasterContentModuleBinding.active.is_(True),
             MasterContentModuleBinding.usage_type == "AVAILABLE",

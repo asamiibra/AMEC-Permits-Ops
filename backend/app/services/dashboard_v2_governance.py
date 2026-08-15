@@ -411,7 +411,7 @@ def resolve_automation(db: Session, *, external_body_id: str, jurisdiction_id: s
     for row in rows:
         item = db.get(MasterContentItem, row.master_content_item_id)
         profile = db.scalar(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item.id)) if item else None
-        if not item or not profile: continue
+        if not item or item.status != "ACTIVE" or item.needs_review or not profile: continue
         result = evaluate_automated_readiness(db, profile, actor=actor, persist=False)
         if result["state"] == "AUTOMATED_USE_READY":
             release = db.get(FormMappingRelease, result["mapping_release_id"])
