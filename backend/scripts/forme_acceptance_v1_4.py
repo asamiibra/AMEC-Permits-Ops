@@ -30,10 +30,12 @@ def main() -> int:
     os.environ["STORAGE_PROVIDER"] = "mock"
 
     from backend.app.db import SessionLocal
-    from backend.app.models import SourceIntakeItem
+    from backend.app.models import SourceIntakeItem, MasterContentItem, DocumentVersion
     from backend.app.seed.cli import seed
     from backend.app.services.source_intake import SourceIntakeService
     from backend.app.config.settings import get_settings
+    from backend.app.services.master_content import resolve_master_content_purpose
+    from sqlalchemy import select, func
     from sqlalchemy import select
 
     seed()
@@ -43,7 +45,22 @@ def main() -> int:
         service = SourceIntakeService(db, actor="forme-acceptance-v1.4")
         batch = service.ingest_zip(payload, source_display_name=archive_path.name, source_location_reference=str(archive_path.resolve()))
         counts = service.promote_batch(batch, payload, manifest)
+        master_ids_before = set(db.scalars(select(MasterContentItem.id)).all())
+        version_count_before = db.scalar(select(func.count(DocumentVersion.id)))
+        rerun_counts = service.promote_batch(batch, payload, manifest)
+        master_ids_after = set(db.scalars(select(MasterContentItem.id)).all())
+        version_count_after = db.scalar(select(func.count(DocumentVersion.id)))
         rows = db.scalars(select(SourceIntakeItem).where(SourceIntakeItem.batch_id == batch.id)).all()
+        promoted_rows = [row for row in rows if row.disposition in {"PROMOTE_MASTER_CURRENT", "PROMOTE_MASTER_NEEDS_REVIEW"}]
+        verified_managed_count = 0
+        for row in promoted_rows:
+            version = db.get(DocumentVersion, row.target_document_version_id)
+            item = db.get(MasterContentItem, row.target_master_content_id)
+            if item and version and version.source_path_or_reference.startswith("storage://") and version.sha256 == row.sha256 and version.file_size == row.size_bytes:
+                verified_managed_count += 1
+        needs_review_ids = {row.target_master_content_id for row in rows if row.disposition == "PROMOTE_MASTER_NEEDS_REVIEW"}
+        resolver = resolve_master_content_purpose(db, module="PERMIT", usage_type="AVAILABLE")
+        resolver_ids = {candidate["id"] for candidate in resolver["candidates"]}
         result = {
             "status": "PASS" if batch.status == "COMPLETED" and len(rows) == 24 else "FAIL",
             "token": "FORME_PACKAGE_DISPOSITION_VERIFIED_LOCAL",
@@ -56,6 +73,10 @@ def main() -> int:
             "promoted_needs_review": sum(1 for row in rows if row.disposition == "PROMOTE_MASTER_NEEDS_REVIEW" and row.promotion_status == "PUBLISHED"),
             "blocked_ambiguous": sum(1 for row in rows if row.disposition == "BLOCKED_AMBIGUOUS"),
             "source_gaps": sum(1 for row in rows if row.disposition == "SOURCE_GAP"),
+            "verified_managed_promotions": verified_managed_count,
+            "rerun_counts": rerun_counts,
+            "rerun_business_idempotency": master_ids_before == master_ids_after and version_count_before == version_count_after,
+            "needs_review_resolver_exclusion": not (needs_review_ids & resolver_ids),
             "no_source_move": True,
             "evidence_scope": "local archive + local Samba storage lab only; not Synology/Owner/production",
         }

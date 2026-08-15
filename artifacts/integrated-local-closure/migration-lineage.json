@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "zero_to_head": true,
+  "upgrade_from_0057_to_head": true,
+  "head": "0058_source_intake_ledger",
+  "database": "fresh PostgreSQL closure database",
+  "no_new_migration_required": true
+}

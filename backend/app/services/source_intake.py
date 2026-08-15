@@ -11,12 +11,14 @@ from uuid import uuid4
 
 from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..models import SourceIntakeBatch, SourceIntakeItem
 from ..storage.archive import ArchiveEntryObservation, BoundedZipReader
 from ..storage.external import StableSourceRead
 from .master_content import create_master_content
+from ..storage.failpoints import hard_kill_if_requested
 
 DISPOSITIONS = {
     "PROMOTE_MASTER_CURRENT",
@@ -64,8 +66,15 @@ class SourceIntakeService:
             if not any(path.startswith(prefix) for path in file_paths):
                 effective.append(observation)
         batch = SourceIntakeBatch(source_kind="ZIP", source_display_name=source_display_name, source_archive_hash=digest, source_location_reference=source_location_reference, received_by=self.actor, status="DISCOVERED", item_count_discovered=len(effective), empty_folder_count_observed=sum(1 for o in effective if o.is_dir), metadata_json={"archive_entry_count": len(observations)})
-        self.db.add(batch)
-        self.db.flush()
+        try:
+            with self.db.begin_nested():
+                self.db.add(batch)
+                self.db.flush()
+        except IntegrityError:
+            existing = self.db.scalar(select(SourceIntakeBatch).where(SourceIntakeBatch.source_archive_hash == digest, SourceIntakeBatch.source_location_reference == source_location_reference))
+            if existing:
+                return existing
+            raise
         for observation in effective:
             self.db.add(SourceIntakeItem(batch_id=batch.id, source_ordinal=observation.ordinal, original_relative_path=observation.original_relative_path, original_filename=Path(observation.normalized_safe_path).name if not observation.is_dir else None, normalized_safe_path=observation.normalized_safe_path, size_bytes=observation.size_bytes, sha256=observation.sha256, media_type=observation.media_type, source_locator=f"archive://{digest}/{observation.normalized_safe_path}", disposition="SOURCE_GAP" if observation.is_dir else None, promotion_status="DISPOSITIONED" if observation.is_dir else "NOT_STARTED", metadata_json={"is_directory": observation.is_dir}))
         batch.status = "DISCOVERED"
@@ -106,11 +115,18 @@ class SourceIntakeService:
         if hashlib.sha256(payload).hexdigest() != batch.source_archive_hash:
             raise ValueError("source archive hash does not match intake batch")
         self.apply_manifest(batch, manifest)
+        hard_kill_if_requested("SOURCE_ITEM_DURABLE_BEFORE_PROMOTION")
         reader = BoundedZipReader(payload)
         by_path = {_path_key(o.normalized_safe_path): o for o in reader.observations_with_hashes() if not o.is_dir}
         counts: dict[str, int] = {}
-        rows = self.db.scalars(select(SourceIntakeItem).where(SourceIntakeItem.batch_id == batch.id).order_by(SourceIntakeItem.source_ordinal)).all()
-        for row in rows:
+        row_ids = self.db.scalars(select(SourceIntakeItem.id).where(SourceIntakeItem.batch_id == batch.id).order_by(SourceIntakeItem.source_ordinal)).all()
+        for row_id in row_ids:
+            # PostgreSQL row locking is the correctness mechanism for two
+            # independent workers racing the same source item. SQLite keeps
+            # the same code path for secondary tests, where the lock is a no-op.
+            row = self.db.scalar(select(SourceIntakeItem).where(SourceIntakeItem.id == row_id).with_for_update())
+            if not row:
+                continue
             disposition = row.disposition
             if disposition in {"SOURCE_GAP", "TRANSACTIONAL_OR_HISTORICAL_SOURCE", "REFERENCE_ONLY", "BLOCKED_AMBIGUOUS"}:
                 row.promotion_status = "HELD" if disposition != "SOURCE_GAP" else "DISPOSITIONED"
@@ -131,6 +147,7 @@ class SourceIntakeService:
             result = create_master_content(self.db, content_type=_content_type(metadata), ref=None, title=_safe_title(row.normalized_safe_path), category_id=None, description=metadata.get("category"), filename=row.original_filename or "source.bin", mime_type=observation.media_type or "application/octet-stream", content=content, actor=self.actor, idempotency_key=f"source-intake:{row.id}", correlation_id=f"source-intake:{batch.id}:{row.id}", source_surface="SOURCE_INTAKE_V1_4", used_in=["PERMIT", "ENGINEERING"] if _content_type(metadata) == "FORM" else ["REPORTS"], engineering_metadata={"source_intake_batch_id": batch.id, "source_intake_item_id": row.id, "original_relative_path": row.original_relative_path}, needs_review=disposition == "PROMOTE_MASTER_NEEDS_REVIEW", review_note=row.disposition_reason if disposition == "PROMOTE_MASTER_NEEDS_REVIEW" else None)
             row.target_master_content_id = result["id"]
             row.target_document_version_id = result.get("current_version_id")
+            hard_kill_if_requested("OUTBOX_DURABLE_BEFORE_SOURCE_ITEM_FINAL")
             row.promotion_status = "PUBLISHED"
             counts[disposition] = counts.get(disposition, 0) + 1
             self.db.flush()

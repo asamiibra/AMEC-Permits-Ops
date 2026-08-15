@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "local_evidence_gates_passed": true,
+  "real_synology_verification": "blocked_external",
+  "production_or_owner_acceptance": "not_claimed"
+}

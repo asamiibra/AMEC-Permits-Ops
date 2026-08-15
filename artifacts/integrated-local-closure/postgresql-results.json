@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "backend_full_regression": "236 passed, 6 skipped, 2 warnings",
+  "fresh_database_migrations": true,
+  "multi_process_database": "PostgreSQL",
+  "transactional_outbox_claiming": true
+}

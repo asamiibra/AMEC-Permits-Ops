@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "dashboard_forms": 15,
+  "forme_rows": 14,
+  "forme_current": 7,
+  "forme_needs_review": 7,
+  "administration_forms": 15,
+  "dashboard_admin_same_canonical_library": true,
+  "dashboard_v2_navigation_only_hidden": true,
+  "technical_storage_ui_visible_count": 0,
+  "hash_ui_visible_count": 0,
+  "storage_locator_ui_visible_count": 0,
+  "current_row_open_download_verified": true,
+  "needs_review_row_open_download_review_note_verified": true,
+  "immutable_history_version_download_verified": true
+}

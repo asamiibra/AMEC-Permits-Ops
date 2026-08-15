@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "provider": "smb",
+  "endpoint_scope": "live local Samba storage lab",
+  "document_storage_contract": "12 passed",
+  "signing_required": true,
+  "path_security_verified": true,
+  "no_real_synology_claim": true
+}

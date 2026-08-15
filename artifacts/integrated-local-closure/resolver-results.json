@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "needs_review_ids_in_permit_available_resolver": [],
+  "fresh_forme_needs_review_resolver_exclusion": true,
+  "canonical_current_resolver_regression": true,
+  "proposal_template_checklist_contract_regression": true,
+  "fresh_forme_rows_do_not_auto_bind_unrelated_consumer_purposes": true,
+  "duplicate_consumer_bindings": 0
+}

@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "database": "fresh PostgreSQL closure database",
+  "storage_backend": "live Samba storage lab",
+  "os_processes": true,
+  "sigkill_boundaries_passed": 5,
+  "visible_unverified_versions": 0,
+  "duplicate_document_versions": 0,
+  "duplicate_current_pointers": 0,
+  "lost_outbox_events": 0,
+  "source_mutations": 0,
+  "untracked_orphans": 0,
+  "post_commit_outbox_pending_after_kill": true,
+  "post_commit_outbox_delivered_after_restart": true,
+  "redelivery_effect_idempotent": true,
+  "tokens": [
+    "SOURCE_PROMOTION_REAL_PROCESS_CRASH_RECOVERY_PASS",
+    "OUTBOX_POST_COMMIT_PROCESS_CRASH_RECOVERY_PASS",
+    "EXTRACTION_OR_DOWNSTREAM_REDELIVERY_IDEMPOTENCY_PASS"
+  ]
+}

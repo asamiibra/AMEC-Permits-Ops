@@ -17,6 +17,7 @@ from ..models.base import utcnow
 from .errors import StorageError, StorageErrorCode
 from .path_policy import normalize_filename, normalize_relative_path
 from .port import BinaryStorePort, StorageLocator, StorageTarget
+from .failpoints import hard_kill_if_requested
 
 
 @dataclass(frozen=True)
@@ -80,7 +81,10 @@ class DocumentStorageService:
         if hasattr(stream, "seek"):
             stream.seek(stream_position)
         operation_key = idempotency_key or f"{document.id}:{digest}:{safe_filename}"
-        prior_operation = db.scalar(select(StorageOperation).where(StorageOperation.idempotency_key == operation_key))
+        # Serialize concurrent retries of one logical operation on PostgreSQL.
+        # The winner holds this row lock through finalization/publication; a
+        # follower then observes PUBLISHED and returns the canonical version.
+        prior_operation = db.scalar(select(StorageOperation).where(StorageOperation.idempotency_key == operation_key).with_for_update())
         if prior_operation and prior_operation.state == "PUBLISHED" and prior_operation.document_version_id:
             prior_version = db.get(DocumentVersion, prior_operation.document_version_id)
             if prior_version:
@@ -101,6 +105,7 @@ class DocumentStorageService:
         )
         db.add(operation)
         db.flush()
+        hard_kill_if_requested("STORAGE_OPERATION_RESERVED")
         operation.attempt_count += 1
         operation.state = "WRITING"
         operation.lease_expires_at = utcnow() + timedelta(minutes=15)
@@ -113,6 +118,7 @@ class DocumentStorageService:
             operation.temporary_locator = temporary.locator.serialized()
             operation.state = "READBACK_VERIFYING"
             db.flush()
+            hard_kill_if_requested("TEMP_WRITE_COMPLETED")
 
             with self.store.open_read(temporary.locator) as readback:
                 read_size, read_digest = self._hash_stream(readback)
@@ -123,12 +129,15 @@ class DocumentStorageService:
                 db.flush()
                 raise StorageError(StorageErrorCode.INTEGRITY_MISMATCH, "Storage read-back verification failed")
 
+            hard_kill_if_requested("READBACK_VERIFIED")
+
             operation.state = "FINALIZING"
             db.flush()
             locator = self.store.finalize(temporary, final_target)
             operation.state = "STORAGE_VERIFIED"
             operation.temporary_locator = None
             db.flush()
+            hard_kill_if_requested("FINAL_BINARY_EXISTS")
 
             with self.store.open_read(locator) as final_readback:
                 final_size, final_digest = self._hash_stream(final_readback)
@@ -175,6 +184,7 @@ class DocumentStorageService:
             outbox_key = f"DocumentVersionStored:{version.id}"
             if not db.scalar(select(StorageOutboxEvent).where(StorageOutboxEvent.event_key == outbox_key)):
                 db.add(StorageOutboxEvent(event_key=outbox_key, event_type="DocumentVersionStored", aggregate_type="DocumentVersion", aggregate_id=version.id, payload_json={"document_id": document.id, "document_version_id": version.id, "sha256": digest, "storage_locator": locator.serialized()}))
+            hard_kill_if_requested("DB_PUBLISH_BEFORE_COMMIT")
             operation.state = "PUBLISHED"
             operation.completed_at = utcnow()
             operation.lease_expires_at = None

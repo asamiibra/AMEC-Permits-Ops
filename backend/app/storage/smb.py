@@ -237,6 +237,18 @@ class SMBBinaryStore(BinaryStorePort):
             parent = final_target.relative_path.rsplit("/", 1)[0]
             if parent:
                 self._client().makedirs(self._unc(parent), exist_ok=True, **self._session_kwargs())
+            try:
+                existing = self.stat(self._locator(final_target.relative_path))
+                if existing.size == temporary.expected_size:
+                    with self.open_read(existing.locator) as stream:
+                        digest = hashlib.sha256(stream.read()).hexdigest()
+                    if digest == temporary.expected_sha256:
+                        self.cleanup_temporary(temporary)
+                        return existing.locator
+                raise StorageError(StorageErrorCode.CONFLICT, "The immutable final object already exists with different bytes")
+            except StorageError as existing_error:
+                if existing_error.code != StorageErrorCode.OBJECT_NOT_FOUND:
+                    raise
             # smbclient.rename exposes ReplaceIfExists=false as the safe
             # default. Never fall back to an overwrite disposition.
             # smbclient.rename hard-codes replace_if_exists=False; do not

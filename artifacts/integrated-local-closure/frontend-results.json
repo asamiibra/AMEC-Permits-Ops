@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "frontend_tests": "38 passed",
+  "frontend_build": "passed",
+  "known_non_blocking_warning": "existing Vite chunk-size warning"
+}

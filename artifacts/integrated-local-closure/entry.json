@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "branch": "branch/owner-form-simple-dashboard",
+  "entry_commit": "1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb",
+  "dashboard_commit_ancestor": "076d834d8ab41049081b3f0481aaaadad4e30e75",
+  "storage_commit_ancestor": "1728bfc70fe3a9fea2a11460c4a1a7217f5a7cfb",
+  "migration_head": "0058_source_intake_ledger",
+  "excel_fixture": {
+    "path": "mock-systems/excel/permit_tracker.xlsx",
+    "entry_sha256": "77993ccda1e0a2cb08e023b4332ea832c4b9b24049f7c2fdd71c395d02ffee80",
+    "staged": false,
+    "semantic_fixture_values_preserved": true
+  }
+}

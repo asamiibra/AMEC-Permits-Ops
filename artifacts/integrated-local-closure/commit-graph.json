@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "linear_entry": [
+    "1728bfc Add v1.4 source intake reconciliation and Samba roles",
+    "076d834 Exclude reviewed masters from consumer resolvers",
+    "a77b11c Certify SMB storage integration lab",
+    "227d91d Simplify Owner Forms dashboard and harden storage seam"
+  ],
+  "origin_matched_entry_at_start": true,
+  "no_unrelated_merge_or_reset": true
+}

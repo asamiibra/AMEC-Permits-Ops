@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "token": "FORME_PACKAGE_DISPOSITION_VERIFIED_LOCAL",
+  "archive_sha256": "98ef79581a55e0207d83bfff9788c2eaa3b83d125e78da4bbdeeede22ebcf475",
+  "source_display_name": "FORME.zip",
+  "item_count": 24,
+  "counts": {
+    "PROMOTE_MASTER_CURRENT": 7,
+    "TRANSACTIONAL_OR_HISTORICAL_SOURCE": 6,
+    "PROMOTE_MASTER_NEEDS_REVIEW": 7,
+    "BLOCKED_AMBIGUOUS": 2,
+    "SOURCE_GAP": 1,
+    "REFERENCE_ONLY": 1
+  },
+  "verified_managed_promotions": 14,
+  "rerun_business_idempotency": true,
+  "needs_review_resolver_exclusion": true,
+  "no_source_move": true,
+  "evidence_scope": "local archive + local Samba storage lab only; not Synology/Owner/production"
+}

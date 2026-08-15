@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "browser": "Codex In-app Browser",
+  "routes": ["/dashboard", "Administration > Setup & Controls > Forms"],
+  "dashboard_and_admin_parity": true,
+  "current_and_needs_review_rows_verified": true,
+  "review_note_verified": true,
+  "history_dialog_verified": true,
+  "technical_storage_ui_visible_count": 0,
+  "dashboard_v2_visible_count": 0
+}

@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "same_batch_rerun_counts": true,
+  "same_master_content_ids": true,
+  "same_document_version_count": true,
+  "duplicate_document_versions": 0,
+  "source_item_mutations": 0
+}

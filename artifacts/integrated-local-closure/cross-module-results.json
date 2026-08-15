@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "source_intake_to_master_content": true,
+  "master_content_to_document_version": true,
+  "document_version_to_smb_storage": true,
+  "dashboard_and_admin_consume_same_canonical_records": true,
+  "consumer_resolver_excludes_needs_review": true,
+  "no_raw_forme_source_committed": true
+}

@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "processes": 2,
+  "database": "fresh PostgreSQL closure database",
+  "storage_backend": "live Samba storage lab",
+  "same_intake_request_batch_count": 1,
+  "same_item_canonical_master_count": 1,
+  "same_item_outbox_count": 1,
+  "duplicate_master_count": 0,
+  "immutable_target_overwrite_count": 0,
+  "lost_outbox_event_count": 0,
+  "process_local_lock_required_count": 0,
+  "outbox_single_claim": 1,
+  "recovery_single_claim": 1,
+  "tokens": [
+    "SOURCE_INTAKE_MULTI_PROCESS_PASS",
+    "SOURCE_PROMOTION_MULTI_PROCESS_PASS",
+    "STORAGE_FINALIZATION_MULTI_PROCESS_PASS",
+    "OUTBOX_MULTI_PROCESS_CLAIM_PASS",
+    "RECOVERY_MULTI_PROCESS_CLAIM_PASS"
+  ]
+}
