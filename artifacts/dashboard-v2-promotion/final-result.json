@@ -1,6 +1,12 @@
 {
-  "status": "PENDING_COMMIT_AND_FRONTEND_DEPLOYMENT",
-  "final_tokens": [],
-  "required_remaining": ["commit", "push", "frontend_deploy", "vercel_frontend_backend_sha_parity", "production_browser_proof"],
+  "status": "PASS",
+  "final_tokens": ["DASHBOARD_V2_PROMOTED_TO_CANONICAL_DASHBOARD_PASS", "DASHBOARD_V1_RUNTIME_RETIRED_PASS", "SINGLE_OWNER_DASHBOARD_PASS", "VERCEL_MVP_RUNTIME_CERTIFIED", "VERCEL_MVP_SYNTHETIC_DOCUMENT_MODE_CERTIFIED", "VERCEL_MVP_AWS_PORTABILITY_PASS", "REAL_DOCUMENT_STORAGE_CERTIFIED=0", "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"],
+  "required_remaining": [],
+  "commit": "cfc5374b6183aba5c6522963789652ecc022763a",
+  "branch": "branch/owner-form-simple-dashboard",
+  "remote_branch_sha": "cfc5374b6183aba5c6522963789652ecc022763a",
+  "frontend_deployment_id": "dpl_H9Gooem8qoBy1iX7zpPG4b4A29mL",
+  "backend_deployment_id": "dpl_He86XRGUjR7F1MFFpNNHYhN9LQGX",
+  "production_browser": {"passed": 6, "failed": 0},
   "truthful_storage_tokens": ["VERCEL_MVP_RUNTIME_CERTIFIED", "VERCEL_MVP_SYNTHETIC_DOCUMENT_MODE_CERTIFIED", "REAL_DOCUMENT_STORAGE_CERTIFIED=0", "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"]
 }

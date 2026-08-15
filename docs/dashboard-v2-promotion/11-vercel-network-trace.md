@@ -1,10 +1,11 @@
 # Vercel Network Trace
 
-Production backend probe before frontend deployment:
+Production backend and frontend trace after the final deployment:
 
 - Frontend: `https://amec-permits-ops.vercel.app`
 - Backend: `https://amec-permits-ops-backend.vercel.app`
-- Backend health: PostgreSQL, migration `0058_source_intake_ledger`, release SHA `e3b488f122ea82b15e7572e8be375e165c3207c7`.
-- Frontend browser trace before deployment: failed the new redirect/current-surface assertions, proving the deployed frontend was stale.
+- Backend health: HTTP 200, PostgreSQL, durable database, migration `0058_source_intake_ledger`, release SHA `cfc5374b6183aba5c6522963789652ecc022763a`, build `dpl_He86XRGUjR7F1MFFpNNHYhN9LQGX`.
+- Production API probes returned HTTP 200 for health, canonical Master Content Forms, governance catalogs/forms, Definitions, Inputs, AMEC Work, Projects, and Applications.
+- Production browser acceptance passed all 6 promotion tests after deployment. The pre-deployment stale-frontend failures remain recorded as historical evidence.
 
-The post-deployment trace is written to `artifacts/dashboard-v2-promotion/vercel-network-trace.json` only after the promoted frontend is actually deployed and probed.
+The full structured trace is in `artifacts/dashboard-v2-promotion/vercel-network-trace.json`.

@@ -8,5 +8,8 @@
   "DASHBOARD_V2_COMPAT_REDIRECT_PASS": 1,
   "LEGACY_DASHBOARD_V2_URL_COMPATIBILITY_PASS": 1,
   "OWNER_VISIBLE_DASHBOARD_VERSION_LABEL_COUNT": 0,
-  "status": "LOCAL_PASS_PRODUCTION_FRONTEND_PENDING"
+  "status": "LOCAL_AND_PRODUCTION_PASS",
+  "production_browser_tests": 6,
+  "production_frontend": "https://amec-permits-ops.vercel.app",
+  "production_backend": "https://amec-permits-ops-backend.vercel.app"
 }

@@ -1,8 +1,13 @@
 {
-  "status": "PENDING_FRONTEND_PROMOTION_DEPLOYMENT",
+  "status": "PASS",
   "frontend": "https://amec-permits-ops.vercel.app",
   "backend": "https://amec-permits-ops-backend.vercel.app",
-  "backend_health": {"http": 200, "database": "postgresql", "migration": "0058_source_intake_ledger", "release_sha": "e3b488f122ea82b15e7572e8be375e165c3207c7"},
+  "backend_health": {"http": 200, "database": "postgresql", "migration": "0058_source_intake_ledger", "release_sha": "cfc5374b6183aba5c6522963789652ecc022763a", "build_id": "dpl_He86XRGUjR7F1MFFpNNHYhN9LQGX", "durable": true, "sqlite_fallback_active": false},
+  "production_api_http_200": ["/health", "/api/master-content?content_type=FORM", "/api/dashboard-v2/catalogs", "/api/dashboard-v2/forms", "/api/definitions", "/api/dashboard-inputs", "/api/work", "/api/projects", "/api/applications"],
   "pre_deployment_browser": {"dashboard_v2_redirect": "FAIL_STALE_FRONTEND", "current_dashboard_governance_surface": "FAIL_STALE_FRONTEND"},
+  "post_deployment_browser": {"tests": 6, "passed": 6, "failed": 0},
+  "frontend_deployment_id": "dpl_H9Gooem8qoBy1iX7zpPG4b4A29mL",
+  "backend_deployment_id": "dpl_He86XRGUjR7F1MFFpNNHYhN9LQGX",
+  "source_parity": "PASS: both production deployments were uploaded from pushed commit cfc5374b6183aba5c6522963789652ecc022763a; backend health exposes the same release SHA",
   "required_paths": ["Dashboard", "Forms", "Reports", "Engineering Works", "Definitions", "Open", "Modify", "History", "New Form", "New Version", "status", "Used In", "Inputs & Go-Live", "Administration Forms"]
 }
