@@ -1,0 +1,14 @@
+{
+  "base_url": "http://127.0.0.1:5179",
+  "register_route": "/opportunities",
+  "visible_counts": {"ALL": 2, "NEED_ACTION": 2, "AUTHORITY_REVIEW": 0, "READY_CLOSE": 0},
+  "visible_rows": ["Engineering Preparation", "Contract Handoff"],
+  "client_search": "Synthetic Client Holdings",
+  "stage_filter": "CONTRACT_HANDOVER",
+  "stage_filter_row_visible": true,
+  "ready_close_empty_state_is_governed": true,
+  "detail_route_rendered": true,
+  "owner_error_visible": false,
+  "clean_tab_error_or_warning_logs": [],
+  "playwright_real_stack_tests": {"passed": 11, "failed": 0}
+}

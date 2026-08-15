@@ -1,0 +1,14 @@
+{
+  "sqlite_backend": {"passed": 207, "skipped": 8, "failed": 0, "warnings": 2},
+  "postgresql_backend": {"passed": 215, "failed": 0, "errors": 0, "warnings": 2},
+  "frontend_unit": {"test_files": 13, "tests": 38, "passed": 38, "failed": 0},
+  "frontend_build": {"passed": true, "failures": 0},
+  "browser_real_stack": {"tests": 11, "passed": 11, "failed": 0},
+  "forms_v2_regression": 0,
+  "proposal_detail_safe_recovery_regression": 0,
+  "dashboard_lineage_regression": 0,
+  "reference_allocation_regression": 0,
+  "accept_review_regression": 0,
+  "admin_smoke_regression": 0,
+  "console_unhandled_errors": 0
+}

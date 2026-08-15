@@ -1,0 +1,13 @@
+{
+  "predicate_source": "backend.app.api.bd_proposal_routers._register_predicate",
+  "row_and_count_source_is_shared": true,
+  "search_inputs": ["q", "client", "activity", "location", "stage", "lane"],
+  "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"],
+  "lanes": {
+    "ALL": "all rows after search and stage predicates",
+    "NEED_ACTION": "owner_lane.memberships contains NEED_ACTION",
+    "AUTHORITY_REVIEW": "owner_lane.memberships contains AUTHORITY_REVIEW",
+    "READY_CLOSE": "owner_lane.memberships contains READY_CLOSE"
+  },
+  "empty_state_rule": "empty records are rendered only after a valid response and active predicates; transport or contract failure is an error"
+}

@@ -1,0 +1,9 @@
+{
+  "code": "PROPOSAL_REGISTER_CONTRACT_INVALID",
+  "first_invalid_path": "response.items[0].client",
+  "reproduction_payload": {"items": [{"id": "proposal-1"}], "lane_counts": {"ALL": 1}},
+  "previous_owner_surface": "PROPOSAL_REGISTER_CONTRACT_INVALID",
+  "current_owner_surface": "We couldn't load the Proposal Register. Please retry.",
+  "technical_diagnostic_location": "browser console only",
+  "retry_behavior": "clear rows and counts, refetch, restore valid rows and counts"
+}

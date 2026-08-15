@@ -1,0 +1,8 @@
+{
+  "database": "proposal_register_contract_regression_20260815",
+  "migration_head": "0055_bd_proposal_final_hardening",
+  "full_backend_suite": {"passed": 215, "failed": 0, "errors": 0, "warnings": 2, "duration_seconds": 40.79},
+  "focused_register_contract": "passed",
+  "admin_contract_owner_session": "passed",
+  "synthetic_only": true
+}

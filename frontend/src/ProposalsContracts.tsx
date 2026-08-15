@@ -19,6 +19,7 @@ const sourceActions: Array<{ key: ActionKey; label: string; helper: string; sema
 const kpiOrder = ["OPEN_PROPOSALS", "OPEN_CONTRACTS", "PROPOSAL_HANDOVER", "CONTRACT_HANDOVER", "PROPOSALS_IN_PROCESS", "CONTRACTS_IN_PROCESS"];
 const roleLabels: Record<Persona, string> = { SYSTEM_ADMIN: "Owner", COMMERCIAL_APPROVER: "Business Development", RESPONSIBLE_ENGINEER: "Engineering" };
 const issuePersona = (persona: Persona): IssuePersona => persona === "COMMERCIAL_APPROVER" ? "BUSINESS_DEVELOPMENT" : persona === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : "OWNER";
+const REGISTER_OWNER_ERROR = "We couldn't load the Proposal Register. Please retry.";
 
 const proposalRowFields = ["id", "record_type", "proposal_id", "contract_id", "proposal_description", "project_id", "project_reference", "project_name", "proposal_status", "contract_status", "current_stage", "status", "amount", "last_activity", "source_count", "source_types", "reference_state", "proposal_fields", "next_action", "allowed_actions", "related_contract_id", "contract_action_eligible", "contract_action_label", "permit_application_id"];
 const contractRowFields = ["id", "record_type", "contract_description", "contract_reference", "status", "contract_status", "related_proposal_id", "proposal_id", "related_proposal", "project_id", "project_reference", "project_name", "amount", "proposal_amount", "contract_amount", "last_activity", "end_date", "permit_count", "permit_id", "permit_application_id", "permit_action_eligible", "permit_action_label", "permit_action", "proposal_status", "next_action"];
@@ -74,7 +75,7 @@ export function ProposalsContractsPage({ projects, persona, openRecord }: { proj
   const load = () => {
     setLoading(true);
     setDataError("");
-    return api<unknown>(`/api/proposals-main?persona=${persona}&view=${view}`).then(validateProposalsMainPayload).then(setData).catch((error) => { setData(null); setDataError(error instanceof Error ? error.message : "The register response could not be validated."); }).finally(() => setLoading(false));
+    return api<unknown>(`/api/proposals-main?persona=${persona}&view=${view}`).then(validateProposalsMainPayload).then(setData).catch((error) => { const technical = error instanceof Error ? error.message : String(error || "The register response could not be validated."); console.info("Proposal Register contract diagnostic", { code: "PROPOSAL_REGISTER_CONTRACT_INVALID", technical_message: technical, endpoint: "/api/proposals-main", view }); setData(null); setDataError(REGISTER_OWNER_ERROR); }).finally(() => setLoading(false));
   };
   useEffect(() => { void load(); }, [persona, view]);
   const navigateRoute = (route: string) => { window.history.pushState({}, "", route); window.dispatchEvent(new PopStateEvent("popstate")); };

@@ -1,0 +1,12 @@
+{
+  "endpoint": "GET /api/bd/proposals",
+  "response_model": "ProposalRegisterResponse",
+  "row_model": "ProposalRegisterRow",
+  "predicate_version": "bd-proposal-register-v2",
+  "top_level_required": ["items", "rows", "count", "lane_counts", "lane_options", "predicate_version", "filters", "stage_options", "amount_source", "last_activity_source", "search_fields", "synthetic_only"],
+  "row_required": ["id", "proposal_reference", "proposal", "project_ref", "client", "activity", "stage", "stage_code", "amount", "last_activity", "location", "current_owner", "next_action", "owner_lane", "contract_eligible", "validation"],
+  "nullable_fields": ["project_ref", "amount", "last_activity", "location"],
+  "compatibility_invariant": "rows equals items",
+  "strict_frontend_validation": true,
+  "fake_success_empty_state_allowed": false
+}

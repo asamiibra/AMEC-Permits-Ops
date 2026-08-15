@@ -1,0 +1,18 @@
+{
+  "valid_stage_codes": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"],
+  "stage_labels": {
+    "RECEIVED": "Intake & Sources",
+    "IN_REVIEW": "Intake & Sources",
+    "PROPOSAL_PREPARATION": "Engineering Preparation",
+    "PROPOSAL_HANDOVER": "Commercial Review",
+    "READY_FOR_QUOTATION": "Ready for Quotation",
+    "COMMERCIAL_REVIEW": "Commercial Review",
+    "QUOTATION_IN_PROGRESS": "Quotation in Progress",
+    "CLIENT_RESPONSE_PENDING": "Client Response",
+    "ACCEPTED": "Contract Handoff",
+    "CONTRACT_HANDOVER": "Contract Handoff",
+    "CLOSED": "Closed"
+  },
+  "next_action_codes": ["PROCEED", "OPEN_PREPARATION", "CREATE_CONTRACT", "VIEW_CONTRACT", "OPEN_PROPOSAL"],
+  "projection_source": "backend.app.services.proposal_workspace.proposal_projection"
+}

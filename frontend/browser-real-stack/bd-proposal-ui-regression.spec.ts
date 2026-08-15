@@ -56,3 +56,17 @@ test("New Proposal source cards select and render every source-specific panel", 
   }
   expect(await page.locator("button[aria-pressed=\"true\"]").count()).toBe(1);
 });
+
+test("Proposal register filters preserve the typed response and rows", async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem("proposalops-role", "SYSTEM_ADMIN"));
+  await page.goto("/opportunities");
+  await expect(page.getByRole("heading", { name: "Proposal Register", level: 2 })).toBeVisible();
+  await page.getByLabel("Search proposals by client").fill("Synthetic Client Holdings");
+  await expect(page.getByRole("button", { name: "Open →" }).first()).toBeVisible();
+  await page.getByLabel("Filter stage").selectOption("CONTRACT_HANDOVER");
+  await expect(page.getByRole("button", { name: "Open →" }).first()).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Contract Handoff", exact: true })).toBeVisible();
+  await page.getByRole("tab", { name: /Ready \/ Close/ }).click();
+  await expect(page.getByText("No Proposal records match the current filter.", { exact: false })).toBeVisible();
+  await expect(page.getByText("We couldn't load the Proposal Register", { exact: false })).toHaveCount(0);
+});

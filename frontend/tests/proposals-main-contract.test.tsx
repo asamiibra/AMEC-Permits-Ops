@@ -39,6 +39,8 @@ describe("Proposals & Contracts response contract", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<ProposalsContractsPage projects={[]} persona="SYSTEM_ADMIN" openRecord={vi.fn()} />);
     expect(await screen.findByRole("heading", { name: "Proposals & Contracts could not be loaded" })).toBeVisible();
+    expect(screen.getByText("We couldn't load the Proposal Register. Please retry.")).toBeVisible();
+    expect(screen.queryByText(/PROPOSAL_REGISTER_CONTRACT_INVALID/)).not.toBeInTheDocument();
     expect(screen.queryByText("0")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(screen.getByRole("heading", { name: "Proposals & Contracts" })).toBeVisible());

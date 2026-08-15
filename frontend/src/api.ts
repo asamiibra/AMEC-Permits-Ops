@@ -1,4 +1,7 @@
-const API = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+// Development uses the Vite same-origin proxy so a browser opened on any local
+// port cannot fail the API preflight just because the backend allow-list names
+// a different frontend origin. Production keeps the explicitly configured API.
+const API = (import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const endpoint = `${API}${path}`;

@@ -15,6 +15,18 @@ def test_register_lane_counts_reconcile_with_the_same_filtered_rows(client):
         assert filtered["lane_counts"][lane] == filtered["count"] == len(filtered["items"])
 
 
+def test_register_public_response_contract_serializes_every_visible_row(client):
+    response = client.get("/api/bd/proposals", headers=_headers())
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["predicate_version"] == "bd-proposal-register-v2"
+    assert payload["rows"] == payload["items"]
+    assert isinstance(payload["count"], int)
+    assert all(isinstance(value, int) and value >= 0 for value in payload["lane_counts"].values())
+    for row in payload["items"]:
+        assert {"id", "proposal", "client", "activity", "stage", "stage_code", "next_action", "owner_lane", "contract_eligible", "validation"} <= row.keys()
+
+
 @pytest.mark.parametrize(
     ("source_type", "filename", "mime_type", "file_body"),
     (

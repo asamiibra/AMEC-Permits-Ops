@@ -12,7 +12,7 @@ describe("BD Proposal owner register", () => {
     window.history.pushState({}, "", "/opportunities");
     mockedApi.mockReset();
     mockedApi.mockResolvedValue({
-      items: [{ id: "proposal-1", proposal: "Harbor design activity", proposal_reference: "AMEC-SYN-PROP-0001", project_ref: "PROJ-WEST-01", client: "Lane Search Company", stage: "Intake & Sources", amount: null, last_activity: null, next_action: { label: "Resolve intake blockers" } }],
+      items: [{ id: "proposal-1", proposal: "Harbor design activity", proposal_reference: "AMEC-SYN-PROP-0001", project_ref: "PROJ-WEST-01", client: "Lane Search Company", activity: "Harbor design activity", stage: "Intake & Sources", stage_code: "IN_REVIEW", amount: null, last_activity: null, current_owner: "Business Development", next_action: { label: "Resolve intake blockers" }, owner_lane: { memberships: ["ALL", "NEED_ACTION"] }, contract_eligible: false, validation: { ready: false } }],
       lane_counts: { ALL: 1, NEED_ACTION: 1, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 },
     });
   });
@@ -43,11 +43,32 @@ describe("BD Proposal owner register", () => {
     expect(mockedApi).toHaveBeenCalledWith(expect.stringContaining("lane=NEED_ACTION"), expect.anything());
   });
 
+  it("fails closed with business-safe copy when the register contract is invalid", async () => {
+    mockedApi.mockResolvedValue({ items: [{ id: "proposal-1" }], lane_counts: { ALL: 1 } });
+    render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("We couldn't load the Proposal Register. Please retry.");
+    expect(screen.getByRole("tab", { name: /All\s*—/ })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Open →" })).toBeNull();
+  });
+
+  it("retries the register request and restores counts and rows after a temporary failure", async () => {
+    mockedApi.mockRejectedValueOnce(new Error("API returned 503 for /api/bd/proposals"));
+    mockedApi.mockResolvedValueOnce({
+      items: [{ id: "proposal-1", proposal: "Recovered Proposal", proposal_reference: "REF-1", project_ref: null, client: "Client", activity: "Activity", stage: "Contract Handoff", stage_code: "CONTRACT_HANDOVER", amount: null, last_activity: null, current_owner: "Business Development", next_action: { label: "Proceed to Contract handoff" }, owner_lane: { memberships: ["ALL", "READY_CLOSE"] }, contract_eligible: true, validation: { ready: true } }],
+      lane_counts: { ALL: 1, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 1 },
+    });
+    render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("We couldn't load the Proposal Register. Please retry.");
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(await screen.findByText("Recovered Proposal")).toBeVisible();
+    expect(screen.getByRole("tab", { name: /All\s*1/ })).toBeVisible();
+  });
+
   it("renders the mature Proposal workspace seams and historical-review prompts", async () => {
     mockedApi.mockReset();
     mockedApi
       .mockResolvedValueOnce({
-        items: [{ id: "proposal-1", proposal: "Hardening proposal", proposal_reference: "AMEC-SYN-PROP-0001", project_ref: "PROJ-01", client: "Client", stage: "Accepted", amount: "QAR 100", last_activity: null, next_action: { label: "Review Proposal" } }],
+        items: [{ id: "proposal-1", proposal: "Hardening proposal", proposal_reference: "AMEC-SYN-PROP-0001", project_ref: "PROJ-01", client: "Client", activity: "Hardening proposal", stage: "Accepted", stage_code: "ACCEPTED", amount: "QAR 100", last_activity: null, current_owner: "Business Development", next_action: { label: "Review Proposal" }, owner_lane: { memberships: ["ALL", "READY_CLOSE"] }, contract_eligible: true, validation: { ready: true } }],
         lane_counts: { ALL: 1, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 },
       })
       .mockResolvedValueOnce({

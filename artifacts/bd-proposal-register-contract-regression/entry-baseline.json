@@ -1,0 +1,25 @@
+{
+  "captured_at": "2026-08-15",
+  "entry_commit": "f956f5316515e2cd5a4fd2514604e2a78d9ad954",
+  "branch": "main",
+  "route": "http://127.0.0.1:5179/opportunities",
+  "environment": {
+    "app_env": "TEST",
+    "synthetic_only": true,
+    "database": "PostgreSQL",
+    "alembic_head": "0055_bd_proposal_final_hardening"
+  },
+  "owner_failure": {
+    "alert": "Failed to fetch",
+    "lane_counts": {"ALL": null, "NEED_ACTION": null, "AUTHORITY_REVIEW": null, "READY_CLOSE": null},
+    "rows_rendered": 0
+  },
+  "direct_get_same_dataset": {
+    "http_status": 200,
+    "content_type": "application/json",
+    "response_length": 12062,
+    "correlation_id": "908baba3-27ce-4b33-9a27-7dd7f4bb7a51",
+    "count": 2,
+    "lane_counts": {"ALL": 2, "NEED_ACTION": 2, "AUTHORITY_REVIEW": 0, "READY_CLOSE": 0}
+  }
+}

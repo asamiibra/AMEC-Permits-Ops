@@ -51,6 +51,40 @@ class OwnerSettingsPatch(BaseModel):
     settings: dict[str, dict[str, Any]]
 
 
+class ProposalRegisterRow(BaseModel):
+    id: str
+    proposal_reference: str
+    proposal: str
+    project_ref: Any | None = None
+    client: str
+    activity: str
+    stage: str
+    stage_code: str
+    amount: Any | None = None
+    last_activity: str | None = None
+    location: str | None = None
+    current_owner: str
+    next_action: dict[str, Any]
+    owner_lane: dict[str, Any]
+    contract_eligible: bool
+    validation: dict[str, Any]
+
+
+class ProposalRegisterResponse(BaseModel):
+    items: list[ProposalRegisterRow]
+    rows: list[ProposalRegisterRow]
+    count: int
+    lane_counts: dict[str, int]
+    lane_options: list[dict[str, Any]]
+    predicate_version: str
+    filters: dict[str, Any]
+    stage_options: list[str]
+    amount_source: str
+    last_activity_source: str
+    search_fields: list[str]
+    synthetic_only: bool
+
+
 def _actor(role: Role, supplied: str | None = None) -> str:
     return supplied or getattr(role, "value", str(role))
 
@@ -169,13 +203,13 @@ def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db
     return {"status": "APPLIED", "removed": removed}
 
 
-@router.get("")
+@router.get("", response_model=ProposalRegisterResponse)
 def list_proposals(q: str = "", stage: str | None = None, lane: str | None = None, client: str | None = None, activity: str | None = None, location: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
     rows, lane_counts = _register_predicate([_list_row(db, item) for item in db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()], q=q, stage=stage, lane=lane, client=client, activity=activity, location=location)
     for row in rows:
         row.pop("_search_text", None)
-    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True}
+    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True}
 
 
 @router.post("")

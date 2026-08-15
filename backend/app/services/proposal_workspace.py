@@ -311,7 +311,7 @@ def proposal_authority(db: Session, proposal: Opportunity, validation: dict[str,
     policy = str(runtime_decision_value(db, "PROPOSAL_ACCEPT_AUTHORITY", "OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER")).upper()
     required_authority = "Owner" if policy == "OWNER_ONLY" else "Owner or authorized Commercial Approver"
     blockers = _blocking_items(validation, readiness, intake)
-    commercial_states = {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"}
+    commercial_states = {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"}
     if current:
         status = "ACCEPTED"
         status_label = "Accepted Proposal revision recorded"
@@ -449,7 +449,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     readiness = v2_readiness(db, proposal, validation)
     stage_labels = {
         "RECEIVED": "Intake & Sources", "IN_REVIEW": "Intake & Sources", "PROPOSAL_PREPARATION": "Engineering Preparation",
-        "PROPOSAL_HANDOVER": "Commercial Review", "COMMERCIAL_REVIEW": "Commercial Review", "QUOTATION_IN_PROGRESS": "Commercial Review",
+        "PROPOSAL_HANDOVER": "Commercial Review", "READY_FOR_QUOTATION": "Ready for Quotation", "COMMERCIAL_REVIEW": "Commercial Review", "QUOTATION_IN_PROGRESS": "Quotation in Progress",
         "CLIENT_RESPONSE_PENDING": "Client Response", "ACCEPTED": "Contract Handoff", "CONTRACT_HANDOVER": "Contract Handoff", "CLOSED": "Closed",
     }
     intake = intake_readiness(db, proposal)
@@ -467,7 +467,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "Resolve intake blockers" if proposal.status in {"RECEIVED", "IN_REVIEW"} and blockers else
         "Proceed to Engineering Preparation" if proposal.status in {"RECEIVED", "IN_REVIEW"} else
         "Resolve Proposal readiness blockers" if proposal.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} and blockers else
-        "Review Proposal Authority" if proposal.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} else
+        "Review Proposal Authority" if proposal.status in {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} else
         "Follow up client response" if proposal.status == "CLIENT_RESPONSE_PENDING" else
         "Proceed to Contract handoff" if proposal.status in {"ACCEPTED", "CONTRACT_HANDOVER"} else
         "No further Proposal action" if proposal.status == "CLOSED" else
@@ -486,7 +486,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "title": proposal.title,
         "stage": proposal.status,
         "stage_label": stage_labels.get(proposal.status, proposal.status.replace("_", " ").title()),
-        "lifecycle": [{"number": 1, "label": "Intake & Sources", "active": proposal.status in {"RECEIVED", "IN_REVIEW"}}, {"number": 2, "label": "Engineering Preparation", "active": proposal.status == "PROPOSAL_PREPARATION"}, {"number": 3, "label": "Commercial Review", "active": proposal.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"}}, {"number": 4, "label": "Client Response", "active": proposal.status == "CLIENT_RESPONSE_PENDING"}, {"number": 5, "label": "Contract Handoff", "active": proposal.status in {"ACCEPTED", "CONTRACT_HANDOVER"}}],
+        "lifecycle": [{"number": 1, "label": "Intake & Sources", "active": proposal.status in {"RECEIVED", "IN_REVIEW"}}, {"number": 2, "label": "Engineering Preparation", "active": proposal.status == "PROPOSAL_PREPARATION"}, {"number": 3, "label": "Commercial Review", "active": proposal.status in {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"}}, {"number": 4, "label": "Client Response", "active": proposal.status == "CLIENT_RESPONSE_PENDING"}, {"number": 5, "label": "Contract Handoff", "active": proposal.status in {"ACCEPTED", "CONTRACT_HANDOVER"}}],
         "current_owner": current_owner,
         "next_actor": "Engineering" if proposal.status == "PROPOSAL_PREPARATION" else "Business Development",
         "next_action": {"label": next_action, "eligible": intake["ready"] if proposal.status in {"RECEIVED", "IN_REVIEW"} else not blockers},
