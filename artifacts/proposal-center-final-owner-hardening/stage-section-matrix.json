@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "intake": {"past": "read-only", "current": "editable and proceed", "future": "locked"},
+    "engineering": {"past": "read-only", "current": "editable and handoff", "future": "locked"},
+    "commercial": {"past": "read-only", "current": "editable and review", "future": "locked"},
+    "client_response": {"past": "read-only", "current": "explicit selection", "future": "locked"},
+    "acceptance": {"past": "revision history", "current": "human action", "future": "locked preview"}
+  }
+}

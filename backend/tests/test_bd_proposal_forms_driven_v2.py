@@ -10,6 +10,8 @@ from backend.app.models import (
     DocumentVersion,
     ExternalBody,
     Jurisdiction,
+    AssistantHandoff,
+    NotificationEvent,
     Party,
     ProposalAcceptedRevision,
     ProposalAssumption,
@@ -47,6 +49,13 @@ def _ensure_templates(client):
         assert bound.status_code == 200, bound.text
 
 
+def _advance_to_engineering_handoff(client, proposal_id: str):
+    proceeded = client.post(f"/api/bd/proposals/{proposal_id}/proceed", headers=BD)
+    assert proceeded.status_code == 200, proceeded.text
+    ready = client.post(f"/api/proposals-main/proposals/{proposal_id}/engineering-ready", headers={"X-Dev-Role": "RESPONSIBLE_ENGINEER"})
+    assert ready.status_code == 200, ready.text
+
+
 def _cleanup(proposal_id: str) -> None:
     with SessionLocal() as db:
         proposal = db.get(Opportunity, proposal_id)
@@ -66,6 +75,8 @@ def _cleanup(proposal_id: str) -> None:
         db.execute(delete(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id))
         db.execute(delete(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal_id))
         db.execute(delete(ProposalIntakeArtifact).where(ProposalIntakeArtifact.opportunity_id == proposal_id))
+        db.execute(delete(NotificationEvent).where(NotificationEvent.proposal_id == proposal_id))
+        db.execute(delete(AssistantHandoff).where(AssistantHandoff.opportunity_id == proposal_id))
         db.execute(delete(Opportunity).where(Opportunity.id == proposal_id))
         for document_id in document_ids:
             db.execute(delete(DocumentVersion).where(DocumentVersion.document_id == document_id))
@@ -145,6 +156,7 @@ def test_bd_forms_v2_commercial_scoping_accept_snapshot_and_rbac(client):
         readiness = client.get(f"/api/bd/proposals/{proposal_id}/readiness", headers=BD)
         assert readiness.status_code == 200, readiness.text
         assert readiness.json()["commercial_ready_not_regulatory_ready"] is True
+        _advance_to_engineering_handoff(client, proposal_id)
         accepted = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=OWNER)
         assert accepted.status_code == 200, accepted.text
         snapshot = accepted.json()["current_revision"]

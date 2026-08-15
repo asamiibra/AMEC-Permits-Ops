@@ -1,0 +1,6 @@
+{
+  "client_request": ["client_name", "attn_contact", "contact_email", "mobile_no", "project_description", "client_scope_of_work", "client_budget", "requested_timing", "client_constraints", "additional_information"],
+  "engineering": ["service_scope", "scope_of_work", "sow", "process_of_work", "technical_assumptions", "technical_deliverables", "engineering_references", "regulatory_scoping", "expected_client_inputs"],
+  "commercial": ["price", "currency", "duration", "period", "payment_terms", "proposal_validity", "inclusions", "exclusions", "breakdown"],
+  "mega_save": false
+}

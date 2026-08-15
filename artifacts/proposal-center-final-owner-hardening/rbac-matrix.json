@@ -1,0 +1,7 @@
+{
+  "SYSTEM_ADMIN": ["client", "engineering", "commercial", "accept"],
+  "OWNER_SPONSOR": ["client", "engineering", "commercial", "accept"],
+  "COMMERCIAL_APPROVER": ["client", "commercial", "accept"],
+  "RESPONSIBLE_ENGINEER": ["engineering"],
+  "server_authoritative": true
+}

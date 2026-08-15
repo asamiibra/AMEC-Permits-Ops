@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import (
+    AuditEvent,
     DefinitionEntry,
     DefinitionRevision,
     DocumentVersion,
@@ -476,6 +477,35 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     authority = proposal_authority(db, proposal, validation, readiness, intake, current)
     lanes = owner_lane_memberships(proposal, validation, readiness, intake, authority)
     outputs = db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.proposal_id == proposal.id).order_by(ProposalOutputArtifact.created_at.desc())).all()
+    stage_events = db.scalars(
+        select(AuditEvent)
+        .where(
+            AuditEvent.entity_type == "Opportunity",
+            AuditEvent.entity_id == proposal.id,
+            AuditEvent.event_type.in_((
+                "BD_PROPOSAL_PROCEEDED_TO_ENGINEERING",
+                "PROPOSAL_PROCEEDED_TO_PREPARATION",
+                "ENGINEERING_PROPOSAL_READY_FOR_BD",
+                "BD_PROPOSAL_HUMAN_ACCEPTED",
+                "PROPOSAL_CONTRACT_TRANSITION",
+            )),
+        )
+        .order_by(AuditEvent.occurred_at)
+    ).all()
+    stage_gate = {
+        "current_stage": proposal.status,
+        "intake": {
+            "state": "COMPLETED" if intake["ready"] else "RECONCILIATION_REQUIRED" if proposal.status not in {"RECEIVED", "IN_REVIEW"} else "INCOMPLETE",
+            "blockers": intake["blockers"],
+            "warnings": intake["warnings"],
+            "message": "Upstream Intake reconciliation required" if proposal.status not in {"RECEIVED", "IN_REVIEW"} and not intake["ready"] else None,
+        },
+        "current_stage_readiness": {
+            "ready": readiness["ready"],
+            "blockers": readiness["blocking"],
+            "warnings": readiness["warnings"],
+        },
+    }
     return {
         "id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
@@ -525,6 +555,8 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
             "checklist": {"ref": current.checklist_ref, "version_id": current.checklist_version_id, "version": current.checklist_version, "hash": current.checklist_hash},
         } if current else None,
         "revision_history": [{"id": item.id, "revision_number": item.revision_number, "content_hash": item.content_hash, "accepted_at": item.accepted_at.isoformat(), "accepted_by": item.accepted_by} for item in revisions],
+        "stage_gate": stage_gate,
+        "stage_history": [{"event_type": event.event_type, "occurred_at": event.occurred_at.isoformat(), "actor": event.actor_id, "before": event.before_json, "after": event.after_json, "correlation_id": event.correlation_id} for event in stage_events],
         "ai_assist": validation["ai_assist"],
         "contract_eligible": bool(current and validation["ready"]),
         "synthetic_only": True,

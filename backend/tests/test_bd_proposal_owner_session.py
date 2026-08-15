@@ -20,6 +20,13 @@ def _ensure_dashboard_proposal_templates(client):
         assert bound.status_code == 200, bound.text
 
 
+def _advance_to_engineering_handoff(client, proposal_id: str):
+    proceeded = client.post(f"/api/bd/proposals/{proposal_id}/proceed", headers=_headers("COMMERCIAL_APPROVER"))
+    assert proceeded.status_code == 200, proceeded.text
+    ready = client.post(f"/api/proposals-main/proposals/{proposal_id}/engineering-ready", headers=_headers("RESPONSIBLE_ENGINEER"))
+    assert ready.status_code == 200, ready.text
+
+
 def test_bd_proposal_full_owner_session_flow(client):
     owner = _headers("SYSTEM_ADMIN")
     _ensure_dashboard_proposal_templates(client)
@@ -66,6 +73,8 @@ def test_bd_proposal_full_owner_session_flow(client):
     ready = client.get(f"/api/bd/proposals/{proposal_id}/validation", headers=owner).json()
     assert ready["ready"] is True
     assert ready["ai_assist"]["enabled"] is False
+
+    _advance_to_engineering_handoff(client, proposal_id)
 
     engineering_accept = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=_headers("RESPONSIBLE_ENGINEER"))
     assert engineering_accept.status_code == 403
@@ -138,6 +147,7 @@ def test_bd_proposal_acceptance_pins_template_and_checklist_history(client):
         assert response.status_code == 200
     fields = {"scope_of_work": "AMEC scope", "client_scope_of_work": "Client scope", "process_of_work": "Review", "price": "QAR 100", "duration": "1 day"}
     assert client.patch(f"/api/bd/proposals/{proposal_id}", headers=_headers("COMMERCIAL_APPROVER"), json={"fields": fields}).status_code == 200
+    _advance_to_engineering_handoff(client, proposal_id)
     first = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=_headers("COMMERCIAL_APPROVER")).json()["current_revision"]
     template_id = first["template"]["ref"]
     checklist_id = first["checklist"]["ref"]
@@ -146,6 +156,8 @@ def test_bd_proposal_acceptance_pins_template_and_checklist_history(client):
         versioned = client.post(f"/api/master-content/{item['id']}/versions", headers=_headers("SYSTEM_ADMIN"), data={"expected_current_version": "1", "change_reason": label}, files={"file": (f"{ref}-v2.txt", label.encode(), "text/plain")})
         assert versioned.status_code == 200, versioned.text
     assert client.patch(f"/api/bd/proposals/{proposal_id}", headers=_headers("COMMERCIAL_APPROVER"), json={"fields": {"proposal_details": "Updated after master revision"}}).status_code == 200
+    created_revision = client.post(f"/api/bd/proposals/{proposal_id}/revisions", headers=_headers("COMMERCIAL_APPROVER"), json={"reason": "Dashboard master revision"})
+    assert created_revision.status_code == 200, created_revision.text
     second = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=_headers("COMMERCIAL_APPROVER")).json()
     history = {row["revision_number"]: row for row in second["revision_history"]}
     assert history[1]["revision_number"] == 1

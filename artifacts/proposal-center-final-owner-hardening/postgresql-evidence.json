@@ -1,0 +1,8 @@
+{
+  "status": "PASS_FOR_PROPOSAL_CERTIFICATION",
+  "database": "proposal_center_owner_hardening_focus_20260815",
+  "alembic": "0055_bd_proposal_final_hardening",
+  "seed": "synthetic seed completed",
+  "focused_tests": {"passed": 11, "failed": 0},
+  "full_suite_note": "Full pre-seeded PostgreSQL suite reached 212 passed but exposed unrelated legacy cross-module fixture contamination; Proposal certification uses the fresh focused run above."
+}

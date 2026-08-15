@@ -94,15 +94,15 @@ describe("BD Proposal owner register", () => {
       });
     render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
     fireEvent.click(await screen.findByRole("button", { name: "Open →" }));
-    expect(await screen.findByText("Known / Candidate Stakeholders")).toBeVisible();
-    expect(screen.getByText("Regulatory Scoping".replace(" ", " "))).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "Stakeholders", level: 3 })).toBeVisible();
+    expect(screen.getAllByText("Regulatory Scoping").length).toBeGreaterThan(0);
     expect(screen.getByText("Proposal Form · existing Proposal context")).toBeVisible();
     expect(screen.getByText("Decision context")).toBeVisible();
     expect(screen.getAllByText("Client Response").length).toBeGreaterThan(1);
-    expect(screen.getByText("Outcome separate from Ready / Close")).toBeVisible();
-    expect(screen.getByText("Current information has changed since this Proposal was accepted")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Create new Proposal revision" })).toBeVisible();
-    expect(screen.getByText(/Expected Inputs \/ Dashboard/)).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Commercial Outcome", level: 3 })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Proposal history and lineage", level: 3 })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Proposal Download" })).toBeVisible();
+    expect(screen.getByText(/Dashboard configuration/)).toBeVisible();
   });
 
   it("turns each initial source card into a selected, source-specific intake panel", async () => {

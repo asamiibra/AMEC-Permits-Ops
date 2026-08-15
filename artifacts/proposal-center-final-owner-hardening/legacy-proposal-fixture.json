@@ -1,0 +1,6 @@
+{
+  "fixture_shape": "status=PROPOSAL_PREPARATION without current ProposalSourceEvidence",
+  "stage_gate_intake_state": "RECONCILIATION_REQUIRED",
+  "message": "Upstream Intake reconciliation required",
+  "no_auto_repair": true
+}

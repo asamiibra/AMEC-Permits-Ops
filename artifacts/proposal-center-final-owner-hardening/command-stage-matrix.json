@@ -1,0 +1,7 @@
+{
+  "proceed_to_engineering": {"allowed": ["RECEIVED", "IN_REVIEW"], "blocked": ["PROPOSAL_PREPARATION", "COMMERCIAL_REVIEW"]},
+  "engineering_ready": {"allowed": ["PROPOSAL_PREPARATION"]},
+  "client_response": {"allowed": ["ACCEPTED", "CLIENT_RESPONSE_PENDING"]},
+  "commercial_outcome": {"allowed": ["CLIENT_RESPONSE_PENDING"]},
+  "accept": {"allowed": ["PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "QUOTATION_IN_PROGRESS", "COMMERCIAL_REVIEW", "CLIENT_RESPONSE_PENDING", "ACCEPTED_WITH_DRAFT"]}
+}

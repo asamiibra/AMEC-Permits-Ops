@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "base_url": "http://127.0.0.1:5180",
+  "golden_fixture": "SYN-OPP-0002",
+  "stage": "PROPOSAL_PREPARATION",
+  "assertions": ["Engineering current", "Intake complete", "future response/outcome/accept locked", "no raw enum/json", "fee currency shown once", "direct URL and reload"],
+  "tests": {"proposal_hardening": 1, "proposal_regression_group": 5},
+  "required": ["direct URL", "hard refresh", "Engineering current", "future controls locked", "no raw enum/json", "source add collapsed"]
+}

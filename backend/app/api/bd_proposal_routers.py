@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
+from ..models import AssistantHandoff, AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, NotificationEvent, Opportunity, ProposalAcceptedRevision, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
@@ -190,6 +190,11 @@ def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db
         db.query(ProposalAcceptedRevision).filter(ProposalAcceptedRevision.proposal_id == proposal_id).delete(synchronize_session=False)
         db.query(ProposalSourceEvidence).filter(ProposalSourceEvidence.proposal_id == proposal_id).delete(synchronize_session=False)
         db.query(ProposalIntakeArtifact).filter(ProposalIntakeArtifact.opportunity_id == proposal_id).delete(synchronize_session=False)
+        task_ids = [task.id for task in db.scalars(select(WorkflowTask).where(WorkflowTask.context_type == "OPPORTUNITY", WorkflowTask.context_id == proposal_id)).all()]
+        db.query(NotificationEvent).filter(NotificationEvent.workflow_task_id.in_(task_ids)).delete(synchronize_session=False) if task_ids else None
+        db.query(AssistantHandoff).filter(AssistantHandoff.opportunity_id == proposal_id).delete(synchronize_session=False)
+        db.query(WorkflowTask).filter(WorkflowTask.id.in_(task_ids)).delete(synchronize_session=False) if task_ids else None
+        db.query(NotificationEvent).filter(NotificationEvent.proposal_id == proposal_id).delete(synchronize_session=False)
         db.query(AuditEvent).filter(AuditEvent.entity_id == proposal_id).delete(synchronize_session=False)
         client = db.get(ClientAccount, proposal.client_account_id) if proposal.client_account_id else None
         proposal.client_account_id = None
@@ -690,6 +695,10 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
     item = db.scalar(select(Opportunity).where(Opportunity.id == proposal_id).with_for_update())
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
+    draft_revision = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == item.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
+    allowed_accept_stages = {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "QUOTATION_IN_PROGRESS", "COMMERCIAL_REVIEW", "CLIENT_RESPONSE_PENDING"}
+    if item.status not in allowed_accept_stages and not (item.status == "ACCEPTED" and draft_revision):
+        raise domain_error(409, "PROPOSAL_ACCEPT_STAGE_BLOCKED", stage=item.status, required_stages=sorted(allowed_accept_stages))
     check = validate_proposal(db, item)
     v2_check = v2_readiness(db, item, check)
     if not check["ready"] or not v2_check["ready"]:
@@ -744,6 +753,8 @@ def create_proposal_revision(proposal_id: str, payload: dict[str, Any] | None = 
 def record_client_response(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_WRITE")
     item = _proposal_or_404(proposal_id, db)
+    if item.status not in {"ACCEPTED", "CLIENT_RESPONSE_PENDING"}:
+        raise domain_error(409, "CLIENT_RESPONSE_STAGE_BLOCKED", stage=item.status, required_stages=["ACCEPTED", "CLIENT_RESPONSE_PENDING"])
     response_type = str(payload.get("response_type") or "").upper()
     allowed = {"ACCEPTED", "DECLINED", "CHANGE_REQUESTED", "EXPIRED", "WITHDRAWN", "PENDING"}
     if response_type not in allowed:
@@ -767,6 +778,8 @@ def record_client_response(proposal_id: str, payload: dict[str, Any], request: R
 def record_commercial_outcome(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_WRITE")
     item = _proposal_or_404(proposal_id, db)
+    if item.status != "CLIENT_RESPONSE_PENDING":
+        raise domain_error(409, "COMMERCIAL_OUTCOME_STAGE_BLOCKED", stage=item.status, required_stages=["CLIENT_RESPONSE_PENDING"])
     outcome = str(payload.get("outcome") or "").upper()
     allowed = {"WON", "LOST", "WITHDRAWN", "EXPIRED", "CONVERTED", "SUPERSEDED"}
     if outcome not in allowed:

@@ -1,0 +1,8 @@
+{
+  "module": "BD / Proposal Center",
+  "claim": "owner-facing hardening candidate",
+  "remaining_owner_inputs": ["official Proposal Template", "official Proposal Checklist", "production Proposal numbering", "Proposal authority policy", "Proposal output format", "Proposal Validity policy", "Contract Handoff policy", "source requiredness rules", "role and policy details"],
+  "status": "owner-ready synthetic/test candidate",
+  "verification": {"sqlite": "PASS", "frontend": "PASS", "postgresql_proposal_scope": "PASS", "browser": "PASS"},
+  "production_ready_claim": false
+}

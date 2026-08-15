@@ -49,6 +49,13 @@ def _ready_fields():
     }
 
 
+def _advance_to_engineering_handoff(client, proposal_id: str):
+    proceeded = client.post(f"/api/bd/proposals/{proposal_id}/proceed", headers=BD)
+    assert proceeded.status_code == 200, proceeded.text
+    ready = client.post(f"/api/proposals-main/proposals/{proposal_id}/engineering-ready", headers={"X-Dev-Role": "RESPONSIBLE_ENGINEER"})
+    assert ready.status_code == 200, ready.text
+
+
 def test_bd_proposal_final_hardening_preserves_risk_history_and_revision_boundaries(client):
     _ensure_templates(client)
     created = client.post("/api/bd/proposals", json={"proposal_description": "Final Proposal hardening contract", "project_reference": "FINAL-HARDENING-01", "client_name": "Synthetic Final Hardening Client"}, headers=BD)
@@ -68,6 +75,7 @@ def test_bd_proposal_final_hardening_preserves_risk_history_and_revision_boundar
         current = client.get(f"/api/bd/proposals/{proposal_id}", headers=BD).json()
         patched = client.patch(f"/api/bd/proposals/{proposal_id}", json={"fields": _ready_fields(), "expected_updated_at": current["updated_at"]}, headers=BD)
         assert patched.status_code == 200, patched.text
+        _advance_to_engineering_handoff(client, proposal_id)
 
         unknown = client.post(f"/api/bd/proposals/{proposal_id}/unknowns", json={"category": "CLIENT_INPUT", "statement": "Final occupancy count remains unknown", "materiality": "MATERIAL"}, headers=BD)
         assert unknown.status_code == 200, unknown.text

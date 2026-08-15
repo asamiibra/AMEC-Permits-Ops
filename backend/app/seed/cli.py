@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime, timezone, date
+from types import SimpleNamespace
 from sqlalchemy import delete, select, text, update
 from reportlab.pdfgen.canvas import Canvas
 from ..config.settings import get_settings, repo_root
@@ -149,10 +150,24 @@ def ensure_proposals_contracts_demo_state():
             project = db.scalar(select(Project).where(Project.project_number == "GHCE-2026-0187"))
             owner = db.scalar(select(User).where(User.email == "owner@amec.synthetic"))
             if office and client and project:
-                active = Opportunity(office_id=office.id, client_account_id=client.id, opportunity_reference="SYN-OPP-0002", title="Synthetic Engineering Proposal Intake", status="PROPOSAL_PREPARATION", source_type="TENDER_DOCUMENT", current_owner_user_id=owner.id if owner else None, stage2_capability_scope="UNDECIDED_STAGE2", project_id=project.id, reference_state="CANONICAL", proposal_fields_json={"price": "QAR 98,000", "sow": "Synthetic engineering proposal preparation", "period": "8 weeks", "exclusions": "Authority fees"}, provisional_reference="SYN-OPP-0002", canonical_project_reference=project.project_number, canonicalized_by=owner.email if owner else "owner@amec.synthetic")
+                active = Opportunity(office_id=office.id, client_account_id=client.id, opportunity_reference="SYN-OPP-0002", title="Synthetic Engineering Proposal Intake", status="IN_REVIEW", source_type="TENDER_DOCUMENT", current_owner_user_id=owner.id if owner else None, stage2_capability_scope="UNDECIDED_STAGE2", project_id=project.id, reference_state="CANONICAL", proposal_fields_json={"client_name": client.display_name, "project_description": "Synthetic engineering proposal preparation", "client_scope_of_work": "Synthetic client scope reviewed for engineering preparation", "location": "Synthetic Doha project site", "price": "QAR 98,000", "sow": "Synthetic engineering proposal preparation", "period": "8 weeks", "exclusions": "Authority fees"}, provisional_reference="SYN-OPP-0002", canonical_project_reference=project.project_number, canonicalized_by=owner.email if owner else "owner@amec.synthetic")
                 db.add(active)
                 db.flush()
-                ingest_project_artifact(db, project_id=project.id, opportunity_id=active.id, action="TENDER_DOCUMENT", source_filename="tender_document_S2.txt", content_type="text/plain", content=b"SYNTHETIC ACTIVE PROPOSAL\nEngineering preparation source.", actor="owner@amec.synthetic", actor_role="SYSTEM_ADMIN", correlation_id="seed-active-proposal", project_reference=project.project_number, idempotency_key=f"seed-active:{active.id}:tender-document:v1")
+                source_content = b"SYNTHETIC GOLDEN PROPOSAL\nStage 1 intake evidence for Engineering Preparation."
+                source_hash = hashlib.sha256(source_content).hexdigest()
+                db.add(ProposalSourceEvidence(proposal_id=active.id, source_type="TENDER_DOCUMENT", source_filename="tender_document_S2.txt", source_reference=f"synthetic://proposal-source/{active.opportunity_reference}/tender-document/{source_hash}", content_hash=source_hash, content_type="text/plain", source_revision="S2", provenance={"kind": "source", "semantic_class": "TENDER_DOCUMENT_SOURCE", "verification": "READ_BACK_VERIFIED", "golden_fixture": True}, conflict_key="TENDER_DOCUMENT", status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="owner@amec.synthetic"))
+                db.flush()
+                # Exercise the same governed command used by the Owner UI. The
+                # fixture is not allowed to become Engineering Preparation by
+                # assigning the status directly.
+                from ..api.bd_proposal_routers import proceed_to_engineering
+                proceed_to_engineering(
+                    active.id,
+                    SimpleNamespace(state=SimpleNamespace(correlation_id="seed-golden-proposal-transition")),
+                    db,
+                    Role.SYSTEM_ADMIN,
+                    "owner@amec.synthetic",
+                )
         # The authority comment is a separate returned application so its
         # Comments & Corrections target has a truthful persisted lifecycle.
         authority_application = db.scalar(select(PermitApplication).where(PermitApplication.external_request_number == "GHCE-APP-0142-AUTH"))

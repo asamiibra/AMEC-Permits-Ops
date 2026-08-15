@@ -1,0 +1,7 @@
+{
+  "cross_module_invariants": ["accepted Proposal revision remains pinned", "Contract Handoff stays explicit", "no AuthorityCase auto-creation", "no Project auto-activation"],
+  "status": "PASS_FOR_PROPOSAL_CROSS_MODULE_SEAMS",
+  "sqlite_full_suite": {"passed": 209, "skipped": 8},
+  "postgresql_proposal_suite": {"passed": 11, "failed": 0},
+  "full_postgresql_follow_up": "Existing broader suite still has shared canonical Project/activation and fixture cleanup contamination outside this Proposal change."
+}

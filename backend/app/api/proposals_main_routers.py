@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import ApplicationStatus, AssistantHandoff, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Finding, LineageEdge, NotificationEvent, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
+from ..models import ApplicationStatus, AssistantHandoff, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Finding, LineageEdge, NotificationEvent, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, ProposalSourceEvidence, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
 from ..services.proposals_sor import ACTION_CONFIG, INTAKE_SEMANTIC_CONFIG, SEMANTIC_FOLDER_CONFIG, SOR_TEMPLATE_VERSION, canonicalize_project_reference, ingest_project_artifact, ingest_provisional_intake_artifact, promote_provisional_intake, resolve_project_target
 from ..services.backend_realignment import (
     CAPABILITY_MATRIX,
@@ -509,7 +509,7 @@ def engineering_ready(proposal_id: str, request: Request, db: Session = Depends(
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
     if opportunity.status != "PROPOSAL_PREPARATION":
         raise HTTPException(409, "PROPOSAL_NOT_IN_ENGINEERING_PREPARATION")
-    if not db.query(ProposalIntakeArtifact).filter(ProposalIntakeArtifact.opportunity_id == opportunity.id, ProposalIntakeArtifact.status == "REGISTERED").count() and not db.query(ProjectArtifactRecord).filter(ProjectArtifactRecord.opportunity_id == opportunity.id, ProjectArtifactRecord.status == "REGISTERED").count():
+    if not db.query(ProposalIntakeArtifact).filter(ProposalIntakeArtifact.opportunity_id == opportunity.id, ProposalIntakeArtifact.status == "REGISTERED").count() and not db.query(ProjectArtifactRecord).filter(ProjectArtifactRecord.opportunity_id == opportunity.id, ProjectArtifactRecord.status == "REGISTERED").count() and not db.query(ProposalSourceEvidence).filter(ProposalSourceEvidence.proposal_id == opportunity.id, ProposalSourceEvidence.status == "CURRENT").count():
         raise HTTPException(409, "PROPOSAL_FORM_OR_SOURCE_REQUIRED")
     opportunity.status = "PROPOSAL_HANDOVER"
     task = _create_handoff_task(db, action="PROPOSAL_FORM", project_id=opportunity.project_id, opportunity_id=opportunity.id, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), actor=actor, artifact_id="PROPOSAL_PREPARATION_READY")

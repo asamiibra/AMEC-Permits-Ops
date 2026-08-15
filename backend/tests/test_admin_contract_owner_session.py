@@ -100,6 +100,9 @@ def clean_owner_fixture():
             db.query(QuotationRevision).filter(QuotationRevision.quotation_id.in_(quotation_ids)).delete(synchronize_session=False)
             db.query(Quotation).filter(Quotation.id.in_(quotation_ids)).delete(synchronize_session=False)
         if proposal_ids:
+            # PostgreSQL enforces the direct Proposal FK on notifications;
+            # SQLite's permissive cleanup previously hid this row family.
+            db.query(NotificationEvent).filter(NotificationEvent.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalOutputArtifact).filter(ProposalOutputArtifact.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalAcceptedRevision).filter(ProposalAcceptedRevision.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
             db.query(ProposalSourceLink).filter(ProposalSourceLink.proposal_id.in_(proposal_ids)).delete(synchronize_session=False)
@@ -211,6 +214,10 @@ def make_accepted_proposal(client, name="Skyline Factory Industrial"):
         assert response.status_code == 200, response.text
     response = client.patch(f"/api/bd/proposals/{proposal_id}", headers=headers("COMMERCIAL_APPROVER"), json={"fields": {"scope_of_work": "Industrial permitting scope", "client_scope_of_work": "Factory development", "price": "QAR 250000", "currency": "QAR", "duration": "90 days"}})
     assert response.status_code == 200, response.text
+    proceeded = client.post(f"/api/bd/proposals/{proposal_id}/proceed", headers=headers("COMMERCIAL_APPROVER"))
+    assert proceeded.status_code == 200, proceeded.text
+    engineering_ready = client.post(f"/api/proposals-main/proposals/{proposal_id}/engineering-ready", headers=headers("RESPONSIBLE_ENGINEER"))
+    assert engineering_ready.status_code == 200, engineering_ready.text
     accepted = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=headers("COMMERCIAL_APPROVER"))
     assert accepted.status_code == 200, accepted.text
     return proposal_id, accepted.json()["current_revision"]

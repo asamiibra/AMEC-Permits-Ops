@@ -1,0 +1,7 @@
+{
+  "taxonomy": ["TENDER_EMAIL", "TENDER_DOCUMENT", "TENDER_PHOTO", "CLIENT_DATA"],
+  "evidence_model": "ProposalSourceEvidence",
+  "verification": "READ_BACK_VERIFIED",
+  "add_behavior": "collapsed until Owner selects Add source",
+  "snapshot": "immutable source history retained"
+}

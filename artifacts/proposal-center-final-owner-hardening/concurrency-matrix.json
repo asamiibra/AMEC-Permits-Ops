@@ -1,0 +1,6 @@
+{
+  "draft_patch": "expected_updated_at",
+  "stale_patch": "409 PROPOSAL_DRAFT_CHANGED",
+  "accepted_revision": "immutable snapshot",
+  "source_history": "current plus conflict history, no silent overwrite"
+}

@@ -1,0 +1,7 @@
+{
+  "condition": "A",
+  "fixture": "SYN-OPP-0002",
+  "bypass": ["direct Opportunity.status assignment", "legacy ProjectArtifactRecord ingestion", "no ProposalSourceEvidence", "no real proceed command"],
+  "repair": ["seed IN_REVIEW", "create verified ProposalSourceEvidence", "call proceed_to_engineering", "project stage_gate and stage_history"],
+  "owner_copy": "Upstream Intake reconciliation required"
+}

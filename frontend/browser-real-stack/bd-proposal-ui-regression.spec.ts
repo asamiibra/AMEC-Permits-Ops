@@ -65,7 +65,7 @@ test("Proposal register filters preserve the typed response and rows", async ({ 
   await expect(page.getByRole("button", { name: "Open →" }).first()).toBeVisible();
   await page.getByLabel("Filter stage").selectOption("CONTRACT_HANDOVER");
   await expect(page.getByRole("button", { name: "Open →" }).first()).toBeVisible();
-  await expect(page.getByRole("cell", { name: "Contract Handoff", exact: true })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Contract Handoff", exact: true }).first()).toBeVisible();
   await page.getByRole("tab", { name: /Ready \/ Close/ }).click();
   await expect(page.getByText("No Proposal records match the current filter.", { exact: false })).toBeVisible();
   await expect(page.getByText("We couldn't load the Proposal Register", { exact: false })).toHaveCount(0);

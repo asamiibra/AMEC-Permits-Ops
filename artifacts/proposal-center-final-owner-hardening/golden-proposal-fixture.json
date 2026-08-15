@@ -1,0 +1,9 @@
+{
+  "proposal_reference": "SYN-OPP-0002",
+  "stage": "PROPOSAL_PREPARATION",
+  "current_owner": "Engineering",
+  "source_verification": "READ_BACK_VERIFIED",
+  "transition_command": "POST /api/bd/proposals/{id}/proceed",
+  "audit_event": "BD_PROPOSAL_PROCEEDED_TO_ENGINEERING",
+  "synthetic_only": true
+}

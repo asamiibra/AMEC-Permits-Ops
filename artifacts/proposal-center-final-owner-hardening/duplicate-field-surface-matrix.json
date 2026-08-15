@@ -1,0 +1,9 @@
+{
+  "closed": [
+    "Client Requested Scope vs AMEC Scope of Work are labeled and separated",
+    "Stakeholders has one Owner-facing panel",
+    "AMEC Input raw JSON is not rendered",
+    "Proposal acceptance is one review/output surface"
+  ],
+  "remaining_legacy_code_not_rendered": "old detail component retained only as dead compatibility code during surgical migration"
+}
