@@ -1,0 +1,16 @@
+{
+  "fields": {
+    "client_name": {"source": "CLIENT_MASTER or PROPOSAL_CONTACT_CONTEXT", "divergence": "CONTRACT_REVISION", "display": "Client Name"},
+    "client_company": {"source": "CLIENT_MASTER", "divergence": "CONTRACT_REVISION", "display": "Client Company"},
+    "cr_number": {"source": "CLIENT_MASTER", "divergence": "CONTRACT_REVISION", "display": "CR No."},
+    "mobile": {"source": "CLIENT_CONTACT or PROPOSAL_CONTACT_CONTEXT", "divergence": "CONTRACT_REVISION", "display": "Mobile No."},
+    "pin_number": {"source": "OWNER_DEFINITION_REQUIRED", "divergence": "CONTRACT_REVISION only after owner definition", "display": "PIN No.", "safe_value": "Not configured"},
+    "client_email": {"source": "CLIENT_CONTACT or PROPOSAL_CONTACT_CONTEXT", "divergence": "CONTRACT_REVISION", "display": "Client Email"},
+    "project_description": {"source": "PROPOSAL_ACCEPTED_REVISION", "divergence": "CONTRACT_REVISION commercial edit", "display": "Project Description"},
+    "amount": {"source": "PROPOSAL_ACCEPTED_REVISION", "divergence": "CONTRACT_REVISION", "display": "Amount"},
+    "payment_condition": {"source": "CONTRACT_REVISION", "display": "Payment Condition"},
+    "duration": {"source": "PROPOSAL_ACCEPTED_REVISION or CONTRACT_REVISION", "display": "Project Duration"},
+    "valuation_amount": {"source": "CONTRACT_REVISION / configured valuation", "display": "Valuation Amount"},
+    "contracted_scope": {"source": "PROPOSAL_ACCEPTED_REVISION or CONTRACT_REVISION", "display": "Detailed Works / Contracted Scope"}
+  }
+}

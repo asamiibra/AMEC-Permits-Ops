@@ -1,0 +1,12 @@
+{
+  "status": "PASS_SYNTHETIC_REAL_STACK",
+  "six_gaps": {
+    "client_document_lpo": "PASS",
+    "explicit_client_fields": "PASS",
+    "field_lineage": "PASS",
+    "accept_contract": "PASS",
+    "documents_sources_panel": "PASS",
+    "documents_needed_deliverables": "PASS"
+  },
+  "preserved_boundaries": ["accepted Proposal immutable", "Project Activation explicit", "no Invoice on acceptance", "PIN unresolved safely", "no duplicate canonical domains"]
+}

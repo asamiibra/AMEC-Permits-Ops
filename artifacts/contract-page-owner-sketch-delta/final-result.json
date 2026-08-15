@@ -1,0 +1,10 @@
+{
+  "overall": "PASS_LOCAL_AND_SYNTHETIC_REAL_STACK",
+  "code_freeze_postgresql": false,
+  "commit": null,
+  "origin_parity": null,
+  "acceptance_counters": {"client_document_lpo": "PASS", "client_fields": "PASS", "lineage": "PASS", "accept_contract": "PASS", "source_panel": "PASS", "structured_lists": "PASS"},
+  "owner_decisions_pending": ["OWNER_PIN_DEFINITION_REQUIRED", "OWNER_LPO_REQUIREDNESS_POLICY_PENDING", "OWNER_CONTRACT_DOCUMENT_REQUIREMENT_POLICY_PENDING", "OWNER_CONTRACT_DELIVERABLE_POLICY_PENDING"],
+  "external": {"postgresql": "BLOCKED_DOCKER_UNAVAILABLE", "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"},
+  "production_tokens_emitted": []
+}

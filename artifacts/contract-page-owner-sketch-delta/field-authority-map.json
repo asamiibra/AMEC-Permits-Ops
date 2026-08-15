@@ -1,0 +1,9 @@
+{
+  "owner": ["CONTRACT_READ", "CONTRACT_EDIT", "CONTRACT_AUTHORITY_ACTION", "PROJECT_ACTIVATION"],
+  "commercial_approver": ["PROPOSAL_READ", "PROPOSAL_EDIT", "PROPOSAL_ACCEPT", "CONTRACT_READ"],
+  "responsible_engineer": ["CONTRACT_READ"],
+  "contract_edit_requires_reason": true,
+  "accept_contract": {"capability": "CONTRACT_AUTHORITY_ACTION", "exact_current_revision": true, "idempotent": true},
+  "project_activation": {"separate_command": true, "automatic_on_accept": false},
+  "invoice_creation": {"automatic_on_accept": false}
+}

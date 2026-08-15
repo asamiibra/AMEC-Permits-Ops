@@ -1,0 +1,5 @@
+{
+  "reused": ["GET /api/admin/contracts", "GET /api/admin/contracts/{id}", "PATCH /api/admin/contracts/{id}", "GET /api/admin/contracts/{id}/readiness", "GET /api/admin/contracts/{id}/history", "GET /api/admin/contracts/{id}/billing-context", "POST /api/admin/contracts/{id}/authority", "POST /api/admin/contracts/{id}/evidence", "POST /api/admin/contracts/{id}/client-inputs", "POST /api/admin/contracts/{id}/deliverables", "POST /api/admin/contracts/{id}/commercial-terms", "POST /api/admin/contracts/{id}/activate-project"],
+  "added": ["PATCH /api/admin/contracts/{id}/client-fields", "POST /api/admin/contracts/{id}/documents", "GET /api/admin/contracts/{id}/documents/{version_id}/download", "POST /api/admin/contracts/{id}/accept"],
+  "canonical_domains": ["ClientAccount", "ClientContact", "Opportunity", "ProposalAcceptedRevision", "Contract", "ContractRevision", "Document", "DocumentVersion", "ContractAdminEvidence", "ContractClientInputRequirement", "ContractDeliverableCommitment", "ContractTemplateSnapshot"]
+}

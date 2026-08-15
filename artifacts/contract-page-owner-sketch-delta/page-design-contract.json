@@ -1,0 +1,6 @@
+{
+  "sections": ["Header", "Contract Inputs", "Client and Party Fields", "Project and Commercial Lineage", "Documents Needed", "Deliverables", "Contract Documents & Sources", "Document Version Entry", "Contract Authority Readiness", "Accept Contract", "Project Activation", "History"],
+  "responsive": {"narrow_viewport": "PASS", "stack_cards": true, "avoid_horizontal_overflow": true},
+  "owner_language": true,
+  "technical_ids_hidden_from_normal_labels": true
+}

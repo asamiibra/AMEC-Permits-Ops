@@ -1,0 +1,11 @@
+{
+  "status": "PASS_LOCAL_ENTRY_GATE",
+  "branch": "main",
+  "entry_head": "982aca6c256fb46d2f2e6ff2c6f2e3163628138b",
+  "entry_origin": "982aca6c256fb46d2f2e6ff2c6f2e3163628138b",
+  "entry_worktree_clean": true,
+  "prior_result": "Administration reconciliation complete; synthetic real-stack only",
+  "alembic_head": "0055_bd_proposal_final_hardening",
+  "postgresql": "BLOCKED_DOCKER_UNAVAILABLE",
+  "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+}

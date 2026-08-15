@@ -1,0 +1,10 @@
+{
+  "environment": "SYNTHETIC_REAL_STACK",
+  "backend": "http://127.0.0.1:8003",
+  "frontend": "http://127.0.0.1:5177",
+  "serial_workers": 1,
+  "contract_delta": {"tests": 2, "passed": 2},
+  "administration_owner_regression": {"tests": 5, "passed": 5},
+  "assertions": ["six requested source/field/action surfaces visible", "PIN safe state visible", "narrow viewport no horizontal overflow"],
+  "production_claim": false
+}

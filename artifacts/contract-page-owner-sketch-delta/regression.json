@@ -1,0 +1,11 @@
+{
+  "backend": {"passed": 206, "skipped": 8, "warnings": 2},
+  "frontend_unit": {"passed": 36, "test_files": 13},
+  "frontend_build": "PASS",
+  "contract_focused": "PASS",
+  "browser_contract_delta": "2 passed",
+  "browser_admin_owner": "5 passed",
+  "alembic": {"current": "0055_bd_proposal_final_hardening", "head": "0055_bd_proposal_final_hardening"},
+  "postgresql": "BLOCKED_DOCKER_UNAVAILABLE",
+  "real_synology": "REAL_SYNOLOGY_VERIFICATION_BLOCKED_EXTERNAL"
+}

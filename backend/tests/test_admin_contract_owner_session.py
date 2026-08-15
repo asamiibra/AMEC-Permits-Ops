@@ -10,6 +10,7 @@ from backend.app.models import (
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
+    DocumentVersion,
 )
 
 
@@ -216,3 +217,53 @@ def test_contract_reconciliation_read_model_and_billing_seam(client):
     assert billing["external_agreement_consumption"] == "AMEC_PROFESSIONAL_SERVICES_CONTRACT_ONLY"
     immutable = client.patch(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR"), json={"amount": "QAR 999", "reason": "Should be blocked after approval"})
     assert immutable.status_code == 409
+
+
+def test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptance(client):
+    ensure_contract_template(client)
+    proposal_id, accepted_revision = make_accepted_proposal(client, "Contract Page Owner Sketch Delta Fixture")
+    created = client.post("/api/admin/contracts", headers=headers("OWNER_SPONSOR"), json={"proposal_id": proposal_id})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+
+    initial = client.get(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR"))
+    assert initial.status_code == 200, initial.text
+    body = initial.json()
+    assert {"client_fields", "field_lineage", "client_document", "lpo", "documents_needed", "deliverable_commitments", "source_panel"} <= set(body)
+    assert body["client_fields"]["pin_number"]["display_value"] == "Not configured"
+    assert body["client_fields"]["pin_number"]["source"] == "OWNER_DEFINITION_REQUIRED"
+    assert {item["label"] for item in body["source_panel"]} == {"Contract", "Document List", "Accepted Proposal", "LPO", "Client Document", "Contract Template"}
+
+    client_document = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={"source_role": "CLIENT_DOCUMENT", "source_filename": "client-document-v1.txt", "content": "client document version one"})
+    assert client_document.status_code == 200, client_document.text
+    client_v1 = client_document.json()
+    assert client_v1["version_number"] == 1
+    client_v2 = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={"source_role": "CLIENT_DOCUMENT", "source_filename": "client-document-v2.txt", "content": "client document version two"})
+    assert client_v2.status_code == 200, client_v2.text
+    assert client_v2.json()["version_number"] == 2
+    lpo = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={"source_role": "LPO", "source_filename": "lpo.txt", "content": "purchase order"})
+    assert lpo.status_code == 200, lpo.text
+    downloaded = client.get(f"/api/admin/contracts/{contract_id}/documents/{client_v2.json()['document_version_id']}/download", headers=headers("OWNER_SPONSOR"))
+    assert downloaded.status_code == 200
+    assert downloaded.content == b"client document version two"
+    with SessionLocal() as db:
+        assert db.query(DocumentVersion).filter(DocumentVersion.document_id == client_v1["document_id"]).count() == 2
+
+    changed_fields = client.patch(f"/api/admin/contracts/{contract_id}/client-fields", headers=headers("OWNER_SPONSOR"), json={"client_name": "Contract-side Client", "client_company": "Contract-side Company", "cr_number": "CR-DELTA", "mobile": "+974 5555 0101", "client_email": "owner@example.test", "reason": "Owner confirmed Contract party fields"})
+    assert changed_fields.status_code == 200, changed_fields.text
+    changed = changed_fields.json()
+    assert changed["current_revision"]["revision_number"] == 2
+    assert changed["client_fields"]["client_name"]["value"] == "Contract-side Client"
+    assert changed["client_fields"]["client_name"]["source"] == "CONTRACT_REVISION"
+    assert changed["origin"]["accepted_revision_id"] == accepted_revision["id"]
+
+    accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept:{contract_id}"})
+    assert accepted.status_code == 200, accepted.text
+    assert accepted.json()["decision"] == "ACCEPTED"
+    assert accepted.json()["contract"]["current_revision"]["status"] == "FINALIZED"
+    assert accepted.json()["contract"]["activation"] is None
+    repeat = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept:{contract_id}"})
+    assert repeat.status_code == 200
+    assert repeat.json()["decision"] == "ALREADY_ACCEPTED"
+    assert client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("RESPONSIBLE_ENGINEER"), json={}).status_code == 403
+    assert client.patch(f"/api/admin/contracts/{contract_id}/client-fields", headers=headers("OWNER_SPONSOR"), json={"client_name": "Blocked after accept", "reason": "Expected immutable finalized revision"}).status_code == 409
