@@ -74,6 +74,20 @@ def ensure_current_schema() -> str:
     inspector = inspect(engine)
     versions = migration_versions()
     if versions:
+        # Older synthetic Vercel databases were created from a partial
+        # historical migration path. Create only missing current-model tables
+        # before replaying additive Alembic migrations so later DDL can safely
+        # reference them. This is non-destructive and build-time only; it does
+        # not stamp, reset, or replace existing business data.
+        expected_tables = set(Base.metadata.tables) - {"alembic_version"}
+        existing_tables = set(inspector.get_table_names()) - {"alembic_version"}
+        missing_tables = expected_tables - existing_tables
+        if missing_tables:
+            Base.metadata.create_all(
+                bind=engine,
+                tables=[Base.metadata.tables[name] for name in sorted(missing_tables)],
+                checkfirst=True,
+            )
         command.upgrade(config, "head")
         return "upgrade_head"
 
@@ -184,7 +198,12 @@ def main() -> None:
             return
 
     counts_before = table_counts()
-    nonempty_tables = {name: count for name, count in counts_before.items() if count}
+    schema_seed_tables = {"master_content_reference_sequences"}
+    nonempty_tables = {
+        name: count
+        for name, count in counts_before.items()
+        if count and name not in schema_seed_tables
+    }
     audit_only = set(nonempty_tables) == {AuditEvent.__tablename__}
     if audit_only:
         with SessionLocal() as db:
