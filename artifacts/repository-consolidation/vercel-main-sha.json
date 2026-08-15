@@ -1,7 +1,14 @@
 {
-  "checked_against": "pending_final_main_sha",
+  "checked_against": "30a0396eb740c6c0a84ca54aa47b9920c9022e12",
   "frontend_project": "amec-permits-ops",
   "backend_project": "amec-permits-ops-backend",
-  "VERCEL_DEPLOYED_MAIN_SHA_PARITY_PASS": null,
-  "note": "The prior feature deployment was cfc5374; final-main deployment must be from the resulting origin/main SHA."
+  "VERCEL_DEPLOYED_MAIN_SHA_PARITY_PASS": 0,
+  "VERCEL_FINAL_MAIN_DEPLOYMENT_BLOCKED": 1,
+  "attempts": {
+    "frontend": {"deployment_id":"dpl_9nYqqQkJNfjeWG3RPZoZjJfN3hrM","ready_state":"BLOCKED","promote_result":"422 not ready"},
+    "backend": {"deployment_id":"dpl_B93SXBHapGpNEZtXLd8q3bvUwWTQ","ready_state":"BLOCKED","promote_result":"not promotable"},
+    "prebuilt_frontend": {"result":"FAILED","error":"spawn sh ENOENT"}
+  },
+  "current_alias_health_release_sha": "cfc5374b6183aba5c6522963789652ecc022763a",
+  "note": "Final main SHA was pushed and deployed attempts were sourced from the clean main worktree, but Vercel deployment protection/build state blocked promotion; the old alias therefore remains on cfc5374. No final-main parity claim is made."
 }

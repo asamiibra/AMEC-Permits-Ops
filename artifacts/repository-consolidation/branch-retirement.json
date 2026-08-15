@@ -1,10 +1,11 @@
 {
   "branch": "branch/owner-form-simple-dashboard",
   "pre_integration_unique_commit_count": 13,
-  "FEATURE_BRANCH_UNMERGED_COMMIT_COUNT": null,
-  "FEATURE_BRANCH_RETIREMENT_SAFE": null,
+  "FEATURE_BRANCH_UNMERGED_COMMIT_COUNT": 0,
+  "FEATURE_BRANCH_RETIREMENT_SAFE": 0,
   "remote_deleted": false,
   "local_deleted": false,
   "other_branches_changed": false,
-  "note": "Do not delete until final origin/main containment, worktree, deployment, and classification gates pass."
+  "reason_blocked": ["primary worktree still checks out the feature branch", "canonical Vercel aliases still report cfc5374", "final-main Vercel deployments are blocked"],
+  "note": "Main contains the feature commits, but the strict retirement gate is not satisfied. Keep the branch; do not delete it."
 }
