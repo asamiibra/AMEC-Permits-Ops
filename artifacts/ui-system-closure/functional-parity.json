@@ -1,0 +1,52 @@
+{
+  "sidebar": [
+    "Dashboard",
+    "AMEC Work AMEC Work",
+    "BD Opportunities",
+    "Engineering Engineering & Closeout",
+    "Construction",
+    "Completion / As-Built",
+    "Permit Permit Portfolio",
+    "Authority Cases",
+    "Issues",
+    "Notifications",
+    "Admin Administration",
+    "Operating Guide"
+  ],
+  "filterOptions": [
+    "All",
+    "Needs Action",
+    "In Review",
+    "Ready / Closed"
+  ],
+  "routeBeforeFilter": "/proposals-contracts",
+  "routeAfterFilter": "/proposals-contracts",
+  "proposalHeaders": [
+    "Proposal / Proposal Description",
+    "Project Ref.",
+    "Stage / Status",
+    "Amount",
+    "Last Activity",
+    "Actions",
+    "Contract"
+  ],
+  "proposalHeadersAfter": [
+    "Proposal / Proposal Description",
+    "Project Ref.",
+    "Stage / Status",
+    "Amount",
+    "Last Activity",
+    "Actions",
+    "Contract"
+  ],
+  "proposalActionsBefore": [
+    "Open →",
+    "Open Contract"
+  ],
+  "proposalActionsAfter": [
+    "Open →",
+    "Open Contract"
+  ],
+  "routePreserved": true,
+  "tableHeadersPreserved": true
+}

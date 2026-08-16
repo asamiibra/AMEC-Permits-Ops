@@ -1,0 +1,157 @@
+{
+  "screens": [
+    {
+      "id": "dashboard-1440",
+      "route": "/dashboard",
+      "width": 1440,
+      "height": 1000,
+      "h1": "ProposalOps",
+      "h2": [
+        "Dashboard"
+      ],
+      "svgCount": 13,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "proposal-register-1440",
+      "route": "/opportunities",
+      "width": 1440,
+      "height": 1000,
+      "h1": "ProposalOps",
+      "h2": [
+        "Proposal Register"
+      ],
+      "svgCount": 14,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "completion-empty-1440",
+      "route": "/completion",
+      "width": 1440,
+      "height": 1000,
+      "h1": "ProposalOps",
+      "h2": [
+        "Completion scopes"
+      ],
+      "svgCount": 16,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "engineering-1440",
+      "route": "/engineering",
+      "width": 1440,
+      "height": 1000,
+      "h1": "ProposalOps",
+      "h2": [
+        "Engineering Works"
+      ],
+      "svgCount": 14,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "issues-1440",
+      "route": "/issues",
+      "width": 1440,
+      "height": 1000,
+      "h1": "ProposalOps",
+      "h2": [
+        "Issues across AMEC work"
+      ],
+      "svgCount": 21,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "admin-1440",
+      "route": "/admin",
+      "width": 1440,
+      "height": 1000,
+      "h1": "ProposalOps",
+      "h2": [
+        "Administration"
+      ],
+      "svgCount": 14,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "dashboard-1920",
+      "route": "/dashboard",
+      "width": 1920,
+      "height": 1080,
+      "h1": "ProposalOps",
+      "h2": [
+        "Dashboard"
+      ],
+      "svgCount": 13,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "dashboard-1280",
+      "route": "/dashboard",
+      "width": 1280,
+      "height": 900,
+      "h1": "ProposalOps",
+      "h2": [
+        "Dashboard"
+      ],
+      "svgCount": 13,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "dashboard-1024",
+      "route": "/dashboard",
+      "width": 1024,
+      "height": 900,
+      "h1": "ProposalOps",
+      "h2": [
+        "Dashboard"
+      ],
+      "svgCount": 13,
+      "compactDisclosureHidden": true,
+      "horizontalOverflow": false,
+      "environmentVisible": true,
+      "pageHeaderCount": 2,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    }
+  ]
+}

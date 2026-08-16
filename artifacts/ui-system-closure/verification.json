@@ -1,0 +1,48 @@
+{
+  "branch": "branch/ui-productionization",
+  "starting_sha": "aefb541a3c186cfd6aca00ff14f602e06e5b4aaa",
+  "scope": {
+    "visual_only": true,
+    "unexpected_diff_classes": 0,
+    "filter_behavior_unchanged": true,
+    "filter_option_set_unchanged": true,
+    "filter_result_parity": true,
+    "route_behavior_unchanged": true,
+    "sidebar_item_set_unchanged": true,
+    "sidebar_item_order_unchanged": true,
+    "table_behavior_unchanged": true,
+    "table_column_set_unchanged": true,
+    "table_column_order_unchanged": true,
+    "row_action_behavior_unchanged": true,
+    "business_logic_change_count": 0,
+    "domain_model_change_count": 0,
+    "backend_schema_change_count": 0,
+    "storage_behavior_change_count": 0
+  },
+  "frontend_tests": { "status": "PASS", "test_files": 13, "tests": 37 },
+  "production_build": { "status": "PASS" },
+  "browser_regression": {
+    "status": "PASS",
+    "closure_tests": 3,
+    "existing_real_stack_tests": 5,
+    "console_error_failures": 0
+  },
+  "visual_qa": {
+    "status": "PASS",
+    "screens": 9,
+    "widths": [1920, 1440, 1280, 1024],
+    "horizontal_overflow_failures": 0,
+    "serious_or_critical_axe_violations": 0
+  },
+  "accessibility": {
+    "status": "PASS",
+    "keyboard_focus": true,
+    "icon_control_naming": true,
+    "zoom_200_percent": true
+  },
+  "primary_worktree_excel_sha256": "3eb887e87bf0d5695a570e8aa1e6c917d646176c77e1b978d6387681d58f1be0",
+  "git_diff_check": "PASS",
+  "final_sha": "pending commit closure",
+  "remote_sha": "pending commit closure",
+  "clean_worktree": "pending commit closure"
+}

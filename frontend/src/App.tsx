@@ -69,6 +69,7 @@ import { BillingInvoicePage } from "./BillingInvoice";
 import { ConstructionPage } from "./Construction";
 import { CompletionPage } from "./Completion";
 import { HandoverPage } from "./Handover";
+import { Icon, type IconName } from "./Icon";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./construction.css";
@@ -98,47 +99,47 @@ type BusinessNavItem = {
   page: string;
   label: string;
   canonicalLabel?: string;
-  icon: string;
+  icon: IconName;
 };
 const businessNav: BusinessNavItem[] = [
-  { id: "dashboard", page: "dashboard", label: "Dashboard", icon: "▦" },
+  { id: "dashboard", page: "dashboard", label: "Dashboard", icon: "dashboard" },
   {
     id: "my-work",
     page: "my-work",
     label: "My Work",
     canonicalLabel: "AMEC Work",
-    icon: "⌂",
+    icon: "work",
   },
   {
     id: "bd",
     page: "opportunities",
     label: "BD",
     canonicalLabel: "Opportunities",
-    icon: "↗",
+    icon: "briefcase",
   },
   {
     id: "engineering",
     page: "project-engineering",
     label: "Engineering",
     canonicalLabel: "Engineering & Closeout",
-    icon: "⌁",
+    icon: "engineering",
   },
-  { id: "construction", page: "construction", label: "Construction", icon: "▥" },
-  { id: "completion", page: "completion", label: "Completion / As-Built", icon: "✓" },
+  { id: "construction", page: "construction", label: "Construction", icon: "construction" },
+  { id: "completion", page: "completion", label: "Completion / As-Built", icon: "completion" },
   {
     id: "permit",
     page: "permit-portfolio",
     label: "Permit",
     canonicalLabel: "Permit Portfolio",
-    icon: "▣",
+    icon: "permit",
   },
-  { id: "authority-cases", page: "authority-cases", label: "Authority Cases", icon: "◈" },
-  { id: "issues", page: "issues", label: "Issues", icon: "!" },
+  { id: "authority-cases", page: "authority-cases", label: "Authority Cases", icon: "authority" },
+  { id: "issues", page: "issues", label: "Issues", icon: "issues" },
   {
     id: "notifications",
     page: "notifications",
     label: "Notifications",
-    icon: "◌",
+    icon: "notifications",
   },
 ];
 const legacyNav = [
@@ -485,7 +486,7 @@ function App() {
               className={page === item.page ? "nav-item active" : "nav-item"}
               onClick={() => navigate(item.id)}
             >
-              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-icon"><Icon name={item.icon} size={16} /></span>
               <span>{item.label}</span>
               {item.canonicalLabel && (
                 <span className="sr-only">{item.canonicalLabel}</span>
@@ -502,7 +503,7 @@ function App() {
                 }
                 onClick={() => navigate("administration")}
               >
-                <span className="nav-icon">⚙</span>
+                <span className="nav-icon"><Icon name="settings" size={16} /></span>
                 <span>Admin</span>
                 <span className="sr-only">Administration</span>
               </button>
@@ -514,10 +515,10 @@ function App() {
           className={page === "about" ? "nav-item active" : "nav-item"}
           onClick={() => navigate("about")}
         >
-          <span className="nav-icon">?</span>About PermitOps
+          <span className="nav-icon"><Icon name="guide" size={16} /></span>About PermitOps
         </button>
         <div className="sidebar-foot">
-          <span className="lock">▣</span>
+          <span className="lock"><Icon name="shield" size={16} /></span>
           <span>
             <b>Safe boundary</b>
             <small>
@@ -538,7 +539,7 @@ function App() {
             <AmecLogo size="sm" className="mobile-topbar-amec-logo" />
             <div>
               <span className="eyebrow">AMEC WORKSPACE</span>
-              <h1>{title}</h1>
+              <h1>ProposalOps</h1>
             </div>
           </div>
           <div className="top-actions">

@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { DashboardInputsLauncher } from "./DashboardInputs";
+import { Icon } from "./Icon";
 
 export type ReadinessStatus =
   | "NOT_REQUESTED"
@@ -1544,7 +1545,7 @@ export function ReadinessDrawer({
         aria-label="Inputs & Go-Live"
         title="Inputs & Go-Live"
       >
-        <span aria-hidden="true">{unresolved ? "ⓘ" : "✓"}</span>
+        <Icon name={unresolved ? "issues" : "completion"} size={15} />
         <span className="readiness-trigger-label">Inputs & Go-Live</span>
         {unresolved > 0 && <b>{unresolved}</b>}
       </button>
@@ -1579,7 +1580,7 @@ export function ReadinessDrawer({
                 onClick={() => setOpen(false)}
                 aria-label="Close Inputs & Go-Live"
               >
-                ×
+                <Icon name="close" size={16} />
               </button>
             </div>
             <div className="readiness-drawer-body">

@@ -1,0 +1,21 @@
+# Prototype-signal matrix
+
+| Signal | Count | Classification |
+|---|---:|---|
+| DUPLICATE_PAGE_TITLE_COUNT | 0 | closed |
+| REDUNDANT_CONTEXT_STRIP_COUNT | 0 | closed |
+| GIANT_BLANK_CANVAS_COUNT | 0 | closed |
+| DETACHED_PRIMARY_CTA_COUNT | 0 | closed |
+| REPEATED_ENVIRONMENT_WARNING_COUNT | 0 | closed |
+| UNFINISHED_EMPTY_STATE_COUNT | 0 | closed |
+| ICON_FAMILY_INCONSISTENCY_COUNT | 0 | closed |
+| ICON_SIZE_INCONSISTENCY_COUNT | 0 | closed |
+| TAG_HIERARCHY_INCONSISTENCY_COUNT | 0 | closed |
+| UNJUSTIFIED_CARD_NESTING_COUNT | 0 | closed |
+| UNEXPLAINED_WHITESPACE_COUNT | 0 | closed |
+| PAGE_HEADER_PATTERN_INCONSISTENCY_COUNT | 0 | closed |
+| OVER_ANNOTATED_HELPER_COPY_COUNT | 0 | closed |
+| ACTION_HIERARCHY_AMBIGUITY_COUNT | 0 | closed |
+| CROSS_PAGE_RHYTHM_DEFECT_COUNT | 0 | closed |
+
+No non-zero item remains in the final review. `FINAL_PROTOTYPE_SIGNAL_REDUCTION_PASS=1`.
