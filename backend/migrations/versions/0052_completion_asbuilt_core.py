@@ -87,8 +87,57 @@ def upgrade() -> None:
         op.create_foreign_key("submission_package_items_as_built_baseline_id_fkey", "submission_package_items", "as_built_baselines", ["as_built_baseline_id"], ["id"])
     if "ix_submission_package_items_as_built_baseline_id" not in indexes:
         op.create_index("ix_submission_package_items_as_built_baseline_id", "submission_package_items", ["as_built_baseline_id"])
+    if bind.dialect.name == "postgresql":
+        for table_name, constraint_name, columns, referred_table in (
+            ("submission_package_items", "submission_package_items_as_built_baseline_id_fkey", ["as_built_baseline_id"], "as_built_baselines"),
+            ("building_assets", "building_assets_property_id_fkey", ["property_id"], "properties"),
+            ("as_built_variances", "as_built_variances_design_change_request_id_fkey", ["design_change_request_id"], "design_change_requests"),
+            ("as_built_baseline_members", "as_built_baseline_members_rendition_id_fkey", ["rendition_id"], "engineering_renditions"),
+            ("as_built_baseline_members", "as_built_baseline_members_engineering_revision_id_fkey", ["engineering_revision_id"], "engineering_deliverable_revisions"),
+            ("as_built_variances", "as_built_variances_engineering_revision_id_fkey", ["engineering_revision_id"], "engineering_deliverable_revisions"),
+            ("as_built_baselines", "as_built_baselines_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("completion_case_links", "completion_case_links_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+        ):
+            exists = bind.execute(sa.text(
+                "SELECT 1 FROM pg_constraint WHERE conname = :constraint_name"
+            ), {"constraint_name": constraint_name}).scalar()
+            if not exists:
+                op.create_foreign_key(
+                    constraint_name, table_name, referred_table, columns, ["id"]
+                )
 
 def downgrade() -> None:
     # Completion evidence is an audit boundary. Preserve it during ordinary
     # downgrades; any destructive archival requires an explicit operator action.
-    pass
+    op.execute(sa.text(
+        "ALTER TABLE submission_package_items "
+        "DROP CONSTRAINT IF EXISTS submission_package_items_as_built_baseline_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE building_assets "
+        "DROP CONSTRAINT IF EXISTS building_assets_property_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE as_built_variances "
+        "DROP CONSTRAINT IF EXISTS as_built_variances_design_change_request_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE as_built_baseline_members "
+        "DROP CONSTRAINT IF EXISTS as_built_baseline_members_rendition_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE as_built_baseline_members "
+        "DROP CONSTRAINT IF EXISTS as_built_baseline_members_engineering_revision_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE as_built_variances "
+        "DROP CONSTRAINT IF EXISTS as_built_variances_engineering_revision_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE as_built_baselines "
+        "DROP CONSTRAINT IF EXISTS as_built_baselines_authority_case_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE completion_case_links "
+        "DROP CONSTRAINT IF EXISTS completion_case_links_authority_case_id_fkey"
+    ))

@@ -32,6 +32,16 @@ def upgrade():
 
 def downgrade():
     bind = op.get_bind()
+    # Drop child edges owned by tables removed at this historical boundary.
+    # Explicit cleanup preserves dependency ownership and avoids CASCADE.
+    for table_name, constraint_name in (
+        ("representations", "representations_authorization_id_fkey"),
+        ("excel_projections", "excel_projections_target_rendering_rule_id_fkey"),
+    ):
+        bind.exec_driver_sql(
+            f"ALTER TABLE IF EXISTS {table_name} "
+            f"DROP CONSTRAINT IF EXISTS {constraint_name}"
+        )
     for table in [
         "target_rendering_rules", "representations", "authorizations", "property_ownerships", "parties", "properties",
         "excel_projection_rules", "excel_project_rows", "synology_project_bootstraps", "project_number_reservations",

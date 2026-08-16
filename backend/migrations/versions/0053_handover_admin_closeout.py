@@ -127,5 +127,21 @@ def upgrade() -> None:
         op.execute(sa.text(ddl))
 
 def downgrade() -> None:
+    op.execute(sa.text(
+        "ALTER TABLE handover_package_revisions "
+        "DROP CONSTRAINT IF EXISTS handover_package_revisions_authority_case_outcome_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE handover_package_revisions "
+        "DROP CONSTRAINT IF EXISTS handover_package_revisions_approved_design_baseline_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE handover_package_items "
+        "DROP CONSTRAINT IF EXISTS handover_package_items_engineering_rendition_id_fkey"
+    ))
+    op.execute(sa.text(
+        "ALTER TABLE handover_package_items "
+        "DROP CONSTRAINT IF EXISTS handover_package_items_authority_case_id_fkey"
+    ))
     for table in reversed(_TABLES):
         op.execute(sa.text(f"DROP TABLE IF EXISTS {table}"))

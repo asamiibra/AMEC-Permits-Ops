@@ -107,8 +107,79 @@ def upgrade() -> None:
     op.execute(sa.text('CREATE INDEX IF NOT EXISTS ix_construction_evidence_link_execution ON construction_evidence_links (construction_execution_id, evidence_type)'))
     op.execute(sa.text('CREATE INDEX IF NOT EXISTS ix_construction_evidence_links_project_id ON construction_evidence_links (project_id)'))
     op.execute(sa.text('CREATE INDEX IF NOT EXISTS ix_construction_evidence_links_material_test_id ON construction_evidence_links (material_test_id)'))
+    if op.get_bind().dialect.name == "postgresql":
+        for table_name, constraint_name, columns, referred_table in (
+            ("construction_executions", "construction_executions_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("authority_approved_design_snapshots", "authority_approved_design_snapshots_submission_cycle_id_fkey", ["submission_cycle_id"], "authority_submission_cycles"),
+            ("authority_approved_design_snapshots", "authority_approved_design_sna_external_submission_snapshot_fkey", ["external_submission_snapshot_id"], "external_submission_snapshots"),
+            ("authority_approved_design_snapshots", "authority_approved_design_snapshots_authority_outcome_id_fkey", ["authority_outcome_id"], "authority_case_outcomes"),
+            ("authority_approved_design_snapshots", "authority_approved_design_snapshots_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("authority_approved_design_snapshots", "authority_approved_design_snapshot_preparation_revision_id_fkey", ["preparation_revision_id"], "preparation_revisions"),
+            ("authority_approved_design_snapshots", "authority_approved_design_snapshots_submission_package_id_fkey", ["submission_package_id"], "submission_packages"),
+            ("authority_approved_design_snapshots", "authority_approved_design_snap_approved_design_baseline_id_fkey", ["approved_design_baseline_id"], "approved_design_baselines"),
+            ("construction_design_snapshots", "construction_design_snapshots_approved_design_baseline_id_fkey", ["approved_design_baseline_id"], "approved_design_baselines"),
+            ("construction_issues", "construction_issues_authority_case_finding_id_fkey", ["authority_case_finding_id"], "authority_case_findings"),
+            ("construction_issues", "construction_issues_design_change_request_id_fkey", ["design_change_request_id"], "design_change_requests"),
+            ("construction_issues", "construction_issues_requirement_instance_id_fkey", ["requirement_instance_id"], "requirement_instances"),
+            ("construction_obligation_definitions", "construction_obligation_definitions_policy_version_id_fkey", ["policy_version_id"], "requirement_policy_versions"),
+            ("construction_obligation_definitions", "construction_obligation_definiti_requirement_definition_id_fkey", ["requirement_definition_id"], "requirement_definitions"),
+            ("construction_obligation_definitions", "construction_obligation_definitions_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("construction_obligation_instances", "construction_obligation_instances_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("construction_party_assignments", "construction_party_assignments_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("construction_party_assignments", "construction_party_assignments_professional_credential_id_fkey", ["professional_credential_id"], "professional_credentials"),
+            ("construction_party_assignments", "construction_party_assignments_party_id_fkey", ["party_id"], "parties"),
+            ("construction_authority_notifications", "construction_authority_notifications_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("construction_correspondence", "construction_correspondence_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("construction_correspondence", "construction_correspondence_sender_party_id_fkey", ["sender_party_id"], "parties"),
+            ("construction_correspondence", "construction_correspondence_recipient_party_id_fkey", ["recipient_party_id"], "parties"),
+            ("construction_inspections", "construction_inspections_authority_case_id_fkey", ["authority_case_id"], "authority_cases"),
+            ("construction_inspections", "construction_inspections_inspector_party_id_fkey", ["inspector_party_id"], "parties"),
+            ("construction_obligation_participants", "construction_obligation_participants_party_id_fkey", ["party_id"], "parties"),
+            ("construction_evidence_links", "construction_evidence_links_physical_evidence_item_id_fkey", ["physical_evidence_item_id"], "physical_evidence_items"),
+            ("construction_evidence_links", "construction_evidence_links_material_test_id_fkey", ["material_test_id"], "engineering_material_tests"),
+        ):
+            exists = op.get_bind().execute(sa.text(
+                "SELECT 1 FROM pg_constraint WHERE conname = :constraint_name"
+            ), {"constraint_name": constraint_name}).scalar()
+            if not exists:
+                op.create_foreign_key(
+                    constraint_name, table_name, referred_table, columns, ["id"]
+                )
 
 
 def downgrade() -> None:
-    # Construction evidence is an audit boundary; ordinary downgrades are non-destructive.
-    pass
+    # Construction evidence is an audit boundary; retain the table while
+    # removing every 0050-owned dependency on 0044 tables first.
+    for table_name, constraint_name in (
+        ("construction_executions", "construction_executions_authority_case_id_fkey"),
+        ("authority_approved_design_snapshots", "authority_approved_design_snapshots_submission_cycle_id_fkey"),
+        ("authority_approved_design_snapshots", "authority_approved_design_sna_external_submission_snapshot_fkey"),
+        ("authority_approved_design_snapshots", "authority_approved_design_snapshots_authority_outcome_id_fkey"),
+        ("authority_approved_design_snapshots", "authority_approved_design_snapshots_authority_case_id_fkey"),
+        ("authority_approved_design_snapshots", "authority_approved_design_snapshot_preparation_revision_id_fkey"),
+        ("authority_approved_design_snapshots", "authority_approved_design_snapshots_submission_package_id_fkey"),
+        ("authority_approved_design_snapshots", "authority_approved_design_snap_approved_design_baseline_id_fkey"),
+        ("construction_design_snapshots", "construction_design_snapshots_approved_design_baseline_id_fkey"),
+        ("construction_issues", "construction_issues_authority_case_finding_id_fkey"),
+        ("construction_issues", "construction_issues_design_change_request_id_fkey"),
+        ("construction_issues", "construction_issues_requirement_instance_id_fkey"),
+        ("construction_obligation_definitions", "construction_obligation_definitions_policy_version_id_fkey"),
+        ("construction_obligation_definitions", "construction_obligation_definiti_requirement_definition_id_fkey"),
+        ("construction_obligation_definitions", "construction_obligation_definitions_authority_case_id_fkey"),
+        ("construction_obligation_instances", "construction_obligation_instances_authority_case_id_fkey"),
+        ("construction_party_assignments", "construction_party_assignments_authority_case_id_fkey"),
+        ("construction_party_assignments", "construction_party_assignments_professional_credential_id_fkey"),
+        ("construction_party_assignments", "construction_party_assignments_party_id_fkey"),
+        ("construction_authority_notifications", "construction_authority_notifications_authority_case_id_fkey"),
+        ("construction_correspondence", "construction_correspondence_authority_case_id_fkey"),
+        ("construction_correspondence", "construction_correspondence_sender_party_id_fkey"),
+        ("construction_correspondence", "construction_correspondence_recipient_party_id_fkey"),
+        ("construction_inspections", "construction_inspections_authority_case_id_fkey"),
+        ("construction_inspections", "construction_inspections_inspector_party_id_fkey"),
+        ("construction_obligation_participants", "construction_obligation_participants_party_id_fkey"),
+        ("construction_evidence_links", "construction_evidence_links_physical_evidence_item_id_fkey"),
+        ("construction_evidence_links", "construction_evidence_links_material_test_id_fkey"),
+    ):
+        op.execute(sa.text(
+            f"ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {constraint_name}"
+        ))

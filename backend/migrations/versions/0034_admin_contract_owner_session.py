@@ -67,4 +67,12 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Additive migration; production downgrade is intentionally conservative.
-    pass
+    for table_name, constraint_name in (
+        ("contracts", "contracts_accepted_proposal_revision_id_fkey"),
+        ("contract_revisions", "contract_revisions_accepted_proposal_revision_id_fkey"),
+        ("project_activations", "project_activations_accepted_proposal_revision_id_fkey"),
+        ("contract_template_snapshots", "contract_template_snapshots_master_content_id_fkey"),
+    ):
+        op.execute(sa.text(
+            f"ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {constraint_name}"
+        ))

@@ -98,7 +98,26 @@ def upgrade() -> None:
         sa.Column("accepted_by", sa.String(200), nullable=True),
         sa.Column("accepted_at", sa.DateTime(timezone=True), nullable=True),
     ])
+    bind = op.get_bind()
+    if bind.dialect.name == "postgresql":
+        for table_name, constraint_name, columns in (
+            ("financial_account_masters", "financial_account_masters_legal_entity_party_id_fkey", ["legal_entity_party_id"]),
+            ("receivable_follow_ups", "receivable_follow_ups_contact_party_id_fkey", ["contact_party_id"]),
+        ):
+            exists = bind.execute(sa.text(
+                "SELECT 1 FROM pg_constraint WHERE conname = :constraint_name"
+            ), {"constraint_name": constraint_name}).scalar()
+            if not exists:
+                op.create_foreign_key(
+                    constraint_name, table_name, "parties", columns, ["id"]
+                )
 
 def downgrade() -> None:
     # Additive finance history is retained; no issued or payment records are destructively removed.
-    pass
+    for table_name, constraint_name in (
+        ("financial_account_masters", "financial_account_masters_legal_entity_party_id_fkey"),
+        ("receivable_follow_ups", "receivable_follow_ups_contact_party_id_fkey"),
+    ):
+        op.execute(sa.text(
+            f"ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {constraint_name}"
+        ))
