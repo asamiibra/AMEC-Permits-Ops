@@ -603,7 +603,14 @@ def _archive_obsolete_generic_placeholders(db: Session, *, actor: str) -> dict[s
             continue
         bindings = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active.is_(True))).all()
         has_non_available_binding = any(binding.usage_type != "AVAILABLE" for binding in bindings)
-        has_dependency = any(db.scalar(select(model.id).where(model.master_content_item_id == item.id)) for model in (MasterContentDependency, MasterContentApplicability, FormAutomationProfile, RequirementPolicyLineage, TechnicalRuleLineage))
+        dependency_models = (
+            (MasterContentDependency, MasterContentDependency.master_content_id),
+            (MasterContentApplicability, MasterContentApplicability.master_content_item_id),
+            (FormAutomationProfile, FormAutomationProfile.master_content_item_id),
+            (RequirementPolicyLineage, RequirementPolicyLineage.master_content_item_id),
+            (TechnicalRuleLineage, TechnicalRuleLineage.master_content_item_id),
+        )
+        has_dependency = any(db.scalar(select(model.id).where(column == item.id)) for model, column in dependency_models)
         if _seed_owned_generic_placeholder(item) and not has_non_available_binding and not has_dependency:
             classification["classification"] = "OBSOLETE_SYNTHETIC_PLACEHOLDER"
             if item.status == "ACTIVE":

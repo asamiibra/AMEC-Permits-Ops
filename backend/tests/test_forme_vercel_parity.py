@@ -2,7 +2,7 @@ from sqlalchemy import select
 
 from backend.app.db import SessionLocal
 from backend.app.models import MasterContentItem
-from backend.app.services.master_content import reconcile_owner_demo_dataset, resolve_master_content_purpose
+from backend.app.services.master_content import create_master_content, reconcile_owner_demo_dataset, resolve_master_content_purpose
 from backend.app.fixtures.forme_parity import FORME_MASTER_SPECS
 
 
@@ -32,3 +32,30 @@ def test_forme_parity_seed_is_exact_and_idempotent():
         assert second["generic_placeholder_analysis"]["unclassified"] == []
         assert second["forme_parity"]["current"] == 7
         assert second["forme_parity"]["needs_review"] == 7
+
+
+def test_generic_seed_placeholder_cleanup_handles_dependency_column_names():
+    with SessionLocal() as db:
+        created = create_master_content(
+            db,
+            content_type="FORM",
+            ref="F-0001",
+            title="Consultant Form",
+            category_id=None,
+            description="Legacy owner-demo placeholder",
+            filename="F-0001-owner-demo.txt",
+            mime_type="text/plain",
+            content=b"legacy placeholder",
+            actor="owner-demo-seed",
+            idempotency_key="owner-demo-placeholder-regression",
+            correlation_id="owner-demo-placeholder-regression",
+        )
+        item = db.get(MasterContentItem, created["id"])
+        version = item.document.versions[0]
+        version.source_filename = "F-0001-owner-demo.txt"
+        version.metadata_json = {**version.metadata_json, "business_ref": "F-0001"}
+        db.commit()
+
+        result = reconcile_owner_demo_dataset(db)
+
+        assert "F-0001" in result["generic_placeholder_analysis"]["archived"]
