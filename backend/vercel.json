@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "*": false
+    }
+  },
   "framework": "fastapi",
   "buildCommand": "python3 scripts/vercel_data_bootstrap.py"
 }
