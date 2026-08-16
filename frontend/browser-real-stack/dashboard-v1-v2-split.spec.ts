@@ -1,14 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-test("AMEC Work exposes one Dashboard destination and the promoted current Dashboard", async ({ page }) => {
+test("AMEC Work exposes one Content Library destination and the promoted current library", async ({ page }) => {
   await page.goto("/work");
   await expect(page.getByRole("heading", { name: "What needs attention", level: 2 })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Open Dashboard →/ })).toHaveCount(1);
+  await expect(page.getByRole("link", { name: /Open Content Library →/ })).toHaveCount(1);
   await expect(page.getByRole("link", { name: /Open Dashboard V2 →/ })).toHaveCount(0);
 
-  await page.getByRole("link", { name: /Open Dashboard →/ }).click();
+  await page.getByRole("link", { name: /Open Content Library →/ }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible();
   await expect(page.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "v2-evolution");
   await expect(page.getByTestId("dashboard-governance-overview")).toBeVisible();
   await expect(page.getByTestId("dashboard-library-navigation")).toBeVisible();
@@ -17,10 +17,10 @@ test("AMEC Work exposes one Dashboard destination and the promoted current Dashb
   await expect(page.getByRole("link", { name: "Inputs & Go-Live" })).toHaveAttribute("href", "/dashboard/inputs-go-live");
 });
 
-test("/dashboard-v2 is a compatibility redirect to the current Dashboard", async ({ page }) => {
+test("/dashboard-v2 is a compatibility redirect to the current Content Library", async ({ page }) => {
   await page.goto("/dashboard-v2?source=bookmark#forms");
   await expect(page).toHaveURL(/\/dashboard\?source=bookmark#forms$/);
-  await expect(page.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Dashboard V2", level: 2 })).toHaveCount(0);
 });
 

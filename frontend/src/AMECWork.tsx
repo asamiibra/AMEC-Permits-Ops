@@ -73,8 +73,8 @@ export function AMECWorkPage({ openAbout }: { openAbout?: () => void }) {
     <div className="page-intro amec-work-intro"><div><span className="eyebrow">AMEC WORK</span><span className="eyebrow">PROPOSAL • CONTRACT • PERMIT</span><h2>What needs attention</h2><p>One prioritized worklist across proposals, contracts, permits, and handoffs.</p></div><span className="tag">SYNTHETIC PROTOTYPE</span></div>
     <div className="amec-work-helper">Test data and simulated integrations · Open each item in its exact business context.</div>
     {openAbout && <section className="about-entry-card amec-work-guide"><div className="about-entry-mark">?</div><div><span className="eyebrow">NEW TO PROPOSALOPS?</span><h3>See how ProposalOps works</h3><p>Follow the flow from proposal intake through contract and permit delivery.</p></div><button className="button-primary" onClick={openAbout}>Open Operating Guide →</button></section>}
-    <section className="dashboard-destination-grid" aria-label="Dashboards">
-      <a className="dashboard-destination-card" href="/dashboard"><span className="eyebrow">MASTER CONTENT</span><h3>Dashboard</h3><p>Existing Forms, Reports, Engineering Works, and Definitions workspace.</p><span className="button-secondary">Open Dashboard →</span></a>
+    <section className="dashboard-destination-grid" aria-label="Cross-functional workspaces">
+      <a className="dashboard-destination-card" href="/dashboard"><span className="eyebrow">CONTENT LIBRARY</span><h3>Content Library</h3><p>Existing Forms, Reports, Engineering Works, and Definitions workspace.</p><span className="button-secondary">Open Content Library →</span></a>
     </section>
     <div className="amec-work-kpis" aria-label="Work summary">
       {KPI.map(([key, title, hint]) => <button key={key} className={`amec-work-kpi ${filters.kpi === key ? "selected" : ""}`} aria-pressed={filters.kpi === key} onClick={() => update({ kpi: filters.kpi === key ? "all" : key })}><span>{title}</span><strong>{loading || error ? "—" : summary[key] ?? 0}</strong><small>{hint}</small></button>)}

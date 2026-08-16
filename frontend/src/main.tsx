@@ -22,7 +22,7 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
 
   render() {
     if (this.state.hasError) {
-      return <main className="app-error-boundary" role="alert"><div className="panel"><span className="eyebrow">SAFE RECOVERY</span><h1>ProposalOps could not render this screen</h1><p>The current view stopped safely. Refresh the page or return to AMEC Work. No external action was performed.</p><button className="button-primary" onClick={() => window.location.assign("/work")}>Return to AMEC Work</button></div></main>;
+      return <main className="app-error-boundary" role="alert"><div className="panel"><span className="eyebrow">SAFE RECOVERY</span><h1>ProposalOps could not render this screen</h1><p>The current view stopped safely. Refresh the page or return to Home. No external action was performed.</p><button className="button-primary" onClick={() => window.location.assign("/home")}>Return to Home</button></div></main>;
     }
     return this.props.children;
   }
