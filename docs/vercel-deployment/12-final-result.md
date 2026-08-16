@@ -2,13 +2,13 @@
 
 Repository branch: `branch/ui-productionization`.
 
-- `LATEST_GIT_SHA=af1a37b21f34dbde902b78e3c83b9fde6446b523` (`Finalize deployment ledger parity boundary`)
+- `LATEST_GIT_SHA=branch/ui-productionization tip` (exact value is recorded by `git rev-parse HEAD` at handoff)
 - `LATEST_TESTED_SHA=e5b916d5a81dfdd72a93a769d49d015cf2c71866`
 - `LATEST_VERCEL_DEPLOYED_SHA=UNSET`
 - `LATEST_VERIFIED_DEPLOYED_SHA=UNSET`
 - `RELEASE_EXPECTED_SHA=e5b916d5a81dfdd72a93a769d49d015cf2c71866`
 - `RELEASE_REMOTE_SHA_AT_DEPLOY=e5b916d5a81dfdd72a93a769d49d015cf2c71866`
-- `POSTDEPLOY_LOCAL_REMOTE_SHA_MATCH=1` (current local/remote both `af1a37b21f34dbde902b78e3c83b9fde6446b523`)
+- `POSTDEPLOY_LOCAL_REMOTE_SHA_MATCH=1` (current local and remote branch tips match)
 - `VERCEL_DEPLOYMENT_BLOCKED=1`
 
 The exact release was committed and pushed, and its local prebuilt artifact passed the release build. Vercel rejected the final deployment because the team exceeded the free daily deployment quota (`api-deployments-free-per-day`, more than 100; retry in 24 hours). The production alias was not promoted, so no browser/API/post-deploy SHA-parity claim is made.
