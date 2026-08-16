@@ -1,0 +1,8 @@
+{
+  "LOCAL_V2_PRESENTATION_STRUCTURAL_PARITY_PASS": 1,
+  "DASHBOARD_V2_ROOT_IDENTITY_TEST_PASS": 1,
+  "tests": 4,
+  "passed": 4,
+  "failed": 0,
+  "journeys": ["/work to /dashboard", "/dashboard-v2 redirect", "/dashboard-v2/inputs-go-live redirect", "Wave B/C governance detail"]
+}

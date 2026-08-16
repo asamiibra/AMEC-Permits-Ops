@@ -1,0 +1,21 @@
+{
+  "captured_at": "2026-08-15",
+  "starting_branch": "branch/owner-form-simple-dashboard",
+  "starting_head": "7250b5264cf586e15adf185e8947e60399cf00aa",
+  "origin_main": "c31e6fb04265999bbd85b4974095a9246156734a",
+  "common_base": "07ea0478dd71f37c84995936c057acadf3e939a0",
+  "refs": {
+    "origin/branch/owner-form-simple-dashboard": "7250b5264cf586e15adf185e8947e60399cf00aa",
+    "origin/branch/home-navigation-reorganization": "eccdfe87aa67615a0153a41e9012bb011faa5092",
+    "origin/branch/ui-productionization": "aefb541a3c186cfd6aca00ff14f602e06e5b4aaa",
+    "origin/main": "c31e6fb04265999bbd85b4974095a9246156734a",
+    "origin/HEAD": "origin/main"
+  },
+  "worktrees": [
+    {"path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev", "ref": "branch/owner-form-simple-dashboard", "status": "dirty_only_preexisting_excel"},
+    {"path": "/private/tmp/proposalops-home-navigation", "ref": "branch/home-navigation-reorganization"},
+    {"path": "/private/tmp/proposalops-ui-productionization", "ref": "branch/ui-productionization"},
+    {"path": "/private/tmp/proposalops-wave-a-v1-reference", "ref": null, "sha": "0ccb61a2b7ac483a17590c27eca594b16b505bb7"}
+  ],
+  "excel_change": {"path": "mock-systems/excel/permit_tracker.xlsx", "working_tree_modified": true, "stash": "stash@{0}", "stash_sha": "2f072fce8eb6f31851a8233e054a88a0f17eca6c", "task_commit_inclusion": false}
+}

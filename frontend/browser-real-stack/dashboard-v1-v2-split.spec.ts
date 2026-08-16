@@ -9,6 +9,10 @@ test("AMEC Work exposes one Dashboard destination and the promoted current Dashb
   await page.getByRole("link", { name: /Open Dashboard →/ }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible();
+  await expect(page.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "v2-evolution");
+  await expect(page.getByTestId("dashboard-governance-overview")).toBeVisible();
+  await expect(page.getByTestId("dashboard-library-navigation")).toBeVisible();
+  await expect(page.getByTestId("dashboard-source-authority-panel")).toBeVisible();
   await expect(page.getByText("Advanced governance filters")).toBeVisible();
   await expect(page.getByRole("link", { name: "Inputs & Go-Live" })).toHaveAttribute("href", "/dashboard/inputs-go-live");
 });

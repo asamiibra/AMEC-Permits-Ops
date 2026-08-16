@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "base_url": "https://amec-permits-ops.vercel.app",
+  "runtime_source_sha": "c2a7551d1304ab43b6d8148ad9861d7b2f9dd19a",
+  "tests": 6,
+  "passed": 6,
+  "failed": 0,
+  "required_landmarks": 4,
+  "landmarks_seen": ["dashboard-governance-overview", "dashboard-library-navigation", "dashboard-source-authority-panel", "current-dashboard[data-dashboard-root=v2-evolution]"],
+  "pre_fix_screenshot": "artifacts/dashboard-v2-final-closure/pre-fix-current-dashboard.png",
+  "post_fix_screenshot": "artifacts/dashboard-v2-final-closure/post-fix-current-dashboard.png",
+  "post_fix_form_detail_screenshot": "artifacts/dashboard-v2-final-closure/post-fix-v2-form-detail.png",
+  "VERCEL_V2_PRESENTATION_BROWSER_PASS": 1
+}

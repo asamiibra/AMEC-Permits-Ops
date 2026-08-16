@@ -1,0 +1,21 @@
+{
+  "closure_final_sha": "7250b5264cf586e15adf185e8947e60399cf00aa",
+  "deployed_runtime_source_sha": "c2a7551d1304ab43b6d8148ad9861d7b2f9dd19a",
+  "diff_classification": {
+    "files": [
+      "artifacts/dashboard-v2-final-closure/final-result.json",
+      "artifacts/dashboard-v2-final-closure/post-fix-current-dashboard.png",
+      "artifacts/dashboard-v2-final-closure/post-fix-v2-form-detail.png",
+      "artifacts/dashboard-v2-final-closure/resolver-results.json",
+      "artifacts/dashboard-v2-final-closure/vercel-browser-results.json",
+      "artifacts/dashboard-v2-final-closure/vercel-network-trace.json",
+      "docs/dashboard-v2-final-closure/10-vercel-browser-network.md",
+      "docs/dashboard-v2-final-closure/15-final-result.md"
+    ],
+    "code_or_migration_files": [],
+    "classification": "EVIDENCE_ONLY_CURRENT"
+  },
+  "executable_difference": false,
+  "runtime_source_equivalence_pass": 1,
+  "note": "The later closure SHA adds certification records and screenshots only; source and migration trees are identical to c2a. Final deployment must nevertheless use exact final origin/main after consolidation."
+}

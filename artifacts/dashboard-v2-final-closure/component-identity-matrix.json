@@ -1,0 +1,27 @@
+{
+  "HISTORICAL_V1_ROOT_IDENTIFIED": 1,
+  "HISTORICAL_V2_ROOT_IDENTIFIED": 1,
+  "CURRENT_DASHBOARD_ROOT_IDENTIFIED": 1,
+  "components": {
+    "Dashboard shell": "CURRENT_EVOLVED_V2",
+    "Header": "CURRENT_EVOLVED_V2",
+    "Library navigation": "CURRENT_EVOLVED_V2",
+    "Search/filter bar": "SHARED",
+    "Advanced governance filters": "CURRENT_EVOLVED_V2",
+    "Forms table": "CURRENT_EVOLVED_V2",
+    "Form detail": "CURRENT_EVOLVED_V2",
+    "Form create/edit": "CURRENT_EVOLVED_V2",
+    "History": "CURRENT_EVOLVED_V2",
+    "Reports": "CURRENT_EVOLVED_V2",
+    "Engineering Works": "CURRENT_EVOLVED_V2",
+    "Definitions": "CURRENT_EVOLVED_V2",
+    "Inputs & Go-Live": "CURRENT_EVOLVED_V2",
+    "Governance summaries": "CURRENT_EVOLVED_V2",
+    "Source/authority": "CURRENT_EVOLVED_V2",
+    "Quality/sensitivity": "CURRENT_EVOLVED_V2",
+    "Currentness/readiness": "CURRENT_EVOLVED_V2",
+    "Source sections": "CURRENT_EVOLVED_V2",
+    "Admin parity views": "SHARED"
+  },
+  "V1_PRESENTATION_RUNTIME_RESIDUE_COUNT": 0
+}

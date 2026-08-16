@@ -1,0 +1,15 @@
+{
+  "HISTORICAL_V2_VISUAL_BASELINE_CAPTURED": 1,
+  "MISSING_REQUIRED_V2_SECTION_COUNT": 0,
+  "sections": {
+    "landing": "EVOLVED",
+    "forms": "PRESERVED",
+    "advanced_governance": "PRESERVED",
+    "source_authority_quality": "PRESERVED",
+    "readiness_currentness": "PRESERVED_AND_SUMMARIZED",
+    "form_detail": "EVOLVED",
+    "history": "PRESERVED",
+    "inputs": "PRESERVED",
+    "business_status": "INTENTIONALLY_REPLACED_WITH_LATEST_OWNER_MODEL"
+  }
+}

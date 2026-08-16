@@ -1,0 +1,10 @@
+{
+  "HISTORICAL_V2_VISUAL_BASELINE_CAPTURED": 1,
+  "LOCAL_V2_PRESENTATION_STRUCTURAL_PARITY_PASS": 1,
+  "V2_UNIQUE_DOM_LANDMARK_COUNT": 4,
+  "V1_UNIQUE_DOM_LANDMARK_COUNT_IN_CURRENT_DASHBOARD": 0,
+  "MISSING_REQUIRED_V2_SECTION_COUNT": 0,
+  "landmarks": ["current-dashboard[data-dashboard-root=v2-evolution]", "dashboard-governance-overview", "dashboard-library-navigation", "dashboard-source-authority-panel"],
+  "historical_v2": ["artifacts/dashboard-v2-final-closure/historical-v2-dashboard.png", "artifacts/dashboard-v2-final-closure/historical-v2-form-detail.png"],
+  "pre_fix_current": "artifacts/dashboard-v2-final-closure/pre-fix-current-dashboard.png"
+}

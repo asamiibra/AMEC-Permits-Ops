@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "frontend": "https://amec-permits-ops.vercel.app",
+  "backend": "https://amec-permits-ops-backend.vercel.app",
+  "runtime_source_sha": "c2a7551d1304ab43b6d8148ad9861d7b2f9dd19a",
+  "frontend_deployment_id": "dpl_AQSmV76kkmXLkagFgJi7uKHUW7Z8",
+  "backend_deployment_id": "dpl_8zv8sh2ZCupbp8m7PoepRnvFykii",
+  "backend_health": {"http": 200, "database": "postgresql", "durable": true, "sqlite_fallback_active": false, "migration": "0058_source_intake_ledger", "release_sha": "c2a7551d1304ab43b6d8148ad9861d7b2f9dd19a"},
+  "dashboard_api_requests": ["/api/dashboard-inputs", "/api/master-content?content_type=FORM", "/api/master-content?q=", "/api/definitions?q=", "/api/master-content/categories", "/api/projects", "/api/applications", "/api/dashboard-v2/catalogs", "/api/dashboard-v2/forms/81e889a2-98ff-4c4d-b553-2ea550a35a6e"],
+  "dashboard_api_response_statuses": [200],
+  "VERCEL_CURRENT_DASHBOARD_V1_API_CALL_COUNT": 0,
+  "required_assertions": ["current-dashboard[data-dashboard-root=v2-evolution]", "dashboard-governance-overview", "dashboard-library-navigation", "dashboard-source-authority-panel", "dashboard-v2 compatibility redirect only"]
+}

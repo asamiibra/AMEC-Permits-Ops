@@ -1,0 +1,11 @@
+{
+  "branch": "branch/owner-form-simple-dashboard",
+  "starting_head": "07ea0478dd71f37c84995936c057acadf3e939a0",
+  "origin_feature_sha": "07ea0478dd71f37c84995936c057acadf3e939a0",
+  "origin_main_sha": "c31e6fb04265999bbd85b4974095a9246156734a",
+  "alembic_current": "0058_source_intake_ledger",
+  "alembic_head": "0058_source_intake_ledger",
+  "excel_change_preserved": 1,
+  "excel_stash": {"ref": "stash@{0}", "sha": "2f072fce8eb6f31851a8233e054a88a0f17eca6c"},
+  "main_touched": 0
+}
