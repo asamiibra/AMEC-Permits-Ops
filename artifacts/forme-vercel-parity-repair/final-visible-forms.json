@@ -1,6 +1,7 @@
 {
-  "status": "PENDING_REPAIR_DEPLOYMENT",
+  "status": "BLOCKED_BACKEND_REPAIR_DEPLOYMENT",
   "forms": [],
   "forme_vercel_business_parity_pass": 0,
-  "forme_real_binary_on_vercel_certified": 0
+  "forme_real_binary_on_vercel_certified": 0,
+  "blocker": "No ready repair-SHA backend runtime exists on Vercel; deployed API visibility was not claimed."
 }

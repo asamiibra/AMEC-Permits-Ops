@@ -1,13 +1,17 @@
 {
-  "status": "REPAIR_IMPLEMENTED_AWAITING_DEPLOYMENT",
+  "status": "BLOCKED_EXTERNAL_VERCEL_BACKEND_REPAIR_DEPLOYMENT",
   "incorrect_synthetic_dashboard_seed_repaired_pass": 1,
   "forme_exact_7_current_7_needs_review_pass": 1,
   "bad_demo_records_eliminated_pass": 1,
   "dashboard_v2_post_repair_regression_pass": 1,
-  "post_repair_main_canonical_baseline_pass": 0,
+  "post_repair_main_canonical_baseline_pass": 1,
   "forme_vercel_master_content_business_parity_pass": 0,
   "forme_real_binary_on_vercel_certified": 0,
   "real_document_storage_certified": 0,
   "real_synology_verification_blocked_external": 1,
+  "vercel_frontend_exact_sha_ready_pass": 1,
+  "vercel_backend_exact_sha_ready_pass": 0,
+  "deployed_api_browser_parity_blocked_external": 1,
+  "remote_database_seed_run": 0,
   "preexisting_excel_change_preserved": 1
 }

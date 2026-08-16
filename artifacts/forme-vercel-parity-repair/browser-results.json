@@ -1,9 +1,10 @@
 {
-  "status": "PENDING_REPAIR_DEPLOYMENT",
+  "status": "BLOCKED_BACKEND_REPAIR_DEPLOYMENT",
   "forme_browser_name_missing_count": null,
   "forme_browser_unexpected_synthetic_alias_count": null,
   "vercel_forme_master_parity_browser_pass": 0,
   "vercel_current_filter_pass": 0,
   "vercel_needs_review_filter_pass": 0,
-  "vercel_inactive_empty_state_truthful_pass": 0
+  "vercel_inactive_empty_state_truthful_pass": 0,
+  "blocker": "Matching backend deployment for repair SHA 4976034e91a10d8ef2950a6a1f56799905bea96e is ERROR/BLOCKED with no runtime output; browser/API parity was not claimed."
 }

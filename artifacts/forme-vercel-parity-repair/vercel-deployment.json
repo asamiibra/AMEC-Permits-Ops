@@ -1,9 +1,18 @@
 {
   "entry_frontend": {"project": "amec-permits-ops", "deployment": "dpl_6V46V4JExZSzCRWg7gaJLXkmKSse", "sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29", "state": "READY"},
   "entry_backend": {"project": "amec-permits-ops-backend", "deployment": "dpl_HUHPrayujBin9DLdL8eY8tDdiXDY", "sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29", "state": "READY"},
+  "repair_sha": "4976034e91a10d8ef2950a6a1f56799905bea96e",
+  "repair_frontend": {"project": "amec-permits-ops", "url": "amec-permits-dzaqxubqk-ahmed-samis-projects-c4276939.vercel.app", "state": "READY", "sha": "4976034e91a10d8ef2950a6a1f56799905bea96e"},
+  "repair_backend_github_attempts": [
+    {"project": "amec-permits-ops-backend", "url": "amec-permits-ops-backend-7tdrr0x3w.vercel.app", "state": "ERROR", "sha": "4976034e91a10d8ef2950a6a1f56799905bea96e"},
+    {"project": "amec-permits-ops-backend", "url": "amec-permits-ops-backend-9o9sjg9j3.vercel.app", "state": "ERROR", "sha": "4976034e91a10d8ef2950a6a1f56799905bea96e"}
+  ],
+  "repair_backend_explicit_attempt": {"project": "amec-permits-ops-backend", "deployment": "dpl_GejGzr3kKJw5rNeHgJGXpv7T4gjQ", "state": "BLOCKED", "sha": "4976034e91a10d8ef2950a6a1f56799905bea96e"},
+  "repair_backend_release_sha_configured": "4976034e91a10d8ef2950a6a1f56799905bea96e",
   "entry_backend_release_sha": "202728cb176d9ef561391531729b3d580a7837f0",
   "entry_backend_alembic": "0058_source_intake_ledger",
-  "repair_frontend_sha_pass": 0,
+  "repair_frontend_sha_pass": 1,
   "repair_backend_sha_pass": 0,
-  "repair_sha_parity_pass": 0
+  "repair_sha_parity_pass": 0,
+  "external_blocker": "Vercel backend build output/config is empty and deployment is ERROR/BLOCKED; no ready repair-SHA backend runtime exists."
 }
