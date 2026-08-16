@@ -11,6 +11,7 @@ from sqlalchemy import select
 from .config.settings import get_settings
 from .db import SessionLocal, engine, init_db
 from .models import ConsultancyOffice
+from .runtime_provenance import get_runtime_provenance
 from .api.routers import router
 from .api.week2_routers import router as week2_router, mock_router as week2_mock_router
 from .api.week3_routers import router as week3_router
@@ -139,8 +140,7 @@ def health():
         "alembic_state": migration_state,
         "master_content_sor": master_content_sor,
         "runtime_provenance": {
-            "release_sha": os.getenv("RELEASE_SHA") or "UNSET",
-            "build_id": os.getenv("BUILD_ID") or os.getenv("VERCEL_DEPLOYMENT_ID") or "UNSET",
+            **get_runtime_provenance(),
             "migration_head": migration_versions[-1] if migration_versions else None,
         },
     }
