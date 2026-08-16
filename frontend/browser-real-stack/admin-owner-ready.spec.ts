@@ -31,7 +31,7 @@ test("Owner Administration exposes the sketch workspaces and backend-derived lan
   await page.goto("/admin");
   await page.getByRole("button", { name: "View all Contracts" }).click();
   await expect(page.getByRole("heading", { name: "Contracts", level: 3 })).toBeVisible();
-  for (const label of ["All", "Need Action", "Authority Review", "Ready / Close"]) {
+  for (const label of ["All", "Needs Action", "Authority Review", "Ready / Close"]) {
     await expect(page.getByRole("tab", { name: new RegExp(label) })).toBeVisible();
   }
   await page.getByRole("button", { name: /Administration/ }).first().click();
