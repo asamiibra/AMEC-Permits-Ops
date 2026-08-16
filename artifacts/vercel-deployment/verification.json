@@ -1,13 +1,13 @@
 {
   "branch": "branch/ui-productionization",
-  "expected_sha": "PENDING_FINAL_COMMIT",
-  "remote_sha": "PENDING_PUSH",
+  "expected_sha": "e5b916d5a81dfdd72a93a769d49d015cf2c71866",
+  "remote_sha": "e5b916d5a81dfdd72a93a769d49d015cf2c71866",
   "vercel_project": "amec-permits-ops",
   "deployment_target": "PRODUCTION",
-  "deployment_id": "PENDING_DEPLOYMENT",
-  "deployment_url": "PENDING_DEPLOYMENT",
-  "deployment_state": "PENDING",
-  "deployed_sha": "PENDING_INSPECTION",
+  "deployment_id": "NONE_FINAL_QUOTA_BLOCK",
+  "deployment_url": "https://amec-permits-ops.vercel.app",
+  "deployment_state": "BLOCKED_QUOTA",
+  "deployed_sha": "UNSET",
   "expected_sha_match": false,
   "production_alias_verified": false,
   "frontend_smoke_pass": false,
@@ -18,5 +18,6 @@
   "synthetic_disclosure_pass": false,
   "document_storage_mode": "SYNTHETIC_DOCUMENT_STORAGE",
   "real_owner_synology_verified": false,
-  "production_ready": false
+  "production_ready": false,
+  "blocker": "api-deployments-free-per-day: more than 100; retry in 24 hours"
 }
