@@ -1,0 +1,25 @@
+{
+  "nav": [
+    "Home",
+    "Intake & Opportunity",
+    "Contract & Mobilization",
+    "Design & Technical Delivery",
+    "Regulatory & Submissions",
+    "Construction & Post-Approval",
+    "Completion & As-Built",
+    "Handover & Closeout",
+    "Administration",
+    "Operating Guide"
+  ],
+  "stageTargets": [
+    "/opportunities",
+    "/proposals-contracts",
+    "/engineering",
+    "/permits",
+    "/construction",
+    "/completion",
+    "/handover"
+  ],
+  "countRowParity": true,
+  "seriousOrCritical": []
+}

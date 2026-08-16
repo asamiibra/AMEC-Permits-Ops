@@ -69,12 +69,15 @@ import { BillingInvoicePage } from "./BillingInvoice";
 import { ConstructionPage } from "./Construction";
 import { CompletionPage } from "./Completion";
 import { HandoverPage } from "./Handover";
+import { HomeCommandCenter } from "./HomeCommandCenter";
 import { Icon, type IconName } from "./Icon";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./construction.css";
 import "./completion.css";
 import "./handover.css";
+import "./home-command-center.css";
+import "./home-command-center-accessibility.css";
 
 type Decision = {
   id: string;
@@ -98,49 +101,19 @@ type BusinessNavItem = {
   id: string;
   page: string;
   label: string;
-  canonicalLabel?: string;
   icon: IconName;
+  path?: string;
+  group: "HOME" | "BUSINESS FLOW";
 };
 const businessNav: BusinessNavItem[] = [
-  { id: "dashboard", page: "dashboard", label: "Dashboard", icon: "dashboard" },
-  {
-    id: "my-work",
-    page: "my-work",
-    label: "My Work",
-    canonicalLabel: "AMEC Work",
-    icon: "work",
-  },
-  {
-    id: "bd",
-    page: "opportunities",
-    label: "BD",
-    canonicalLabel: "Opportunities",
-    icon: "briefcase",
-  },
-  {
-    id: "engineering",
-    page: "project-engineering",
-    label: "Engineering",
-    canonicalLabel: "Engineering & Closeout",
-    icon: "engineering",
-  },
-  { id: "construction", page: "construction", label: "Construction", icon: "construction" },
-  { id: "completion", page: "completion", label: "Completion / As-Built", icon: "completion" },
-  {
-    id: "permit",
-    page: "permit-portfolio",
-    label: "Permit",
-    canonicalLabel: "Permit Portfolio",
-    icon: "permit",
-  },
-  { id: "authority-cases", page: "authority-cases", label: "Authority Cases", icon: "authority" },
-  { id: "issues", page: "issues", label: "Issues", icon: "issues" },
-  {
-    id: "notifications",
-    page: "notifications",
-    label: "Notifications",
-    icon: "notifications",
-  },
+  { id: "home", page: "home", label: "Home", icon: "dashboard", path: "/home", group: "HOME" },
+  { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
+  { id: "contract-mobilization", page: "permits", label: "Contract & Mobilization", icon: "contract", path: "/proposals-contracts", group: "BUSINESS FLOW" },
+  { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
+  { id: "regulatory-submissions", page: "permit-portfolio", label: "Regulatory & Submissions", icon: "authority", path: "/permits", group: "BUSINESS FLOW" },
+  { id: "construction-post-approval", page: "construction", label: "Construction & Post-Approval", icon: "construction", path: "/construction", group: "BUSINESS FLOW" },
+  { id: "completion-as-built", page: "completion", label: "Completion & As-Built", icon: "completion", path: "/completion", group: "BUSINESS FLOW" },
+  { id: "handover-closeout", page: "handover", label: "Handover & Closeout", icon: "handover", path: "/handover", group: "BUSINESS FLOW" },
 ];
 const legacyNav = [
   { id: "expansion-foundation", label: "Expansion foundation" },
@@ -185,19 +158,21 @@ const statusClass = (status: string) =>
   `status status-${status.toLowerCase().replaceAll("_", "-")}`;
 const pageFromPath = () => {
   const path = window.location.pathname;
+  if (path === "/" || path === "/home") return "home";
   if (path === "/dashboard") return "dashboard";
   if (path === "/dashboard-v2") return "dashboard";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
   if (path === "/engineering") return "project-engineering";
+  if (path === "/project-engineering") return "project-engineering";
   if (path === "/construction" || path.startsWith("/construction/")) return "construction";
   if (path === "/completion" || path.startsWith("/completion/")) return "completion";
   if (path === "/handover" || path.startsWith("/handover/")) return "handover";
   if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
-  if (path === "/work" || path === "/") return "my-work";
+  if (path === "/work") return "my-work";
   if (path === "/permits" || path === "/projects") return "permit-portfolio";
   if (path === "/proposals-contracts") return "permits";
   if (path === "/permits/new") return "permit-new";
@@ -346,8 +321,8 @@ function App() {
       window.location.pathname.startsWith("/admin") &&
       !adminRoles.has(role)
     ) {
-      setPage("my-work");
-      window.history.replaceState({}, "", "/work");
+      setPage("home");
+      window.history.replaceState({}, "", "/home");
     }
   }, [role]);
   const navigate = (next: string) => {
@@ -355,8 +330,8 @@ function App() {
     const nextPage = navItem?.page || next;
     setPage(nextPage);
     setSelected(null);
-    const path =
-      nextPage === "my-work"
+    const path = navItem?.path ||
+      (nextPage === "my-work"
         ? "/work"
         : nextPage === "permit-portfolio"
           ? "/permits"
@@ -370,7 +345,7 @@ function App() {
                 ? "/admin/go-live-readiness"
                 : nextPage === "dashboard-inputs"
                   ? "/dashboard/inputs-go-live"
-                  : `/${nextPage}`;
+                  : `/${nextPage}`);
     window.history.pushState({}, "", path);
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
@@ -418,29 +393,22 @@ function App() {
     if (role === "SYSTEM_ADMIN" || role === "OWNER_SPONSOR") return true;
     if (role === "COMMERCIAL_APPROVER")
       return [
-        "dashboard",
-        "my-work",
-        "bd",
-        "billing",
-        "completion",
-        "permit",
-        "authority-cases",
-        "issues",
-        "notifications",
+        "home",
+        "intake-opportunity",
+        "contract-mobilization",
+        "regulatory-submissions",
+        "completion-as-built",
       ].includes(item.id);
     if (role === "RESPONSIBLE_ENGINEER")
       return [
-        "dashboard",
-        "my-work",
-        "engineering",
-        "construction",
-        "completion",
-        "permit",
-        "authority-cases",
-        "issues",
-        "notifications",
+        "home",
+        "design-delivery",
+        "regulatory-submissions",
+        "construction-post-approval",
+        "completion-as-built",
+        "handover-closeout",
       ].includes(item.id);
-    return ["my-work", "permit", "authority-cases", "issues", "notifications"].includes(item.id);
+    return ["home", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
   });
   const title =
     page === "permit-workspace" && selected
@@ -455,7 +423,9 @@ function App() {
           ? "Go-Live Setup"
           : page === "dashboard-inputs"
             ? "Master Content Setup & Go-Live"
-            : visibleBusinessNav.find((item) => item.page === page)?.label ||
+              : page === "home"
+                ? "Home"
+                : visibleBusinessNav.find((item) => item.page === page)?.label ||
               legacyNav.find((item) => item.id === page)?.label ||
               (page === "project-detail" ? "Project detail" : "PermitOps");
   const permitSafetySurface = page === "permit-workspace";
@@ -479,25 +449,16 @@ function App() {
           <small>QEC-DOHA · SYNTHETIC DEV</small>
         </div>
         <nav aria-label="Primary navigation">
-          {visibleBusinessNav.map((item) => (
-            <button
-              key={item.id}
-              aria-label={item.canonicalLabel || item.label}
-              className={page === item.page ? "nav-item active" : "nav-item"}
-              onClick={() => navigate(item.id)}
-            >
-              <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
-              <span>{item.label}</span>
-              {item.canonicalLabel && (
-                <span className="sr-only">{item.canonicalLabel}</span>
-              )}
-            </button>
-          ))}
+          <div className="nav-section-label">HOME</div>
+          {visibleBusinessNav.filter((item) => item.group === "HOME").map((item) => <button key={item.id} aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span></button>)}
+          <div className="nav-section-label">BUSINESS FLOW</div>
+          {visibleBusinessNav.filter((item) => item.group === "BUSINESS FLOW").map((item) => <button key={item.id} aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span></button>)}
           {adminRoles.has(role) && (
             <>
-              <div className="nav-divider" />
+              <div className="nav-section-label nav-system-label">SYSTEM</div>
               <button
                 aria-label="Administration"
+                data-nav-id="administration"
                 className={
                   page === "administration" ? "nav-item active" : "nav-item"
                 }
@@ -507,16 +468,11 @@ function App() {
                 <span>Admin</span>
                 <span className="sr-only">Administration</span>
               </button>
+              <button aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}><span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span></button>
             </>
           )}
+          {!adminRoles.has(role) && <button aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}><span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span></button>}
         </nav>
-        <button
-          aria-label="About PermitOps"
-          className={page === "about" ? "nav-item active" : "nav-item"}
-          onClick={() => navigate("about")}
-        >
-          <span className="nav-icon"><Icon name="guide" size={18} /></span>About PermitOps
-        </button>
         <div className="sidebar-foot">
           <span className="lock"><Icon name="shield" size={16} /></span>
           <span>
@@ -543,6 +499,7 @@ function App() {
             </div>
           </div>
           <div className="top-actions">
+            <NotificationBell role={role} onNavigate={() => navigate("notifications")} />
             <ReadinessDrawer
               screenId={
                 window.location.pathname === "/proposals/new"
@@ -597,6 +554,7 @@ function App() {
             </div>
           )}
           {page === "dashboard" && <CurrentDashboard role={role} />}{" "}
+          {page === "home" && <HomeCommandCenter role={role} />}{" "}
           {page === "my-work" && (
             <MyWorkPage
               projects={projects}
@@ -759,6 +717,18 @@ function PageIntro({
       </div>
     </div>
   );
+}
+
+function NotificationBell({ role, onNavigate }: { role: string; onNavigate: () => void }) {
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    let live = true;
+    api<{ summary?: { unread?: number } }>(`/api/notifications/summary?persona=${personaForRole(role)}`)
+      .then((value) => { if (live) setUnread(Number(value.summary?.unread || 0)); })
+      .catch(() => { if (live) setUnread(0); });
+    return () => { live = false; };
+  }, [role]);
+  return <button className="header-notifications" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`} onClick={onNavigate}><Icon name="notifications" size={17} />{unread > 0 && <span className="header-notifications-badge">{unread > 99 ? "99+" : unread}</span>}</button>;
 }
 function Dashboard({
   projects,

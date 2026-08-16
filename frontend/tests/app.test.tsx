@@ -8,10 +8,10 @@ describe("ProposalOps shell", () => {
   it("renders the workflow-first operator shell", async () => {
     render(<App />);
     expect(screen.getAllByRole("img", { name: "AMEC — Art Mark Engineering Consultant" })).toHaveLength(2);
-    expect(screen.getAllByText("AMEC Work").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /^Home$/ })).toBeTruthy();
     expect(screen.getByText("AMEC Engineering")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "What needs attention" })).toBeTruthy();
-    expect(screen.getByText("One prioritized worklist across proposals, contracts, permits, and handoffs.")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Home" })).toBeTruthy();
+    expect(screen.getByText("Prioritized work and lifecycle exceptions")).toBeTruthy();
     expect(screen.queryByText("WEEK 1 FOUNDATION")).toBeNull();
   });
 });

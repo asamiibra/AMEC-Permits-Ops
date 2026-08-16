@@ -69,5 +69,5 @@ test("operational route remains English after refresh", async ({ page }) => {
   await expectEnglishShell(page);
   await page.reload();
   await expectEnglishShell(page);
-  await expect(page.getByRole("heading", { name: "Notifications", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Owner notifications", exact: true })).toBeVisible();
 });

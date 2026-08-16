@@ -1,16 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-const retiredVisibleTerms = /PermitOps|About PermitOps|Permit Preparer|My Work|\bPermits\b/;
+const retiredVisibleTerms = /About PermitOps|Permit Preparer|My Work|\bPermits\b/;
 
 test.describe("ProposalOps / AMEC final rebrand", () => {
   test("Owner shell exposes the canonical navigation and persona selector", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle("ProposalOps · Proposal & Contract Workflow");
-    await expect(page.getByRole("button", { name: "AMEC Work" })).toBeVisible();
-    await expect(page.locator("nav button").filter({ hasText: "Proposals & Contracts" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Issues" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Notifications" })).toBeVisible();
-    await expect(page.locator(".sidebar > button").filter({ hasText: "Operating Guide" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Home", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Contract & Mobilization", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Operating Guide", exact: true })).toBeVisible();
+    await expect(page.locator("nav")).not.toContainText("AMEC Work");
+    await expect(page.locator("nav")).not.toContainText("Issues");
+    await expect(page.locator("nav")).not.toContainText("Notifications");
     await expect(page.getByLabel("Persona")).toHaveValue("SYSTEM_ADMIN");
     await expect(page.getByLabel("Persona").locator("option").filter({ hasText: "Owner" })).toHaveCount(1);
     await expect(page.getByLabel("Persona").locator("option").filter({ hasText: "Engineering" })).toHaveCount(1);
@@ -18,10 +19,10 @@ test.describe("ProposalOps / AMEC final rebrand", () => {
     await expect(page.locator("body")).not.toContainText(retiredVisibleTerms);
   });
 
-  test("legacy proposal route redirects to the canonical route", async ({ page }) => {
+  test("Regulatory route remains a canonical business-flow entry point", async ({ page }) => {
     await page.goto("/permits");
-    await expect(page).toHaveURL(/\/proposals-contracts\?view=proposals$/);
-    await expect(page.locator("nav button").filter({ hasText: "Proposals & Contracts" })).toBeVisible();
+    await expect(page).toHaveURL(/\/permits$/);
+    await expect(page.getByRole("button", { name: "Regulatory & Submissions", exact: true })).toBeVisible();
   });
 
   test("Operating Guide retains the only bilingual surface", async ({ page }) => {

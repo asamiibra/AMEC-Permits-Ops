@@ -1,0 +1,22 @@
+{
+  "branch": "branch/ui-productionization",
+  "expected_sha": "PENDING_FINAL_COMMIT",
+  "remote_sha": "PENDING_PUSH",
+  "vercel_project": "amec-permits-ops",
+  "deployment_target": "PRODUCTION",
+  "deployment_id": "PENDING_DEPLOYMENT",
+  "deployment_url": "PENDING_DEPLOYMENT",
+  "deployment_state": "PENDING",
+  "deployed_sha": "PENDING_INSPECTION",
+  "expected_sha_match": false,
+  "production_alias_verified": false,
+  "frontend_smoke_pass": false,
+  "api_health_pass": false,
+  "postgres_connectivity_pass": false,
+  "cold_warm_smoke_pass": false,
+  "bounded_concurrency_pass": false,
+  "synthetic_disclosure_pass": false,
+  "document_storage_mode": "SYNTHETIC_DOCUMENT_STORAGE",
+  "real_owner_synology_verified": false,
+  "production_ready": false
+}
