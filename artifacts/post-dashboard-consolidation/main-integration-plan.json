@@ -1,0 +1,15 @@
+{
+  "topology": "multi-branch normal merge",
+  "base": "origin/main",
+  "order": [
+    "origin/branch/owner-form-simple-dashboard",
+    "origin/branch/home-navigation-reorganization",
+    "origin/branch/ui-productionization"
+  ],
+  "merge_rehearsal": {"status":"PASS","conflicts":0,"worktree":"/private/tmp/proposalops-consolidation-test.rWzDDK"},
+  "main_only_commits_preserved": true,
+  "force_push": false,
+  "rebase": false,
+  "cherry_pick": false,
+  "candidate_sha": null
+}

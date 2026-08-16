@@ -1,0 +1,17 @@
+{
+  "revision_count": 58,
+  "first_revision": "0001_week1_skeleton",
+  "head": "0058_source_intake_ledger",
+  "heads": ["0058_source_intake_ledger"],
+  "single_head": true,
+  "orphan_revision_count": 0,
+  "tail": [
+    ["0054_bd_proposal_stage1_reconciliation", "0053_handover_admin_closeout"],
+    ["0055_bd_proposal_final_hardening", "0054_bd_proposal_stage1_reconciliation"],
+    ["0056_storage_operation_journal", "0055_bd_proposal_final_hardening"],
+    ["0057_owner_form_review_status", "0056_storage_operation_journal"],
+    ["0058_source_intake_ledger", "0057_owner_form_review_status"]
+  ],
+  "fresh_postgresql_pass": null,
+  "upgrade_postgresql_pass": null
+}
