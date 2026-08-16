@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
+import { Icon } from "./Icon";
 
 type InputItem = {
   key: string;
@@ -122,7 +123,7 @@ export function DashboardInputsLauncher({
   return (
     <>
       <button className="readiness-launcher" onClick={() => setOpen(true)}>
-        <span className="readiness-launcher-icon">✓</span>
+        <span className="readiness-launcher-icon"><Icon name="check" size={16} /></span>
         <span>Inputs &amp; Go-Live</span>
         {data && <b className="readiness-count">{data.summary.remaining}</b>}
       </button>
@@ -157,9 +158,7 @@ export function DashboardInputsLauncher({
                 className="readiness-close"
                 onClick={() => setOpen(false)}
                 aria-label="Close Inputs & Go-Live"
-              >
-                ×
-              </button>
+              ><Icon name="close" size={16} /></button>
             </div>
             <div className="readiness-drawer-body">
               {error && (
@@ -255,7 +254,7 @@ function InputCard({
           <small>{item.why}</small>
         </span>
         <span className={statusClass(item.status)}>{item.status_label}</span>
-        <span className="dashboard-input-chevron">{expanded ? "−" : "+"}</span>
+        <span className="dashboard-input-chevron"><Icon name={expanded ? "minus" : "plus"} size={16} /></span>
       </button>
       <div className="dashboard-input-card-preview">
         <div>
@@ -320,7 +319,7 @@ function InputCard({
           <div className="dashboard-input-actions">
             {item.route && (
               <a className="button-secondary" href={item.route}>
-                {actionLabel(item)} →
+                {actionLabel(item)} <Icon name="arrow-up-right" size={14} />
               </a>
             )}
             {canWrite && !isSynology && item.status !== "NOT_APPLICABLE" && (
@@ -399,7 +398,7 @@ export function DashboardInputsPage({
           className="button-secondary"
           onClick={() => onNavigate(backPage)}
         >
-          ← Back to Dashboard
+          <Icon name="arrow-left" size={14} /> Back to Dashboard
         </button>
       </div>
       {error && (

@@ -15,7 +15,7 @@ describe("persona-aware issue and notification surfaces", () => {
     render(<PersonaIssuesPage persona="ENGINEERING" />);
     expect(await screen.findByText("Engineering issues")).toBeVisible();
     expect(screen.getByText("SOW needs confirmation")).toBeVisible();
-    expect(screen.getByText("Open Preparation →")).toHaveAttribute("href", "/proposals/p-1/preparation?return_filter=ALL");
+    expect(screen.getByText("Open Preparation")).toHaveAttribute("href", "/proposals/p-1/preparation?return_filter=ALL");
   });
 
   it("keeps notification awareness separate from task completion", async () => {

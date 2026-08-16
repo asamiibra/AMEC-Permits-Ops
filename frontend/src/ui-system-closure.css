@@ -30,6 +30,7 @@
 
 body { background: var(--color-background-page); color: var(--color-text-primary); }
 .app-shell { background: var(--color-background-page); color: var(--color-text-primary); }
+.app-shell .main { min-width: 0; overflow-x: hidden; }
 .app-shell .sidebar { background: var(--color-brand-primary); }
 .app-shell .topbar { background: var(--color-background-surface); border-bottom-color: var(--color-border-default); }
 .app-shell .topbar h1 { color: var(--color-brand-primary); font-size: 19px; letter-spacing: -.02em; }
@@ -37,7 +38,8 @@ body { background: var(--color-background-page); color: var(--color-text-primary
 .app-shell .topbar-heading > div { min-width: 0; }
 .app-shell .top-actions { gap: 9px; }
 .app-shell .env-chip { color: var(--color-brand-accent); background: var(--color-background-subtle); border-color: #bfe2db; }
-.app-shell .nav-icon { display: inline-flex; align-items: center; justify-content: center; color: #7cd1c6; }
+.app-shell .nav-icon { width: 22px; height: 22px; flex: 0 0 22px; display: inline-flex; align-items: center; justify-content: center; color: #7cd1c6; }
+.app-shell .nav-item { gap: 12px; }
 .app-shell .nav-icon svg { display: block; }
 .app-shell .nav-item { color: #b9cbd4; }
 .app-shell .nav-item:hover, .app-shell .nav-item.active { background: #244d6b; color: var(--color-text-inverse); }
@@ -95,6 +97,8 @@ body { background: var(--color-background-page); color: var(--color-text-primary
 .app-shell .button-primary:hover { background: var(--color-interactive-hover); }
 .app-shell .button-secondary { color: var(--color-interactive-default); background: var(--color-interactive-selected); border-color: #bfe2db; }
 .app-shell .button-secondary:hover { background: #dff2ee; }
+.app-shell .about-cta .button-primary { color: #ffffff !important; background: var(--color-interactive-default); }
+.app-shell .about-cta .button-secondary { color: var(--color-interactive-default) !important; background: var(--color-interactive-selected); }
 .app-shell .button-primary svg, .app-shell .button-secondary svg, .app-shell .button svg, .app-shell .text-button svg { flex: 0 0 auto; }
 .app-shell input:focus-visible,
 .app-shell select:focus-visible,

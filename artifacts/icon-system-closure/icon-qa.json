@@ -1,0 +1,2402 @@
+{
+  "screens": [
+    {
+      "id": "home-dashboard-1440",
+      "route": "/dashboard",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 14,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "amec-work-1440",
+      "route": "/work",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 18,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "intake-opportunity-1440",
+      "route": "/opportunities",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 18,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "completion-as-built-1440",
+      "route": "/completion",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 16,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "finance-1440",
+      "route": "/billing",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 15,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "content-library-1440",
+      "route": "/dashboard",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 14,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "issues-1440",
+      "route": "/issues",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 28,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "admin-1440",
+      "route": "/admin",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 16,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "operating-guide-1440",
+      "route": "/operating-guide",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 36,
+      "horizontalOverflow": false,
+      "overflowNodes": [
+        {
+          "tag": "MAIN",
+          "className": "about-page",
+          "right": 1448
+        }
+      ],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "handover-1440",
+      "route": "/handover",
+      "width": 1440,
+      "height": 1000,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 14,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "home-dashboard-1920",
+      "route": "/dashboard",
+      "width": 1920,
+      "height": 1080,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 14,
+      "horizontalOverflow": false,
+      "overflowNodes": [],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "home-dashboard-1280",
+      "route": "/dashboard",
+      "width": 1280,
+      "height": 900,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 14,
+      "horizontalOverflow": false,
+      "overflowNodes": [
+        {
+          "tag": "TABLE",
+          "className": "dashboard-table",
+          "right": 1396
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "right": 1396
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "right": 1396
+        },
+        {
+          "tag": "TH",
+          "className": "",
+          "right": 1396
+        },
+        {
+          "tag": "TBODY",
+          "className": "",
+          "right": 1396
+        }
+      ],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    },
+    {
+      "id": "home-dashboard-1024",
+      "route": "/dashboard",
+      "width": 1024,
+      "height": 900,
+      "navLabels": [
+        "Dashboard",
+        "AMEC Work",
+        "Opportunities",
+        "Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Administration",
+        "Operating Guide"
+      ],
+      "navIconClasses": [
+        "lucide lucide-house",
+        "lucide lucide-list-todo",
+        "lucide lucide-target",
+        "lucide lucide-drafting-compass",
+        "lucide lucide-hard-hat",
+        "lucide lucide-badge-check",
+        "lucide lucide-file-check-corner",
+        "lucide lucide-landmark",
+        "lucide lucide-triangle-alert",
+        "lucide lucide-bell",
+        "lucide lucide-settings",
+        "lucide lucide-book-open"
+      ],
+      "navIconSizes": [
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ],
+        [
+          "18",
+          "18"
+        ]
+      ],
+      "navStrokeWidths": [
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8",
+        "1.8"
+      ],
+      "navSlotBoxes": [
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        },
+        {
+          "left": 24,
+          "width": 22,
+          "height": 22
+        }
+      ],
+      "navText": [
+        "Dashboard",
+        "AMEC Work AMEC Work",
+        "BD Opportunities",
+        "Engineering Engineering & Closeout",
+        "Construction",
+        "Completion / As-Built",
+        "Permit Permit Portfolio",
+        "Authority Cases",
+        "Issues",
+        "Notifications",
+        "Admin Administration",
+        "Operating Guide"
+      ],
+      "svgCount": 14,
+      "horizontalOverflow": false,
+      "overflowNodes": [
+        {
+          "tag": "TABLE",
+          "className": "dashboard-table",
+          "right": 1396
+        },
+        {
+          "tag": "THEAD",
+          "className": "",
+          "right": 1396
+        },
+        {
+          "tag": "TR",
+          "className": "",
+          "right": 1396
+        },
+        {
+          "tag": "TH",
+          "className": "",
+          "right": 1396
+        },
+        {
+          "tag": "TBODY",
+          "className": "",
+          "right": 1396
+        }
+      ],
+      "visibleLegacyGlyphInNav": false,
+      "consoleErrors": [],
+      "seriousOrCritical": []
+    }
+  ]
+}

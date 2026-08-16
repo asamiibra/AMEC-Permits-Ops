@@ -40,11 +40,11 @@
     "Contract"
   ],
   "proposalActionsBefore": [
-    "Open →",
+    "Open",
     "Open Contract"
   ],
   "proposalActionsAfter": [
-    "Open →",
+    "Open",
     "Open Contract"
   ],
   "routePreserved": true,

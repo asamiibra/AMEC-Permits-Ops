@@ -25,7 +25,7 @@ test("persona switch changes issue copy, filters, and deep links", async ({ page
   await expect(page.getByRole("heading", { name: "Issues across AMEC work" })).toBeVisible();
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
   await expect(page.getByRole("heading", { name: "Engineering issues" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Open Preparation →" })).toHaveAttribute("href", "/proposals/opp-1/preparation?issue=issue-1&return_filter=ALL");
+  await expect(page.getByRole("link", { name: "Open Preparation" })).toHaveAttribute("href", "/proposals/opp-1/preparation?issue=issue-1&return_filter=ALL");
   await page.getByLabel("Persona").selectOption("COMMERCIAL_APPROVER");
   await expect(page.getByRole("heading", { name: "Commercial & project issues" })).toBeVisible();
 });

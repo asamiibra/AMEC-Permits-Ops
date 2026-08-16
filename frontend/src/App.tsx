@@ -486,7 +486,7 @@ function App() {
               className={page === item.page ? "nav-item active" : "nav-item"}
               onClick={() => navigate(item.id)}
             >
-              <span className="nav-icon"><Icon name={item.icon} size={16} /></span>
+              <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
               <span>{item.label}</span>
               {item.canonicalLabel && (
                 <span className="sr-only">{item.canonicalLabel}</span>
@@ -503,7 +503,7 @@ function App() {
                 }
                 onClick={() => navigate("administration")}
               >
-                <span className="nav-icon"><Icon name="settings" size={16} /></span>
+                <span className="nav-icon"><Icon name="settings" size={18} /></span>
                 <span>Admin</span>
                 <span className="sr-only">Administration</span>
               </button>
@@ -515,7 +515,7 @@ function App() {
           className={page === "about" ? "nav-item active" : "nav-item"}
           onClick={() => navigate("about")}
         >
-          <span className="nav-icon"><Icon name="guide" size={16} /></span>About PermitOps
+          <span className="nav-icon"><Icon name="guide" size={18} /></span>About PermitOps
         </button>
         <div className="sidebar-foot">
           <span className="lock"><Icon name="shield" size={16} /></span>
@@ -797,7 +797,7 @@ function Dashboard({
               <h3>Projects requiring attention</h3>
             </div>
             <button className="text-button" onClick={() => go("projects")}>
-              View all →
+              View all <Icon name="arrow-up-right" size={14} />
             </button>
           </div>
           <div className="mini-list">
@@ -832,7 +832,7 @@ function Dashboard({
             discovery dashboard before any Phase 0 data decision.
           </p>
           <button className="button-secondary" onClick={() => go("discovery")}>
-            Open discovery →
+            Open discovery <Icon name="arrow-up-right" size={14} />
           </button>
         </section>
       </div>
@@ -963,7 +963,7 @@ function ProjectDetail({
   return (
     <>
       <button className="back-button" onClick={back}>
-        ← Projects
+        <Icon name="arrow-left" size={14} /> Projects
       </button>
       <PageIntro
         kicker={project.project_number}
@@ -1022,9 +1022,9 @@ function ProjectDetail({
               {a.application_status === "RETURNED" && (
                 <div className="comments">
                   <b>Synthetic authority comments</b>
-                  <p>• Owner name differs from supporting document.</p>
-                  <p>• Drawing revision does not match package revision.</p>
-                  <p>• Required attachment missing.</p>
+                  <p><Icon name="alert" size={14} /> Owner name differs from supporting document.</p>
+                  <p><Icon name="alert" size={14} /> Drawing revision does not match package revision.</p>
+                  <p><Icon name="alert" size={14} /> Required attachment missing.</p>
                 </div>
               )}
             </>
@@ -1332,7 +1332,7 @@ function Privacy() {
         description="No real sensitive data is authorized in DEV or TEST. This page makes the current boundary explicit."
       />
       <div className="privacy-banner">
-        <div className="shield">✓</div>
+        <div className="shield"><Icon name="check" size={16} /></div>
         <div>
           <b>REAL SENSITIVE-DOCUMENT PROCESSING: NOT APPROVED</b>
           <p>

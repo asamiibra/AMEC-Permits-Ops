@@ -1,0 +1,82 @@
+{
+  "sidebar": [
+    {
+      "label": "Dashboard",
+      "href": null
+    },
+    {
+      "label": "AMEC Work",
+      "href": null
+    },
+    {
+      "label": "Opportunities",
+      "href": null
+    },
+    {
+      "label": "Engineering & Closeout",
+      "href": null
+    },
+    {
+      "label": "Construction",
+      "href": null
+    },
+    {
+      "label": "Completion / As-Built",
+      "href": null
+    },
+    {
+      "label": "Permit Portfolio",
+      "href": null
+    },
+    {
+      "label": "Authority Cases",
+      "href": null
+    },
+    {
+      "label": "Issues",
+      "href": null
+    },
+    {
+      "label": "Notifications",
+      "href": null
+    },
+    {
+      "label": "Administration",
+      "href": null
+    },
+    {
+      "label": "Operating Guide",
+      "href": null
+    }
+  ],
+  "filters": [
+    "All",
+    "Needs Action",
+    "In Review",
+    "Ready / Closed"
+  ],
+  "headersBefore": [
+    "Proposal / Proposal Description",
+    "Project Ref.",
+    "Stage / Status",
+    "Amount",
+    "Last Activity",
+    "Actions",
+    "Contract"
+  ],
+  "headersAfter": [
+    "Proposal / Proposal Description",
+    "Project Ref.",
+    "Stage / Status",
+    "Amount",
+    "Last Activity",
+    "Actions",
+    "Contract"
+  ],
+  "openActionPresent": true,
+  "routeBefore": "/proposals-contracts",
+  "routeAfter": "/proposals-contracts",
+  "sidebarOrderPreserved": true,
+  "filterBehaviorPreserved": true,
+  "tableBehaviorPreserved": true
+}

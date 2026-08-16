@@ -31,7 +31,7 @@ describe("BD Proposal owner register", () => {
     expect(screen.getByText("Project Ref")).toBeVisible();
     expect(screen.getByText("Amount")).toBeVisible();
     expect(screen.getByText("Not set")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Open →" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Open" })).toBeVisible();
   });
 
   it("sends backend lane and search filters instead of filtering only the rendered page", async () => {
@@ -48,7 +48,7 @@ describe("BD Proposal owner register", () => {
     render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
     expect(await screen.findByRole("alert")).toHaveTextContent("We couldn't load the Proposal Register. Please retry.");
     expect(screen.getByRole("tab", { name: /All\s*—/ })).toBeVisible();
-    expect(screen.queryByRole("button", { name: "Open →" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open" })).toBeNull();
   });
 
   it("retries the register request and restores counts and rows after a temporary failure", async () => {
@@ -93,7 +93,7 @@ describe("BD Proposal owner register", () => {
         sources: [], notes: [], site_photos: [], amec_input: {}, additional_information: null,
       });
     render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Open →" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Open" }));
     expect(await screen.findByRole("heading", { name: "Stakeholders", level: 3 })).toBeVisible();
     expect(screen.getAllByText("Regulatory Scoping").length).toBeGreaterThan(0);
     expect(screen.getByText("Proposal Form · existing Proposal context")).toBeVisible();
@@ -109,7 +109,7 @@ describe("BD Proposal owner register", () => {
     mockedApi.mockReset();
     mockedApi.mockResolvedValue({ items: [], lane_counts: { ALL: 0, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 } });
     render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: "＋ New Proposal" }));
+    fireEvent.click(await screen.findByRole("button", { name: "New Proposal" }));
     fireEvent.click(screen.getByRole("button", { name: /Tender Email/ }));
     expect(screen.getByRole("button", { name: /Tender Email.*Selected/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("heading", { name: "Tender Email intake" })).toBeVisible();

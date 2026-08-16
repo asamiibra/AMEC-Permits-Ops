@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Icon } from "./Icon";
 
 export type ContentType = "FORM" | "REPORT" | "ENGINEERING_WORK" | "DEFINITION";
 
@@ -63,5 +64,5 @@ export function AIAssistCompact() {
 export function Drawer({ title, eyebrow, children, footer, onClose, wide = false }: { title: string; eyebrow: string; children: ReactNode; footer: ReactNode; onClose: () => void; wide?: boolean }) {
   const submitEditor = (event: React.MouseEvent<HTMLElement>) => { const target = (event.target as HTMLElement).closest("button") as HTMLButtonElement | null; if (target && target.type !== "button" && !target.disabled) (target.closest(".content-drawer-backdrop") as HTMLElement | null)?.querySelector<HTMLFormElement>("form.content-editor-form")?.requestSubmit(); };
   const historyDrawer = eyebrow.includes("HISTORY");
-  return <div className="content-drawer-backdrop" role="presentation"><section className={`content-drawer ${wide ? "content-drawer-wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}><header className="content-drawer-header"><div>{historyDrawer && <span className="eyebrow">IMMUTABLE HISTORY</span>}<span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div><button type="button" className="drawer-close" aria-label="Close" onClick={onClose}>×</button></header><div className="content-drawer-body">{children}</div><footer className="content-drawer-footer" onClick={submitEditor}>{footer}</footer></section></div>;
+  return <div className="content-drawer-backdrop" role="presentation"><section className={`content-drawer ${wide ? "content-drawer-wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}><header className="content-drawer-header"><div>{historyDrawer && <span className="eyebrow">IMMUTABLE HISTORY</span>}<span className="eyebrow">{eyebrow}</span><h2>{title}</h2></div><button type="button" className="drawer-close" aria-label="Close" onClick={onClose}><Icon name="close" size={16} /></button></header><div className="content-drawer-body">{children}</div><footer className="content-drawer-footer" onClick={submitEditor}>{footer}</footer></section></div>;
 }
