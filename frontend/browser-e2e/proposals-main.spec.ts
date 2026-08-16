@@ -33,9 +33,9 @@ test.describe("ProposalOps Proposals and Contracts registers", () => {
     const register = await page.request.get("/api/proposals-main?persona=SYSTEM_ADMIN").then((response) => response.json());
     const projectId = register.rows[0].project_id;
     await page.goto("/permits");
-    await expect(page).toHaveURL(/\/proposals-contracts\?view=proposals/);
-    await page.goto(`/permits/${projectId}/project-and-sources`);
-    await expect(page).toHaveURL(new RegExp(`/permits/${projectId}/project-and-sources`));
+    await expect(page).toHaveURL(/\/permits$/);
+    await page.goto(`/proposals-contracts/${projectId}/project-and-sources`);
+    await expect(page).toHaveURL(new RegExp(`/proposals-contracts/${projectId}/project-and-sources`));
     await expect(page.getByText(/Permit Workspace|Permit Application|Project & Sources/).first()).toBeVisible();
   });
 

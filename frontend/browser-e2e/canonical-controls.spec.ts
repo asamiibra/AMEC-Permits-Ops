@@ -17,7 +17,8 @@ test("canonical project bootstrap and safety controls", async ({ page }) => {
   await expect(page.locator(".env-chip").getByText("SYNTHETIC PROTOTYPE", { exact: true })).toBeVisible();
   await expect(page.getByText("AMEC Engineering", { exact: true })).toBeVisible();
   await expect(page.getByText("Simulated integrations").first()).toBeVisible();
-  await page.getByRole("navigation").getByRole("button", { name: "Proposals & Contracts" }).click();
+  await page.goto("/operating-guide");
+  await page.getByRole("button", { name: "Open Proposals & Contracts" }).click();
   await expect(page.getByRole("heading", { name: "Proposals & Contracts", level: 2 })).toBeVisible();
   await expect(page.getByText("Owner-directed commercial records with explicit downstream Permit lineage.")).toBeVisible();
 });

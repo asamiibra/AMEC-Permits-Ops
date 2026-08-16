@@ -7,7 +7,7 @@ test.describe("ProposalOps / AMEC final rebrand", () => {
     await page.goto("/");
     await expect(page).toHaveTitle("ProposalOps · Proposal & Contract Workflow");
     await expect(page.getByRole("button", { name: "AMEC Work" })).toBeVisible();
-    await expect(page.locator("nav button").filter({ hasText: "Proposals & Contracts" })).toBeVisible();
+    await expect(page.locator("nav button").filter({ hasText: "Proposals & Contracts" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Issues" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Notifications" })).toBeVisible();
     await expect(page.locator(".sidebar > button").filter({ hasText: "Operating Guide" })).toBeVisible();
@@ -18,10 +18,10 @@ test.describe("ProposalOps / AMEC final rebrand", () => {
     await expect(page.locator("body")).not.toContainText(retiredVisibleTerms);
   });
 
-  test("legacy proposal route redirects to the canonical route", async ({ page }) => {
+  test("Permit portfolio remains the canonical permit route", async ({ page }) => {
     await page.goto("/permits");
-    await expect(page).toHaveURL(/\/proposals-contracts\?view=proposals$/);
-    await expect(page.locator("nav button").filter({ hasText: "Proposals & Contracts" })).toBeVisible();
+    await expect(page).toHaveURL(/\/permits$/);
+    await expect(page.getByRole("heading", { name: "Permits", level: 2 })).toBeVisible();
   });
 
   test("Operating Guide retains the only bilingual surface", async ({ page }) => {
