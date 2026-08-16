@@ -1,0 +1,15 @@
+{
+  "source_archive": "FORME.zip",
+  "source_archive_sha256": "98ef79581a55e0207d83bfff9788c2eaa3b83d125e78da4bbdeeede22ebcf475",
+  "source_observations": 24,
+  "promoted_current": 7,
+  "promoted_needs_review": 7,
+  "transactional_or_historical": 6,
+  "reference_only": 1,
+  "blocked_ambiguous": 2,
+  "source_gaps": 1,
+  "silent_omissions": 0,
+  "non_master_promoted": 0,
+  "invented_modification_master": 0,
+  "ambiguous_duplicate_master_promotion": 0
+}

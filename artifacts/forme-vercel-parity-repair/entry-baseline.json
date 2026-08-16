@@ -1,0 +1,14 @@
+{
+  "current_primary_branch": "branch/owner-form-simple-dashboard",
+  "current_primary_head": "47468e0ea517e2ce1e1f130e92e8056873b398ce",
+  "origin_main_sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29",
+  "alembic_head": "0058_source_intake_ledger",
+  "feature_branch_exists": true,
+  "feature_branch_retired": false,
+  "working_tree": ["mock-systems/excel/permit_tracker.xlsx"],
+  "excel_stash": "2f072fce8eb6f31851a8233e054a88a0f17eca6c",
+  "current_vercel_frontend_sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29",
+  "current_vercel_backend_sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29",
+  "backend_release_sha": "202728cb176d9ef561391531729b3d580a7837f0",
+  "preexisting_excel_change_preserved": 1
+}

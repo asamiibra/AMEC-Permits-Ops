@@ -1,0 +1,9 @@
+{
+  "entry_frontend": {"project": "amec-permits-ops", "deployment": "dpl_6V46V4JExZSzCRWg7gaJLXkmKSse", "sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29", "state": "READY"},
+  "entry_backend": {"project": "amec-permits-ops-backend", "deployment": "dpl_HUHPrayujBin9DLdL8eY8tDdiXDY", "sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29", "state": "READY"},
+  "entry_backend_release_sha": "202728cb176d9ef561391531729b3d580a7837f0",
+  "entry_backend_alembic": "0058_source_intake_ledger",
+  "repair_frontend_sha_pass": 0,
+  "repair_backend_sha_pass": 0,
+  "repair_sha_parity_pass": 0
+}

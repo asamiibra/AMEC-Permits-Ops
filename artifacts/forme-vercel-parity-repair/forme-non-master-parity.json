@@ -1,0 +1,7 @@
+{
+  "transactional_or_reference_visible_as_master_count": 0,
+  "blocked_duplicate_visible_as_master_count": 0,
+  "invented_modification_master_count": 0,
+  "ambiguous_duplicate_master_promotion_count": 0,
+  "known_non_master_source_families": 9
+}

@@ -41,6 +41,7 @@ from ..models import (
     FormAutomationProfile,
     FormMappingRelease,
     FormInstance,
+    MasterContentSourceProvenance,
     MaterialChangeEvent,
     Finding,
     FindingStatus,
@@ -55,6 +56,7 @@ from ..storage.factory import create_binary_store
 from ..storage.port import StorageTarget
 from ..storage.service import DocumentStorageService
 from ..storage.errors import StorageError
+from ..fixtures.forme_parity import FORME_ARCHIVE_SHA256, FORME_CATEGORY_LABELS, FORME_MASTER_SPECS
 from .forms_governance import ensure_profile, governance_projection
 
 CONTENT_TYPES = {"FORM", "REPORT", "ENGINEERING_WORK"}
@@ -82,10 +84,10 @@ DEFAULT_REFERENCE_SEQUENCES = [
     {"content_type": "ENGINEERING_WORK", "prefix": "E", "padding": 4, "scope": "GLOBAL"},
     {"content_type": "DEFINITION", "prefix": "D", "padding": 4, "scope": "GLOBAL"},
 ]
-ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
+ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
 ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
 CONTENT_TYPE_MODULES = {
-    "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "PROPOSAL", "CONTRACT"},
+    "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
     "ENGINEERING_WORK": {"ENGINEERING", "PERMIT", "ISSUES", "REPORTS"},
     "DEFINITION": {"BD", "ADMIN", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT"},
@@ -96,6 +98,9 @@ MODULE_LABELS = {
     "ADMIN": "Administration",
     "ENGINEERING": "Engineering",
     "PERMIT": "Permit",
+    "COMPLETION": "Completion",
+    "HANDOVER": "Completion / Handover",
+    "BILLING": "Billing",
     "ISSUES": "Issues",
     "NOTIFICATIONS": "Notifications",
     "REPORTS": "Reports",
@@ -473,8 +478,6 @@ def definition_lookup(db: Session, term: str) -> dict[str, Any] | None:
 
 OWNER_DEMO_SPECS = {
     "FORM": [
-        {"ref": "F-0001", "title": "Consultant Form", "category": "Consultant", "description": "Consultant appointment / authorization form.", "used_in": ["BD", "ADMIN", "PERMIT"]},
-        {"ref": "F-0002", "title": "Authorization Form", "category": "Administration", "description": "Owner authorization form for ProposalOps workflows.", "used_in": ["ADMIN", "PERMIT", "PROPOSAL"]},
         {"ref": "F-0003", "title": "AMEC Proposal Template", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal rendering template.", "used_in": ["BD", "PROPOSAL"]},
         {"ref": "F-0004", "title": "AMEC Proposal Checklist", "category": "Business Development", "description": "Canonical Dashboard-managed Proposal readiness checklist.", "used_in": ["BD", "PROPOSAL"]},
         {"ref": "F-0005", "title": "AMEC Contract Template", "category": "Contract", "description": "Canonical Dashboard-managed Contract handoff template.", "used_in": ["ADMIN", "CONTRACT"]},
@@ -511,15 +514,156 @@ def _demo_category_id(db: Session, content_type: str, label: str) -> str | None:
     return (sorted(matching, key=lambda row: (0 if row.code.startswith(f"{content_type}_") else 1, row.sort_order, row.code))[0].id if matching else None)
 
 
-def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed") -> dict[str, Any]:
-    """Archive confirmed browser/probe artifacts and seed a small safe demo set.
+def _forme_category_id(db: Session, label: str) -> str:
+    """Return a deterministic configurable category for the FORME mapping."""
+    existing = _demo_category_id(db, "FORM", label)
+    if existing:
+        return existing
+    code = "FORM_FORME_" + re.sub(r"[^A-Z0-9]+", "_", label.upper()).strip("_")[:60]
+    category = db.scalar(select(ContentCategory).where(ContentCategory.code == code))
+    if not category:
+        category = ContentCategory(code=code, label=label, description="FORME parity configurable Form category", allowed_content_types=["FORM"], sort_order=500, source_kind="FORME_MAPPING")
+        db.add(category)
+        db.flush()
+    return category.id
 
-    The operation is intentionally conservative: it never deletes rows and
-    never updates an existing non-demo row at a curated reference. Existing
-    owner edits remain authoritative.
+
+def _forme_synthetic_content(spec: dict[str, object]) -> bytes:
+    """Create only the approved synthetic MVP representation, never a source binary."""
+    return (
+        "PROPOSALOPS SYNTHETIC MVP REPRESENTATION\n"
+        f"FORME business identity: {spec['title']}\n"
+        f"Source package: FORME.zip\n"
+        f"Source path: {spec['source_path']}\n"
+        "Actual source binary is not embedded in this deployment.\n"
+    ).encode("utf-8")
+
+
+def _forme_metadata(spec: dict[str, object]) -> dict[str, object]:
+    return {
+        "seed_version": "forme-vercel-parity-v1",
+        "stable_key": spec["stable_key"],
+        "source_package": "FORME.zip",
+        "source_path": spec["source_path"],
+        "source_sha256": spec["source_sha256"] or None,
+        "source_manifest": "ProposalOps_FORME_Source_Disposition_Manifest_v1",
+        "source_archive_sha256": FORME_ARCHIVE_SHA256,
+        "disposition": "PROMOTE_MASTER_CURRENT" if spec["status"] == "CURRENT" else "PROMOTE_MASTER_NEEDS_REVIEW",
+        "forme_category": spec["category"],
+        "forme_used_in": spec["used_in_labels"],
+        "synthetic_mvp_representation": True,
+    }
+
+
+def _ensure_forme_category_configuration(db: Session) -> None:
+    for label in FORME_CATEGORY_LABELS:
+        _forme_category_id(db, label)
+
+
+def _apply_forme_governance(db: Session, item: MasterContentItem, spec: dict[str, object], *, actor: str) -> None:
+    profile = ensure_profile(db, item)
+    title = str(spec["title"])
+    profile.content_ownership_class = "EXTERNAL_OFFICIAL" if spec["official_form_no"] else "AMEC_OWNED"
+    profile.artifact_kind = "UNDERTAKING" if "Undertaking" in title else "AUTHORIZATION" if "Authorization" in title else "CHECKLIST" if "Checklist" in title else "INVOICE" if title == "Invoice Template" else "HANDOVER" if title == "Design Project Handover Form" else "TECHNICAL_WORKSHEET" if title == "External Wall / Roof U-Value Calculation" else "CERTIFICATE_DECLARATION" if title == "Material & Specification Conformity Certificate" else "OTHER"
+    profile.publisher_name = "Ministry of Municipality" if str(spec["category"]).startswith("Municipality") else "GSAS / Lusail" if title == "GSAS 3+ Star Undertaking" else "AMEC / FORME source package"
+    profile.publisher_unit = str(spec["category"])
+    profile.jurisdiction_text = "Qatar"
+    profile.official_form_no = spec["official_form_no"]
+    profile.official_issue_no = str(spec["source_version"]) if spec.get("source_version") else None
+    profile.language_profile = "AR_EN_BILINGUAL" if str(spec["source_path"]).lower().endswith((".pdf", ".docx")) else "OTHER"
+    profile.currentness_status = "VERIFIED_CURRENT" if spec["status"] == "CURRENT" else "NEEDS_REVIEW"
+    profile.currentness_verified_by = actor
+    profile.currentness_verification_note = "FORME disposition projection; synthetic MVP business metadata only."
+
+
+def _ensure_forme_provenance(db: Session, item: MasterContentItem, spec: dict[str, object], *, actor: str) -> None:
+    version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+    if not version:
+        raise RuntimeError(f"FORME parity record has no current version: {spec['stable_key']}")
+    if db.scalar(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id == version.id)):
+        return
+    source_hash = spec["source_sha256"] or "not provided in controlling mapping"
+    db.add(MasterContentSourceProvenance(document_version_id=version.id, obtained_from="FORME.zip", obtained_by=actor, source_reference=str(spec["source_path"]), ingest_batch=f"FORME:{FORME_ARCHIVE_SHA256}", provenance_note=f"Source SHA-256: {source_hash}. Business projection only; actual source binary is not embedded in Vercel synthetic mode.", evidence_reference="docs/storage-integration-v1_4/07-forme-disposition.md"))
+
+
+def _seed_owned_generic_placeholder(item: MasterContentItem) -> bool:
+    version = item.document.versions[0] if item.document and item.document.versions else None
+    metadata = (version.metadata_json if version else {}) or {}
+    return item.created_by == "owner-demo-seed" and bool(version and version.version_number == 1 and "owner-demo" in version.source_filename.lower() and metadata.get("business_ref") == item.ref)
+
+
+def _archive_obsolete_generic_placeholders(db: Session, *, actor: str) -> dict[str, object]:
+    result: dict[str, object] = {"classifications": [], "archived": [], "unclassified": []}
+    rows = db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.ref.in_(["F-0001", "F-0002"]))).all()
+    for item in rows:
+        classification = {"ref": item.ref, "title": item.title, "id": item.id}
+        if item.title not in {"Consultant Form", "Authorization Form"}:
+            classification["classification"] = "UNKNOWN"
+            result["unclassified"].append(classification)
+            continue
+        bindings = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active.is_(True))).all()
+        has_non_available_binding = any(binding.usage_type != "AVAILABLE" for binding in bindings)
+        has_dependency = any(db.scalar(select(model.id).where(model.master_content_item_id == item.id)) for model in (MasterContentDependency, MasterContentApplicability, FormAutomationProfile, RequirementPolicyLineage, TechnicalRuleLineage))
+        if _seed_owned_generic_placeholder(item) and not has_non_available_binding and not has_dependency:
+            classification["classification"] = "OBSOLETE_SYNTHETIC_PLACEHOLDER"
+            if item.status == "ACTIVE":
+                item.status = "ARCHIVED"
+                audit(db, correlation_id=f"forme-parity-placeholder:{item.id}", event_type="MASTER_CONTENT_SYNTHETIC_PLACEHOLDER_ARCHIVED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": item.ref, "status": "ARCHIVED", "reason": "Superseded by exact FORME parity mapping"})
+                result["archived"].append(item.ref)
+        else:
+            classification["classification"] = "UNKNOWN"
+            result["unclassified"].append(classification)
+        result["classifications"].append(classification)
+    if result["unclassified"]:
+        raise RuntimeError(f"FORME_VERCEL_PARITY_REPAIR_BLOCKED_BY_PLACEHOLDER_DEPENDENCY: {result['unclassified']}")
+    return result
+
+
+def _reconcile_forme_masters(db: Session, *, actor: str) -> dict[str, object]:
+    _ensure_forme_category_configuration(db)
+    created: list[str] = []
+    preserved: list[str] = []
+    conflicts: list[dict[str, object]] = []
+    for spec in FORME_MASTER_SPECS:
+        forme_metadata = _forme_metadata(spec)
+        existing = db.scalar(select(MasterContentItem).where(MasterContentItem.ref == spec["ref"], MasterContentItem.content_type == "FORM")) if spec["ref"] else None
+        if not existing:
+            existing = db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.title == spec["title"]))
+        if existing:
+            prior_marker = (existing.engineering_metadata or {}).get("forme_parity")
+            if prior_marker and prior_marker.get("stable_key") == spec["stable_key"]:
+                if prior_marker.get("source_sha256") != forme_metadata.get("source_sha256") or existing.needs_review != (spec["status"] == "NEEDS_REVIEW") or existing.review_note != spec["review_note"]:
+                    conflicts.append({"stable_key": spec["stable_key"], "id": existing.id, "reason": "seed-owned record drifted; refusing silent overwrite"})
+                _ensure_forme_provenance(db, existing, spec, actor=actor)
+                preserved.append(str(spec["stable_key"]))
+                continue
+            conflicts.append({"stable_key": spec["stable_key"], "id": existing.id, "reason": "title/ref collision without FORME parity ownership"})
+            continue
+        category_id = _forme_category_id(db, str(spec["category"]))
+        result = create_master_content(db, content_type="FORM", ref=spec["ref"], title=str(spec["title"]), category_id=category_id, description=str(spec["description"]), filename=str(spec["filename"]), mime_type=str(spec["mime_type"]), content=_forme_synthetic_content(spec), actor="owner-demo-seed", idempotency_key=f"forme-parity:v1:{spec['stable_key']}", correlation_id=f"forme-parity:v1:{spec['stable_key']}", source_surface="SOURCE_INTAKE_V1_4", used_in=spec["used_in"], engineering_metadata={"forme_parity": forme_metadata}, needs_review=spec["status"] == "NEEDS_REVIEW", review_note=spec["review_note"])
+        item = db.get(MasterContentItem, result["id"])
+        item.engineering_metadata = {**(item.engineering_metadata or {}), "forme_parity": forme_metadata}
+        _apply_forme_governance(db, item, spec, actor=actor)
+        _ensure_forme_provenance(db, item, spec, actor=actor)
+        created.append(str(spec["stable_key"]))
+    if conflicts:
+        raise RuntimeError(f"FORME_VERCEL_PARITY_REPAIR_BLOCKED_BY_DATA_CONFLICT: {conflicts}")
+    db.commit()
+    return {"created": created, "preserved": preserved, "conflicts": conflicts, "current": sum(1 for spec in FORME_MASTER_SPECS if spec["status"] == "CURRENT"), "needs_review": sum(1 for spec in FORME_MASTER_SPECS if spec["status"] == "NEEDS_REVIEW"), "inactive": 0}
+
+
+def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed") -> dict[str, Any]:
+    """Reconcile the synthetic MVP to core masters plus exact FORME metadata.
+
+    Only seed-owned generic placeholders are archived. FORME parity records
+    use stable idempotency keys and synthetic DB-backed content; no source
+    binary is copied into the repository or presented as the actual binary.
+    Existing unclassified/user-edited collisions stop the bootstrap.
     """
     seed_categories(db)
     seed_reference_sequences(db)
+    placeholder_result = _archive_obsolete_generic_placeholders(db, actor=actor)
+    db.commit()
     archived_master: list[dict[str, str]] = []
     archived_definitions: list[dict[str, str]] = []
     for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE")).all():
@@ -591,7 +735,8 @@ def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed")
             db.add(MasterContentModuleBinding(definition_id=definition.id, module=module, usage_type="SEMANTIC_SOURCE", active=True, created_by=actor))
         created_definitions.append(definition.ref)
     db.commit()
-    return {"archived_master": archived_master, "archived_definitions": archived_definitions, "created_master": created_master, "preserved_master": preserved_master, "created_definitions": created_definitions, "preserved_definitions": preserved_definitions}
+    forme_result = _reconcile_forme_masters(db, actor=actor)
+    return {"archived_master": archived_master, "archived_definitions": archived_definitions, "created_master": created_master, "preserved_master": preserved_master, "created_definitions": created_definitions, "preserved_definitions": preserved_definitions, "generic_placeholder_analysis": placeholder_result, "forme_parity": forme_result}
 
 
 def _version_projection(version: DocumentVersion) -> dict[str, Any]:

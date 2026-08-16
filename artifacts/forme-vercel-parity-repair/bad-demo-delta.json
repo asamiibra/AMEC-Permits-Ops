@@ -1,0 +1,13 @@
+{
+  "bad_demo_changeset_identified": 1,
+  "pre_demo_main_sha": "202728cb176d9ef561391531729b3d580a7837f0",
+  "demo_seed_commits": [],
+  "post_demo_main_sha": "ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29",
+  "prior_evidence_seed_started": false,
+  "prior_evidence_seed_commit": null,
+  "invented_forme_records_found": 0,
+  "invented_inactive_forme_records_found": 0,
+  "preexisting_generic_rows_observed": ["F-0001", "F-0002"],
+  "database_mutation_from_prior_named_status_demo": false,
+  "repair_scope": "bootstrap reconciliation plus safe archive of proven generic placeholders"
+}

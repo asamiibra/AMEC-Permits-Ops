@@ -1,0 +1,16 @@
+{
+  "local_status": "PASS",
+  "forme_current": 7,
+  "forme_needs_review": 7,
+  "forme_inactive": 0,
+  "first_run_created": 14,
+  "second_run_created": 0,
+  "second_run_duplicate_master_content_item": 0,
+  "second_run_duplicate_document": 0,
+  "second_run_unintended_document_version": 0,
+  "second_run_duplicate_used_in_binding": 0,
+  "second_run_status_drift": 0,
+  "second_run_review_note_drift": 0,
+  "generic_placeholder_archived": ["F-0001", "F-0002"],
+  "forme_vercel_seed_idempotency_pass": 1
+}

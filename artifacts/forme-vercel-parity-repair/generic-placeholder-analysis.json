@@ -1,0 +1,6 @@
+{
+  "Consultant Form": {"ref": "F-0001", "classification": "OBSOLETE_SYNTHETIC_PLACEHOLDER", "seed_owned": true, "non_available_purpose_binding": false, "direct_dependency": false},
+  "Authorization Form": {"ref": "F-0002", "classification": "OBSOLETE_SYNTHETIC_PLACEHOLDER", "seed_owned": true, "non_available_purpose_binding": false, "direct_dependency": false},
+  "unclassified_generic_placeholder_count": 0,
+  "unexplained_generic_placeholder_count": 0
+}

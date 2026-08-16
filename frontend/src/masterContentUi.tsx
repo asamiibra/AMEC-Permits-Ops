@@ -15,6 +15,9 @@ export const MODULE_LABELS: Record<string, string> = {
   ADMIN: "Administration",
   ENGINEERING: "Engineering",
   PERMIT: "Permit",
+  COMPLETION: "Completion",
+  HANDOVER: "Completion / Handover",
+  BILLING: "Billing",
   ISSUES: "Issues",
   NOTIFICATIONS: "Notifications",
   REPORTS: "Reports",
@@ -23,7 +26,7 @@ export const MODULE_LABELS: Record<string, string> = {
 };
 
 export const MODULE_OPTIONS: Record<ContentType, string[]> = {
-  FORM: ["MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "PROPOSAL", "CONTRACT"],
+  FORM: ["MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "PROPOSAL", "CONTRACT"],
   REPORT: ["BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"],
   ENGINEERING_WORK: ["ENGINEERING", "PERMIT", "ISSUES", "REPORTS"],
   DEFINITION: ["BD", "ADMIN", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT"],
