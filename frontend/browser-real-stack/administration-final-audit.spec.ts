@@ -53,8 +53,8 @@ test("Owner Administration stays usable on mobile and role changes re-evaluate d
   await page.goto("/work");
   await page.getByLabel("Persona").selectOption("COMMERCIAL_APPROVER");
   await page.goto("/admin/permit-setup");
-  await expect(page).toHaveURL(/\/work$/);
+  await expect(page).toHaveURL(/\/home$/);
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
   await page.goto("/admin/advanced-diagnostics");
-  await expect(page).toHaveURL(/\/work$/);
+  await expect(page).toHaveURL(/\/home$/);
 });
