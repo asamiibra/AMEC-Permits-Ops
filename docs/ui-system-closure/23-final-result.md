@@ -4,8 +4,8 @@
 
 - Branch: `branch/ui-productionization`
 - Starting SHA: `aefb541a3c186cfd6aca00ff14f602e06e5b4aaa`
-- Final SHA: `de47e1aec4febc89058e0cd91f0b6e001e6ba18a`
-- Remote SHA: `de47e1aec4febc89058e0cd91f0b6e001e6ba18a` after push
+- Final SHA: reported from the post-push `git rev-parse HEAD` check in the task handoff
+- Remote SHA: reported equal from the post-push `git rev-parse origin/branch/ui-productionization` check
 - Working tree: clean at closure
 
 ## Scope integrity

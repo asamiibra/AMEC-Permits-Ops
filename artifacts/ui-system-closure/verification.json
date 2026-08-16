@@ -42,7 +42,8 @@
   },
   "primary_worktree_excel_sha256": "3eb887e87bf0d5695a570e8aa1e6c917d646176c77e1b978d6387681d58f1be0",
   "git_diff_check": "PASS",
-  "final_sha": "de47e1aec4febc89058e0cd91f0b6e001e6ba18a",
-  "remote_sha": "de47e1aec4febc89058e0cd91f0b6e001e6ba18a",
+  "implementation_commit": "de47e1aec4febc89058e0cd91f0b6e001e6ba18a",
+  "final_sha": "verified from git rev-parse HEAD at handoff",
+  "remote_sha": "verified equal from git rev-parse origin/branch/ui-productionization at handoff",
   "clean_worktree": "verified after push"
 }
