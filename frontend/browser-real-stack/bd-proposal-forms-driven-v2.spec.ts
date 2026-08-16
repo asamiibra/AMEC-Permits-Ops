@@ -7,7 +7,7 @@ test("BD Proposal Forms-Driven v2 exposes the governed owner workspace", async (
   expect(health.ok()).toBeTruthy();
   const healthBody = await health.json();
   expect(healthBody.database_dialect).toBe("postgresql");
-  expect(healthBody.alembic_versions).toContain("0055_bd_proposal_final_hardening");
+  expect(healthBody.alembic_versions).toContain("0058_source_intake_ledger");
 
   let proposals = await request.get("/api/bd/proposals", { headers: owner });
   expect(proposals.ok()).toBeTruthy();

@@ -1,0 +1,11 @@
+{
+  "seed_started": false,
+  "seed_commit": null,
+  "current": null,
+  "needs_review": null,
+  "inactive": null,
+  "idempotency": null,
+  "resolver_exclusion": null,
+  "admin_parity": null,
+  "blocked_by": "VERCEL_FINAL_MAIN_DEPLOYMENT_BLOCKED"
+}

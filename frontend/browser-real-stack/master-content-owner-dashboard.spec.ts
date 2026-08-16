@@ -9,7 +9,7 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   const term = `E2E verification term ${suffix}`;
 
   await page.goto("/dashboard");
-  await expect(page.getByRole("heading", { name: "Dashboard", level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible();
   for (const label of ["Forms", "Reports", "Engineering Works", "Definitions"]) {
     await expect(page.getByRole("heading", { name: label, level: 3 })).toBeVisible();
   }
@@ -24,7 +24,7 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   await expect(page.getByText(formRef, { exact: true })).toBeVisible();
 
   const formRow = page.getByRole("row").filter({ hasText: formRef });
-  await formRow.getByRole("button", { name: "Edit" }).click();
+  await formRow.getByRole("button", { name: "Modify" }).click();
   await page.getByLabel("Why are you making this change?").fill("Browser metadata revision");
   await page.getByLabel("File").setInputFiles({ name: "browser-form-v2.txt", mimeType: "text/plain", buffer: Buffer.from("browser form v2") });
   await page.getByRole("button", { name: "Save as New Version" }).click();

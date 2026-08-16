@@ -1,0 +1,10 @@
+{
+  "status": "BLOCKED_BACKEND_REPAIR_DEPLOYMENT",
+  "forme_browser_name_missing_count": null,
+  "forme_browser_unexpected_synthetic_alias_count": null,
+  "vercel_forme_master_parity_browser_pass": 0,
+  "vercel_current_filter_pass": 0,
+  "vercel_needs_review_filter_pass": 0,
+  "vercel_inactive_empty_state_truthful_pass": 0,
+  "blocker": "Matching backend deployment for repair SHA 402b6e6b300f9433c7a6255474a6285457aacce4 is ERROR with no runtime output, and the frontend /dashboard URL redirects to Vercel login; browser/API parity was not claimed."
+}

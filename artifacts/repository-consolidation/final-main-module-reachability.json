@@ -1,5 +1,5 @@
 {
-  "checked_against": "pending_final_main_sha",
-  "CURRENT_MODULE_NOT_REACHABLE_FROM_MAIN_COUNT": null,
-  "note": "Populate after main integration; pre-integration all current modules are reachable from the tested feature SHA."
+  "checked_against": "07ea0478dd71f37c84995936c057acadf3e939a0",
+  "CURRENT_MODULE_NOT_REACHABLE_FROM_MAIN_COUNT": 0,
+  "all_current_modules_reachable": true
 }

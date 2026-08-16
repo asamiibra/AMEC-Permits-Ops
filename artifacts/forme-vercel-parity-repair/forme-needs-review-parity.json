@@ -1,0 +1,12 @@
+{
+  "count": 7,
+  "names_and_notes": [
+    {"name": "External Wall / Roof U-Value Calculation", "note": "Supplied PDF contains a visible PDF-editor watermark. Confirm or replace with the intended clean source."},
+    {"name": "TLC Required Documents Checklist", "note": "The supplied checklist and supporting folder screenshot do not fully match. Confirm the intended current requirement list."},
+    {"name": "Material & Specification Conformity Certificate", "note": "Only an image copy was supplied. Confirm this is the intended form or replace it with the authoritative PDF/DOCX."},
+    {"name": "Building Completion Permit Checklist", "note": "The supplied checklist contains a hard-coded historical date. Confirm or upload a clean reusable version."},
+    {"name": "New Building Permit Checklist", "note": "The supplied checklist contains an empty requirement row. Confirm the intended checklist before production use."},
+    {"name": "Design Project Handover Form", "note": "The supplied form contains a hard-coded transaction date and closure wording. Confirm the clean reusable master."},
+    {"name": "Invoice Template", "note": "The supplied template contains example transaction values/payment wording and corporate banking details. Confirm the reusable master content before production use."}
+  ]
+}

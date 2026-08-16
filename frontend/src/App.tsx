@@ -161,6 +161,7 @@ const pageFromPath = () => {
   if (path === "/" || path === "/home") return "home";
   if (path === "/dashboard") return "dashboard";
   if (path === "/dashboard-v2") return "dashboard";
+  if (path === "/content-library" || path === "/library" || path === "/master-content") return "dashboard";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
@@ -206,7 +207,7 @@ const pageFromPath = () => {
   if (path.startsWith("/admin/")) return "administration";
   if (path.startsWith("/proposals-contracts/"))
     return "permit-workspace";
-  return "my-work";
+  return "home";
 };
 const stageFromPath = (): WorkflowStage => {
   const part = window.location.pathname
@@ -239,6 +240,8 @@ function App() {
   const [governance] = useState({ environment_badge: "SYNTHETIC PROTOTYPE" });
   const [error, setError] = useState("");
   const [role, setRole] = useState<string>(() => readDemoRole());
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   useEffect(() => {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -418,6 +421,8 @@ function App() {
   const title =
     page === "permit-workspace" && selected
       ? `${selected.project_number} · ${selected.project_name}`
+      : page === "home"
+        ? "Home"
       : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
         ? "Permit"
       : page === "administration"
@@ -505,6 +510,14 @@ function App() {
             </div>
           </div>
           <div className="top-actions">
+            <div className="header-menu-control">
+              <button className="header-control" aria-label="Global search" aria-expanded={searchOpen} onClick={() => { setSearchOpen((value) => !value); setCreateOpen(false); }}>⌕</button>
+              {searchOpen && <div className="header-popover" role="dialog" aria-label="Global search"><b>Global search</b><p>Search is bounded to canonical workspaces. Use the workspace filters or open AMEC Work for a governed action list.</p><a href="/work">Open AMEC Work →</a><a href="/dashboard">Search Content Library →</a></div>}
+            </div>
+            <div className="header-menu-control">
+              <button className="header-control" aria-label="Quick create" aria-expanded={createOpen} onClick={() => { setCreateOpen((value) => !value); setSearchOpen(false); }}>＋</button>
+              {createOpen && <div className="header-popover quick-create-popover" role="dialog" aria-label="Quick create"><b>Quick create</b><p>Start only from supported canonical workflows.</p><a href="/proposals/new">New Proposal →</a><a href="/dashboard">Manage Content Library →</a></div>}
+            </div>
             <NotificationBell role={role} onNavigate={() => navigate("notifications")} />
             <ReadinessDrawer
               screenId={
@@ -513,8 +526,8 @@ function App() {
                   : page === "permit-workspace"
                     ? getScreenDefinition(selectedStage).screenId
                     : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
-                      ? getScreenDefinition("permits").screenId
-                    : getScreenDefinition(page).screenId
+                    ? getScreenDefinition("permits").screenId
+                    : getScreenDefinition(page === "home" || page === "my-work" ? "my-work" : page).screenId
               }
               role={role}
               onNavigate={navigate}

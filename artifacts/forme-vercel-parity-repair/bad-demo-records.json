@@ -1,0 +1,9 @@
+{
+  "named_synthetic_prefix_records": [],
+  "bad_demo_active_record_count": 0,
+  "generic_placeholder_records": [
+    {"ref": "F-0001", "name": "Consultant Form", "classification": "OBSOLETE_SYNTHETIC_PLACEHOLDER"},
+    {"ref": "F-0002", "name": "Authorization Form", "classification": "OBSOLETE_SYNTHETIC_PLACEHOLDER"}
+  ],
+  "invented_inactive_forme_record_count": 0
+}

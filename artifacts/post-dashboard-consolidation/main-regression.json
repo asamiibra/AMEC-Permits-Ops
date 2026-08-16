@@ -1,0 +1,19 @@
+{
+  "checked_against": "4aedcc6c79973055aea14bb717c12a6dcb347953",
+  "MAIN_CANDIDATE_ALEMBIC_SINGLE_HEAD_PASS": 1,
+  "MAIN_CANDIDATE_FRESH_MIGRATION_PASS": 1,
+  "MAIN_CANDIDATE_UPGRADE_MIGRATION_PASS": 1,
+  "MAIN_CANDIDATE_POSTGRESQL_PASS": 1,
+  "MAIN_CANDIDATE_FRONTEND_PASS": 1,
+  "MAIN_CANDIDATE_BUILD_PASS": 1,
+  "MAIN_CANDIDATE_CROSS_MODULE_PASS": 1,
+  "MAIN_CANDIDATE_BROWSER_PASS": 1,
+  "MAIN_CANDIDATE_STORAGE_SOURCE_INTAKE_PASS": 1,
+  "backend_passed": 236,
+  "backend_skipped": 6,
+  "frontend_passed": 39,
+  "browser_passed": 27,
+  "browser_failed": 0,
+  "storage_source_intake_passed": 7,
+  "storage_source_intake_skipped": 6
+}

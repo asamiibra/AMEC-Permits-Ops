@@ -1,0 +1,21 @@
+{
+  "topology": "multi-branch normal merge",
+  "base": "origin/main",
+  "order": [
+    "origin/branch/owner-form-simple-dashboard",
+    "origin/branch/home-navigation-reorganization",
+    "origin/branch/ui-productionization"
+  ],
+  "merge_rehearsal": {"status":"PASS","conflicts":0,"worktree":"/private/tmp/proposalops-consolidation-test.rWzDDK"},
+  "main_only_commits_preserved": true,
+  "force_push": false,
+  "rebase": false,
+  "cherry_pick": false,
+  "candidate_sha": "4aedcc6c79973055aea14bb717c12a6dcb347953",
+  "candidate_containment": {
+    "origin/main": true,
+    "origin/branch/owner-form-simple-dashboard": true,
+    "origin/branch/home-navigation-reorganization": true,
+    "origin/branch/ui-productionization": true
+  }
+}

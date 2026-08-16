@@ -1,0 +1,9 @@
+{
+  "local_status": "PASS",
+  "resolver": "PERMIT / AVAILABLE",
+  "forme_needs_review_resolver_exclusion_pass": 1,
+  "forme_current_business_eligibility_pass": 1,
+  "proposal_template_resolver_pass": 1,
+  "proposal_checklist_resolver_pass": 1,
+  "contract_template_resolver_pass": 1
+}

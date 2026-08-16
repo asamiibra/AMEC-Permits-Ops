@@ -213,12 +213,12 @@ export function CurrentDashboard({ role }: { role: string }) {
     }
   };
   return (
-    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="v2-evolution" data-testid="current-dashboard">
+    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="v2-evolution" data-testid="current-dashboard" data-testid-content-library="true">
       <header className="dashboard-page-header">
         <div>
-          <span className="eyebrow">AMEC · MASTER / REFERENCE CONTENT</span>
-          <h2>Dashboard</h2>
-          <p>Govern the shared Forms, Reports, Engineering Works, and Definitions foundation.</p>
+          <span className="eyebrow">AMEC · CONTENT LIBRARY</span>
+          <h2>Content Library</h2>
+          <p>Master Forms, Reports, Engineering Works &amp; Definitions</p>
         </div>
         <div className="dashboard-counts">
           <span>

@@ -1,0 +1,12 @@
+{
+  "status": "LOCAL_TARGET_DEFINED",
+  "forme_current_visible_count": 7,
+  "forme_needs_review_visible_count": 7,
+  "forme_visible_master_total": 14,
+  "proposalops_functional_master_visible_count": 3,
+  "expected_visible_forms_total_if_no_extra_legitimate_forms": 17,
+  "expected_current": 10,
+  "expected_needs_review": 7,
+  "expected_inactive": 0,
+  "unexplained_extra_visible_form_count": 0
+}

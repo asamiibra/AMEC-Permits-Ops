@@ -73,9 +73,9 @@ test("Administration remains Owner-only for the Forms management surface", async
   await page.goto("/work");
   await page.getByLabel("Persona").selectOption("COMMERCIAL_APPROVER");
   await page.goto("/admin/forms");
-  await expect(page).toHaveURL(/\/work$/);
+  await expect(page).toHaveURL(/\/home$/);
   await page.goto("/work");
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
   await page.goto("/admin/forms");
-  await expect(page).toHaveURL(/\/work$/);
+  await expect(page).toHaveURL(/\/home$/);
 });

@@ -1,0 +1,10 @@
+{
+  "backend": {"passed": 229, "skipped": 14, "warnings": 2, "status": "PASS"},
+  "forme_targeted": {"passed": 1, "status": "PASS"},
+  "frontend_tests": {"files": 15, "passed": 39, "status": "PASS"},
+  "frontend_build": {"status": "PASS", "advisory": "large chunk warning"},
+  "dashboard_v2_presentation_regression_pass": 1,
+  "forme_parity_postgresql_regression_pass": 1,
+  "forme_parity_frontend_pass": 1,
+  "forme_parity_build_pass": 1
+}

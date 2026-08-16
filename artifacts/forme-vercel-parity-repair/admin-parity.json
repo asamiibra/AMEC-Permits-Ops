@@ -1,0 +1,6 @@
+{
+  "status": "BLOCKED_DEPLOYED_PROOF",
+  "source": "same canonical MasterContentItem/Document/DocumentVersion projection",
+  "forme_dashboard_admin_parity_pass": 0,
+  "blocker": "No ready repair-SHA backend runtime exists on Vercel, so deployed Dashboard/Administration responses could not be compared."
+}

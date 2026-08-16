@@ -7,7 +7,7 @@ test("Owner can navigate the business Administration surface and persist a setti
   await expect(page.getByRole("heading", { name: "Contracts", level: 3 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Invoices", level: 3 })).toBeVisible();
   await expect(page.getByRole("button", { name: "Billing / Invoice", exact: true })).toHaveCount(0);
-  await expect(page.getByText("Business records", { exact: true })).toHaveCount(1);
+  await expect(page.getByText("Business Record", { exact: true })).toHaveCount(1);
   await expect(page.locator(".admin-operational-preview-lanes").first()).toContainText("All");
   await page.getByRole("button", { name: /Setup & Controls/ }).click();
   for (const label of ["People & Access", "Data & Connections", "Project & Folder Setup", "Proposal Setup", "Contract Setup", "Permit Workflow Setup", "Templates & Documents", "Notifications & Follow-up", "Data, Security & Retention", "Integration Health", "Audit History", "Advanced Diagnostics"]) {
@@ -57,11 +57,11 @@ test("BD and Engineering cannot retain privileged Administration access", async 
   await page.getByLabel("Persona").selectOption("COMMERCIAL_APPROVER");
   await expect(page.getByRole("button", { name: "Administration", exact: true })).toHaveCount(0);
   await page.goto("/admin");
-  await expect(page).toHaveURL(/\/work$/);
+  await expect(page).toHaveURL(/\/home$/);
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
   await expect(page.getByRole("button", { name: "Administration", exact: true })).toHaveCount(0);
   await page.goto("/admin/people-access");
-  await expect(page).toHaveURL(/\/work$/);
+  await expect(page).toHaveURL(/\/home$/);
 });
 
 test("Administration remains usable on a narrow viewport", async ({ page }) => {

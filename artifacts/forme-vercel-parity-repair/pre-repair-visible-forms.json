@@ -1,0 +1,12 @@
+{
+  "status": "OBSERVED",
+  "active_forms": [
+    {"ref": "BD-PROP-001", "name": "AMEC Proposal Template", "status": "Current"},
+    {"ref": "BD-CHK-001", "name": "AMEC Proposal Checklist", "status": "Current"},
+    {"ref": "CT-001", "name": "AMEC Contract Template", "status": "Current"},
+    {"ref": "F-0001", "name": "Consultant Form", "status": "Current"},
+    {"ref": "F-0002", "name": "Authorization Form", "status": "Current"}
+  ],
+  "active_form_count": 5,
+  "source": "GET /api/master-content?content_type=FORM at repair entry"
+}

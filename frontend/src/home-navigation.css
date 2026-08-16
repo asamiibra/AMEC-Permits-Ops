@@ -1,0 +1,55 @@
+.nav-group { margin: 18px 0 0; }
+.nav-group:first-child { margin-top: 10px; }
+.nav-group-label { display: block; padding: 0 14px 7px; color: #8ea2b6; font-size: 10px; font-weight: 800; letter-spacing: .13em; }
+.home-page { display: grid; gap: 26px; max-width: 1480px; }
+.home-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 24px 28px; border: 1px solid #dce5ec; border-radius: 18px; background: linear-gradient(120deg, #fff 0%, #f4fafb 100%); }
+.home-hero h2 { margin: 5px 0 6px; font-size: 34px; letter-spacing: -.03em; }
+.home-hero p { margin: 0; color: #556b7c; max-width: 640px; }
+.home-hero-note { color: #526877; font-size: 12px; white-space: nowrap; }
+.home-section { display: grid; gap: 13px; }
+.home-section-heading, .home-widget-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.home-section-heading h3, .home-widget-heading h3 { margin: 4px 0 0; }
+.home-stage-grid { display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr)); gap: 10px; }
+.home-stage-card { display: flex; min-height: 176px; flex-direction: column; gap: 10px; padding: 16px 14px; border: 1px solid #d8e4e9; border-radius: 14px; color: #173447; background: #fff; text-decoration: none; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+.home-stage-card:hover, .home-stage-card:focus-visible { border-color: #1a8b91; box-shadow: 0 9px 22px #17344712; transform: translateY(-2px); }
+.home-stage-icon { color: #168388; font-size: 20px; font-weight: 800; }
+.home-stage-title { font-weight: 800; line-height: 1.25; }
+.home-stage-description { color: #617685; font-size: 12px; line-height: 1.45; }
+.home-stage-link { margin-top: auto; color: #167c82; font-size: 12px; font-weight: 800; }
+.home-finance-lane { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid #d9e3e8; border-radius: 14px; background: #f9fbfc; }
+.home-flow-node { flex: 1; padding: 12px; border: 1px solid #d6e3e7; border-radius: 9px; background: #fff; color: #536c7c; font-size: 12px; text-align: center; }
+.home-flow-link { color: #126e75; font-weight: 800; text-decoration: none; }
+.home-flow-arrow { color: #8aa0aa; font-weight: 800; }
+.home-widgets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.home-widget { min-height: 190px; padding: 20px; border: 1px solid #d8e4e9; border-radius: 15px; background: #fff; }
+.home-widget-heading a { color: #147980; font-size: 12px; font-weight: 800; text-decoration: none; }
+.home-metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0 16px; }
+.home-metric-row div { display: grid; gap: 3px; padding-right: 10px; border-right: 1px solid #e4ecef; }
+.home-metric-row div:last-child { border-right: 0; }
+.home-metric-row strong { color: #173447; font-size: 25px; }
+.home-metric-row span { color: #738793; font-size: 11px; }
+.home-mini-list { display: grid; gap: 7px; }
+.home-mini-list a { overflow: hidden; color: #36566a; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.home-activity-note { padding: 16px 18px; border-left: 3px solid #1b8a8e; background: #f4fafb; }
+.home-activity-note p { margin: 5px 0 0; color: #536c7c; font-size: 12px; }
+.header-control { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid #d5e1e6; border-radius: 9px; background: #fff; color: #214456; cursor: pointer; }
+.header-menu-control { position: relative; }
+.header-popover { position: absolute; z-index: 20; top: 45px; right: 0; width: 285px; padding: 15px; border: 1px solid #d5e1e6; border-radius: 12px; background: #fff; box-shadow: 0 18px 50px #17344724; }
+.header-popover p { margin: 8px 0 12px; color: #637986; font-size: 12px; line-height: 1.45; }
+.header-popover a { display: block; padding: 8px 0; color: #147980; font-size: 12px; font-weight: 800; text-decoration: none; }
+.notification-control { position: relative; }
+.notification-count { position: absolute; top: -6px; right: -7px; min-width: 18px; padding: 2px 4px; border-radius: 20px; background: #a83e34; color: #fff; font-size: 10px; font-weight: 800; line-height: 14px; text-align: center; }
+.notification-popover { position: absolute; z-index: 20; top: 45px; right: 0; width: 360px; padding: 16px; border: 1px solid #d5e1e6; border-radius: 13px; background: #fff; box-shadow: 0 18px 50px #17344724; }
+.notification-popover-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #e6edef; }
+.notification-popover-heading h3 { margin: 3px 0 0; }
+.notification-list { display: grid; max-height: 330px; overflow: auto; }
+.notification-popover-item { display: flex; gap: 9px; padding: 12px 2px; border-bottom: 1px solid #edf2f4; color: #29495b; text-decoration: none; }
+.notification-popover-item.unread b { color: #126e75; }
+.notification-popover-item b, .notification-popover-item small { display: block; }
+.notification-popover-item small { margin-top: 3px; color: #6a7e89; font-size: 11px; line-height: 1.35; }
+.notification-popover-dot { width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: #b9c9d0; flex: 0 0 auto; }
+.notification-popover-item.unread .notification-popover-dot { background: #c65345; }
+.notification-view-all { display: block; padding-top: 13px; color: #147980; font-size: 12px; font-weight: 800; text-decoration: none; }
+.notification-popover-error { margin: 10px 0 0; color: #a33f34; font-size: 12px; }
+@media (max-width: 1150px) { .home-stage-grid { grid-template-columns: repeat(4, minmax(160px, 1fr)); } }
+@media (max-width: 760px) { .home-hero, .home-section-heading, .home-widget-heading { align-items: flex-start; flex-direction: column; } .home-hero-note { white-space: normal; } .home-stage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .home-widgets { grid-template-columns: 1fr; } .home-finance-lane { align-items: stretch; flex-direction: column; } .home-flow-arrow { transform: rotate(90deg); align-self: center; } .notification-popover { position: fixed; top: 68px; right: 12px; left: 12px; width: auto; } }

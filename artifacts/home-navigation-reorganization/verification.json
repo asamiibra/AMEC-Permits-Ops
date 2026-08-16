@@ -1,0 +1,10 @@
+{
+  "scope": "Home + navigation reorganization",
+  "branch": "branch/home-navigation-reorganization",
+  "build": "PASS",
+  "frontend_unit_tests": { "status": "PASS", "files": 15, "tests": 39 },
+  "browser_real_stack": { "status": "PASS", "tests": 10, "base_url": "http://127.0.0.1:5174", "api_base_url": "http://127.0.0.1:8000" },
+  "backend_files_changed": false,
+  "hosted_runtime_verified": false,
+  "production_ready_claim": false
+}

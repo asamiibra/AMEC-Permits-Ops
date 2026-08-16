@@ -1,7 +1,10 @@
 {
-  "checked_against": "pending_final_main_sha",
-  "FINAL_MAIN_ALEMBIC_SINGLE_HEAD_PASS": null,
-  "FINAL_MAIN_FRESH_MIGRATION_PASS": null,
-  "FINAL_MAIN_FULL_REGRESSION_PASS": null,
-  "note": "Populate only from tests actually run on the resulting main SHA."
+  "checked_against": "2878c5d566a6157bbf6f38969088b28395bbdf58",
+  "FINAL_MAIN_ALEMBIC_SINGLE_HEAD_PASS": 1,
+  "FINAL_MAIN_FRESH_MIGRATION_PASS": 1,
+  "FINAL_MAIN_FULL_REGRESSION_PASS": 0,
+  "backend": {"passed": 228, "skipped": 14, "warnings": 2},
+  "frontend": {"passed": 37, "failed": 0},
+  "frontend_build": {"passed": true, "warning": "large chunk"},
+  "browser": {"status": "NOT_RUN_FINAL_MAIN", "reason": "Vercel exact-main deployment was blocked; prior 6-pass browser evidence is on the feature deployment and is not reused as final-main proof."}
 }
