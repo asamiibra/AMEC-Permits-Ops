@@ -9,6 +9,7 @@
 - Provider-associated: `1`
 - Localhost-style: `0`
 - Current valid-author recovery commit: `b1b3cb95352a83d8171658ab33c6881098a79c39`
-- Final release candidate: pending final evidence commit and test rerun
+- Final local release candidate tested: `13ab799c0118757beb7fffa2c1c9dceaf9f669be`
+- Remote push: withheld because connected Git integration would create a deployment attempt while quota-blocked
 
 The invalid `.local` identity was not used for the new recovery commits. Older history remains unchanged because rewriting it would destroy existing provenance and is not required to repair the next release head.

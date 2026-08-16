@@ -13,7 +13,9 @@
 
 The current branch is not `branch/ui-productionization`; it contains a large, already-committed source delta relative to historical SHA `37eaa4d`. That delta includes code, configuration, tests, and fixture changes, so it is classified `CODE_CHANGE`/`CONFIG_CHANGE`/`TEST_ONLY`/`EVIDENCE_ONLY` by path rather than silently treated as equivalent. The recovery does not promote historical Home/Icon closure claims into this release.
 
-The final candidate is the current branch tree plus the release-recovery evidence package. Tests must be rerun on the final candidate after the evidence commit. No business logic, domain model, database schema, or migration change is introduced by this recovery.
+The final local candidate tested by this run is `13ab799c0118757beb7fffa2c1c9dceaf9f669be`. No source/configuration change occurred after that commit. No business logic, domain model, database schema, or migration change is introduced by this recovery.
+
+The post-test evidence update is intentionally treated as evidence-only and is not eligible for deployment unless the final SHA is retested after it is committed.
 
 Required final counters:
 

@@ -1,8 +1,8 @@
 {
   "branch": "branch/owner-form-simple-dashboard",
   "entry_sha": "fc619748dc390af58924378b02d54b59f360a54a",
-  "release_sha": "PENDING_FINAL_EVIDENCE_COMMIT",
-  "tested_sha": "PENDING_FINAL_TEST_RERUN",
+  "release_sha": "13ab799c0118757beb7fffa2c1c9dceaf9f669be",
+  "tested_sha": "13ab799c0118757beb7fffa2c1c9dceaf9f669be",
   "remote_sha": "fc619748dc390af58924378b02d54b59f360a54a",
   "git_provider": "GitHub",
   "git_account_login": "asamiibra",
@@ -31,9 +31,19 @@
   "document_storage_mode": "SYNTHETIC_DOCUMENT_STORAGE",
   "owner_synology_verified": false,
   "production_ready": false,
-  "protected_fixture_hash_match": false,
+  "protected_fixture_hash_match": true,
   "release_sha_prepared": true,
   "release_sha_tested": false,
   "release_sha_pushed": false,
-  "blocker": "api-deployments-free-per-day: more than 100; retry in 24 hours"
+  "local_backend_regression_pass": true,
+  "local_vite_bundle_pass": true,
+  "local_frontend_build_pass": false,
+  "local_frontend_unit_pass": false,
+  "local_browser_pass": false,
+  "local_browser_pass_count": 62,
+  "local_browser_fail_count": 7,
+  "local_ui_crawl_console_error_count": 0,
+  "local_ui_crawl_network_failure_count": 0,
+  "vercel_git_author_blocker_resolved": false,
+  "blocker": "api-deployments-free-per-day: more than 100; retry in 24 hours; required frontend gates are also not green"
 }
