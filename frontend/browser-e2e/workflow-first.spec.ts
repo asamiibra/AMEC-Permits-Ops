@@ -29,7 +29,7 @@ test("workflow-first operator can resume a returned permit through the permit wo
   await expect(page.getByRole("heading", { name: "Resume permit work" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "West Bay Residence" }).first()).toBeVisible();
   await expect(page.locator(".workflow-section")).toContainText(/blocking|authority comments/i);
-  await expect(page.getByRole("navigation").getByRole("button", { name: "Administration" })).toHaveCount(0);
+  await expect(page.getByRole("navigation").getByRole("button", { name: "Admin" })).toHaveCount(0);
 
   await page.getByRole("navigation").getByRole("button", { name: /Permits/ }).click();
   await page.getByRole("button", { name: "Open workspace" }).nth(1).click();
@@ -46,11 +46,11 @@ test("workflow-first operator can resume a returned permit through the permit wo
   }
 });
 
-test("privileged role exposes Administration without changing the business shell", async ({ page }) => {
+test("privileged role exposes Admin without changing the business shell", async ({ page }) => {
   await page.goto("/work");
   await page.getByLabel("Role").selectOption("SYSTEM_ADMIN");
-  await expect(page.getByRole("navigation").getByRole("button", { name: "Administration" })).toBeVisible();
-  await page.getByRole("navigation").getByRole("button", { name: "Administration" }).click();
+  await expect(page.getByRole("navigation").getByRole("button", { name: "Admin" })).toBeVisible();
+  await page.getByRole("navigation").getByRole("button", { name: "Admin" }).click();
   await expect(page.getByRole("heading", { name: "Setup and system controls" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Project setup" })).toBeVisible();
 });

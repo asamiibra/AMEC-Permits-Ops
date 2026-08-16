@@ -30,19 +30,24 @@ export function BillingInvoicePage() {
   useEffect(() => {
     const sync = () => { setPath(window.location.pathname); setDetail(null); };
     window.addEventListener("popstate", sync);
+    if (window.location.pathname.startsWith("/admin/invoices")) {
+      const suffix = window.location.pathname.replace(/^\/admin\/invoices/, "");
+      const target = `${suffix ? `/billing/invoices${suffix}` : "/billing"}${window.location.search}${window.location.hash}`;
+      window.history.replaceState({}, "", target);
+      setPath(suffix ? `/billing/invoices${suffix}` : "/billing");
+    }
     return () => window.removeEventListener("popstate", sync);
   }, []);
   useEffect(() => { load(); }, [path]);
 
-  const adminSurface = path.startsWith("/admin/invoices");
-  const basePath = adminSurface ? "/admin/invoices" : "/billing/invoices";
+  const basePath = "/billing/invoices";
   const open = (invoiceId: string) => { window.history.pushState({}, "", `${basePath}/${invoiceId}`); window.dispatchEvent(new PopStateEvent("popstate")); };
   const back = () => { window.history.pushState({}, "", basePath); window.dispatchEvent(new PopStateEvent("popstate")); };
   const filtered = useMemo(() => items.filter((item) => lane === "ALL" || item.stage === lane), [items, lane]);
 
   if (detail) return <InvoiceWorkspace detail={detail} onBack={back} onRefresh={load} />;
   return <section className="billing-page">
-    <div className="billing-intro"><div><span className="eyebrow">AMEC · {adminSurface ? "ADMINISTRATION / INVOICES" : "BILLING / INVOICE"}</span><h2>{adminSurface ? "Invoices" : "Billing & Invoice"}</h2><p>{adminSurface ? "Controlled invoice preparation, review, issue, delivery, and receivable follow-up." : "Human-controlled billing plans, milestone eligibility, invoice revisions, and receivables."}</p></div><span className="tag owner-chip">Source-safe · synthetic</span></div>
+    <div className="billing-intro"><div><span className="eyebrow">AMEC · FINANCE / BILLING</span><h2>Finance · Billing &amp; Invoice</h2><p>Human-controlled billing plans, milestone eligibility, invoice revisions, receivables, payment evidence, and settlement context.</p></div><span className="tag owner-chip">Source-safe · synthetic</span></div>
     <div className="billing-lanes" role="tablist" aria-label="Invoice lanes">{lanes.map(([key, label]) => <button key={key} role="tab" aria-selected={lane === key} className={lane === key ? "billing-lane active" : "billing-lane"} onClick={() => setLane(key)}>{label}<strong>{key === "ALL" ? items.length : items.filter((item) => item.stage === key).length}</strong></button>)}</div>
     <div className="billing-search"><input aria-label="Search Invoices" placeholder="Search invoice, Contract, Client, or Project" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void load(); }} /><button className="button-secondary" onClick={() => void load()}>Search</button></div>
     {error && <div className="error-banner" role="alert">{error}</div>}
@@ -62,7 +67,7 @@ function InvoiceWorkspace({ detail, onBack, onRefresh }: { detail: any; onBack: 
     catch (cause) { setMessage(cause instanceof Error ? cause.message : "Action could not be recorded."); }
     finally { setBusy(false); }
   };
-  return <section className="billing-page"><button className="text-button" onClick={onBack}><Icon name="arrow-left" size={14} /> Billing / Invoice list</button><div className="billing-intro"><div><span className="eyebrow">INVOICE WORKSPACE</span><h2>{invoice.invoice_reference}</h2><p>{detail.contract?.contract_name || detail.contract?.contract_reference || "Contract"} · exact ContractRevision pinned</p></div><span className={`status status-${String(invoice.status).toLowerCase().replaceAll("_", "-")}`}>{human(invoice.status)}</span></div>
+  return <section className="billing-page"><button className="text-button" onClick={onBack}><Icon name="arrow-left" size={14} /> Finance / Invoice list</button><div className="billing-intro"><div><span className="eyebrow">FINANCE · INVOICE WORKSPACE</span><h2>{invoice.invoice_reference}</h2><p>{detail.contract?.contract_name || detail.contract?.contract_reference || "Contract"} · exact ContractRevision pinned</p></div><span className={`status status-${String(invoice.status).toLowerCase().replaceAll("_", "-")}`}>{human(invoice.status)}</span></div>
     <div className="billing-summary-grid"><div><small>Client</small><b>{invoice.client_account_id || "—"}</b></div><div><small>Project</small><b>{detail.project?.project_code ? `Project Code: ${detail.project.project_code}` : detail.project ? "Activated project" : revision?.contract_project_context_snapshot?.project_opportunity_ref || "Contract project context"}</b></div><div><small>Payable total</small><b>{revision?.payable_total ?? "—"} {revision?.currency || ""}</b></div><div><small>Due date</small><b>{revision?.due_date || (revision?.due_date_status === "PENDING_EVENT" ? "Pending verified event" : "—")}</b></div></div>
     <div className="billing-workspace-grid"><section className="billing-card"><span className="eyebrow">DETERMINISTIC LINES</span><h3>Invoice revision {revision?.revision_number}</h3>{(detail.lines || []).map((line: any) => <div className="billing-line" key={line.id}><span><b>{line.description}</b><small>{human(line.line_role)}{line.billing_milestone_id ? ` · ${line.billing_milestone_id}` : ""}</small></span><b>{line.calculated_line_amount} {line.currency}</b></div>)}<div className="billing-total"><span>Payable</span><b>{revision?.payable_total} {revision?.currency}</b></div></section><section className="billing-card"><span className="eyebrow">HUMAN CONTROL</span><h3>Lifecycle actions</h3><p>Actions are backend-enforced and idempotent. No action sends an invoice or settles accounting.</p><div className="billing-actions"><button className="button-secondary" disabled={busy || invoice.status !== "DRAFT"} onClick={() => act(`/api/billing/invoice-revisions/${revision.id}/accept`, { idempotency_key: `ui-accept-${revision.id}` })}>Accept draft</button><button className="button-primary" disabled={busy || invoice.status !== "ACCEPTED_INTERNAL"} onClick={() => act(`/api/billing/invoice-revisions/${revision.id}/issue`, { idempotency_key: `ui-issue-${revision.id}` })}>Issue invoice</button></div>{message && <div className="admin-owner-message" role="status">{message}</div>}</section></div>
     <div className="billing-safe-note"><b>Receivable</b><span>{human(detail.receivable?.communication_state)} · {human(detail.receivable?.state)} · outstanding {detail.receivable?.outstanding_amount ?? "—"}. Delivery, acknowledgment, approval, and payment remain separate evidence-backed events; paid is not financial settlement.</span></div>

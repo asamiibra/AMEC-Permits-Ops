@@ -18,6 +18,6 @@ test("canonical project bootstrap and safety controls", async ({ page }) => {
   await expect(page.getByText("AMEC Engineering", { exact: true })).toBeVisible();
   await expect(page.getByText("Simulated integrations").first()).toBeVisible();
   await page.getByRole("navigation").getByRole("button", { name: "Contract & Mobilization" }).click();
-  await expect(page.getByRole("heading", { name: "Proposals & Contracts", level: 2 })).toBeVisible();
-  await expect(page.getByText("Owner-directed commercial records with explicit downstream Permit lineage.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Contract & Mobilization", level: 2 })).toBeVisible();
+  await expect(page.getByText(/Contracts, revisions, commercial terms/)).toBeVisible();
 });

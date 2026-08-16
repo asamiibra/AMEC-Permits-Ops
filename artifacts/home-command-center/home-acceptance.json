@@ -8,12 +8,12 @@
     "Construction & Post-Approval",
     "Completion & As-Built",
     "Handover & Closeout",
-    "Administration",
+    "Admin",
     "Operating Guide"
   ],
   "stageTargets": [
     "/opportunities",
-    "/proposals-contracts",
+    "/contract-mobilization",
     "/engineering",
     "/permits",
     "/construction",

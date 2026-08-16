@@ -28,7 +28,7 @@ function BidiText({ children }: { children: ReactNode }) {
 type Copy = { en: string; ar: string };
 type Card = { title: Copy; body: Copy; note?: Copy };
 
-const copy = (en: string, ar: string): Copy => ({ en, ar });
+const copy = (en: string, ar: string): Copy => ({ en: en.replaceAll("Administration", "Admin"), ar: ar.replaceAll("Administration", "Admin") });
 const arAmec = <LtrTerm>AMEC</LtrTerm>;
 
 const whyCards: Card[] = [
@@ -99,7 +99,7 @@ export function AboutPermitOpsPage({ onNavigate }: { onNavigate: (page: string) 
     setLang(next);
     try { window.localStorage.setItem(OPERATING_GUIDE_LOCALE_STORAGE_KEY, next); } catch { /* local preference is optional */ }
   };
-  const label = (en: string, ar: string): Copy => ({ en, ar });
+  const label = (en: string, ar: string): Copy => ({ en: en.replaceAll("Administration", "Admin"), ar: ar.replaceAll("Administration", "Admin") });
   return <main className="about-page" lang={rtl ? "ar-EG" : "en"} dir={rtl ? "rtl" : "ltr"} style={{ overflowX: "hidden" }}>
     <div className="about-toolbar"><div><span className="eyebrow">{rtl ? "دليل التشغيل" : "OPERATING GUIDE"}</span><p>{rtl ? "شرح دورة العمل الكاملة لمستخدمي AMEC" : "A business guide to the current AMEC workflow"}</p></div><div className="about-toolbar-actions"><button className="about-back" onClick={() => onNavigate("my-work")}>{rtl ? "الرجوع لـAMEC Work" : <><Icon name="arrow-left" size={14} /> Back to AMEC Work</>}</button><div className="about-language" role="group" aria-label="Language"><button className={lang === "en" ? "active" : ""} onClick={() => changeLanguage("en")} aria-pressed={lang === "en"}>English</button><button className={lang === "ar-EG" ? "active" : ""} onClick={() => changeLanguage("ar-EG")} aria-pressed={lang === "ar-EG"}>العربي</button></div></div></div>
 

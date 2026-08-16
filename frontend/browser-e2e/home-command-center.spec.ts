@@ -14,7 +14,7 @@ const expectedOwnerNav = [
   "Construction & Post-Approval",
   "Completion & As-Built",
   "Handover & Closeout",
-  "Administration",
+  "Admin",
   "Operating Guide",
 ];
 
@@ -39,7 +39,7 @@ test("Home is the command center with seven business stages and preserved canoni
   await expect(page.getByRole("button", { name: /Notifications/ })).toBeVisible();
 
   const stageTargets = await page.locator(".home-stage-card").evaluateAll((nodes) => nodes.map((node) => (node as HTMLAnchorElement).getAttribute("href")));
-  expect(stageTargets).toEqual(["/opportunities", "/proposals-contracts", "/engineering", "/permits", "/construction", "/completion", "/handover"]);
+  expect(stageTargets).toEqual(["/opportunities", "/contract-mobilization", "/engineering", "/permits", "/construction", "/completion", "/handover"]);
 
   const views = [
     ["All", 0],

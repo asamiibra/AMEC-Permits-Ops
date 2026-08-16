@@ -4,7 +4,6 @@ import { CanonicalFormsLibrary } from "./MasterContentForms";
 import { readDemoRole } from "./rebrand";
 import { Icon } from "./Icon";
 import { OwnerDecisionCenterPage } from "./OwnerDecisionCenter";
-import { BillingInvoicePage } from "./BillingInvoice";
 
 type AdminCategory = { key: string; label: string; route: string; status: string };
 
@@ -12,7 +11,7 @@ const groups = [
   { label: "People & Access", keys: ["people-access"] },
   { label: "Data & Connections", keys: ["data-connections"] },
   { label: "Project & Folder Setup", keys: ["project-folder-setup"] },
-  { label: "Proposals & Contracts", keys: ["proposal-setup", "contract-setup", "forms", "templates", "owner-decisions"] },
+  { label: "Proposal & Contract Configuration", keys: ["proposal-setup", "contract-setup", "forms", "templates", "owner-decisions"] },
   { label: "Permit Workflow", keys: ["permit-setup"] },
   { label: "Operations", keys: ["notifications"] },
   { label: "System", keys: ["security", "integration-health", "audit"] },
@@ -27,15 +26,7 @@ const endpointFor = (path: string) => {
     security: "security", "integration-health": "integration-health", audit: "audit", "people-access": "users",
   };
   if (key === "advanced-diagnostics" || key.startsWith("advanced-diagnostics/") || key === "control-diagnostics") return "/api/admin/advanced-diagnostics";
-  if (key === "contracts/inputs/go-live") return "/api/admin/contracts/inputs/go-live";
   if (key === "owner-decisions") return "/api/owner-decisions";
-  if (key === "invoices") return "/api/billing/invoices";
-  if (key.startsWith("invoices/")) return `/api/billing/invoices/${key.split("/")[1]}`;
-  if (key === "contracts") return "/api/admin/contracts?filter=ALL";
-  if (key.startsWith("contracts/")) return `/api/admin/contracts/${key.split("/")[1]}`;
-  // Retired direct Admin aliases keep a safe, current summary response instead of
-  // issuing a dead endpoint request. Navigation remains available through the
-  // current Owner Administration groups.
   if (key === "forms") return "/api/master-content?content_type=FORM";
   return key ? `/api/admin/${apiKeys[key] || "summary"}` : "/api/admin/summary";
 };
@@ -57,55 +48,58 @@ export function AdministrationOwnerPage() {
   const go = (route: string) => { window.history.pushState({}, "", route); window.dispatchEvent(new PopStateEvent("popstate")); };
   useEffect(() => { const sync = () => setPath(window.location.pathname); window.addEventListener("popstate", sync); return () => window.removeEventListener("popstate", sync); }, []);
   useEffect(() => { setData(null); load(); }, [endpoint]);
-  if (loading) return <AdminShell path={path} onNavigate={go}><section className="admin-owner-panel"><b>Loading Administration…</b></section></AdminShell>;
-  if (error) return <AdminShell path={path} onNavigate={go}><section className="admin-owner-panel admin-owner-error" role="alert"><h2>Administration unavailable</h2><p>{error}</p><button className="button-primary" onClick={load}>Retry</button></section></AdminShell>;
-  if (path === "/admin/contracts/inputs/go-live") return <AdminShell path={path} onNavigate={go}><ContractInputs data={data} /></AdminShell>;
+  if (loading) return <AdminShell path={path} onNavigate={go}><section className="admin-owner-panel"><b>Loading Admin…</b></section></AdminShell>;
+  if (error) return <AdminShell path={path} onNavigate={go}><section className="admin-owner-panel admin-owner-error" role="alert"><h2>Admin unavailable</h2><p>{error}</p><button className="button-primary" onClick={load}>Retry</button></section></AdminShell>;
   if (path === "/admin/owner-decisions") return <AdminShell path={path} onNavigate={go}><OwnerDecisionCenterPage /></AdminShell>;
-  if (path === "/admin/contracts") return <AdminShell path={path} onNavigate={go}><OperationalContracts onNavigate={go} /></AdminShell>;
-  if (path === "/admin/invoices" || path.startsWith("/admin/invoices/")) return <AdminShell path={path} onNavigate={go}><BillingInvoicePage /></AdminShell>;
-  if (path.startsWith("/admin/contracts/")) return <AdminShell path={path} onNavigate={go}><ContractWorkbench data={data} onBack={() => go("/admin/contracts")} onRefresh={load} onNavigate={go} /></AdminShell>;
   return <AdminShell path={path} onNavigate={go}>{path === "/admin" || path === "/admin/" ? <Landing data={data} onNavigate={go} /> : <Section path={path} data={data} onNavigate={go} onRefresh={load} />}</AdminShell>;
 }
 
+export function ContractMobilizationPage() {
+  const [path, setPath] = useState(window.location.pathname);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const contractId = path.match(/^\/contract-mobilization\/contracts\/([^/]+)/)?.[1] || null;
+  const endpoint = contractId ? `/api/admin/contracts/${contractId}` : "/api/admin/contracts?filter=ALL";
+  const go = (route: string) => { window.history.pushState({}, "", route); window.dispatchEvent(new PopStateEvent("popstate")); };
+
+  useEffect(() => {
+    const sync = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", sync);
+    const legacyContract = window.location.pathname.match(/^\/admin\/contracts(?:\/([^/]+))?/);
+    const legacyActivation = window.location.pathname.match(/^\/admin\/project-activation(?:\/([^/]+))?/);
+    if (legacyContract || legacyActivation) {
+      const id = legacyContract?.[1] || legacyActivation?.[1];
+      const target = id ? `/contract-mobilization/contracts/${id}${legacyActivation ? "#activation" : ""}` : legacyActivation ? "/contract-mobilization?view=activation" : "/contract-mobilization?view=contracts";
+      window.history.replaceState({}, "", target);
+      setPath(window.location.pathname);
+    }
+    return () => window.removeEventListener("popstate", sync);
+  }, []);
+  useEffect(() => {
+    setLoading(true); setError(""); setData(null);
+    api<any>(endpoint).then(setData).catch((cause) => setError(cause instanceof Error ? cause.message : "Contract & Mobilization is unavailable.")).finally(() => setLoading(false));
+  }, [endpoint]);
+  if (loading) return <ContractMobilizationShell onNavigate={go}><section className="panel"><b>Loading Contract &amp; Mobilization…</b></section></ContractMobilizationShell>;
+  if (error) return <ContractMobilizationShell onNavigate={go}><section className="panel error-state" role="alert"><h2>Contract &amp; Mobilization unavailable</h2><p>{error}</p><button className="button-primary" onClick={() => { setLoading(true); api<any>(endpoint).then(setData).catch((cause) => setError(cause instanceof Error ? cause.message : "Contract & Mobilization is unavailable.")).finally(() => setLoading(false)); }}>Retry</button></section></ContractMobilizationShell>;
+  return <ContractMobilizationShell onNavigate={go}>{contractId ? <ContractWorkbench data={data} onBack={() => go("/contract-mobilization?view=contracts")} onRefresh={() => { api<any>(endpoint).then(setData).catch(() => {}); }} onNavigate={go} /> : <OperationalContracts onNavigate={(route) => go(route.replace(/^\/admin\/contracts/, "/contract-mobilization/contracts"))} />}</ContractMobilizationShell>;
+}
+
+function ContractMobilizationShell({ onNavigate, children }: { onNavigate: (route: string) => void; children: ReactNode }) {
+  return <div className="workflow-page proposals-main contract-mobilization-page"><div className="page-intro proposals-main-intro"><div><span className="eyebrow">AMEC · BUSINESS STAGE 2</span><h2>Contract &amp; Mobilization</h2><p>Contracts, revisions, commercial terms, client inputs, Project Activation, and Service Scope context stay together. Finance remains the operational owner for billing and payment work.</p></div><span className="tag">Owner-controlled business work</span></div>{children}<div className="admin-owner-secondary-links"><button className="admin-owner-secondary-link" onClick={() => onNavigate("/billing")}><b>Related Finance</b><span>Billing Plans, Milestones, Invoices, Receivables, Payments, and Settlement.</span>Open Finance <Icon name="arrow-up-right" size={14} /></button><button className="admin-owner-secondary-link" onClick={() => onNavigate("/admin") }><b>System Administration</b><span>Access, integrations, readiness, notifications, and configuration only.</span>Open Admin <Icon name="arrow-up-right" size={14} /></button></div></div>;
+}
+
 function AdminShell({ path, onNavigate, children }: { path: string; onNavigate: (route: string) => void; children: ReactNode }) {
-  const label = path === "/admin" ? "Administration" : path === "/admin/contracts" ? "Contracts" : path.startsWith("/admin/contracts/") && !path.endsWith("/inputs/go-live") ? "Contract Workspace" : path.startsWith("/admin/invoices") ? "Invoices" : path.split("/").pop()?.replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Administration";
-  return <div className="workflow-page admin-owner-page"><div className="page-intro admin-owner-intro"><div><span className="eyebrow">AMEC · ADMINISTRATION</span><h2>{label}</h2><p>{path === "/admin" ? "Manage contracts, invoices, project activation, and administrative follow-up." : "Owner business administration; operational tasks remain in AMEC Work."}</p></div><span className="tag admin-context-chip">Business Record</span></div><div className="admin-owner-environment">SYNTHETIC PROTOTYPE · Test data and simulated connections</div>{path !== "/admin" && <button className="admin-owner-back" onClick={() => onNavigate("/admin")}><Icon name="arrow-left" size={14} /> Administration</button>}{children}</div>;
+  const label = path === "/admin" || path === "/admin/" ? "Admin" : path.split("/").pop()?.replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Admin";
+  return <div className="workflow-page admin-owner-page"><div className="page-intro admin-owner-intro"><div><span className="eyebrow">AMEC · SYSTEM ADMINISTRATION</span><h2>{label}</h2><p>{path === "/admin" || path === "/admin/" ? "Configure ProposalOps access, integrations, notifications, environment readiness, and system settings." : "System configuration and readiness; Contract, Project Activation, and Finance work remain in their owning workspaces."}</p></div><span className="tag admin-context-chip">System Configuration</span></div><div className="admin-owner-environment">SYNTHETIC PROTOTYPE · Test data and simulated connections</div>{path !== "/admin" && path !== "/admin/" && <button className="admin-owner-back" onClick={() => onNavigate("/admin")}><Icon name="arrow-left" size={14} /> Admin</button>}{children}</div>;
 }
 
 function Landing({ data, onNavigate }: { data: any; onNavigate: (route: string) => void }) {
-  const [contracts, setContracts] = useState<any[]>([]);
-  const [contractCounts, setContractCounts] = useState<Record<string, number>>({ ALL: 0, NEEDS_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 });
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [invoiceCounts, setInvoiceCounts] = useState<Record<string, number>>({ ALL: 0, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 });
-  const [error, setError] = useState("");
-  const load = async () => {
-    setError("");
-    try {
-      const contractResponses = await Promise.all(contractLanes.map(([key]) => api<any>(`/api/admin/contracts?filter=${key}`)));
-      setContractCounts(Object.fromEntries(contractLanes.map(([key], index) => [key, contractResponses[index].count ?? contractResponses[index].items?.length ?? 0])));
-      setContracts((contractResponses[0].items || []).slice(0, 5));
-      const invoiceResponse = await api<any>("/api/billing/invoices");
-      setInvoices((invoiceResponse.items || []).slice(0, 5));
-      setInvoiceCounts({ ALL: invoiceResponse.lanes?.all ?? invoiceResponse.total ?? 0, NEED_ACTION: invoiceResponse.lanes?.need_action ?? 0, AUTHORITY_REVIEW: invoiceResponse.lanes?.authority_review ?? 0, READY_CLOSE: invoiceResponse.lanes?.ready_close ?? 0 });
-    } catch (cause) {
-      setContracts([]);
-      setInvoices([]);
-      setContractCounts({ ERROR: 1 });
-      setInvoiceCounts({ ERROR: 1 });
-      setError(cause instanceof Error ? cause.message : "Administration summary could not be loaded.");
-    }
-  };
-  useEffect(() => { void load(); }, []);
+  const categories = (data.categories || []) as AdminCategory[];
   return <>
-    <div className="admin-owner-lead"><div><h3>Owner summary and pending inputs</h3><p>Administration keeps active Contract and Invoice work together. Tasks remain in AMEC Work; blockers remain in Issues.</p></div><button className="button-secondary" onClick={() => onNavigate(data.go_live?.route || "/admin/go-live-readiness")}>Inputs &amp; Go-Live</button></div>
-    {error && <div className="admin-owner-error" role="alert"><b>Could not load Administration summary</b><p>{error}</p><button className="button-primary" onClick={() => void load()}>Retry</button></div>}
-    <OperationalPreview title="Contracts" eyebrow="ADMINISTRATION · CONTRACTS" counts={contractCounts} countKeys={contractLanes} onViewAll={() => onNavigate("/admin/contracts")} onCreate={() => onNavigate("/admin/contracts")} createLabel="+ New Contract" createHint="Create from an eligible Accepted Proposal" columns={["Contract", "Client", "Stage", "Amount", "Next Action", "Open"]}>
-      {contracts.map((item) => <div className="admin-owner-row admin-operational-preview-row" key={item.id}><div><b>{item.contract_reference || item.contract_ref}</b><small>{item.contract_name || item.contract || "Contract"}</small></div><span>{item.client?.name || "Client pending"}</span><em>{ownerStage(item.stage)}</em><span>{item.amount ? `${item.amount} ${item.currency || ""}` : "—"}</span><span>{ownerNextAction(item.next_action, item.stage)}</span><button className="text-button" onClick={() => onNavigate(`/admin/contracts/${item.id}`)}>Open <Icon name="arrow-up-right" size={14} /></button></div>)}
-    </OperationalPreview>
-    <OperationalPreview title="Invoices" eyebrow="ADMINISTRATION · INVOICES" counts={invoiceCounts} countKeys={[["ALL", "All"], ["NEED_ACTION", "Need Action"], ["AUTHORITY_REVIEW", "Authority Review"], ["READY_CLOSE", "Ready / Close"]]} onViewAll={() => onNavigate("/admin/invoices")} columns={["Invoice", "Contract / Project", "Stage", "Amount", "Due / Outstanding", "Open"]}>
-      {invoices.map((item) => <div className="admin-owner-row admin-operational-preview-row" key={item.invoice.id}><div><b>{item.invoice.invoice_reference}</b><small>{ownerStage(item.stage)}</small></div><span>{item.contract?.contract_reference || "Contract context"}{item.project?.project_code ? ` · ${item.project.project_code}` : ""}</span><em>{ownerStage(item.invoice.status)}</em><span>{item.revision?.payable_total ?? "—"} {item.revision?.currency || ""}</span><span>{item.revision?.due_date || "Not due"} · {ownerStage(item.receivable?.state)}</span><button className="text-button" onClick={() => onNavigate(`/admin/invoices/${item.invoice.id}`)}>Open <Icon name="arrow-up-right" size={14} /></button></div>)}
-    </OperationalPreview>
-    <div className="admin-owner-secondary-links"><button className="admin-owner-secondary-link" onClick={() => onNavigate("/handover")}><b>Handover &amp; Closeout</b><span>Service closure, Contract Administrative Closure, settlement boundary, and archive gates.</span>Open Handover &amp; Closeout <Icon name="arrow-up-right" size={14} /></button><button className="admin-owner-secondary-link" onClick={() => onNavigate("/admin/setup-controls")}><b>Setup &amp; Controls</b><span>Users, connections, templates, notifications, security, audit, and diagnostics.</span>Open Setup &amp; Controls <Icon name="arrow-up-right" size={14} /></button></div>
+    <div className="admin-owner-lead"><div><h3>System administration</h3><p>Configure access, notifications, integrations, environment readiness, reference rules, and system settings. Contract, Project Activation, Invoice, and payment work remain in their owning workspaces.</p></div><button className="button-secondary" onClick={() => onNavigate(data.go_live?.route || "/admin/go-live-readiness")}>Inputs &amp; Go-Live</button></div>
+    <section className="admin-owner-panel admin-system-boundary"><div className="admin-owner-panel-heading"><div><span className="eyebrow">SYSTEM BOUNDARY</span><h3>Admin owns configuration, not business records</h3></div><span className="admin-owner-status">Business registers: 0</span></div><div className="admin-owner-chip-grid"><div><b>Users &amp; Access</b><small>Roles and capability permissions</small><span>{categories.find((item) => item.key === "people-access")?.status || "Configured"}</span></div><div><b>Integrations &amp; Connectivity</b><small>Source systems, storage, and health</small><span>{categories.find((item) => item.key === "data-connections")?.status || "Configured"}</span></div><div><b>Environment &amp; Readiness</b><small>Inputs, go-live, and safe operating state</small><span>Owner-controlled</span></div><div><b>Audit &amp; System Activity</b><small>Configuration and access history</small><span>{categories.find((item) => item.key === "audit")?.status || "Available"}</span></div></div></section>
+    <SetupControls data={data} onNavigate={onNavigate} />
   </>;
 }
 
@@ -152,7 +146,7 @@ function OperationalContracts({ onNavigate }: { onNavigate: (route: string) => v
       onNavigate(`/admin/contracts/${result.id}`);
     } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Contract could not be created. The accepted Proposal remains unchanged."); }
   };
-  return <section className="admin-owner-panel admin-operational-register"><div className="admin-owner-panel-heading"><div><span className="eyebrow">ADMINISTRATION · CONTRACTS</span><h3>Contracts</h3><p className="admin-owner-copy">One canonical Contract register sourced from the accepted Proposal revision and current Contract readiness.</p></div><span className="admin-owner-status">{counts.ALL} accessible</span></div><div className="admin-operational-toolbar"><div className="filter-row" role="tablist" aria-label="Contract lanes">{contractLanes.map(([key, label]) => <button key={key} className={`filter ${lane === key ? "active" : ""}`} role="tab" aria-selected={lane === key} onClick={() => selectLane(key)}>{label}<strong>{counts[key]}</strong></button>)}</div><div className="admin-operational-actions"><input aria-label="Search Contracts" placeholder="Search Contract, Client, or Project ref" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") search(); }} /><button className="button-secondary" onClick={search}>Search</button><select aria-label="Accepted Proposal for new Contract" value={proposalId} onChange={(event) => setProposalId(event.target.value)}><option value="">Select accepted Proposal…</option>{proposals.map((item) => <option key={item.id} value={item.id}>{item.proposal || item.proposal_description || "Proposal"} · {item.proposal_reference || item.reference || "Accepted"}</option>)}</select><button className="button-primary" onClick={create} disabled={!proposalId} title={!proposalId ? "Select an accepted Proposal first" : "Create a Contract draft"}>+ New Contract</button></div></div>{error && <div className="admin-owner-error" role="alert"><b>Could not load Contracts</b><p>{error}</p><button className="button-primary" onClick={() => void load(lane, query)}>Retry</button></div>}{message && <div className="admin-owner-message" role="status">{message}</div>}<div className="admin-owner-table contract-owner-list"><div className="admin-permission-head"><b>Contract</b><b>Contract Ref</b><b>Stage</b><b>Amount</b><b>Close Date</b><b>Open</b></div>{items.map((item) => <div className="admin-owner-row" key={item.id}><div><b>{item.contract_name || item.contract || "Unnamed Contract"}</b><small>{item.client?.name || "Client pending"} · {item.project_opportunity_ref || "Project / Opportunity Ref pending"}{item.project_code ? ` · Project Code: ${item.project_code}` : ""}</small></div><span>{item.contract_reference || item.contract_ref || "Pending"}</span><em>{String(item.stage || "DRAFT").replaceAll("_", " ")}</em><span>{item.amount ? `${item.amount} ${item.currency || ""}` : "—"}</span><span>{item.close_date || "—"}</span><button className="text-button" onClick={() => onNavigate(`/admin/contracts/${item.id}`)}>Open <Icon name="arrow-up-right" size={14} /></button></div>)}{!items.length && !error && <div className="empty-state"><b>No Contracts in this lane.</b><p>Use + New Contract with an accepted Proposal, or choose another lane.</p></div>}</div><div className="admin-owner-safe"><b>Contract control boundary</b><span>Open shows the same canonical Contract workspace. It does not activate a Project, close a Contract, or create an Invoice.</span></div></section>;
+  return <section className="admin-owner-panel admin-operational-register"><div className="admin-owner-panel-heading"><div><span className="eyebrow">CONTRACT &amp; MOBILIZATION · CONTRACTS</span><h3>Contracts</h3><p className="admin-owner-copy">One canonical Contract register sourced from the accepted Proposal revision and current Contract readiness.</p></div><span className="admin-owner-status">{counts.ALL} accessible</span></div><div className="admin-operational-toolbar"><div className="filter-row" role="tablist" aria-label="Contract lanes">{contractLanes.map(([key, label]) => <button key={key} className={`filter ${lane === key ? "active" : ""}`} role="tab" aria-selected={lane === key} onClick={() => selectLane(key)}>{label}<strong>{counts[key]}</strong></button>)}</div><div className="admin-operational-actions"><input aria-label="Search Contracts" placeholder="Search Contract, Client, or Project ref" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") search(); }} /><button className="button-secondary" onClick={search}>Search</button><select aria-label="Accepted Proposal for new Contract" value={proposalId} onChange={(event) => setProposalId(event.target.value)}><option value="">Select accepted Proposal…</option>{proposals.map((item) => <option key={item.id} value={item.id}>{item.proposal || item.proposal_description || "Proposal"} · {item.proposal_reference || item.reference || "Accepted"}</option>)}</select><button className="button-primary" onClick={create} disabled={!proposalId} title={!proposalId ? "Select an accepted Proposal first" : "Create a Contract draft"}>+ New Contract</button></div></div>{error && <div className="admin-owner-error" role="alert"><b>Could not load Contracts</b><p>{error}</p><button className="button-primary" onClick={() => void load(lane, query)}>Retry</button></div>}{message && <div className="admin-owner-message" role="status">{message}</div>}<div className="admin-owner-table contract-owner-list"><div className="admin-permission-head"><b>Contract</b><b>Contract Ref</b><b>Stage</b><b>Amount</b><b>Close Date</b><b>Open</b></div>{items.map((item) => <div className="admin-owner-row" key={item.id}><div><b>{item.contract_name || item.contract || "Unnamed Contract"}</b><small>{item.client?.name || "Client pending"} · {item.project_opportunity_ref || "Project / Opportunity Ref pending"}{item.project_code ? ` · Project Code: ${item.project_code}` : ""}</small></div><span>{item.contract_reference || item.contract_ref || "Pending"}</span><em>{String(item.stage || "DRAFT").replaceAll("_", " ")}</em><span>{item.amount ? `${item.amount} ${item.currency || ""}` : "—"}</span><span>{item.close_date || "—"}</span><button className="text-button" onClick={() => onNavigate(`/admin/contracts/${item.id}`)}>Open <Icon name="arrow-up-right" size={14} /></button></div>)}{!items.length && !error && <div className="empty-state"><b>No Contracts in this lane.</b><p>Use + New Contract with an accepted Proposal, or choose another lane.</p></div>}</div><div className="admin-owner-safe"><b>Contract control boundary</b><span>Open shows the same canonical Contract workspace. It does not activate a Project, close a Contract, or create an Invoice.</span></div></section>;
 }
 
 function SetupControls({ data, onNavigate }: { data: any; onNavigate: (route: string) => void }) {
@@ -161,7 +155,7 @@ function SetupControls({ data, onNavigate }: { data: any; onNavigate: (route: st
 }
 
 function cardCopy(key: string) {
-  const copy: Record<string, string> = { "people-access": "Users, roles, and capability permissions", "data-connections": "Source systems with simulator and production status", "project-folder-setup": "References, folder structure, and semantic mappings", "proposal-setup": "Proposal fields, intake sources, stages, and handoffs", "contract-setup": "Contract rules, fields, and Permit handoff", forms: "Canonical Forms used across AMEC workflows", templates: "Controlled Proposal, Contract, and Permit templates", "permit-setup": "Requirements, applicability, attachments, and Municipality mode", notifications: "Audiences, reminders, and follow-up rules", security: "Data mode, access, MFA, retention, and backups", "integration-health": "Cross-system checks using the canonical status truth", audit: "Owner-readable operational history", "advanced-diagnostics": "Technical evidence and adapter diagnostics" }; return copy[key] || "Configuration and status";
+  const copy: Record<string, string> = { "people-access": "Users, roles, and capability permissions", "data-connections": "Source systems with simulator and production status", "project-folder-setup": "References, folder structure, and semantic mappings", "proposal-setup": "Proposal fields, intake sources, stages, and handoffs", "contract-setup": "Contract numbering, fields, templates, and lifecycle policy configuration", forms: "Canonical Forms used across AMEC workflows", templates: "Controlled Proposal, Contract, and Permit templates", "permit-setup": "Requirements, applicability, attachments, and Municipality mode", notifications: "Audiences, reminders, and follow-up rules", security: "Data mode, access, MFA, retention, and backups", "integration-health": "Cross-system checks using the canonical status truth", audit: "Owner-readable system activity", "advanced-diagnostics": "Technical evidence and adapter diagnostics" }; return copy[key] || "Configuration and status";
 }
 
 function Section({ path, data, onNavigate, onRefresh }: { path: string; data: any; onNavigate: (route: string) => void; onRefresh: () => void }) {
@@ -180,7 +174,7 @@ function Section({ path, data, onNavigate, onRefresh }: { path: string; data: an
   if (key === "integration-health") return <IntegrationHealth data={data} onNavigate={onNavigate} />;
   if (key === "audit") return <Audit data={data} onNavigate={onNavigate} />;
   if (key === "advanced-diagnostics" || key.startsWith("advanced-diagnostics/") || key === "control-diagnostics") return <Advanced data={data} onNavigate={onNavigate} />;
-  return <section className="admin-owner-panel"><h3>Administration route unavailable</h3><p>This route is not part of the Owner Administration contract.</p><button className="button-primary" onClick={() => onNavigate("/admin")}>Back to Administration</button></section>;
+  return <section className="admin-owner-panel"><h3>Admin route unavailable</h3><p>This route is not part of the system administration surface.</p><button className="button-primary" onClick={() => onNavigate("/admin")}>Back to Admin</button></section>;
 }
 
 function People({ data, onNavigate }: { data: any; onNavigate: (route: string) => void }) { return <div className="admin-owner-two-col"><section className="admin-owner-panel"><div className="admin-owner-panel-heading"><div><span className="eyebrow">PEOPLE &amp; ACCESS</span><h3>Users &amp; Roles</h3></div><span className="admin-owner-status">{statusText(data.production_user_management)}</span></div><div className="admin-owner-table">{(data.users || []).map((user: any) => <div className="admin-owner-row" key={user.id}><div><b>{user.name}</b><small>{user.email} · {user.office}</small></div><span>{user.role}</span><em>{user.status}</em></div>)}</div><p className="admin-owner-note">Synthetic users illustrate the current role model. Production provisioning remains an AMEC setup input.</p><button className="text-button" onClick={() => onNavigate(data.inputs_route || "/admin/go-live-readiness")}>View what we need from AMEC <Icon name="arrow-up-right" size={14} /></button></section><section className="admin-owner-panel"><span className="eyebrow">CAPABILITY MATRIX</span><h3>What each role can do</h3><div className="admin-permission-table"><div className="admin-permission-head"><b>Capability</b><b>Owner</b><b>Business Development</b><b>Engineering</b></div>{(data.permissions || []).map((row: any) => <div className="admin-permission-row" key={row.capability}><span>{row.capability}</span><span>{row.owner}</span><span>{row.business_development}</span><span>{row.engineering}</span></div>)}</div></section></div>; }
@@ -205,6 +199,8 @@ function LegacyContractSetup({ data, onNavigate }: { data: any; onNavigate: (rou
 }
 
 function ContractSetup({ data, onNavigate }: { data: any; onNavigate: (route: string) => void }) {
+  return <section className="admin-owner-panel"><span className="eyebrow">CONTRACT CONFIGURATION</span><h3>Contract reference and policy settings</h3><p className="admin-owner-copy">Admin configures numbering, templates, required fields, and lifecycle policy. Contract records, revisions, commercial terms, and activation are managed in Contract &amp; Mobilization.</p><div className="admin-owner-definition-list"><b>Contract reference rule</b><span>{data.contract_reference_rule || "Needs AMEC Input"}</span><b>Lifecycle prerequisite</b><span>{data.eligibility || "Accepted Proposal revision required; no automatic legal Contract."}</span><b>Project Activation rule</b><span>Explicit human activation remains separate from Contract creation.</span></div><div className="admin-owner-chip-grid">{(data.required_fields || []).map((item: any) => <div key={item.label}><b>{item.label}</b><span>{item.status}</span></div>)}</div><button className="text-button" onClick={() => onNavigate(data.template_route || "/admin/templates")}>View canonical templates <Icon name="arrow-up-right" size={14} /></button></section>;
+  /* Legacy register implementation below remains unused while existing API names are retained for compatibility. */
   const [contracts, setContracts] = useState<any[]>([]);
   const [proposals, setProposals] = useState<any[]>([]);
   const [filter, setFilter] = useState("ALL");
@@ -232,9 +228,15 @@ function ContractWorkbench({ data, onBack: _onBack, onRefresh, onNavigate }: { d
     <SourcesSection data={data} onNavigate={onNavigate} />
     <ReadinessSection data={data} onRefresh={onRefresh} />
     <ProjectActivationPanel data={data} onRefresh={onRefresh} />
+    <ServiceScopeContext data={data} onNavigate={onNavigate} />
     <BillingSummaryPanel data={data} onNavigate={onNavigate} />
     <ContractWorkspaceFooter data={data} />
   </div>;
+}
+
+function ServiceScopeContext({ data, onNavigate }: { data: any; onNavigate: (route: string) => void }) {
+  const services = data.service_engagements || data.service_scopes || [];
+  return <section id="service-scope" className="admin-owner-panel contract-structured-panel"><div className="contract-card-heading"><div><span className="eyebrow">MOBILIZATION · SERVICE SCOPE</span><h3>Service Scope setup</h3><p className="admin-owner-copy">ServiceEngagement stays separate from the Contract and Project. A Contract may support multiple service scopes, which can close independently.</p></div><span className="admin-owner-status">{services.length} recorded</span></div>{services.length ? services.map((item: any) => <div className="admin-owner-row" key={item.id}><div><b>{item.service_ref || item.reference || item.id}</b><small>{item.description || item.service_type || "Canonical ServiceEngagement"}</small></div><em>{ownerStage(item.status)}</em></div>) : <div className="empty-state"><b>No ServiceEngagement records are returned for this Contract.</b><p>Service scope setup remains an explicit, canonical mobilization step; no synthetic scope is created here.</p></div>}<button className="button-secondary" onClick={() => onNavigate("/handover")}>Open service-scoped Handover context</button></section>;
 }
 
 const apiDocumentUrl = (path: string | null | undefined) => path ? (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "") + path : "";
@@ -244,8 +246,8 @@ function ContractSectionNav() {
     ["overview", "Overview"], ["proposal-origin", "Proposal Origin"], ["client-evidence", "Client Document / LPO"],
     ["client-contacts", "Client & Contacts"], ["commercial", "Commercial Terms"], ["payment-terms", "Payment Terms"],
     ["documents-needed", "Client Inputs"], ["deliverables", "Deliverables"], ["sources", "Sources"],
-    ["readiness", "Readiness & Review"], ["accept", "Accept Contract"], ["activation", "Project Activation"],
-    ["billing", "Billing & Invoices"], ["work", "AMEC Work"], ["history", "History"],
+    ["readiness", "Readiness & Review"], ["accept", "Accept Contract"], ["activation", "Project Activation"], ["service-scope", "Service Scope"],
+    ["billing", "Related Finance"], ["work", "AMEC Work"], ["history", "History"],
   ];
   return <nav className="contract-section-nav" aria-label="Contract sections">{links.map(([id, label]) => <a key={id} href={"#" + id}>{label}</a>)}</nav>;
 }
@@ -350,7 +352,7 @@ function BillingSummaryPanel({ data, onNavigate }: { data: any; onNavigate: (rou
   const accepted = Boolean(data.readiness?.origin_resolved) && ["FINALIZED", "APPROVED", "EXECUTED_EVIDENCE_RECORDED"].includes(String(data.current_revision?.status || "").toUpperCase());
   const projectRequired = ["REQUIRED", "PROJECT_REQUIRED"].includes(String(billing.project_required_policy || "").toUpperCase());
   const checks = [["Contract exists", Boolean(data.id)], ["Contract accepted", accepted], ["Amount & currency confirmed", Boolean(data.contract?.amount && data.contract?.currency)], ["Payment terms confirmed", Boolean((data.payment_terms || []).length || data.contract?.payment_condition_text)], ...(projectRequired ? [["Project activated", Boolean(data.activation)]] : [])];
-  return <section id="billing" className="admin-owner-panel contract-billing-summary"><div className="admin-owner-panel-heading"><div><span className="eyebrow">BILLING &amp; INVOICES</span><h3>Billing &amp; Invoices</h3><p className="admin-owner-copy">Billing uses this Contract’s approved commercial context. Project activation is shown only when the configured policy requires it.</p></div><button className="button-secondary" onClick={() => onNavigate("/admin/invoices")}>Open Billing &amp; Invoices</button></div><div className="contract-billing-checklist">{checks.map(([label, ok]) => <div key={String(label)}><span><Icon name={ok ? "check" : "minus"} size={15} /></span><b>{label}</b></div>)}</div><div className="admin-owner-definition-list"><b>Status</b><span>{billingLabel(billing.status)}</span><b>Billing Plan</b><span>{billing.billing_plan_status ? billingLabel(billing.billing_plan_status) : "Not configured"}</span><b>Milestones / Invoices</b><span>{billing.billing_milestone_count ?? 0} / {billing.invoice_count ?? 0}</span></div></section>;
+  return <section id="billing" className="admin-owner-panel contract-billing-summary"><div className="admin-owner-panel-heading"><div><span className="eyebrow">RELATED FINANCE CONTEXT</span><h3>Finance summary</h3><p className="admin-owner-copy">This Contract defines the approved commercial basis. Finance executes Billing Plans, Milestones, Invoices, Receivables, Payments, and Settlement.</p></div><button className="button-secondary" onClick={() => onNavigate("/billing")}>Open Finance</button></div><div className="contract-billing-checklist">{checks.map(([label, ok]) => <div key={String(label)}><span><Icon name={ok ? "check" : "minus"} size={15} /></span><b>{label}</b></div>)}</div><div className="admin-owner-definition-list"><b>Status</b><span>{billingLabel(billing.status)}</span><b>Billing Plan</b><span>{billing.billing_plan_status ? billingLabel(billing.billing_plan_status) : "Not configured"}</span><b>Milestones / Invoices</b><span>{billing.billing_milestone_count ?? 0} / {billing.invoice_count ?? 0}</span></div></section>;
 }
 
 function ContractWorkspaceFooter({ data }: { data: any }) {

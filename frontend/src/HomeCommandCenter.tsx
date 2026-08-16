@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { Icon } from "./Icon";
+import { canonicalDomainRoute } from "./domainOwnershipRoutes";
 
 type HomeRole = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
 type AttentionView = "ALL" | "ACTIONS" | "REVIEWS" | "EXCEPTIONS" | "OVERDUE";
@@ -77,7 +78,7 @@ const rolePersona = (role: string) => role === "COMMERCIAL_APPROVER" ? "BUSINESS
 
 const stages = [
   { id: "intake-opportunity", label: "Intake & Opportunity", purpose: "Capture the opportunity and shape the request.", route: "/opportunities", icon: "briefcase" as const },
-  { id: "contract-mobilization", label: "Contract & Mobilization", purpose: "Review commercial handoff and contract context.", route: "/proposals-contracts", icon: "contract" as const },
+  { id: "contract-mobilization", label: "Contract & Mobilization", purpose: "Review commercial handoff, Contract revisions, Project Activation, and mobilization context.", route: "/contract-mobilization", icon: "contract" as const },
   { id: "design-delivery", label: "Design & Technical Delivery", purpose: "Resolve engineering inputs, revisions, and closeout work.", route: "/engineering", icon: "engineering" as const },
   { id: "regulatory-submissions", label: "Regulatory & Submissions", purpose: "Prepare, review, and monitor regulated submissions.", route: "/permits", icon: "authority" as const },
   { id: "construction-post-approval", label: "Construction & Post-Approval", purpose: "Control approved execution and post-approval evidence.", route: "/construction", icon: "construction" as const },
@@ -131,7 +132,7 @@ function normalizeWork(item: WorkItem): AttentionItem {
     blocking: Boolean(item.blocking),
     dueAt: item.due_at,
     overdue: Boolean(item.overdue),
-    deepLink: item.deep_link || "/work",
+    deepLink: canonicalDomainRoute(item.deep_link, "/work"),
     ctaLabel: item.cta_label || "Open work",
     review,
     relatedIssue: Boolean(item.issue_id),
@@ -154,7 +155,7 @@ function normalizeIssue(item: IssueItem): AttentionItem {
     blocking: Boolean(item.blocking),
     dueAt: item.due_at,
     overdue: Boolean(item.due_at && new Date(item.due_at).getTime() < Date.now()),
-    deepLink: item.deep_link || item.issue_detail_link || item.resolution_link || "/issues",
+    deepLink: canonicalDomainRoute(item.deep_link || item.issue_detail_link || item.resolution_link, "/issues"),
     ctaLabel: item.cta_label || "Open issue",
     review,
     relatedIssue: true,
@@ -200,7 +201,7 @@ export function HomeCommandCenter({ role }: { role: string }) {
       setData({
         work: Array.isArray(workValue.items) ? workValue.items : [],
         issues: Array.isArray(issueValue.issues) ? issueValue.issues : [],
-        recentChanges: Array.isArray(workValue.recent_changes) ? workValue.recent_changes : [],
+        recentChanges: Array.isArray(workValue.recent_changes) ? workValue.recent_changes.map((item: any) => ({ ...item, deep_link: canonicalDomainRoute(item.deep_link, "/work") })) : [],
         financeSummary: financeSummary.status === "fulfilled" ? financeSummary.value : undefined,
         invoices: invoices.status === "fulfilled" && Array.isArray(invoices.value.items) ? invoices.value.items : [],
         content: {
@@ -256,6 +257,6 @@ export function HomeCommandCenter({ role }: { role: string }) {
       <section className="home-section home-content-section" aria-labelledby="home-content-heading"><div className="home-section-heading"><div><span className="eyebrow">CONTENT LIBRARY</span><h3 id="home-content-heading">Shared governed content</h3></div><a className="text-button" href="/dashboard">Open Content Library <Icon name="arrow-up-right" size={14} /></a></div>{data ? <div className="home-content-grid"><div><Icon name="library" size={17} /><span>Forms</span><strong>{data.content.forms}</strong></div><div><Icon name="library" size={17} /><span>Reports</span><strong>{data.content.reports}</strong></div><div><Icon name="engineering" size={17} /><span>Engineering Works</span><strong>{data.content.engineeringWorks}</strong></div><div><Icon name="help" size={17} /><span>Definitions</span><strong>{data.content.definitions}</strong></div></div> : <div className="home-empty-state"><b>Content Library unavailable</b><p>Open the governed library to inspect the current bounded state.</p></div>}<small className="home-contract-note">Checklist remains governed as a Form; Home exposes discoverability only.</small></section>
     </div>
 
-    <section className="home-section home-activity-section" aria-labelledby="home-activity-heading"><div className="home-section-heading"><div><span className="eyebrow">RECENT BUSINESS ACTIVITY</span><h3 id="home-activity-heading">What recently happened</h3></div><span className="home-section-note">Role-scoped canonical work changes</span></div>{data?.recentChanges.length ? <div className="home-activity-list">{data.recentChanges.slice(0, 5).map((item) => <a className="home-activity-row" href={item.deep_link || "/work"} key={item.id}><span className="home-activity-dot" /><span><b>{item.title}</b><small>{item.detail || "Recorded in the canonical work projection"}</small></span><time>{item.when ? new Date(item.when).toLocaleDateString() : "Recent"}</time><Icon name="arrow-up-right" size={14} /></a>)}</div> : <div className="home-empty-state"><b>No recent activity is available</b><p>The canonical work projection returned no bounded business changes for this scope.</p></div>}</section>
+    <section className="home-section home-activity-section" aria-labelledby="home-activity-heading"><div className="home-section-heading"><div><span className="eyebrow">RECENT BUSINESS ACTIVITY</span><h3 id="home-activity-heading">What recently happened</h3></div><span className="home-section-note">Role-scoped canonical work changes</span></div>{data?.recentChanges.length ? <div className="home-activity-list">{data.recentChanges.slice(0, 5).map((item) => <a className="home-activity-row" href={canonicalDomainRoute(item.deep_link, "/work")} key={item.id}><span className="home-activity-dot" /><span><b>{item.title}</b><small>{item.detail || "Recorded in the canonical work projection"}</small></span><time>{item.when ? new Date(item.when).toLocaleDateString() : "Recent"}</time><Icon name="arrow-up-right" size={14} /></a>)}</div> : <div className="home-empty-state"><b>No recent activity is available</b><p>The canonical work projection returned no bounded business changes for this scope.</p></div>}</section>
   </div>;
 }

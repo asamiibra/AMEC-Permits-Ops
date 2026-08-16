@@ -51,7 +51,7 @@ import { EngineeringCloseoutPage } from "./EngineeringCloseout";
 import { ProjectEngineeringPage } from "./ProjectEngineering";
 import { EngineeringDrawingReviewPage } from "./EngineeringDrawingReview";
 import { AboutPermitOpsPage } from "./AboutPermitOps";
-import { AdministrationOwnerPage } from "./AdministrationOwner";
+import { AdministrationOwnerPage, ContractMobilizationPage } from "./AdministrationOwner";
 import { AMECWorkPage } from "./AMECWork";
 import {
   ReadinessDrawer,
@@ -108,7 +108,7 @@ type BusinessNavItem = {
 const businessNav: BusinessNavItem[] = [
   { id: "home", page: "home", label: "Home", icon: "dashboard", path: "/home", group: "HOME" },
   { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
-  { id: "contract-mobilization", page: "permits", label: "Contract & Mobilization", icon: "contract", path: "/proposals-contracts", group: "BUSINESS FLOW" },
+  { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
   { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
   { id: "regulatory-submissions", page: "permit-portfolio", label: "Regulatory & Submissions", icon: "authority", path: "/permits", group: "BUSINESS FLOW" },
   { id: "construction-post-approval", page: "construction", label: "Construction & Post-Approval", icon: "construction", path: "/construction", group: "BUSINESS FLOW" },
@@ -164,6 +164,7 @@ const pageFromPath = () => {
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
+  if (path === "/contract-mobilization" || path.startsWith("/contract-mobilization/")) return "contract-mobilization";
   if (path === "/engineering") return "project-engineering";
   if (path === "/project-engineering") return "project-engineering";
   if (path === "/construction" || path.startsWith("/construction/")) return "construction";
@@ -198,8 +199,10 @@ const pageFromPath = () => {
   if (path === "/admin") return "administration";
   if (path === "/dashboard/inputs-go-live") return "dashboard-inputs";
   if (path === "/dashboard-v2/inputs-go-live") return "dashboard-inputs";
-  if (path === "/admin/go-live-readiness") return "go-live-readiness";
+  if (path === "/admin/go-live-readiness" || path === "/admin/contracts/inputs/go-live") return "go-live-readiness";
   if (path === "/admin/control-diagnostics") return "control-loop";
+  if (path === "/admin/contracts" || path.startsWith("/admin/contracts/") || path === "/admin/project-activation" || path.startsWith("/admin/project-activation/")) return "contract-mobilization";
+  if (path === "/admin/invoices" || path.startsWith("/admin/invoices/")) return "billing";
   if (path.startsWith("/admin/")) return "administration";
   if (path.startsWith("/proposals-contracts/"))
     return "permit-workspace";
@@ -337,6 +340,8 @@ function App() {
           ? "/permits"
           : nextPage === "permits"
             ? "/proposals-contracts"
+          : nextPage === "contract-mobilization"
+            ? "/contract-mobilization"
           : nextPage === "about"
             ? "/operating-guide"
             : nextPage === "administration"
@@ -416,8 +421,10 @@ function App() {
       : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
         ? "Permit"
       : page === "administration"
-        ? "Administration"
-        : page === "handover"
+        ? "Admin"
+      : page === "contract-mobilization"
+        ? "Contract & Mobilization"
+      : page === "handover"
           ? "Handover / Admin Closeout"
         : page === "go-live-readiness"
           ? "Go-Live Setup"
@@ -457,7 +464,7 @@ function App() {
             <>
               <div className="nav-section-label nav-system-label">SYSTEM</div>
               <button
-                aria-label="Administration"
+                aria-label="Admin"
                 data-nav-id="administration"
                 className={
                   page === "administration" ? "nav-item active" : "nav-item"
@@ -466,7 +473,6 @@ function App() {
               >
                 <span className="nav-icon"><Icon name="settings" size={18} /></span>
                 <span>Admin</span>
-                <span className="sr-only">Administration</span>
               </button>
               <button aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}><span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span></button>
             </>
@@ -566,6 +572,7 @@ function App() {
           {page === "about" && <AboutPermitOpsPage onNavigate={navigate} />}{" "}
           {page === "opportunities" && <OpportunitiesPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />}{" "}
           {page === "billing" && <BillingInvoicePage />}{" "}
+          {page === "contract-mobilization" && <ContractMobilizationPage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
           {page === "construction" && <ConstructionPage />}{" "}
