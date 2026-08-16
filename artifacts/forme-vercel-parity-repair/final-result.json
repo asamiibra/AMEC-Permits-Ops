@@ -12,6 +12,7 @@
   "vercel_frontend_exact_sha_ready_pass": 1,
   "vercel_backend_exact_sha_ready_pass": 0,
   "deployed_api_browser_parity_blocked_external": 1,
+  "vercel_browser_auth_gate_blocked_external": 1,
   "remote_database_seed_run": 0,
   "preexisting_excel_change_preserved": 1
 }
