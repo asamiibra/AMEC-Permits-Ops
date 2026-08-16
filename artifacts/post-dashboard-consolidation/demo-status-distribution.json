@@ -1,0 +1,7 @@
+{
+  "status": "NOT_RUN",
+  "reason": "Synthetic demo seed is gated on exact-main Vercel deployment readiness",
+  "current": null,
+  "needs_review": null,
+  "inactive": null
+}

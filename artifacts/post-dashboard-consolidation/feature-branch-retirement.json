@@ -1,0 +1,11 @@
+{
+  "branch": "branch/owner-form-simple-dashboard",
+  "unmerged_commit_count_at_main_checkpoint": 0,
+  "head_ancestor_of_main_at_checkpoint": true,
+  "primary_worktree_dependency": true,
+  "exact_main_deployment_ready": false,
+  "safe_to_delete": false,
+  "remote_deleted": false,
+  "local_deleted": false,
+  "disposition": "KEEP_ACTIVE_UNTIL_DEPLOYMENT_AND_WORKTREE_GATES"
+}

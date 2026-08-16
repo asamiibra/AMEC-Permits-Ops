@@ -1,0 +1,15 @@
+{
+  "attempted_source_sha": "202728cb176d9ef561391531729b3d580a7837f0",
+  "backend_project": "amec-permits-ops-backend",
+  "release_sha_environment_updated": true,
+  "deployments": [
+    {"id":"dpl_JgrUoSYChPrpuc44sGC38Dadz99Y","ready_state":"BLOCKED"},
+    {"id":"dpl_E4TnjMH1KWxdghKGiS65gMoHxT2e","ready_state":"BLOCKED"},
+    {"id":"dpl_x6AQyq133FVKWzLiqu7dZjNh95nj","ready_state":"BLOCKED"},
+    {"id":"dpl_7WHvuiVotSFQ9GMfcu4Vx7rMb8QW","ready_state":"BLOCKED"}
+  ],
+  "VERCEL_FRONTEND_DEPLOYED_FINAL_MAIN_SHA_PASS": 0,
+  "VERCEL_BACKEND_DEPLOYED_FINAL_MAIN_SHA_PASS": 0,
+  "VERCEL_FRONTEND_BACKEND_FINAL_MAIN_SHA_PARITY_PASS": 0,
+  "VERCEL_FINAL_MAIN_DEPLOYMENT_BLOCKED": 1
+}

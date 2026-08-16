@@ -1,0 +1,6 @@
+{
+  "checked_against": "202728cb176d9ef561391531729b3d580a7837f0",
+  "current_module_not_reachable_count": 0,
+  "module_provenance_complete": true,
+  "note": "All current module paths are reachable from the pushed main checkpoint; final Vercel and post-seed runtime gates are blocked/not run."
+}
