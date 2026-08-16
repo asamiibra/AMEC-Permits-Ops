@@ -47,5 +47,4 @@ PROPOSALOPS_FINAL_ICON_SYSTEM_CODE_FROZEN
 
 Implementation dependency: `lucide-react` was added as the single professional icon family. Starting revision: `1dfdded11af15cf7c86dc7149cc19232bd72371e`.
 
-Final commit and remote revision are recorded here after the freeze commit and push.
-
+Final commit: `287a696` (`Replace placeholder glyphs with Lucide icon system`). Remote `origin/branch/ui-productionization` resolves to the same revision after push.
