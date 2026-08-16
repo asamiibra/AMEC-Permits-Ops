@@ -21,9 +21,9 @@ test("English Guide tells the full lifecycle story", async ({ page }) => {
 
 test("English Guide explains core surfaces, source control, and human boundary", async ({ page }) => {
   await page.goto("/operating-guide");
-  await expect(page.getByText("AMEC Work", { exact: true })).toBeVisible();
-  await expect(page.getByText("Issues", { exact: true })).toBeVisible();
-  await expect(page.getByText("Notifications", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "AMEC Work", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Issues", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Notifications", exact: true })).toBeVisible();
   await expect(page.getByText("One shared truth", { exact: true })).toBeVisible();
   await expect(page.getByText("Final submission stays human-controlled.", { exact: true })).toBeVisible();
   await expect(page.getByText("Synthetic prototype truth", { exact: true })).toBeVisible();

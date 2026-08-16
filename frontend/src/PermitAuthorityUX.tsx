@@ -5,6 +5,25 @@ import "./permit-authority-ux.css";
 type Catalog = { id: string; code: string; name_en: string; name_ar?: string | null };
 type Portfolio = { items: any[]; total: number; page: number; page_size: number; lanes: Record<string, number> };
 type Context = { projects: any[]; journeys: any[]; external_bodies: Catalog[]; jurisdictions: Catalog[]; service_types: Catalog[]; scope_note: string };
+const emptyPortfolio: Portfolio = { items: [], total: 0, page: 1, page_size: 25, lanes: { all: 0, need_action: 0, authority_review: 0, ready_close: 0 } };
+function normalizePortfolio(value: unknown): Portfolio | null {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Partial<Portfolio>;
+  if (!Array.isArray(candidate.items) || !candidate.lanes || typeof candidate.lanes !== "object") return null;
+  const lanes = candidate.lanes as Record<string, unknown>;
+  return {
+    items: candidate.items,
+    total: typeof candidate.total === "number" ? candidate.total : candidate.items.length,
+    page: typeof candidate.page === "number" ? candidate.page : 1,
+    page_size: typeof candidate.page_size === "number" ? candidate.page_size : 25,
+    lanes: {
+      all: typeof lanes.all === "number" ? lanes.all : 0,
+      need_action: typeof lanes.need_action === "number" ? lanes.need_action : 0,
+      authority_review: typeof lanes.authority_review === "number" ? lanes.authority_review : 0,
+      ready_close: typeof lanes.ready_close === "number" ? lanes.ready_close : 0,
+    },
+  };
+}
 const pretty = (value: unknown) => String(value ?? "—").replaceAll("_", " ");
 const label = (item?: Catalog | null) => item?.name_en || item?.code || "Pending";
 const move = (path: string) => { window.history.pushState({}, "", path); window.dispatchEvent(new PopStateEvent("popstate")); };
@@ -12,7 +31,16 @@ function Status({ value }: { value: string }) { return <span className={`status 
 
 export function PermitPortfolioPage() {
   const [data, setData] = useState<Portfolio | null>(null); const [lane, setLane] = useState(""); const [q, setQ] = useState(""); const [error, setError] = useState("");
-  const load = () => api<Portfolio>(`/api/permit-ux/portfolio?lane=${encodeURIComponent(lane)}&q=${encodeURIComponent(q)}`).then(setData).catch((e) => setError(e instanceof Error ? e.message : "Permit portfolio unavailable."));
+  const load = () => api<unknown>(`/api/permit-ux/portfolio?lane=${encodeURIComponent(lane)}&q=${encodeURIComponent(q)}`).then((value) => {
+    const normalized = normalizePortfolio(value);
+    if (!normalized) {
+      setData(emptyPortfolio);
+      setError("Permit portfolio response was unavailable; showing an empty case view.");
+      return;
+    }
+    setData(normalized);
+    setError("");
+  }).catch((e) => { setData(emptyPortfolio); setError(e instanceof Error ? e.message : "Permit portfolio unavailable."); });
   useEffect(() => { void load(); }, [lane]);
   return <div className="permit-ux-page"><div className="page-intro permit-ux-intro"><div><span className="eyebrow">OWNER OPERATIONS · AUTHORITY CASE PORTFOLIO</span><h2>Permits</h2><p>Canonical Authority Cases with derived stage, status, blockers, comments, and identifiers.</p></div><div className="permit-ux-actions"><button className="button-secondary" onClick={() => window.open("/api/permit-ux/exports/permit-tracker.csv", "_blank")}>Export tracker</button><button className="button-primary" onClick={() => move("/permits/new")}>New Permit</button></div></div><div className="synthetic-note">PORTAL AUTOMATION DEFERRED BY SCOPE · HUMAN SUBMISSION REQUIRED · END DATE NOT CONFIGURED UNLESS CANONICAL SOURCE EXISTS</div>{error && <div className="error-banner">{error}</div>}<div className="permit-lanes" role="tablist" aria-label="Permit work lanes">{[["", "All Permits", data?.lanes.all], ["NEED_ACTION", "Need Action", data?.lanes.need_action], ["AUTHORITY_REVIEW", "Authority Review", data?.lanes.authority_review], ["READY_CLOSE", "Ready / Close", data?.lanes.ready_close]].map(([value, name, count]) => <button key={String(name)} className={lane === value ? "permit-lane active" : "permit-lane"} onClick={() => setLane(String(value))} role="tab" aria-selected={lane === value}><b>{String(count ?? "—")}</b><span>{name}</span></button>)}</div><section className="panel permit-portfolio-panel"><form className="permit-toolbar" onSubmit={(e) => { e.preventDefault(); void load(); }}><label className="permit-search">Search project, permit, or case<input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. project reference" /></label><button className="button-secondary" type="submit">Search</button></form>{data === null ? <p className="permit-empty">Loading permit portfolio…</p> : data.items.length === 0 ? <div className="permit-empty"><h3>No permits in this view</h3><p>Start an explicit Authority Case from an activated Project, or adjust the lane/search.</p><button className="button-primary" onClick={() => move("/permits/new")}>Start a Permit Case</button></div> : <div className="permit-table-wrap"><table className="permit-table"><thead><tr><th>Project</th><th>Journey</th><th>Permit / Case Ref</th><th>Stage</th><th>End Date</th><th>System Status</th><th>Block</th><th>Open Comments</th><th /></tr></thead><tbody>{data.items.map((item) => <tr key={item.case_id}><td><b>{item.project_name}</b><small>{item.project_reference}</small></td><td>{item.journey_code || "—"}</td><td><b>{item.permit_identifier?.value || "Pending"}</b><small>{item.case_reference}</small></td><td>{pretty(item.stage)}</td><td title="Canonical target date not configured">{item.end_date || "—"}</td><td><Status value={item.system_status} /></td><td>{item.block_count ? <span className="block-count">{item.block_count} blocker{item.block_count === 1 ? "" : "s"}</span> : "—"}</td><td>{item.open_comments ? <span className="comment-count">{item.open_comments}</span> : "—"}</td><td><button className="link-button" onClick={() => move(`/permits/${item.case_id}/overview`)}>Open</button></td></tr>)}</tbody></table></div>}</section></div>;
 }

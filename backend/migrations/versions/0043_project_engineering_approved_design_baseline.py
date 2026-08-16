@@ -49,5 +49,14 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Drop in reverse dependency order; no existing canonical data is touched.
+    # Deliverables and revisions form a historical two-way FK cycle. Remove
+    # both edges before the reverse table loop reaches either table.
+    for table_name, constraint_name in (
+        ("engineering_deliverables", "engineering_deliverables_current_revision_id_fkey"),
+        ("engineering_deliverable_revisions", "engineering_deliverable_revisions_deliverable_id_fkey"),
+    ):
+        op.execute(sa.text(
+            f"ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {constraint_name}"
+        ))
     for name in reversed(TABLES):
         Base.metadata.tables[name].drop(bind=op.get_bind(), checkfirst=True)
