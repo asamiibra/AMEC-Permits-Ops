@@ -6,5 +6,5 @@
   "vercel_current_filter_pass": 0,
   "vercel_needs_review_filter_pass": 0,
   "vercel_inactive_empty_state_truthful_pass": 0,
-  "blocker": "Matching backend deployment for repair SHA 4976034e91a10d8ef2950a6a1f56799905bea96e is ERROR/BLOCKED with no runtime output, and the frontend /dashboard URL redirects to Vercel login; browser/API parity was not claimed."
+  "blocker": "Matching backend deployment for repair SHA 402b6e6b300f9433c7a6255474a6285457aacce4 is ERROR with no runtime output, and the frontend /dashboard URL redirects to Vercel login; browser/API parity was not claimed."
 }

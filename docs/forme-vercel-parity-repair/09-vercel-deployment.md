@@ -5,11 +5,11 @@ At repair entry, both production projects were READY at main SHA
 reported PostgreSQL, Alembic `0058_source_intake_ledger`, durable synthetic
 DB-backed storage, and `RELEASE_SHA=202728cb176d9ef561391531729b3d580a7837f0`.
 
-Repair SHA: `4976034e91a10d8ef2950a6a1f56799905bea96e`.
+Repair SHA: `402b6e6b300f9433c7a6255474a6285457aacce4`.
 
 The frontend deployment for the repair SHA reached `READY` and its production
 alias was updated. The backend GitHub deployments for the same SHA reached
-`ERROR`, and an explicit backend-root production deployment reached
+`ERROR`. The earlier explicit backend-root production deployment also reached
 `BLOCKED` (`dpl_GejGzr3kKJw5rNeHgJGXpv7T4gjQ`). Vercel reported empty build
 output/config for those backend attempts, so there is no ready backend runtime
 on the repair SHA to query.
