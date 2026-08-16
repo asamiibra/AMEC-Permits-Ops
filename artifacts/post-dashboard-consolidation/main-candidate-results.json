@@ -1,0 +1,16 @@
+{
+  "candidate_sha": "4aedcc6c79973055aea14bb717c12a6dcb347953",
+  "origin_main_contained": true,
+  "feature_heads_contained": true,
+  "conflicts": 0,
+  "alembic_single_head": true,
+  "alembic_head": "0058_source_intake_ledger",
+  "fresh_postgresql_migration": true,
+  "upgrade_postgresql_migration": true,
+  "backend_postgresql": {"passed": 236, "skipped": 6, "warnings": 2},
+  "frontend": {"test_files": 15, "passed": 39, "build": true},
+  "browser": {"passed": 27, "failed": 0, "workers": 1},
+  "storage_source_intake": {"passed": 7, "skipped": 6, "warnings": 1},
+  "current_module_not_reachable_count": 0,
+  "required_current_commit_missing_count": 0
+}

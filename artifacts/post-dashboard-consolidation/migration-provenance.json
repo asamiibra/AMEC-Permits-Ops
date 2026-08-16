@@ -12,6 +12,7 @@
     ["0057_owner_form_review_status", "0056_storage_operation_journal"],
     ["0058_source_intake_ledger", "0057_owner_form_review_status"]
   ],
-  "fresh_postgresql_pass": null,
-  "upgrade_postgresql_pass": null
+  "fresh_postgresql_pass": true,
+  "upgrade_postgresql_pass": true,
+  "verified_against_candidate": "4aedcc6c79973055aea14bb717c12a6dcb347953"
 }

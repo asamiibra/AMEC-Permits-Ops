@@ -11,5 +11,11 @@
   "force_push": false,
   "rebase": false,
   "cherry_pick": false,
-  "candidate_sha": null
+  "candidate_sha": "4aedcc6c79973055aea14bb717c12a6dcb347953",
+  "candidate_containment": {
+    "origin/main": true,
+    "origin/branch/owner-form-simple-dashboard": true,
+    "origin/branch/home-navigation-reorganization": true,
+    "origin/branch/ui-productionization": true
+  }
 }
