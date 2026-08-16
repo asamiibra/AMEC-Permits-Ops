@@ -2,6 +2,8 @@
   "branch": "branch/ui-productionization",
   "expected_sha": "e5b916d5a81dfdd72a93a769d49d015cf2c71866",
   "remote_sha": "e5b916d5a81dfdd72a93a769d49d015cf2c71866",
+  "latest_git_sha": "9f4c881fde062efb16d334db47ae2a29e5a48bf5",
+  "latest_remote_sha": "9f4c881fde062efb16d334db47ae2a29e5a48bf5",
   "vercel_project": "amec-permits-ops",
   "deployment_target": "PRODUCTION",
   "deployment_id": "NONE_FINAL_QUOTA_BLOCK",
