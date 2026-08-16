@@ -88,7 +88,7 @@ function canonicalRoute(entry: any) {
 async function snapshot(page: any) {
   return page.evaluate(({ technicalAllowlist: allowed }) => {
     const main = document.querySelector("main") || document.body;
-    const text = (main.innerText || "").replace(/\s+/g, " ").trim();
+    const text = [main.innerText || "", document.querySelector<HTMLElement>(".env-chip")?.innerText || ""].join(" ").replace(/\s+/g, " ").trim();
     const headings = [...main.querySelectorAll("h1,h2,h3")].map((node) => node.textContent?.replace(/\s+/g, " ").trim()).filter(Boolean);
     const candidates = [...main.querySelectorAll("[role=button],button,a,h1,h2,h3,dt,dd,.tag,.status")];
     const collisions: string[] = [];

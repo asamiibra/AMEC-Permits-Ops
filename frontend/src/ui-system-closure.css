@@ -212,3 +212,7 @@ body { background: var(--color-background-page); color: var(--color-text-primary
   .app-shell .completion-empty { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 22px 16px; }
   .app-shell .completion-empty .button { grid-column: auto; }
 }
+
+/* Keep transient and source-context text readable while preserving the shared muted token. */
+.app-shell .home-source-badge,
+.app-shell .loading { color: var(--color-text-muted); }

@@ -91,7 +91,7 @@ test("sidebar labels, order, targets, and action controls remain functional", as
     href: node.getAttribute("href"),
   })));
   await page.goto("/proposals-contracts?view=proposals", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(650);
+  await expect(page.locator(".filter-row .filter").first()).toBeVisible({ timeout: 15000 });
   const headersBefore = await page.locator(".table-panel table thead th").allTextContents();
   const filters = await page.locator(".filter-row .filter").allTextContents();
   const openAction = page.getByRole("button", { name: "Open" }).first();
