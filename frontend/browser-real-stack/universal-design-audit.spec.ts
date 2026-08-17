@@ -124,9 +124,9 @@ test.describe("ProposalOps universal design and functional audit", () => {
     await page.goto("/work", { waitUntil: "domcontentloaded" });
     const ids = await fixtureIds(page);
     const checks = [
-      { role: "Owner" as Role, route: "/admin", expectedUrl: "/admin", expected: /Administration|People & Access/i, name: "owner-admin-access" },
-      { role: "Business Development" as Role, route: "/admin", expectedUrl: "/work", expected: /AMEC Work|Action required/i, name: "bd-admin-denied" },
-      { role: "Engineering" as Role, route: "/admin", expectedUrl: "/work", expected: /AMEC Work|Action required/i, name: "engineering-admin-denied" },
+      { role: "Owner" as Role, route: "/admin", expectedUrl: "/admin", expected: /Admin|People & Access/i, name: "owner-admin-access" },
+      { role: "Business Development" as Role, route: "/admin", expectedUrl: "/home", expected: /Home|Action required/i, name: "bd-admin-denied" },
+      { role: "Engineering" as Role, route: "/admin", expectedUrl: "/home", expected: /Home|Action required/i, name: "engineering-admin-denied" },
       { role: "Owner" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "owner-commercial" },
       { role: "Business Development" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "bd-commercial" },
       { role: "Engineering" as Role, route: "/proposals-contracts", expectedUrl: "/proposals-contracts", expected: /Proposals & Contracts|Proposal|Contract/i, name: "engineering-commercial" },

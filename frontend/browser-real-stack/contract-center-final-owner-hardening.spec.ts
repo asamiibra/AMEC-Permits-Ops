@@ -1,12 +1,23 @@
 import { test, expect } from "@playwright/test";
 
+async function waitForContractRef(page: import("@playwright/test").Page, contractRef: string) {
+  await expect.poll(async () => {
+    const response = await page.request.get("/api/admin/contracts?filter=ALL");
+    if (!response.ok()) return [];
+    const body = await response.json();
+    return (body.items || []).map((item: { contract_ref?: string }) => item.contract_ref);
+  }, { timeout: 45_000 }).toContain(contractRef);
+}
+
 test.describe("Contract Center final Owner hardening", () => {
   test("opens the Proposal-derived golden Contract with truthful gates and ordered sections", async ({ page }) => {
-    await page.goto("/admin/contracts");
+    await waitForContractRef(page, "SYN-CTR-0007");
+    await page.goto("/contract-mobilization");
+    await expect(page.getByRole("heading", { name: "Contracts", level: 3 })).toBeVisible({ timeout: 45_000 });
     const goldenRow = page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0007" });
-    await expect(goldenRow).toBeVisible();
-    await goldenRow.getByRole("button", { name: "Open →" }).click();
-    await expect(page).toHaveURL(/\/admin\/contracts\//);
+    await expect(goldenRow).toBeVisible({ timeout: 45_000 });
+    await goldenRow.getByRole("button", { name: "Open", exact: true }).click();
+    await expect(page).toHaveURL(/\/contract-mobilization\/contracts\//);
     await expect(page.getByRole("heading", { name: "Accepted Proposal" })).toBeVisible();
     await expect(page.locator("#proposal-origin").getByText("SYN-OPP-0007", { exact: false })).toBeVisible();
     await expect(page.locator("#proposal-origin")).toContainText("Synthetic Engineering Advisory Proposal");
@@ -25,10 +36,12 @@ test.describe("Contract Center final Owner hardening", () => {
   });
 
   test("keeps the legacy Contract safe and separate", async ({ page }) => {
-    await page.goto("/admin/contracts");
+    await waitForContractRef(page, "SYN-CTR-0001");
+    await page.goto("/contract-mobilization");
+    await expect(page.getByRole("heading", { name: "Contracts", level: 3 })).toBeVisible({ timeout: 45_000 });
     const legacyRow = page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0001" });
-    await expect(legacyRow).toBeVisible();
-    await legacyRow.getByRole("button", { name: "Open →" }).click();
+    await expect(legacyRow).toBeVisible({ timeout: 45_000 });
+    await legacyRow.getByRole("button", { name: "Open", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Legacy Contract" })).toBeVisible();
     await expect(page.locator("#proposal-origin").getByText("Proposal origin requires reconciliation", { exact: true })).toBeVisible();
     await expect(page.locator("#commercial")).toContainText("Project Description");

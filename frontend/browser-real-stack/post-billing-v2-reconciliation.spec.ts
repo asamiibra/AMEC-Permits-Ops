@@ -17,8 +17,8 @@ test("Billing V2 real stack renders project-safe invoice context and communicati
 
   await page.goto("/billing/invoices");
   await expect(page.getByRole("heading", { name: "Billing & Invoice", level: 2 })).toBeVisible();
-  await expect(page.getByRole("table", { name: "Invoices" })).toBeVisible();
-  await page.getByRole("button", { name: "Open →" }).first().click();
+  await expect(page.locator(".billing-table")).toBeVisible();
+  await page.getByRole("button", { name: "Open", exact: true }).first().click();
   await expect(page.getByRole("heading", { name: /INV-|Not allocated/ })).toBeVisible();
   await expect(page.getByText("COMMUNICATION HISTORY", { exact: true })).toBeVisible();
   await expect(page.getByText(/Delivery, acknowledgment, approval, and payment remain separate/)).toBeVisible();

@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 test("AMEC Work exposes one Content Library destination and the promoted current library", async ({ page }) => {
-  await page.goto("/work");
-  await expect(page.getByRole("heading", { name: "What needs attention", level: 2 })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Open Content Library →/ })).toHaveCount(1);
+  await page.goto("/home");
+  await expect(page.getByRole("heading", { name: "Prioritized work and lifecycle exceptions", level: 3 })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open Content Library/ })).toHaveCount(1);
   await expect(page.getByRole("link", { name: /Open Dashboard V2 →/ })).toHaveCount(0);
 
-  await page.getByRole("link", { name: /Open Content Library →/ }).click();
+  await page.getByRole("link", { name: /Open Content Library/ }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible();
   await expect(page.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "v2-evolution");

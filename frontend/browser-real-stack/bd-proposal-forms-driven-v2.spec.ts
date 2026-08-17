@@ -29,7 +29,7 @@ test("BD Proposal Forms-Driven v2 exposes the governed owner workspace", async (
 
   await page.goto("/opportunities");
   await expect(page.getByRole("heading", { name: "Proposal Register", level: 2 })).toBeVisible();
-  await page.getByRole("button", { name: "Open →" }).first().click();
+  await page.getByRole("button", { name: "Open", exact: true }).first().click();
   await expect(page.getByText("CLIENT REQUEST", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Site / Property context", level: 3 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Stakeholders", level: 3 })).toBeVisible();

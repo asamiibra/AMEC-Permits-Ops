@@ -12,7 +12,7 @@ test("Owner Contract detail exposes the six owner-sketch delta surfaces", async 
   expect(contract?.id).toBeTruthy();
   await page.goto(`/admin/contracts/${contract.id}`);
   await expect(page.getByRole("heading", { name: /SYN-CTR-|Contract/, level: 3 }).first()).toBeVisible();
-  for (const label of ["Client Document", "LPO", "Client Name", "Client Company", "CR No.", "Mobile No.", "PIN No.", "Client Email", "Project Description", "Client Inputs & Documents Needed", "Deliverables / Contracted Works", "Contract Documents & Sources", "Accept Contract", "Project Activation", "Billing & Invoices"]) {
+  for (const label of ["Client Document", "LPO", "Client Name", "Client Company", "CR No.", "Mobile No.", "PIN No.", "Client Email", "Project Description", "Client Inputs & Documents Needed", "Deliverables / Contracted Works", "Contract Documents & Sources", "Accept Contract", "Project Activation", "Finance summary"]) {
     await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
   }
   await expect(page.getByText("Owner definition required", { exact: false })).toBeVisible();

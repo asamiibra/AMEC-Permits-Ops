@@ -33,8 +33,7 @@ async function downloadHistoryVersion(page: import("@playwright/test").Page, ind
 test("Administration Forms and Dashboard are two doors into one canonical library", async ({ page }) => {
   const ref = `E2E-AF-${Date.now().toString(36)}`;
   await page.goto("/admin");
-  await expect(page.getByRole("heading", { name: "Administration", level: 2 })).toBeVisible();
-  await page.getByRole("button", { name: /Setup & Controls/ }).click();
+  await expect(page.getByRole("heading", { name: "Admin", level: 2 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Setup & Controls", level: 3 })).toBeVisible();
   await expect(page.getByRole("button", { name: /^Forms/ })).toBeVisible();
   await page.getByRole("button", { name: /^Forms/ }).click();

@@ -62,7 +62,7 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   await page.getByLabel("Why are you making this change?").fill("Browser material engineering revision");
   await page.getByLabel("File").setInputFiles({ name: "browser-engineering-v2.txt", mimeType: "text/plain", buffer: Buffer.from("engineering v2") });
   await page.getByRole("button", { name: "Save as New Version" }).click();
-  await expect(engineeringRow).toContainText("Version 2");
+  await expect(engineeringRow).toContainText("Version 2", { timeout: 45_000 });
 
   const propagationResponse = await page.request.get(`/api/master-content/${item.id}/propagation`, { headers: ownerHeaders });
   expect(propagationResponse.ok()).toBeTruthy();

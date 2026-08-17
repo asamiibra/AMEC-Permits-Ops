@@ -5,7 +5,7 @@ const routes = [
   ["/admin/data-connections", "Source Connections"],
   ["/admin/project-folder-setup", "References and project identity"],
   ["/admin/proposal-setup", "Proposal workflow configuration"],
-  ["/admin/contract-setup", "Contract register"],
+  ["/admin/contract-setup", "Contract reference and policy settings"],
   ["/admin/permit-setup", "Requirements and attachments"],
   ["/admin/templates", "Controlled template catalog"],
   ["/admin/notifications", "Notification audiences and follow-up"],
@@ -32,7 +32,7 @@ test("Owner Administration cards and bounded actions remain wired", async ({ pag
   await page.goto("/admin");
   for (const [route] of routes) {
     await page.goto(route);
-    await expect(page.getByRole("button", { name: /Administration/ }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Admin", exact: true }).first()).toBeVisible();
   }
   await page.goto("/admin/data-connections");
   await page.getByRole("button", { name: "Test connection" }).first().click();

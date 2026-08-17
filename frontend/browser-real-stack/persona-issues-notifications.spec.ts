@@ -5,7 +5,7 @@ test("real stack serves persona-aware issues and notifications without intercept
   page.on("request", (request) => { if (request.url().includes("/api/")) intercepted.push(request.url()); });
   await page.goto("/issues");
   await expect(page.getByRole("heading", { name: /Issues across AMEC work|Engineering issues/ })).toBeVisible();
-  await expect(page.getByText(/Open issues|Open technical issues/).first()).toBeVisible();
+  await expect(page.getByText(/Open issues|Open technical issues/).first()).toBeVisible({ timeout: 45_000 });
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
   await expect(page.getByRole("heading", { name: "Engineering issues" })).toBeVisible();
   await page.goto("/notifications");

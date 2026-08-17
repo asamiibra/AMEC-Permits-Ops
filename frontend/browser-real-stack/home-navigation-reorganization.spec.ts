@@ -6,9 +6,9 @@ test("Home exposes the seven-stage business flow and cross-functional lanes", as
   for (const label of ["Intake & Opportunity", "Contract & Mobilization", "Design & Technical Delivery", "Regulatory & Submissions", "Construction & Post-Approval", "Completion & As-Built", "Handover & Closeout"]) {
     await expect(page.getByRole("link", { name: new RegExp(label) })).toBeVisible();
   }
-  await expect(page.getByRole("link", { name: /Finance workspace/ })).toHaveAttribute("href", "/billing");
-  await expect(page.getByTestId("amec-work-widget")).toBeVisible();
-  await expect(page.getByTestId("issues-widget")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open Finance/ })).toHaveAttribute("href", "/billing");
+  await expect(page.getByRole("heading", { name: "Prioritized work and lifecycle exceptions", level: 3 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Shared governed content", level: 3 })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Primary navigation" })).not.toContainText("Notifications");
 });
 
@@ -24,15 +24,15 @@ test("Content Library keeps the old route and the renamed owner-facing identity"
 test("Header bell opens a notification drawer without creating a sidebar module", async ({ page }) => {
   await page.goto("/home");
   await page.getByRole("button", { name: "Notifications" }).click();
-  await expect(page.getByRole("dialog", { name: "Notification drawer" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /View all notifications/ })).toHaveAttribute("href", "/notifications");
+  await expect(page).toHaveURL(/\/notifications$/);
+  await expect(page.getByRole("heading", { name: "Owner notifications", level: 2 })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Primary navigation" })).not.toContainText("Notifications");
 });
 
 test("Persona navigation keeps system Admin separate from business roles", async ({ page }) => {
   await page.goto("/home");
   await page.getByLabel("Persona").selectOption("COMMERCIAL_APPROVER");
-  await expect(page.getByRole("button", { name: "Finance" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open Finance/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Admin" })).toHaveCount(0);
   await page.getByLabel("Persona").selectOption("RESPONSIBLE_ENGINEER");
   await expect(page.getByRole("button", { name: "Design & Technical Delivery" })).toBeVisible();

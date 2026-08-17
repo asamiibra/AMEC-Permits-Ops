@@ -24,8 +24,8 @@ test("Proposal register counts reconcile with visible rows and valid opens are r
   await page.goto("/opportunities");
   await expect(page.getByRole("heading", { name: "Proposal Register", level: 2 })).toBeVisible();
   await expect(page.getByRole("tab", { name: new RegExp(`All\\s*${body.lane_counts.ALL}`) })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Open →" }).first()).toBeVisible();
-  await page.getByRole("button", { name: "Open →" }).first().click();
+  await expect(page.getByRole("button", { name: "Open", exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Open", exact: true }).first().click();
   await expect(page).toHaveURL(/\/opportunities\/[0-9a-f-]+$/);
   await expect(page.getByText("ProposalOps could not render this screen", { exact: false })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Managed in Dashboard", level: 3 })).toBeVisible();
@@ -62,11 +62,13 @@ test("Proposal register filters preserve the typed response and rows", async ({ 
   await page.goto("/opportunities");
   await expect(page.getByRole("heading", { name: "Proposal Register", level: 2 })).toBeVisible();
   await page.getByLabel("Search proposals by client").fill("Synthetic Client Holdings");
-  await expect(page.getByRole("button", { name: "Open →" }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open", exact: true }).first()).toBeVisible();
   await page.getByLabel("Filter stage").selectOption("CONTRACT_HANDOVER");
-  await expect(page.getByRole("button", { name: "Open →" }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open", exact: true }).first()).toBeVisible();
   await expect(page.getByRole("cell", { name: "Contract Handoff", exact: true }).first()).toBeVisible();
+  const readyCloseResponse = page.waitForResponse((response) => response.ok() && response.url().includes("/api/bd/proposals?") && response.url().includes("lane=READY_CLOSE"));
   await page.getByRole("tab", { name: /Ready \/ Close/ }).click();
+  await readyCloseResponse;
   await expect(page.getByText("No Proposal records match the current filter.", { exact: false })).toBeVisible();
   await expect(page.getByText("We couldn't load the Proposal Register", { exact: false })).toHaveCount(0);
 });
