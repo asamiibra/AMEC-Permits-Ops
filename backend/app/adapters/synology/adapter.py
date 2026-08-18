@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Protocol
 from uuid import uuid4
 
+from ...storage.fixture_exclusion import ensure_fixture_path_allowed
+
 
 @dataclass(frozen=True)
 class StorageFaultPlan:
@@ -36,11 +38,13 @@ class MockSynologyAdapter:
         return [str(p.relative_to(self.root)) for p in self.root.glob("2026/PRJ-*") if p.is_dir()]
 
     def list_project_files(self, project_ref: str) -> list[dict]:
+        ensure_fixture_path_allowed(project_ref)
         folder = self.root / project_ref
         if not folder.exists(): return []
         return [self.get_file_metadata(str(path.relative_to(self.root))) for path in folder.rglob("*") if path.is_file()]
 
     def get_file_metadata(self, path: str) -> dict:
+        ensure_fixture_path_allowed(path)
         file_path = self.root / path
         stat = file_path.stat()
         digest = hashlib.sha256(file_path.read_bytes()).hexdigest()
@@ -48,6 +52,7 @@ class MockSynologyAdapter:
 
     def resolve_project_root(self, root_path: str) -> Path:
         """Resolve only a configured relative root below the adapter root."""
+        ensure_fixture_path_allowed(root_path)
         if not root_path or Path(root_path).is_absolute() or ".." in Path(root_path).parts:
             raise ValueError("INVALID_CONFIGURED_PROJECT_ROOT")
         resolved = (self.root / root_path).resolve()
@@ -94,6 +99,7 @@ class MockSynologyAdapter:
 
     def resolve_configured_path(self, configured_path: str) -> Path:
         """Resolve a server-side configured path below the adapter root only."""
+        ensure_fixture_path_allowed(configured_path)
         if not configured_path:
             raise ValueError("SOR_DESTINATION_UNRESOLVED")
         candidate = Path(configured_path)
@@ -160,6 +166,7 @@ class MockSynologyAdapter:
                 temporary.unlink()
 
     def read_configured_artifact(self, path: str) -> bytes:
+        ensure_fixture_path_allowed(path)
         safe = Path(path)
         if safe.is_absolute() or ".." in safe.parts:
             raise ValueError("INVALID_SOR_PATH")

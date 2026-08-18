@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from ..models import DocumentType, DocumentVersion, DocumentClassification, DocumentApprovalState, ClassificationReviewStatus, FieldDefinition, FieldObservation, ExtractionMethod
+from ..storage.fixture_exclusion import ensure_fixture_path_allowed
 from .normalization import normalize_candidate
 
 
@@ -28,6 +29,7 @@ class RuleBasedDocumentClassifier:
     markers = [(DocumentType.TITLE_DEED, ("TITLE_DEED", "TITLE DEED", "PROPERTY DEED")), (DocumentType.OWNER_QID, ("OWNER_QID", "OWNER ID", "QID")), (DocumentType.AUTHORIZATION, ("AUTHORIZATION", "AUTH LETTER")), (DocumentType.COMMERCIAL_REGISTRATION, ("COMMERCIAL REGISTRATION", "CR_NUMBER", "CR:")), (DocumentType.SURVEY_PLAN, ("SURVEY PLAN", "SURVEY_PLAN")), (DocumentType.COORDINATE_REPORT, ("COORDINATE REPORT", "COORDINATE_REPORT")), (DocumentType.DRAWING_SET, ("DRAWING SET", "DRAWING_SET", "REVISION:")), (DocumentType.NOC, ("NOC", "NO OBJECTION"))]
 
     def classify(self, version: DocumentVersion) -> ClassificationResult:
+        ensure_fixture_path_allowed(getattr(version, "source_path_or_reference", None))
         text = str(version.metadata_json.get("synthetic_text", "")).upper()
         for doc_type, candidates in self.markers:
             for marker in candidates:
@@ -58,6 +60,7 @@ class LocalSyntheticExtractor:
     }
 
     def extract_text(self, version: DocumentVersion) -> str:
+        ensure_fixture_path_allowed(getattr(version, "source_path_or_reference", None))
         if version.metadata_json.get("synthetic_text") is not None:
             return str(version.metadata_json["synthetic_text"])
         path = Path(version.source_path_or_reference)
@@ -78,6 +81,8 @@ class LocalSyntheticExtractor:
 
 
 def sha256_for_source(source_reference: str, content: str | None = None) -> tuple[str, int]:
+    if content is None:
+        ensure_fixture_path_allowed(source_reference)
     path = Path(source_reference)
     if content is not None:
         data = content.encode("utf-8")

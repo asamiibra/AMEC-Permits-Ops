@@ -15,6 +15,7 @@ from ..audit.service import audit
 from ..models import Document, DocumentApprovalState, DocumentVersion, StorageOperation, StorageOutboxEvent
 from ..models.base import utcnow
 from .errors import StorageError, StorageErrorCode
+from .fixture_exclusion import ensure_fixture_path_allowed
 from .path_policy import normalize_filename, normalize_relative_path
 from .port import BinaryStorePort, StorageLocator, StorageTarget
 from .failpoints import hard_kill_if_requested
@@ -52,6 +53,7 @@ class DocumentStorageService:
         return size, digest.hexdigest()
 
     def _target(self, target: StorageTarget, document_id: str, version_id: str, filename: str) -> StorageTarget:
+        ensure_fixture_path_allowed(target.relative_path)
         safe_prefix = normalize_relative_path(target.relative_path)
         safe_name = normalize_filename(filename)
         return StorageTarget(target.provider_id, target.share_id, f"{safe_prefix}/documents/{document_id}/{version_id}/{safe_name}")
@@ -214,6 +216,7 @@ class DocumentStorageService:
             raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "Document version does not have a provider locator")
         serialized = version.source_path_or_reference.removeprefix("storage://")
         provider_id, share_id, relative = serialized.split("/", 2)
+        ensure_fixture_path_allowed(relative)
         locator = StorageLocator(provider_id, share_id, relative)
         stream = self.store.open_read(locator)
         if verify:

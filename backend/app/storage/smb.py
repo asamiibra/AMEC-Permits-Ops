@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import BinaryIO
 
 from .errors import StorageError, StorageErrorCode
+from .fixture_exclusion import ensure_fixture_path_allowed
 from .path_policy import normalize_relative_path
 from .port import BinaryStorePort, StorageCapabilities, StorageHealth, StorageLocator, StoragePage, StorageStat, StorageTarget, TemporaryObject
 
@@ -101,6 +102,7 @@ class SMBBinaryStore(BinaryStorePort):
         self._smbclient = None
 
     def _unc(self, relative_path: str) -> str:
+        ensure_fixture_path_allowed(relative_path)
         raw = relative_path.strip("/\\") if relative_path else ""
         safe = normalize_relative_path(raw) if raw and raw != "." else ""
         configured_root = self.config.root.strip("/\\") if self.config.root else ""

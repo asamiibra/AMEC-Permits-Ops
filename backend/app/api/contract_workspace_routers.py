@@ -27,6 +27,7 @@ from ..storage.factory import create_binary_store
 from ..storage.port import StorageTarget
 from ..storage.service import DocumentStorageService
 from ..storage.errors import StorageError
+from ..storage.fixture_exclusion import ensure_fixture_path_allowed
 
 
 router = APIRouter(prefix="/api/admin/contracts", tags=["administration-contract-owner-session"])
@@ -539,6 +540,7 @@ def download_contract_document(contract_id: str, version_id: str, db: Session = 
     elif version.synthetic_content is not None:
         content = version.synthetic_content
     else:
+        ensure_fixture_path_allowed(version.source_path_or_reference)
         path = Path(version.source_path_or_reference)
         if not path.exists() or not path.is_file():
             raise HTTPException(502, {"code": "SOR_UNAVAILABLE", "source_reference": version.source_path_or_reference})

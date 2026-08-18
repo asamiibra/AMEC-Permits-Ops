@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from ..audit.service import audit
 from ..config.settings import get_settings, repo_root
 from ..models import Document, DocumentApprovalState, DocumentType, DocumentVersion, EvidenceArtifact, LineageEdge, Opportunity, Project, ProjectArtifactRecord, ProposalIntakeArtifact, SynologyProjectBootstrap
+from ..storage.fixture_exclusion import ensure_fixture_path_allowed
 from ..storage.legacy import legacy_synthetic_adapter
 
 
@@ -283,6 +284,7 @@ def _promotion_state(record: ProposalIntakeArtifact, state: str, **extra: Any) -
 def _source_path_for_promotion(record: ProposalIntakeArtifact) -> Path:
     source_root = intake_sor_root().resolve()
     source_path = Path(record.sor_path).resolve()
+    ensure_fixture_path_allowed(str(source_path))
     try:
         source_path.relative_to(source_root)
     except ValueError as exc:

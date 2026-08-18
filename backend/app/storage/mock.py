@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import BinaryIO
 
 from .errors import StorageError, StorageErrorCode
+from .fixture_exclusion import ensure_fixture_path_allowed
 from .path_policy import normalize_relative_path
 from .port import BinaryStorePort, StorageCapabilities, StorageHealth, StorageLocator, StoragePage, StorageStat, StorageTarget, TemporaryObject
 
@@ -26,6 +27,7 @@ class MockBinaryStore(BinaryStorePort):
         self.root_prefix = normalize_relative_path(root_prefix) if root_prefix else ""
 
     def _path(self, relative_path: str, *, allow_missing: bool = True) -> Path:
+        ensure_fixture_path_allowed(relative_path)
         safe = normalize_relative_path(relative_path)
         path = (self.root / safe).resolve()
         if self.root not in path.parents and path != self.root:
@@ -127,4 +129,3 @@ class MockBinaryStore(BinaryStorePort):
         except StorageError as exc:
             if exc.code != StorageErrorCode.OBJECT_NOT_FOUND:
                 raise
-

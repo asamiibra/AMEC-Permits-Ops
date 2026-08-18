@@ -6,6 +6,7 @@ import hashlib
 from dataclasses import dataclass
 
 from .port import BinaryStorePort, StorageLocator
+from .fixture_exclusion import ensure_fixture_path_allowed
 
 
 class SourceChangedDuringImport(RuntimeError):
@@ -22,6 +23,7 @@ class StableSourceRead:
 
 
 def read_stable_source(store: BinaryStorePort, locator: StorageLocator) -> StableSourceRead:
+    ensure_fixture_path_allowed(locator.relative_path)
     before = store.stat(locator)
     with store.open_read(locator) as stream:
         content = stream.read()

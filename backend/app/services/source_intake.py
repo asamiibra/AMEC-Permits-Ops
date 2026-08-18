@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from ..models import SourceIntakeBatch, SourceIntakeItem
 from ..storage.archive import ArchiveEntryObservation, BoundedZipReader
 from ..storage.external import StableSourceRead
+from ..storage.fixture_exclusion import is_fixture_excluded_path
 from .master_content import create_master_content
 from ..storage.failpoints import hard_kill_if_requested
 
@@ -50,12 +51,18 @@ class SourceIntakeService:
         self.actor = actor
 
     def ingest_zip(self, payload: bytes, *, source_display_name: str, source_location_reference: str) -> SourceIntakeBatch:
+        if is_fixture_excluded_path(source_location_reference):
+            raise ValueError("SOURCE_EXCLUDED_SYNTHETIC_FIXTURE_OR_INVENTORY")
         digest = hashlib.sha256(payload).hexdigest()
         prior = self.db.scalar(select(SourceIntakeBatch).where(SourceIntakeBatch.source_archive_hash == digest, SourceIntakeBatch.source_location_reference == source_location_reference))
         if prior:
             return prior
         reader = BoundedZipReader(payload)
-        observations = reader.observations_with_hashes()
+        raw_observations = reader.observations()
+        excluded = any(is_fixture_excluded_path(o.normalized_safe_path) for o in raw_observations)
+        observations = reader.observations_with_hashes(exclude=is_fixture_excluded_path)
+        if excluded and not any(not observation.is_dir for observation in observations):
+            raise ValueError("SOURCE_EXCLUDED_SYNTHETIC_FIXTURE_OR_INVENTORY")
         file_paths = {o.normalized_safe_path for o in observations if not o.is_dir}
         effective: list[ArchiveEntryObservation] = []
         for observation in observations:
@@ -84,6 +91,8 @@ class SourceIntakeService:
     def apply_manifest(self, batch: SourceIntakeBatch, manifest: dict[str, Any]) -> dict[str, int]:
         manifest_by_path = {_path_key(str(row["relative_path"])): row for row in manifest.get("items", [])}
         rows = self.db.scalars(select(SourceIntakeItem).where(SourceIntakeItem.batch_id == batch.id).order_by(SourceIntakeItem.source_ordinal)).all()
+        if is_fixture_excluded_path(batch.source_location_reference) or any(is_fixture_excluded_path(row.original_relative_path) for row in rows):
+            raise ValueError("SOURCE_EXCLUDED_SYNTHETIC_FIXTURE_OR_INVENTORY")
         if len(rows) != len(manifest_by_path):
             raise ValueError(f"manifest/item count mismatch: {len(manifest_by_path)} != {len(rows)}")
         counts: dict[str, int] = {}
@@ -117,7 +126,7 @@ class SourceIntakeService:
         self.apply_manifest(batch, manifest)
         hard_kill_if_requested("SOURCE_ITEM_DURABLE_BEFORE_PROMOTION")
         reader = BoundedZipReader(payload)
-        by_path = {_path_key(o.normalized_safe_path): o for o in reader.observations_with_hashes() if not o.is_dir}
+        by_path = {_path_key(o.normalized_safe_path): o for o in reader.observations_with_hashes(exclude=is_fixture_excluded_path) if not o.is_dir}
         counts: dict[str, int] = {}
         row_ids = self.db.scalars(select(SourceIntakeItem.id).where(SourceIntakeItem.batch_id == batch.id).order_by(SourceIntakeItem.source_ordinal)).all()
         for row_id in row_ids:

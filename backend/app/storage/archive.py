@@ -15,6 +15,7 @@ import stat
 import unicodedata
 import zipfile
 from dataclasses import dataclass
+from collections.abc import Callable
 from pathlib import PurePosixPath
 
 
@@ -144,9 +145,11 @@ class BoundedZipReader:
             raise ArchiveSafetyError("archive member size changed during read")
         return b"".join(chunks)
 
-    def observations_with_hashes(self) -> list[ArchiveEntryObservation]:
+    def observations_with_hashes(self, *, exclude: Callable[[str], bool] | None = None) -> list[ArchiveEntryObservation]:
         result = []
         for observation in self.observations():
+            if exclude and exclude(observation.normalized_safe_path):
+                continue
             if observation.is_dir:
                 result.append(observation)
                 continue

@@ -53,6 +53,7 @@ from ..models import (
 )
 from ..storage.legacy import legacy_synthetic_adapter
 from ..storage.factory import create_binary_store
+from ..storage.fixture_exclusion import ensure_fixture_path_allowed, is_fixture_excluded_path
 from ..storage.port import StorageTarget
 from ..storage.service import DocumentStorageService
 from ..storage.errors import StorageError
@@ -133,6 +134,7 @@ def _deployed_synthetic() -> bool:
 
 def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
     """Read verified master bytes, retaining a durable synthetic TEST fallback."""
+    ensure_fixture_path_allowed(version.source_path_or_reference)
     if _deployed_synthetic() and version.synthetic_content is not None:
         return version.synthetic_content
     if version.source_path_or_reference.startswith("storage://"):
@@ -964,6 +966,8 @@ def create_master_content(
     needs_review: bool = False,
     review_note: str | None = None,
 ) -> dict[str, Any]:
+    if is_fixture_excluded_path((engineering_metadata or {}).get("original_relative_path")):
+        raise _error("FIXTURE_SOURCE_EXCLUDED", 422)
     content_type = content_type.upper().strip()
     title = title.strip()
     if content_type not in CONTENT_TYPES or not title:
@@ -1027,6 +1031,8 @@ def create_master_content_version(
     needs_review: bool | None = None,
     review_note: str | None = None,
 ) -> dict[str, Any]:
+    if is_fixture_excluded_path((engineering_metadata or {}).get("original_relative_path")):
+        raise _error("FIXTURE_SOURCE_EXCLUDED", 422)
     item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
     if not item:
         raise _error("CONTENT_NOT_FOUND", 404)
