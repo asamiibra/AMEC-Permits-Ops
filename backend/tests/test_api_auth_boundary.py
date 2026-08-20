@@ -1,18 +1,19 @@
 from fastapi import Depends, FastAPI
 from fastapi.routing import APIRoute
 
-from backend.app.api.dependencies import current_principal
-from backend.app.main import app
+from backend.app.api.dependencies import (
+    current_principal,
+)
+from backend.app.main import (
+    _fastapi_docs_config,
+    app,
+)
 
 
 PUBLIC_EXACT_PATHS = {
     "/",
     "/health",
 }
-
-PUBLIC_PREFIXES = (
-    "/mock-authority",
-)
 
 
 def _dependency_tree_contains(
@@ -27,7 +28,8 @@ def _dependency_tree_contains(
             child,
             target,
         )
-        for child in dependant.dependencies
+        for child
+        in dependant.dependencies
     )
 
 
@@ -45,8 +47,12 @@ def _http_routes(
 ) -> list[APIRoute]:
     return [
         route
-        for route in application.routes
-        if isinstance(route, APIRoute)
+        for route
+        in application.routes
+        if isinstance(
+            route,
+            APIRoute,
+        )
     ]
 
 
@@ -55,9 +61,31 @@ def _api_routes(
 ) -> list[APIRoute]:
     return [
         route
-        for route in _http_routes(application)
-        if route.path == "/api"
-        or route.path.startswith("/api/")
+        for route
+        in _http_routes(application)
+        if (
+            route.path == "/api"
+            or route.path.startswith(
+                "/api/"
+            )
+        )
+    ]
+
+
+def _mock_authority_routes(
+    application: FastAPI = app,
+) -> list[APIRoute]:
+    return [
+        route
+        for route
+        in _http_routes(application)
+        if (
+            route.path
+            == "/mock-authority"
+            or route.path.startswith(
+                "/mock-authority/"
+            )
+        )
     ]
 
 
@@ -67,13 +95,15 @@ def _route_by_path(
 ) -> APIRoute:
     matches = [
         route
-        for route in _http_routes(application)
+        for route
+        in _http_routes(application)
         if route.path == path
     ]
 
     assert len(matches) == 1, (
-        f"Expected exactly one route for {path}; "
-        f"found {len(matches)}"
+        f"Expected exactly one route "
+        f"for {path}; found "
+        f"{len(matches)}"
     )
 
     return matches[0]
@@ -82,24 +112,22 @@ def _route_by_path(
 def _is_explicitly_public(
     path: str,
 ) -> bool:
-    if path in PUBLIC_EXACT_PATHS:
-        return True
-
-    return any(
-        path == prefix
-        or path.startswith(f"{prefix}/")
-        for prefix in PUBLIC_PREFIXES
-    )
+    return path in PUBLIC_EXACT_PATHS
 
 
 def _route_label(
     route: APIRoute,
 ) -> str:
     methods = ",".join(
-        sorted(route.methods or set())
+        sorted(
+            route.methods
+            or set()
+        )
     )
 
-    return f"{methods} {route.path}"
+    return (
+        f"{methods} {route.path}"
+    )
 
 
 def test_http_route_inventory_is_non_empty():
@@ -113,12 +141,16 @@ def test_api_route_inventory_is_non_empty():
 def test_every_api_route_requires_current_principal():
     unprotected = sorted(
         _route_label(route)
-        for route in _api_routes()
-        if not _route_requires_principal(route)
+        for route
+        in _api_routes()
+        if not _route_requires_principal(
+            route
+        )
     )
 
     assert not unprotected, (
-        "Unauthenticated /api routes detected: "
+        "Unauthenticated /api routes "
+        "detected: "
         + "; ".join(unprotected)
     )
 
@@ -126,79 +158,175 @@ def test_every_api_route_requires_current_principal():
 def test_every_nonpublic_application_route_is_guarded():
     unprotected = sorted(
         _route_label(route)
-        for route in _http_routes()
-        if not _is_explicitly_public(route.path)
-        and not _route_requires_principal(route)
+        for route
+        in _http_routes()
+        if (
+            not _is_explicitly_public(
+                route.path
+            )
+            and not _route_requires_principal(
+                route
+            )
+        )
     )
 
     assert not unprotected, (
-        "Application routes outside the explicit public "
-        "allowlist are missing current_principal: "
+        "Application routes outside "
+        "the explicit public allowlist "
+        "are missing current_principal: "
+        + "; ".join(unprotected)
+    )
+
+
+def test_every_mock_authority_route_requires_current_principal():
+    mock_routes = (
+        _mock_authority_routes()
+    )
+
+    assert mock_routes
+
+    unprotected = sorted(
+        _route_label(route)
+        for route
+        in mock_routes
+        if not _route_requires_principal(
+            route
+        )
+    )
+
+    assert not unprotected, (
+        "Unauthenticated "
+        "mock-authority routes detected: "
         + "; ".join(unprotected)
     )
 
 
 def test_office_route_is_guarded():
     assert _route_requires_principal(
-        _route_by_path("/api/office")
+        _route_by_path(
+            "/api/office"
+        )
     )
 
 
 def test_dashboard_route_is_guarded():
     assert _route_requires_principal(
-        _route_by_path("/api/dashboard")
+        _route_by_path(
+            "/api/dashboard"
+        )
     )
 
 
 def test_adapter_health_route_is_guarded():
     assert _route_requires_principal(
-        _route_by_path("/api/adapters/health")
+        _route_by_path(
+            "/api/adapters/health"
+        )
     )
 
 
 def test_health_route_remains_public():
-    route = _route_by_path("/health")
+    route = _route_by_path(
+        "/health"
+    )
 
-    assert _is_explicitly_public(route.path)
-    assert not _route_requires_principal(route)
+    assert _is_explicitly_public(
+        route.path
+    )
+    assert not _route_requires_principal(
+        route
+    )
 
 
 def test_root_route_remains_public():
     route = _route_by_path("/")
 
-    assert _is_explicitly_public(route.path)
-    assert not _route_requires_principal(route)
+    assert _is_explicitly_public(
+        route.path
+    )
+    assert not _route_requires_principal(
+        route
+    )
+
+
+def test_azure_preprod_disables_api_schema_and_docs():
+    config = _fastapi_docs_config(
+        "azure-preprod"
+    )
+
+    assert config == {
+        "docs_url": None,
+        "redoc_url": None,
+        "openapi_url": None,
+    }
+
+
+def test_dev_and_test_keep_api_schema_and_docs():
+    expected = {
+        "docs_url": "/docs",
+        "redoc_url": "/redoc",
+        "openapi_url": (
+            "/openapi.json"
+        ),
+    }
+
+    assert (
+        _fastapi_docs_config(
+            "DEV"
+        )
+        == expected
+    )
+    assert (
+        _fastapi_docs_config(
+            "TEST"
+        )
+        == expected
+    )
 
 
 def test_dependency_detector_handles_direct_nested_and_open_routes():
     synthetic_app = FastAPI()
 
     def nested_dependency(
-        principal=Depends(current_principal),
+        principal=Depends(
+            current_principal
+        ),
     ):
         return principal
 
     @synthetic_app.get(
         "/api/direct",
         dependencies=[
-            Depends(current_principal),
+            Depends(
+                current_principal
+            ),
         ],
     )
     def direct():
-        return {"ok": True}
+        return {
+            "ok": True,
+        }
 
     @synthetic_app.get(
         "/api/nested",
         dependencies=[
-            Depends(nested_dependency),
+            Depends(
+                nested_dependency
+            ),
         ],
     )
     def nested():
-        return {"ok": True}
+        return {
+            "ok": True,
+        }
 
-    @synthetic_app.get("/api/open")
+    @synthetic_app.get(
+        "/api/open"
+    )
     def open_route():
-        return {"ok": True}
+        return {
+            "ok": True,
+        }
 
     direct_route = _route_by_path(
         "/api/direct",
