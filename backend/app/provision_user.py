@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from .config.settings import get_settings
 from .db import (
@@ -40,6 +41,28 @@ def _canonical_oid(
             "ENTRA object ID must be "
             "a valid GUID."
         ) from exc
+
+
+def _user_selector_statement(
+    *,
+    user_id: str | None,
+    app_user_email: str | None,
+):
+    statement = select(User)
+
+    if user_id:
+        statement = statement.where(
+            User.id == user_id
+        )
+    else:
+        statement = statement.where(
+            User.email == app_user_email
+        )
+
+    # Lock the selected ProposalOps user so two concurrent
+    # provisioning commands cannot silently replace the
+    # same user's Entra binding.
+    return statement.with_for_update()
 
 
 def provision_user(
@@ -86,18 +109,12 @@ def provision_user(
     verify_database_migration_head()
 
     with SessionLocal() as db:
-        if user_id:
-            user = db.get(
-                User,
-                user_id,
+        user = db.scalar(
+            _user_selector_statement(
+                user_id=user_id,
+                app_user_email=app_user_email,
             )
-        else:
-            user = db.scalar(
-                select(User).where(
-                    User.email
-                    == app_user_email
-                )
-            )
+        )
 
         if user is None:
             raise RuntimeError(
@@ -111,11 +128,16 @@ def provision_user(
                 "ProposalOps user."
             )
 
+        # Lock an existing owner where one already exists.
+        # The unique DB index remains the final protection
+        # against two simultaneous first-time OID claims.
         existing_owner = db.scalar(
-            select(User).where(
+            select(User)
+            .where(
                 User.entra_object_id
                 == object_id
             )
+            .with_for_update()
         )
 
         if (
@@ -151,7 +173,17 @@ def provision_user(
 
         user.entra_object_id = object_id
 
-        db.commit()
+        try:
+            db.commit()
+        except IntegrityError as exc:
+            db.rollback()
+
+            raise RuntimeError(
+                "The Entra object ID could not "
+                "be bound because the identity "
+                "binding changed concurrently or "
+                "is already owned."
+            ) from exc
 
         return ProvisioningResult(
             status="BOUND",
@@ -209,6 +241,7 @@ def main(
                 args.app_user_email
             ),
         )
+
     except Exception as exc:
         print(
             json.dumps(
@@ -225,6 +258,7 @@ def main(
             ),
             file=sys.stderr,
         )
+
         return 1
 
     print(
