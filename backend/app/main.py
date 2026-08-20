@@ -4,7 +4,7 @@ import os
 import time
 import uuid
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
@@ -12,6 +12,7 @@ from .config.settings import get_settings
 from .db import SessionLocal, engine, init_db
 from .models import ConsultancyOffice
 from .runtime_provenance import get_runtime_provenance
+from .api.dependencies import current_principal
 from .api.routers import router
 from .api.week2_routers import router as week2_router, mock_router as week2_mock_router
 from .api.week3_routers import router as week3_router
@@ -60,6 +61,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ProposalOps · AMEC Proposal & Contract Workflow", version="0.8.0", lifespan=lifespan)
+
+API_AUTH_DEPENDENCIES = [
+    Depends(current_principal),
+]
+
 app.add_middleware(CORSMiddleware, allow_origins=settings.origins, allow_credentials=False, allow_methods=["GET", "POST", "PATCH", "PUT"], allow_headers=["*"])
 
 
@@ -151,7 +157,10 @@ def api_root():
     return {"service": "ProposalOps API", "status": "ok", "environment": "synthetic"}
 
 
-@app.get("/api/office")
+@app.get(
+    "/api/office",
+    dependencies=API_AUTH_DEPENDENCIES,
+)
 def office():
     with SessionLocal() as db:
         record = db.scalar(select(ConsultancyOffice).where(ConsultancyOffice.office_code == "QEC-DOHA"))
@@ -160,7 +169,10 @@ def office():
         return {"office_code": record.office_code, "name_en": record.name_en, "name_ar": record.name_ar, "synthetic": True}
 
 
-@app.get("/api/dashboard")
+@app.get(
+    "/api/dashboard",
+    dependencies=API_AUTH_DEPENDENCIES,
+)
 def dashboard():
     from .db import SessionLocal
     from .models import Project, PermitApplication, ApplicationStatus, RaidItem, DiscoveryDecision, DecisionStatus, MinistryInquiry, InquiryStatus
@@ -174,7 +186,10 @@ def dashboard():
                 "inquiries_not_asked": db.scalar(select(func.count(MinistryInquiry.id)).where(MinistryInquiry.status == InquiryStatus.NOT_ASKED)) or 0}
 
 
-@app.get("/api/adapters/health")
+@app.get(
+    "/api/adapters/health",
+    dependencies=API_AUTH_DEPENDENCIES,
+)
 def adapter_health():
     from .adapters.synology.adapter import MockSynologyAdapter
     from .adapters.excel.adapter import MockExcelAdapter
@@ -240,40 +255,152 @@ def mock_authority_comments(application_id: str):
     if isinstance(result, JSONResponse): return result
     return {"request_number": result["external_request_number"], "comments": result["comments"], "synthetic": True}
 
-app.include_router(router)
-app.include_router(week2_router)
+app.include_router(
+    router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week2_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+
+# Synthetic external-authority simulator. It remains outside the authenticated
+# ProposalOps application boundary and contains synthetic data only.
 app.include_router(week2_mock_router)
-app.include_router(week3_router)
-app.include_router(reconciliation_router)
-app.include_router(week45_router)
-app.include_router(week11_router)
-app.include_router(persona_issues_notifications_router)
-app.include_router(admin_owner_ready_router)
-app.include_router(work_router)
-app.include_router(week7_router)
-app.include_router(week8_router)
-app.include_router(week9_router)
-app.include_router(week10_router)
-app.include_router(week12_router)
-app.include_router(week13_router)
-app.include_router(week14_router)
-app.include_router(expansion_router)
-app.include_router(canonical_proposals_router)
-app.include_router(recovery_router)
-app.include_router(e5_e6_router)
-app.include_router(proposals_main_router)
-app.include_router(master_content_router)
-app.include_router(bd_proposal_router)
-app.include_router(dashboard_inputs_router)
-app.include_router(contract_workspace_router)
-app.include_router(project_engineering_router)
-app.include_router(owner_decision_router)
-app.include_router(shared_domain_router)
-app.include_router(dashboard_v2_router)
-app.include_router(preparation_submission_router)
-app.include_router(regulatory_context_router)
-app.include_router(permit_ux_router)
-app.include_router(billing_invoice_router)
-app.include_router(construction_router)
-app.include_router(completion_asbuilt_router)
-app.include_router(handover_closeout_router)
+
+app.include_router(
+    week3_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    reconciliation_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week45_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week11_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    persona_issues_notifications_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    admin_owner_ready_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    work_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week7_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week8_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week9_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week10_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week12_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week13_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    week14_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    expansion_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    canonical_proposals_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    recovery_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    e5_e6_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    proposals_main_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    master_content_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    bd_proposal_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    dashboard_inputs_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    contract_workspace_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    project_engineering_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    owner_decision_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    shared_domain_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    dashboard_v2_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    preparation_submission_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    regulatory_context_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    permit_ux_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    billing_invoice_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    construction_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    completion_asbuilt_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    handover_closeout_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
