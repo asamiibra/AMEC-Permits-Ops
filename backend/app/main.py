@@ -18,7 +18,7 @@ from .api.construction_routers import router as construction_router
 from .api.contract_workspace_routers import router as contract_workspace_router
 from .api.dashboard_inputs_routers import router as dashboard_inputs_router
 from .api.dashboard_v2_routers import router as dashboard_v2_router
-from .api.dependencies import current_principal
+from .api.dependencies import trusted_current_principal
 from .api.e5_e6_routers import router as e5_e6_router
 from .api.expansion_routers import router as expansion_router
 from .api.handover_closeout_routers import router as handover_closeout_router
