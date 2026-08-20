@@ -14,6 +14,7 @@
     "ui-conformance": "npm run ui-conformance:prepare && playwright test browser-e2e/ui-conformance.spec.ts"
   },
   "dependencies": {
+    "@azure/msal-browser": "5.18.0",
     "@playwright/test": "^1.55.0",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
