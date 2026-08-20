@@ -10,9 +10,12 @@ export type BrowserAuthMode =
   | "DEV_HEADER"
   | "ENTRA";
 
-export type BrowserAuthenticationState =
+export type BrowserAuthStartupState =
   | "READY"
   | "REDIRECTING";
+
+// Backward-compatible alias for the name used by the first Batch 2B draft.
+export type BrowserAuthenticationState = BrowserAuthStartupState;
 
 const GUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -22,21 +25,16 @@ let msalClientPromise:
   | undefined;
 
 let redirectHandlingPromise:
-  | Promise<void>
+  | Promise<AccountInfo | null>
+  | undefined;
+
+let startupState:
+  | BrowserAuthStartupState
   | undefined;
 
 
 export function browserAuthMode(): BrowserAuthMode {
-  const mode = (
-    import.meta.env.MODE || ""
-  )
-    .trim()
-    .toLowerCase();
-
-  return (
-    mode === "development"
-    || mode === "test"
-  )
+  return import.meta.env.DEV
     ? "DEV_HEADER"
     : "ENTRA";
 }
@@ -82,6 +80,12 @@ function entraConfiguration() {
     import.meta.env.VITE_ENTRA_API_CLIENT_ID,
   );
 
+  if (webClientId === apiClientId) {
+    throw new Error(
+      "VITE_ENTRA_WEB_CLIENT_ID and VITE_ENTRA_API_CLIENT_ID must be different Entra application IDs",
+    );
+  }
+
   const apiScope =
     `api://${apiClientId}/access_as_user`;
 
@@ -94,7 +98,6 @@ function entraConfiguration() {
         window.location.origin,
       postLogoutRedirectUri:
         window.location.origin,
-      navigateToLoginRequestUrl: true,
     },
     cache: {
       cacheLocation:
@@ -123,6 +126,7 @@ async function initializedMsalClient(): Promise<PublicClientApplication> {
             configuration,
           );
 
+        // MSAL v3+ requires initialize() before any other MSAL API.
         await client.initialize();
 
         return client;
@@ -134,65 +138,59 @@ async function initializedMsalClient(): Promise<PublicClientApplication> {
 }
 
 
-function accountForTenant(
+function activeAccountForTenant(
   client: PublicClientApplication,
   tenantId: string,
 ): AccountInfo | null {
-  const normalizedTenantId =
-    tenantId.toLowerCase();
-
   const active =
     client.getActiveAccount();
 
   if (
     active
     && active.tenantId.toLowerCase()
-      === normalizedTenantId
+      === tenantId.toLowerCase()
   ) {
     return active;
   }
 
-  const matchingAccounts =
-    client
-      .getAllAccounts()
-      .filter(
-        (account) => (
-          account.tenantId.toLowerCase()
-          === normalizedTenantId
-        ),
-      );
+  return null;
+}
 
-  if (matchingAccounts.length > 1) {
-    throw new Error(
-      "Multiple cached Entra accounts match the configured tenant",
+
+function matchingCachedAccounts(
+  client: PublicClientApplication,
+  tenantId: string,
+): AccountInfo[] {
+  const normalizedTenantId =
+    tenantId.toLowerCase();
+
+  return client
+    .getAllAccounts()
+    .filter(
+      (account) => (
+        account.tenantId.toLowerCase()
+        === normalizedTenantId
+      ),
     );
-  }
-
-  const account =
-    matchingAccounts[0] || null;
-
-  if (account) {
-    client.setActiveAccount(
-      account,
-    );
-  }
-
-  return account;
 }
 
 
 async function handleRedirectOnce(
   client: PublicClientApplication,
   tenantId: string,
-): Promise<void> {
+): Promise<AccountInfo | null> {
   if (!redirectHandlingPromise) {
     redirectHandlingPromise = (
       async () => {
+        // MSAL Browser v5 moved navigateToLoginRequestUrl from
+        // Configuration.auth to HandleRedirectPromiseOptions.
         const result =
-          await client.handleRedirectPromise();
+          await client.handleRedirectPromise({
+            navigateToLoginRequestUrl: true,
+          });
 
         if (!result?.account) {
-          return;
+          return null;
         }
 
         if (
@@ -207,20 +205,23 @@ async function handleRedirectOnce(
         client.setActiveAccount(
           result.account,
         );
+
+        return result.account;
       }
     )();
   }
 
-  await redirectHandlingPromise;
+  return redirectHandlingPromise;
 }
 
 
-export async function initializeBrowserAuthentication(): Promise<BrowserAuthenticationState> {
+export async function initializeBrowserAuthentication(): Promise<BrowserAuthStartupState> {
   if (
     browserAuthMode()
     === "DEV_HEADER"
   ) {
-    return "READY";
+    startupState = "READY";
+    return startupState;
   }
 
   const {
@@ -231,28 +232,59 @@ export async function initializeBrowserAuthentication(): Promise<BrowserAuthenti
   const client =
     await initializedMsalClient();
 
-  await handleRedirectOnce(
-    client,
-    tenantId,
-  );
-
-  const account =
-    accountForTenant(
+  const redirectAccount =
+    await handleRedirectOnce(
       client,
       tenantId,
     );
 
-  if (account) {
-    return "READY";
+  if (redirectAccount) {
+    startupState = "READY";
+    return startupState;
   }
+
+  const activeAccount =
+    activeAccountForTenant(
+      client,
+      tenantId,
+    );
+
+  if (activeAccount) {
+    startupState = "READY";
+    return startupState;
+  }
+
+  const cachedAccounts =
+    matchingCachedAccounts(
+      client,
+      tenantId,
+    );
+
+  if (cachedAccounts.length === 1) {
+    client.setActiveAccount(
+      cachedAccounts[0],
+    );
+    startupState = "READY";
+    return startupState;
+  }
+
+  startupState = "REDIRECTING";
 
   await client.loginRedirect({
     scopes: [
       apiScope,
     ],
+    ...(
+      cachedAccounts.length > 1
+        ? {
+            prompt:
+              "select_account" as const,
+          }
+        : {}
+    ),
   });
 
-  return "REDIRECTING";
+  return startupState;
 }
 
 
@@ -266,6 +298,12 @@ export async function getApiAccessToken(): Promise<string> {
     );
   }
 
+  if (startupState !== "READY") {
+    throw new Error(
+      "Browser authentication startup is not READY",
+    );
+  }
+
   const {
     tenantId,
     apiScope,
@@ -275,7 +313,7 @@ export async function getApiAccessToken(): Promise<string> {
     await initializedMsalClient();
 
   const account =
-    accountForTenant(
+    activeAccountForTenant(
       client,
       tenantId,
     );
@@ -317,6 +355,8 @@ export async function getApiAccessToken(): Promise<string> {
         ],
       });
 
+      // Redirect APIs do not provide a usable token to the current request.
+      // Keep the current API call fail-closed.
       throw new Error(
         "Interactive Entra authentication redirect started",
       );
