@@ -136,6 +136,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def _trusted_request_actor(
     request: Request,
 ) -> dict[str, str | None]:
@@ -181,6 +182,8 @@ def _trusted_request_actor(
         "auth_mode": auth_mode,
         "actor_role": principal.role.value,
     }
+
+
 @app.middleware("http")
 async def correlation_middleware(
     request: Request,
@@ -210,6 +213,10 @@ async def correlation_middleware(
             "Cache-Control"
         ] = "no-store, max-age=0"
 
+    actor_fields = _trusted_request_actor(
+        request
+    )
+
     logger.info(
         json.dumps(
             {
@@ -217,15 +224,7 @@ async def correlation_middleware(
                 "method": request.method,
                 "path": request.url.path,
                 "correlation_id": correlation_id,
-                "actor": (
-                    request.headers.get(
-                        "X-Dev-User"
-                    )
-                    or request.headers.get(
-                        "X-Actor-Id"
-                    )
-                    or "anonymous"
-                ),
+                **actor_fields,
                 "status_code": (
                     response.status_code
                 ),
