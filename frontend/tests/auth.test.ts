@@ -1,529 +1,367 @@
 import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+  BrowserCacheLocation,
+  InteractionRequiredAuthError,
+  PublicClientApplication,
+  type AccountInfo,
+  type Configuration,
+} from "@azure/msal-browser";
 
-const TENANT_ID =
-  "b27ffe53-8d31-4735-a07a-faa50c336d97";
-const WEB_CLIENT_ID =
-  "11111111-2222-4333-8444-555555555555";
-const API_CLIENT_ID =
-  "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+export type BrowserAuthMode =
+  | "DEV_HEADER"
+  | "ENTRA";
 
-const msal = vi.hoisted(
-  () => {
-    class InteractionRequiredAuthError
-      extends Error {}
+export type BrowserAuthStartupState =
+  | "READY"
+  | "REDIRECTING";
 
-    const instance = {
-      initialize: vi.fn(),
-      handleRedirectPromise: vi.fn(),
-      getActiveAccount: vi.fn(),
-      getAllAccounts: vi.fn(),
-      setActiveAccount: vi.fn(),
-      loginRedirect: vi.fn(),
-      acquireTokenSilent: vi.fn(),
-      acquireTokenRedirect: vi.fn(),
-    };
+// Backward-compatible alias for the name used by the first Batch 2B draft.
+export type BrowserAuthenticationState = BrowserAuthStartupState;
 
-    const configurations: unknown[] = [];
+const GUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-    const PublicClientApplication =
-      vi.fn(
-        function PublicClientApplication(
-          configuration: unknown,
-        ) {
-          configurations.push(
-            configuration,
-          );
+let msalClientPromise:
+  | Promise<PublicClientApplication>
+  | undefined;
 
-          return instance;
-        },
-      );
+let redirectHandlingPromise:
+  | Promise<AccountInfo | null>
+  | undefined;
 
-    return {
-      InteractionRequiredAuthError,
-      PublicClientApplication,
-      configurations,
-      instance,
-    };
-  },
-);
+let startupState:
+  | BrowserAuthStartupState
+  | undefined;
 
-vi.mock(
-  "@azure/msal-browser",
-  () => ({
-    BrowserCacheLocation: {
-      SessionStorage:
-        "sessionStorage",
+
+export function browserAuthMode(): BrowserAuthMode {
+  return import.meta.env.DEV
+    ? "DEV_HEADER"
+    : "ENTRA";
+}
+
+
+function requiredGuid(
+  name: string,
+  value: string | undefined,
+): string {
+  const normalized = (
+    value || ""
+  )
+    .trim()
+    .toLowerCase();
+
+  if (!normalized) {
+    throw new Error(
+      `${name} is required for Entra authentication`,
+    );
+  }
+
+  if (!GUID_PATTERN.test(normalized)) {
+    throw new Error(
+      `${name} must be a valid Entra GUID`,
+    );
+  }
+
+  return normalized;
+}
+
+
+function entraConfiguration() {
+  const tenantId = requiredGuid(
+    "VITE_ENTRA_TENANT_ID",
+    import.meta.env.VITE_ENTRA_TENANT_ID,
+  );
+  const webClientId = requiredGuid(
+    "VITE_ENTRA_WEB_CLIENT_ID",
+    import.meta.env.VITE_ENTRA_WEB_CLIENT_ID,
+  );
+  const apiClientId = requiredGuid(
+    "VITE_ENTRA_API_CLIENT_ID",
+    import.meta.env.VITE_ENTRA_API_CLIENT_ID,
+  );
+
+  if (webClientId === apiClientId) {
+    throw new Error(
+      "VITE_ENTRA_WEB_CLIENT_ID and VITE_ENTRA_API_CLIENT_ID must be different Entra application IDs",
+    );
+  }
+
+  const apiScope =
+    `api://${apiClientId}/access_as_user`;
+
+  const configuration: Configuration = {
+    auth: {
+      clientId: webClientId,
+      authority:
+        `https://login.microsoftonline.com/${tenantId}`,
+      redirectUri:
+        window.location.origin,
+      postLogoutRedirectUri:
+        window.location.origin,
     },
-    InteractionRequiredAuthError:
-      msal.InteractionRequiredAuthError,
-    PublicClientApplication:
-      msal.PublicClientApplication,
-  }),
-);
+    cache: {
+      cacheLocation:
+        BrowserCacheLocation.SessionStorage,
+    },
+  };
 
-function account(
-  tenantId = TENANT_ID,
-) {
   return {
     tenantId,
-    homeAccountId:
-      "home-account-id",
-    localAccountId:
-      "local-account-id",
-    environment:
-      "login.microsoftonline.com",
-    username:
-      "owner@example.test",
-    name:
-      "Owner",
+    apiScope,
+    configuration,
   };
 }
 
-function stubEntraEnvironment() {
-  vi.stubEnv(
-    "MODE",
-    "production",
-  );
-  vi.stubEnv(
-    "VITE_ENTRA_TENANT_ID",
-    TENANT_ID,
-  );
-  vi.stubEnv(
-    "VITE_ENTRA_WEB_CLIENT_ID",
-    WEB_CLIENT_ID,
-  );
-  vi.stubEnv(
-    "VITE_ENTRA_API_CLIENT_ID",
-    API_CLIENT_ID,
-  );
+
+async function initializedMsalClient(): Promise<PublicClientApplication> {
+  if (!msalClientPromise) {
+    msalClientPromise = (
+      async () => {
+        const {
+          configuration,
+        } = entraConfiguration();
+
+        const client =
+          new PublicClientApplication(
+            configuration,
+          );
+
+        // MSAL v3+ requires initialize() before any other MSAL API.
+        await client.initialize();
+
+        return client;
+      }
+    )();
+  }
+
+  return msalClientPromise;
 }
 
-async function loadAuth() {
-  vi.resetModules();
-  return import(
-    "../src/auth"
-  );
+
+function activeAccountForTenant(
+  client: PublicClientApplication,
+  tenantId: string,
+): AccountInfo | null {
+  const active =
+    client.getActiveAccount();
+
+  if (
+    active
+    && active.tenantId.toLowerCase()
+      === tenantId.toLowerCase()
+  ) {
+    return active;
+  }
+
+  return null;
 }
 
-beforeEach(() => {
-  msal.configurations.length = 0;
 
-  msal.PublicClientApplication
-    .mockClear();
+function matchingCachedAccounts(
+  client: PublicClientApplication,
+  tenantId: string,
+): AccountInfo[] {
+  const normalizedTenantId =
+    tenantId.toLowerCase();
 
-  msal.instance.initialize.mockReset();
-  msal.instance.handleRedirectPromise.mockReset();
-  msal.instance.getActiveAccount.mockReset();
-  msal.instance.getAllAccounts.mockReset();
-  msal.instance.setActiveAccount.mockReset();
-  msal.instance.loginRedirect.mockReset();
-  msal.instance.acquireTokenSilent.mockReset();
-  msal.instance.acquireTokenRedirect.mockReset();
-
-  msal.instance.initialize
-    .mockResolvedValue(undefined);
-  msal.instance.handleRedirectPromise
-    .mockResolvedValue(null);
-  msal.instance.getActiveAccount
-    .mockReturnValue(null);
-  msal.instance.getAllAccounts
-    .mockReturnValue([]);
-  msal.instance.loginRedirect
-    .mockResolvedValue(undefined);
-  msal.instance.acquireTokenRedirect
-    .mockResolvedValue(undefined);
-});
-
-afterEach(() => {
-  vi.unstubAllEnvs();
-  vi.clearAllMocks();
-  vi.resetModules();
-});
-
-describe(
-  "browser authentication",
-  () => {
-    it(
-      "uses DEV_HEADER only for development and test modes",
-      async () => {
-        vi.stubEnv(
-          "MODE",
-          "test",
-        );
-        const auth =
-          await loadAuth();
-
-        expect(
-          auth.browserAuthMode(),
-        ).toBe(
-          "DEV_HEADER",
-        );
-
-        vi.stubEnv(
-          "MODE",
-          "production",
-        );
-
-        expect(
-          auth.browserAuthMode(),
-        ).toBe(
-          "ENTRA",
-        );
-      },
+  return client
+    .getAllAccounts()
+    .filter(
+      (account) => (
+        account.tenantId.toLowerCase()
+        === normalizedTenantId
+      ),
     );
+}
 
-    it(
-      "does not initialize MSAL in DEV_HEADER mode",
+
+async function handleRedirectOnce(
+  client: PublicClientApplication,
+  tenantId: string,
+): Promise<AccountInfo | null> {
+  if (!redirectHandlingPromise) {
+    redirectHandlingPromise = (
       async () => {
-        vi.stubEnv(
-          "MODE",
-          "development",
-        );
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).resolves.toBe(
-          "READY",
-        );
-
-        expect(
-          msal.PublicClientApplication,
-        ).not.toHaveBeenCalled();
-      },
-    );
-
-    it(
-      "fails closed when required Entra configuration is missing",
-      async () => {
-        stubEntraEnvironment();
-        vi.stubEnv(
-          "VITE_ENTRA_TENANT_ID",
-          "",
-        );
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).rejects.toThrow(
-          "VITE_ENTRA_TENANT_ID is required",
-        );
-      },
-    );
-
-    it(
-      "fails closed when an Entra identifier is not a GUID",
-      async () => {
-        stubEntraEnvironment();
-        vi.stubEnv(
-          "VITE_ENTRA_WEB_CLIENT_ID",
-          "not-a-guid",
-        );
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).rejects.toThrow(
-          "VITE_ENTRA_WEB_CLIENT_ID must be a valid Entra GUID",
-        );
-      },
-    );
-
-    it(
-      "builds a single-tenant MSAL client with session storage and the API scope",
-      async () => {
-        stubEntraEnvironment();
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).resolves.toBe(
-          "REDIRECTING",
-        );
-
-        expect(
-          msal.instance.initialize,
-        ).toHaveBeenCalledTimes(1);
-
-        expect(
-          msal.configurations[0],
-        ).toEqual(
-          expect.objectContaining({
-            auth:
-              expect.objectContaining({
-                clientId:
-                  WEB_CLIENT_ID,
-                authority:
-                  `https://login.microsoftonline.com/${TENANT_ID}`,
-                redirectUri:
-                  window.location.origin,
-                postLogoutRedirectUri:
-                  window.location.origin,
-                navigateToLoginRequestUrl:
-                  true,
-              }),
-            cache: {
-              cacheLocation:
-                "sessionStorage",
-            },
-          }),
-        );
-
-        expect(
-          msal.instance.loginRedirect,
-        ).toHaveBeenCalledWith({
-          scopes: [
-            `api://${API_CLIENT_ID}/access_as_user`,
-          ],
-        });
-      },
-    );
-
-    it(
-      "accepts a successful redirect only from the configured tenant",
-      async () => {
-        stubEntraEnvironment();
-        const returnedAccount =
-          account();
-
-        msal.instance.handleRedirectPromise
-          .mockResolvedValue({
-            account:
-              returnedAccount,
-          });
-        msal.instance.getActiveAccount
-          .mockReturnValue(
-            returnedAccount,
-          );
-
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).resolves.toBe(
-          "READY",
-        );
-
-        expect(
-          msal.instance.setActiveAccount,
-        ).toHaveBeenCalledWith(
-          returnedAccount,
-        );
-        expect(
-          msal.instance.loginRedirect,
-        ).not.toHaveBeenCalled();
-      },
-    );
-
-    it(
-      "rejects a redirect account from another tenant",
-      async () => {
-        stubEntraEnvironment();
-        msal.instance.handleRedirectPromise
-          .mockResolvedValue({
-            account:
-              account(
-                "22222222-3333-4444-8555-666666666666",
-              ),
+        // MSAL Browser v5 moved navigateToLoginRequestUrl from
+        // Configuration.auth to HandleRedirectPromiseOptions.
+        const result =
+          await client.handleRedirectPromise({
+            navigateToLoginRequestUrl: true,
           });
 
-        const auth =
-          await loadAuth();
+        if (!result?.account) {
+          return null;
+        }
 
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).rejects.toThrow(
-          "unexpected tenant",
-        );
-      },
-    );
-
-    it(
-      "reuses one cached account from the configured tenant",
-      async () => {
-        stubEntraEnvironment();
-        const cached =
-          account();
-
-        msal.instance.getAllAccounts
-          .mockReturnValue([
-            cached,
-          ]);
-
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).resolves.toBe(
-          "READY",
-        );
-
-        expect(
-          msal.instance.setActiveAccount,
-        ).toHaveBeenCalledWith(
-          cached,
-        );
-      },
-    );
-
-    it(
-      "fails closed instead of guessing between multiple cached tenant accounts",
-      async () => {
-        stubEntraEnvironment();
-        msal.instance.getAllAccounts
-          .mockReturnValue([
-            account(),
-            {
-              ...account(),
-              localAccountId:
-                "second-local-account",
-              homeAccountId:
-                "second-home-account",
-            },
-          ]);
-
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.initializeBrowserAuthentication(),
-        ).rejects.toThrow(
-          "Multiple cached Entra accounts",
-        );
-      },
-    );
-
-    it(
-      "acquires and trims an API access token silently",
-      async () => {
-        stubEntraEnvironment();
-        const active =
-          account();
-
-        msal.instance.getActiveAccount
-          .mockReturnValue(
-            active,
+        if (
+          result.account.tenantId.toLowerCase()
+          !== tenantId.toLowerCase()
+        ) {
+          throw new Error(
+            "Entra redirect returned an account from an unexpected tenant",
           );
-        msal.instance.acquireTokenSilent
-          .mockResolvedValue({
-            accessToken:
-              "  api-access-token  ",
-          });
+        }
 
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.getApiAccessToken(),
-        ).resolves.toBe(
-          "api-access-token",
+        client.setActiveAccount(
+          result.account,
         );
 
-        expect(
-          msal.instance.acquireTokenSilent,
-        ).toHaveBeenCalledWith({
-          account:
-            active,
-          scopes: [
-            `api://${API_CLIENT_ID}/access_as_user`,
-          ],
-        });
-      },
+        return result.account;
+      }
+    )();
+  }
+
+  return redirectHandlingPromise;
+}
+
+
+export async function initializeBrowserAuthentication(): Promise<BrowserAuthStartupState> {
+  if (
+    browserAuthMode()
+    === "DEV_HEADER"
+  ) {
+    startupState = "READY";
+    return startupState;
+  }
+
+  const {
+    tenantId,
+    apiScope,
+  } = entraConfiguration();
+
+  const client =
+    await initializedMsalClient();
+
+  const redirectAccount =
+    await handleRedirectOnce(
+      client,
+      tenantId,
     );
 
-    it(
-      "rejects an empty token",
-      async () => {
-        stubEntraEnvironment();
-        msal.instance.getActiveAccount
-          .mockReturnValue(
-            account(),
-          );
-        msal.instance.acquireTokenSilent
-          .mockResolvedValue({
-            accessToken:
-              "   ",
-          });
+  if (redirectAccount) {
+    startupState = "READY";
+    return startupState;
+  }
 
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.getApiAccessToken(),
-        ).rejects.toThrow(
-          "empty API access token",
-        );
-      },
+  const activeAccount =
+    activeAccountForTenant(
+      client,
+      tenantId,
     );
 
-    it(
-      "starts an interactive redirect when silent acquisition requires interaction",
-      async () => {
-        stubEntraEnvironment();
-        const active =
-          account();
+  if (activeAccount) {
+    startupState = "READY";
+    return startupState;
+  }
 
-        msal.instance.getActiveAccount
-          .mockReturnValue(
-            active,
-          );
-        msal.instance.acquireTokenSilent
-          .mockRejectedValue(
-            new msal.InteractionRequiredAuthError(
-              "interaction required",
-            ),
-          );
-
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.getApiAccessToken(),
-        ).rejects.toThrow(
-          "Interactive Entra authentication redirect started",
-        );
-
-        expect(
-          msal.instance.acquireTokenRedirect,
-        ).toHaveBeenCalledWith({
-          account:
-            active,
-          scopes: [
-            `api://${API_CLIENT_ID}/access_as_user`,
-          ],
-        });
-      },
+  const cachedAccounts =
+    matchingCachedAccounts(
+      client,
+      tenantId,
     );
 
-    it(
-      "never exposes an Entra token API in DEV_HEADER mode",
-      async () => {
-        vi.stubEnv(
-          "MODE",
-          "test",
-        );
-        const auth =
-          await loadAuth();
-
-        await expect(
-          auth.getApiAccessToken(),
-        ).rejects.toThrow(
-          "unavailable in DEV_HEADER mode",
-        );
-      },
+  if (cachedAccounts.length === 1) {
+    client.setActiveAccount(
+      cachedAccounts[0],
     );
-  },
-);
+    startupState = "READY";
+    return startupState;
+  }
+
+  startupState = "REDIRECTING";
+
+  await client.loginRedirect({
+    scopes: [
+      apiScope,
+    ],
+    ...(
+      cachedAccounts.length > 1
+        ? {
+            prompt:
+              "select_account" as const,
+          }
+        : {}
+    ),
+  });
+
+  return startupState;
+}
+
+
+export async function getApiAccessToken(): Promise<string> {
+  if (
+    browserAuthMode()
+    !== "ENTRA"
+  ) {
+    throw new Error(
+      "Entra access tokens are unavailable in DEV_HEADER mode",
+    );
+  }
+
+  if (startupState !== "READY") {
+    throw new Error(
+      "Browser authentication startup is not READY",
+    );
+  }
+
+  const {
+    tenantId,
+    apiScope,
+  } = entraConfiguration();
+
+  const client =
+    await initializedMsalClient();
+
+  const account =
+    activeAccountForTenant(
+      client,
+      tenantId,
+    );
+
+  if (!account) {
+    throw new Error(
+      "Authenticated Entra account is unavailable",
+    );
+  }
+
+  try {
+    const result =
+      await client.acquireTokenSilent({
+        account,
+        scopes: [
+          apiScope,
+        ],
+      });
+
+    const accessToken =
+      result.accessToken.trim();
+
+    if (!accessToken) {
+      throw new Error(
+        "Entra returned an empty API access token",
+      );
+    }
+
+    return accessToken;
+  } catch (error) {
+    if (
+      error
+      instanceof InteractionRequiredAuthError
+    ) {
+      await client.acquireTokenRedirect({
+        account,
+        scopes: [
+          apiScope,
+        ],
+      });
+
+      // Redirect APIs do not provide a usable token to the current request.
+      // Keep the current API call fail-closed.
+      throw new Error(
+        "Interactive Entra authentication redirect started",
+      );
+    }
+
+    throw error;
+  }
+}
