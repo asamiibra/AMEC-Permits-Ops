@@ -65,7 +65,11 @@ from .api.week8_routers import router as week8_router
 from .api.week9_routers import router as week9_router
 from .api.work_routers import router as work_router
 from .config.settings import get_settings
-from .db import SessionLocal, engine, init_db
+from .db import (
+    SessionLocal,
+    engine,
+    prepare_database_for_runtime,
+)
 from .models import ConsultancyOffice
 from .runtime_provenance import get_runtime_provenance
 
@@ -104,7 +108,7 @@ def _fastapi_docs_config(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    prepare_database_for_runtime()
     yield
 
 
