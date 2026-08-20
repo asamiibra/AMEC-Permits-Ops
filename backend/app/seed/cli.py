@@ -24,11 +24,31 @@ from ..services.permit_workflow import ensure_project_sources_task
 from ..services.proposals_sor import ACTION_CONFIG, ingest_project_artifact
 
 
-def seed():
-    init_db()
+def seed(
+    *,
+    initialize_schema: bool = True,
+    reset_existing: bool = True,
+    clean_fixtures: bool = True,
+):
+    if initialize_schema:
+        init_db()
+
     with SessionLocal() as db:
-        db.execute(update(EngineeringReview).values(current_scope_id=None))
-        db.execute(update(Invoice).values(requirement_decision_id=None))
+        if reset_existing:
+            db.execute(
+                update(
+                    EngineeringReview
+                ).values(
+                    current_scope_id=None
+                )
+            )
+            db.execute(
+                update(
+                    Invoice
+                ).values(
+                    requirement_decision_id=None
+                )
+            )
         reset_order = [
             # Shared-domain foundation records are reset before their
             # canonical master-content/project parents in disposable TEST.
@@ -61,12 +81,51 @@ def seed():
         # historically relied on the hand-maintained model order.  Disposable
         # local TEST databases can be reset atomically; Vercel/bootstrap never
         # takes this path, so a deployment cannot accidentally truncate data.
-        settings = get_settings()
-        if db.bind.dialect.name == "postgresql" and settings.app_env.upper() == "TEST" and settings.synthetic_only and not os.getenv("VERCEL"):
-            tables = ", ".join(f'"{name}"' for name in Base.metadata.tables)
-            db.execute(text(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
-        else:
-            for model in reset_order: db.execute(delete(model))
+settings = get_settings()
+
+if reset_existing:
+    if (
+        db.bind.dialect.name == "postgresql"
+        and settings.app_env.upper() == "TEST"
+        and settings.synthetic_only
+        and not os.getenv("VERCEL")
+    ):
+        tables = ", ".join(
+            f'"{name}"'
+            for name in Base.metadata.tables
+        )
+
+        db.execute(
+            text(
+                f"TRUNCATE TABLE {tables} "
+                "RESTART IDENTITY CASCADE"
+            )
+        )
+    else:
+        for model in reset_order:
+            db.execute(
+                delete(model)
+            )
+else:
+    occupied_tables = []
+
+    for table in Base.metadata.sorted_tables:
+        if (
+            db.execute(
+                select(table).limit(1)
+            ).first()
+            is not None
+        ):
+            occupied_tables.append(
+                table.name
+            )
+
+    if occupied_tables:
+        raise RuntimeError(
+            "Non-destructive synthetic seed "
+            "requires an empty migrated database; "
+            "existing application data was found."
+        )
         office = ConsultancyOffice(office_code="QEC-DOHA", name_en="AMEC Engineering", name_ar="مكتب آفاق الخليج للاستشارات الهندسية", status="ACTIVE"); db.add(office); db.flush()
         users = [("owner@amec.synthetic", "Maha Al-Khatri", Role.OWNER_SPONSOR), ("champion@amec.synthetic", "Yousef Nasser", Role.PROCESS_CHAMPION), ("steward@amec.synthetic", "Noura Salem", Role.REQUIREMENT_STEWARD), ("engineer@amec.synthetic", "Omar Haddad", Role.RESPONSIBLE_ENGINEER), ("preparer@amec.synthetic", "Rana Faisal", Role.PERMIT_PREPARER), ("submitter@amec.synthetic", "Khalid Mansour", Role.FINAL_SUBMITTER), ("admin@amec.synthetic", "Samir Qasem", Role.SYSTEM_ADMIN)]
         db.add_all([User(email=e, display_name=n, role=r, office_id=office.id) for e,n,r in users]); db.flush()
@@ -102,7 +161,10 @@ def seed():
         for project, application in zip(projects, apps):
             ensure_project_sources_task(db, project, application)
         db.commit()
-    create_fixtures(synthetic_workspace_root())
+    create_fixtures(
+        synthetic_workspace_root(),
+        clean=clean_fixtures,
+    )
     ensure_primary_proposal_sources()
     ensure_proposals_contracts_demo_state()
     ensure_contract_center_golden_state()
@@ -286,12 +348,30 @@ def ensure_contract_center_golden_state():
         db.commit()
 
 
-def create_fixtures(root: Path):
-    synology_year = root / "mock-systems/synology/2026"
-    synology_year.mkdir(parents=True, exist_ok=True)
-    for stale_root in synology_year.glob("PRJ-*"):
-        if stale_root.is_dir():
-            shutil.rmtree(stale_root)
+def create_fixtures(
+    root: Path,
+    *,
+    clean: bool = True,
+):
+    synology_year = (
+        root
+        / "mock-systems"
+        / "synology"
+        / "2026"
+    )
+    synology_year.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    if clean:
+        for stale_root in synology_year.glob(
+            "PRJ-*"
+        ):
+            if stale_root.is_dir():
+                shutil.rmtree(
+                    stale_root
+                )
     (root / "mock-systems/municipality").mkdir(parents=True, exist_ok=True)
     (root / "synthetic-data/fixtures").mkdir(parents=True, exist_ok=True)
     for folder in ["master-content/forms", "master-content/reports", "master-content/engineering-works", "proposal-intake"]:
