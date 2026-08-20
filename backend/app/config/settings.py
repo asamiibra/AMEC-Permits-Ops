@@ -1,6 +1,7 @@
 from functools import lru_cache
 import os
 from pathlib import Path
+from uuid import UUID
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -13,6 +14,14 @@ class Settings(BaseSettings):
     synthetic_only: bool = True
     real_data_allowed: bool = False
     auth_mode: str = "DEV_HEADER"
+
+    # Microsoft Entra ID configuration for Azure preprod.
+    # These are identifiers only; no client secret is stored in the web app.
+    entra_tenant_id: str = ""
+    entra_api_client_id: str = ""
+    entra_web_client_id: str = ""
+    entra_required_scope: str = "access_as_user"
+
     synology_mode: str = "SYNTHETIC"
     synology_endpoint: str = ""
     synology_share: str = ""
@@ -73,11 +82,34 @@ class Settings(BaseSettings):
             if item.strip()
         ]
 
+    @staticmethod
+    def _require_guid(value: str, setting_name: str) -> None:
+        try:
+            UUID(value)
+        except (ValueError, AttributeError, TypeError) as exc:
+            raise ValueError(
+                f"AZURE-PREPROD requires {setting_name} to be a valid GUID"
+            ) from exc
+
     def validate_environment(self) -> None:
         environment = self.app_env.upper()
 
+        allowed_environments = {
+            "DEV",
+            "TEST",
+            "AZURE-PREPROD",
+            "PROD",
+        }
+
+        if environment not in allowed_environments:
+            raise ValueError(
+                "APP_ENV must be one of DEV, TEST, azure-preprod, or PROD"
+            )
+
         if environment in {"DEV", "TEST"} and not self.synthetic_only:
-            raise ValueError("DEV and TEST require SYNTHETIC_ONLY=true")
+            raise ValueError(
+                "DEV and TEST require SYNTHETIC_ONLY=true"
+            )
 
         if environment == "AZURE-PREPROD":
             if not self.synthetic_only:
@@ -93,6 +125,51 @@ class Settings(BaseSettings):
             if self.auth_mode.upper() != "ENTRA":
                 raise ValueError(
                     "AZURE-PREPROD requires AUTH_MODE=ENTRA"
+                )
+
+            if not self.entra_tenant_id:
+                raise ValueError(
+                    "AZURE-PREPROD requires ENTRA_TENANT_ID"
+                )
+
+            self._require_guid(
+                self.entra_tenant_id,
+                "ENTRA_TENANT_ID",
+            )
+
+            if not self.entra_api_client_id:
+                raise ValueError(
+                    "AZURE-PREPROD requires ENTRA_API_CLIENT_ID"
+                )
+
+            self._require_guid(
+                self.entra_api_client_id,
+                "ENTRA_API_CLIENT_ID",
+            )
+
+            if not self.entra_web_client_id:
+                raise ValueError(
+                    "AZURE-PREPROD requires ENTRA_WEB_CLIENT_ID"
+                )
+
+            self._require_guid(
+                self.entra_web_client_id,
+                "ENTRA_WEB_CLIENT_ID",
+            )
+
+            if (
+                self.entra_api_client_id.lower()
+                == self.entra_web_client_id.lower()
+            ):
+                raise ValueError(
+                    "AZURE-PREPROD requires separate Entra "
+                    "API and web client IDs"
+                )
+
+            if self.entra_required_scope != "access_as_user":
+                raise ValueError(
+                    "AZURE-PREPROD requires "
+                    "ENTRA_REQUIRED_SCOPE=access_as_user"
                 )
 
             if not self.database_url.lower().startswith(
