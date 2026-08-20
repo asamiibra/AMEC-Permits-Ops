@@ -88,16 +88,20 @@ function entraConfiguration() {
 
   const apiScope =
     `api://${apiClientId}/access_as_user`;
+  const redirectBridgeUri =
+    `${window.location.origin}/redirect.html`;
 
   const configuration: Configuration = {
     auth: {
       clientId: webClientId,
       authority:
         `https://login.microsoftonline.com/${tenantId}`,
+      // MSAL Browser v5 uses a dedicated same-origin redirect bridge for
+      // redirect, popup, and hidden-iframe response handling under COOP.
       redirectUri:
-        window.location.origin,
+        redirectBridgeUri,
       postLogoutRedirectUri:
-        window.location.origin,
+        redirectBridgeUri,
     },
     cache: {
       cacheLocation:
