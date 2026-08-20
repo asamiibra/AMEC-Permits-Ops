@@ -7,6 +7,7 @@ import socket
 import sys
 from dataclasses import dataclass
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .config.settings import get_settings
@@ -18,6 +19,7 @@ from .models import (
     DocumentVersion,
     StorageOutboxEvent,
 )
+from .models.base import utcnow
 from .storage.outbox import (
     claim_pending_events,
     complete_event,
@@ -77,6 +79,59 @@ def _validate_worker_options(
             f"{MIN_LEASE_SECONDS} and "
             f"{MAX_LEASE_SECONDS}."
         )
+
+
+def _load_owned_event_for_update(
+    db: Session,
+    *,
+    event_id: str,
+    worker_id: str,
+) -> StorageOutboxEvent:
+    # Lock the row for the complete validation/processing operation.
+    # A recovery/reclaim worker therefore cannot take ownership while
+    # this worker is completing the currently valid lease.
+    event = db.scalar(
+        select(StorageOutboxEvent)
+        .where(
+            StorageOutboxEvent.id
+            == event_id
+        )
+        .with_for_update()
+    )
+
+    if event is None:
+        raise RuntimeError(
+            "Claimed outbox event no longer "
+            "exists."
+        )
+
+    if event.status != "DISPATCHING":
+        raise RuntimeError(
+            "Claimed outbox event is no longer "
+            "in DISPATCHING state."
+        )
+
+    claimed_by = (
+        event.payload_json
+        or {}
+    ).get("claimed_by")
+
+    if claimed_by != worker_id:
+        raise RuntimeError(
+            "Claimed outbox event is owned by "
+            "a different worker."
+        )
+
+    if (
+        event.available_at is None
+        or event.available_at <= utcnow()
+    ):
+        raise RuntimeError(
+            "Claimed outbox event lease has "
+            "expired."
+        )
+
+    return event
 
 
 def _process_event(
@@ -230,20 +285,17 @@ def run_worker_once(
 
     for event_id in event_ids:
         with SessionLocal() as db:
-            event = db.get(
-                StorageOutboxEvent,
-                event_id,
-            )
-
-            if (
-                event is None
-                or event.status
-                != "DISPATCHING"
-            ):
-                failed += 1
-                continue
-
             try:
+                event = (
+                    _load_owned_event_for_update(
+                        db,
+                        event_id=event_id,
+                        worker_id=(
+                            resolved_worker_id
+                        ),
+                    )
+                )
+
                 _process_event(
                     db,
                     event,
@@ -318,6 +370,7 @@ def main(
                 args.lease_seconds
             ),
         )
+
     except Exception as exc:
         print(
             json.dumps(
@@ -334,6 +387,7 @@ def main(
             ),
             file=sys.stderr,
         )
+
         return 1
 
     status = (
