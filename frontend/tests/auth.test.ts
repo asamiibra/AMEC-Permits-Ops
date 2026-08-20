@@ -361,7 +361,7 @@ describe(
     );
 
     it(
-      "builds a single-tenant MSAL v5 client with session storage and the exact API scope",
+      "builds a single-tenant MSAL v5 client with the exact redirect bridge and API scope",
       async () => {
         stubEntraEnvironment();
         const auth =
@@ -384,9 +384,9 @@ describe(
                 authority:
                   `https://login.microsoftonline.com/${TENANT_ID}`,
                 redirectUri:
-                  window.location.origin,
+                  `${window.location.origin}/redirect.html`,
                 postLogoutRedirectUri:
-                  window.location.origin,
+                  `${window.location.origin}/redirect.html`,
               }),
             cache: {
               cacheLocation:
