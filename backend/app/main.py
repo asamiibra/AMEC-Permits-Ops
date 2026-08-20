@@ -120,7 +120,7 @@ app = FastAPI(
 )
 
 API_AUTH_DEPENDENCIES = [
-    Depends(current_principal),
+    Depends(trusted_current_principal),
 ]
 
 app.add_middleware(
@@ -136,7 +136,51 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def _trusted_request_actor(
+    request: Request,
+) -> dict[str, str | None]:
+    principal = getattr(
+        request.state,
+        "authenticated_principal",
+        None,
+    )
 
+    if principal is None:
+        return {
+            "actor": "anonymous",
+            "actor_user_id": None,
+            "auth_mode": None,
+            "actor_role": None,
+        }
+
+    auth_mode = principal.auth_mode.upper()
+
+    if (
+        auth_mode == "ENTRA"
+        and principal.user_id
+    ):
+        actor = principal.user_id
+        actor_user_id = principal.user_id
+    elif auth_mode == "DEV_HEADER":
+        actor = (
+            "dev-role:"
+            f"{principal.role.value}"
+        )
+        actor_user_id = None
+    else:
+        return {
+            "actor": "anonymous",
+            "actor_user_id": None,
+            "auth_mode": None,
+            "actor_role": None,
+        }
+
+    return {
+        "actor": actor,
+        "actor_user_id": actor_user_id,
+        "auth_mode": auth_mode,
+        "actor_role": principal.role.value,
+    }
 @app.middleware("http")
 async def correlation_middleware(
     request: Request,
