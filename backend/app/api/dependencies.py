@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, Header, HTTPException, Request
 from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
@@ -127,6 +127,16 @@ def current_principal(
     )
 
 
+def trusted_current_principal(
+    request: Request,
+    principal: AuthenticatedPrincipal = Depends(
+        current_principal
+    ),
+) -> AuthenticatedPrincipal:
+    request.state.authenticated_principal = principal
+    return principal
+
+
 def current_user_role(
     principal: AuthenticatedPrincipal = Depends(
         current_principal
@@ -147,3 +157,4 @@ def require_roles(*roles: Role):
         return role
 
     return dependency
+
