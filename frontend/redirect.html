@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <title>Signing in · ProposalOps</title>
+  </head>
+  <body>
+    <main aria-live="polite">
+      <p id="auth-status">Processing authentication…</p>
+    </main>
+    <script type="module">
+      import {
+        broadcastResponseToMainFrame,
+      } from "@azure/msal-browser/redirect-bridge";
+
+      broadcastResponseToMainFrame().catch(() => {
+        const status = document.getElementById("auth-status");
+
+        if (status) {
+          status.textContent =
+            "Authentication could not be completed. Close this window and try again.";
+        }
+
+        // Do not log the error object: the redirect URL can contain sensitive
+        // authentication response material.
+        console.error("ProposalOps authentication response bridge failed.");
+      });
+    </script>
+  </body>
+</html>
