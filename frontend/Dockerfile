@@ -1,5 +1,3 @@
-/Users/ahmedsami/.zprofile:6: no such file or directory: /usr/local/bin/brew
-/Users/ahmedsami/.zprofile:7: no such file or directory: /usr/local/bin/brew
 FROM node:22-alpine AS builder
 
 WORKDIR /app
