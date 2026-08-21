@@ -1,0 +1,15 @@
+/Users/ahmedsami/.zprofile:6: no such file or directory: /usr/local/bin/brew
+/Users/ahmedsami/.zprofile:7: no such file or directory: /usr/local/bin/brew
+node_modules
+dist
+coverage
+test-results
+playwright-report
+artifacts
+browser-e2e
+browser-real-stack
+.git
+.gitignore
+*.log
+.env
+.env.*

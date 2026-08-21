@@ -1,0 +1,227 @@
+/Users/ahmedsami/.zprofile:6: no such file or directory: /usr/local/bin/brew
+/Users/ahmedsami/.zprofile:7: no such file or directory: /usr/local/bin/brew
+name: Azure A1 Batch 3A Step 1 Validation
+
+on:
+  push:
+    branches:
+      - azure-a1-f1-batch3a
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BASE_SHA: 23d0674e68729148ed3ecd6f95a6c96b3ecf3218
+  SYNTHETIC_TENANT_ID: 11111111-1111-4111-8111-111111111111
+  SYNTHETIC_WEB_CLIENT_ID: 22222222-2222-4222-8222-222222222222
+  SYNTHETIC_API_CLIENT_ID: 33333333-3333-4333-8333-333333333333
+  SYNTHETIC_API_URL: https://proposalops-api.invalid
+
+jobs:
+  exact-head-validation:
+    name: Exact HEAD production frontend container
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gate A — exact-head provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          HEAD_SHA="$(git rev-parse HEAD)"
+          PARENT_SHA="$(git rev-parse HEAD^)"
+          echo "HEAD_SHA=$HEAD_SHA"
+          echo "PARENT_SHA=$PARENT_SHA"
+          test "$HEAD_SHA" = "$GITHUB_SHA"
+          git cat-file -e "$BASE_SHA^{commit}"
+          git merge-base --is-ancestor "$BASE_SHA" "$HEAD_SHA"
+          echo "EXACT_HEAD_PROVENANCE=PASS"
+          echo "BASE_ANCESTRY=PASS"
+
+      - name: Gate B — changed-file boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed_files="$(git diff --name-only "$BASE_SHA..HEAD")"
+          printf '%s\n' "CHANGED_FILES_BEGIN"
+          printf '%s\n' "$changed_files"
+          printf '%s\n' "CHANGED_FILES_END"
+          while IFS= read -r path; do
+            test -z "$path" && continue
+            case "$path" in
+              frontend/Dockerfile|frontend/nginx.conf|frontend/.dockerignore|.github/workflows/azure-a1-batch3a-step1-validation.yml) ;;
+              *) echo "Unauthorized changed file: $path"; exit 1 ;;
+            esac
+          done <<< "$changed_files"
+          echo "CHANGED_FILE_BOUNDARY=PASS"
+
+      - name: Gate C — accepted Batch 2B file preservation
+        shell: bash
+        run: |
+          set -euo pipefail
+          protected_files=(
+            frontend/src/auth.ts
+            frontend/src/api.ts
+            frontend/redirect.html
+            frontend/vite.config.ts
+            frontend/package.json
+            frontend/package-lock.json
+          )
+          for path in "${protected_files[@]}"; do
+            base_blob="$(git rev-parse "$BASE_SHA:$path")"
+            head_blob="$(git rev-parse "HEAD:$path")"
+            echo "$path base=$base_blob head=$head_blob"
+            test "$base_blob" = "$head_blob"
+          done
+          echo "PROTECTED_BATCH2B_FILES_CHANGED=false"
+          echo "PROTECTED_FILE_PRESERVATION=PASS"
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Gate D — existing frontend regressions
+        working-directory: frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm test -- --run 2>&1 | tee /tmp/proposalops-frontend-tests.log
+          grep -Eq 'Test Files.*17 passed' /tmp/proposalops-frontend-tests.log
+          grep -Eq 'Tests.*68 passed' /tmp/proposalops-frontend-tests.log
+          npm run build
+          test -f dist/index.html
+          test -f dist/redirect.html
+          echo "FRONTEND_TESTS=17_FILES_68_TESTS_PASS"
+          echo "FRONTEND_BUILD=PASS"
+
+      - name: Gate E — production image build
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE_TAG=proposalops-frontend:batch3a-step1
+          docker build --progress=plain \
+            --build-arg VITE_ENTRA_TENANT_ID="$SYNTHETIC_TENANT_ID" \
+            --build-arg VITE_ENTRA_WEB_CLIENT_ID="$SYNTHETIC_WEB_CLIENT_ID" \
+            --build-arg VITE_ENTRA_API_CLIENT_ID="$SYNTHETIC_API_CLIENT_ID" \
+            --build-arg VITE_API_URL="$SYNTHETIC_API_URL" \
+            -t "$IMAGE_TAG" frontend
+
+          expect_build_failure() {
+            log_file="$(mktemp)"
+            if docker build --progress=plain "$@" frontend >"$log_file" 2>&1; then
+              cat "$log_file"
+              echo "Expected Docker build failure did not occur"
+              exit 1
+            fi
+            tail -n 12 "$log_file"
+            rm -f "$log_file"
+          }
+
+          expect_build_failure \
+            --build-arg VITE_ENTRA_WEB_CLIENT_ID="$SYNTHETIC_WEB_CLIENT_ID" \
+            --build-arg VITE_ENTRA_API_CLIENT_ID="$SYNTHETIC_API_CLIENT_ID" \
+            --build-arg VITE_API_URL="$SYNTHETIC_API_URL"
+          echo "MISSING_TENANT_BUILD=FAIL_EXPECTED"
+
+          expect_build_failure \
+            --build-arg VITE_ENTRA_TENANT_ID=not-a-guid \
+            --build-arg VITE_ENTRA_WEB_CLIENT_ID="$SYNTHETIC_WEB_CLIENT_ID" \
+            --build-arg VITE_ENTRA_API_CLIENT_ID="$SYNTHETIC_API_CLIENT_ID" \
+            --build-arg VITE_API_URL="$SYNTHETIC_API_URL"
+          echo "INVALID_TENANT_BUILD=FAIL_EXPECTED"
+
+          expect_build_failure \
+            --build-arg VITE_ENTRA_TENANT_ID="$SYNTHETIC_TENANT_ID" \
+            --build-arg VITE_ENTRA_WEB_CLIENT_ID="$SYNTHETIC_WEB_CLIENT_ID" \
+            --build-arg VITE_ENTRA_API_CLIENT_ID="$SYNTHETIC_WEB_CLIENT_ID" \
+            --build-arg VITE_API_URL="$SYNTHETIC_API_URL"
+          echo "DUPLICATE_WEB_API_BUILD=FAIL_EXPECTED"
+          echo "DOCKER_BUILD=PASS"
+          echo "NEGATIVE_BUILD_GATES=PASS"
+
+      - name: Gates F-H — container, HTTP, and runtime contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          CONTAINER_NAME=proposalops-frontend-batch3a
+          IMAGE_TAG=proposalops-frontend:batch3a-step1
+          cleanup() {
+            docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+          }
+          cleanup
+          docker run --detach --name "$CONTAINER_NAME" \
+            --publish 127.0.0.1::8080 "$IMAGE_TAG"
+
+          HOST_PORT="$(docker port "$CONTAINER_NAME" 8080/tcp | sed -E 's/.*://g' | head -n 1)"
+          test -n "$HOST_PORT"
+          BASE_URL="http://127.0.0.1:$HOST_PORT"
+          root_headers="$(mktemp)"
+          root_body="$(mktemp)"
+          redirect_headers="$(mktemp)"
+          redirect_body="$(mktemp)"
+          deep_body="$(mktemp)"
+          missing_body="$(mktemp)"
+          trap 'rm -f "$root_headers" "$root_body" "$redirect_headers" "$redirect_body" "$deep_body" "$missing_body"; cleanup' EXIT
+
+          ready=false
+          for _ in $(seq 1 30); do
+            if curl --silent --show-error --fail "$BASE_URL/" >/dev/null; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          test "$ready" = true
+          echo "CONTAINER_START=PASS"
+
+          curl --silent --show-error --fail -D "$root_headers" "$BASE_URL/" -o "$root_body"
+          grep -Eiq '^content-type:.*text/html' "$root_headers"
+          grep -q 'ProposalOps' "$root_body"
+          ! grep -Eiq 'immutable' "$root_headers"
+          echo "ROOT_HTTP=200"
+
+          redirect_status="$(curl --silent --show-error -D "$redirect_headers" -o "$redirect_body" -w '%{http_code}' "$BASE_URL/redirect.html")"
+          test "$redirect_status" = 200
+          grep -q 'ProposalOps' "$redirect_body"
+          grep -Eiq '^cache-control:.*no-store' "$redirect_headers"
+          grep -Eiq '^pragma:.*no-cache' "$redirect_headers"
+          grep -Eiq '^x-content-type-options:[[:space:]]*nosniff' "$redirect_headers"
+          grep -Eiq '^referrer-policy:[[:space:]]*no-referrer' "$redirect_headers"
+          ! grep -Eiq '^cross-origin-opener-policy:' "$redirect_headers"
+          ! grep -Eiq '^cross-origin-embedder-policy:' "$redirect_headers"
+          echo "REDIRECT_HTTP=200"
+          echo "REDIRECT_HEADER_CONTRACT=PASS"
+
+          curl --silent --show-error --fail "$BASE_URL/proposals/example" -o "$deep_body"
+          grep -q 'ProposalOps' "$deep_body"
+          echo "DEEP_SPA_ROUTE=200"
+
+          missing_status="$(curl --silent --show-error -o "$missing_body" -w '%{http_code}' "$BASE_URL/assets/definitely-missing.js")"
+          test "$missing_status" = 404
+          ! grep -q 'ProposalOps' "$missing_body"
+          echo "MISSING_ASSET=404"
+
+          ! docker port "$CONTAINER_NAME" 5173/tcp >/dev/null 2>&1
+          ! docker top "$CONTAINER_NAME" -eo pid,args | grep -Eiq 'vite|npm'
+          test "$(docker inspect -f '{{.Config.User}}' "$CONTAINER_NAME")" = nginx
+          test "$(docker exec "$CONTAINER_NAME" id -u)" != 0
+          docker exec "$CONTAINER_NAME" nginx -t
+          docker exec "$CONTAINER_NAME" test -f /usr/share/nginx/html/index.html
+          docker exec "$CONTAINER_NAME" test -f /usr/share/nginx/html/redirect.html
+          ! docker exec "$CONTAINER_NAME" test -e /app/src
+          ! docker exec "$CONTAINER_NAME" test -e /app/node_modules
+          echo "PORT_5173_UNUSED=PASS"
+          echo "NO_VITE_OR_NPM_RUNTIME=PASS"
+          echo "RUNTIME_ASSET_BOUNDARY=PASS"
+          echo "NGINX_CONFIG_TEST=PASS"
+          echo "NON_ROOT_RUNTIME=PASS"
