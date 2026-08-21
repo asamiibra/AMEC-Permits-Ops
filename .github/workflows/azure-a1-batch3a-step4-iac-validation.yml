@@ -1,0 +1,255 @@
+name: Azure A1 Batch 3A Step 4 IaC Validation
+
+on:
+  push:
+    branches:
+      - azure-a1-f1-batch3a-step4
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FREEZE_SHA: 021b9002123d3da5c905f30bc1df34be8ecef984
+  BICEP_VERSION: v0.46.1
+
+jobs:
+  iac-validation:
+    name: Exact-head IaC static validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+
+      - name: Verify exact branch, parent, and single commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "azure-a1-f1-batch3a-step4"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$FREEZE_SHA"
+          test "$(git rev-list --count "$FREEZE_SHA"..HEAD)" = 1
+          echo "EXACT_HEAD=PASS"
+          echo "PARENT_FREEZE=PASS"
+
+      - name: Verify exact ten-file scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=(
+            .github/workflows/azure-a1-batch3a-step4-iac-validation.yml
+            infra/azure/bicepconfig.json
+            infra/azure/main.bicep
+            infra/azure/preprod.bicepparam
+            infra/azure/modules/network.bicep
+            infra/azure/modules/foundation.bicep
+            infra/azure/modules/appservice.bicep
+            infra/azure/modules/postgres.bicep
+            infra/azure/README.md
+            scripts/azure/step3a4_whatif.sh
+          )
+          mapfile -t actual < <(git diff-tree --no-commit-id --name-only -r HEAD)
+          test "\${#actual[@]}" = "\${#expected[@]}"
+          printf '%s\n' "\${actual[@]}" | sort > "$RUNNER_TEMP/actual.txt"
+          printf '%s\n' "\${expected[@]}" | sort > "$RUNNER_TEMP/expected.txt"
+          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
+          echo "TEN_FILE_SCOPE=PASS"
+
+      - name: Verify frozen application and deployment files
+        shell: bash
+        run: |
+          set -euo pipefail
+          declare -A frozen=(
+            [frontend/Dockerfile]=431f78fdb4d1c74472d40ea67f42a66e349fe8c4
+            [frontend/nginx.conf]=9a80b310f7fad3c7eda1d0f7ace50328275f985e
+            [frontend/src/auth.ts]=953df61f56cbc94cc5d27572ccb6db57b5ee97c0
+            [frontend/src/api.ts]=253cd5e729dc9cfd3002948caed47c886f56ab13
+            [backend/Dockerfile]=3977ebce775f2addd0a720f5151285537b9a24ef
+            [backend/app/config/settings.py]=3e7309b4926fc701f97b0621e93feebdd86f42e9
+            [backend/app/main.py]=c740d8715b0660e64390221c8d8624092f08a217
+            [backend/app/migrate.py]=221a5dd0676ea75493e97afd34b7bdc3d581e253
+            [backend/app/bootstrap_preprod.py]=0d2073ceac1de81c6f6c75cd3e7af1df9f3a199a
+            [backend/app/provision_user.py]=bae4aea02ecfa98a77dc28993b6235852c0885a3
+            [backend/app/worker.py]=6aa35b6c616bafb150007386f9783658a57ea672
+            [backend/app/seed/cli.py]=48f897af777482557e851442c3c341280e84a9e6
+            [backend/scripts/batch3a_postgres16_proof.py]=fe1b3f4076b324410752050fd6a554c3a257d82d
+          )
+          for file in "\${!frozen[@]}"; do
+            test "$(git hash-object "$file")" = "\${frozen[$file]}"
+          done
+          echo "FROZEN_APPLICATION_FILES=PASS"
+
+      - name: Install and pin Bicep
+        shell: bash
+        run: |
+          set -euo pipefail
+          az bicep install --version "$BICEP_VERSION" --target-platform linux-x64 --only-show-errors
+          BICEP="$HOME/.azure/bin/bicep"
+          test -x "$BICEP"
+          az bicep version | tee "$RUNNER_TEMP/bicep-version.txt"
+          grep -F "${BICEP_VERSION#v}" "$RUNNER_TEMP/bicep-version.txt"
+          "$BICEP" --version | grep -F "${BICEP_VERSION#v}"
+
+      - name: Format and build Bicep graph
+        shell: bash
+        run: |
+          set -euo pipefail
+          BICEP="$HOME/.azure/bin/bicep"
+          for file in infra/azure/main.bicep infra/azure/modules/*.bicep; do
+            diff -u "$file" <("$BICEP" format --stdout "$file")
+          done
+          az bicep lint --file infra/azure/main.bicep 2>&1 | tee "$RUNNER_TEMP/bicep-lint.log"
+          ! grep -q 'BCP081' "$RUNNER_TEMP/bicep-lint.log"
+          echo "BICEP_LINT=PASS"
+          az bicep build --file infra/azure/main.bicep --outfile "$RUNNER_TEMP/main-az.json" 2>&1 | tee "$RUNNER_TEMP/bicep-build.log"
+          ! grep -q 'BCP081' "$RUNNER_TEMP/bicep-build.log"
+          echo "BICEP_BUILD=PASS"
+          "$BICEP" build infra/azure/main.bicep --outfile "$RUNNER_TEMP/main.json"
+          for file in infra/azure/modules/*.bicep; do
+            name="$(basename "$file" .bicep)"
+            "$BICEP" build "$file" --outfile "$RUNNER_TEMP/$name.json"
+          done
+          az bicep build-params --file infra/azure/preprod.bicepparam --outfile "$RUNNER_TEMP/preprod.parameters.json" 2>&1 | tee "$RUNNER_TEMP/bicep-params.log"
+          ! grep -q 'BCP081' "$RUNNER_TEMP/bicep-params.log"
+          echo "BICEP_BUILD_PARAMS=PASS"
+          echo "BICEP_WARNINGS=0"
+          echo "ACR_BCP081=0"
+          echo "BICEP_FORMAT=PASS"
+
+      - name: Inspect generated ARM semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+
+          temp = pathlib.Path(os.environ["RUNNER_TEMP"])
+          documents = []
+          for path in temp.glob("*.json"):
+              try:
+                  documents.append(json.loads(path.read_text()))
+              except json.JSONDecodeError:
+                  pass
+
+          def resources(node):
+              if isinstance(node, dict):
+                  if isinstance(node.get("resources"), list):
+                      for resource in node["resources"]:
+                          yield resource
+                          yield from resources(resource)
+                  for value in node.values():
+                      yield from resources(value)
+              elif isinstance(node, list):
+                  for value in node:
+                      yield from resources(value)
+
+          all_resources = [resource for document in documents for resource in resources(document)]
+          types = {resource.get("type") for resource in all_resources}
+          required = {
+              "Microsoft.Resources/resourceGroups",
+              "Microsoft.Network/virtualNetworks",
+              "Microsoft.Network/virtualNetworks/subnets",
+              "Microsoft.ContainerRegistry/registries",
+              "Microsoft.KeyVault/vaults",
+              "Microsoft.OperationalInsights/workspaces",
+              "Microsoft.Insights/components",
+              "Microsoft.Web/serverfarms",
+          }
+          assert not required - types, required - types
+          forbidden = ("Microsoft.App/", "Microsoft.ContainerService/", "Microsoft.Compute/", "Microsoft.Sql/")
+          assert not any(any(kind and kind.startswith(prefix) for prefix in forbidden) for kind in types)
+          text = pathlib.Path("infra/azure/main.bicep").read_text() + pathlib.Path("infra/azure/preprod.bicepparam").read_text()
+          assert "targetScope = 'subscription'" in text
+          assert "param deployApps bool = false" in text
+          assert "param deployPostgres bool = false" in text
+          assert "appServiceSkuName = 'B1'" in text
+          assert "appServiceSkuTier = 'Basic'" in text
+          assert "postgresMajorVersion = '16'" in text
+          assert "postgresBackupRetentionDays = 7" in text
+          assert "publicIPAddresses" not in text
+          assert "Microsoft.Network/virtualNetworkGateways" not in text
+          print("GENERATED_ARM_SEMANTICS=PASS")
+          PY
+
+      - name: Verify network, runtime, PostgreSQL, and synthetic contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "Microsoft.Web/serverFarms" infra/azure/modules/network.bicep
+          grep -q "Microsoft.DBforPostgreSQL/flexibleServers" infra/azure/modules/network.bicep
+          grep -q "10.42.0.0/26" infra/azure/modules/network.bicep
+          grep -q "10.42.1.0/28" infra/azure/modules/network.bicep
+          grep -q "value: '8080'" infra/azure/modules/appservice.bicep
+          grep -q "value: '8000'" infra/azure/modules/appservice.bicep
+          grep -q "value: 'false'" infra/azure/modules/appservice.bicep
+          grep -q "value: 'true'" infra/azure/modules/appservice.bicep
+          grep -q "alwaysOn: true" infra/azure/modules/appservice.bicep
+          grep -q "minTlsVersion: '1.2'" infra/azure/modules/appservice.bicep
+          grep -q "scmMinTlsVersion: '1.2'" infra/azure/modules/appservice.bicep
+          grep -q "ftpsState: 'Disabled'" infra/azure/modules/appservice.bicep
+          grep -q "Microsoft.Web/sites/basicPublishingCredentialsPolicies" infra/azure/modules/appservice.bicep
+          test "$(grep -c "allow: false" infra/azure/modules/appservice.bicep)" = 4
+          grep -q "WEBSITE_SKIP_RUNNING_KUDUAGENT" infra/azure/modules/appservice.bicep
+          grep -q "FRONTEND_ORIGINS" infra/azure/modules/appservice.bicep
+          grep -q "frontendOrigin: 'https://\${frontendAppName}.azurewebsites.net'" infra/azure/main.bicep
+          ! grep -RIn 'FRONTEND_ORIGINS' infra/azure | grep -F '*'
+          grep -q "Microsoft.Insights/diagnosticSettings" infra/azure/modules/appservice.bicep
+          grep -q "categoryGroup: 'allLogs'" infra/azure/modules/appservice.bicep
+          grep -q "tags: resourceTags" infra/azure/main.bicep
+          grep -q "application: 'ProposalOps'" infra/azure/main.bicep
+          grep -q "dataMode: 'synthetic-only'" infra/azure/main.bicep
+          grep -q "capacity: 1" infra/azure/modules/foundation.bicep
+          grep -q "type: 'SystemAssigned'" infra/azure/modules/appservice.bicep
+          grep -q "7f951dda-4ed3-4680-a7ca-43fe172d538d" infra/azure/modules/appservice.bicep
+          grep -q "acrUseManagedIdentityCreds: true" infra/azure/modules/appservice.bicep
+          grep -q "STORAGE_PROVIDER" infra/azure/modules/appservice.bicep
+          grep -q "SYNOLOGY_MODE" infra/azure/modules/appservice.bicep
+          grep -q "Microsoft.DBforPostgreSQL/flexibleServers" infra/azure/modules/postgres.bicep
+          grep -q "postgresMajorVersion" infra/azure/modules/postgres.bicep
+          grep -q "privateDnsZone" infra/azure/modules/postgres.bicep
+          grep -q "publicNetworkAccess: 'Disabled'" infra/azure/modules/postgres.bicep
+          grep -q "backupRetentionDays" infra/azure/modules/postgres.bicep
+          grep -q "flexibleServers/databases" infra/azure/modules/postgres.bicep
+          grep -q "deployPostgres = false" infra/azure/preprod.bicepparam
+          grep -q "APP_SERVICE_HEALTH_CHECK = DEFERRED_UNTIL_TRUE_READINESS_ENDPOINT" infra/azure/README.md
+          if grep -RInE "APP_ENV[^[:cntrl:]]*=[[:space:]]*(PROD|production)([^A-Za-z_-]|$)|SYNTHETIC_ONLY[^[:cntrl:]]*false|REAL_DATA_ALLOWED[^[:cntrl:]]*true|DEV_HEADER|X-Dev-Role|STORAGE_PROVIDER[^[:cntrl:]]*smb|SYNOLOGY_MODE[^[:cntrl:]]*REAL|192\\.168\\." infra/azure scripts/azure; then
+            exit 1
+          fi
+          echo "NETWORK_CONTRACT=PASS"
+          echo "FOUNDATION_CONTRACT=PASS"
+          echo "APP_SERVICE_CONTRACT=PASS"
+          echo "POSTGRES_CONDITIONAL_CONTRACT=PASS"
+          echo "SYNTHETIC_CONTRACT=PASS"
+
+      - name: Static-check read-only what-if script
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/azure/step3a4_whatif.sh
+          if command -v shellcheck >/dev/null 2>&1; then
+            shellcheck scripts/azure/step3a4_whatif.sh
+          fi
+          if grep -nE 'az (account set|provider register|group create|deployment .* create|resource (create|update|delete)|webapp create|acr create|keyvault create|postgres flexible-server create|ad app create|monitor)' scripts/azure/step3a4_whatif.sh; then
+            exit 1
+          fi
+          ! grep -n -- '--template-file' scripts/azure/step3a4_whatif.sh
+          grep -q "^using './main.bicep'" infra/azure/preprod.bicepparam
+          grep -q 'ENV_BLOCKED_AZURE_CLI_TOO_OLD' scripts/azure/step3a4_whatif.sh
+          grep -q '2, 76, 0' scripts/azure/step3a4_whatif.sh
+          grep -q -- '--subscription "$SUB_ID"' scripts/azure/step3a4_whatif.sh
+          echo "WHATIF_SCRIPT_STATIC_GATE=PASS"
+
+      - name: Confirm no Azure login or deployment was executed
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -n "azure""/login" .github/workflows/azure-a1-batch3a-step4-iac-validation.yml
+          ! grep -n "az ""login" .github/workflows/azure-a1-batch3a-step4-iac-validation.yml
+          test -z "$(git status --porcelain)"
+          echo "AZURE_LOGIN_EXECUTED=false"
+          echo "DEPLOYMENT_EXECUTED=false"
+          echo "WORKTREE_CLEAN=PASS"
