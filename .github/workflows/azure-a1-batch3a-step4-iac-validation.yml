@@ -51,9 +51,9 @@ jobs:
             scripts/azure/step3a4_whatif.sh
           )
           mapfile -t actual < <(git diff-tree --no-commit-id --name-only -r HEAD)
-          test "\${#actual[@]}" = "\${#expected[@]}"
-          printf '%s\n' "\${actual[@]}" | sort > "$RUNNER_TEMP/actual.txt"
-          printf '%s\n' "\${expected[@]}" | sort > "$RUNNER_TEMP/expected.txt"
+          test "${#actual[@]}" = "${#expected[@]}"
+          printf '%s\n' "${actual[@]}" | sort > "$RUNNER_TEMP/actual.txt"
+          printf '%s\n' "${expected[@]}" | sort > "$RUNNER_TEMP/expected.txt"
           diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
           echo "TEN_FILE_SCOPE=PASS"
 
@@ -76,8 +76,8 @@ jobs:
             [backend/app/seed/cli.py]=48f897af777482557e851442c3c341280e84a9e6
             [backend/scripts/batch3a_postgres16_proof.py]=fe1b3f4076b324410752050fd6a554c3a257d82d
           )
-          for file in "\${!frozen[@]}"; do
-            test "$(git hash-object "$file")" = "\${frozen[$file]}"
+          for file in "${!frozen[@]}"; do
+            test "$(git hash-object "$file")" = "${frozen[$file]}"
           done
           echo "FROZEN_APPLICATION_FILES=PASS"
 
