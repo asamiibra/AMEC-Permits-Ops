@@ -1,0 +1,361 @@
+name: Azure A1 Batch 3A Step 3 Backend Container Validation
+
+on:
+  push:
+    branches:
+      - azure-a1-f1-batch3a-step3
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FREEZE_SHA: 77f4baac60e914aad2df25d7c7cd7eb6116984ec
+  PYTHON_BASE_IMAGE: python:3.12-slim
+  PYTHON_BASE_DIGEST: sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa7036991a2a63c4a
+  POSTGRES_IMAGE: postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
+  APP_ENV: AZURE-PREPROD
+  SYNTHETIC_ONLY: "true"
+  REAL_DATA_ALLOWED: "false"
+  AUTH_MODE: ENTRA
+  ENTRA_REQUIRED_SCOPE: access_as_user
+  ENTRA_TENANT_ID: 11111111-1111-4111-8111-111111111111
+  ENTRA_WEB_CLIENT_ID: 22222222-2222-4222-8222-222222222222
+  ENTRA_API_CLIENT_ID: 33333333-3333-4333-8333-333333333333
+  STORAGE_PROVIDER: mock
+  SYNOLOGY_MODE: SYNTHETIC
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: synthetic-postgres-password
+  POSTGRES_DB: proposalops
+
+jobs:
+  backend-container-proof:
+    name: Exact HEAD backend image and process contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+
+      - name: Verify exact branch, lineage, and four-file delta
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "azure-a1-f1-batch3a-step3"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$FREEZE_SHA"
+          test "$(git rev-list --count "$FREEZE_SHA..HEAD")" = 1
+          mapfile -t changed < <(git diff --name-only "$FREEZE_SHA..HEAD")
+          test "${#changed[@]}" = 4
+          printf '%s\n' "${changed[@]}"
+          printf '%s\n' "${changed[@]}" | grep -qx '.github/workflows/azure-a1-batch3a-step3-backend-container-validation.yml'
+          printf '%s\n' "${changed[@]}" | grep -qx 'backend/Dockerfile'
+          printf '%s\n' "${changed[@]}" | grep -qx 'backend/Dockerfile.dockerignore'
+          printf '%s\n' "${changed[@]}" | grep -qx 'backend/requirements-runtime.txt'
+
+      - name: Verify frozen predecessor blobs at exact HEAD
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse "HEAD:backend/app/config/settings.py")" = 3e7309b4926fc701f97b0621e93feebdd86f42e9
+          test "$(git rev-parse "HEAD:backend/app/main.py")" = c740d8715b0660e64390221c8d8624092f08a217
+          test "$(git rev-parse "HEAD:backend/app/migrate.py")" = 221a5dd0676ea75493e97afd34b7bdc3d581e253
+          test "$(git rev-parse "HEAD:backend/app/bootstrap_preprod.py")" = 0d2073ceac1de81c6f6c75cd3e7af1df9f3a199a
+          test "$(git rev-parse "HEAD:backend/app/provision_user.py")" = bae4aea02ecfa98a77dc28993b6235852c0885a3
+          test "$(git rev-parse "HEAD:backend/app/worker.py")" = 6aa35b6c616bafb150007386f9783658a57ea672
+          test "$(git rev-parse "HEAD:backend/app/runtime_provenance.py")" = dc2e28bbfecefca3f4534e59465d034ae3cf407c
+          test "$(git rev-parse "HEAD:backend/app/seed/cli.py")" = 48f897af777482557e851442c3c341280e84a9e6
+          test "$(git rev-parse "HEAD:backend/scripts/batch3a_postgres16_proof.py")" = fe1b3f4076b324410752050fd6a554c3a257d82d
+          test "$(git rev-parse "HEAD:.github/workflows/azure-a1-batch3a-step2-postgres16-validation.yml")" = 9edcd2dc39d119e0a5001d6f8f0108b77d5e6ebd
+
+      - name: Verify runtime dependency contract
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          expected = """fastapi==0.141.1
+          python-multipart==0.0.32
+          uvicorn[standard]==0.52.4
+          sqlalchemy==2.0.52
+          alembic==1.19.1
+          pydantic-settings==2.15.0
+          psycopg[binary]==3.3.4
+          httpx==0.28.1
+          PyJWT[crypto]==2.13.0
+          openpyxl==3.1.5
+          reportlab==4.5.1
+          smbprotocol==1.15.0
+          """
+          expected = "\n".join(line.strip() for line in expected.splitlines()) + "\n"
+          actual = Path("backend/requirements-runtime.txt").read_text()
+          assert actual == expected
+          assert "pytest" not in actual
+          assert "pytest-asyncio" not in actual
+          PY
+
+      - name: Verify Dockerfile static contract
+        run: |
+          set -euo pipefail
+          grep -Fqx 'FROM python:3.12-slim@sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa7036991a2a63c4a' backend/Dockerfile
+          grep -Fqx 'ARG RELEASE_SHA' backend/Dockerfile
+          grep -Fq 'org.opencontainers.image.revision' backend/Dockerfile
+          grep -Fq 'org.opencontainers.image.source=' backend/Dockerfile
+          grep -Fq 'https://github.com/asamiibra/AMEC-Permits-Ops' backend/Dockerfile
+          grep -Fq 'ENV RELEASE_SHA=' backend/Dockerfile
+          grep -Fq '10001' backend/Dockerfile
+          grep -Fqx 'EXPOSE 8000' backend/Dockerfile
+          grep -Fq 'CMD ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]' backend/Dockerfile
+          grep -Fq 'SYNTHETIC_TEST_ROOT=/home/proposalops' backend/Dockerfile
+          grep -Fq 'MOCK_SYSTEMS_ROOT=/home/proposalops/mock-systems' backend/Dockerfile
+          ! grep -Eiq 'alpine|COPY[[:space:]]+\.|ADD[[:space:]]+\.|curl[[:space:]]*\|[[:space:]]*sh|wget[[:space:]]*\|[[:space:]]*sh|password[[:space:]]*=|secret[[:space:]]*=' backend/Dockerfile
+          grep -Fq '!backend/app/**' backend/Dockerfile.dockerignore
+          grep -Fq '!backend/migrations/**' backend/Dockerfile.dockerignore
+          grep -Fq '!backend/requirements-runtime.txt' backend/Dockerfile.dockerignore
+
+      - name: Build candidate backend image
+        env:
+          IMAGE: proposalops-backend:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker build --pull \
+            -f backend/Dockerfile \
+            --build-arg RELEASE_SHA="$GITHUB_SHA" \
+            -t "$IMAGE" \
+            .
+
+      - name: Prove invalid release identities fail closed
+        env:
+          IMAGE: proposalops-backend:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          expect_build_failure() {
+            local label="$1"
+            shift
+            local log="$RUNNER_TEMP/step3a3-${label}.log"
+            if docker build --pull --no-cache -f backend/Dockerfile -t "$IMAGE-${label}" "$@" . >"$log" 2>&1; then
+              cat "$log"
+              echo "unexpectedly accepted RELEASE_SHA: $label" >&2
+              exit 1
+            fi
+            echo "NEGATIVE_BUILD_${label}=PASS"
+          }
+          expect_build_failure missing
+          expect_build_failure short --build-arg RELEASE_SHA=1234
+          expect_build_failure nonhex --build-arg RELEASE_SHA=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+
+      - name: Inspect image metadata and runtime contents
+        env:
+          IMAGE: proposalops-backend:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker image inspect "$IMAGE" > "$RUNNER_TEMP/step3a3-image.json"
+          IMAGE="$IMAGE" GITHUB_SHA="$GITHUB_SHA" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          image = json.loads(Path(os.environ["RUNNER_TEMP"], "step3a3-image.json").read_text())[0]
+          config = image["Config"]
+          assert config["User"] == "10001:10001"
+          assert "8000/tcp" in config["ExposedPorts"]
+          assert config["Cmd"] == ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+          labels = config["Labels"]
+          assert labels["org.opencontainers.image.revision"] == os.environ["GITHUB_SHA"]
+          assert labels["org.opencontainers.image.source"] == "https://github.com/asamiibra/AMEC-Permits-Ops"
+          assert f"RELEASE_SHA={os.environ['GITHUB_SHA']}" in config["Env"]
+          PY
+          docker run --rm "$IMAGE" id -u | grep -Fxq 10001
+          docker run --rm "$IMAGE" id -g | grep -Fxq 10001
+          docker run --rm "$IMAGE" sh -c '! grep -qi alpine /etc/os-release'
+          docker run --rm "$IMAGE" python -c 'import backend.app.main, backend.app.migrate, backend.app.bootstrap_preprod, backend.app.provision_user, backend.app.worker'
+          docker run --rm "$IMAGE" python -c 'import importlib.util; assert importlib.util.find_spec("pytest") is None'
+          ! docker run --rm "$IMAGE" test -e /workspace/backend/tests
+          ! docker run --rm "$IMAGE" test -e /workspace/backend/scripts
+
+      - name: Run containerized PostgreSQL, migration, bootstrap, binding, worker, and API gates
+        env:
+          IMAGE: proposalops-backend:${{ github.sha }}
+          NETWORK: proposalops-step3a3-${{ github.run_id }}
+          PG_CONTAINER: proposalops-step3a3-postgres-${{ github.run_id }}
+          API_CONTAINER: proposalops-step3a3-api-${{ github.run_id }}
+          VOLUME: proposalops-step3a3-volume-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          DB_URL="postgresql+psycopg://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+          runtime_env() {
+            printf '%s\n' \
+              -e APP_ENV="$APP_ENV" \
+              -e SYNTHETIC_ONLY="$SYNTHETIC_ONLY" \
+              -e REAL_DATA_ALLOWED="$REAL_DATA_ALLOWED" \
+              -e AUTH_MODE="$AUTH_MODE" \
+              -e ENTRA_REQUIRED_SCOPE="$ENTRA_REQUIRED_SCOPE" \
+              -e ENTRA_TENANT_ID="$ENTRA_TENANT_ID" \
+              -e ENTRA_WEB_CLIENT_ID="$ENTRA_WEB_CLIENT_ID" \
+              -e ENTRA_API_CLIENT_ID="$ENTRA_API_CLIENT_ID" \
+              -e STORAGE_PROVIDER="$STORAGE_PROVIDER" \
+              -e SYNOLOGY_MODE="$SYNOLOGY_MODE" \
+              -e DATABASE_URL="$DB_URL" \
+              -e PYTHONPATH=/workspace \
+              -e SYNTHETIC_TEST_ROOT=/home/proposalops \
+              -e MOCK_SYSTEMS_ROOT=/home/proposalops/mock-systems
+          }
+          app_run() {
+            local args=()
+            while IFS= read -r item; do args+=("$item"); done < <(runtime_env)
+            docker run --rm --network "$NETWORK" "${args[@]}" "$IMAGE" "$@"
+          }
+          volume_run() {
+            local args=()
+            while IFS= read -r item; do args+=("$item"); done < <(runtime_env)
+            docker run --rm --network "$NETWORK" -v "$VOLUME":/home/proposalops "${args[@]}" "$IMAGE" "$@"
+          }
+
+          docker network create "$NETWORK"
+          docker volume create "$VOLUME"
+          docker run -d --name "$PG_CONTAINER" --network "$NETWORK" --network-alias postgres \
+            -e POSTGRES_USER="$POSTGRES_USER" \
+            -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+            -e POSTGRES_DB="$POSTGRES_DB" \
+            "$POSTGRES_IMAGE"
+
+          for attempt in $(seq 1 60); do
+            if docker exec "$PG_CONTAINER" pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+              break
+            fi
+            if [ "$attempt" = 60 ]; then
+              docker logs "$PG_CONTAINER"
+              exit 1
+            fi
+            sleep 2
+          done
+
+          app_run python -c 'import psycopg, os; conn=psycopg.connect(os.environ["DATABASE_URL"]); cur=conn.cursor(); cur.execute("select count(*) from pg_tables where schemaname = %s", ("public",)); assert cur.fetchone()[0] == 0; conn.close()'
+          migration_output="$(app_run python -m backend.app.migrate)"
+          echo "$migration_output"
+          MIGRATION_OUTPUT="$migration_output" python -c 'import json, os; value=json.loads(os.environ["MIGRATION_OUTPUT"]); assert value["status"] == "SUCCEEDED" and value["migration_head"] == "0059_entra_user_identity"'
+          app_run python -c 'import psycopg, os; conn=psycopg.connect(os.environ["DATABASE_URL"]); cur=conn.cursor(); cur.execute("select version_num from alembic_version"); assert cur.fetchall() == [("0059_entra_user_identity",)]; cur.execute("select current_setting(\"server_version_num\")"); assert int(cur.fetchone()[0]) // 10000 == 16; conn.close()'
+
+          first="$(volume_run python -m backend.app.bootstrap_preprod)"
+          echo "$first"
+          FIRST="$first" python -c 'import json, os; assert json.loads(os.environ["FIRST"])["status"] == "BOOTSTRAPPED"'
+          VOLUME_FILE="$(volume_run python -c 'from pathlib import Path; files=sorted(p for p in Path("/home/proposalops").rglob("*") if p.is_file()); assert files; print(files[0])')"
+          test -n "$VOLUME_FILE"
+          repeat="$(volume_run python -m backend.app.bootstrap_preprod)"
+          echo "$repeat"
+          REPEAT="$repeat" python -c 'import json, os; assert json.loads(os.environ["REPEAT"])["status"] == "ALREADY_BOOTSTRAPPED"'
+
+          bound="$(volume_run python -m backend.app.provision_user --app-user-email owner@amec.synthetic --entra-object-id 44444444-4444-4444-8444-444444444444)"
+          echo "$bound"
+          BOUND="$bound" python -c 'import json, os; assert json.loads(os.environ["BOUND"])["status"] == "BOUND"'
+          bound_repeat="$(volume_run python -m backend.app.provision_user --app-user-email owner@amec.synthetic --entra-object-id 44444444-4444-4444-8444-444444444444)"
+          echo "$bound_repeat"
+          BOUND_REPEAT="$bound_repeat" python -c 'import json, os; assert json.loads(os.environ["BOUND_REPEAT"])["status"] == "ALREADY_BOUND"'
+
+          proof_output="$(docker run --rm --network "$NETWORK" -v "$VOLUME":/home/proposalops \
+            $(runtime_env | tr "\n" " ") \
+            -v "$GITHUB_WORKSPACE/backend/scripts/batch3a_postgres16_proof.py:/tmp/batch3a_postgres16_proof.py:ro" \
+            "$IMAGE" python /tmp/batch3a_postgres16_proof.py)"
+          echo "$proof_output"
+          PROOF_OUTPUT="$proof_output" python - <<'PY'
+          import json
+          import os
+
+          result = json.loads(os.environ["PROOF_OUTPUT"])
+          assert result == {
+              "authority_key": "entra_object_id",
+              "azure_resources_created": False,
+              "bootstrap_anchors": "PASS",
+              "entra_db_binding": "PASS",
+              "entra_resources_created": False,
+              "migration_head": "0059_entra_user_identity",
+              "postgres_major": 16,
+              "real_data_used": False,
+              "status": "PASS",
+              "step": "3A.2",
+              "worker_claim_complete": "PASS",
+              "worker_expired_recovery": "PASS",
+          }
+          PY
+
+          docker run -d --name "$API_CONTAINER" --network "$NETWORK" -p 8000:8000 \
+            -v "$VOLUME":/home/proposalops \
+            $(runtime_env | tr "\n" " ") \
+            "$IMAGE"
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8000/health > "$RUNNER_TEMP/step3a3-health.json"; then
+              break
+            fi
+            if [ "$attempt" = 60 ]; then
+              docker logs "$API_CONTAINER"
+              exit 1
+            fi
+            sleep 1
+          done
+          HEALTH_FILE="$RUNNER_TEMP/step3a3-health.json" GITHUB_SHA="$GITHUB_SHA" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          health = json.loads(Path(os.environ["HEALTH_FILE"]).read_text())
+          assert health["status"] == "ok"
+          assert health["environment"] == "AZURE-PREPROD"
+          assert health["synthetic_only"] is True
+          assert health["database_dialect"] == "postgresql"
+          assert health["database_durable"] is True
+          assert health["database_connection_valid"] is True
+          assert health["sqlite_fallback_active"] is False
+          assert health["alembic_versions"] == ["0059_entra_user_identity"]
+          provenance = health["runtime_provenance"]
+          assert provenance["application_release_sha"] == os.environ["GITHUB_SHA"]
+          assert provenance["release_sha"] == os.environ["GITHUB_SHA"]
+          PY
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8000/docs)" = 404
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8000/openapi.json)" = 404
+          protected_code="$(curl --silent --output /dev/null --write-out '%{http_code}' -H 'X-Dev-Role: SYSTEM_ADMIN' http://127.0.0.1:8000/api/projects)"
+          case "$protected_code" in
+            2*|3*) echo "development header unexpectedly authorized API: $protected_code" >&2; exit 1 ;;
+          esac
+
+          docker rm -f "$API_CONTAINER"
+          docker run -d --name "$API_CONTAINER" --network "$NETWORK" -p 8000:8000 \
+            -v "$VOLUME":/home/proposalops \
+            $(runtime_env | tr "\n" " ") \
+            "$IMAGE"
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8000/health >/dev/null; then
+              break
+            fi
+            if [ "$attempt" = 60 ]; then
+              docker logs "$API_CONTAINER"
+              exit 1
+            fi
+            sleep 1
+          done
+          docker run --rm --network "$NETWORK" -v "$VOLUME":/home/proposalops:ro \
+            $(runtime_env | tr "\n" " ") \
+            "$IMAGE" python -c "from pathlib import Path; assert Path('$VOLUME_FILE').is_file()"
+          echo 'CONTAINER_POSTGRES_BOOTSTRAP_BINDING_WORKER_API_PERSISTENCE=PASS'
+
+      - name: Clean up containers, network, and volume
+        if: always()
+        env:
+          IMAGE: proposalops-backend:${{ github.sha }}
+          NETWORK: proposalops-step3a3-${{ github.run_id }}
+          PG_CONTAINER: proposalops-step3a3-postgres-${{ github.run_id }}
+          API_CONTAINER: proposalops-step3a3-api-${{ github.run_id }}
+          VOLUME: proposalops-step3a3-volume-${{ github.run_id }}
+        run: |
+          docker rm -f "$API_CONTAINER" "$PG_CONTAINER" >/dev/null 2>&1 || true
+          docker volume rm "$VOLUME" >/dev/null 2>&1 || true
+          docker network rm "$NETWORK" >/dev/null 2>&1 || true
+          docker image rm "$IMAGE" >/dev/null 2>&1 || true
+
+      - name: Verify mutation boundary and clean worktree
+        if: always()
+        run: |
+          set -euo pipefail
+          test "${REAL_DATA_USED:-false}" = false
+          test "${AZURE_RESOURCES_CREATED:-false}" = false
+          test "${ENTRA_RESOURCES_CREATED:-false}" = false
+          test -z "$(git status --porcelain)"

@@ -1,6 +1,44 @@
-FROM python:3.12-slim
+FROM python:3.12-slim@sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa7036991a2a63c4a
+
+ARG RELEASE_SHA
+
+RUN python -c 'import re, sys; sys.exit(0 if re.fullmatch(r"[0-9a-f]{40}", "${RELEASE_SHA}") else 1)'
+
+LABEL org.opencontainers.image.revision="${RELEASE_SHA}" \
+      org.opencontainers.image.source="https://github.com/asamiibra/AMEC-Permits-Ops"
+
+ENV RELEASE_SHA="${RELEASE_SHA}" \
+    APP_ENV=AZURE-PREPROD \
+    SYNTHETIC_ONLY=true \
+    REAL_DATA_ALLOWED=false \
+    AUTH_MODE=ENTRA \
+    ENTRA_REQUIRED_SCOPE=access_as_user \
+    STORAGE_PROVIDER=mock \
+    SYNOLOGY_MODE=SYNTHETIC \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/workspace \
+    SYNTHETIC_TEST_ROOT=/home/proposalops \
+    MOCK_SYSTEMS_ROOT=/home/proposalops/mock-systems
+
 WORKDIR /workspace
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
-COPY . /workspace/backend
-WORKDIR /workspace
+
+COPY backend/requirements-runtime.txt /tmp/requirements-runtime.txt
+RUN python -m pip install --no-cache-dir -r /tmp/requirements-runtime.txt \
+    && python -m pip check \
+    && rm -f /tmp/requirements-runtime.txt
+
+COPY backend/__init__.py /workspace/backend/__init__.py
+COPY backend/app /workspace/backend/app
+COPY backend/migrations /workspace/backend/migrations
+
+RUN groupadd --gid 10001 proposalops \
+    && useradd --uid 10001 --gid 10001 --create-home \
+       --home-dir /home/proposalops --shell /usr/sbin/nologin proposalops \
+    && mkdir -p /home/proposalops/mock-systems /home/proposalops/synthetic-data \
+    && chown -R 10001:10001 /home/proposalops
+
+USER 10001:10001
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
