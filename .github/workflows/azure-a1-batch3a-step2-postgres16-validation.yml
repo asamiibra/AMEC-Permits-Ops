@@ -11,6 +11,7 @@ permissions:
 
 env:
   FREEZE_SHA: 8d2d13af5b98e30a45281ff81719e8289c88df2c
+  STEP3A2_INITIAL_SHA: fca3ae275f50b0985a1b329ec262a0357f131504
   APP_ENV: AZURE-PREPROD
   SYNTHETIC_ONLY: "true"
   REAL_DATA_ALLOWED: "false"
@@ -75,6 +76,8 @@ jobs:
     name: Exact HEAD PostgreSQL 16 full-stack proof
     needs: targeted-regressions
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     services:
       postgres:
         image: postgres:16
@@ -92,12 +95,16 @@ jobs:
     steps:
       - name: Checkout exact commit
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
 
       - name: Verify exact HEAD and two-file delta
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git merge-base --is-ancestor "$FREEZE_SHA" HEAD
-          test "$(git rev-list --count "$FREEZE_SHA..HEAD")" = 1
+          test "$(git rev-parse HEAD^)" = "$STEP3A2_INITIAL_SHA"
+          test "$(git rev-parse "$STEP3A2_INITIAL_SHA^")" = "$FREEZE_SHA"
+          test "$(git rev-list --count "$FREEZE_SHA..HEAD")" = 2
           mapfile -t changed < <(git diff --name-only "$FREEZE_SHA..HEAD")
           test "${#changed[@]}" = 2
           printf '%s\n' "${changed[@]}"
@@ -110,6 +117,10 @@ jobs:
           test "$(git rev-parse "$FREEZE_SHA:backend/app/bootstrap_preprod.py")" = 0d2073ceac1de81c6f6c75cd3e7af1df9f3a199a
           test "$(git rev-parse "$FREEZE_SHA:backend/tests/test_preprod_bootstrap.py")" = c1ff60dd82cadd65e266e86be1763e47b006927a
           test "$(git rev-parse "$FREEZE_SHA:backend/tests/test_preprod_seed_baseline.py")" = 777c7ef6cb5736aa0258be966cb9fff55b933720
+          test "$(git rev-parse "HEAD:backend/app/seed/cli.py")" = 48f897af777482557e851442c3c341280e84a9e6
+          test "$(git rev-parse "HEAD:backend/app/bootstrap_preprod.py")" = 0d2073ceac1de81c6f6c75cd3e7af1df9f3a199a
+          test "$(git rev-parse "HEAD:backend/tests/test_preprod_bootstrap.py")" = c1ff60dd82cadd65e266e86be1763e47b006927a
+          test "$(git rev-parse "HEAD:backend/tests/test_preprod_seed_baseline.py")" = 777c7ef6cb5736aa0258be966cb9fff55b933720
 
       - name: Set up Python
         uses: actions/setup-python@v5
