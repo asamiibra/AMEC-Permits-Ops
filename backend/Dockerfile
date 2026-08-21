@@ -2,7 +2,8 @@ FROM python:3.12-slim@sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa70
 
 ARG RELEASE_SHA
 
-RUN python -c 'import re, sys; sys.exit(0 if re.fullmatch(r"[0-9a-f]{40}", "${RELEASE_SHA}") else 1)'
+RUN RELEASE_SHA="$RELEASE_SHA" python -c \
+    'import os, re, sys; value=os.environ.get("RELEASE_SHA", ""); sys.exit(0 if re.fullmatch(r"[0-9a-f]{40}", value) else 1)'
 
 LABEL org.opencontainers.image.revision="${RELEASE_SHA}" \
       org.opencontainers.image.source="https://github.com/asamiibra/AMEC-Permits-Ops"

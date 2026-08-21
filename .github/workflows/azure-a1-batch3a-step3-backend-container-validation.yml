@@ -11,6 +11,7 @@ permissions:
 
 env:
   FREEZE_SHA: 77f4baac60e914aad2df25d7c7cd7eb6116984ec
+  STEP3A3_INITIAL_SHA: 052e14aa47f8a8e1ddba101bcc8ecff292de1e99
   PYTHON_BASE_IMAGE: python:3.12-slim
   PYTHON_BASE_DIGEST: sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa7036991a2a63c4a
   POSTGRES_IMAGE: postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
@@ -36,15 +37,16 @@ jobs:
       - name: Checkout exact candidate
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          fetch-depth: 2
+          fetch-depth: 3
 
       - name: Verify exact branch, lineage, and four-file delta
         run: |
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "azure-a1-f1-batch3a-step3"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$FREEZE_SHA"
-          test "$(git rev-list --count "$FREEZE_SHA..HEAD")" = 1
+          test "$(git rev-parse HEAD^)" = "$STEP3A3_INITIAL_SHA"
+          test "$(git rev-parse "$STEP3A3_INITIAL_SHA^")" = "$FREEZE_SHA"
+          test "$(git rev-list --count "$FREEZE_SHA..HEAD")" = 2
           mapfile -t changed < <(git diff --name-only "$FREEZE_SHA..HEAD")
           test "${#changed[@]}" = 4
           printf '%s\n' "${changed[@]}"
@@ -52,6 +54,10 @@ jobs:
           printf '%s\n' "${changed[@]}" | grep -qx 'backend/Dockerfile'
           printf '%s\n' "${changed[@]}" | grep -qx 'backend/Dockerfile.dockerignore'
           printf '%s\n' "${changed[@]}" | grep -qx 'backend/requirements-runtime.txt'
+          mapfile -t repair_changed < <(git diff --name-only "$STEP3A3_INITIAL_SHA..HEAD")
+          test "${#repair_changed[@]}" = 2
+          printf '%s\n' "${repair_changed[@]}" | grep -qx 'backend/Dockerfile'
+          printf '%s\n' "${repair_changed[@]}" | grep -qx '.github/workflows/azure-a1-batch3a-step3-backend-container-validation.yml'
 
       - name: Verify frozen predecessor blobs at exact HEAD
         run: |
@@ -167,7 +173,13 @@ jobs:
           docker run --rm "$IMAGE" id -u | grep -Fxq 10001
           docker run --rm "$IMAGE" id -g | grep -Fxq 10001
           docker run --rm "$IMAGE" sh -c '! grep -qi alpine /etc/os-release'
-          docker run --rm "$IMAGE" python -c 'import backend.app.main, backend.app.migrate, backend.app.bootstrap_preprod, backend.app.provision_user, backend.app.worker'
+          docker run --rm \
+            -e ENTRA_TENANT_ID="$ENTRA_TENANT_ID" \
+            -e ENTRA_WEB_CLIENT_ID="$ENTRA_WEB_CLIENT_ID" \
+            -e ENTRA_API_CLIENT_ID="$ENTRA_API_CLIENT_ID" \
+            -e DATABASE_URL='postgresql+psycopg://postgres:synthetic@invalid:5432/proposalops' \
+            "$IMAGE" \
+            python -c 'import backend.app.main, backend.app.migrate, backend.app.bootstrap_preprod, backend.app.provision_user, backend.app.worker'
           docker run --rm "$IMAGE" python -c 'import importlib.util; assert importlib.util.find_spec("pytest") is None'
           ! docker run --rm "$IMAGE" test -e /workspace/backend/tests
           ! docker run --rm "$IMAGE" test -e /workspace/backend/scripts
@@ -182,6 +194,7 @@ jobs:
         run: |
           set -euo pipefail
           DB_URL="postgresql+psycopg://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+          PG_DSN="postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
           runtime_env() {
             printf '%s\n' \
               -e APP_ENV="$APP_ENV" \
@@ -195,6 +208,7 @@ jobs:
               -e STORAGE_PROVIDER="$STORAGE_PROVIDER" \
               -e SYNOLOGY_MODE="$SYNOLOGY_MODE" \
               -e DATABASE_URL="$DB_URL" \
+              -e PG_DSN="$PG_DSN" \
               -e PYTHONPATH=/workspace \
               -e SYNTHETIC_TEST_ROOT=/home/proposalops \
               -e MOCK_SYSTEMS_ROOT=/home/proposalops/mock-systems
@@ -229,11 +243,11 @@ jobs:
             sleep 2
           done
 
-          app_run python -c 'import psycopg, os; conn=psycopg.connect(os.environ["DATABASE_URL"]); cur=conn.cursor(); cur.execute("select count(*) from pg_tables where schemaname = %s", ("public",)); assert cur.fetchone()[0] == 0; conn.close()'
+          app_run python -c 'import psycopg, os; conn=psycopg.connect(os.environ["PG_DSN"]); cur=conn.cursor(); cur.execute("select count(*) from pg_tables where schemaname = %s", ("public",)); assert cur.fetchone()[0] == 0; conn.close()'
           migration_output="$(app_run python -m backend.app.migrate)"
           echo "$migration_output"
           MIGRATION_OUTPUT="$migration_output" python -c 'import json, os; value=json.loads(os.environ["MIGRATION_OUTPUT"]); assert value["status"] == "SUCCEEDED" and value["migration_head"] == "0059_entra_user_identity"'
-          app_run python -c 'import psycopg, os; conn=psycopg.connect(os.environ["DATABASE_URL"]); cur=conn.cursor(); cur.execute("select version_num from alembic_version"); assert cur.fetchall() == [("0059_entra_user_identity",)]; cur.execute("select current_setting(\"server_version_num\")"); assert int(cur.fetchone()[0]) // 10000 == 16; conn.close()'
+          app_run python -c 'import psycopg, os; conn=psycopg.connect(os.environ["PG_DSN"]); cur=conn.cursor(); cur.execute("select version_num from alembic_version"); assert cur.fetchall() == [("0059_entra_user_identity",)]; cur.execute("show server_version_num"); assert int(cur.fetchone()[0]) // 10000 == 16; conn.close()'
 
           first="$(volume_run python -m backend.app.bootstrap_preprod)"
           echo "$first"
