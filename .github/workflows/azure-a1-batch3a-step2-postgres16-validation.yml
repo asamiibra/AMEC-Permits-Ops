@@ -1,0 +1,280 @@
+name: Azure A1 Batch 3A Step 2 PostgreSQL 16 Validation
+
+on:
+  push:
+    branches:
+      - azure-a1-f1-batch3a
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FREEZE_SHA: 8d2d13af5b98e30a45281ff81719e8289c88df2c
+  APP_ENV: AZURE-PREPROD
+  SYNTHETIC_ONLY: "true"
+  REAL_DATA_ALLOWED: "false"
+  AUTH_MODE: ENTRA
+  ENTRA_REQUIRED_SCOPE: access_as_user
+  ENTRA_TENANT_ID: 11111111-1111-4111-8111-111111111111
+  ENTRA_WEB_CLIENT_ID: 22222222-2222-4222-8222-222222222222
+  ENTRA_API_CLIENT_ID: 33333333-3333-4333-8333-333333333333
+  STORAGE_PROVIDER: mock
+  SYNOLOGY_MODE: SYNTHETIC
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: synthetic-postgres-password
+  POSTGRES_DB: proposalops
+  PG_DSN: postgresql://postgres:synthetic-postgres-password@127.0.0.1:5432/proposalops
+  DATABASE_URL: postgresql+psycopg://postgres:synthetic-postgres-password@127.0.0.1:5432/proposalops
+
+jobs:
+  targeted-regressions:
+    name: Targeted existing backend regressions
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: TEST
+      DATABASE_URL: sqlite:////tmp/proposalops-batch3a2-tests.db
+      SYNTHETIC_ONLY: "true"
+      REAL_DATA_ALLOWED: "false"
+      PYTHONPATH: .
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Record provenance
+        run: |
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+
+      - name: Run targeted existing controls
+        run: |
+          python -m pytest -q \
+            backend/tests/test_environment_guardrails.py \
+            backend/tests/test_database_startup_contract.py \
+            backend/tests/test_migration_runner.py \
+            backend/tests/test_preprod_bootstrap.py \
+            backend/tests/test_preprod_seed_baseline.py \
+            backend/tests/test_user_provisioning.py \
+            backend/tests/test_worker.py \
+            backend/tests/test_entra_auth.py
+
+  postgres16-proof:
+    name: Exact HEAD PostgreSQL 16 full-stack proof
+    needs: targeted-regressions
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: synthetic-postgres-password
+          POSTGRES_DB: proposalops
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d proposalops"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Verify exact HEAD and two-file delta
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$FREEZE_SHA" HEAD
+          test "$(git rev-list --count "$FREEZE_SHA..HEAD")" = 1
+          mapfile -t changed < <(git diff --name-only "$FREEZE_SHA..HEAD")
+          test "${#changed[@]}" = 2
+          printf '%s\n' "${changed[@]}"
+          printf '%s\n' "${changed[@]}" | grep -qx 'backend/scripts/batch3a_postgres16_proof.py'
+          printf '%s\n' "${changed[@]}" | grep -qx '.github/workflows/azure-a1-batch3a-step2-postgres16-validation.yml'
+
+      - name: Verify frozen Step 3A.1R2 repair blobs
+        run: |
+          test "$(git rev-parse "$FREEZE_SHA:backend/app/seed/cli.py")" = 48f897af777482557e851442c3c341280e84a9e6
+          test "$(git rev-parse "$FREEZE_SHA:backend/app/bootstrap_preprod.py")" = 0d2073ceac1de81c6f6c75cd3e7af1df9f3a199a
+          test "$(git rev-parse "$FREEZE_SHA:backend/tests/test_preprod_bootstrap.py")" = c1ff60dd82cadd65e266e86be1763e47b006927a
+          test "$(git rev-parse "$FREEZE_SHA:backend/tests/test_preprod_seed_baseline.py")" = 777c7ef6cb5736aa0258be966cb9fff55b933720
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+
+      - name: Isolate synthetic fixture roots
+        run: |
+          fixture_root="$RUNNER_TEMP/proposalops-batch3a2-fixtures"
+          mkdir -p "$fixture_root"
+          cp -R backend/mock-systems "$fixture_root/mock-systems"
+          cp -R synthetic-data "$fixture_root/synthetic-data"
+          echo "SYNTHETIC_TEST_ROOT=$fixture_root" >> "$GITHUB_ENV"
+          echo "MOCK_SYSTEMS_ROOT=$fixture_root/mock-systems" >> "$GITHUB_ENV"
+
+      - name: Wait for PostgreSQL 16 service
+        run: |
+          for attempt in $(seq 1 30); do
+            if python - <<'PY'
+          import os
+          import psycopg
+          with psycopg.connect(os.environ["PG_DSN"], connect_timeout=2):
+              pass
+          PY
+            then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "PostgreSQL service did not become ready" >&2
+          exit 1
+
+      - name: Prove the application database is initially unmigrated
+        run: |
+          python - <<'PY'
+          import os
+          import psycopg
+          with psycopg.connect(os.environ["PG_DSN"]) as conn:
+              with conn.cursor() as cur:
+                  cur.execute("select to_regclass('public.alembic_version')")
+                  assert cur.fetchone()[0] is None
+                  cur.execute("select count(*) from pg_tables where schemaname = 'public'")
+                  assert cur.fetchone()[0] == 0
+          PY
+
+      - name: Run independent migration
+        run: python -m backend.app.migrate
+
+      - name: Verify PostgreSQL, migration, Entra schema, and baseline
+        run: |
+          python - <<'PY'
+          import os
+          import psycopg
+          with psycopg.connect(os.environ["PG_DSN"]) as conn:
+              with conn.cursor() as cur:
+                  cur.execute("select current_setting('server_version_num')")
+                  assert int(cur.fetchone()[0]) // 10000 == 16
+                  cur.execute("select version_num from alembic_version")
+                  assert cur.fetchall() == [("0059_entra_user_identity",)]
+                  cur.execute("select column_name from information_schema.columns where table_schema = 'public' and table_name = 'users' and column_name = 'entra_object_id'")
+                  assert cur.fetchone() is not None
+                  cur.execute("select indexname from pg_indexes where schemaname = 'public' and tablename = 'users' and indexname = 'ix_users_entra_object_id'")
+                  assert cur.fetchone() is not None
+                  cur.execute("select id, content_type, prefix, padding, scope, active, current_value from master_content_reference_sequences")
+                  assert cur.fetchall() == [("proposal-reference-sequence", "PROPOSAL_REFERENCE", "AMEC-SYN-PROP", 4, "GLOBAL", True, 0)]
+          PY
+
+      - name: Bootstrap canonical synthetic anchors
+        run: |
+          first="$(python -m backend.app.bootstrap_preprod)"
+          echo "$first"
+          FIRST="$first" python - <<'PY'
+          import json
+          import os
+          assert json.loads(os.environ["FIRST"])["status"] == "BOOTSTRAPPED"
+          PY
+          repeat="$(python -m backend.app.bootstrap_preprod)"
+          echo "$repeat"
+          REPEAT="$repeat" python - <<'PY'
+          import json
+          import os
+          assert json.loads(os.environ["REPEAT"])["status"] == "ALREADY_BOOTSTRAPPED"
+          PY
+
+      - name: Bind synthetic owner Entra identity
+        run: |
+          bound="$(python -m backend.app.provision_user --app-user-email owner@amec.synthetic --entra-object-id 44444444-4444-4444-8444-444444444444)"
+          echo "$bound"
+          BOUND="$bound" python - <<'PY'
+          import json
+          import os
+          assert json.loads(os.environ["BOUND"])["status"] == "BOUND"
+          PY
+          repeat="$(python -m backend.app.provision_user --app-user-email owner@amec.synthetic --entra-object-id 44444444-4444-4444-8444-444444444444)"
+          echo "$repeat"
+          REPEAT="$repeat" python - <<'PY'
+          import json
+          import os
+          assert json.loads(os.environ["REPEAT"])["status"] == "ALREADY_BOUND"
+          PY
+
+      - name: Run identity and worker proof
+        run: python backend/scripts/batch3a_postgres16_proof.py
+
+      - name: Prove negative settings gates fail closed
+        run: |
+          expect_rejected() {
+            if env "$@" python -c 'from backend.app.config.settings import Settings; Settings().validate_environment()'; then
+              echo "unexpectedly accepted: $*" >&2
+              exit 1
+            fi
+          }
+          expect_rejected APP_ENV=PROD
+          expect_rejected SYNTHETIC_ONLY=false
+          expect_rejected REAL_DATA_ALLOWED=true
+          expect_rejected DATABASE_URL=sqlite:///./forbidden.sqlite
+          expect_rejected STORAGE_PROVIDER=smb
+          expect_rejected SYNOLOGY_MODE=REAL
+          expect_rejected ENTRA_API_CLIENT_ID=22222222-2222-4222-8222-222222222222
+
+      - name: Start Uvicorn and verify API health
+        run: |
+          python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/batch3a2-uvicorn.log" 2>&1 &
+          api_pid=$!
+          cleanup() {
+            kill "$api_pid" 2>/dev/null || true
+            wait "$api_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8000/health > "$RUNNER_TEMP/batch3a2-health.json"; then
+              break
+            fi
+            if ! kill -0 "$api_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/batch3a2-uvicorn.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          test -s "$RUNNER_TEMP/batch3a2-health.json"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          health = json.loads(Path(os.environ["RUNNER_TEMP"], "batch3a2-health.json").read_text())
+          assert health["status"] == "ok"
+          assert health["environment"] == "AZURE-PREPROD"
+          assert health["synthetic_only"] is True
+          assert health["database_dialect"] == "postgresql"
+          assert health["database_durable"] is True
+          assert health["database_connection_valid"] is True
+          assert health["sqlite_fallback_active"] is False
+          assert health["alembic_versions"] == ["0059_entra_user_identity"]
+          PY
+
+      - name: Verify no external mutation and clean worktree
+        run: |
+          test "${AZURE_RESOURCES_CREATED:-false}" = false
+          test "${ENTRA_RESOURCES_CREATED:-false}" = false
+          test "${REAL_DATA_USED:-false}" = false
+          test -z "$(git status --porcelain)"
