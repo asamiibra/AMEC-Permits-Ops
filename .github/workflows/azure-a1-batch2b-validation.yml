@@ -1,0 +1,76 @@
+name: Azure A1 Batch 2B Validation
+
+on:
+  push:
+    branches:
+      - azure-a1-f1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-head-validation:
+    name: Exact HEAD frontend + backend auth
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Record provenance
+        run: |
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend install
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend tests
+        working-directory: frontend
+        run: npm test -- --run
+
+      - name: Frontend build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Verify redirect bridge output
+        working-directory: frontend
+        run: |
+          test -f dist/index.html
+          test -f dist/redirect.html
+          grep -q "ProposalOps" dist/redirect.html
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+
+      - name: Verify backend auth tests exist
+        run: |
+          test -f backend/tests/test_auth_principal.py
+          test -f backend/tests/test_api_auth_boundary.py
+          test -f backend/tests/test_trusted_request_actor.py
+
+      - name: Backend Batch 2A auth regressions
+        env:
+          APP_ENV: TEST
+          SYNTHETIC_ONLY: "true"
+        run: |
+          python -m pytest -q             backend/tests/test_auth_principal.py             backend/tests/test_api_auth_boundary.py             backend/tests/test_trusted_request_actor.py
