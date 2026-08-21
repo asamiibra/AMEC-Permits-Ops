@@ -32,6 +32,61 @@ def _delete_seed_models(db, models, *, enabled: bool) -> None:
         db.execute(delete(model))
 
 
+PREPROD_MIGRATION_BASELINE_SEQUENCE = {
+    "id": "proposal-reference-sequence",
+    "content_type": "PROPOSAL_REFERENCE",
+    "prefix": "AMEC-SYN-PROP",
+    "padding": 4,
+    "scope": "GLOBAL",
+    "active": True,
+    "current_value": 0,
+}
+
+
+def validate_preprod_migration_baseline(db) -> None:
+    """Validate the only row allowed before a non-destructive preprod seed."""
+    try:
+        rows = list(
+            db.scalars(
+                select(MasterContentReferenceSequence)
+            ).all()
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            "Synthetic preprod migration baseline could not "
+            "be verified; refusing seed."
+        ) from exc
+
+    if len(rows) != 1:
+        raise RuntimeError(
+            "Synthetic preprod migration baseline is missing "
+            "or unexpected; refusing seed."
+        )
+
+    row = rows[0]
+    observed = {
+        field: getattr(row, field, None)
+        for field in PREPROD_MIGRATION_BASELINE_SEQUENCE
+    }
+    if observed != PREPROD_MIGRATION_BASELINE_SEQUENCE:
+        raise RuntimeError(
+            "Synthetic preprod migration baseline is mutated; "
+            "refusing seed."
+        )
+
+    for table in Base.metadata.sorted_tables:
+        if (
+            table.name
+            == "master_content_reference_sequences"
+        ):
+            continue
+        if db.execute(select(table).limit(1)).first() is not None:
+            raise RuntimeError(
+                "Synthetic preprod migration baseline is accompanied "
+                "by unexpected application data; refusing seed."
+            )
+
+
 def seed(
     *,
     initialize_schema: bool = True,
@@ -105,14 +160,7 @@ def seed(
             else:
                 _delete_seed_models(db, reset_order, enabled=True)
         else:
-            occupied_tables = []
-            for table in Base.metadata.sorted_tables:
-                if db.execute(select(table).limit(1)).first() is not None:
-                    occupied_tables.append(table.name)
-            if occupied_tables:
-                raise RuntimeError(
-                    "Non-destructive synthetic seed requires an empty migrated database; existing application data was found."
-                )
+            validate_preprod_migration_baseline(db)
 
         office = ConsultancyOffice(office_code="QEC-DOHA", name_en="AMEC Engineering", name_ar="مكتب آفاق الخليج للاستشارات الهندسية", status="ACTIVE")
         db.add(office); db.flush()

@@ -73,7 +73,7 @@ def _install_base(
     monkeypatch,
     *,
     anchors,
-    occupied=(),
+    baseline_validator=None,
 ):
     monkeypatch.setattr(
         bootstrap_preprod,
@@ -106,11 +106,9 @@ def _install_base(
     )
 
     monkeypatch.setattr(
-        bootstrap_preprod,
-        "_occupied_tables",
-        lambda db: tuple(
-            occupied
-        ),
+        bootstrap_preprod.seed_cli,
+        "validate_preprod_migration_baseline",
+        baseline_validator or (lambda db: None),
     )
 
 
@@ -262,6 +260,33 @@ def test_empty_database_uses_non_destructive_seed_flags(
     ]
 
 
+def test_first_bootstrap_invokes_shared_seed_baseline_validator(
+    monkeypatch,
+):
+    calls = []
+
+    _install_base(
+        monkeypatch,
+        anchors=[
+            _empty_anchors(),
+            _complete_anchors(),
+        ],
+        baseline_validator=lambda db: calls.append(db),
+    )
+
+    monkeypatch.setattr(
+        bootstrap_preprod.seed_cli,
+        "seed",
+        lambda **kwargs: None,
+    )
+
+    assert (
+        bootstrap_preprod.run_preprod_bootstrap()
+        == "BOOTSTRAPPED"
+    )
+    assert len(calls) == 1
+
+
 def test_existing_complete_bootstrap_is_idempotent(
     monkeypatch,
 ):
@@ -333,19 +358,23 @@ def test_partial_anchor_state_fails_closed(
 def test_unrelated_existing_data_fails_closed(
     monkeypatch,
 ):
+    def reject_unrelated_data(db):
+        raise RuntimeError(
+            "Synthetic preprod migration baseline is accompanied "
+            "by unexpected application data; refusing seed."
+        )
+
     _install_base(
         monkeypatch,
         anchors=[
             _empty_anchors()
         ],
-        occupied=(
-            "audit_events",
-        ),
+        baseline_validator=reject_unrelated_data,
     )
 
     with pytest.raises(
         RuntimeError,
-        match="empty migrated database",
+        match="unexpected application data",
     ):
         bootstrap_preprod.run_preprod_bootstrap()
 

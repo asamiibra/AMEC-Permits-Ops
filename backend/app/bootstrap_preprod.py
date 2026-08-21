@@ -19,7 +19,6 @@ from .fixtures.canonical import (
     synthetic_workspace_root,
 )
 from .models import (
-    Base,
     ConsultancyOffice,
     PermitApplication,
     Project,
@@ -131,27 +130,6 @@ def _bootstrap_anchors(
     )
 
 
-def _occupied_tables(
-    db: Session,
-) -> tuple[str, ...]:
-    occupied: list[str] = []
-
-    for table in Base.metadata.sorted_tables:
-        if (
-            db.execute(
-                select(table).limit(1)
-            ).first()
-            is not None
-        ):
-            occupied.append(
-                table.name
-            )
-
-    return tuple(
-        sorted(occupied)
-    )
-
-
 def _repair_idempotent_post_seed_state() -> None:
     seed_cli.create_fixtures(
         synthetic_workspace_root(),
@@ -216,15 +194,7 @@ def run_preprod_bootstrap() -> str:
             )
 
         else:
-            occupied = _occupied_tables(db)
-
-            if occupied:
-                raise RuntimeError(
-                    "Synthetic bootstrap requires an "
-                    "empty migrated database; existing "
-                    "data was found."
-                )
-
+            seed_cli.validate_preprod_migration_baseline(db)
             status = "BOOTSTRAPPED"
 
     if status == "BOOTSTRAPPED":
