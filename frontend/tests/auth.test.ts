@@ -14,6 +14,20 @@ const WEB_CLIENT_ID =
 const API_CLIENT_ID =
   "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 
+type MockRedirectAccount = {
+  tenantId: string;
+  homeAccountId: string;
+  localAccountId: string;
+  environment: string;
+  username: string;
+  name: string;
+};
+
+type MockRedirectResult = {
+  account: MockRedirectAccount;
+} | null;
+
+
 const msal = vi.hoisted(
   () => {
     class InteractionRequiredAuthError
@@ -30,7 +44,7 @@ const msal = vi.hoisted(
         },
       ),
       handleRedirectPromise: vi.fn(
-        async () => {
+        async (): Promise<MockRedirectResult> => {
           callOrder.push(
             "handleRedirectPromise",
           );
