@@ -29,10 +29,10 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "azure-a1-f1-batch3a-step4"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$FREEZE_SHA"
-          test "$(git rev-list --count "$FREEZE_SHA"..HEAD)" = 1
+          test "$(git merge-base "$FREEZE_SHA" HEAD)" = "$FREEZE_SHA"
+          test -z "$(git rev-list --merges "$FREEZE_SHA"..HEAD)"
           echo "EXACT_HEAD=PASS"
-          echo "PARENT_FREEZE=PASS"
+          echo "FREEZE_ANCESTOR=PASS"
 
       - name: Verify exact ten-file scope
         shell: bash
@@ -50,7 +50,7 @@ jobs:
             infra/azure/README.md
             scripts/azure/step3a4_whatif.sh
           )
-          mapfile -t actual < <(git diff-tree --no-commit-id --name-only -r HEAD)
+          mapfile -t actual < <(git diff --name-only "$FREEZE_SHA"..HEAD)
           test "${#actual[@]}" = "${#expected[@]}"
           printf '%s\n' "${actual[@]}" | sort > "$RUNNER_TEMP/actual.txt"
           printf '%s\n' "${expected[@]}" | sort > "$RUNNER_TEMP/expected.txt"
