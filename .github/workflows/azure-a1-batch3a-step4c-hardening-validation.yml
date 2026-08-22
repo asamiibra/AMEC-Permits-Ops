@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  R5_PARENT_SHA: "c56279116fc62d7b590edc74f0fb2de3a61c132f"
+  EXPECTED_PARENT_SHA: "a67e7ff432659464800fb1048b64a8b8dc23efbd"
 
 jobs:
   exact-head-hardening:
@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$R5_PARENT_SHA"
+          test "$(git rev-parse HEAD^)" = "$EXPECTED_PARENT_SHA"
           git merge-base --is-ancestor "$BASE_SHA" HEAD
           latest_allowlist='
           .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
@@ -112,6 +112,7 @@ jobs:
       - name: Workflow escaped-substitution sentinel
         run: |
           python3 - <<'PY'
+          import re
           from pathlib import Path
 
           path = Path(".github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml")
@@ -126,8 +127,9 @@ jobs:
           required = [
               "python-version: " + dollar_braces + " env.PYTHON_VERSION }}",
               "node-version: " + dollar_braces + " env.NODE_VERSION }}",
-              "name: azure-a1-step4c-r3-evidence-" + dollar_braces + " github.sha }}",
+              "name: azure-a1-step4c-evidence-" + dollar_braces + " github.sha }}",
               dollar_braces + " runner.temp }}/secret-summary.txt",
+              dollar_braces + " runner.temp }}/historical-secret-summary.txt",
               dollar_braces + " runner.temp }}/frontend-sbom.json",
               dollar_braces + " runner.temp }}/backend-sbom.json",
               dollar_braces + " runner.temp }}/worker.sha256",
@@ -136,6 +138,13 @@ jobs:
           missing = [item for item in required if item not in text]
           if missing:
               raise SystemExit(f"required unescaped workflow text missing: {missing}")
+          versioned_label = re.compile("azure-a1-step4c-r" + r"\d+-evidence-")
+          versioned_hits = [
+              (i, line) for i, line in enumerate(text.splitlines(), 1)
+              if versioned_label.search(line)
+          ]
+          if versioned_hits:
+              raise SystemExit(f"versioned evidence artifact label remains: {versioned_hits}")
           print("WORKFLOW_ESCAPED_SUBSTITUTIONS=0")
           PY
 
@@ -613,7 +622,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: azure-a1-step4c-r5-evidence-${{ github.sha }}
+          name: azure-a1-step4c-evidence-${{ github.sha }}
           retention-days: 3
           path: |
             ${{ runner.temp }}/secret-summary.txt
