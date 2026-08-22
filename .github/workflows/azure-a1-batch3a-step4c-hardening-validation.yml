@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  R4_PARENT_SHA: "dd6057cc31ad21c24827f36a41072bc33980aa80"
+  R5_PARENT_SHA: "c56279116fc62d7b590edc74f0fb2de3a61c132f"
 
 jobs:
   exact-head-hardening:
@@ -44,15 +44,12 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$R4_PARENT_SHA"
+          test "$(git rev-parse HEAD^)" = "$R5_PARENT_SHA"
           git merge-base --is-ancestor "$BASE_SHA" HEAD
           latest_allowlist='
-          backend/requirements-runtime.txt
-          backend/requirements-runtime.lock
-          backend/requirements-test.lock
           .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
           '
-          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" = 4
+          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" = 1
           while IFS= read -r path; do
             test -z "$path" || grep -Fqx "$path" <<< "$latest_allowlist"
           done < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA")
@@ -250,8 +247,8 @@ jobs:
               "SECRET_VALUES_PRINTED=0",
               "BROAD_IGNORE_ADDED=false",
               "HISTORY_REWRITTEN=false",
-              "HISTORICAL_SECRET_TRIAGE_REQUIRED=true",
-              "LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=true",
+              "HISTORICAL_SECRET_TRIAGE_STATUS=PENDING_FULL_HISTORY",
+              "LIVE_AZURE_MUTATION_SECRET_TRIAGE_STATUS=PENDING_FULL_HISTORY",
           ]
           Path(sys.argv[5]).write_text("\n".join(summary) + "\n")
           print("\n".join(summary))
@@ -268,10 +265,78 @@ jobs:
             --log-opts "$BASE_SHA..$GITHUB_SHA" --exit-code 1
           echo GITLEAKS=PASS
 
+      - name: Gitleaks full-history scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOTAL_REACHABLE_COMMITS="$(git rev-list --all --count)"
+          test "$TOTAL_REACHABLE_COMMITS" -gt 5
+          echo "FULL_HISTORY_REACHABLE_COMMITS=$TOTAL_REACHABLE_COMMITS"
+          "$RUNNER_TEMP/gitleaks" git \
+            --redact \
+            --no-banner \
+            --exit-code 1 \
+            .
+          cat > "$RUNNER_TEMP/historical-secret-summary.txt" <<EOF
+          FULL_HISTORY_GITLEAKS=PASS
+          HISTORICAL_SECRET_TRIAGE_REQUIRED=false
+          LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=false
+          SECRET_VALUES_PRINTED=0
+          HISTORY_REWRITTEN=false
+          EOF
+          {
+            echo "HISTORICAL_SECRET_TRIAGE_REQUIRED=false"
+            echo "LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=false"
+          } >> "$GITHUB_ENV"
+          echo FULL_HISTORY_GITLEAKS=PASS
+
+      - name: Backend Docker command static contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          workflow = Path(".github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml").read_text()
+
+          def block(name):
+              marker = f"      - name: {name}\n"
+              start = workflow.index(marker) + len(marker)
+              end = workflow.find("\n      - name:", start)
+              return workflow[start:] if end == -1 else workflow[start:end]
+
+          positive = block("Build immutable CI-local images")
+          negative = block("Negative immutable-release gates")
+          backend_start = positive.index("docker build --pull")
+          backend_end = positive.index("\n          echo FRONTEND_IMAGE_ID_CLASS", backend_start)
+          backend_command = positive[backend_start:backend_end]
+          assert backend_command.count("docker build --pull") == 1
+          assert backend_command.count("-f backend/Dockerfile") == 1
+          assert '--build-arg RELEASE_SHA="$GITHUB_SHA"' in backend_command
+          assert '-t proposalops/backend:"$GITHUB_SHA"' in backend_command
+          assert backend_command.rstrip().endswith(".")
+          assert negative.count("expect_backend_build_failure") == 3
+          assert negative.count("docker build --pull --no-cache") == 1
+          assert negative.count("-f backend/Dockerfile") == 1
+          assert re.search(
+              r'docker build --pull --no-cache .*? \. >"\$log" 2>&1',
+              negative,
+              re.DOTALL,
+          )
+          print("BACKEND_DOCKER_COMMAND_STATIC_GATE=PASS")
+          PY
+
       - name: Build immutable CI-local images
         shell: bash
         run: |
           set -euo pipefail
+          test -f backend/Dockerfile
+          test ! -f Dockerfile
+          grep -Fq 'COPY backend/requirements-runtime.lock' backend/Dockerfile
+          grep -Fq 'COPY backend/app' backend/Dockerfile
+          grep -Fq 'COPY backend/migrations' backend/Dockerfile
+          echo BACKEND_DOCKERFILE_PATH_CONTRACT=PASS
           docker build \
             --build-arg RELEASE_SHA="$GITHUB_SHA" \
             --build-arg BUILD_ID="$GITHUB_RUN_ID" \
@@ -280,7 +345,8 @@ jobs:
             --build-arg VITE_ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333 \
             --build-arg VITE_API_URL=https://api.invalid \
             -t proposalops/frontend:"$GITHUB_SHA" frontend
-          docker build \
+          docker build --pull \
+            -f backend/Dockerfile \
             --build-arg RELEASE_SHA="$GITHUB_SHA" \
             -t proposalops/backend:"$GITHUB_SHA" .
           echo FRONTEND_IMAGE_ID_CLASS=CI_LOCAL_EPHEMERAL
@@ -301,8 +367,32 @@ jobs:
           if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA=short -t proposalops/frontend:negative-short frontend; then exit 1; fi
           if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA=not-a-hex-release-sha -t proposalops/frontend:negative-nonhex frontend; then exit 1; fi
           if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA="$GITHUB_SHA" --build-arg BUILD_ID='bad build id!' -t proposalops/frontend:negative-build-id frontend; then exit 1; fi
-          if docker build --build-arg RELEASE_SHA=short -t proposalops/backend:negative-short .; then exit 1; fi
-          if docker build --build-arg RELEASE_SHA=not-a-hex-release-sha -t proposalops/backend:negative-nonhex .; then exit 1; fi
+          expect_backend_build_failure() {
+            local label="$1"
+            local release_sha="$2"
+            local log="$RUNNER_TEMP/backend-negative-${label}.log"
+
+            if docker build --pull --no-cache \
+                -f backend/Dockerfile \
+                --build-arg RELEASE_SHA="$release_sha" \
+                -t "proposalops/backend:negative-${label}" \
+                . >"$log" 2>&1; then
+              cat "$log"
+              echo "unexpectedly accepted invalid backend RELEASE_SHA: $label" >&2
+              exit 1
+            fi
+
+            if grep -Fq 'failed to read dockerfile' "$log" ||
+               grep -Fq 'open Dockerfile: no such file or directory' "$log"; then
+              cat "$log"
+              echo "negative backend build failed for Dockerfile-path reason, not RELEASE_SHA validation" >&2
+              exit 1
+            fi
+
+            echo "BACKEND_NEGATIVE_BUILD_${label}=PASS"
+          }
+          expect_backend_build_failure short short
+          expect_backend_build_failure nonhex not-a-hex-release-sha
           echo FRONTEND_NEGATIVE_BUILD_GATES=PASS
           echo BACKEND_NEGATIVE_BUILD_GATES=PASS
 
@@ -523,10 +613,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: azure-a1-step4c-r3-evidence-${{ github.sha }}
+          name: azure-a1-step4c-r5-evidence-${{ github.sha }}
           retention-days: 3
           path: |
             ${{ runner.temp }}/secret-summary.txt
+            ${{ runner.temp }}/historical-secret-summary.txt
             ${{ runner.temp }}/frontend-sbom.json
             ${{ runner.temp }}/backend-sbom.json
             ${{ runner.temp }}/worker.sha256
@@ -546,6 +637,6 @@ jobs:
           echo ENTRA_RESOURCES_CREATED=false
           echo SYNOLOGY_ACCESSED=false
           echo SMB_ACCESSED=false
-          echo HISTORICAL_SECRET_TRIAGE_REQUIRED=true
-          echo LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=true
+          echo "HISTORICAL_SECRET_TRIAGE_REQUIRED=${HISTORICAL_SECRET_TRIAGE_REQUIRED:-true}"
+          echo "LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=${LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE:-true}"
           echo STEP_3A_4C_ACCEPTED=false
