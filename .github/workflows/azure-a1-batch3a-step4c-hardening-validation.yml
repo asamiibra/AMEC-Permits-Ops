@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  EXPECTED_PARENT_SHA: 7e155aaeec80afca931b6b6b9aaa4c6d8b60f0c5
+  EXPECTED_PARENT_SHA: dd24e1c9ac65d6137614252f821d3a3e6b1263c2
 
 jobs:
   exact-head-hardening:
@@ -185,6 +185,24 @@ jobs:
               raise SystemExit("migration authority bypass proof is missing")
           if "MIGRATION_HEAD=0059_entra_user_identity" not in postgres:
               raise SystemExit("migration head proof is missing")
+          if 'docker run --rm "${migration_env[@]}" "${runtime_env[@]}"' in postgres:
+              raise SystemExit("role provisioning still concatenates full environment arrays")
+          if 'docker run -d --rm --network host --name proposalops-backend-ready' in postgres:
+              raise SystemExit("backend-ready command still duplicates host networking")
+          role_marker = "python -m backend.app.provision_db_roles"
+          role_end = postgres.index(role_marker) + len(role_marker)
+          role_start = postgres.rfind("docker run", 0, role_end)
+          role = postgres[role_start:role_end]
+          if '"${runtime_env[@]}"' not in role:
+              raise SystemExit("role provisioning does not use runtime environment")
+          if '"${migration_env[@]}"' in role:
+              raise SystemExit("role provisioning still uses migration environment array")
+          if "-e DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/app" not in role:
+              raise SystemExit("role provisioning migration authority is missing")
+          if "DATABASE_URL=postgresql+psycopg://runtime:runtime@" not in postgres:
+              raise SystemExit("role provisioning runtime authority is missing")
+          if "python -m backend.app.provision_db_roles" not in role:
+              raise SystemExit("role provisioning command is missing")
           print("WORKFLOW_ESCAPED_SUBSTITUTIONS=0")
           PY
 
@@ -619,7 +637,9 @@ jobs:
           docker run --rm "${migration_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.migrate
           echo MIGRATION_RUNTIME_POISON_URL_BYPASSED=PASS
           echo MIGRATION_HEAD=0059_entra_user_identity
-          docker run --rm "${migration_env[@]}" "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.provision_db_roles
+          docker run --rm "${runtime_env[@]}" \
+            -e DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/app \
+            proposalops/backend:"$GITHUB_SHA" python -m backend.app.provision_db_roles
           echo DB_RUNTIME_ROLE_PROVISIONED=PASS
           test "$(docker exec "$pg_container" psql -U postgres -d app -Atqc "SELECT has_schema_privilege('runtime','public','CREATE')")" = f
           echo DB_RUNTIME_ROLE_DDL_DENIED=PASS
@@ -637,7 +657,7 @@ jobs:
           grep -q '"status": "ALREADY_BOOTSTRAPPED"' "$RUNNER_TEMP/bootstrap-repeat.json"
           echo BOOTSTRAP_FIRST=BOOTSTRAPPED
           echo BOOTSTRAP_REPEAT=ALREADY_BOOTSTRAPPED
-          docker run -d --rm --network host --name proposalops-backend-ready \
+          docker run -d --rm --name proposalops-backend-ready \
             "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA"
           trap 'docker rm -f proposalops-backend-ready >/dev/null 2>&1 || true' EXIT
           for attempt in {1..30}; do
