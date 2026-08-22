@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  R3_PARENT_SHA: "dbf3265a592bf4bda46a0385f4e0673eb42695e1"
+  R4_PARENT_SHA: "dd6057cc31ad21c24827f36a41072bc33980aa80"
 
 jobs:
   exact-head-hardening:
@@ -44,12 +44,15 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$R3_PARENT_SHA"
+          test "$(git rev-parse HEAD^)" = "$R4_PARENT_SHA"
           git merge-base --is-ancestor "$BASE_SHA" HEAD
           latest_allowlist='
+          backend/requirements-runtime.txt
+          backend/requirements-runtime.lock
+          backend/requirements-test.lock
           .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
           '
-          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" = 1
+          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" = 4
           while IFS= read -r path; do
             test -z "$path" || grep -Fqx "$path" <<< "$latest_allowlist"
           done < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA")
