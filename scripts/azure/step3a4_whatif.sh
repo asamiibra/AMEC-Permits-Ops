@@ -50,15 +50,26 @@ then
 fi
 echo "AZURE_CLI_VALIDATION_LEVEL_SUPPORT=PASS"
 
-echo "APP_SERVICE_B1_QATAR="
-az appservice list-locations \
+app_service_locations_json="$(az appservice list-locations \
   --sku B1 \
-  --linux-workers-enabled true \
+  --linux-workers-enabled \
   --subscription "$SUB_ID" \
-  --output json \
-  | jq --arg location "$LOCATION" '[.[] | select(.name == $location)]'
+  --output json)"
 
-providers=(
+qatar_locations="$(printf '%s' "$app_service_locations_json" | jq --arg location "$LOCATION" '
+  def normalize: ascii_downcase | gsub("[[:space:]_-]"; "");
+  [.[] | select(
+    ((.name // "") | normalize) == ($location | normalize)
+    or ((.displayName // "") | normalize) == ($location | normalize)
+  )]')"
+echo "$qatar_locations"
+if [ "$(printf '%s' "$qatar_locations" | jq 'length')" -eq 0 ]; then
+  echo "APP_SERVICE_B1_QATAR=FAIL"
+  exit 1
+fi
+echo "APP_SERVICE_B1_QATAR=PASS"
+
+foundation_providers=(
   Microsoft.Resources
   Microsoft.Network
   Microsoft.Web
@@ -66,11 +77,12 @@ providers=(
   Microsoft.KeyVault
   Microsoft.OperationalInsights
   Microsoft.Insights
-  Microsoft.DBforPostgreSQL
 )
+postgres_provider=Microsoft.DBforPostgreSQL
 
 all_foundation_registered=true
-for namespace in "${providers[@]}"; do
+unregistered_foundation=()
+for namespace in "${foundation_providers[@]}"; do
   state="$(az provider show \
     --namespace "$namespace" \
     --subscription "$SUB_ID" \
@@ -80,27 +92,45 @@ for namespace in "${providers[@]}"; do
   echo "PROVIDER_STATE_${namespace//./_}=$state"
   if [ "$state" != "Registered" ]; then
     all_foundation_registered=false
+    unregistered_foundation+=("$namespace")
   fi
 done
 
-echo "WHATIF_TEMPLATE_EXECUTED=true"
-az deployment sub what-if \
+postgres_state="$(az provider show \
+  --namespace "$postgres_provider" \
+  --subscription "$SUB_ID" \
+  --query registrationState \
+  --output tsv 2>/dev/null || true)"
+postgres_state="${postgres_state:-UNKNOWN}"
+echo "PROVIDER_STATE_${postgres_provider//./_}=$postgres_state"
+
+if az deployment sub what-if \
   --name proposalops-step3a4-template \
   --location "$LOCATION" \
   --parameters "$PARAMETER_FILE" \
   --validation-level Template \
   --no-pretty-print \
-  --subscription "$SUB_ID"
+  --subscription "$SUB_ID"; then
+  echo "WHATIF_TEMPLATE=PASS"
+else
+  echo "WHATIF_TEMPLATE=FAIL"
+  exit 1
+fi
 
 if [ "$all_foundation_registered" = true ]; then
-  echo "WHATIF_PROVIDER_NORBAC=EXECUTED"
-  az deployment sub what-if \
+  if az deployment sub what-if \
     --name proposalops-step3a4-provider-norbac \
     --location "$LOCATION" \
     --parameters "$PARAMETER_FILE" \
     --validation-level ProviderNoRbac \
     --no-pretty-print \
-    --subscription "$SUB_ID"
+    --subscription "$SUB_ID"; then
+    echo "WHATIF_PROVIDER_NORBAC=PASS"
+  else
+    echo "WHATIF_PROVIDER_NORBAC=FAIL"
+    exit 1
+  fi
 else
-  echo "WHATIF_PROVIDER_NORBAC=ENV_BLOCKED_UNREGISTERED_PROVIDER"
+  echo "UNREGISTERED_FOUNDATION_PROVIDERS=${unregistered_foundation[*]}"
+  echo "WHATIF_PROVIDER_NORBAC=ENV_BLOCKED_UNREGISTERED_FOUNDATION_PROVIDER"
 fi
