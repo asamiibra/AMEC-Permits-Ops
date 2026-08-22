@@ -33,8 +33,16 @@ echo "AZURE_CLI_VERSION=$AZ_CLI_VERSION"
 if ! python3 - "$AZ_CLI_VERSION" <<'PY'
 import sys
 
-version = tuple(int(part) for part in sys.argv[1].split('.')[:3])
-raise SystemExit(version >= (2, 76, 0))
+try:
+    parts = sys.argv[1].split('.')
+    version = tuple(int(part) for part in parts[:3])
+except (ValueError, IndexError):
+    raise SystemExit(2)
+
+if len(version) < 3:
+    version = version + (0,) * (3 - len(version))
+
+raise SystemExit(0 if version >= (2, 76, 0) else 1)
 PY
 then
   echo "STEP_3A_4B_STATUS=ENV_BLOCKED_AZURE_CLI_TOO_OLD"
