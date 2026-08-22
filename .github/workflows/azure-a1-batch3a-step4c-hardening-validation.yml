@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  R2_PARENT_SHA: "ead23d50256ffd5a607f227b9d916de854b91cbc"
+  R3_PARENT_SHA: "dbf3265a592bf4bda46a0385f4e0673eb42695e1"
 
 jobs:
   exact-head-hardening:
@@ -44,18 +44,12 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$R2_PARENT_SHA"
+          test "$(git rev-parse HEAD^)" = "$R3_PARENT_SHA"
           git merge-base --is-ancestor "$BASE_SHA" HEAD
           latest_allowlist='
           .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
-          scripts/azure/package_webjobs.sh
-          release/a1-release-manifest.schema.json
-          scripts/release/verify_a1_release_manifest.py
-          docs/azure/A1_PREDEPLOY_HARDENING_AND_RELEASE_CONTRACT.md
-          deploy/webjobs/migrate/run.sh
-          deploy/webjobs/migrate/settings.job
           '
-          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" = 7
+          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" = 1
           while IFS= read -r path; do
             test -z "$path" || grep -Fqx "$path" <<< "$latest_allowlist"
           done < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA")
@@ -115,13 +109,43 @@ jobs:
           echo MIGRATION_WEBJOB_PATHS_ABSENT=PASS
           echo WHATIF_BLOB_FROZEN=PASS
 
+      - name: Workflow escaped-substitution sentinel
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path(".github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml")
+          text = path.read_text()
+          forbidden = chr(92) + chr(36) + chr(123)
+          hits = [(i, line) for i, line in enumerate(text.splitlines(), 1) if forbidden in line]
+          if hits:
+              for line_number, _ in hits:
+                  print(f"STOP: escaped substitution remains at line {line_number}")
+              raise SystemExit(1)
+          dollar_braces = "$" + "{{"
+          required = [
+              "python-version: " + dollar_braces + " env.PYTHON_VERSION }}",
+              "node-version: " + dollar_braces + " env.NODE_VERSION }}",
+              "name: azure-a1-step4c-r3-evidence-" + dollar_braces + " github.sha }}",
+              dollar_braces + " runner.temp }}/secret-summary.txt",
+              dollar_braces + " runner.temp }}/frontend-sbom.json",
+              dollar_braces + " runner.temp }}/backend-sbom.json",
+              dollar_braces + " runner.temp }}/worker.sha256",
+              dollar_braces + " runner.temp }}/predeploy.json",
+          ]
+          missing = [item for item in required if item not in text]
+          if missing:
+              raise SystemExit(f"required unescaped workflow text missing: {missing}")
+          print("WORKFLOW_ESCAPED_SUBSTITUTIONS=0")
+          PY
+
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
-          python-version: \${{ env.PYTHON_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: \${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -271,9 +295,9 @@ jobs:
             --build-arg VITE_ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333
             --build-arg VITE_API_URL=https://api.invalid
           )
-          if docker build "\${frontend_args[@]}" --build-arg RELEASE_SHA=short -t proposalops/frontend:negative-short frontend; then exit 1; fi
-          if docker build "\${frontend_args[@]}" --build-arg RELEASE_SHA=not-a-hex-release-sha -t proposalops/frontend:negative-nonhex frontend; then exit 1; fi
-          if docker build "\${frontend_args[@]}" --build-arg RELEASE_SHA="$GITHUB_SHA" --build-arg BUILD_ID='bad build id!' -t proposalops/frontend:negative-build-id frontend; then exit 1; fi
+          if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA=short -t proposalops/frontend:negative-short frontend; then exit 1; fi
+          if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA=not-a-hex-release-sha -t proposalops/frontend:negative-nonhex frontend; then exit 1; fi
+          if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA="$GITHUB_SHA" --build-arg BUILD_ID='bad build id!' -t proposalops/frontend:negative-build-id frontend; then exit 1; fi
           if docker build --build-arg RELEASE_SHA=short -t proposalops/backend:negative-short .; then exit 1; fi
           if docker build --build-arg RELEASE_SHA=not-a-hex-release-sha -t proposalops/backend:negative-nonhex .; then exit 1; fi
           echo FRONTEND_NEGATIVE_BUILD_GATES=PASS
@@ -321,10 +345,13 @@ jobs:
           echo BACKEND_RUNTIME_CONTRACT=PASS
 
       - name: PostgreSQL 16 and isolated migration/bootstrap proof
+        env:
+          PG_CONTAINER_ID: ${{ job.services.postgres.id }}
         shell: bash
         run: |
           set -euo pipefail
-          pg_container='\${{ job.services.postgres.id }}'
+          pg_container="$PG_CONTAINER_ID"
+          test -n "$pg_container"
           docker exec "$pg_container" postgres --version | grep -Fq 'PostgreSQL 16'
           echo POSTGRES_VERSION=16
 
@@ -359,9 +386,9 @@ jobs:
             -e SYNOLOGY_MODE=SYNTHETIC
             -e DATABASE_URL=postgresql+psycopg://runtime:runtime@127.0.0.1:5432/app
           )
-          docker run --rm "\${migration_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.migrate
+          docker run --rm "${migration_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.migrate
           echo MIGRATION_HEAD=0059_entra_user_identity
-          docker run --rm "\${migration_env[@]}" "\${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.provision_db_roles
+          docker run --rm "${migration_env[@]}" "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.provision_db_roles
           echo DB_RUNTIME_ROLE_PROVISIONED=PASS
           test "$(docker exec "$pg_container" psql -U postgres -d app -Atqc "SELECT has_schema_privilege('runtime','public','CREATE')")" = f
           echo DB_RUNTIME_ROLE_DDL_DENIED=PASS
@@ -373,14 +400,14 @@ jobs:
           echo CREATE_TABLE=DENIED
           echo ALTER_PROTECTED_TABLE=DENIED
           echo DROP_APPLICATION_TABLE=DENIED
-          docker run --rm "\${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.bootstrap_preprod | tee "$RUNNER_TEMP/bootstrap-first.json"
-          docker run --rm "\${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.bootstrap_preprod | tee "$RUNNER_TEMP/bootstrap-repeat.json"
+          docker run --rm "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.bootstrap_preprod | tee "$RUNNER_TEMP/bootstrap-first.json"
+          docker run --rm "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.bootstrap_preprod | tee "$RUNNER_TEMP/bootstrap-repeat.json"
           grep -q '"status": "BOOTSTRAPPED"' "$RUNNER_TEMP/bootstrap-first.json"
           grep -q '"status": "ALREADY_BOOTSTRAPPED"' "$RUNNER_TEMP/bootstrap-repeat.json"
           echo BOOTSTRAP_FIRST=BOOTSTRAPPED
           echo BOOTSTRAP_REPEAT=ALREADY_BOOTSTRAPPED
           docker run -d --rm --network host --name proposalops-backend-ready \
-            "\${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA"
+            "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA"
           trap 'docker rm -f proposalops-backend-ready >/dev/null 2>&1 || true' EXIT
           for attempt in {1..30}; do
             curl --fail --silent http://127.0.0.1:8000/health/live >/dev/null && break
@@ -475,16 +502,16 @@ jobs:
           echo MIGRATE_PACKAGE_FIELD_PRESENT=false
           echo RELEASE_MANIFEST_TESTS=PASS
 
-          curl -fsSL https://github.com/Azure/bicep/releases/download/v\${{ env.BICEP_VERSION }}/bicep-linux-x64 \
+          curl -fsSL "https://github.com/Azure/bicep/releases/download/v${BICEP_VERSION}/bicep-linux-x64" \
             -o "$RUNNER_TEMP/bicep"
           chmod +x "$RUNNER_TEMP/bicep"
-          "$RUNNER_TEMP/bicep" --version | grep -Fq "Bicep CLI version \${{ env.BICEP_VERSION }}"
+          "$RUNNER_TEMP/bicep" --version | grep -Fq "Bicep CLI version ${BICEP_VERSION}"
           "$RUNNER_TEMP/bicep" build infra/azure/main.bicep --stdout > "$RUNNER_TEMP/main.bicep.json" 2> "$RUNNER_TEMP/main.bicep.diag"
           "$RUNNER_TEMP/bicep" build infra/azure/modules/appservice.bicep --stdout > "$RUNNER_TEMP/appservice.bicep.json" 2> "$RUNNER_TEMP/appservice.bicep.diag"
           "$RUNNER_TEMP/bicep" build-params infra/azure/preprod.bicepparam --stdout > "$RUNNER_TEMP/preprod.bicepparam.json" 2> "$RUNNER_TEMP/preprod.bicepparam.diag"
           ! grep -Fq BCP081 "$RUNNER_TEMP/main.bicep.diag" "$RUNNER_TEMP/appservice.bicep.diag" "$RUNNER_TEMP/preprod.bicepparam.diag"
           grep -q "healthCheckPath: '/health/ready'" infra/azure/modules/appservice.bicep
-          echo BICEP_VERSION=\${{ env.BICEP_VERSION }}
+          echo "BICEP_VERSION=${BICEP_VERSION}"
           echo BICEP_LINT=PASS
           echo BICEP_BUILD=PASS
           echo BCP081=0
@@ -493,21 +520,21 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: azure-a1-step4c-r2-evidence-\${{ github.sha }}
+          name: azure-a1-step4c-r3-evidence-${{ github.sha }}
           retention-days: 3
           path: |
-            \${{ runner.temp }}/secret-summary.txt
-            \${{ runner.temp }}/frontend-sbom.json
-            \${{ runner.temp }}/backend-sbom.json
-            \${{ runner.temp }}/worker.sha256
-            \${{ runner.temp }}/predeploy.json
+            ${{ runner.temp }}/secret-summary.txt
+            ${{ runner.temp }}/frontend-sbom.json
+            ${{ runner.temp }}/backend-sbom.json
+            ${{ runner.temp }}/worker.sha256
+            ${{ runner.temp }}/predeploy.json
           if-no-files-found: warn
 
       - name: Final provenance and mutation boundary
         run: |
           set -euo pipefail
           echo GITHUB_ACTIONS_RUN_ID=$GITHUB_RUN_ID
-          echo GITHUB_ACTIONS_URL=https://github.com/\${{ github.repository }}/actions/runs/\${{ github.run_id }}
+          echo "GITHUB_ACTIONS_URL=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           echo REAL_DATA_USED=false
           echo AZURE_LOGIN_USED=false
           echo AZURE_RESOURCES_CREATED=false
