@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  EXPECTED_PARENT_SHA: "a67e7ff432659464800fb1048b64a8b8dc23efbd"
+  EXPECTED_PARENT_SHA: "2012e4628a064b3ecdf7c6e60a249afa8d441ff1"
 
 jobs:
   exact-head-hardening:
@@ -145,6 +145,29 @@ jobs:
           ]
           if versioned_hits:
               raise SystemExit(f"versioned evidence artifact label remains: {versioned_hits}")
+          history_start = text.index("\n      - name: Gitleaks full-history scan") + 1
+          history_end = text.index("\n      - name: Backend Docker command static contract", history_start)
+          history = text[history_start:history_end]
+          approved_patterns = [
+              r"32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:92",
+              r"32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:95",
+              r"789014228bff19e48023b73b0a12b034733b2da9:backend/tests/test_billing_invoice_full.py:generic-api-key:69",
+          ]
+          if any(len(re.findall(pattern, history)) != 2 for pattern in approved_patterns):
+              raise SystemExit("historical approved fingerprint set is not exactly three entries")
+          if history.count("--gitleaks-ignore-path") != 2:
+              raise SystemExit("historical temporary ignore path assertion failed")
+          if 'IGNORE_FILE="$RUNNER_TEMP/' not in history:
+              raise SystemExit("historical ignore file is not runner-temp scoped")
+          if "test ! -e .gitleaksignore" not in history or "test ! -e .gitleaks.toml" not in history:
+              raise SystemExit("repository gitleaks suppression-file assertion missing")
+          if any(token in history for token in ("--path-wide", "--commit-wide", "--rule-wide", "--regex-wide", "--stopword-wide")):
+              raise SystemExit("broad historical allowlist token present")
+          upload_start = text.index("\n      - name: Upload bounded sanitized evidence") + 1
+          upload_end = text.index("\n      - name: Final provenance and mutation boundary", upload_start)
+          upload = text[upload_start:upload_end]
+          if "historical-secret-raw.json" in upload:
+              raise SystemExit("raw historical report is in artifact upload path")
           print("WORKFLOW_ESCAPED_SUBSTITUTIONS=0")
           PY
 
@@ -281,17 +304,95 @@ jobs:
           TOTAL_REACHABLE_COMMITS="$(git rev-list --all --count)"
           test "$TOTAL_REACHABLE_COMMITS" -gt 5
           echo "FULL_HISTORY_REACHABLE_COMMITS=$TOTAL_REACHABLE_COMMITS"
+          gitleaks_help="$("$RUNNER_TEMP/gitleaks" git --help 2>&1)"
+          for flag in \
+            --gitleaks-ignore-path \
+            --report-format \
+            --report-path \
+            --exit-code \
+            --redact; do
+            grep -Fq -- "$flag" <<< "$gitleaks_help"
+          done
+
+          RAW_REPORT="$RUNNER_TEMP/historical-secret-raw.json"
+          GITLEAKS_LOG="$RUNNER_TEMP/historical-secret-gitleaks.log"
+          set +e
+          "$RUNNER_TEMP/gitleaks" git \
+            --redact \
+            --no-banner \
+            --report-format json \
+            --report-path "$RAW_REPORT" \
+            --exit-code 0 \
+            . >"$GITLEAKS_LOG" 2>&1
+          unfiltered_status=$?
+          set -e
+          test "$unfiltered_status" = 0
+          test -s "$RAW_REPORT"
+          python - "$RAW_REPORT" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          expected = {
+              "32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:92",
+              "32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:95",
+              "789014228bff19e48023b73b0a12b034733b2da9:backend/tests/test_billing_invoice_full.py:generic-api-key:69",
+          }
+          report = json.loads(Path(sys.argv[1]).read_text())
+          observed = [
+              f"{item.get('Commit')}:{item.get('File')}:{item.get('RuleID')}:{item.get('StartLine')}"
+              for item in report
+          ]
+          observed_set = set(observed)
+          if len(observed) != 3 or observed_set != expected:
+              print(f"HISTORICAL_UNFILTERED_FINDING_COUNT={len(observed)}")
+              print("HISTORICAL_EXPECTED_FINDING_SET_MATCH=false")
+              raise SystemExit(1)
+          print("HISTORICAL_UNFILTERED_FINDING_COUNT=3")
+          print("HISTORICAL_EXPECTED_FINDING_SET_MATCH=true")
+          PY
+          rm -f "$RAW_REPORT" "$GITLEAKS_LOG"
+          test ! -e "$RAW_REPORT"
+
+          IGNORE_FILE="$RUNNER_TEMP/historical-secret-fingerprint-ignore"
+          cat > "$IGNORE_FILE" <<'EOF'
+          32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:92
+          32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:95
+          789014228bff19e48023b73b0a12b034733b2da9:backend/tests/test_billing_invoice_full.py:generic-api-key:69
+          EOF
+          test ! -e .gitleaksignore
+          test ! -e .gitleaks.toml
+          test "$(grep -Ev '^[[:space:]]*(#|$)' "$IGNORE_FILE" | wc -l | tr -d ' ')" = 3
+
+          FILTERED_LOG="$RUNNER_TEMP/historical-secret-filtered.log"
+          set +e
           "$RUNNER_TEMP/gitleaks" git \
             --redact \
             --no-banner \
             --exit-code 1 \
-            .
+            --gitleaks-ignore-path "$IGNORE_FILE" \
+            . >"$FILTERED_LOG" 2>&1
+          filtered_status=$?
+          set -e
+          test "$filtered_status" = 0
+          echo HISTORICAL_FILTERED_FINDING_COUNT=0
+          rm -f "$IGNORE_FILE" "$FILTERED_LOG"
+          test ! -e "$IGNORE_FILE"
           cat > "$RUNNER_TEMP/historical-secret-summary.txt" <<EOF
           FULL_HISTORY_GITLEAKS=PASS
+          HISTORICAL_SECRET_FINDINGS_TOTAL=3
+          HISTORICAL_SECRET_FINDINGS_PROVEN_SYNTHETIC=3
+          HISTORICAL_SECRET_DISPOSITION=EXACT_FINGERPRINT_TEMP_RUNTIME_ALLOWLIST
           HISTORICAL_SECRET_TRIAGE_REQUIRED=false
           LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=false
           SECRET_VALUES_PRINTED=0
+          SECRET_DERIVED_HASHES_PRINTED=0
+          RAW_GITLEAKS_REPORT_UPLOADED=false
+          RAW_GITLEAKS_REPORT_DELETED=true
+          REPOSITORY_GITLEAKS_IGNORE_ADDED=false
           HISTORY_REWRITTEN=false
+          LIVE_AZURE_MUTATION_AUTHORIZED=false
+          STEP_3A_4C_ACCEPTED=false
           EOF
           {
             echo "HISTORICAL_SECRET_TRIAGE_REQUIRED=false"
