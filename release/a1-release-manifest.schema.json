@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["stage", "repository", "source_sha", "frontend", "backend", "webjobs", "database", "entra", "azure", "safety", "evidence"],
+  "properties": {
+    "stage": {"enum": ["PREDEPLOY", "DEPLOYED"]},
+    "repository": {"type": "string", "const": "asamiibra/AMEC-Permits-Ops"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "frontend": {"$ref": "#/$defs/image"},
+    "backend": {"$ref": "#/$defs/image"},
+    "webjobs": {"type": "object", "required": ["worker_package_sha256", "migrate_package_sha256"], "properties": {"worker_package_sha256": {"$ref": "#/$defs/sha256"}, "migrate_package_sha256": {"$ref": "#/$defs/sha256"}}, "additionalProperties": false},
+    "database": {"type": "object", "required": ["engine", "major", "migration_head"], "properties": {"engine": {"const": "postgresql"}, "major": {"const": 16}, "migration_head": {"const": "0059_entra_user_identity"}}, "additionalProperties": false},
+    "entra": {"type": "object", "required": ["tenant_id", "api_client_id", "web_client_id", "required_scope", "requested_access_token_version"], "properties": {"tenant_id": {"$ref": "#/$defs/guid"}, "api_client_id": {"$ref": "#/$defs/guid"}, "web_client_id": {"$ref": "#/$defs/guid"}, "required_scope": {"const": "access_as_user"}, "requested_access_token_version": {"const": 2}}, "additionalProperties": false},
+    "azure": {"type": "object", "required": ["subscription_id", "region", "resource_group", "frontend_site", "backend_site", "postgres_server", "postgres_database"], "properties": {"subscription_id": {"const": "61080f8b-16cb-4abc-bb8c-5d8e59ab15bf"}, "region": {"const": "qatarcentral"}, "resource_group": {"type": "string", "minLength": 1}, "frontend_site": {"type": "string", "minLength": 1}, "backend_site": {"type": "string", "minLength": 1}, "postgres_server": {"type": "string", "minLength": 1}, "postgres_database": {"type": "string", "minLength": 1}}, "additionalProperties": false},
+    "safety": {"type": "object", "required": ["app_env", "synthetic_only", "real_data_allowed", "storage_provider", "synology_mode", "azure_to_synology"], "properties": {"app_env": {"const": "AZURE-PREPROD"}, "synthetic_only": {"const": true}, "real_data_allowed": {"const": false}, "storage_provider": {"const": "mock"}, "synology_mode": {"const": "SYNTHETIC"}, "azure_to_synology": {"const": false}}, "additionalProperties": false},
+    "evidence": {"type": "object", "properties": {"source_ci_run": {"type": ["string", "null"]}, "iac_ci_run": {"type": ["string", "null"]}, "deployment_run": {"type": ["string", "null"]}, "browser_e2e_run": {"type": ["string", "null"]}, "restore_run": {"type": ["string", "null"]}}, "additionalProperties": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "guid": {"type": "string", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"},
+    "image": {"type": "object", "required": ["image_reference", "image_digest", "release_sha", "base_image_digest"], "properties": {"image_reference": {"type": "string", "pattern": "^.+@sha256:[0-9a-f]{64}$"}, "image_digest": {"$ref": "#/$defs/sha256"}, "release_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "base_image_digest": {"$ref": "#/$defs/sha256"}}, "additionalProperties": false}
+  }
+}

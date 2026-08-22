@@ -11,6 +11,7 @@ param entraTenantId string
 param entraWebClientId string
 param entraApiClientId string
 param logAnalyticsId string
+param appInsightsName string
 param tags object
 
 var acrPullRoleDefinitionId = subscriptionResourceId(
@@ -20,6 +21,10 @@ var acrPullRoleDefinitionId = subscriptionResourceId(
 
 resource acr 'Microsoft.ContainerRegistry/registries@2025-04-01' existing = {
   name: acrName
+}
+
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: appInsightsName
 }
 
 resource frontend 'Microsoft.Web/sites@2024-04-01' = {
@@ -78,6 +83,7 @@ resource backend 'Microsoft.Web/sites@2024-04-01' = {
       ftpsState: 'Disabled'
       acrUseManagedIdentityCreds: true
       linuxFxVersion: 'DOCKER|${backendImage}'
+      healthCheckPath: '/health/ready'
       appSettings: [
         {
           name: 'WEBSITES_PORT'
@@ -134,6 +140,14 @@ resource backend 'Microsoft.Web/sites@2024-04-01' = {
         {
           name: 'SYNOLOGY_MODE'
           value: 'SYNTHETIC'
+        }
+        {
+          name: 'MONITORING_MODE'
+          value: 'APPLICATION_INSIGHTS'
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: appInsights.properties.ConnectionString
         }
       ]
     }

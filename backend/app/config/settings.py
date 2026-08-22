@@ -2,6 +2,7 @@ from functools import lru_cache
 import os
 from pathlib import Path
 from uuid import UUID
+from urllib.parse import urlsplit
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,6 +10,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_env: str = "DEV"
     database_url: str = "sqlite:///./permitops.db"
+    database_migration_url: str = ""
     frontend_origins: str = "http://localhost:5173"
     mock_systems_root: str = "./mock-systems"
     synthetic_only: bool = True
@@ -67,6 +69,8 @@ class Settings(BaseSettings):
         ".pdf,.docx,.doc,.xlsx,.xls,.txt,.csv,.jpg,.jpeg,.png"
     )
     log_level: str = "INFO"
+    monitoring_mode: str = "DISABLED"
+    applicationinsights_connection_string: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -112,6 +116,28 @@ class Settings(BaseSettings):
             )
 
         if environment == "AZURE-PREPROD":
+            if os.getenv("FRONTEND_ORIGINS") is None:
+                raise ValueError(
+                    "AZURE-PREPROD requires explicit FRONTEND_ORIGINS"
+                )
+            if len(self.origins) != 1:
+                raise ValueError(
+                    "AZURE-PREPROD requires exactly one FRONTEND_ORIGINS value"
+                )
+            origin = self.origins[0]
+            parsed_origin = urlsplit(origin)
+            if (
+                parsed_origin.scheme != "https"
+                or not parsed_origin.netloc
+                or parsed_origin.path not in {"", "/"}
+                or parsed_origin.query
+                or parsed_origin.fragment
+                or "*" in origin
+                or parsed_origin.hostname in {"localhost", "127.0.0.1", "::1"}
+            ):
+                raise ValueError(
+                    "AZURE-PREPROD FRONTEND_ORIGINS must be one exact HTTPS origin"
+                )
             if not self.synthetic_only:
                 raise ValueError(
                     "AZURE-PREPROD requires SYNTHETIC_ONLY=true"
@@ -179,6 +205,11 @@ class Settings(BaseSettings):
                     "AZURE-PREPROD requires PostgreSQL via "
                     "postgresql+psycopg://"
                 )
+
+            if self.monitoring_mode.upper() not in {"DISABLED", "APPLICATION_INSIGHTS"}:
+                raise ValueError("MONITORING_MODE must be DISABLED or APPLICATION_INSIGHTS")
+            if self.monitoring_mode.upper() == "APPLICATION_INSIGHTS" and not self.applicationinsights_connection_string:
+                raise ValueError("APPLICATIONINSIGHTS_CONNECTION_STRING is required when monitoring is enabled")
 
             # Azure A1 is the application/control plane only.
             # Direct Synology/SMB access from Azure is prohibited.

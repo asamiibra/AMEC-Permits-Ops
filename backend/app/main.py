@@ -3,6 +3,7 @@ import logging
 import os
 import time
 import uuid
+import re
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request
@@ -72,9 +73,12 @@ from .db import (
 )
 from .models import ConsultancyOffice
 from .runtime_provenance import get_runtime_provenance
+from .db import repository_migration_head, verify_database_migration_head
+from .observability import initialize_observability
 
 
 settings = get_settings()
+initialize_observability(settings)
 
 logging.basicConfig(
     level=getattr(
@@ -193,7 +197,8 @@ async def correlation_middleware(
     incoming = request.headers.get(
         "X-Correlation-ID"
     )
-    correlation_id = incoming or str(
+    valid_correlation = bool(incoming and re.fullmatch(r"[A-Za-z0-9_.:/-]{1,128}", incoming))
+    correlation_id = (incoming if valid_correlation else None) or str(
         uuid.uuid4()
     )
     request.state.correlation_id = (
@@ -434,6 +439,44 @@ def health():
             ),
         },
     }
+
+
+def health_live(request: Request | None = None):
+    return JSONResponse(content={"status": "alive", "service": "proposalops"})
+
+
+def health_ready(request: Request | None = None):
+    failure = None
+    try:
+        with engine.connect() as db:
+            db.exec_driver_sql("select 1")
+        if repository_migration_head() != "0059_entra_user_identity":
+            failure = "MIGRATION_NOT_READY"
+        else:
+            verify_database_migration_head()
+    except Exception:
+        failure = "MIGRATION_NOT_READY" if failure is None else failure
+    if failure is None:
+        try:
+            from .storage.factory import create_binary_store
+            if create_binary_store().health().state != "HEALTHY":
+                failure = "STORAGE_UNAVAILABLE"
+        except Exception:
+            failure = "STORAGE_UNAVAILABLE"
+    if failure is None:
+        try:
+            settings.validate_environment()
+        except Exception:
+            failure = "CONFIGURATION_INVALID"
+    if failure:
+        return JSONResponse(status_code=503, content={"status": "not_ready", "failure_class": failure})
+    return JSONResponse(content={"status": "ready", "service": "proposalops"})
+
+
+# Health probes intentionally use Starlette routes: they are public platform
+# probes and are not part of the authenticated application-route inventory.
+app.router.add_route("/health/live", health_live, methods=["GET"])
+app.router.add_route("/health/ready", health_ready, methods=["GET"])
 
 
 @app.get("/")

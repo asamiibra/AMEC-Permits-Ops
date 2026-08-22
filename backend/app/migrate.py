@@ -9,6 +9,7 @@ from alembic.config import Config
 
 from .config.settings import get_settings
 from .db import (
+    create_database_engine,
     repository_migration_head,
     verify_database_migration_head,
 )
@@ -71,18 +72,23 @@ def run_migrations() -> str:
 
     expected_head = repository_migration_head()
 
-    config = _alembic_config(
-        settings.database_url
-    )
+    configured_migration_url = getattr(settings, "database_migration_url", "")
+    migration_url = configured_migration_url or settings.database_url
+    config = _alembic_config(migration_url)
 
     command.upgrade(
         config,
         "head",
     )
 
-    verified_head = (
-        verify_database_migration_head()
-    )
+    if configured_migration_url:
+        migration_engine = create_database_engine(migration_url)
+        try:
+            verified_head = verify_database_migration_head(migration_engine)
+        finally:
+            migration_engine.dispose()
+    else:
+        verified_head = verify_database_migration_head()
 
     if verified_head != expected_head:
         raise RuntimeError(

@@ -362,22 +362,18 @@ def test_create_fixtures_cleanup_is_guarded_by_clean_flag():
     assert guarded
 
 
-def test_azure_safe_seed_checks_database_is_empty_before_inserting():
+def test_azure_safe_seed_validates_migration_baseline_before_inserting():
     function = _function_ast("seed")
 
     source = ast.unparse(function)
 
-    assert "Base.metadata.sorted_tables" in source
-    assert "existing application data was found" in source
-
+    validator = "validate_preprod_migration_baseline(db)"
+    assert validator in source
+    assert "office = ConsultancyOffice" in source
     office_position = source.index(
         "office = ConsultancyOffice"
     )
-    empty_check_position = source.index(
-        "existing application data was found"
-    )
-
-    assert empty_check_position < office_position
+    assert source.index(validator) < office_position
 
 
 def test_seed_module_retains_all_canonical_helper_functions():

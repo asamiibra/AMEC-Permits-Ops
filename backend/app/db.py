@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
@@ -12,17 +14,39 @@ from .models import Base
 
 settings = get_settings()
 
-connect_args = (
-    {"check_same_thread": False}
-    if settings.database_url.startswith("sqlite")
-    else {}
-)
+POSTGRES_CONNECT_TIMEOUT_SECONDS = 10
+POSTGRES_POOL_RECYCLE_SECONDS = 1_800
 
-engine = create_engine(
-    settings.database_url,
-    connect_args=connect_args,
-    future=True,
-)
+
+def validate_postgres_tls_url(database_url: str, *, environ: dict[str, str] | None = None) -> None:
+    parsed = urlsplit(database_url)
+    if not parsed.hostname or not parsed.hostname.lower().endswith(".postgres.database.azure.com"):
+        return
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    sslmode = (query.get("sslmode", [""])[0] or "").lower()
+    if sslmode not in {"verify-full", "verify-ca"}:
+        raise ValueError("Azure PostgreSQL requires sslmode=verify-full or sslmode=verify-ca")
+    environment = environ if environ is not None else os.environ
+    root_cert = query.get("sslrootcert", [""])[0] or environment.get("PGSSLROOTCERT", "")
+    if not root_cert:
+        raise ValueError("Azure PostgreSQL requires sslrootcert or PGSSLROOTCERT")
+
+
+def _engine_options(database_url: str) -> dict[str, object]:
+    if database_url.startswith("sqlite"):
+        return {"connect_args": {"check_same_thread": False}}
+    validate_postgres_tls_url(database_url)
+    return {
+        "connect_args": {"connect_timeout": POSTGRES_CONNECT_TIMEOUT_SECONDS},
+        "pool_pre_ping": True,
+        "pool_recycle": POSTGRES_POOL_RECYCLE_SECONDS,
+    }
+
+
+def create_database_engine(database_url: str):
+    return create_engine(database_url, future=True, **_engine_options(database_url))
+
+engine = create_database_engine(settings.database_url)
 
 SessionLocal = sessionmaker(
     bind=engine,
@@ -69,8 +93,9 @@ def repository_migration_head() -> str:
     return heads[0]
 
 
-def database_migration_heads() -> tuple[str, ...]:
-    with engine.connect() as connection:
+def database_migration_heads(database_engine=None) -> tuple[str, ...]:
+    active_engine = database_engine or engine
+    with active_engine.connect() as connection:
         context = MigrationContext.configure(
             connection
         )
@@ -82,9 +107,13 @@ def database_migration_heads() -> tuple[str, ...]:
         )
 
 
-def verify_database_migration_head() -> str:
+def verify_database_migration_head(database_engine=None) -> str:
     expected = repository_migration_head()
-    current = database_migration_heads()
+    current = (
+        database_migration_heads()
+        if database_engine is None
+        else database_migration_heads(database_engine)
+    )
 
     if current != (expected,):
         raise RuntimeError(

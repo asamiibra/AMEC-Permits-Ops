@@ -14,6 +14,7 @@ def get_runtime_provenance() -> dict[str, object]:
     provider's deployment identity when provider metadata is available.
     """
 
+    azure_present = any(os.getenv(name) for name in ("WEBSITE_SITE_NAME", "WEBSITE_INSTANCE_ID", "WEBSITE_HOSTNAME"))
     provider_commit_sha = os.getenv("VERCEL_GIT_COMMIT_SHA") or None
     provider_deployment_id = os.getenv("VERCEL_DEPLOYMENT_ID") or None
     provider_environment = os.getenv("VERCEL_ENV") or None
@@ -28,6 +29,26 @@ def get_runtime_provenance() -> dict[str, object]:
             provider_environment,
         )
     )
+
+    if azure_present:
+        release_sha = application_release_sha
+        return {
+            "provider": "azure-app-service",
+            "application_release_sha": application_release_sha,
+            "release_sha": release_sha or "UNSET",
+            "image_digest": os.getenv("IMAGE_DIGEST") or "UNSET",
+            "build_id": os.getenv("BUILD_ID") or "UNSET",
+            "site_name": os.getenv("WEBSITE_SITE_NAME") or None,
+            "region": os.getenv("REGION_NAME") or None,
+            "resource_group": os.getenv("WEBSITE_RESOURCE_GROUP") or None,
+            "resource_id": os.getenv("AZURE_RESOURCE_ID") or None,
+            "instance_id": os.getenv("WEBSITE_INSTANCE_ID") or None,
+            "hostname": os.getenv("WEBSITE_HOSTNAME") or None,
+            "provider_commit_sha": None,
+            "provider_deployment_id": None,
+            "provider_environment": None,
+            "sha_parity": None,
+        }
 
     return {
         "provider": "vercel" if provider_present else "unknown",

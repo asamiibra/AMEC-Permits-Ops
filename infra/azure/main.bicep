@@ -122,6 +122,7 @@ module appservice './modules/appservice.bicep' = if (deployApps) {
     entraWebClientId: entraWebClientId
     entraApiClientId: entraApiClientId
     logAnalyticsId: foundation.outputs.logAnalyticsId
+    appInsightsName: appInsightsName
     tags: resourceTags
   }
 }

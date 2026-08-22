@@ -24,10 +24,10 @@ ENV RELEASE_SHA="${RELEASE_SHA}" \
 
 WORKDIR /workspace
 
-COPY backend/requirements-runtime.txt /tmp/requirements-runtime.txt
-RUN python -m pip install --no-cache-dir -r /tmp/requirements-runtime.txt \
+COPY backend/requirements-runtime.lock /tmp/requirements-runtime.lock
+RUN python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements-runtime.lock \
     && python -m pip check \
-    && rm -f /tmp/requirements-runtime.txt
+    && rm -f /tmp/requirements-runtime.lock
 
 COPY backend/__init__.py /workspace/backend/__init__.py
 COPY backend/app /workspace/backend/app
