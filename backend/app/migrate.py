@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
+from contextlib import contextmanager, nullcontext
 from pathlib import Path
 
 from alembic import command
@@ -39,6 +41,26 @@ def _alembic_config(
     )
 
     return config
+
+
+@contextmanager
+def _migration_authority_scope(database_url: str):
+    had_database_url = "DATABASE_URL" in os.environ
+    original_database_url = os.environ.get("DATABASE_URL")
+    clear_settings_cache = getattr(get_settings, "cache_clear", None)
+
+    try:
+        os.environ["DATABASE_URL"] = database_url
+        if clear_settings_cache is not None:
+            clear_settings_cache()
+        yield
+    finally:
+        if had_database_url:
+            os.environ["DATABASE_URL"] = original_database_url or ""
+        else:
+            os.environ.pop("DATABASE_URL", None)
+        if clear_settings_cache is not None:
+            clear_settings_cache()
 
 
 def run_migrations() -> str:
@@ -79,10 +101,16 @@ def run_migrations() -> str:
         validate_postgres_tls_url(migration_url)
     config = _alembic_config(migration_url)
 
-    command.upgrade(
-        config,
-        "head",
+    migration_scope = (
+        _migration_authority_scope(migration_url)
+        if configured_migration_url
+        else nullcontext()
     )
+    with migration_scope:
+        command.upgrade(
+            config,
+            "head",
+        )
 
     if configured_migration_url:
         migration_engine = create_database_engine(migration_url)

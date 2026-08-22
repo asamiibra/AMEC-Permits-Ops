@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  EXPECTED_PARENT_SHA: "d2842a2f6c5ec6aa9db907bc459e84d2c65c2c80"
+  EXPECTED_PARENT_SHA: e71f27d649a230ccbc8f685afbc5c2bb59077e63
 
 jobs:
   exact-head-hardening:
@@ -177,6 +177,14 @@ jobs:
               raise SystemExit("PostgreSQL major-16 fail-closed branch is missing")
           if "postgres --version | grep -Fq 'PostgreSQL 16'" in postgres:
               raise SystemExit("fragile PostgreSQL image-version pipeline remains")
+          if "DATABASE_URL=postgresql+psycopg://runtime:runtime@" not in postgres:
+              raise SystemExit("runtime poison database authority is missing")
+          if "DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@" not in postgres:
+              raise SystemExit("migration database authority is missing")
+          if "MIGRATION_RUNTIME_POISON_URL_BYPASSED=PASS" not in postgres:
+              raise SystemExit("migration authority bypass proof is missing")
+          if "MIGRATION_HEAD=0059_entra_user_identity" not in postgres:
+              raise SystemExit("migration head proof is missing")
           print("WORKFLOW_ESCAPED_SUBSTITUTIONS=0")
           PY
 
@@ -609,6 +617,7 @@ jobs:
             -e DATABASE_URL=postgresql+psycopg://runtime:runtime@127.0.0.1:5432/app
           )
           docker run --rm "${migration_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.migrate
+          echo MIGRATION_RUNTIME_POISON_URL_BYPASSED=PASS
           echo MIGRATION_HEAD=0059_entra_user_identity
           docker run --rm "${migration_env[@]}" "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.provision_db_roles
           echo DB_RUNTIME_ROLE_PROVISIONED=PASS
