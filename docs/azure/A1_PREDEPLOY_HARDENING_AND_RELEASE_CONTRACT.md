@@ -11,6 +11,21 @@ Entra, PostgreSQL, Synology, or real-data mutation.
 
 `API_ACCEPTANCE_REQUIRES=DATABASE_MIGRATION_URL absent from runtime API environment`
 
+## Execution identities
+
+The worker is the only App Service WebJob. It is a triggered WebJob and
+receives DATABASE_URL only.
+
+Migration and database-role provisioning are isolated one-shot command
+contracts:
+
+    python -m backend.app.migrate
+    python -m backend.app.provision_db_roles
+
+They use DATABASE_MIGRATION_URL only, are not hosted under the backend
+App Service WebJob identity, and do not produce a migration ZIP. The live
+migration execution host and identity remain a later deployment gate.
+
 ## Release order
 
 1. Accept the exact source SHA.
@@ -24,7 +39,7 @@ Entra, PostgreSQL, Synology, or real-data mutation.
 9. Pass the Qatar PostgreSQL gate; create PostgreSQL 16 and establish a recovery point.
 10. Migrate with the migration authority, provision the runtime role, and remove the migration credential from API runtime settings.
 11. Bootstrap with the runtime role and provision only the protected synthetic Owner identity.
-12. Deploy backend by immutable image identity, then the triggered worker WebJob, then frontend by immutable image identity. The migration package is a generic isolated one-shot launcher and is not a backend App Service WebJob; its live executor identity remains a later deployment gate.
+12. Deploy backend by immutable image identity, then the triggered worker WebJob, then frontend by immutable image identity. Migration/admin execution remains an isolated one-shot deployment contract and is not an App Service WebJob.
 13. Run live Entra/token/browser E2E, readiness, telemetry/alerts, restart/persistence, PITR restore, and rollback drills.
 14. Publish the final release manifest.
 

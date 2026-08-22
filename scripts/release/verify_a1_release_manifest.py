@@ -134,10 +134,11 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
         webjobs = document.get("webjobs")
         if not isinstance(webjobs, dict):
             raise ValueError("deployed webjobs are required")
-        for key in ("worker_package_sha256", "migrate_package_sha256"):
-            value = _required(webjobs, key, f"webjobs.{key}")
-            if not isinstance(value, str) or not SHA256.fullmatch(value):
-                raise ValueError(f"{key} is invalid")
+        if set(webjobs) != {"worker_package_sha256"}:
+            raise ValueError("deployed webjobs must contain only the worker package")
+        value = _required(webjobs, "worker_package_sha256", "webjobs.worker_package_sha256")
+        if not isinstance(value, str) or not SHA256.fullmatch(value):
+            raise ValueError("worker_package_sha256 is invalid")
         _verify_evidence(document.get("evidence"))
     else:
         for key in ("frontend", "backend"):
@@ -147,10 +148,11 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
         if webjobs is not None:
             if not isinstance(webjobs, dict):
                 raise ValueError("webjobs must be an object")
-            for key in ("worker_package_sha256", "migrate_package_sha256"):
-                value = _required(webjobs, key, f"webjobs.{key}")
-                if not isinstance(value, str) or not SHA256.fullmatch(value):
-                    raise ValueError(f"{key} is invalid")
+            if set(webjobs) != {"worker_package_sha256"}:
+                raise ValueError("webjobs must contain only the worker package")
+            value = _required(webjobs, "worker_package_sha256", "webjobs.worker_package_sha256")
+            if not isinstance(value, str) or not SHA256.fullmatch(value):
+                raise ValueError("worker_package_sha256 is invalid")
 
 
 def main() -> int:
@@ -166,4 +168,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
