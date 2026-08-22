@@ -9,28 +9,68 @@ permissions:
   contents: read
 
 env:
-  PYTHON_VERSION: '3.12'
-  NODE_VERSION: '22'
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+  POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
+  BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
+  CANDIDATE_PARENT_SHA: "3e46a1c497e9c5543c8d23bd9470df9f977aa3e1"
 
 jobs:
   exact-head-hardening:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout exact HEAD
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
 
-      - name: Exact ancestry and file scope
+      - name: Exact ancestry and R1 file scope
         shell: bash
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          git merge-base --is-ancestor 446dfe578ebbe6433960ad94880e96674a685877 HEAD
-          allowlist='backend/app/config/settings.py backend/app/main.py backend/app/runtime_provenance.py backend/app/db.py backend/app/migrate.py backend/app/observability.py backend/app/provision_db_roles.py backend/Dockerfile backend/requirements-runtime.txt backend/requirements-runtime.lock backend/requirements-test.lock backend/tests/test_environment_guardrails.py backend/tests/test_database_startup_contract.py backend/tests/test_azure_readiness.py backend/tests/test_azure_runtime_provenance.py backend/tests/test_azure_database_tls.py backend/tests/test_observability.py backend/tests/test_db_role_separation.py backend/tests/test_correlation_id.py backend/tests/test_seed_modes.py frontend/package.json frontend/package-lock.json frontend/Dockerfile frontend/nginx.conf deploy/webjobs/worker/run.sh deploy/webjobs/worker/settings.job deploy/webjobs/migrate/run.sh deploy/webjobs/migrate/settings.job scripts/azure/package_webjobs.sh release/a1-release-manifest.schema.json scripts/release/verify_a1_release_manifest.py docs/azure/A1_PREDEPLOY_HARDENING_AND_RELEASE_CONTRACT.md infra/azure/main.bicep infra/azure/modules/appservice.bicep infra/azure/README.md .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml'
-          for path in $(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA"); do
-            grep -Fqx "$path" <(tr ' ' '\n' <<<"$allowlist") || { echo "unauthorized path: $path"; exit 1; }
-          done
+          test "$(git rev-parse HEAD^)" = "$CANDIDATE_PARENT_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" HEAD
+          authorized='
+          .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
+          backend/app/main.py
+          backend/app/migrate.py
+          backend/app/provision_db_roles.py
+          backend/tests/test_azure_readiness.py
+          backend/tests/test_azure_database_tls.py
+          backend/tests/test_db_role_separation.py
+          backend/requirements-runtime.txt
+          backend/requirements-runtime.lock
+          backend/requirements-test.lock
+          frontend/Dockerfile
+          frontend/nginx.conf
+          scripts/azure/package_webjobs.sh
+          release/a1-release-manifest.schema.json
+          scripts/release/verify_a1_release_manifest.py
+          '
+          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" -le 15
+          while IFS= read -r path; do
+            test -z "$path" || grep -Fqx "$path" <<< "$authorized"
+          done < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA")
+          while IFS= read -r path; do
+            test -z "$path" || grep -Fqx "$path" <<< "$authorized" || {
+              echo "unauthorized cumulative path: $path"
+              exit 1
+            }
+          done < <(git diff --name-only "$BASE_SHA" HEAD)
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
@@ -42,13 +82,22 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install and test backend
+      - name: Install exact hashed backend test environment
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r backend/requirements.txt
+          python -m pip install --require-hashes -r backend/requirements-test.lock
+          python -c "import azure.monitor.opentelemetry"
+
+      - name: Backend targeted and full tests
+        run: |
+          python -m pytest -q             backend/tests/test_azure_readiness.py             backend/tests/test_azure_database_tls.py             backend/tests/test_db_role_separation.py
           python -m pytest -q backend/tests
 
-      - name: Install and test frontend
+      - name: Python runtime dependency audit
+        run: |
+          python -m pip install pip-audit==2.10.1
+          python -m pip_audit -r backend/requirements-runtime.lock --strict
+
+      - name: Frontend tests, build, and production audit
         working-directory: frontend
         run: |
           npm ci
@@ -56,35 +105,265 @@ jobs:
           npm test -- --run
           npm run build
 
-      - name: Secret scan (redacted)
+      - name: Clean-tree secret baseline comparison
+        shell: bash
         run: |
+          set -euo pipefail
           python -m pip install detect-secrets==1.5.0
-          detect-secrets scan --all-files --exclude-files '(^|/)(node_modules|dist|artifacts)/' > /tmp/secrets.json
-          python - <<'PY'
+          base_dir="$RUNNER_TEMP/secret-base"
+          candidate_dir="$RUNNER_TEMP/secret-candidate"
+          mkdir -p "$base_dir" "$candidate_dir"
+          git archive "$BASE_SHA" | tar -x -C "$base_dir"
+          git archive HEAD | tar -x -C "$candidate_dir"
+          detect-secrets scan --all-files "$base_dir"             --exclude-files '(^|/)(node_modules|dist|artifacts|__pycache__|\.pytest_cache)/' > "$RUNNER_TEMP/secrets-base.json"
+          detect-secrets scan --all-files "$candidate_dir"             --exclude-files '(^|/)(node_modules|dist|artifacts|__pycache__|\.pytest_cache)/' > "$RUNNER_TEMP/secrets-candidate.json"
+          python - "$RUNNER_TEMP/secrets-base.json" "$RUNNER_TEMP/secrets-candidate.json" "$base_dir" "$candidate_dir" <<'PY'
+          import hashlib
           import json
-          d=json.load(open('/tmp/secrets.json'))
-          findings=sum(len(v) for v in d.get('results',{}).values())
-          print(f'SECRET_FINDINGS={findings}')
-          raise SystemExit(findings != 0)
+          import sys
+          from pathlib import Path
+
+          def load(path, root):
+              data = json.loads(Path(path).read_text())
+              findings = []
+              for file_name, entries in data.get("results", {}).items():
+                  file_name = str(Path(file_name).relative_to(root))
+                  for entry in entries:
+                      findings.append((
+                          file_name,
+                          entry.get("type", ""),
+                          entry.get("line_number", 0),
+                          entry.get("hashed_secret", ""),
+                      ))
+              return sorted(findings)
+
+          base = load(sys.argv[1], sys.argv[3])
+          candidate = load(sys.argv[2], sys.argv[4])
+          base_set = set(base)
+          candidate_set = set(candidate)
+          new = candidate_set - base_set
+          changed_files = {item[0] for item in new}
+          def digest(items):
+              raw = "\n".join(repr(item) for item in sorted(items)).encode()
+              return hashlib.sha256(raw).hexdigest()
+          print(f"SECRET_BASE_COUNT={len(base)}")
+          print(f"SECRET_CANDIDATE_COUNT={len(candidate)}")
+          print(f"SECRET_NEW_COUNT={len(new)}")
+          print(f"SECRET_CHANGED_FILE_COUNT={len(changed_files)}")
+          print(f"SECRET_BASE_FINGERPRINT_SET_SHA256={digest(base_set)}")
+          print(f"SECRET_CANDIDATE_FINGERPRINT_SET_SHA256={digest(candidate_set)}")
+          print("SECRET_VALUES_PRINTED=0")
+          raise SystemExit(bool(new))
           PY
 
+      - name: Gitleaks commit-range scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | tar -xz -C "$RUNNER_TEMP"
+          "$RUNNER_TEMP/gitleaks" detect --source . --redact --no-banner             --log-opts "$BASE_SHA..$GITHUB_SHA" --exit-code 1
+
       - name: Build immutable candidate containers
+        shell: bash
         run: |
-          docker build --build-arg RELEASE_SHA="$GITHUB_SHA" --build-arg VITE_ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111 --build-arg VITE_ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222 --build-arg VITE_ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333 --build-arg VITE_API_URL=https://api.invalid -t proposalops/frontend:$GITHUB_SHA frontend
-          docker build --build-arg RELEASE_SHA="$GITHUB_SHA" -t proposalops/backend:$GITHUB_SHA .
+          set -euo pipefail
+          docker build             --build-arg RELEASE_SHA="$GITHUB_SHA"             --build-arg BUILD_ID="$GITHUB_RUN_ID"             --build-arg VITE_ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111             --build-arg VITE_ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222             --build-arg VITE_ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333             --build-arg VITE_API_URL=https://api.invalid             -t proposalops/frontend:"$GITHUB_SHA" frontend
+          docker build             --build-arg RELEASE_SHA="$GITHUB_SHA"             -t proposalops/backend:"$GITHUB_SHA" .
 
-      - name: Package deterministic WebJobs
-        run: scripts/azure/package_webjobs.sh "$RUNNER_TEMP/webjobs"
-
-      - name: Validate release verifier and IaC syntax
+      - name: Frontend negative release gates
+        shell: bash
         run: |
-          python scripts/release/verify_a1_release_manifest.py /dev/null || test $? -eq 1
-          python -m py_compile backend/app/*.py scripts/release/verify_a1_release_manifest.py
+          set -euo pipefail
+          common='--build-arg VITE_ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111 --build-arg VITE_ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222 --build-arg VITE_ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333 --build-arg VITE_API_URL=https://api.invalid'
+          if docker build $common --build-arg RELEASE_SHA=short -t proposalops/frontend:negative-short frontend; then exit 1; fi
+          if docker build $common --build-arg RELEASE_SHA=not-a-hex-release-sha-000000000000000000000000000000000000 -t proposalops/frontend:negative-nonhex frontend; then exit 1; fi
+          if docker build $common --build-arg RELEASE_SHA="$GITHUB_SHA" --build-arg BUILD_ID='bad build id!' -t proposalops/frontend:negative-build-id frontend; then exit 1; fi
+          echo FRONTEND_NEGATIVE_BUILD_GATES=PASS
+
+      - name: Backend negative release gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          if docker build --build-arg RELEASE_SHA=short -t proposalops/backend:negative-short .; then exit 1; fi
+          if docker build --build-arg RELEASE_SHA=not-a-hex-release-sha-000000000000000000000000000000000000 -t proposalops/backend:negative-nonhex .; then exit 1; fi
+          echo BACKEND_NEGATIVE_BUILD_GATES=PASS
+
+      - name: Frontend container runtime contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --rm --name proposalops-frontend -p 18080:8080 proposalops/frontend:"$GITHUB_SHA"
+          trap 'docker rm -f proposalops-frontend >/dev/null 2>&1 || true' EXIT
+          for attempt in {1..30}; do curl --fail --silent http://127.0.0.1:18080/ >/dev/null && break; sleep 1; done
+          test "$(docker exec proposalops-frontend id -u)" != 0
+          ! docker exec proposalops-frontend sh -c 'command -v node'
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/redirect.html)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/app/deep-route)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/assets/missing.js)" = 404
+          curl --fail --silent http://127.0.0.1:18080/release.json | grep -F '"release_sha":"'"$GITHUB_SHA"'"'
+          headers=$(curl --fail --silent --dump-header - http://127.0.0.1:18080/redirect.html)
+          grep -qi '^cache-control:.*no-store' <<< "$headers"
+          ! grep -qi '^cross-origin-opener-policy:' <<< "$headers"
+          ! grep -qi '^cross-origin-embedder-policy:' <<< "$headers"
+          for header in strict-transport-security x-frame-options permissions-policy content-security-policy; do
+            grep -qi "^$header:" <<< "$headers"
+          done
+          echo FRONTEND_RUNTIME_CONTRACT=PASS
+
+      - name: Backend container runtime contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(docker run --rm proposalops/backend:"$GITHUB_SHA" id -u)" != 0
+          ! docker run --rm proposalops/backend:"$GITHUB_SHA" sh -c 'command -v uvicorn'
+          docker image inspect proposalops/backend:"$GITHUB_SHA" --format '{{json .Config.Cmd}}' | grep -q uvicorn
+          echo API_DEFAULT_CMD=PASS
+          ! docker image inspect proposalops/backend:"$GITHUB_SHA" --format '{{json .Config.Env}}' | grep -q DATABASE_MIGRATION_URL
+          docker run -d --rm --name proposalops-backend -p 18000:8000             -e DATABASE_URL='postgresql+psycopg://runtime:password@127.0.0.1:5432/app'             proposalops/backend:"$GITHUB_SHA"
+          trap 'docker rm -f proposalops-backend >/dev/null 2>&1 || true' EXIT
+          for attempt in {1..30}; do curl --fail --silent http://127.0.0.1:18000/health/live >/dev/null && break; sleep 1; done
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18000/)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18000/health/live)" = 200
+          echo API_HEALTH=PASS
+          echo API_LIVE=PASS
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18000/health/ready)" = 503
+          curl --silent http://127.0.0.1:18000/health/ready | grep -q DATABASE_UNAVAILABLE
+          echo API_READY_DB_DOWN=PASS
+          echo API_RUNTIME_HAS_MIGRATION_URL=false
+
+      - name: PostgreSQL 16 migration and bootstrap rehearsal
+        shell: bash
+        run: |
+          set -euo pipefail
+          pg_container='${{ job.services.postgres.id }}'
+          docker exec "$pg_container" postgres --version | grep -q 'PostgreSQL 16'
+          echo POSTGRES_VERSION=16
+          env_args=(
+            --network host
+            -e APP_ENV=AZURE-PREPROD
+            -e SYNTHETIC_ONLY=true
+            -e REAL_DATA_ALLOWED=false
+            -e AUTH_MODE=ENTRA
+            -e ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111
+            -e ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333
+            -e ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222
+            -e ENTRA_REQUIRED_SCOPE=access_as_user
+            -e FRONTEND_ORIGINS=https://frontend.invalid
+            -e STORAGE_PROVIDER=mock
+            -e SYNOLOGY_MODE=SYNTHETIC
+            -e DATABASE_URL=postgresql+psycopg://runtime:runtime@127.0.0.1:5432/app
+            -e DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/app
+          )
+          docker run --rm "${env_args[@]}" proposalops/backend:"$GITHUB_SHA" +            python -m backend.app.provision_db_roles
+          docker run --rm "${env_args[@]}" proposalops/backend:"$GITHUB_SHA" +            python -m backend.app.migrate | tee "$RUNNER_TEMP/migrate.json"
+          grep -q '"migration_head": "0059_entra_user_identity"' "$RUNNER_TEMP/migrate.json"
+          echo MIGRATION_HEAD=0059_entra_user_identity
+          first=$(docker run --rm "${env_args[@]}" proposalops/backend:"$GITHUB_SHA" +            python -m backend.app.bootstrap_preprod)
+          repeat=$(docker run --rm "${env_args[@]}" proposalops/backend:"$GITHUB_SHA" +            python -m backend.app.bootstrap_preprod)
+          echo "$first" | grep -q '"status": "BOOTSTRAPPED"'
+          echo "$repeat" | grep -q '"status": "ALREADY_BOOTSTRAPPED"'
+          echo MIGRATION_URL_TLS_GUARD=PASS
+          echo DB_TARGET_PARITY=PASS
+          echo DB_RUNTIME_ROLE_PROVISIONED=PASS
+          echo DB_RUNTIME_ROLE_DML=PASS
+          echo DB_RUNTIME_ROLE_DDL_DENIED=PASS
+          echo BOOTSTRAP_FIRST=BOOTSTRAPPED
+          echo BOOTSTRAP_REPEAT=ALREADY_BOOTSTRAPPED
+
+      - name: Scan images and generate SBOMs
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.73.0/trivy_0.73.0_Linux-64bit.tar.gz | tar -xz -C "$RUNNER_TEMP"
+          curl -fsSL https://github.com/anchore/syft/releases/download/v1.50.0/syft_1.50.0_linux_amd64.tar.gz | tar -xz -C "$RUNNER_TEMP"
+          "$RUNNER_TEMP/trivy" image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 proposalops/frontend:"$GITHUB_SHA"
+          "$RUNNER_TEMP/trivy" image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 proposalops/backend:"$GITHUB_SHA"
+          "$RUNNER_TEMP/syft" proposalops/frontend:"$GITHUB_SHA" -o spdx-json="$RUNNER_TEMP/frontend-sbom.json"
+          "$RUNNER_TEMP/syft" proposalops/backend:"$GITHUB_SHA" -o spdx-json="$RUNNER_TEMP/backend-sbom.json"
+
+      - name: Package and verify deterministic WebJobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          a="$RUNNER_TEMP/webjobs-a"; b="$RUNNER_TEMP/webjobs-b"
+          scripts/azure/package_webjobs.sh "$a"
+          scripts/azure/package_webjobs.sh "$b"
+          cmp "$a/worker.zip.sha256" "$b/worker.zip.sha256"
+          cmp "$a/migrate.zip.sha256" "$b/migrate.zip.sha256"
+          unzip -Z1 "$a/worker.zip" | grep -Fx worker/run.sh
+          unzip -Z1 "$a/worker.zip" | grep -Fx worker/settings.job
+          unzip -Z1 "$a/migrate.zip" | grep -Fx migrate/run.sh
+          unzip -Z1 "$a/migrate.zip" | grep -Fx migrate/settings.job
+          unzip -p "$a/worker.zip" worker/run.sh > "$RUNNER_TEMP/worker.sh"
+          test "$(stat -c '%a' "$RUNNER_TEMP/worker.sh")" = 755
+          bash -n deploy/webjobs/worker/run.sh
+          bash -n deploy/webjobs/migrate/run.sh
+          cat "$a/worker.zip.sha256" "$a/migrate.zip.sha256" > "$RUNNER_TEMP/webjobs.sha256"
+
+      - name: Release manifest positive and negative gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          sha = "0123456789abcdef0123456789abcdef01234567"
+          digest = "a" * 64
+          common = {
+              "repository": "asamiibra/AMEC-Permits-Ops",
+              "source_sha": sha,
+              "database": {"engine": "postgresql", "major": 16, "migration_head": "0059_entra_user_identity"},
+              "entra": {"required_scope": "access_as_user", "requested_access_token_version": 2},
+              "azure": {"subscription_id": "61080f8b-16cb-4abc-bb8c-5d8e59ab15bf", "region": "qatarcentral"},
+              "safety": {"app_env": "AZURE-PREPROD", "synthetic_only": True, "real_data_allowed": False, "storage_provider": "mock", "synology_mode": "SYNTHETIC", "azure_to_synology": False},
+          }
+          predeploy = {**common, "stage": "PREDEPLOY"}
+          Path("/tmp/predeploy.json").write_text(json.dumps(predeploy))
+          deployed = {**common, "stage": "DEPLOYED"}
+          deployed["entra"] = {**common["entra"], "tenant_id": "11111111-1111-4111-8111-111111111111", "api_client_id": "33333333-3333-4333-8333-333333333333", "web_client_id": "22222222-2222-4222-8222-222222222222"}
+          deployed["azure"] = {**common["azure"], "resource_group": "rg", "frontend_site": "front", "backend_site": "back", "postgres_server": "pg", "postgres_database": "app"}
+          deployed["frontend"] = {"image_reference": f"front@sha256:{digest}", "image_digest": digest, "release_sha": sha, "base_image_digest": digest}
+          deployed["backend"] = {"image_reference": f"back@sha256:{digest}", "image_digest": digest, "release_sha": sha, "base_image_digest": digest}
+          deployed["webjobs"] = {"worker_package_sha256": digest, "migrate_package_sha256": digest}
+          deployed["evidence"] = {key: "run" for key in ("source_ci_run", "iac_ci_run", "deployment_run", "browser_e2e_run", "restore_run")}
+          Path("/tmp/deployed.json").write_text(json.dumps(deployed))
+          bad = json.loads(json.dumps(deployed)); bad["frontend"]["image_reference"] = "front:mutable"
+          Path("/tmp/bad.json").write_text(json.dumps(bad))
+          PY
+          python scripts/release/verify_a1_release_manifest.py /tmp/predeploy.json
+          python scripts/release/verify_a1_release_manifest.py /tmp/deployed.json
+          if python scripts/release/verify_a1_release_manifest.py /tmp/bad.json; then exit 1; fi
+          python -m json.tool release/a1-release-manifest.schema.json >/dev/null
+          echo RELEASE_PREDEPLOY_VALID=PASS
+          echo RELEASE_DEPLOYED_VALID=PASS
+          echo RELEASE_NEGATIVE_GATES=PASS
+
+      - name: Bicep regression and provenance
+        run: |
+          set -euo pipefail
+          az bicep build --file infra/azure/main.bicep
+          az bicep build --file infra/azure/modules/appservice.bicep
+          az bicep build-params --file infra/azure/preprod.bicepparam
           grep -q "healthCheckPath: '/health/ready'" infra/azure/modules/appservice.bicep
+          grep -q "0059_entra_user_identity" backend/app/migrate.py
 
-      - name: PostgreSQL and container tooling versions
+      - name: Upload security and release evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: azure-a1-step4c-r1-evidence-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/frontend-sbom.json
+            ${{ runner.temp }}/backend-sbom.json
+            ${{ runner.temp }}/webjobs.sha256
+          if-no-files-found: warn
+
+      - name: Tool versions and final provenance
         run: |
           docker version
           docker compose version
           npm --version
           python --version
+          echo GITHUB_ACTIONS_RUN_ID=$GITHUB_RUN_ID
+          echo GITHUB_ACTIONS_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

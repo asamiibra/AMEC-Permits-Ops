@@ -446,30 +446,70 @@ def health_live(request: Request | None = None):
 
 
 def health_ready(request: Request | None = None):
-    failure = None
     try:
         with engine.connect() as db:
             db.exec_driver_sql("select 1")
-        if repository_migration_head() != "0059_entra_user_identity":
-            failure = "MIGRATION_NOT_READY"
-        else:
-            verify_database_migration_head()
     except Exception:
-        failure = "MIGRATION_NOT_READY" if failure is None else failure
-    if failure is None:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "failure_class": "DATABASE_UNAVAILABLE",
+            },
+        )
+
+    try:
+        if repository_migration_head() != "0059_entra_user_identity":
+            raise RuntimeError("repository migration head mismatch")
+        verify_database_migration_head()
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "failure_class": "MIGRATION_NOT_READY",
+            },
+        )
+
+    try:
         try:
             from .storage.factory import create_binary_store
             if create_binary_store().health().state != "HEALTHY":
-                failure = "STORAGE_UNAVAILABLE"
+                return JSONResponse(
+                    status_code=503,
+                    content={
+                        "status": "not_ready",
+                        "failure_class": "STORAGE_UNAVAILABLE",
+                    },
+                )
         except Exception:
-            failure = "STORAGE_UNAVAILABLE"
-    if failure is None:
-        try:
-            settings.validate_environment()
-        except Exception:
-            failure = "CONFIGURATION_INVALID"
-    if failure:
-        return JSONResponse(status_code=503, content={"status": "not_ready", "failure_class": failure})
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "not_ready",
+                    "failure_class": "STORAGE_UNAVAILABLE",
+                },
+            )
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "failure_class": "STORAGE_UNAVAILABLE",
+            },
+        )
+
+    try:
+        settings.validate_environment()
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "failure_class": "CONFIGURATION_INVALID",
+            },
+        )
+
     return JSONResponse(content={"status": "ready", "service": "proposalops"})
 
 

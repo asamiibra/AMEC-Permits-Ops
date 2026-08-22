@@ -9,7 +9,7 @@ import psycopg
 from psycopg import sql
 
 
-def _parts(url: str) -> tuple[str, str, str, str]:
+def _parts(url: str) -> tuple[str, str, str, int, str, str]:
     dsn = url.replace("postgresql+psycopg://", "postgresql://", 1)
     parsed = urlsplit(dsn)
     if parsed.scheme != "postgresql" or not parsed.hostname or not parsed.username:
@@ -17,7 +17,18 @@ def _parts(url: str) -> tuple[str, str, str, str]:
     database = parsed.path.lstrip("/")
     if not database:
         raise RuntimeError("PostgreSQL database is required")
-    return unquote(parsed.username), unquote(parsed.password or ""), database, dsn
+    try:
+        port = parsed.port or 5432
+    except ValueError as exc:
+        raise RuntimeError("PostgreSQL port is invalid") from exc
+    return (
+        unquote(parsed.username),
+        unquote(parsed.password or ""),
+        parsed.hostname.lower(),
+        port,
+        database,
+        dsn,
+    )
 
 
 def provision_roles(environ: dict[str, str] | None = None) -> None:
@@ -26,10 +37,14 @@ def provision_roles(environ: dict[str, str] | None = None) -> None:
     runtime_url = env.get("DATABASE_URL", "")
     if not migration_url or not runtime_url:
         raise RuntimeError("DATABASE_MIGRATION_URL and DATABASE_URL are required")
-    admin_user, _, database, admin_dsn = _parts(migration_url)
-    runtime_user, runtime_password, runtime_database, _ = _parts(runtime_url)
-    if runtime_database != database:
-        raise RuntimeError("migration and runtime databases must match")
+    admin_user, _, admin_host, admin_port, database, admin_dsn = _parts(migration_url)
+    runtime_user, runtime_password, runtime_host, runtime_port, runtime_database, _ = _parts(runtime_url)
+    if (
+        runtime_host != admin_host
+        or runtime_port != admin_port
+        or runtime_database != database
+    ):
+        raise RuntimeError("migration and runtime database targets must match")
     if admin_user == runtime_user:
         raise RuntimeError("migration and runtime PostgreSQL users must differ")
     if not runtime_password:

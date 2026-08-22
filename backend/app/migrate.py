@@ -11,6 +11,7 @@ from .config.settings import get_settings
 from .db import (
     create_database_engine,
     repository_migration_head,
+    validate_postgres_tls_url,
     verify_database_migration_head,
 )
 
@@ -74,6 +75,8 @@ def run_migrations() -> str:
 
     configured_migration_url = getattr(settings, "database_migration_url", "")
     migration_url = configured_migration_url or settings.database_url
+    if configured_migration_url:
+        validate_postgres_tls_url(migration_url)
     config = _alembic_config(migration_url)
 
     command.upgrade(

@@ -42,7 +42,10 @@ LABEL org.opencontainers.image.source="https://github.com/asamiibra/AMEC-Permits
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/dist/ /usr/share/nginx/html/
 
-RUN printf '{"release_sha":"%s","build_id":"%s"}\n' "$RELEASE_SHA" "$BUILD_ID" > /usr/share/nginx/html/release.json
+RUN set -eu; \
+    printf '%s\n' "$RELEASE_SHA" | grep -Eq '^[0-9a-f]{40}$'; \
+    printf '%s\n' "$BUILD_ID" | grep -Eq '^[A-Za-z0-9_.:-]{1,128}$'; \
+    printf '{"release_sha":"%s","build_id":"%s"}\n' "$RELEASE_SHA" "$BUILD_ID" > /usr/share/nginx/html/release.json
 
 RUN mkdir -p \
       /tmp/client_temp \
