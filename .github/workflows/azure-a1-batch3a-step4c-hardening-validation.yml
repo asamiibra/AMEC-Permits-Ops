@@ -14,7 +14,7 @@ env:
   BICEP_VERSION: "0.46.1"
   POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
   BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
-  EXPECTED_PARENT_SHA: "2012e4628a064b3ecdf7c6e60a249afa8d441ff1"
+  EXPECTED_PARENT_SHA: "d2842a2f6c5ec6aa9db907bc459e84d2c65c2c80"
 
 jobs:
   exact-head-hardening:
@@ -168,6 +168,15 @@ jobs:
           upload = text[upload_start:upload_end]
           if "historical-secret-raw.json" in upload:
               raise SystemExit("raw historical report is in artifact upload path")
+          pg_start = text.index("\n      - name: PostgreSQL 16 and isolated migration/bootstrap proof") + 1
+          pg_end = text.index("\n      - name: Worker claim, completion, and recovery regression", pg_start)
+          postgres = text[pg_start:pg_end]
+          if "SHOW server_version_num" not in postgres:
+              raise SystemExit("running PostgreSQL version query is missing")
+          if 'case "$server_version_num" in' not in postgres or "16*) ;;" not in postgres:
+              raise SystemExit("PostgreSQL major-16 fail-closed branch is missing")
+          if "postgres --version | grep -Fq 'PostgreSQL 16'" in postgres:
+              raise SystemExit("fragile PostgreSQL image-version pipeline remains")
           print("WORKFLOW_ESCAPED_SUBSTITUTIONS=0")
           PY
 
@@ -555,7 +564,17 @@ jobs:
           set -euo pipefail
           pg_container="$PG_CONTAINER_ID"
           test -n "$pg_container"
-          docker exec "$pg_container" postgres --version | grep -Fq 'PostgreSQL 16'
+          server_version_num="$(
+            docker exec "$pg_container" \
+              psql -U postgres -d app -Atqc 'SHOW server_version_num'
+          )"
+          case "$server_version_num" in
+            16*) ;;
+            *)
+              echo "STOP: expected PostgreSQL 16 service" >&2
+              exit 1
+              ;;
+          esac
           echo POSTGRES_VERSION=16
 
           migration_env=(
