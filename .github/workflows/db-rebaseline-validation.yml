@@ -1684,6 +1684,7 @@ jobs:
                   condition = gate_conditions[gid]
               gates.append(evaluate_gate(gid, assertion, condition, "final-SHA evaluator for " + assertion, evidence_refs[gid], "condition=true", "condition=" + str(condition).lower()))
               if gates[-1]["result"] != "PASS":
+                  print("FIRST_EXACT_GATE_FAILURE=" + json.dumps(gates[-1], sort_keys=True))
                   break
           if len(gates) != 243:
               raise SystemExit("INHERITED_V4_NUMBERED_GATE_NOT_EXECUTED")
