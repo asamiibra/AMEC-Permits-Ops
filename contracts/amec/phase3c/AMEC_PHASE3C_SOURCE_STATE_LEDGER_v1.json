@@ -1,0 +1,58 @@
+{
+  "artifact_type": "AMEC_PHASE3C_SOURCE_STATE_LEDGER_V1",
+  "currentness_model": {
+    "approved_snapshot": "immutable_boundary_record",
+    "current": "latest_valid_revision_under_source_precedence",
+    "duplicate": "same_artifact_identity_without_revision_semantics",
+    "superseded": "retained_history_not_current"
+  },
+  "precedence_invariants": [
+    "filename_or_path_is_not_verified_truth",
+    "classifier_output_is_not_verified_truth",
+    "search_or_AI_context_is_not_verified_truth",
+    "conflict_requires_reconciliation_before_verified_assertion",
+    "immutable_downstream_snapshot_is_required_when_a_business_boundary_demands_it"
+  ],
+  "source_authority_order": [
+    {
+      "role": "durable_binary_source_filesystem_authority",
+      "source": "Synology",
+      "state_effect": "source_artifact_and_document_version"
+    },
+    {
+      "role": "structured_application_truth",
+      "source": "PostgreSQL",
+      "state_effect": "typed_projection_and_workflow_state"
+    },
+    {
+      "role": "deterministic_evidence_observation",
+      "source": "Certified_Document_Intelligence_Runtime",
+      "state_effect": "field_observation_only"
+    },
+    {
+      "role": "typed_classification_proposal",
+      "source": "Classifier",
+      "state_effect": "proposal_only"
+    },
+    {
+      "role": "verified_fact_authority",
+      "source": "VerifiedAssertion",
+      "state_effect": "verified_assertion"
+    },
+    {
+      "role": "derived_non_authoritative_context",
+      "source": "search_index_AI_context",
+      "state_effect": "never_verified_by_itself"
+    }
+  ],
+  "state_chain": [
+    "SourceArtifact",
+    "DocumentVersion",
+    "FieldObservation",
+    "conflict_or_reconciliation",
+    "authorized_verification",
+    "VerifiedAssertion",
+    "typed_projection",
+    "immutable_downstream_snapshot_when_required"
+  ]
+}

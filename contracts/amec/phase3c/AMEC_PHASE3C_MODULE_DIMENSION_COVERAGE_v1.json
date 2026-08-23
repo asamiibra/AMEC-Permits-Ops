@@ -1,0 +1,5659 @@
+{
+  "accounted_cell_count": 250,
+  "artifact_type": "AMEC_PHASE3C_MODULE_DIMENSION_COVERAGE_V1",
+  "cells": [
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M1-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M1-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M1-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M1-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M1-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M1-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-M1-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-M1-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-M1-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M1-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M1-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M1-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M1-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M1-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M1-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M1-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "INTAKE_OPPORTUNITY_BD",
+      "domain_code": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-M1-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M2-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M2-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M2-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M2-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M2-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M2-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-M2-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-M2-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-M2-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M2-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M2-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M2-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M2-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M2-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M2-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M2-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "CONTRACT_MOBILIZATION",
+      "domain_code": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-M2-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M3-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M3-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M3-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M3-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M3-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M3-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-M3-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-M3-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-M3-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M3-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M3-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M3-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M3-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M3-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M3-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M3-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "DESIGN_TECHNICAL_DELIVERY",
+      "domain_code": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-M3-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M4-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M4-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M4-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M4-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M4-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M4-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-M4-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-M4-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-M4-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M4-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M4-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M4-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M4-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M4-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M4-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M4-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "REGULATORY_SUBMISSIONS",
+      "domain_code": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-M4-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M5-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M5-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M5-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M5-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M5-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M5-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-M5-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-M5-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-M5-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M5-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M5-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M5-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M5-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M5-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M5-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M5-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "CONSTRUCTION_POST_APPROVAL",
+      "domain_code": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-M5-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M6-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M6-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M6-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M6-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M6-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M6-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-M6-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-M6-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-M6-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M6-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M6-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M6-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M6-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M6-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M6-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M6-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "COMPLETION_AS_BUILT",
+      "domain_code": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-M6-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M7-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-M7-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M7-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M7-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M7-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-M7-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-M7-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-M7-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-M7-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-M7-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M7-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M7-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-M7-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "M7-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-M7-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "M7-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "HANDOVER_CLOSEOUT",
+      "domain_code": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-M7-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-FINANCE-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-FINANCE-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-FINANCE-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-FINANCE-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-FINANCE-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-FINANCE-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-FINANCE-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-FINANCE-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-FINANCE-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-FINANCE-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-FINANCE-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-FINANCE-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-FINANCE-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "FINANCE-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-FINANCE-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "FINANCE-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "FINANCE",
+      "domain_code": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-FINANCE-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "MASTER_CONTENT-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-MASTER_CONTENT-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "MASTER_CONTENT-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "MASTER_CONTENT",
+      "domain_code": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-MASTER_CONTENT-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-01",
+      "dimension": "entities",
+      "dimension_order": 1,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-01",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-02",
+      "dimension": "document families",
+      "dimension_order": 2,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-02",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-03",
+      "dimension": "business identifiers",
+      "dimension_order": 3,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-03",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-04",
+      "dimension": "states",
+      "dimension_order": 4,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-REPORTS-04",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-05",
+      "dimension": "transitions",
+      "dimension_order": 5,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_LIFECYCLE",
+        "EVID_CANONICAL_TAXONOMY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "MT-REPORTS-05",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-06",
+      "dimension": "roles",
+      "dimension_order": 6,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-REPORTS-06",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-07",
+      "dimension": "source-of-truth rules",
+      "dimension_order": 7,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-REPORTS-07",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-08",
+      "dimension": "source precedence",
+      "dimension_order": 8,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-REPORTS-08",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-09",
+      "dimension": "source-role semantics",
+      "dimension_order": 9,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_SOURCE_TRUTH_CHAIN",
+        "EVID_V6_BINDINGS"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_id": "MT-REPORTS-09",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-10",
+      "dimension": "Master Content dependencies",
+      "dimension_order": 10,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_id": "MT-REPORTS-10",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-11",
+      "dimension": "report dependencies",
+      "dimension_order": 11,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_id": "MT-REPORTS-11",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-12",
+      "dimension": "Work triggers",
+      "dimension_order": 12,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-12",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-13",
+      "dimension": "Issue triggers",
+      "dimension_order": 13,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-13",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-14",
+      "dimension": "Notification triggers",
+      "dimension_order": 14,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-14",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-15",
+      "dimension": "Audit expectations",
+      "dimension_order": 15,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-15",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-16",
+      "dimension": "project/entity linking semantics",
+      "dimension_order": 16,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-16",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-17",
+      "dimension": "party/authorization dependencies",
+      "dimension_order": 17,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_id": "MT-REPORTS-17",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-18",
+      "dimension": "professional-approval dependencies",
+      "dimension_order": 18,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_id": "MT-REPORTS-18",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-19",
+      "dimension": "duplicate/version semantics",
+      "dimension_order": 19,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-REPORTS-19",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-20",
+      "dimension": "currentness rules",
+      "dimension_order": 20,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-REPORTS-20",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-21",
+      "dimension": "supersession rules",
+      "dimension_order": 21,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_id": "MT-REPORTS-21",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-22",
+      "dimension": "evidence IDs",
+      "dimension_order": 22,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-22",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-23",
+      "dimension": "basis type",
+      "dimension_order": 23,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-23",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
+      "cell_id": "REPORTS-24",
+      "dimension": "basis refs",
+      "dimension_order": 24,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [],
+      "requirement_id": "MT-REPORTS-24",
+      "result": "PASS",
+      "truth_state": "CANONICAL_RULE"
+    },
+    {
+      "basis_refs": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "basis_type": "MIXED",
+      "cell_id": "REPORTS-25",
+      "dimension": "unresolved Owner decisions",
+      "dimension_order": 25,
+      "domain": "REPORTS",
+      "domain_code": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_STAGE1R_SUFFICIENCY"
+      ],
+      "justification": "Coverage is represented by a canonical invariant or by an explicit pending Owner decision; no policy is inferred.",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "requirement_id": "MT-REPORTS-25",
+      "result": "PASS",
+      "truth_state": "EXPLICIT_UNCERTAINTY"
+    }
+  ],
+  "duplicate_cell_count": 0,
+  "expected_cell_count": 250,
+  "uncovered_cell_count": 0
+}

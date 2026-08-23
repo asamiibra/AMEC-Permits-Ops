@@ -1,0 +1,51 @@
+{
+  "$id": "AMEC_MODULE_TRUTH_CONTRACT_V1_SCHEMA",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "assertions": {
+      "minItems": 1,
+      "type": "array"
+    },
+    "contract_id": {
+      "const": "AMEC_MODULE_TRUTH_CONTRACT_V1"
+    },
+    "contract_version": {
+      "const": "1.0.0"
+    },
+    "coverage_cells": {
+      "maxItems": 250,
+      "minItems": 250,
+      "type": "array"
+    },
+    "evidence_catalog": {
+      "minProperties": 1,
+      "type": "object"
+    },
+    "owner_decision_catalog": {
+      "type": "object"
+    },
+    "truth_dimensions": {
+      "maxItems": 25,
+      "minItems": 25,
+      "type": "array"
+    },
+    "truth_domains": {
+      "maxItems": 10,
+      "minItems": 10,
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract_id",
+    "contract_version",
+    "truth_domains",
+    "truth_dimensions",
+    "evidence_catalog",
+    "owner_decision_catalog",
+    "assertions",
+    "coverage_cells"
+  ],
+  "title": "AMEC Module Truth Contract v1",
+  "type": "object"
+}

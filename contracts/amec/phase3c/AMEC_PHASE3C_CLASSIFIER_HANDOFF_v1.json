@@ -1,0 +1,105 @@
+{
+  "allowed_evidence_ids": [
+    "EVID_175_VALIDATION",
+    "EVID_AUTHORITY_SEPARATION",
+    "EVID_CANONICAL_TAXONOMY",
+    "EVID_CONFUSABLE_PAIRS",
+    "EVID_GOVERNANCE_V2",
+    "EVID_LIFECYCLE",
+    "EVID_MASTER_DESIGN",
+    "EVID_PHASE3C_BOUNDARY",
+    "EVID_REBASELINE_ACCEPTANCE",
+    "EVID_REBASELINE_ACCEPTED",
+    "EVID_REBASELINE_VALIDATION",
+    "EVID_SOURCE_TRUTH_CHAIN",
+    "EVID_STAGE1R_COMPLETION",
+    "EVID_STAGE1R_HANDOFF",
+    "EVID_STAGE1R_RELATIONSHIPS",
+    "EVID_STAGE1R_RETURN",
+    "EVID_STAGE1R_SUFFICIENCY",
+    "EVID_V6_BINDINGS",
+    "EVID_V6_OWNER_AUTH"
+  ],
+  "artifact_type": "AMEC_PHASE3C_CLASSIFIER_HANDOFF_V1",
+  "authority_invariants": [
+    "persona",
+    "Party_role",
+    "professional_assignment",
+    "credential",
+    "authorization_grant",
+    "RBAC",
+    "workflow_precondition",
+    "execution_policy",
+    "protected_human_authority",
+    "final_government_submission",
+    "professional_approval",
+    "consequential_financial_authority",
+    "regulatory_closeout"
+  ],
+  "domain_vocabulary": [
+    "INTAKE_OPPORTUNITY_BD",
+    "CONTRACT_MOBILIZATION",
+    "DESIGN_TECHNICAL_DELIVERY",
+    "REGULATORY_SUBMISSIONS",
+    "CONSTRUCTION_POST_APPROVAL",
+    "COMPLETION_AS_BUILT",
+    "HANDOVER_CLOSEOUT",
+    "FINANCE",
+    "MASTER_CONTENT",
+    "REPORTS"
+  ],
+  "module_truth_contract_sha256": "7da0b662f856d6489949e344251c2bca36e5992d10f4623fbaadf27baf3f55d6",
+  "operational_tags": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "NONE_OR_CROSS_CUTTING"
+  ],
+  "owner_decision_exclusions": "Pending Owner decisions remain pending; classifier cannot infer or promote policy.",
+  "source_precedence": [
+    {
+      "role": "durable_binary_source_filesystem_authority",
+      "source": "Synology",
+      "state_effect": "source_artifact_and_document_version"
+    },
+    {
+      "role": "structured_application_truth",
+      "source": "PostgreSQL",
+      "state_effect": "typed_projection_and_workflow_state"
+    },
+    {
+      "role": "deterministic_evidence_observation",
+      "source": "Certified_Document_Intelligence_Runtime",
+      "state_effect": "field_observation_only"
+    },
+    {
+      "role": "typed_classification_proposal",
+      "source": "Classifier",
+      "state_effect": "proposal_only"
+    },
+    {
+      "role": "verified_fact_authority",
+      "source": "VerifiedAssertion",
+      "state_effect": "verified_assertion"
+    },
+    {
+      "role": "derived_non_authoritative_context",
+      "source": "search_index_AI_context",
+      "state_effect": "never_verified_by_itself"
+    }
+  ],
+  "taxonomy_identity": {
+    "evidence_id": "EVID_CANONICAL_TAXONOMY",
+    "taxonomy": "AMEC_CANONICAL_MODULE_TAXONOMY"
+  },
+  "truth_domain_operational_tag_reconciliation": {
+    "FINANCE": "NONE_OR_CROSS_CUTTING",
+    "MASTER_CONTENT": "NONE_OR_CROSS_CUTTING",
+    "REPORTS": "NONE_OR_CROSS_CUTTING",
+    "cross_cutting_surfaces_are_not_truth_domains": true
+  }
+}
