@@ -127,6 +127,7 @@ jobs:
           grep -q '"verify_database_migration_head"' v4-test-preimage.py
           grep -q "$legacy_head" v4-test-preimage.py
           grep -q "$legacy_previous" v4-test-preimage.py
+          export v4_candidate_sha v4_candidate_tree_sha
           python - <<'PY'
           import ast
           import json
@@ -154,6 +155,8 @@ jobs:
           assert "def verify_database_migration_head" in db
           assert "MIGRATION_NOT_READY" in main
           assert all(token not in readiness for token in ("repository_migration_head", legacy_head, legacy_previous, "baseline_r13_0059"))
+          v4_candidate_sha = os.environ["v4_candidate_sha"]
+          v4_candidate_tree_sha = os.environ["v4_candidate_tree_sha"]
           Path("v5-scope-summary.json").write_text(json.dumps({
               "github_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
               "v4_candidate_sha": v4_candidate_sha,
