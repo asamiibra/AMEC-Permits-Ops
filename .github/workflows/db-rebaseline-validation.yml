@@ -120,10 +120,10 @@ jobs:
           step3_workflow=.github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
           test "$(git rev-parse "$SOURCE_SHA:$step3_workflow")" = "$(git rev-parse "$GITHUB_SHA:$step3_workflow")"
           test "$(git rev-parse "$SOURCE_SHA:backend/tests/test_azure_readiness.py")" = d31cd3ef6c661531e52a54ddd80c82a51e63ace2
-          grep -q 'main.repository_migration_head' backend/tests/test_azure_readiness.py
-          grep -q 'main.verify_database_migration_head' backend/tests/test_azure_readiness.py
-          grep -q '0059_entra_user_identity' backend/tests/test_azure_readiness.py
-          grep -q '0058_previous' backend/tests/test_azure_readiness.py
+          git show "$V4_CANDIDATE_SHA:backend/tests/test_azure_readiness.py" | grep -q 'main.repository_migration_head'
+          git show "$V4_CANDIDATE_SHA:backend/tests/test_azure_readiness.py" | grep -q 'main.verify_database_migration_head'
+          git show "$V4_CANDIDATE_SHA:backend/tests/test_azure_readiness.py" | grep -q '0059_entra_user_identity'
+          git show "$V4_CANDIDATE_SHA:backend/tests/test_azure_readiness.py" | grep -q '0058_previous'
           python - <<'PY'
           import ast
           import json
