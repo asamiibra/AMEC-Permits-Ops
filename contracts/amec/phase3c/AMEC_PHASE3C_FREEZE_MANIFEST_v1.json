@@ -5,11 +5,11 @@
   "freeze_set": [
     {
       "path": "contracts/amec/phase3c/amec_module_truth_contract_v1.schema.json",
-      "sha256": "9c417b19f80bdc49da95079e11303cd82e54e75acb0adbd61961928697f98ffa"
+      "sha256": "89a08c9f75094f693af2383aec71f7203e4e36d08a540cf5e319625eb4534180"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_MODULE_TRUTH_CONTRACT_v1.json",
-      "sha256": "b18271da8f3c83b2624adafdb3a5b04fc5810bbcb526af8971029aabccbc5479"
+      "sha256": "060f0ad81d9eb4807da2a155f9e67efc082bcfd966c94a9cccf77125e44e0218"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_INPUT_IDENTITY_MANIFEST_v1.json",
@@ -17,15 +17,15 @@
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_CLASSIFIER_HANDOFF_v1.json",
-      "sha256": "f079e52bf869ce5a3cad8074ebd044225eb1e70df09f30be612d200fbba478d5"
+      "sha256": "eb9f27d03b997d5c2f4753775a19b14502ef1f0218322fff50bff919f91fadea"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_MODULE_DIMENSION_COVERAGE_v1.json",
-      "sha256": "c9116177aa90cff1a3a81ac59f5ab17708fb0f9b85894a8f7b481d9a93d7db08"
+      "sha256": "662d47a587c4f5d8f54d899fe0899cfdc67b43464a6c0b7b7fc15adef2fe1abe"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_GOVERNANCE_VALIDATION_v1.json",
-      "sha256": "e55bfe8ff2ba31ab83265202b8a0df349cebce5b7007cf8ccb5a1e6bdb06eedd"
+      "sha256": "19285a7601260a7f31620dd187f4d2ea9110208e191c8bd1af5e7d759cdbba73"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_DEFERRED_DEPLOYMENT_READINESS_v1.json",
@@ -37,15 +37,23 @@
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_SECTION19_MINIMUM_TRUTH_MAPPING_v1.json",
-      "sha256": "cf7a4120aa65526b006a53d3403e96fbd95333818963d26ef186ebbe9120feac"
+      "sha256": "8aa2209b351cb73d0770ab70090b4b04b5e15fc2658f3be26111211c669c24fa"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_REFERENCE_INTEGRITY_v1.json",
-      "sha256": "5142ac3b878b7502a62449c72bcff8fc9d34f3f6b802278733ed4f05c56fe3cd"
+      "sha256": "45ed50bdc625c5674b26979d0ad65ab29a908f7d8d92fee25b67a87005345eb1"
+    },
+    {
+      "path": "contracts/amec/phase3c/AMEC_PHASE3C_OWNER_DECISION_APPLICABILITY_v1.json",
+      "sha256": "1917c382c1818024cff153d79877bb01f72160ba61cf108a0c560560bf19745e"
+    },
+    {
+      "path": "contracts/amec/phase3c/AMEC_PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_VALIDATION_v1.json",
+      "sha256": "4f96d60654c6e277fd565e35fdd3c0ffdbe44b5b59e52330b60565de5afe3011"
     },
     {
       "path": "docs/amec/phase3c/AMEC_MODULE_TRUTH_EVIDENCE_MATRIX_v1.md",
-      "sha256": "077b6282f6572e1f02bacaa22ac74190ca26f3214b1f0b7259a45707feaf521e"
+      "sha256": "ba73afb6da408a6d405b019a064f8124203f2c1e7ca251b25598eca5cbaadc3c"
     },
     {
       "path": "docs/amec/phase3c/AMEC_SOURCE_PRECEDENCE_AND_AUTHORITY_MATRIX_v1.md",
@@ -53,11 +61,27 @@
     },
     {
       "path": "docs/amec/phase3c/AMEC_OWNER_DECISION_LEDGER_v1.md",
-      "sha256": "7bbd3f17b90ead27eb1f79a58fd07caf96bd9a76d8644b4fc0bdb46b05279b92"
+      "sha256": "e5dea6d83b0e0e660eb00585d7c4f4723eb0f86dec3971aeb791f5decf52d85d"
     },
     {
       "path": "docs/amec/phase3c/AMEC_PHASE3C_DEFERRED_DEPLOYMENT_READINESS_v1.md",
       "sha256": "aedf7046d0e33a753c6edc25288ecd5caca1c545a7099df117b8eb3ccaf421fc"
+    },
+    {
+      "path": "docs/amec/phase3c/AMEC_PHASE3C_SECTION19_MINIMUM_TRUTH_MAPPING_v1.md",
+      "sha256": "f158405cb50b7571de078079cb07403d7950dc38af86150393b053a4afe4b92a"
+    },
+    {
+      "path": "docs/amec/phase3c/AMEC_PHASE3C_REFERENCE_INTEGRITY_v1.md",
+      "sha256": "0cafc85a197e23ab3e3ea019531c9146db7a95ae5b724de2d75dd3dd2adcd7a1"
+    },
+    {
+      "path": "docs/amec/phase3c/AMEC_PHASE3C_OWNER_DECISION_APPLICABILITY_v1.md",
+      "sha256": "febc8b2a3d95e4d2e5210eaa856cad11670b6c4800e50879f08507bee61036d1"
+    },
+    {
+      "path": "docs/amec/phase3c/AMEC_PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_VALIDATION_v1.md",
+      "sha256": "4675cb9259fb22cee6983615b139f32b2c8bafe94163d63f51061aba8d6f517f"
     }
   ]
 }

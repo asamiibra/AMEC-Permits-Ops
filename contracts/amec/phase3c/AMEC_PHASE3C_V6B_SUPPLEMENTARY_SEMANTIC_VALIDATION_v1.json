@@ -1,0 +1,1767 @@
+{
+  "artifact_type": "AMEC_PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_VALIDATION_V1",
+  "checks": [
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-03",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-04",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "S19-FINANCE-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-05",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "S19-FINANCE-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-06",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-07",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-08",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-09",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "S19-FINANCE-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-10",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-11",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-12",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-FINANCE-12",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-13",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "S19-FINANCE-13",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-14",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "S19-FINANCE-14",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-FINANCE-15",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "S19-FINANCE-15",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-03",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-04",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-05",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-06",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-07",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-08",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-M1-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-09",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-M1-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-10",
+      "expected": [
+        "OD-007"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007"
+      ],
+      "requirement_id": "S19-M1-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-11",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M1-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-12",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M1-12",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-13",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M1-13",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-14",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M1-14",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-15",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M1-15",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M1-16",
+      "expected": [
+        "OD-002"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-002"
+      ],
+      "requirement_id": "S19-M1-16",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-01",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M2-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-03",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-04",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-05",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-06",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-07",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-08",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M2-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-09",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-10",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M2-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-11",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M2-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-12",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-12",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-13",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-13",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-14",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M2-14",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-15",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "S19-M2-15",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M2-16",
+      "expected": [
+        "OD-001",
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_id": "S19-M2-16",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M3-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M3-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-03",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-M3-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-04",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M3-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-05",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M3-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-06",
+      "expected": [
+        "OD-007"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007"
+      ],
+      "requirement_id": "S19-M3-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-07",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M3-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-08",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M3-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-09",
+      "expected": [
+        "OD-003"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-003"
+      ],
+      "requirement_id": "S19-M3-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-10",
+      "expected": [
+        "OD-003"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-003"
+      ],
+      "requirement_id": "S19-M3-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-11",
+      "expected": [
+        "OD-003"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-003"
+      ],
+      "requirement_id": "S19-M3-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-12",
+      "expected": [
+        "OD-007"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007"
+      ],
+      "requirement_id": "S19-M3-12",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M3-13",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M3-13",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-03",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-04",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-05",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-06",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-07",
+      "expected": [
+        "OD-004"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-004"
+      ],
+      "requirement_id": "S19-M4-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-08",
+      "expected": [
+        "OD-004"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-004"
+      ],
+      "requirement_id": "S19-M4-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-09",
+      "expected": [
+        "OD-004"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-004"
+      ],
+      "requirement_id": "S19-M4-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-10",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-11",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-12",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M4-12",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-13",
+      "expected": [
+        "OD-004"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-004"
+      ],
+      "requirement_id": "S19-M4-13",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M4-14",
+      "expected": [
+        "OD-004"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-004"
+      ],
+      "requirement_id": "S19-M4-14",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M5-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M5-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M5-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M5-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M5-03",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M5-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M5-04",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M5-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M5-05",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M5-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M5-06",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M5-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M5-07",
+      "expected": [
+        "OD-010"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-010"
+      ],
+      "requirement_id": "S19-M5-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M6-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M6-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-03",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M6-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-04",
+      "expected": [
+        "OD-007"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007"
+      ],
+      "requirement_id": "S19-M6-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-05",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M6-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-06",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M6-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-07",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M6-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M6-08",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M6-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-M7-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-02",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-03",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-04",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-05",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-06",
+      "expected": [
+        "OD-005",
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005",
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-07",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-08",
+      "expected": [
+        "OD-007"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007"
+      ],
+      "requirement_id": "S19-M7-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-09",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-M7-10",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "S19-M7-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-01",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-MASTER_CONTENT-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-02",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-MASTER_CONTENT-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-03",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-MASTER_CONTENT-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-04",
+      "expected": [],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "S19-MASTER_CONTENT-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-05",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-06",
+      "expected": [
+        "OD-007",
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007",
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-07",
+      "expected": [
+        "OD-007",
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007",
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-08",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-09",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-10",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-11",
+      "expected": [
+        "OD-002"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-002"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-12",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-12",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-MASTER_CONTENT-13",
+      "expected": [
+        "OD-008"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008"
+      ],
+      "requirement_id": "S19-MASTER_CONTENT-13",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-01",
+      "expected": [
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-02",
+      "expected": [
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-03",
+      "expected": [
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-04",
+      "expected": [
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-05",
+      "expected": [
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-06",
+      "expected": [
+        "OD-002",
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-002",
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-07",
+      "expected": [
+        "OD-008",
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008",
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-08",
+      "expected": [
+        "OD-007",
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-007",
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-09",
+      "expected": [
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-10",
+      "expected": [
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Section19 row and assertion owner-decision references exactly match the governing table.",
+      "check_id": "S19-CHECK-S19-REPORTS-11",
+      "expected": [
+        "OD-008",
+        "OD-009"
+      ],
+      "method": "exact_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-008",
+        "OD-009"
+      ],
+      "requirement_id": "S19-REPORTS-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-archive_closure",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "AUTH-archive_closure",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-construction_start",
+      "expected": [],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [],
+      "requirement_id": "AUTH-construction_start",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-contract_accept",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "AUTH-contract_accept",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-contract_administrative_closure",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "AUTH-contract_administrative_closure",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-final_government_submission",
+      "expected": [
+        "OD-004"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-004"
+      ],
+      "requirement_id": "AUTH-final_government_submission",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-financial_settlement",
+      "expected": [
+        "OD-005",
+        "OD-006"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005",
+        "OD-006"
+      ],
+      "requirement_id": "AUTH-financial_settlement",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-handover_acceptance",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "AUTH-handover_acceptance",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-invoice_accept",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "AUTH-invoice_accept",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-invoice_issue",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "AUTH-invoice_issue",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-payment_verify",
+      "expected": [
+        "OD-005"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-005"
+      ],
+      "requirement_id": "AUTH-payment_verify",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-professional_engineering_approval",
+      "expected": [
+        "OD-003"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-003"
+      ],
+      "requirement_id": "AUTH-professional_engineering_approval",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-project_activation",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "AUTH-project_activation",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-proposal_accept",
+      "expected": [
+        "OD-001"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-001"
+      ],
+      "requirement_id": "AUTH-proposal_accept",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-regulatory_closeout",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "AUTH-regulatory_closeout",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-service_scope_closure",
+      "expected": [
+        "OD-006"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-006"
+      ],
+      "requirement_id": "AUTH-service_scope_closure",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Protected authority assertion owner-decision references exactly match the governing table.",
+      "check_id": "AUTH-CHECK-submit_authorization",
+      "expected": [
+        "OD-004"
+      ],
+      "method": "exact_authority_table_and_assertion_edge_comparison",
+      "observed": [
+        "OD-004"
+      ],
+      "requirement_id": "AUTH-submit_authorization",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-001",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the source-bound conditions that distinguish Proposal Accept, Contract Accept, and explicit Project Activation.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the source-bound conditions that distinguish Proposal Accept, Contract Accept, and explicit Project Activation.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-001",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-002",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm whether any Owner-approved source precedence exception exists beyond the canonical truth chain.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm whether any Owner-approved source precedence exception exists beyond the canonical truth chain.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-002",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-003",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the Owner policy that assigns professional approval authority and credential-validity responsibility.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the Owner policy that assigns professional approval authority and credential-validity responsibility.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-003",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-004",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the protected human authority and evidence required for Submit Authorization and final government submission.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the protected human authority and evidence required for Submit Authorization and final government submission.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-004",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-005",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the Owner policy separating Invoice Accept, Invoice Issue, Payment Verify, and Financial Settlement.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the Owner policy separating Invoice Accept, Invoice Issue, Payment Verify, and Financial Settlement.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-005",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-006",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the independent completion, handover, service, regulatory, financial, and archive closeout boundaries.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the independent completion, handover, service, regulatory, financial, and archive closeout boundaries.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-006",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-007",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm currentness, duplicate, revision, supersession, and immutable-snapshot policy.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm currentness, duplicate, revision, supersession, and immutable-snapshot policy.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-007",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-008",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the governance and propagation policy separating reusable Master Content from executed project artifacts.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the governance and propagation policy separating reusable Master Content from executed project artifacts.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-008",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-009",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the canonical relationship between Report definition, data dependency, generation, and output.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the canonical relationship between Report definition, data dependency, generation, and output.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-009",
+      "result": "PASS"
+    },
+    {
+      "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
+      "check_id": "OD-CHECK-OD-010",
+      "expected": {
+        "default": "NONE",
+        "question_exact": "Confirm the boundary between external or adjacent organizations and canonical AMEC authority roles.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "observed": {
+        "default": "NONE",
+        "question_exact": "Confirm the boundary between external or adjacent organizations and canonical AMEC authority roles.",
+        "status": "OWNER_DECISION_PENDING"
+      },
+      "requirement_id": "OD-010",
+      "result": "PASS"
+    }
+  ],
+  "count": 149,
+  "fail": 0,
+  "pass": 149
+}

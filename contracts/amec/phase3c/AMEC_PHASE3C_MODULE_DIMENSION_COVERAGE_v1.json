@@ -10,7 +10,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M1-01",
       "contract_assertion_ids": [
-        "COV-M1-01"
+        "COV-M1-01",
+        "S19-M1-02",
+        "S19-M1-03"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -25,7 +27,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -36,7 +38,10 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M1-02",
       "contract_assertion_ids": [
-        "COV-M1-02"
+        "COV-M1-02",
+        "S19-M1-05",
+        "S19-M1-06",
+        "S19-M1-07"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -51,7 +56,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -77,7 +82,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -88,7 +93,8 @@
       "basis_type": "MIXED",
       "cell_id": "M1-04",
       "contract_assertion_ids": [
-        "COV-M1-04"
+        "COV-M1-04",
+        "S19-M1-13"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -101,12 +107,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-001"
       ],
       "requirement_id": "MT-M1-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -117,7 +122,9 @@
       "basis_type": "MIXED",
       "cell_id": "M1-05",
       "contract_assertion_ids": [
-        "COV-M1-05"
+        "COV-M1-05",
+        "S19-M1-14",
+        "S19-M1-15"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -130,12 +137,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-001"
       ],
       "requirement_id": "MT-M1-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -158,12 +164,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M1-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -174,7 +178,9 @@
       "basis_type": "MIXED",
       "cell_id": "M1-07",
       "contract_assertion_ids": [
-        "COV-M1-07"
+        "COV-M1-07",
+        "S19-M1-01",
+        "S19-M1-16"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD truth follows observation, reconciliation, verification, and typed projection rather than a filename or path hint.",
       "dimension": "source-of-truth rules",
@@ -191,7 +197,7 @@
       ],
       "requirement_id": "MT-M1-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -214,12 +220,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M1-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -242,12 +246,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M1-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -258,7 +260,9 @@
       "basis_type": "MIXED",
       "cell_id": "M1-10",
       "contract_assertion_ids": [
-        "COV-M1-10"
+        "COV-M1-10",
+        "S19-M1-08",
+        "S19-M1-09"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD Master Content dependencies identify controlled reusable content without promoting it to project execution truth.",
       "dimension": "Master Content dependencies",
@@ -275,7 +279,7 @@
       ],
       "requirement_id": "MT-M1-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -298,12 +302,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M1-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -329,7 +331,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -355,7 +357,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -381,7 +383,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -407,7 +409,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -418,7 +420,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M1-16",
       "contract_assertion_ids": [
-        "COV-M1-16"
+        "COV-M1-16",
+        "S19-M1-11"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD project and entity links remain explicit and source-bound rather than inferred from naming hints.",
       "dimension": "project/entity linking semantics",
@@ -433,7 +436,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -444,7 +447,9 @@
       "basis_type": "MIXED",
       "cell_id": "M1-17",
       "contract_assertion_ids": [
-        "COV-M1-17"
+        "COV-M1-17",
+        "S19-M1-12",
+        "AUTH-proposal_accept"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -457,12 +462,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-001"
       ],
       "requirement_id": "MT-M1-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -485,12 +489,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M1-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -501,7 +503,8 @@
       "basis_type": "MIXED",
       "cell_id": "M1-19",
       "contract_assertion_ids": [
-        "COV-M1-19"
+        "COV-M1-19",
+        "S19-M1-04"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD duplicate and version semantics distinguish duplicate copies, revised versions, and approved snapshots.",
       "dimension": "duplicate/version semantics",
@@ -513,12 +516,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M1-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -529,7 +530,8 @@
       "basis_type": "MIXED",
       "cell_id": "M1-20",
       "contract_assertion_ids": [
-        "COV-M1-20"
+        "COV-M1-20",
+        "S19-M1-10"
       ],
       "coverage_claim": "INTAKE_OPPORTUNITY_BD currentness identifies the valid current revision without erasing historical or superseded evidence.",
       "dimension": "currentness rules",
@@ -546,7 +548,7 @@
       ],
       "requirement_id": "MT-M1-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -569,12 +571,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M1-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -600,7 +600,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -626,7 +626,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -652,7 +652,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -678,18 +678,13 @@
       "owner_decision_refs": [
         "OD-001",
         "OD-002",
-        "OD-003",
-        "OD-004",
-        "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
-        "OD-009",
-        "OD-010"
+        "OD-009"
       ],
       "requirement_id": "MT-M1-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -700,7 +695,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M2-01",
       "contract_assertion_ids": [
-        "COV-M2-01"
+        "COV-M2-01",
+        "S19-M2-05",
+        "S19-M2-13"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -715,7 +712,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -726,7 +723,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M2-02",
       "contract_assertion_ids": [
-        "COV-M2-02"
+        "COV-M2-02",
+        "S19-M2-03",
+        "S19-M2-09"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -741,7 +740,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -752,7 +751,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M2-03",
       "contract_assertion_ids": [
-        "COV-M2-03"
+        "COV-M2-03",
+        "S19-M2-04",
+        "S19-M2-12"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION business identifiers are source-bound and are not invented from labels, paths, or classifier output.",
       "dimension": "business identifiers",
@@ -767,7 +768,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -778,7 +779,8 @@
       "basis_type": "MIXED",
       "cell_id": "M2-04",
       "contract_assertion_ids": [
-        "COV-M2-04"
+        "COV-M2-04",
+        "S19-M2-08"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -791,12 +793,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-001"
       ],
       "requirement_id": "MT-M2-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -807,7 +808,12 @@
       "basis_type": "MIXED",
       "cell_id": "M2-05",
       "contract_assertion_ids": [
-        "COV-M2-05"
+        "COV-M2-05",
+        "S19-M2-01",
+        "S19-M2-11",
+        "S19-M2-14",
+        "S19-M2-15",
+        "S19-M2-16"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -825,7 +831,7 @@
       ],
       "requirement_id": "MT-M2-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -848,12 +854,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -876,12 +880,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -904,12 +906,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -932,12 +932,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -960,12 +958,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -988,12 +984,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1019,7 +1013,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1045,7 +1039,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1071,7 +1065,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1097,7 +1091,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1123,7 +1117,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1134,7 +1128,11 @@
       "basis_type": "MIXED",
       "cell_id": "M2-17",
       "contract_assertion_ids": [
-        "COV-M2-17"
+        "COV-M2-17",
+        "S19-M2-06",
+        "S19-M2-10",
+        "AUTH-contract_accept",
+        "AUTH-project_activation"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -1147,12 +1145,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-001"
       ],
       "requirement_id": "MT-M2-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1175,12 +1172,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1191,7 +1186,8 @@
       "basis_type": "MIXED",
       "cell_id": "M2-19",
       "contract_assertion_ids": [
-        "COV-M2-19"
+        "COV-M2-19",
+        "S19-M2-02"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION duplicate and version semantics distinguish duplicate copies, revised versions, and approved snapshots.",
       "dimension": "duplicate/version semantics",
@@ -1203,12 +1199,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1231,12 +1225,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1259,12 +1251,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M2-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1275,7 +1265,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M2-22",
       "contract_assertion_ids": [
-        "COV-M2-22"
+        "COV-M2-22",
+        "S19-M2-07"
       ],
       "coverage_claim": "CONTRACT_MOBILIZATION evidence IDs resolve to repository-safe evidence records and are never dangling.",
       "dimension": "evidence IDs",
@@ -1290,7 +1281,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1316,7 +1307,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1342,7 +1333,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1368,18 +1359,13 @@
       "owner_decision_refs": [
         "OD-001",
         "OD-002",
-        "OD-003",
-        "OD-004",
-        "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
-        "OD-009",
-        "OD-010"
+        "OD-009"
       ],
       "requirement_id": "MT-M2-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1390,7 +1376,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M3-01",
       "contract_assertion_ids": [
-        "COV-M3-01"
+        "COV-M3-01",
+        "S19-M3-01"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -1405,7 +1392,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1416,7 +1403,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M3-02",
       "contract_assertion_ids": [
-        "COV-M3-02"
+        "COV-M3-02",
+        "S19-M3-02"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -1431,7 +1419,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1442,7 +1430,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M3-03",
       "contract_assertion_ids": [
-        "COV-M3-03"
+        "COV-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY business identifiers are source-bound and are not invented from labels, paths, or classifier output.",
       "dimension": "business identifiers",
@@ -1457,7 +1447,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1468,7 +1458,9 @@
       "basis_type": "MIXED",
       "cell_id": "M3-04",
       "contract_assertion_ids": [
-        "COV-M3-04"
+        "COV-M3-04",
+        "S19-M3-07",
+        "S19-M3-08"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -1480,13 +1472,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1497,7 +1486,8 @@
       "basis_type": "MIXED",
       "cell_id": "M3-05",
       "contract_assertion_ids": [
-        "COV-M3-05"
+        "COV-M3-05",
+        "S19-M3-13"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -1509,13 +1499,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1538,12 +1525,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1566,12 +1551,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1594,12 +1577,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1622,12 +1603,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1650,12 +1629,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1678,12 +1655,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1709,7 +1684,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1735,7 +1710,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1761,7 +1736,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1787,7 +1762,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1798,7 +1773,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M3-16",
       "contract_assertion_ids": [
-        "COV-M3-16"
+        "COV-M3-16",
+        "S19-M3-03"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY project and entity links remain explicit and source-bound rather than inferred from naming hints.",
       "dimension": "project/entity linking semantics",
@@ -1810,10 +1786,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-M3-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -1824,7 +1802,8 @@
       "basis_type": "MIXED",
       "cell_id": "M3-17",
       "contract_assertion_ids": [
-        "COV-M3-17"
+        "COV-M3-17",
+        "AUTH-professional_engineering_approval"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -1837,12 +1816,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-003"
       ],
       "requirement_id": "MT-M3-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1853,7 +1831,10 @@
       "basis_type": "MIXED",
       "cell_id": "M3-18",
       "contract_assertion_ids": [
-        "COV-M3-18"
+        "COV-M3-18",
+        "S19-M3-09",
+        "S19-M3-10",
+        "S19-M3-11"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY professional approval dependencies distinguish credentials, assignment, approval, and authority permits.",
       "dimension": "professional-approval dependencies",
@@ -1870,7 +1851,7 @@
       ],
       "requirement_id": "MT-M3-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1881,7 +1862,8 @@
       "basis_type": "MIXED",
       "cell_id": "M3-19",
       "contract_assertion_ids": [
-        "COV-M3-19"
+        "COV-M3-19",
+        "S19-M3-06"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY duplicate and version semantics distinguish duplicate copies, revised versions, and approved snapshots.",
       "dimension": "duplicate/version semantics",
@@ -1898,7 +1880,7 @@
       ],
       "requirement_id": "MT-M3-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1921,12 +1903,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M3-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1937,7 +1917,8 @@
       "basis_type": "MIXED",
       "cell_id": "M3-21",
       "contract_assertion_ids": [
-        "COV-M3-21"
+        "COV-M3-21",
+        "S19-M3-12"
       ],
       "coverage_claim": "DESIGN_TECHNICAL_DELIVERY supersession rules preserve historical records and do not rewrite immutable approved boundaries.",
       "dimension": "supersession rules",
@@ -1954,7 +1935,7 @@
       ],
       "requirement_id": "MT-M3-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -1980,7 +1961,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2006,7 +1987,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2032,7 +2013,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2056,20 +2037,15 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
         "OD-003",
-        "OD-004",
-        "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
-        "OD-009",
-        "OD-010"
+        "OD-009"
       ],
       "requirement_id": "MT-M3-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2080,7 +2056,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M4-01",
       "contract_assertion_ids": [
-        "COV-M4-01"
+        "COV-M4-01",
+        "S19-M4-01",
+        "S19-M4-02"
       ],
       "coverage_claim": "REGULATORY_SUBMISSIONS entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -2095,7 +2073,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2106,7 +2084,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M4-02",
       "contract_assertion_ids": [
-        "COV-M4-02"
+        "COV-M4-02",
+        "S19-M4-04",
+        "S19-M4-05"
       ],
       "coverage_claim": "REGULATORY_SUBMISSIONS document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -2121,7 +2101,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2147,7 +2127,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2158,7 +2138,12 @@
       "basis_type": "MIXED",
       "cell_id": "M4-04",
       "contract_assertion_ids": [
-        "COV-M4-04"
+        "COV-M4-04",
+        "S19-M4-03",
+        "S19-M4-06",
+        "S19-M4-10",
+        "S19-M4-11",
+        "S19-M4-13"
       ],
       "coverage_claim": "REGULATORY_SUBMISSIONS states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -2171,12 +2156,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-004"
       ],
       "requirement_id": "MT-M4-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2187,7 +2171,8 @@
       "basis_type": "MIXED",
       "cell_id": "M4-05",
       "contract_assertion_ids": [
-        "COV-M4-05"
+        "COV-M4-05",
+        "S19-M4-09"
       ],
       "coverage_claim": "REGULATORY_SUBMISSIONS transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -2200,12 +2185,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-004"
       ],
       "requirement_id": "MT-M4-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2216,7 +2200,8 @@
       "basis_type": "MIXED",
       "cell_id": "M4-06",
       "contract_assertion_ids": [
-        "COV-M4-06"
+        "COV-M4-06",
+        "S19-M4-07"
       ],
       "coverage_claim": "REGULATORY_SUBMISSIONS role semantics remain separate from persona, Party role, professional assignment, and protected authority.",
       "dimension": "roles",
@@ -2229,11 +2214,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003"
+        "OD-004"
       ],
       "requirement_id": "MT-M4-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2256,12 +2241,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2284,12 +2267,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2312,12 +2293,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2340,12 +2319,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2368,12 +2345,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2399,7 +2374,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2425,7 +2400,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2451,7 +2426,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2477,7 +2452,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2503,7 +2478,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2514,7 +2489,11 @@
       "basis_type": "MIXED",
       "cell_id": "M4-17",
       "contract_assertion_ids": [
-        "COV-M4-17"
+        "COV-M4-17",
+        "S19-M4-08",
+        "S19-M4-14",
+        "AUTH-final_government_submission",
+        "AUTH-submit_authorization"
       ],
       "coverage_claim": "REGULATORY_SUBMISSIONS Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -2527,12 +2506,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
         "OD-004"
       ],
       "requirement_id": "MT-M4-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2543,7 +2521,8 @@
       "basis_type": "MIXED",
       "cell_id": "M4-18",
       "contract_assertion_ids": [
-        "COV-M4-18"
+        "COV-M4-18",
+        "S19-M4-12"
       ],
       "coverage_claim": "REGULATORY_SUBMISSIONS professional approval dependencies distinguish credentials, assignment, approval, and authority permits.",
       "dimension": "professional-approval dependencies",
@@ -2555,12 +2534,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2583,12 +2560,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2611,12 +2586,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2639,12 +2612,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M4-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2670,7 +2641,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2696,7 +2667,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2722,7 +2693,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2746,12 +2717,9 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
         "OD-003",
         "OD-004",
-        "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
         "OD-009",
@@ -2759,7 +2727,7 @@
       ],
       "requirement_id": "MT-M4-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2785,7 +2753,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2796,7 +2764,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M5-02",
       "contract_assertion_ids": [
-        "COV-M5-02"
+        "COV-M5-02",
+        "S19-M5-03",
+        "S19-M5-04"
       ],
       "coverage_claim": "CONSTRUCTION_POST_APPROVAL document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -2811,7 +2781,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2837,7 +2807,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -2848,7 +2818,9 @@
       "basis_type": "MIXED",
       "cell_id": "M5-04",
       "contract_assertion_ids": [
-        "COV-M5-04"
+        "COV-M5-04",
+        "S19-M5-01",
+        "S19-M5-06"
       ],
       "coverage_claim": "CONSTRUCTION_POST_APPROVAL states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -2860,13 +2832,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2877,7 +2846,8 @@
       "basis_type": "MIXED",
       "cell_id": "M5-05",
       "contract_assertion_ids": [
-        "COV-M5-05"
+        "COV-M5-05",
+        "S19-M5-02"
       ],
       "coverage_claim": "CONSTRUCTION_POST_APPROVAL transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -2889,13 +2859,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2918,12 +2885,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2946,12 +2911,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -2974,12 +2937,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3002,12 +2963,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3030,12 +2989,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3058,12 +3015,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3089,7 +3044,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3115,7 +3070,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3141,7 +3096,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3167,7 +3122,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3193,7 +3148,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3204,7 +3159,9 @@
       "basis_type": "MIXED",
       "cell_id": "M5-17",
       "contract_assertion_ids": [
-        "COV-M5-17"
+        "COV-M5-17",
+        "S19-M5-07",
+        "AUTH-construction_start"
       ],
       "coverage_claim": "CONSTRUCTION_POST_APPROVAL Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -3217,12 +3174,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-010"
       ],
       "requirement_id": "MT-M5-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3245,12 +3201,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3273,12 +3227,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3301,12 +3253,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3329,12 +3279,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M5-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3345,7 +3293,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M5-22",
       "contract_assertion_ids": [
-        "COV-M5-22"
+        "COV-M5-22",
+        "S19-M5-05"
       ],
       "coverage_claim": "CONSTRUCTION_POST_APPROVAL evidence IDs resolve to repository-safe evidence records and are never dangling.",
       "dimension": "evidence IDs",
@@ -3360,7 +3309,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3386,7 +3335,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3412,7 +3361,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3436,12 +3385,8 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
         "OD-003",
-        "OD-004",
-        "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
         "OD-009",
@@ -3449,7 +3394,7 @@
       ],
       "requirement_id": "MT-M5-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3460,7 +3405,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M6-01",
       "contract_assertion_ids": [
-        "COV-M6-01"
+        "COV-M6-01",
+        "S19-M6-01"
       ],
       "coverage_claim": "COMPLETION_AS_BUILT entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -3475,7 +3421,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3486,7 +3432,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M6-02",
       "contract_assertion_ids": [
-        "COV-M6-02"
+        "COV-M6-02",
+        "S19-M6-03"
       ],
       "coverage_claim": "COMPLETION_AS_BUILT document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -3501,7 +3448,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3527,7 +3474,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3538,7 +3485,8 @@
       "basis_type": "MIXED",
       "cell_id": "M6-04",
       "contract_assertion_ids": [
-        "COV-M6-04"
+        "COV-M6-04",
+        "S19-M6-07"
       ],
       "coverage_claim": "COMPLETION_AS_BUILT states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -3551,12 +3499,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-006"
       ],
       "requirement_id": "MT-M6-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3567,7 +3514,8 @@
       "basis_type": "MIXED",
       "cell_id": "M6-05",
       "contract_assertion_ids": [
-        "COV-M6-05"
+        "COV-M6-05",
+        "S19-M6-08"
       ],
       "coverage_claim": "COMPLETION_AS_BUILT transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -3580,12 +3528,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-006"
       ],
       "requirement_id": "MT-M6-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3608,12 +3555,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3636,12 +3581,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3664,12 +3607,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3692,12 +3633,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3720,12 +3659,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3748,12 +3685,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3779,7 +3714,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3805,7 +3740,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3831,7 +3766,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3857,7 +3792,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3883,7 +3818,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -3894,7 +3829,8 @@
       "basis_type": "MIXED",
       "cell_id": "M6-17",
       "contract_assertion_ids": [
-        "COV-M6-17"
+        "COV-M6-17",
+        "S19-M6-06"
       ],
       "coverage_claim": "COMPLETION_AS_BUILT Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -3907,12 +3843,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-006"
       ],
       "requirement_id": "MT-M6-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3935,12 +3870,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3963,12 +3896,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -3979,7 +3910,8 @@
       "basis_type": "MIXED",
       "cell_id": "M6-20",
       "contract_assertion_ids": [
-        "COV-M6-20"
+        "COV-M6-20",
+        "S19-M6-04"
       ],
       "coverage_claim": "COMPLETION_AS_BUILT currentness identifies the valid current revision without erasing historical or superseded evidence.",
       "dimension": "currentness rules",
@@ -3996,7 +3928,7 @@
       ],
       "requirement_id": "MT-M6-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4019,12 +3951,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M6-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4035,7 +3965,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M6-22",
       "contract_assertion_ids": [
-        "COV-M6-22"
+        "COV-M6-22",
+        "S19-M6-02",
+        "S19-M6-05"
       ],
       "coverage_claim": "COMPLETION_AS_BUILT evidence IDs resolve to repository-safe evidence records and are never dangling.",
       "dimension": "evidence IDs",
@@ -4050,7 +3982,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4076,7 +4008,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4102,7 +4034,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4126,20 +4058,15 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
-        "OD-003",
-        "OD-004",
-        "OD-005",
         "OD-006",
         "OD-007",
         "OD-008",
-        "OD-009",
-        "OD-010"
+        "OD-009"
       ],
       "requirement_id": "MT-M6-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4150,7 +4077,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "M7-01",
       "contract_assertion_ids": [
-        "COV-M7-01"
+        "COV-M7-01",
+        "S19-M7-01"
       ],
       "coverage_claim": "HANDOVER_CLOSEOUT entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -4165,7 +4093,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4191,7 +4119,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4217,7 +4145,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4228,7 +4156,10 @@
       "basis_type": "MIXED",
       "cell_id": "M7-04",
       "contract_assertion_ids": [
-        "COV-M7-04"
+        "COV-M7-04",
+        "S19-M7-07",
+        "S19-M7-09",
+        "S19-M7-10"
       ],
       "coverage_claim": "HANDOVER_CLOSEOUT states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -4241,12 +4172,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-006"
       ],
       "requirement_id": "MT-M7-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4257,7 +4187,11 @@
       "basis_type": "MIXED",
       "cell_id": "M7-05",
       "contract_assertion_ids": [
-        "COV-M7-05"
+        "COV-M7-05",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05",
+        "S19-M7-06"
       ],
       "coverage_claim": "HANDOVER_CLOSEOUT transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -4270,12 +4204,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
+        "OD-005",
         "OD-006"
       ],
       "requirement_id": "MT-M7-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4298,12 +4232,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4326,12 +4258,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4354,12 +4284,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4382,12 +4310,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4410,12 +4336,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4438,12 +4362,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4469,7 +4391,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4495,7 +4417,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4521,7 +4443,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4547,7 +4469,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4573,7 +4495,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4584,7 +4506,13 @@
       "basis_type": "MIXED",
       "cell_id": "M7-17",
       "contract_assertion_ids": [
-        "COV-M7-17"
+        "COV-M7-17",
+        "S19-M7-02",
+        "AUTH-archive_closure",
+        "AUTH-contract_administrative_closure",
+        "AUTH-handover_acceptance",
+        "AUTH-regulatory_closeout",
+        "AUTH-service_scope_closure"
       ],
       "coverage_claim": "HANDOVER_CLOSEOUT Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -4597,12 +4525,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-006"
       ],
       "requirement_id": "MT-M7-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4625,12 +4552,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4653,12 +4578,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4681,12 +4604,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-M7-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4697,7 +4618,8 @@
       "basis_type": "MIXED",
       "cell_id": "M7-21",
       "contract_assertion_ids": [
-        "COV-M7-21"
+        "COV-M7-21",
+        "S19-M7-08"
       ],
       "coverage_claim": "HANDOVER_CLOSEOUT supersession rules preserve historical records and do not rewrite immutable approved boundaries.",
       "dimension": "supersession rules",
@@ -4714,7 +4636,7 @@
       ],
       "requirement_id": "MT-M7-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4740,7 +4662,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4766,7 +4688,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4792,7 +4714,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4816,10 +4738,7 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
-        "OD-003",
-        "OD-004",
         "OD-005",
         "OD-006",
         "OD-007",
@@ -4829,7 +4748,7 @@
       ],
       "requirement_id": "MT-M7-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4840,7 +4759,9 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "FINANCE-01",
       "contract_assertion_ids": [
-        "COV-FINANCE-01"
+        "COV-FINANCE-01",
+        "S19-FINANCE-01",
+        "S19-FINANCE-07"
       ],
       "coverage_claim": "FINANCE entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -4855,7 +4776,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4866,7 +4787,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "FINANCE-02",
       "contract_assertion_ids": [
-        "COV-FINANCE-02"
+        "COV-FINANCE-02",
+        "S19-FINANCE-10"
       ],
       "coverage_claim": "FINANCE document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -4881,7 +4803,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4907,7 +4829,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -4918,7 +4840,10 @@
       "basis_type": "MIXED",
       "cell_id": "FINANCE-04",
       "contract_assertion_ids": [
-        "COV-FINANCE-04"
+        "COV-FINANCE-04",
+        "S19-FINANCE-02",
+        "S19-FINANCE-14",
+        "S19-FINANCE-15"
       ],
       "coverage_claim": "FINANCE states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -4931,12 +4856,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-005"
       ],
       "requirement_id": "MT-FINANCE-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4947,7 +4871,10 @@
       "basis_type": "MIXED",
       "cell_id": "FINANCE-05",
       "contract_assertion_ids": [
-        "COV-FINANCE-05"
+        "COV-FINANCE-05",
+        "S19-FINANCE-05",
+        "S19-FINANCE-06",
+        "S19-FINANCE-13"
       ],
       "coverage_claim": "FINANCE transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -4960,12 +4887,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-005"
       ],
       "requirement_id": "MT-FINANCE-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -4988,12 +4914,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5004,7 +4928,9 @@
       "basis_type": "MIXED",
       "cell_id": "FINANCE-07",
       "contract_assertion_ids": [
-        "COV-FINANCE-07"
+        "COV-FINANCE-07",
+        "S19-FINANCE-11",
+        "S19-FINANCE-12"
       ],
       "coverage_claim": "FINANCE truth follows observation, reconciliation, verification, and typed projection rather than a filename or path hint.",
       "dimension": "source-of-truth rules",
@@ -5016,12 +4942,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5044,12 +4968,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5072,12 +4994,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5100,12 +5020,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5128,12 +5046,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5159,7 +5075,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5185,7 +5101,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5211,7 +5127,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5237,7 +5153,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5263,7 +5179,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5274,7 +5190,13 @@
       "basis_type": "MIXED",
       "cell_id": "FINANCE-17",
       "contract_assertion_ids": [
-        "COV-FINANCE-17"
+        "COV-FINANCE-17",
+        "S19-FINANCE-04",
+        "S19-FINANCE-09",
+        "AUTH-financial_settlement",
+        "AUTH-invoice_accept",
+        "AUTH-invoice_issue",
+        "AUTH-payment_verify"
       ],
       "coverage_claim": "FINANCE Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -5287,12 +5209,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-005",
+        "OD-006"
       ],
       "requirement_id": "MT-FINANCE-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5315,12 +5237,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5331,7 +5251,8 @@
       "basis_type": "MIXED",
       "cell_id": "FINANCE-19",
       "contract_assertion_ids": [
-        "COV-FINANCE-19"
+        "COV-FINANCE-19",
+        "S19-FINANCE-03"
       ],
       "coverage_claim": "FINANCE duplicate and version semantics distinguish duplicate copies, revised versions, and approved snapshots.",
       "dimension": "duplicate/version semantics",
@@ -5343,12 +5264,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5371,12 +5290,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5399,12 +5316,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5415,7 +5330,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "FINANCE-22",
       "contract_assertion_ids": [
-        "COV-FINANCE-22"
+        "COV-FINANCE-22",
+        "S19-FINANCE-08"
       ],
       "coverage_claim": "FINANCE evidence IDs resolve to repository-safe evidence records and are never dangling.",
       "dimension": "evidence IDs",
@@ -5430,7 +5346,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5456,7 +5372,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5482,7 +5398,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5506,20 +5422,15 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
-        "OD-003",
-        "OD-004",
         "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
-        "OD-009",
-        "OD-010"
+        "OD-009"
       ],
       "requirement_id": "MT-FINANCE-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5530,7 +5441,12 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "MASTER_CONTENT-01",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-01"
+        "COV-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
       ],
       "coverage_claim": "MASTER_CONTENT entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -5542,10 +5458,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-MASTER_CONTENT-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5556,7 +5474,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "MASTER_CONTENT-02",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-02"
+        "COV-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-08"
       ],
       "coverage_claim": "MASTER_CONTENT document families remain typed so templates, evidence, submissions, and outputs are not conflated.",
       "dimension": "document families",
@@ -5568,10 +5487,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-MASTER_CONTENT-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5597,7 +5518,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5608,7 +5529,8 @@
       "basis_type": "MIXED",
       "cell_id": "MASTER_CONTENT-04",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-04"
+        "COV-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-10"
       ],
       "coverage_claim": "MASTER_CONTENT states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -5621,12 +5543,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-008"
       ],
       "requirement_id": "MT-MASTER_CONTENT-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5637,7 +5558,8 @@
       "basis_type": "MIXED",
       "cell_id": "MASTER_CONTENT-05",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-05"
+        "COV-MASTER_CONTENT-05",
+        "S19-MASTER_CONTENT-13"
       ],
       "coverage_claim": "MASTER_CONTENT transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -5650,12 +5572,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-008"
       ],
       "requirement_id": "MT-MASTER_CONTENT-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5678,12 +5599,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5694,7 +5613,8 @@
       "basis_type": "MIXED",
       "cell_id": "MASTER_CONTENT-07",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-07"
+        "COV-MASTER_CONTENT-07",
+        "S19-MASTER_CONTENT-09"
       ],
       "coverage_claim": "MASTER_CONTENT truth follows observation, reconciliation, verification, and typed projection rather than a filename or path hint.",
       "dimension": "source-of-truth rules",
@@ -5707,11 +5627,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-002"
+        "OD-008"
       ],
       "requirement_id": "MT-MASTER_CONTENT-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5722,7 +5642,8 @@
       "basis_type": "MIXED",
       "cell_id": "MASTER_CONTENT-08",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-08"
+        "COV-MASTER_CONTENT-08",
+        "S19-MASTER_CONTENT-11"
       ],
       "coverage_claim": "MASTER_CONTENT source precedence is explicit and preserves stronger evidence over derived context.",
       "dimension": "source precedence",
@@ -5739,7 +5660,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5762,12 +5683,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5790,12 +5709,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-008"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5818,12 +5735,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-009"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -5849,7 +5764,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5875,7 +5790,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5901,7 +5816,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5927,7 +5842,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5953,7 +5868,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -5964,7 +5879,8 @@
       "basis_type": "MIXED",
       "cell_id": "MASTER_CONTENT-17",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-17"
+        "COV-MASTER_CONTENT-17",
+        "S19-MASTER_CONTENT-12"
       ],
       "coverage_claim": "MASTER_CONTENT Party and authorization dependencies distinguish eligibility, grant, precondition, and human authority.",
       "dimension": "party/authorization dependencies",
@@ -5977,12 +5893,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
+        "OD-008"
       ],
       "requirement_id": "MT-MASTER_CONTENT-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6005,12 +5920,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6033,12 +5946,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6049,7 +5960,8 @@
       "basis_type": "MIXED",
       "cell_id": "MASTER_CONTENT-20",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-20"
+        "COV-MASTER_CONTENT-20",
+        "S19-MASTER_CONTENT-06"
       ],
       "coverage_claim": "MASTER_CONTENT currentness identifies the valid current revision without erasing historical or superseded evidence.",
       "dimension": "currentness rules",
@@ -6062,11 +5974,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-007"
+        "OD-007",
+        "OD-008"
       ],
       "requirement_id": "MT-MASTER_CONTENT-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6077,7 +5990,8 @@
       "basis_type": "MIXED",
       "cell_id": "MASTER_CONTENT-21",
       "contract_assertion_ids": [
-        "COV-MASTER_CONTENT-21"
+        "COV-MASTER_CONTENT-21",
+        "S19-MASTER_CONTENT-07"
       ],
       "coverage_claim": "MASTER_CONTENT supersession rules preserve historical records and do not rewrite immutable approved boundaries.",
       "dimension": "supersession rules",
@@ -6090,11 +6004,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-007"
+        "OD-007",
+        "OD-008"
       ],
       "requirement_id": "MT-MASTER_CONTENT-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6120,7 +6035,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6146,7 +6061,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6172,7 +6087,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6196,20 +6111,14 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
-        "OD-003",
-        "OD-004",
-        "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
-        "OD-009",
-        "OD-010"
+        "OD-009"
       ],
       "requirement_id": "MT-MASTER_CONTENT-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6220,7 +6129,10 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "REPORTS-01",
       "contract_assertion_ids": [
-        "COV-REPORTS-01"
+        "COV-REPORTS-01",
+        "S19-REPORTS-01",
+        "S19-REPORTS-04",
+        "S19-REPORTS-11"
       ],
       "coverage_claim": "REPORTS entities remain individually addressable and are not collapsed into adjacent lifecycle entities.",
       "dimension": "entities",
@@ -6232,10 +6144,13 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008",
+        "OD-009"
+      ],
       "requirement_id": "MT-REPORTS-01",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6261,7 +6176,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-02",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6287,7 +6202,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-03",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6298,7 +6213,8 @@
       "basis_type": "MIXED",
       "cell_id": "REPORTS-04",
       "contract_assertion_ids": [
-        "COV-REPORTS-04"
+        "COV-REPORTS-04",
+        "S19-REPORTS-10"
       ],
       "coverage_claim": "REPORTS states remain explicit so readiness, review, approval, delivery, and closure are not silently merged.",
       "dimension": "states",
@@ -6311,12 +6227,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-009"
       ],
       "requirement_id": "MT-REPORTS-04",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6327,7 +6242,8 @@
       "basis_type": "MIXED",
       "cell_id": "REPORTS-05",
       "contract_assertion_ids": [
-        "COV-REPORTS-05"
+        "COV-REPORTS-05",
+        "S19-REPORTS-03"
       ],
       "coverage_claim": "REPORTS transitions preserve the authorized handoff and do not imply an unproven downstream state.",
       "dimension": "transitions",
@@ -6340,12 +6256,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
-        "OD-006"
+        "OD-009"
       ],
       "requirement_id": "MT-REPORTS-05",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6356,7 +6271,8 @@
       "basis_type": "MIXED",
       "cell_id": "REPORTS-06",
       "contract_assertion_ids": [
-        "COV-REPORTS-06"
+        "COV-REPORTS-06",
+        "S19-REPORTS-05"
       ],
       "coverage_claim": "REPORTS role semantics remain separate from persona, Party role, professional assignment, and protected authority.",
       "dimension": "roles",
@@ -6369,11 +6285,11 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-003"
+        "OD-009"
       ],
       "requirement_id": "MT-REPORTS-06",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6384,7 +6300,8 @@
       "basis_type": "MIXED",
       "cell_id": "REPORTS-07",
       "contract_assertion_ids": [
-        "COV-REPORTS-07"
+        "COV-REPORTS-07",
+        "S19-REPORTS-06"
       ],
       "coverage_claim": "REPORTS truth follows observation, reconciliation, verification, and typed projection rather than a filename or path hint.",
       "dimension": "source-of-truth rules",
@@ -6397,11 +6314,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-002"
+        "OD-002",
+        "OD-009"
       ],
       "requirement_id": "MT-REPORTS-07",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6424,12 +6342,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-08",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6452,12 +6368,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-002"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-09",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6468,7 +6382,8 @@
       "basis_type": "MIXED",
       "cell_id": "REPORTS-10",
       "contract_assertion_ids": [
-        "COV-REPORTS-10"
+        "COV-REPORTS-10",
+        "S19-REPORTS-07"
       ],
       "coverage_claim": "REPORTS Master Content dependencies identify controlled reusable content without promoting it to project execution truth.",
       "dimension": "Master Content dependencies",
@@ -6481,11 +6396,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-008"
+        "OD-008",
+        "OD-009"
       ],
       "requirement_id": "MT-REPORTS-10",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6496,7 +6412,9 @@
       "basis_type": "MIXED",
       "cell_id": "REPORTS-11",
       "contract_assertion_ids": [
-        "COV-REPORTS-11"
+        "COV-REPORTS-11",
+        "S19-REPORTS-02",
+        "S19-REPORTS-09"
       ],
       "coverage_claim": "REPORTS report dependencies distinguish definitions, query inputs, generation, and report outputs.",
       "dimension": "report dependencies",
@@ -6513,7 +6431,7 @@
       ],
       "requirement_id": "MT-REPORTS-11",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6539,7 +6457,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-12",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6565,7 +6483,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-13",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6591,7 +6509,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-14",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6602,7 +6520,8 @@
       "basis_type": "CANONICAL_ARCHITECTURE_INVARIANT",
       "cell_id": "REPORTS-15",
       "contract_assertion_ids": [
-        "COV-REPORTS-15"
+        "COV-REPORTS-15",
+        "S19-REPORTS-08"
       ],
       "coverage_claim": "REPORTS audit expectations preserve evidence IDs, provenance, currentness, supersession, and immutable snapshots.",
       "dimension": "Audit expectations",
@@ -6614,10 +6533,13 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007",
+        "OD-009"
+      ],
       "requirement_id": "MT-REPORTS-15",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6643,7 +6565,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-16",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6666,13 +6588,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003",
-        "OD-004"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-17",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6695,12 +6614,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-003"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-18",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6723,12 +6640,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-19",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6751,12 +6666,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-20",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6779,12 +6692,10 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [
-        "OD-007"
-      ],
+      "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-21",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -6810,7 +6721,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-22",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6836,7 +6747,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-23",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6862,7 +6773,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-24",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -6886,20 +6797,14 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-001",
         "OD-002",
-        "OD-003",
-        "OD-004",
-        "OD-005",
-        "OD-006",
         "OD-007",
         "OD-008",
-        "OD-009",
-        "OD-010"
+        "OD-009"
       ],
       "requirement_id": "MT-REPORTS-25",
       "result": "PASS",
-      "semantic_validation_method": "domain_dimension_assertion_claim_and_reference_semantics",
+      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     }
   ],

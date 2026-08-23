@@ -60,7 +60,7 @@
     "MASTER_CONTENT",
     "REPORTS"
   ],
-  "module_truth_contract_sha256": "b18271da8f3c83b2624adafdb3a5b04fc5810bbcb526af8971029aabccbc5479",
+  "module_truth_contract_sha256": "060f0ad81d9eb4807da2a155f9e67efc082bcfd966c94a9cccf77125e44e0218",
   "operational_tags": [
     "INTAKE_OPPORTUNITY_BD",
     "CONTRACT_MOBILIZATION",
@@ -72,7 +72,7 @@
     "FINANCE",
     "NONE_OR_CROSS_CUTTING"
   ],
-  "owner_decision_exclusions": "Pending Owner decisions remain pending; classifier cannot infer or promote policy.",
+  "owner_decision_exclusions": "Owner decisions use OWNER_DECISION_PENDING; classifier cannot infer or promote policy.",
   "source_precedence": [
     {
       "role": "durable_binary_source_filesystem_authority",

@@ -1,7 +1,5 @@
 # AMEC Module Truth Contract v1
 
-This additive semantic repair freezes ten Phase3C truth domains with explicit classifier reconciliation. M1-M7 and Finance map to the canonical operational tags; Master Content and Reports remain truth domains outside the primary operational-tag axis. `NONE_OR_CROSS_CUTTING` is reserved for genuinely cross-cutting operational ownership.
+V6B retains 30 foundation assertions, 123 Section 19 assertions, 250 coverage assertions, and 16 protected-authority assertions. Owner-decision references are arrays with exact applicability; legacy singular references and legacy status tokens are absent.
 
-The contract contains 419 distinct assertions, 123 Section 19 minimum-requirement mappings, 250 substantive domain-by-dimension cells, and 16 protected human authorities.
-
-Proposal Accept is not Contract execution; Contract existence is not Project Activation; Package readiness, submission authorization, external submission, and external approval remain separate; Completion is not Handover; and independent closeout axes are not compressed into one generic CLOSED state.
+Every Section 19 and protected-authority assertion is linked into its exact domain-by-dimension coverage cell. Typed evidence identities distinguish SHA256, Git commit SHA-1, and architecture invariants.

@@ -52,12 +52,13 @@
           "minLength": 1,
           "type": "string"
         },
-        "owner_decision_ref_if_applicable": {
-          "pattern": "^OD-[0-9]{3}$",
-          "type": [
-            "string",
-            "null"
-          ]
+        "owner_decision_refs": {
+          "items": {
+            "pattern": "^OD-[0-9]{3}$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
         },
         "repository_ref_if_applicable": {
           "type": [
@@ -110,13 +111,13 @@
         "basis_type",
         "basis_refs",
         "evidence_ids",
-        "owner_decision_ref_if_applicable",
         "repository_ref_if_applicable",
         "stage1r_ref_if_applicable",
         "architecture_invariant_ref_if_applicable",
         "supersedes_if_applicable",
         "source_state",
-        "notes"
+        "notes",
+        "owner_decision_refs"
       ],
       "type": "object"
     },
@@ -275,6 +276,14 @@
           "type": "array",
           "uniqueItems": true
         },
+        "affected_coverage_cell_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
         "affected_domains": {
           "items": {
             "type": "string"
@@ -309,9 +318,9 @@
         },
         "owner_status": {
           "enum": [
-            "PENDING",
+            "OWNER_DECISION_PENDING",
             "OWNER_CONFIRMED",
-            "AMBIGUOUS",
+            "AMBIGUOUS_OWNER_RESPONSE",
             "RECOMMENDED_NOT_CONFIRMED"
           ]
         },
@@ -329,7 +338,8 @@
         "owner_status",
         "current_evidence",
         "downstream_blocker",
-        "default"
+        "default",
+        "affected_coverage_cell_ids"
       ],
       "type": "object"
     },
@@ -360,6 +370,14 @@
         "human_required": {
           "const": true
         },
+        "owner_decision_refs": {
+          "items": {
+            "pattern": "^OD-[0-9]{3}$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
         "policy_bound": {
           "const": true
         },
@@ -374,7 +392,8 @@
         "human_required",
         "protected",
         "policy_bound",
-        "assertion_ids"
+        "assertion_ids",
+        "owner_decision_refs"
       ],
       "type": "object"
     },
@@ -382,8 +401,33 @@
       "additionalProperties": false,
       "properties": {
         "name": {
-          "minLength": 1,
-          "type": "string"
+          "enum": [
+            "entities",
+            "document families",
+            "business identifiers",
+            "states",
+            "transitions",
+            "roles",
+            "source-of-truth rules",
+            "source precedence",
+            "source-role semantics",
+            "Master Content dependencies",
+            "report dependencies",
+            "Work triggers",
+            "Issue triggers",
+            "Notification triggers",
+            "Audit expectations",
+            "project/entity linking semantics",
+            "party/authorization dependencies",
+            "professional-approval dependencies",
+            "duplicate/version semantics",
+            "currentness rules",
+            "supersession rules",
+            "evidence IDs",
+            "basis type",
+            "basis refs",
+            "unresolved Owner decisions"
+          ]
         },
         "order": {
           "maximum": 25,
@@ -418,12 +462,32 @@
           ]
         },
         "code": {
-          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
-          "type": "string"
+          "enum": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6",
+            "M7",
+            "FINANCE",
+            "MASTER_CONTENT",
+            "REPORTS"
+          ]
         },
         "name": {
-          "minLength": 1,
-          "type": "string"
+          "enum": [
+            "INTAKE_OPPORTUNITY_BD",
+            "CONTRACT_MOBILIZATION",
+            "DESIGN_TECHNICAL_DELIVERY",
+            "REGULATORY_SUBMISSIONS",
+            "CONSTRUCTION_POST_APPROVAL",
+            "COMPLETION_AS_BUILT",
+            "HANDOVER_CLOSEOUT",
+            "FINANCE",
+            "MASTER_CONTENT",
+            "REPORTS"
+          ]
         }
       },
       "required": [
@@ -570,12 +634,111 @@
       ],
       "type": "object"
     },
+    "domain25_decision_sets": {
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$": {
+          "items": {
+            "pattern": "^OD-[0-9]{3}$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "type": "object"
+    },
     "evidence_catalog": {
       "additionalProperties": false,
       "minProperties": 1,
       "patternProperties": {
         "^EVID_[A-Z0-9_]+$": {
-          "$ref": "#/$defs/evidenceRecord"
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "identity_type": {
+                  "const": "SHA256"
+                },
+                "identity_value": {
+                  "pattern": "^[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "identity_type",
+                "identity_value"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "identity_type": {
+                  "const": "GIT_COMMIT_SHA1"
+                },
+                "identity_value": {
+                  "pattern": "^[a-f0-9]{40}$",
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "identity_type",
+                "identity_value"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "identity_type": {
+                  "const": "ARCHITECTURE_INVARIANT"
+                },
+                "identity_value": {
+                  "const": "ARCHITECTURE_INVARIANT"
+                },
+                "kind": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "identity_type",
+                "identity_value"
+              ],
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "evidence_gap_catalog": {
+      "additionalProperties": false,
+      "patternProperties": {
+        "^EVID_GAP_[A-Z0-9_]+$": {
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "gap_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "gap_id",
+            "description"
+          ],
+          "type": "object"
         }
       },
       "type": "object"
@@ -711,7 +874,9 @@
     "coverage_summary",
     "coverage_cells",
     "section19_requirement_count",
-    "section19_requirement_ids"
+    "section19_requirement_ids",
+    "evidence_gap_catalog",
+    "domain25_decision_sets"
   ],
   "title": "AMEC Module Truth Contract v1",
   "type": "object"
