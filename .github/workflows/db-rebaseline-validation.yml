@@ -540,7 +540,7 @@ jobs:
               if component == "enum_set":
                   return tuple(sorted((item["schema"], item["name"]) for item in doc["enums"]))
               if component == "enum_values":
-                  return tuple(sorted((item["schema"], item["name"], tuple(item["values"])) for item in doc["enums"]))
+                  return tuple(sorted((item["schema"], item["name"], tuple(item.get("labels", item.get("values", [])))) for item in doc["enums"]))
               tables = []
               for table in doc["tables"]:
                   for column in table["columns"]:
