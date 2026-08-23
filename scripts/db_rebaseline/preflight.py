@@ -47,8 +47,8 @@ def classify(path: str) -> tuple[str, str]:
     return "UNCLASSIFIED", "STOP"
 
 
-def tracked_paths(source_dir: Path) -> list[str]:
-    output = subprocess.check_output(["git", "-C", str(source_dir), "ls-tree", "-r", "--name-only", "HEAD"], text=True)
+def tracked_paths(source_dir: Path, source_ref: str) -> list[str]:
+    output = subprocess.check_output(["git", "-c", "core.fsmonitor=false", "-C", str(source_dir), "ls-tree", "-r", "--name-only", source_ref], text=True)
     return [line for line in output.splitlines() if line]
 
 
@@ -56,13 +56,13 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-dir", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--source-ref", default="HEAD")
     args = parser.parse_args()
     source_dir = Path(args.source_dir).resolve()
     occurrences = []
-    for path in tracked_paths(source_dir):
-        full_path = source_dir / path
+    for path in tracked_paths(source_dir, args.source_ref):
         try:
-            content = full_path.read_bytes()
+            content = subprocess.check_output(["git", "-c", "core.fsmonitor=false", "-C", str(source_dir), "show", f"{args.source_ref}:{path}"])
         except OSError:
             continue
         if b"0059_entra_user_identity" not in content and b"0059_" not in content:
@@ -88,7 +88,7 @@ def main() -> int:
         and item["scope_result"] != "ALLOWLIST"
     ]
     result = {
-        "source_sha": subprocess.check_output(["git", "-C", str(source_dir), "rev-parse", "HEAD"], text=True).strip(),
+        "source_sha": subprocess.check_output(["git", "-c", "core.fsmonitor=false", "-C", str(source_dir), "rev-parse", args.source_ref], text=True).strip(),
         "source_method": "FULL_GIT_TREE",
         "occurrences": occurrences,
         "unclassified_count": len(unclassified),

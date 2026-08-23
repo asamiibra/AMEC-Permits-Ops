@@ -70,7 +70,7 @@ jobs:
           test "$(git rev-parse "$SOURCE_SHA^")" = "$SOURCE_PARENT_SHA"
           test "$(git rev-parse "$SOURCE_SHA:backend/migrations/versions")" = "$LEGACY_VERSIONS_TREE_SHA"
           test "$(find r13-reference/backend/migrations/versions -maxdepth 1 -type f -name '*.py' | wc -l)" -eq 59
-          python scripts/db_rebaseline/preflight.py --source-dir . --output preflight-legacy-head-occurrences.json
+          python scripts/db_rebaseline/preflight.py --source-dir . --source-ref "$SOURCE_SHA" --output preflight-legacy-head-occurrences.json
           python scripts/db_rebaseline/validate.py --mode stage-a --root .
           active_count=$(find backend/migrations/versions -maxdepth 1 -type f -name '*.py' | wc -l | tr -d ' ')
           baseline_count=$(find backend/migrations/versions -maxdepth 1 -type f -name 'baseline_r13_0059.py' | wc -l | tr -d ' ')
