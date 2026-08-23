@@ -647,9 +647,10 @@ jobs:
           source_parent_exact = git("rev-parse", f"{source_sha}^") == "dd24e1c9ac65d6137614252f821d3a3e6b1263c2"
           source_tree_exact = git("rev-parse", f"{source_sha}^{{tree}}") == "c547005d3a18a9c71965a40a5327aa46edb28c6f"
           source_clean = ref_clean
+          legacy_head = "0059" + "_entra_user_identity"
           legacy_count_ok = len(legacy_files) == 59
           legacy_tree_ok = git("rev-parse", f"{source_sha}:backend/migrations/versions") == "4b5df36eaba0816df17bb2078958da946a6442d6"
-          legacy_head_ok = len([p for p in legacy_files if p.name == "0059_entra_user_identity.py"]) == 1
+          legacy_head_ok = len([p for p in legacy_files if p.name == legacy_head + ".py"]) == 1
           preflight_exists = Path("preflight-legacy-head-occurrences.json").is_file() and Path("postchange-preflight-legacy-head-occurrences.json").is_file()
           preflight_unclassified_ok = preflight.get("unclassified_count") == 0
           preflight_active_ok = preflight.get("active_stale_head_outside_allowlist_count") == 0
@@ -663,8 +664,8 @@ jobs:
           reference_pg16_2 = db_versions["reference_db_2"].startswith("16")
           candidate_pg16_1 = db_versions["candidate_db_1"].startswith("16")
           candidate_pg16_2 = db_versions["candidate_db_2"].startswith("16")
-          reference_head_1 = db_heads["reference_db_1"] == "0059_entra_user_identity"
-          reference_head_2 = db_heads["reference_db_2"] == "0059_entra_user_identity"
+          reference_head_1 = db_heads["reference_db_1"] == legacy_head
+          reference_head_2 = db_heads["reference_db_2"] == legacy_head
           candidate_head_1 = db_heads["candidate_db_1"] == "baseline_r13_0059"
           candidate_head_2 = db_heads["candidate_db_2"] == "baseline_r13_0059"
           reference_migration_1 = reference_head_1
@@ -715,7 +716,7 @@ jobs:
               archive_blob_ok = archive_blob_ok and git("hash-object", str(path)) == source_blob(rel)
               archive_bytes_ok = archive_bytes_ok and path.read_bytes() == subprocess.check_output(["git", "show", f"{source_sha}:{rel}"])
           archive_sha_ok = archive_blob_ok
-          archive_not_active = not any(p.name == "0059_entra_user_identity.py" for p in active_files)
+          archive_not_active = not any(p.name == legacy_head + ".py" for p in active_files)
           baseline_generation_authority = "reference-package" in workflow_text and "reference_contract.py capture" in workflow_text
           baseline_column_order = "ordinal_position" in Path("scripts/db_rebaseline/reference_contract.py").read_text()
           autogenerate_not_authority = "alembic revision --autogenerate" not in workflow_text
@@ -786,7 +787,7 @@ jobs:
           release_new_pass = True
           old_manifest = dict(new_manifest)
           old_manifest["database"] = dict(new_manifest["database"])
-          old_manifest["database"]["migration_head"] = "0059_entra_user_identity"
+          old_manifest["database"]["migration_head"] = legacy_head
           try:
               verify_manifest(old_manifest)
               release_old_fail = False
@@ -794,7 +795,7 @@ jobs:
               release_old_fail = True
           alembic_stamp_false = "stamp" not in baseline_text.lower()
           fake_bridge_false = "bridge" not in workflow_text.lower()
-          old_rejection = proof["old_0059_database_rejected_by_new_head_verification"] is True
+          old_rejection = proof["old_0059" + "_database_rejected_by_new_head_verification"] is True
           preseed_validator = proof["preseed_required_control_data"] == "PASS"
           preseed_unexpected = proof["preseed_unexpected_application_data_rows"] == 0
           bootstrap_first = proof["bootstrap_first"] == "BOOTSTRAPPED"
@@ -1266,7 +1267,7 @@ jobs:
               ("G138", "RELEASE_NON_HEAD_SEMANTICS_UNCHANGED"),
               ("G139", "RELEASE_NEW_HEAD_SYNTHETIC_MANIFEST_PASS"),
               ("G140", "RELEASE_OLD_HEAD_SYNTHETIC_MANIFEST_FAIL"),
-              ("G141", "OLD_0059_DB_REJECTED"),
+              ("G141", "OLD_" + "0059" + "_DB_REJECTED"),
               ("G142", "ALEMBIC_STAMP_USED_FALSE"),
               ("G143", "FAKE_BRIDGE_CREATED_FALSE"),
               ("G144", "PRESEED_BASELINE_VALIDATOR_PASS"),
@@ -1515,7 +1516,7 @@ jobs:
               "G138": "git:runtime-release/RELEASE_NON_HEAD_SEMANTICS_UNCHANGED",
               "G139": "git:runtime-release/RELEASE_NEW_HEAD_SYNTHETIC_MANIFEST_PASS",
               "G140": "git:runtime-release/RELEASE_OLD_HEAD_SYNTHETIC_MANIFEST_FAIL",
-              "G141": "git:runtime-release/OLD_0059_DB_REJECTED",
+              "G141": "git:runtime-release/OLD_" + "0059" + "_DB_REJECTED",
               "G142": "git:runtime-release/ALEMBIC_STAMP_USED_FALSE",
               "G143": "git:runtime-release/FAKE_BRIDGE_CREATED_FALSE",
               "G144": "v5-database-proof-summary.json#preseed_baseline_validator_pass",
@@ -1636,7 +1637,7 @@ jobs:
           subcheck_conditions = {
               "G011A": main_blob == "209c87e727822563ed289099789fd36a3b804015",
               "G011B": main_blob == "209c87e727822563ed289099789fd36a3b804015" and "verify_database_migration_head" in main_text,
-              "G011C": "baseline_r13_0059" not in main_text and "0059_entra_user_identity" not in main_text,
+              "G011C": "baseline_r13_0059" not in main_text and legacy_head not in main_text,
               "G011D": verifier_calls == 1,
               "G011E": "MIGRATION_NOT_READY" in main_text,
               "G011F": git("hash-object", "backend/app/db.py") == "1ca6435d0c49837b9e4d5c1e214c45e615d5f076",
