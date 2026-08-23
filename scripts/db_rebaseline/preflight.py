@@ -40,6 +40,8 @@ def classify(path: str) -> tuple[str, str]:
         return "HISTORICAL_MIGRATION_PROVENANCE", "ARCHIVE_REQUIRED"
     if path.startswith("backend/migrations/history/"):
         return "HISTORICAL_MIGRATION_PROVENANCE", "ARCHIVE_REQUIRED"
+    if path.startswith("scripts/db_rebaseline/"):
+        return "HISTORICAL_MIGRATION_PROVENANCE", "REFERENCE_TOOLING"
     if path.startswith("docs/") or path.endswith((".md", ".txt")):
         return "DOCUMENTATION_PROVENANCE", "PRESERVE_OR_UPDATE"
     return "UNCLASSIFIED", "STOP"
