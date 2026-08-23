@@ -92,7 +92,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git merge-base --is-ancestor "$v4_candidate_sha" "$GITHUB_SHA"
           test "$(git rev-list --count "$v4_candidate_sha..$GITHUB_SHA")" -ge 1
-          first_v5_commit=$(git rev-list --reverse --max-count=1 "$v4_candidate_sha..$GITHUB_SHA")
+          first_v5_commit=$(git rev-list --reverse "$v4_candidate_sha..$GITHUB_SHA" | sed -n '1p')
           test "$(git rev-parse "$first_v5_commit^")" = "$v4_candidate_sha"
           git diff --name-only "$v4_candidate_sha" "$first_v5_commit" | sort > v5-first-paths.txt
           test "$(wc -l < v5-first-paths.txt | tr -d ' ')" = 2
