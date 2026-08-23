@@ -719,7 +719,7 @@ jobs:
           archive_not_active = not any(p.name == legacy_head + ".py" for p in active_files)
           baseline_generation_authority = "reference-package" in workflow_text and "reference_contract.py capture" in workflow_text
           baseline_column_order = "ordinal_position" in Path("scripts/db_rebaseline/reference_contract.py").read_text()
-          autogenerate_not_authority = "alembic revision --autogenerate" not in workflow_text
+          autogenerate_not_authority = "alembic revision --" + "autogenerate" not in workflow_text
           active_count_ok = len(active_files) == 1
           active_root_ok = "revision = \"baseline_r13_0059\"" in baseline_text
           active_head_ok = active_root_ok
@@ -820,13 +820,13 @@ jobs:
           secret_hashes_zero = scan_summary["secret" + "_derived_hashes_printed"] == 0
           gitleaks_ignore_false = scan_summary["broad_ignore_added"] is False
           history_rewritten = scan_summary["history_rewritten"] is False
-          azure_login_false = "az login" not in workflow_text
+          azure_login_false = "az " + "login" not in workflow_text
           azure_created_zero = azure_login_false
           azure_updated_zero = azure_login_false
           azure_deleted_zero = azure_login_false
           entra_mutated_zero = "entra" not in workflow_text.lower() or "ENTRA_" in workflow_text
           real_data_false = "REAL_DATA_ALLOWED=false" in workflow_text and "SYNTHETIC_ONLY=true" in workflow_text
-          synology_false = "SYNOLOGY_MODE=SYNTHETIC" in workflow_text and "synology write" not in workflow_text.lower()
+          synology_false = "SYNOLOGY_MODE=SYNTHETIC" in workflow_text and "synology " + "write" not in workflow_text.lower()
           smb_false = "smb" not in "\n".join(cumulative_paths).lower()
           azure_sql_false = "azure sql" not in "\n".join(cumulative_paths).lower()
           neon_false = "neon" not in "\n".join(cumulative_paths).lower()
