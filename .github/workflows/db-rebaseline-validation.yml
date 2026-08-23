@@ -382,6 +382,7 @@ jobs:
           (cd "$v5_secret_root" && detect-secrets scan --all-files --force-use-all-plugins --exclude-files '(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)' > "$RUNNER_TEMP/v5-v5-secrets.json")
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           def findings(path):
