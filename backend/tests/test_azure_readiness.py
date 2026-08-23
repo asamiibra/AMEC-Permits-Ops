@@ -30,13 +30,8 @@ def _ready_dependencies(monkeypatch, *, storage=None):
     monkeypatch.setattr(main, "engine", _Engine())
     monkeypatch.setattr(
         main,
-        "repository_migration_head",
-        lambda: "0059_entra_user_identity",
-    )
-    monkeypatch.setattr(
-        main,
         "verify_database_migration_head",
-        lambda: "0059_entra_user_identity",
+        lambda: "dynamic-test-head",
     )
     from backend.app.storage import factory
     monkeypatch.setattr(
@@ -74,7 +69,14 @@ def test_ready_returns_success_at_migration_head(monkeypatch):
 
 def test_ready_reports_migration_mismatch(monkeypatch):
     _ready_dependencies(monkeypatch)
-    monkeypatch.setattr(main, "repository_migration_head", lambda: "0058_previous")
+    def fail_migration_verification():
+        raise RuntimeError("synthetic migration mismatch")
+
+    monkeypatch.setattr(
+        main,
+        "verify_database_migration_head",
+        fail_migration_verification,
+    )
     response = TestClient(main.app).get("/health/ready")
     assert response.status_code == 503
     assert response.json()["failure_class"] == "MIGRATION_NOT_READY"
