@@ -640,7 +640,7 @@ jobs:
               return git("rev-parse", f"{source_sha}:{path}")
           reference_sha_ok = git("-C", "r13-reference", "rev-parse", "HEAD") == source_sha
           reference_models_ok = ref_blob("backend/app/main.py") == source_blob("backend/app/main.py")
-          reference_migrations_ok = git("-C", "r13-reference", "rev-parse", "backend/migrations/versions") == git("rev-parse", f"{source_sha}:backend/migrations/versions")
+          reference_migrations_ok = git("-C", "r13-reference", "rev-parse", "HEAD:backend/migrations/versions") == git("rev-parse", f"{source_sha}:backend/migrations/versions")
           source_remote_head = subprocess.check_output(["git", "ls-remote", "origin", "refs/heads/azure-a1-f1-batch3a-step4c"], text=True).split()[0]
           source_branch_exact = source_remote_head == "96c4b90968754efd8e5998cd1b1793b67c23d2bc" and git("rev-parse", source_sha) == source_sha
           source_sha_exact = source_branch_exact
