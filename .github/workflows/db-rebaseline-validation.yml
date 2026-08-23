@@ -71,7 +71,6 @@ jobs:
           test "$(git rev-parse "$SOURCE_SHA:backend/migrations/versions")" = "$LEGACY_VERSIONS_TREE_SHA"
           test "$(find r13-reference/backend/migrations/versions -maxdepth 1 -type f -name '*.py' | wc -l)" -eq 59
           python scripts/db_rebaseline/preflight.py --source-dir . --source-ref "$SOURCE_SHA" --output preflight-legacy-head-occurrences.json
-          python scripts/db_rebaseline/validate.py --mode stage-a --root .
           active_count=$(find backend/migrations/versions -maxdepth 1 -type f -name '*.py' | wc -l | tr -d ' ')
           baseline_count=$(find backend/migrations/versions -maxdepth 1 -type f -name 'baseline_r13_0059.py' | wc -l | tr -d ' ')
           if [ "$active_count" = 59 ] && [ "$baseline_count" = 0 ]; then
@@ -82,6 +81,10 @@ jobs:
             echo "STOP_UNEXPECTED_MIGRATION_GRAPH_STATE active=$active_count baseline=$baseline_count"
             exit 1
           fi
+
+      - name: Validate Stage A bootstrap scope
+        if: steps.mode.outputs.mode == 'REFERENCE_CAPTURE'
+        run: python scripts/db_rebaseline/validate.py --mode stage-a --root .
 
       - name: Capture two exact-R13 reference databases
         if: steps.mode.outputs.mode == 'REFERENCE_CAPTURE' || steps.mode.outputs.mode == 'FINAL_CANDIDATE_VALIDATION'
