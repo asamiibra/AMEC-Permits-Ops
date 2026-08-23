@@ -731,7 +731,8 @@ jobs:
           baseline_dialect = "sqlalchemy.dialects.postgresql" not in baseline_text
           baseline_raw_create = not re.search(r"\bCREATE\s+TABLE\b", baseline_text, re.I)
           baseline_raw_drop = not re.search(r"\bDROP\s+TABLE\b", baseline_text, re.I)
-          baseline_business_rows = "master_content_reference_sequences" not in baseline_text
+          baseline_insert_tables = re.findall(r"INSERT\s+INTO\s+([A-Za-z0-9_]+)", baseline_text, re.I)
+          baseline_business_rows = all(table in r1c["allowed_control_tables"] for table in baseline_insert_tables)
           baseline_role_ddl = "CREATE ROLE" not in baseline_text.upper()
           baseline_downgrade = "Canonical root baseline downgrade is intentionally unsupported" in baseline_text
           candidate_build = candidate_head_1 and candidate_head_2 and active_count_ok
