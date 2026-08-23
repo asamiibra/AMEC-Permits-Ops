@@ -5,7 +5,8 @@
     {
       "assertion": "M1 input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-001",
@@ -13,10 +14,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -29,12 +31,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-01",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-002",
@@ -42,10 +46,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -58,12 +63,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-02",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-003",
@@ -71,10 +78,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -87,12 +95,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-03",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-004",
@@ -100,10 +110,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -116,12 +127,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-04",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-005",
@@ -129,10 +142,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -145,12 +159,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-05",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-006",
@@ -158,10 +174,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -174,12 +191,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-06",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-007",
@@ -187,10 +206,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -203,12 +223,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-07",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-008",
@@ -216,10 +238,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -232,12 +255,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-08",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-009",
@@ -245,10 +270,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -261,12 +287,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-09",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-010",
@@ -274,10 +302,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -290,12 +319,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-10",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-011",
@@ -303,10 +334,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -319,12 +351,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-11",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M1 protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-012",
@@ -332,10 +366,11 @@
       "domain": "M1",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M1-A01",
         "M1-A02",
@@ -348,12 +383,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M1-12",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-013",
@@ -361,10 +398,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -377,12 +415,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-13",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-014",
@@ -390,10 +430,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -406,12 +447,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-14",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-015",
@@ -419,10 +462,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -435,12 +479,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-15",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-016",
@@ -448,10 +494,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -464,12 +511,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-16",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-017",
@@ -477,10 +526,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -493,12 +543,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-17",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-018",
@@ -506,10 +558,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -522,12 +575,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-18",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-019",
@@ -535,10 +590,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -551,12 +607,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-19",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-020",
@@ -564,10 +622,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -580,12 +639,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-20",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-021",
@@ -593,10 +654,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -609,12 +671,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-21",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-022",
@@ -622,10 +686,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -638,12 +703,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-22",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-023",
@@ -651,10 +718,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -667,12 +735,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-23",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M2 protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-024",
@@ -680,10 +750,11 @@
       "domain": "M2",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M2-A01",
         "M2-A02",
@@ -696,12 +767,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M2-24",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-025",
@@ -709,10 +782,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -725,12 +799,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-25",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-026",
@@ -738,10 +814,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -754,12 +831,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-26",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-027",
@@ -767,10 +846,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -783,12 +863,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-27",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-028",
@@ -796,10 +878,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -812,12 +895,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-28",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-029",
@@ -825,10 +910,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -841,12 +927,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-29",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-030",
@@ -854,10 +942,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -870,12 +959,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-30",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-031",
@@ -883,10 +974,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -899,12 +991,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-31",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-032",
@@ -912,10 +1006,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -928,12 +1023,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-32",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-033",
@@ -941,10 +1038,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -957,12 +1055,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-33",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-034",
@@ -970,10 +1070,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -986,12 +1087,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-34",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-035",
@@ -999,10 +1102,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -1015,12 +1119,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-35",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M3 protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-036",
@@ -1028,10 +1134,11 @@
       "domain": "M3",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M3-A01",
         "M3-A02",
@@ -1044,12 +1151,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M3-36",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-037",
@@ -1057,10 +1166,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1073,12 +1183,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-37",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-038",
@@ -1086,10 +1198,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1102,12 +1215,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-38",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-039",
@@ -1115,10 +1230,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1131,12 +1247,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-39",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-040",
@@ -1144,10 +1262,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1160,12 +1279,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-40",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-041",
@@ -1173,10 +1294,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1189,12 +1311,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-41",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-042",
@@ -1202,10 +1326,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1218,12 +1343,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-42",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-043",
@@ -1231,10 +1358,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1247,12 +1375,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-43",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-044",
@@ -1260,10 +1390,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1276,12 +1407,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-44",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-045",
@@ -1289,10 +1422,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1305,12 +1439,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-45",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-046",
@@ -1318,10 +1454,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1334,12 +1471,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-46",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-047",
@@ -1347,10 +1486,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1363,12 +1503,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-47",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M4 protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-048",
@@ -1376,10 +1518,11 @@
       "domain": "M4",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M4-A01",
         "M4-A02",
@@ -1392,12 +1535,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M4-48",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-049",
@@ -1405,10 +1550,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1421,12 +1567,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-49",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-050",
@@ -1434,10 +1582,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1450,12 +1599,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-50",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-051",
@@ -1463,10 +1614,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1479,12 +1631,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-51",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-052",
@@ -1492,10 +1646,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1508,12 +1663,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-52",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-053",
@@ -1521,10 +1678,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1537,12 +1695,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-53",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-054",
@@ -1550,10 +1710,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1566,12 +1727,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-54",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-055",
@@ -1579,10 +1742,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1595,12 +1759,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-55",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-056",
@@ -1608,10 +1774,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1624,12 +1791,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-56",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-057",
@@ -1637,10 +1806,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1653,12 +1823,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-57",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-058",
@@ -1666,10 +1838,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1682,12 +1855,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-58",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-059",
@@ -1695,10 +1870,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1711,12 +1887,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-59",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M5 protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-060",
@@ -1724,10 +1902,11 @@
       "domain": "M5",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M5-A01",
         "M5-A02",
@@ -1740,12 +1919,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M5-60",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-061",
@@ -1753,10 +1934,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1769,12 +1951,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-61",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-062",
@@ -1782,10 +1966,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1798,12 +1983,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-62",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-063",
@@ -1811,10 +1998,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1827,12 +2015,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-63",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-064",
@@ -1840,10 +2030,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1856,12 +2047,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-64",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-065",
@@ -1869,10 +2062,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1885,12 +2079,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-65",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-066",
@@ -1898,10 +2094,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1914,12 +2111,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-66",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-067",
@@ -1927,10 +2126,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1943,12 +2143,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-67",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-068",
@@ -1956,10 +2158,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -1972,12 +2175,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-68",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-069",
@@ -1985,10 +2190,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -2001,12 +2207,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-69",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-070",
@@ -2014,10 +2222,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -2030,12 +2239,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-70",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-071",
@@ -2043,10 +2254,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -2059,12 +2271,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-71",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M6 protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-072",
@@ -2072,10 +2286,11 @@
       "domain": "M6",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M6-A01",
         "M6-A02",
@@ -2088,12 +2303,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M6-72",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-073",
@@ -2101,10 +2318,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2117,12 +2335,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-73",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-074",
@@ -2130,10 +2350,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2146,12 +2367,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-74",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-075",
@@ -2159,10 +2382,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2175,12 +2399,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-75",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-076",
@@ -2188,10 +2414,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2204,12 +2431,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-76",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-077",
@@ -2217,10 +2446,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2233,12 +2463,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-77",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-078",
@@ -2246,10 +2478,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2262,12 +2495,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-78",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-079",
@@ -2275,10 +2510,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2291,12 +2527,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-79",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-080",
@@ -2304,10 +2542,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2320,12 +2559,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-80",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-081",
@@ -2333,10 +2574,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2349,12 +2591,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-81",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-082",
@@ -2362,10 +2606,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2378,12 +2623,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-82",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-083",
@@ -2391,10 +2638,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2407,12 +2655,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-83",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "M7 protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-084",
@@ -2420,10 +2670,11 @@
       "domain": "M7",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "M7-A01",
         "M7-A02",
@@ -2436,12 +2687,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-M7-84",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-085",
@@ -2449,10 +2702,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2465,12 +2719,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-85",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-086",
@@ -2478,10 +2734,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2494,12 +2751,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-86",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-087",
@@ -2507,10 +2766,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2523,12 +2783,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-87",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-088",
@@ -2536,10 +2798,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2552,12 +2815,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-88",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-089",
@@ -2565,10 +2830,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2581,12 +2847,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-89",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-090",
@@ -2594,10 +2862,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2610,12 +2879,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-90",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-091",
@@ -2623,10 +2894,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2639,12 +2911,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-91",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-092",
@@ -2652,10 +2926,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2668,12 +2943,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-92",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-093",
@@ -2681,10 +2958,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2697,12 +2975,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-93",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-094",
@@ -2710,10 +2990,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2726,12 +3007,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-94",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-095",
@@ -2739,10 +3022,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2755,12 +3039,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-95",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "FINANCE protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-096",
@@ -2768,10 +3054,11 @@
       "domain": "FINANCE",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "FINANCE-A01",
         "FINANCE-A02",
@@ -2784,12 +3071,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-FINANCE-96",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-097",
@@ -2797,10 +3086,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -2813,12 +3103,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-97",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-098",
@@ -2826,10 +3118,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -2842,12 +3135,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-98",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-099",
@@ -2855,10 +3150,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -2871,12 +3167,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-99",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-100",
@@ -2884,10 +3182,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -2900,12 +3199,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-100",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-101",
@@ -2913,10 +3214,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -2929,12 +3231,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-101",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-102",
@@ -2942,10 +3246,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -2958,12 +3263,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-102",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-103",
@@ -2971,10 +3278,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -2987,12 +3295,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-103",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-104",
@@ -3000,10 +3310,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -3016,12 +3327,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-104",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-105",
@@ -3029,10 +3342,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -3045,12 +3359,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-105",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-106",
@@ -3058,10 +3374,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -3074,12 +3391,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-106",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-107",
@@ -3087,10 +3406,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -3103,12 +3423,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-107",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "MASTER_CONTENT protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-108",
@@ -3116,10 +3438,11 @@
       "domain": "MASTER_CONTENT",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "MASTER_CONTENT-A01",
         "MASTER_CONTENT-A02",
@@ -3132,12 +3455,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-108",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS input evidence types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-109",
@@ -3145,10 +3470,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "input evidence types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3161,12 +3487,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-109",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS classification axes has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-110",
@@ -3174,10 +3502,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "classification axes",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3190,12 +3519,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-110",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS review policy has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-111",
@@ -3203,10 +3534,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "review policy",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3219,12 +3551,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-111",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS VerifiedAssertion types has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-112",
@@ -3232,10 +3566,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "VerifiedAssertion types",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3248,12 +3583,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-112",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS projection targets has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-113",
@@ -3261,10 +3598,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection targets",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3277,12 +3615,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-113",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS projection preconditions has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-114",
@@ -3290,10 +3630,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "projection preconditions",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3306,12 +3647,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-114",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS source precedence has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-115",
@@ -3319,10 +3662,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "source precedence",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3335,12 +3679,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-115",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS currentness/version semantics has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-116",
@@ -3348,10 +3694,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "currentness/version semantics",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3364,12 +3711,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-116",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS idempotency has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-117",
@@ -3377,10 +3726,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "idempotency",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3393,12 +3743,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-117",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS conflict behavior has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-118",
@@ -3406,10 +3758,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "conflict behavior",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3422,12 +3775,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-118",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-119",
@@ -3435,10 +3790,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "Work/Issue/Notification/Audit effects",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3451,12 +3807,14 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-119",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     },
     {
       "assertion": "REPORTS protected human gates has an explicit Phase4 integration disposition.",
       "basis_refs": [
-        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+        "PHASE3C_ACCEPTED_MODULE_TRUTH",
+        "AMEC_PHASE4_V34_REVALIDATION"
       ],
       "category": "DOMAIN_INTEGRATION",
       "check_id": "DOM-120",
@@ -3464,10 +3822,11 @@
       "domain": "REPORTS",
       "evidence": [
         "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
-        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1",
+        "AMEC_PHASE4_V34_REVALIDATION_V1"
       ],
       "integration_dimension": "protected human gates",
-      "method": "contract_and_phase3c_mapping_evaluation",
+      "method": "v34_exact_cartesian_domain_mapping_and_runtime_evaluation",
       "phase3c_assertion_refs": [
         "REPORTS-A01",
         "REPORTS-A02",
@@ -3480,12 +3839,16 @@
       ],
       "reason_if_not_applicable": null,
       "requirement_id": "PH4-DOMAIN-REPORTS-120",
-      "result": "PASS"
+      "result": "PASS",
+      "basis_state": "V34_FINAL_CANDIDATE"
     }
   ],
   "domain_count": 10,
   "duplicate_cell_count": 0,
   "expected_cell_count": 120,
   "integration_dimension_count": 12,
-  "uncovered_cell_count": 0
+  "uncovered_cell_count": 0,
+  "unexpected_domain_count": 0,
+  "unexpected_integration_dimension_count": 0,
+  "missing_pair_count": 0
 }
