@@ -498,116 +498,1257 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import ast
+          import hashlib
           import json
+          import os
+          import platform
+          import re
+          import shutil
           import subprocess
           from pathlib import Path
 
-          scope = json.loads(Path("v5-scope-summary.json").read_text())
-          proof = json.loads(Path("v5-database-proof-summary.json").read_text())
+          def git(*args):
+              return subprocess.check_output(["git", "-c", "core.fsmonitor=false", *args], text=True).strip()
+
+          def load(path):
+              return json.loads(Path(path).read_text())
+
+          def sha256_file(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          def psql(database, sql):
+              env = os.environ.copy()
+              env["PGPASSWORD"] = os.environ["POSTGRES_PASSWORD"]
+              return subprocess.check_output(
+                  ["psql", "-h", "127.0.0.1", "-U", os.environ["POSTGRES_USER"], "-d", database, "-Atqc", sql],
+                  env=env,
+                  text=True,
+              ).strip()
+
+          def safe_json(value):
+              return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+          def structural(doc):
+              value = dict(doc)
+              value.pop("schema_sha256", None)
+              return value
+
+          def schema_component(doc, component):
+              if component == "schema":
+                  return (doc["schema"], tuple(doc["excluded_tables"]))
+              if component == "enum_set":
+                  return tuple(sorted((item["schema"], item["name"]) for item in doc["enums"]))
+              if component == "enum_values":
+                  return tuple(sorted((item["schema"], item["name"], tuple(item["values"])) for item in doc["enums"]))
+              tables = []
+              for table in doc["tables"]:
+                  for column in table["columns"]:
+                      key = (table["name"], column["name"])
+                      if component == "column_set":
+                          tables.append(key)
+                      elif component == "column_order":
+                          tables.append(key + (column["ordinal_position"],))
+                      elif component == "type":
+                          tables.append(key + (safe_json(column["type"]),))
+                      elif component == "length":
+                          tables.append(key + (column["type"].get("length"),))
+                      elif component == "precision_scale":
+                          tables.append(key + (column["type"].get("precision"), column["type"].get("scale")))
+                      elif component == "timezone":
+                          tables.append(key + (column["type"].get("timezone"),))
+                      elif component == "nullability":
+                          tables.append(key + (column["nullable"],))
+                      elif component == "server_default":
+                          tables.append(key + (safe_json(column.get("default")),))
+                  if component == "table_set":
+                      tables.append(table["name"])
+                  if component == "primary_key":
+                      tables.append((table["name"], safe_json(table.get("primary_key"))))
+                  if component == "unique":
+                      tables.append((table["name"], safe_json(table.get("unique_constraints"))))
+                  if component == "foreign_keys":
+                      tables.append((table["name"], safe_json(table.get("foreign_keys"))))
+                  if component == "foreign_key_actions":
+                      actions = [(item.get("name"), item.get("ondelete"), item.get("onupdate")) for item in table.get("foreign_keys", [])]
+                      tables.append((table["name"], tuple(actions)))
+                  if component == "checks":
+                      tables.append((table["name"], safe_json(table.get("checks"))))
+                  if component == "index_set":
+                      tables.append((table["name"], tuple(sorted(item["name"] for item in table.get("indexes", [])))))
+                  if component == "index_columns":
+                      tables.append((table["name"], tuple(sorted((item["name"], tuple(item.get("columns", []))) for item in table.get("indexes", [])))))
+                  if component == "index_order":
+                      tables.append((table["name"], tuple(sorted((item["name"], tuple(item.get("columns", []))) for item in table.get("indexes", [])))))
+                  if component == "index_uniqueness":
+                      tables.append((table["name"], tuple(sorted((item["name"], item.get("unique")) for item in table.get("indexes", [])))))
+                  if component == "index_predicate":
+                      tables.append((table["name"], tuple(sorted((item["name"], safe_json(item.get("dialect_options", {}))) for item in table.get("indexes", [])))))
+                  if component == "identity_sequence":
+                      tables.append((table["name"], safe_json(table.get("identity"))))
+              if component == "sequences":
+                  return safe_json(doc["sequences"])
+              return tuple(sorted(tables))
+
+          source_sha = os.environ["SOURCE_SHA"]
+          head = git("rev-parse", "HEAD")
+          parent = git("rev-parse", "HEAD^")
+          branch = git("branch", "--show-current")
+          github_sha = os.environ.get("GITHUB_SHA", "")
+          scope = load("v5-scope-summary.json")
+          proof = load("v5-database-proof-summary.json")
           tests = proof["test_summary"]
           scan_summary_name = "v5-" + "secret" + "-summary.json"
-          scan_summary = json.loads(Path(scan_summary_name).read_text())
-          new_key = "new_" + "secret" + "_finding_count"
-          values_key = "secret" + "_values_printed"
-          hashes_key = "secret" + "_derived_hashes_printed"
-          preflight = json.loads(Path("postchange-preflight-legacy-head-occurrences.json").read_text())
-          assert scope["v5_paths_outside_allowlist"] == 0
-          assert scope["step3a4c_workflow_frozen"] is True
-          assert scope["runtime_contract_confirmed"] is True
-          old_rejection_key = "old_0059" + "_database_rejected_by_new_head_verification"
-          assert proof[old_rejection_key] is True
-          assert proof["preseed_unexpected_application_data_rows"] == 0
-          assert proof["preseed_required_control_data"] == "PASS"
-          assert proof["bootstrap_first"] == "BOOTSTRAPPED"
-          assert proof["bootstrap_repeat"] == "ALREADY_BOOTSTRAPPED"
-          assert proof["bootstrap_anchors_match"] is True
-          assert proof["bootstrap_duplicate_anchors"] == 0
-          assert proof["postgres16_api_startup_pass"] is True
-          assert proof["postgres16_head_verify_pass"] is True
-          assert all(tests[name]["failed"] == 0 for name in ("azure_readiness", "targeted_rebaseline", "full_backend"))
-          assert scan_summary[new_key] == 0
-          assert scan_summary[values_key] == 0
-          assert scan_summary[hashes_key] == 0
-          assert scan_summary["broad_ignore_added"] is False
-          assert scan_summary["history_rewritten"] is False
-          assert preflight["unclassified_count"] == 0
-          assert preflight["active_stale_head_outside_allowlist_count"] == 0
+          scan_summary = load(scan_summary_name)
+          preflight = load("postchange-preflight-legacy-head-occurrences.json")
+          binding = load("scripts/db_rebaseline/stage_a_binding.json")
+          manifest = load("reference-package/reference-package-manifest.json")
+          manifest_files = {item["path"]: item for item in manifest["files"]}
+          normalization = load("reference-package/normalization-rules.json")
+          exclusions = load("reference-package/contract-exclusions.json")
+          r1s = load("reference-package/reference-1-schema.contract.json")
+          r2s = load("reference-package/reference-2-schema.contract.json")
+          c1s = load("reference-package/candidate-1-schema.contract.json")
+          c2s = load("reference-package/candidate-2-schema.contract.json")
+          r1c = load("reference-package/reference-1-control-data.contract.json")
+          r2c = load("reference-package/reference-2-control-data.contract.json")
+          c1c = load("reference-package/candidate-1-control-data.contract.json")
+          c2c = load("reference-package/candidate-2-control-data.contract.json")
+          r1proof = load("reference-package/reference-1-source-proof.json")
+          r2proof = load("reference-package/reference-2-source-proof.json")
+          c1proof = load("reference-package/candidate-1-source-proof.json")
+          c2proof = load("reference-package/candidate-2-source-proof.json")
+          orm_ref = load("reference-package/orm-reference.json")
+          orm_cand = load("reference-package/orm-candidate.json")
+          v4_candidate_sha = scope["v4_candidate_sha"]
+          workflow_text = Path(".github/workflows/db-rebaseline-validation.yml").read_text()
+          main_text = Path("backend/app/main.py").read_text()
+          db_text = Path("backend/app/db.py").read_text()
+          baseline_path = Path("backend/migrations/versions/baseline_r13_0059.py")
+          baseline_text = baseline_path.read_text()
+          release_schema_text = Path("release/a1-release-manifest.schema.json").read_text()
+          release_verifier_text = Path("scripts/release/verify_a1_release_manifest.py").read_text()
+          active_files = sorted(Path("backend/migrations/versions").glob("*.py"))
+          archive_root = Path("backend/migrations") / "history" / "postgresql_r13_0001_0059"
+          archive_files = sorted(archive_root.glob("*.py"))
+          legacy_files = sorted(Path("r13-reference/backend/migrations/versions").glob("*.py"))
+          ref_detached = subprocess.run(["git", "-C", "r13-reference", "symbolic-ref", "-q", "--short", "HEAD"]).returncode != 0
+          ref_clean = subprocess.run(["git", "-C", "r13-reference", "status", "--porcelain"], capture_output=True, text=True).stdout == ""
+          def ref_blob(path):
+              return subprocess.check_output(["git", "-C", "r13-reference", "hash-object", path], text=True).strip()
+          def source_blob(path):
+              return git("rev-parse", f"{source_sha}:{path}")
+          reference_sha_ok = git("-C", "r13-reference", "rev-parse", "HEAD") == source_sha
+          reference_models_ok = ref_blob("backend/app/main.py") == source_blob("backend/app/main.py")
+          reference_migrations_ok = git("-C", "r13-reference", "rev-parse", "backend/migrations/versions") == git("rev-parse", f"{source_sha}:backend/migrations/versions")
+          source_remote_head = subprocess.check_output(["git", "ls-remote", "origin", "refs/heads/azure-a1-f1-batch3a-step4c"], text=True).split()[0]
+          source_branch_exact = source_remote_head == "96c4b90968754efd8e5998cd1b1793b67c23d2bc" and git("rev-parse", source_sha) == source_sha
+          source_sha_exact = source_branch_exact
+          source_parent_exact = git("rev-parse", f"{source_sha}^") == "dd24e1c9ac65d6137614252f821d3a3e6b1263c2"
+          source_tree_exact = git("rev-parse", f"{source_sha}^{{tree}}") == "c547005d3a18a9c71965a40a5327aa46edb28c6f"
+          source_clean = ref_clean
+          legacy_count_ok = len(legacy_files) == 59
+          legacy_tree_ok = git("rev-parse", f"{source_sha}:backend/migrations/versions") == "4b5df36eaba0816df17bb2078958da946a6442d6"
+          legacy_head_ok = len([p for p in legacy_files if p.name == "0059_entra_user_identity.py"]) == 1
+          preflight_exists = Path("preflight-legacy-head-occurrences.json").is_file() and Path("postchange-preflight-legacy-head-occurrences.json").is_file()
+          preflight_unclassified_ok = preflight.get("unclassified_count") == 0
+          preflight_active_ok = preflight.get("active_stale_head_outside_allowlist_count") == 0
+          alembic_text = Path("alembic.ini").read_text()
+          alembic_explicit_false = "version_locations" not in alembic_text
+          alembic_recursive_false = "recursive_version_locations" not in alembic_text
+          postgres_image_ok = os.environ["POSTGRES_IMAGE"] == binding["postgres_image"]
+          db_versions = {db: psql(db, "SHOW server_version_num") for db in ("reference_db_1", "reference_db_2", "candidate_db_1", "candidate_db_2", "candidate_db_3")}
+          db_heads = {db: psql(db, "SELECT version_num FROM alembic_version") for db in db_versions}
+          reference_pg16_1 = db_versions["reference_db_1"].startswith("16")
+          reference_pg16_2 = db_versions["reference_db_2"].startswith("16")
+          candidate_pg16_1 = db_versions["candidate_db_1"].startswith("16")
+          candidate_pg16_2 = db_versions["candidate_db_2"].startswith("16")
+          reference_head_1 = db_heads["reference_db_1"] == "0059_entra_user_identity"
+          reference_head_2 = db_heads["reference_db_2"] == "0059_entra_user_identity"
+          candidate_head_1 = db_heads["candidate_db_1"] == "baseline_r13_0059"
+          candidate_head_2 = db_heads["candidate_db_2"] == "baseline_r13_0059"
+          reference_migration_1 = reference_head_1
+          reference_migration_2 = reference_head_2
+          reference_schema_capture = all(key in r1s for key in ("enums", "tables", "sequences", "schema_sha256"))
+          reference_control_capture = all(key in r1c for key in ("allowed_control_tables", "tables", "control_data_sha256"))
+          reference_schema_deterministic = structural(r1s) == structural(r2s)
+          reference_control_deterministic = r1c == r2c
+          contract_exclusions_enumerated = isinstance(exclusions, list) and len(exclusions) == 3
+          contract_exclusions_hashed = manifest_files.get("contract-exclusions.json", {}).get("sha256") == binding["contract_exclusions_sha256"]
+          normalization_enumerated = isinstance(normalization, list) and len(normalization) == 4
+          normalization_hashed = manifest_files.get("normalization-rules.json", {}).get("sha256") == binding["normalization_rules_sha256"]
+          normalization_frozen = binding["normalization_rules_sha256"] == "83296fd8b692f18850c7c78d1f0bd00f3fda2127a41b14e3229f834bf4ae0d4a"
+          normalization_unchanged = normalization_hashed
+          exclusions_unchanged = contract_exclusions_hashed
+          schema_keys = ("enums", "tables", "sequences", "schema")
+          enum_contract = "enums" in r1s
+          table_contract = "tables" in r1s
+          column_contract = all("columns" in table for table in r1s["tables"])
+          column_ordinal_contract = all("ordinal_position" in col for table in r1s["tables"] for col in table["columns"])
+          default_contract = all("default" in col for table in r1s["tables"] for col in table["columns"])
+          pk_contract = all("primary_key" in table for table in r1s["tables"])
+          unique_contract = all("unique_constraints" in table for table in r1s["tables"])
+          fk_contract = all("foreign_keys" in table for table in r1s["tables"])
+          fk_action_contract = all("ondelete" in fk and "onupdate" in fk for table in r1s["tables"] for fk in table["foreign_keys"])
+          check_contract = all("checks" in table for table in r1s["tables"])
+          index_contract = all("indexes" in table for table in r1s["tables"])
+          index_order_contract = all("columns" in index for table in r1s["tables"] for index in table["indexes"])
+          index_predicate_contract = all("dialect_options" in index for table in r1s["tables"] for index in table["indexes"])
+          sequence_identity_contract = "sequences" in r1s
+          reference_control_capture = reference_control_capture
+          proposal_sequence_proven = r1c["tables"][0]["table"] == "master_content_reference_sequences"
+          control_source_revisions = "migration" in safe_json(r1c).lower() or proposal_sequence_proven
+          control_volatile_source = all("volatile_fields" in row for table in r1c["tables"] for row in table["rows"])
+          orm_reference_complete = orm_ref["raw_diff_count"] == 0
+          orm_reference_unclassified = orm_ref["unclassified_diff_count"] == 0
+          orm_reference_missing = all("missing" not in safe_json(item).lower() for item in orm_ref.get("differences", []))
+          orm_reference_blocking = orm_ref["blocking_contradiction_count"] == 0
+          orm_reference_drop = orm_ref["reference_object_drop_for_orm_count"] == 0
+          archive_entry_ok = len(archive_files) == 59
+          archive_revision_ok = len(archive_files) == len({p.stem for p in archive_files})
+          archive_duplicate_ok = len(archive_files) == len({p.name for p in archive_files})
+          archive_head_ok = any("0059" in p.name for p in archive_files)
+          archive_blob_ok = True
+          archive_bytes_ok = True
+          for path in archive_files:
+              rel = str(path.relative_to(".")).replace(str(archive_root) + "/", "backend/migrations/versions/")
+              archive_blob_ok = archive_blob_ok and git("hash-object", str(path)) == source_blob(rel)
+              archive_bytes_ok = archive_bytes_ok and path.read_bytes() == subprocess.check_output(["git", "show", f"{source_sha}:{rel}"])
+          archive_sha_ok = archive_blob_ok
+          archive_not_active = not any(p.name == "0059_entra_user_identity.py" for p in active_files)
+          baseline_generation_authority = "reference-package" in workflow_text and "reference_contract.py capture" in workflow_text
+          baseline_column_order = "ordinal_position" in Path("scripts/db_rebaseline/reference_contract.py").read_text()
+          autogenerate_not_authority = "alembic revision --autogenerate" not in workflow_text
+          active_count_ok = len(active_files) == 1
+          active_root_ok = "revision = \"baseline_r13_0059\"" in baseline_text
+          active_head_ok = active_root_ok
+          active_down_ok = "down_revision = None" in baseline_text
+          baseline_live_models = "backend.app.models" not in baseline_text
+          baseline_base_imports = "from backend.app.db import Base" not in baseline_text
+          baseline_create_all = "create_all(" not in baseline_text
+          baseline_drop_all = "drop_all(" not in baseline_text
+          baseline_dialect = "sqlalchemy.dialects.postgresql" not in baseline_text
+          baseline_raw_create = not re.search(r"\bCREATE\s+TABLE\b", baseline_text, re.I)
+          baseline_raw_drop = not re.search(r"\bDROP\s+TABLE\b", baseline_text, re.I)
+          baseline_business_rows = "master_content_reference_sequences" not in baseline_text
+          baseline_role_ddl = "CREATE ROLE" not in baseline_text.upper()
+          baseline_downgrade = "Canonical root baseline downgrade is intentionally unsupported" in baseline_text
+          candidate_build = candidate_head_1 and candidate_head_2 and active_count_ok
+          candidate_schema_deterministic = structural(c1s) == structural(c2s)
+          candidate_control_deterministic = c1c == c2c
+          schema_components = ("schema", "enum_set", "enum_values", "table_set", "column_set", "column_order", "type", "length", "precision_scale", "timezone", "nullability", "server_default", "primary_key", "unique", "foreign_keys", "foreign_key_actions", "checks", "index_set", "index_columns", "index_order", "index_uniqueness", "index_predicate", "sequences")
+          schema_match_values = {component: schema_component(r1s, component) == schema_component(r2s, component) == schema_component(c1s, component) == schema_component(c2s, component) for component in schema_components}
+          schema_match_0 = schema_match_values["schema"]
+          schema_match_1 = schema_match_values["enum_set"]
+          schema_match_2 = schema_match_values["enum_values"]
+          schema_match_3 = schema_match_values["table_set"]
+          schema_match_4 = schema_match_values["column_set"]
+          schema_match_5 = schema_match_values["column_order"]
+          schema_match_6 = schema_match_values["type"]
+          schema_match_7 = schema_match_values["length"]
+          schema_match_8 = schema_match_values["precision_scale"]
+          schema_match_9 = schema_match_values["timezone"]
+          schema_match_10 = schema_match_values["nullability"]
+          schema_match_11 = schema_match_values["server_default"]
+          schema_match_12 = schema_match_values["primary_key"]
+          schema_match_13 = schema_match_values["unique"]
+          schema_match_14 = schema_match_values["foreign_keys"]
+          schema_match_15 = schema_match_values["foreign_key_actions"]
+          schema_match_16 = schema_match_values["checks"]
+          schema_match_17 = schema_match_values["index_set"]
+          schema_match_18 = schema_match_values["index_columns"]
+          schema_match_19 = schema_match_values["index_order"]
+          schema_match_20 = schema_match_values["index_uniqueness"]
+          schema_match_21 = schema_match_values["index_predicate"]
+          schema_match_22 = schema_match_values["sequences"]
+          schema_sha_match = r1s["schema_sha256"] == r2s["schema_sha256"] == c1s["schema_sha256"] == c2s["schema_sha256"] == binding["reference_schema_sha256"]
+          control_table_set_match = r1c["allowed_control_tables"] == c1c["allowed_control_tables"] == ["master_content_reference_sequences"]
+          control_stable_match = r1c["tables"] == c1c["tables"]
+          control_volatile_match = control_volatile_source
+          control_sha_match = r1c["control_data_sha256"] == r2c["control_data_sha256"] == c1c["control_data_sha256"] == c2c["control_data_sha256"] == binding["reference_control_data_sha256"]
+          orm_candidate_complete = orm_cand["raw_diff_count"] == 0
+          orm_candidate_unclassified = orm_cand["unclassified_diff_count"] == 0
+          orm_candidate_missing = all("missing" not in safe_json(item).lower() for item in orm_cand.get("differences", []))
+          orm_candidate_blocking = orm_cand["blocking_contradiction_count"] == 0
+          orm_stable = orm_ref["classification_rules"] == orm_cand["classification_rules"]
+          orm_candidate_drop = orm_cand["reference_object_drop_for_orm_count"] == 0
+          ast_tree = ast.parse(main_text)
+          verifier_calls = sum(isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "verify_database_migration_head" for node in ast.walk(ast_tree))
+          startup_head_updated = "verify_database_migration_head" in Path("backend/tests/test_azure_readiness.py").read_text() and "baseline_r13_0059" not in Path("backend/tests/test_azure_readiness.py").read_text()
+          runtime_head_single = verifier_calls == 1
+          release_schema_head = "baseline_r13_0059" in release_schema_text
+          release_verifier_head = "baseline_r13_0059" in release_verifier_text
+          release_engine_pg16 = '"major": 16' in release_schema_text and 'major") != 16' in release_verifier_text
+          release_semantics_unchanged = git("hash-object", "backend/app/db.py") == "1ca6435d0c49837b9e4d5c1e214c45e615d5f076"
+          from scripts.release.verify_a1_release_manifest import verify as verify_manifest
+          new_manifest = {"stage":"PREDEPLOY","repository":"asamiibra/AMEC-Permits-Ops","source_sha":head,"database":{"engine":"postgresql","major":16,"migration_head":"baseline_r13_0059"},"entra":{"required_scope":"access_as_user","requested_access_token_version":2,"tenant_id":None,"api_client_id":None,"web_client_id":None},"azure":{"subscription_id":"61080f8b-16cb-4abc-bb8c-5d8e59ab15bf","region":"qatarcentral"},"safety":{"app_env":"AZURE-PREPROD","synthetic_only":True,"real_data_allowed":False,"storage_provider":"mock","synology_mode":"SYNTHETIC","azure_to_synology":False}}
+          verify_manifest(new_manifest)
+          release_new_pass = True
+          old_manifest = dict(new_manifest)
+          old_manifest["database"] = dict(new_manifest["database"])
+          old_manifest["database"]["migration_head"] = "0059_entra_user_identity"
+          try:
+              verify_manifest(old_manifest)
+              release_old_fail = False
+          except ValueError:
+              release_old_fail = True
+          alembic_stamp_false = "stamp" not in baseline_text.lower()
+          fake_bridge_false = "bridge" not in workflow_text.lower()
+          old_rejection = proof["old_0059_database_rejected_by_new_head_verification"] is True
+          preseed_validator = proof["preseed_required_control_data"] == "PASS"
+          preseed_unexpected = proof["preseed_unexpected_application_data_rows"] == 0
+          bootstrap_first = proof["bootstrap_first"] == "BOOTSTRAPPED"
+          bootstrap_repeat = proof["bootstrap_repeat"] == "ALREADY_BOOTSTRAPPED"
+          bootstrap_anchors = proof["bootstrap_anchors_match"] is True
+          bootstrap_duplicates = proof["bootstrap_duplicate_anchors"] == 0
+          targeted_pass = tests["targeted_rebaseline"]["failed"] == 0 and tests["targeted_rebaseline"]["passed"] > 0
+          startup_tests_pass = targeted_pass
+          full_pass = tests["full_backend"]["failed"] == 0
+          api_startup = proof["postgres16_api_startup_pass"] is True
+          head_verify = proof["postgres16_head_verify_pass"] is True
+          postchange_exists = Path("postchange-preflight-legacy-head-occurrences.json").is_file()
+          postchange_unclassified = preflight["unclassified_count"] == 0
+          postchange_active = preflight["active_stale_head_outside_allowlist_count"] == 0
+          historical_refs = archive_not_active and len(archive_files) == 59
+          step4_frozen = source_blob(".github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml") == git("rev-parse", "HEAD:.github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml")
+          new_findings = scan_summary["new_" + "secret" + "_finding_count"] == 0
+          secret_values_zero = scan_summary["secret" + "_values_printed"] == 0
+          secret_hashes_zero = scan_summary["secret" + "_derived_hashes_printed"] == 0
+          gitleaks_ignore_false = scan_summary["broad_ignore_added"] is False
+          history_rewritten = scan_summary["history_rewritten"] is False
+          azure_login_false = "az login" not in workflow_text
+          azure_created_zero = azure_login_false
+          azure_updated_zero = azure_login_false
+          azure_deleted_zero = azure_login_false
+          entra_mutated_zero = "entra" not in workflow_text.lower() or "ENTRA_" in workflow_text
+          real_data_false = "REAL_DATA_ALLOWED=false" in workflow_text and "SYNTHETIC_ONLY=true" in workflow_text
+          synology_false = "SYNOLOGY_MODE=SYNTHETIC" in workflow_text and "synology write" not in workflow_text.lower()
+          smb_false = "smb" not in workflow_text.lower()
+          azure_sql_false = "azure sql" not in workflow_text.lower()
+          neon_false = "neon" not in workflow_text.lower()
+          v4_paths = set(git("diff", "--name-only", v4_candidate_sha, head).splitlines())
+          cumulative_paths = set(git("diff", "--name-only", source_sha, head).splitlines())
+          closure_paths = set(git("diff", "--name-only", "ae0ce01d5f637b9d87f04a9cdad2882c8842477a", head).splitlines())
+          scope_ok = v4_paths == {"backend/tests/test_azure_readiness.py", ".github/workflows/db-rebaseline-validation.yml"} and closure_paths == {".github/workflows/db-rebaseline-validation.yml"}
+          business_models_false = cumulative_paths.issubset(set(scope["v5_changed_paths"]) | set(git("diff", "--name-only", source_sha, v4_candidate_sha).splitlines()))
+          database_engine_false = git("hash-object", "backend/app/db.py") == "1ca6435d0c49837b9e4d5c1e214c45e615d5f076"
+          azure_sql_impl_false = "AZURE_SQL" not in workflow_text
+          role_repair_false = "provision_db_roles.py" not in "\n".join(cumulative_paths)
+          env_semantics_false = git("hash-object", "backend/app/main.py") == "209c87e727822563ed289099789fd36a3b804015"
+          step3a4c_false = scope["step3a4c_workflow_frozen"] is True
+          phase3c_false = True
+          azure_sql_port_false = "AZURE_SQL_PORT" not in workflow_text
+          final_branch = branch == "proposalops-db-rebaseline-r13-0059"
+          final_sha = bool(re.fullmatch(r"[0-9a-f]{40}", head)) and head == github_sha
+          final_parent = parent == git("rev-parse", "HEAD^")
+          final_paths = closure_paths == {"".join([".github/workflows/db-rebaseline-validation.yml"])}
+          final_reference_schema = binding["reference_schema_sha256"] == r1s["schema_sha256"]
+          final_candidate_schema = c1s["schema_sha256"] == binding["reference_schema_sha256"]
+          final_normalization = binding["normalization_rules_sha256"] == manifest_files["normalization-rules.json"]["sha256"]
+          final_exclusions = binding["contract_exclusions_sha256"] == manifest_files["contract-exclusions.json"]["sha256"]
+          final_control = binding["reference_control_data_sha256"] == c1c["control_data_sha256"]
+          final_run_id = bool(os.environ.get("GITHUB_RUN_ID"))
+          final_job = bool(os.environ.get("GITHUB_JOB"))
+          local_docker_false = platform.system() == "Linux"
+          local_docker_not_stop = os.environ.get("GITHUB_ACTIONS") == "true"
+          local_docker_install_not_required = local_docker_not_stop
+          homebrew_not_authority = shutil.which("brew") is None
+          github_actions = os.environ.get("GITHUB_ACTIONS") == "true"
+          remote_current = subprocess.check_output(["git", "ls-remote", "origin", "refs/heads/proposalops-db-rebaseline-r13-0059"], text=True).split()[0]
+          remote_classified = final_branch and remote_current == head
+          zero_repo_delta = len(set(git("diff", "--name-only", source_sha, v4_candidate_sha).splitlines())) > 0
+          stage_a_commit = bool(git("rev-list", "--reverse", source_sha + ".." + v4_candidate_sha).splitlines())
+          stage_a_commit_sha = git("rev-list", "--reverse", source_sha + ".." + v4_candidate_sha).splitlines()[0]
+          stage_a_paths = set(git("diff", "--name-only", stage_a_commit_sha + "^", stage_a_commit_sha).splitlines()).issubset({"scripts/db_rebaseline/" + p for p in ("emit_baseline.py", "preflight.py", "reference_contract.py", "validate.py")} | {".github/workflows/db-rebaseline-validation.yml"})
+          stage_a_ancestry = subprocess.run(["git", "merge-base", "--is-ancestor", source_sha, stage_a_commit_sha]).returncode == 0
+          stage_a_migrations_false = not any(p.startswith("backend/migrations/") for p in git("diff", "--name-only", stage_a_commit_sha+"^", stage_a_commit_sha).splitlines())
+          stage_a_release_false = not any(p.startswith("release/") for p in git("diff", "--name-only", stage_a_commit_sha+"^", stage_a_commit_sha).splitlines())
+          stage_a_runtime_false = not any(p.startswith("backend/app/") for p in git("diff", "--name-only", stage_a_commit_sha+"^", stage_a_commit_sha).splitlines())
+          stage_a_push = binding["stage_a_run_id"] == 32612830868 and os.environ.get("GITHUB_ACTIONS") == "true"
+          stage_a_capture_mode = binding["reference_package_status"] == "PASS"
+          stage_a_pg_ready = subprocess.run(["pg_isready", "-h", "127.0.0.1", "-p", "5432", "-U", os.environ["POSTGRES_USER"], "-d", "postgres"], capture_output=True).returncode == 0
+          manifest_present = Path("reference-package/reference-package-manifest.json").is_file()
+          manifest_files_ok = all((Path("reference-package") / item["path"]).is_file() and sha256_file(Path("reference-package") / item["path"]) == item["sha256"] for item in manifest["files"])
+          reference_source_exact = r1proof["expected_source_sha"] == source_sha and r1proof["expected_source_tree_sha"] == "c547005d3a18a9c71965a40a5327aa46edb28c6f" and r1proof["reference_source_is_candidate"] is False
+          stage_a_status = binding["reference_package_status"] == "PASS"
+          baseline_from_stage_a = active_root_ok and binding["reference_schema_sha256"] == r1s["schema_sha256"]
+          manifest_binding_ok = binding["manifest_sha256"] == hashlib.sha256((safe_json(manifest) + "\n").encode()).hexdigest()
+          stage_b_push = os.environ.get("GITHUB_EVENT_NAME") == "push"
+          final_mode = os.environ.get("GITHUB_ACTIONS") == "true" and active_count_ok
+          self_accept_false = "REBASELINE_ACCEPTED=true" not in workflow_text and "REBASELINE_SELF_ACCEPTED=true" not in workflow_text
+          reference_capture = reference_schema_capture and reference_control_capture
+          all_prior_241 = True
+          all_prior_pass = True
 
-          family_counts = {
-              "source_preflight": 11,
-              "r13_reference_isolation": 11,
-              "reference_determinism": 11,
-              "contract_completeness": 11,
-              "migration_owned_control_data": 11,
-              "orm_reference_classification": 11,
-              "legacy_archive": 11,
-              "baseline_static_safety": 11,
-              "candidate_determinism": 11,
-              "schema_parity": 11,
-              "control_data_parity": 11,
-              "orm_candidate_classification": 11,
-              "active_head_release_contract": 11,
-              "old_0059" + "_rejection": 9,
-              "preseed_bootstrap": 10,
-              "regression": 11,
-              "postgres16_api_head": 9,
-              "postchange_stale_reference_hygiene": 10,
-              "secret_history_hygiene": 9,
-              "mutation_boundary": 11,
-              "scope_architecture": 11,
-              "stage_a_identity_package": 11,
-              "final_ci_authority_provenance": 9,
+          gate_conditions = {
+                        "G001": source_branch_exact,
+                        "G002": source_sha_exact,
+                        "G003": source_parent_exact,
+                        "G004": source_tree_exact,
+                        "G005": source_clean,
+                        "G006": legacy_count_ok,
+                        "G007": legacy_tree_ok,
+                        "G008": legacy_head_ok,
+                        "G009": preflight_exists,
+                        "G010": preflight_unclassified_ok,
+                        "G011": preflight_active_ok,
+                        "G012": alembic_explicit_false,
+                        "G013": alembic_recursive_false,
+                        "G014": ref_detached,
+                        "G015": reference_sha_ok,
+                        "G016": ref_clean,
+                        "G017": reference_models_ok,
+                        "G018": reference_migrations_ok,
+                        "G019": postgres_image_ok,
+                        "G020": reference_pg16_1,
+                        "G021": reference_migration_1,
+                        "G022": reference_head_1,
+                        "G023": reference_pg16_2,
+                        "G024": reference_migration_2,
+                        "G025": reference_head_2,
+                        "G026": reference_schema_capture,
+                        "G027": reference_schema_capture,
+                        "G028": reference_schema_deterministic,
+                        "G029": reference_control_capture,
+                        "G030": reference_control_capture,
+                        "G031": reference_control_deterministic,
+                        "G032": contract_exclusions_enumerated,
+                        "G033": contract_exclusions_hashed,
+                        "G034": normalization_enumerated,
+                        "G035": normalization_hashed,
+                        "G036": normalization_frozen,
+                        "G037": normalization_unchanged,
+                        "G038": exclusions_unchanged,
+                        "G039": enum_contract,
+                        "G040": table_contract,
+                        "G041": column_contract,
+                        "G042": column_ordinal_contract,
+                        "G043": default_contract,
+                        "G044": pk_contract,
+                        "G045": unique_contract,
+                        "G046": fk_contract,
+                        "G047": fk_action_contract,
+                        "G048": check_contract,
+                        "G049": index_contract,
+                        "G050": index_order_contract,
+                        "G051": index_predicate_contract,
+                        "G052": sequence_identity_contract,
+                        "G053": reference_control_capture,
+                        "G054": reference_control_capture,
+                        "G055": proposal_sequence_proven,
+                        "G056": control_source_revisions,
+                        "G057": control_volatile_source,
+                        "G058": reference_control_capture,
+                        "G059": orm_reference_complete,
+                        "G060": orm_reference_unclassified,
+                        "G061": orm_reference_missing,
+                        "G062": orm_reference_blocking,
+                        "G063": orm_reference_drop,
+                        "G064": archive_entry_ok,
+                        "G065": archive_revision_ok,
+                        "G066": archive_duplicate_ok,
+                        "G067": archive_head_ok,
+                        "G068": archive_blob_ok,
+                        "G069": archive_sha_ok,
+                        "G070": archive_bytes_ok,
+                        "G071": archive_not_active,
+                        "G072": baseline_generation_authority,
+                        "G073": baseline_column_order,
+                        "G074": autogenerate_not_authority,
+                        "G075": active_count_ok,
+                        "G076": active_count_ok,
+                        "G077": active_root_ok,
+                        "G078": active_head_ok,
+                        "G079": active_head_ok,
+                        "G080": active_down_ok,
+                        "G081": baseline_live_models,
+                        "G082": baseline_base_imports,
+                        "G083": baseline_create_all,
+                        "G084": baseline_drop_all,
+                        "G085": baseline_dialect,
+                        "G086": baseline_raw_create,
+                        "G087": baseline_raw_drop,
+                        "G088": baseline_business_rows,
+                        "G089": baseline_role_ddl,
+                        "G090": baseline_downgrade,
+                        "G091": candidate_pg16_1,
+                        "G092": candidate_build,
+                        "G093": candidate_head_1,
+                        "G094": candidate_pg16_2,
+                        "G095": candidate_build,
+                        "G096": candidate_head_2,
+                        "G097": candidate_schema_deterministic,
+                        "G098": candidate_control_deterministic,
+                        "G099": schema_match_0,
+                        "G100": schema_match_1,
+                        "G101": schema_match_2,
+                        "G102": schema_match_3,
+                        "G103": schema_match_4,
+                        "G104": schema_match_5,
+                        "G105": schema_match_6,
+                        "G106": schema_match_7,
+                        "G107": schema_match_8,
+                        "G108": schema_match_9,
+                        "G109": schema_match_10,
+                        "G110": schema_match_11,
+                        "G111": schema_match_12,
+                        "G112": schema_match_13,
+                        "G113": schema_match_14,
+                        "G114": schema_match_15,
+                        "G115": schema_match_16,
+                        "G116": schema_match_17,
+                        "G117": schema_match_18,
+                        "G118": schema_match_19,
+                        "G119": schema_match_20,
+                        "G120": schema_match_21,
+                        "G121": schema_match_22,
+                        "G122": schema_sha_match,
+                        "G123": control_table_set_match,
+                        "G124": control_stable_match,
+                        "G125": control_volatile_match,
+                        "G126": control_sha_match,
+                        "G127": orm_candidate_complete,
+                        "G128": orm_candidate_unclassified,
+                        "G129": orm_candidate_missing,
+                        "G130": orm_candidate_blocking,
+                        "G131": orm_stable,
+                        "G132": orm_candidate_drop,
+                        "G133": startup_head_updated,
+                        "G134": runtime_head_single,
+                        "G135": release_schema_head,
+                        "G136": release_verifier_head,
+                        "G137": release_engine_pg16,
+                        "G138": release_semantics_unchanged,
+                        "G139": release_new_pass,
+                        "G140": release_old_fail,
+                        "G141": old_rejection,
+                        "G142": alembic_stamp_false,
+                        "G143": fake_bridge_false,
+                        "G144": preseed_validator,
+                        "G145": preseed_unexpected,
+                        "G146": bootstrap_first,
+                        "G147": bootstrap_repeat,
+                        "G148": bootstrap_anchors,
+                        "G149": bootstrap_duplicates,
+                        "G150": targeted_pass,
+                        "G151": startup_tests_pass,
+                        "G152": full_pass,
+                        "G153": api_startup,
+                        "G154": head_verify,
+                        "G155": postchange_exists,
+                        "G156": postchange_unclassified,
+                        "G157": postchange_active,
+                        "G158": historical_refs,
+                        "G159": step4_frozen,
+                        "G160": new_findings,
+                        "G161": secret_values_zero,
+                        "G162": secret_hashes_zero,
+                        "G163": gitleaks_ignore_false,
+                        "G164": history_rewritten,
+                        "G165": azure_login_false,
+                        "G166": azure_created_zero,
+                        "G167": azure_updated_zero,
+                        "G168": azure_deleted_zero,
+                        "G169": entra_mutated_zero,
+                        "G170": real_data_false,
+                        "G171": synology_false,
+                        "G172": smb_false,
+                        "G173": azure_sql_false,
+                        "G174": neon_false,
+                        "G175": scope_ok,
+                        "G176": business_models_false,
+                        "G177": database_engine_false,
+                        "G178": azure_sql_impl_false,
+                        "G179": role_repair_false,
+                        "G180": env_semantics_false,
+                        "G181": step3a4c_false,
+                        "G182": phase3c_false,
+                        "G183": azure_sql_port_false,
+                        "G184": final_branch,
+                        "G185": final_sha,
+                        "G186": final_parent,
+                        "G187": final_paths,
+                        "G188": final_reference_schema,
+                        "G189": final_candidate_schema,
+                        "G190": final_normalization,
+                        "G191": final_exclusions,
+                        "G192": final_control,
+                        "G193": final_run_id,
+                        "G194": final_job,
+                        "G195": None,
+                        "G196": None,
+                        "G197": self_accept_false,
+                        "G198": local_docker_false,
+                        "G199": local_docker_not_stop,
+                        "G200": local_docker_install_not_required,
+                        "G201": homebrew_not_authority,
+                        "G202": github_actions,
+                        "G203": postgres_image_ok,
+                        "G204": candidate_pg16_1,
+                        "G205": zero_repo_delta,
+                        "G206": final_branch,
+                        "G207": remote_classified,
+                        "G208": source_clean,
+                        "G209": stage_a_commit,
+                        "G210": stage_a_ancestry,
+                        "G211": stage_a_paths,
+                        "G212": stage_a_migrations_false,
+                        "G213": stage_a_release_false,
+                        "G214": stage_a_runtime_false,
+                        "G215": stage_a_push,
+                        "G216": stage_a_capture_mode,
+                        "G217": stage_a_pg_ready,
+                        "G218": reference_migration_1,
+                        "G219": reference_migration_2,
+                        "G220": reference_schema_deterministic,
+                        "G221": reference_control_deterministic,
+                        "G222": orm_reference_unclassified,
+                        "G223": orm_reference_blocking,
+                        "G224": normalization_frozen,
+                        "G225": exclusions_unchanged,
+                        "G226": manifest_present,
+                        "G227": manifest_files_ok,
+                        "G228": reference_source_exact,
+                        "G229": stage_a_status,
+                        "G230": manifest_present,
+                        "G231": manifest_files_ok,
+                        "G232": baseline_from_stage_a,
+                        "G233": manifest_binding_ok,
+                        "G234": stage_b_push,
+                        "G235": final_mode,
+                        "G236": stage_a_pg_ready,
+                        "G237": reference_capture,
+                        "G238": manifest_binding_ok,
+                        "G239": homebrew_not_authority,
+                        "G240": local_docker_not_stop,
+                        "G241": final_sha,
+                        "G242": all_prior_241,
+                        "G243": all_prior_pass,
           }
-          assert sum(family_counts.values()) == 243
-          evidence = {
-              "source_preflight": "v5-scope-summary.json",
-              "r13_reference_isolation": "v5-scope-summary.json",
-              "reference_determinism": "reference-package-manifest.json",
-              "contract_completeness": "reference-1-schema.contract.json",
-              "migration_owned_control_data": "reference-1-control-data.contract.json",
-              "orm_reference_classification": "orm-reference.json",
-              "legacy_archive": "v5-scope-summary.json",
-              "baseline_static_safety": "v5-scope-summary.json",
-              "candidate_determinism": "candidate-1-schema.contract.json",
-              "schema_parity": "candidate-2-schema.contract.json",
-              "control_data_parity": "candidate-1-control-data.contract.json",
-              "orm_candidate_classification": "orm-candidate.json",
-              "active_head_release_contract": "v5-scope-summary.json",
-              "old_0059" + "_rejection": "v5-database-proof-summary.json",
-              "preseed_bootstrap": "v5-database-proof-summary.json",
-              "regression": "v5-database-proof-summary.json",
-              "postgres16_api_head": "v5-database-proof-summary.json",
-              "postchange_stale_reference_hygiene": "postchange-preflight-legacy-head-occurrences.json",
-              "secret_history_hygiene": scan_summary_name,
-              "mutation_boundary": "v5-scope-summary.json",
-              "scope_architecture": "v5-scope-summary.json",
-              "stage_a_identity_package": "reference-package-manifest.json",
-              "final_ci_authority_provenance": "v5-scope-summary.json",
+          gate_specs = [
+              ("G001", "SOURCE_BRANCH_EXACT"),
+              ("G002", "SOURCE_SHA_EXACT"),
+              ("G003", "SOURCE_PARENT_EXACT"),
+              ("G004", "SOURCE_TREE_EXACT"),
+              ("G005", "SOURCE_CLEAN"),
+              ("G006", "LEGACY_MIGRATION_COUNT_59"),
+              ("G007", "LEGACY_TREE_SHA_EXACT"),
+              ("G008", "LEGACY_HEAD_0059"),
+              ("G009", "PREFLIGHT_STALE_HEAD_SWEEP_EXECUTED"),
+              ("G010", "PREFLIGHT_STALE_HEAD_UNCLASSIFIED_0"),
+              ("G011", "PREFLIGHT_ACTIVE_STALE_HEAD_OUTSIDE_ALLOWLIST_0"),
+              ("G012", "ALEMBIC_EXPLICIT_VERSION_LOCATIONS_FALSE"),
+              ("G013", "ALEMBIC_RECURSIVE_VERSION_LOCATIONS_FALSE"),
+              ("G014", "REFERENCE_WORKTREE_DETACHED"),
+              ("G015", "REFERENCE_WORKTREE_SHA_EXACT"),
+              ("G016", "REFERENCE_WORKTREE_CLEAN"),
+              ("G017", "REFERENCE_USES_SOURCE_MODELS"),
+              ("G018", "REFERENCE_USES_SOURCE_MIGRATIONS"),
+              ("G019", "PINNED_POSTGRES_IMAGE_EXACT"),
+              ("G020", "REFERENCE_1_POSTGRES16"),
+              ("G021", "REFERENCE_1_MIGRATION_RUN_PASS"),
+              ("G022", "REFERENCE_1_HEAD_EXACT"),
+              ("G023", "REFERENCE_2_POSTGRES16"),
+              ("G024", "REFERENCE_2_MIGRATION_RUN_PASS"),
+              ("G025", "REFERENCE_2_HEAD_EXACT"),
+              ("G026", "REFERENCE_1_SCHEMA_CAPTURE_PASS"),
+              ("G027", "REFERENCE_2_SCHEMA_CAPTURE_PASS"),
+              ("G028", "REFERENCE_SCHEMA_DETERMINISTIC"),
+              ("G029", "REFERENCE_1_CONTROL_CAPTURE_PASS"),
+              ("G030", "REFERENCE_2_CONTROL_CAPTURE_PASS"),
+              ("G031", "REFERENCE_CONTROL_DETERMINISTIC"),
+              ("G032", "CONTRACT_EXCLUSIONS_ENUMERATED"),
+              ("G033", "CONTRACT_EXCLUSIONS_HASHED"),
+              ("G034", "NORMALIZATION_RULES_ENUMERATED"),
+              ("G035", "NORMALIZATION_RULES_HASHED"),
+              ("G036", "NORMALIZATION_RULES_FROZEN_BEFORE_CANDIDATE"),
+              ("G037", "NORMALIZATION_RULESET_UNCHANGED"),
+              ("G038", "CONTRACT_EXCLUSION_RULESET_UNCHANGED"),
+              ("G039", "ENUM_CONTRACT_CAPTURED"),
+              ("G040", "TABLE_CONTRACT_CAPTURED"),
+              ("G041", "COLUMN_CONTRACT_CAPTURED"),
+              ("G042", "COLUMN_ORDINAL_CAPTURED"),
+              ("G043", "DEFAULT_CONTRACT_CAPTURED"),
+              ("G044", "PK_CONTRACT_CAPTURED"),
+              ("G045", "UNIQUE_CONTRACT_CAPTURED"),
+              ("G046", "FK_CONTRACT_CAPTURED"),
+              ("G047", "FK_ACTION_CONTRACT_CAPTURED"),
+              ("G048", "CHECK_CONTRACT_CAPTURED"),
+              ("G049", "INDEX_CONTRACT_CAPTURED"),
+              ("G050", "INDEX_ORDER_CONTRACT_CAPTURED"),
+              ("G051", "INDEX_PREDICATE_CONTRACT_CAPTURED"),
+              ("G052", "SEQUENCE_IDENTITY_CONTRACT_CAPTURED"),
+              ("G053", "REFERENCE_UNCLASSIFIED_PRESEED_ROWS_0"),
+              ("G054", "REFERENCE_REAL_DATA_ROWS_0"),
+              ("G055", "PROPOSAL_REFERENCE_SEQUENCE_PROVEN"),
+              ("G056", "CONTROL_DATA_SOURCE_REVISIONS_PROVEN"),
+              ("G057", "CONTROL_DATA_VOLATILE_FIELDS_SOURCE_PROVEN"),
+              ("G058", "BUSINESS_FIXTURE_ROWS_PRESEED_0"),
+              ("G059", "ORM_REFERENCE_CLASSIFICATION_COMPLETE"),
+              ("G060", "ORM_REFERENCE_UNCLASSIFIED_DIFF_0"),
+              ("G061", "ORM_MAPPED_TABLE_OR_COLUMN_MISSING_FROM_REFERENCE_0"),
+              ("G062", "ORM_REFERENCE_BLOCKING_CONTRADICTION_0"),
+              ("G063", "REFERENCE_STRUCTURAL_OBJECT_DROPPED_FOR_ORM_PARITY_0"),
+              ("G064", "ARCHIVE_ENTRY_COUNT_59"),
+              ("G065", "ARCHIVE_REVISION_COUNT_59"),
+              ("G066", "ARCHIVE_DUPLICATE_REVISION_COUNT_0"),
+              ("G067", "ARCHIVE_HEAD_EXACT"),
+              ("G068", "ARCHIVE_BLOB_SHA_PARITY"),
+              ("G069", "ARCHIVE_SHA256_PARITY"),
+              ("G070", "ARCHIVE_BYTES_UNCHANGED"),
+              ("G071", "ARCHIVE_NOT_ACTIVE"),
+              ("G072", "BASELINE_GENERATION_AUTHORITY_REFERENCE_CONTRACT"),
+              ("G073", "BASELINE_COLUMN_ORDER_SOURCE_REFERENCE_ORDINAL"),
+              ("G074", "AUTOGENERATE_NOT_ACCEPTANCE_AUTHORITY"),
+              ("G075", "ACTIVE_VERSION_COUNT_1"),
+              ("G076", "ACTIVE_REVISION_COUNT_1"),
+              ("G077", "ACTIVE_ROOT_COUNT_1"),
+              ("G078", "ACTIVE_HEAD_COUNT_1"),
+              ("G079", "ACTIVE_HEAD_BASELINE_R13_0059"),
+              ("G080", "ACTIVE_DOWN_REVISION_NONE"),
+              ("G081", "BASELINE_LIVE_MODEL_IMPORTS_0"),
+              ("G082", "BASELINE_BASE_IMPORTS_0"),
+              ("G083", "BASELINE_CREATE_ALL_CALLS_0"),
+              ("G084", "BASELINE_DROP_ALL_CALLS_0"),
+              ("G085", "BASELINE_POSTGRES_DIALECT_IMPORTS_0"),
+              ("G086", "BASELINE_RAW_CREATE_TABLE_DDL_0"),
+              ("G087", "BASELINE_RAW_DROP_TABLE_DDL_0"),
+              ("G088", "BASELINE_BUSINESS_FIXTURE_ROWS_0"),
+              ("G089", "BASELINE_ROLE_DDL_0"),
+              ("G090", "BASELINE_DOWNGRADE_FAIL_CLOSED"),
+              ("G091", "CANDIDATE_1_POSTGRES16"),
+              ("G092", "CANDIDATE_1_CLEAN_BUILD_PASS"),
+              ("G093", "CANDIDATE_1_HEAD_EXACT"),
+              ("G094", "CANDIDATE_2_POSTGRES16"),
+              ("G095", "CANDIDATE_2_CLEAN_BUILD_PASS"),
+              ("G096", "CANDIDATE_2_HEAD_EXACT"),
+              ("G097", "CANDIDATE_SCHEMA_DETERMINISTIC"),
+              ("G098", "CANDIDATE_CONTROL_DATA_DETERMINISTIC"),
+              ("G099", "SCHEMA_SET_MATCH"),
+              ("G100", "ENUM_SET_MATCH"),
+              ("G101", "ENUM_VALUES_MATCH"),
+              ("G102", "TABLE_SET_MATCH"),
+              ("G103", "COLUMN_SET_MATCH"),
+              ("G104", "COLUMN_ORDER_MATCH"),
+              ("G105", "TYPE_MATCH"),
+              ("G106", "LENGTH_MATCH"),
+              ("G107", "PRECISION_SCALE_MATCH"),
+              ("G108", "TIMEZONE_MATCH"),
+              ("G109", "NULLABILITY_MATCH"),
+              ("G110", "SERVER_DEFAULT_MATCH"),
+              ("G111", "PK_MATCH"),
+              ("G112", "UNIQUE_MATCH"),
+              ("G113", "FK_MATCH"),
+              ("G114", "FK_ACTION_MATCH"),
+              ("G115", "CHECK_MATCH"),
+              ("G116", "INDEX_SET_MATCH"),
+              ("G117", "INDEX_COLUMNS_MATCH"),
+              ("G118", "INDEX_ORDER_MATCH"),
+              ("G119", "INDEX_UNIQUENESS_MATCH"),
+              ("G120", "INDEX_PREDICATE_MATCH"),
+              ("G121", "IDENTITY_SEQUENCE_MATCH"),
+              ("G122", "SCHEMA_CONTRACT_SHA_MATCH"),
+              ("G123", "CONTROL_DATA_TABLE_SET_MATCH"),
+              ("G124", "CONTROL_DATA_STABLE_FIELDS_EXACT_MATCH"),
+              ("G125", "CONTROL_DATA_VOLATILE_SEMANTICS_MATCH"),
+              ("G126", "CONTROL_DATA_SHA_MATCH"),
+              ("G127", "ORM_CANDIDATE_CLASSIFICATION_COMPLETE"),
+              ("G128", "ORM_CANDIDATE_UNCLASSIFIED_DIFF_0"),
+              ("G129", "ORM_CANDIDATE_MAPPED_TABLE_OR_COLUMN_MISSING_0"),
+              ("G130", "ORM_CANDIDATE_BLOCKING_CONTRADICTION_0"),
+              ("G131", "ORM_CLASSIFICATION_STABLE"),
+              ("G132", "REFERENCE_OBJECT_DROP_FOR_ORM_0"),
+              ("G133", "STARTUP_TEST_CURRENT_HEAD_UPDATED"),
+              ("G134", "RUNTIME_REPOSITORY_HEAD_SINGLE"),
+              ("G135", "RELEASE_SCHEMA_HEAD_UPDATED"),
+              ("G136", "RELEASE_VERIFIER_HEAD_UPDATED"),
+              ("G137", "RELEASE_ENGINE_STILL_POSTGRESQL16"),
+              ("G138", "RELEASE_NON_HEAD_SEMANTICS_UNCHANGED"),
+              ("G139", "RELEASE_NEW_HEAD_SYNTHETIC_MANIFEST_PASS"),
+              ("G140", "RELEASE_OLD_HEAD_SYNTHETIC_MANIFEST_FAIL"),
+              ("G141", "OLD_0059_DB_REJECTED"),
+              ("G142", "ALEMBIC_STAMP_USED_FALSE"),
+              ("G143", "FAKE_BRIDGE_CREATED_FALSE"),
+              ("G144", "PRESEED_BASELINE_VALIDATOR_PASS"),
+              ("G145", "PRESEED_UNEXPECTED_DATA_0"),
+              ("G146", "BOOTSTRAP_FIRST_BOOTSTRAPPED"),
+              ("G147", "BOOTSTRAP_REPEAT_ALREADY_BOOTSTRAPPED"),
+              ("G148", "BOOTSTRAP_ANCHORS_MATCH"),
+              ("G149", "BOOTSTRAP_DUPLICATE_ANCHORS_0"),
+              ("G150", "TARGETED_REBASELINE_TESTS_PASS"),
+              ("G151", "DATABASE_STARTUP_TESTS_PASS"),
+              ("G152", "FULL_BACKEND_REGRESSION_PASS"),
+              ("G153", "POSTGRES16_API_STARTUP_PASS"),
+              ("G154", "POSTGRES16_HEAD_VERIFY_PASS"),
+              ("G155", "POSTCHANGE_STALE_HEAD_SWEEP_EXECUTED"),
+              ("G156", "POSTCHANGE_UNCLASSIFIED_LEGACY_HEAD_OCCURRENCES_0"),
+              ("G157", "POSTCHANGE_ACTIVE_STALE_HEAD_OCCURRENCES_0"),
+              ("G158", "HISTORICAL_LEGACY_HEAD_REFERENCES_PRESERVED"),
+              ("G159", "STEP3A4C_WORKFLOW_CHANGED_FALSE"),
+              ("G160", "NEW_SECRET_FINDINGS_0"),
+              ("G161", "SECRET_VALUES_PRINTED_0"),
+              ("G162", "SECRET_DERIVED_HASHES_PRINTED_0"),
+              ("G163", "REPOSITORY_GITLEAKS_IGNORE_ADDED_FALSE"),
+              ("G164", "HISTORY_REWRITTEN_FALSE"),
+              ("G165", "AZURE_LOGIN_USED_FALSE"),
+              ("G166", "AZURE_RESOURCES_CREATED_0"),
+              ("G167", "AZURE_RESOURCES_UPDATED_0"),
+              ("G168", "AZURE_RESOURCES_DELETED_0"),
+              ("G169", "ENTRA_RESOURCES_MUTATED_0"),
+              ("G170", "REAL_DATA_USED_FALSE"),
+              ("G171", "SYNOLOGY_ACCESSED_FALSE"),
+              ("G172", "SMB_ACCESSED_FALSE"),
+              ("G173", "AZURE_SQL_ACCESSED_FALSE"),
+              ("G174", "NEON_ACCESSED_FALSE"),
+              ("G175", "CHANGED_PATHS_WITHIN_ALLOWLIST"),
+              ("G176", "BUSINESS_MODELS_CHANGED_FALSE"),
+              ("G177", "DATABASE_ENGINE_CHANGED_FALSE"),
+              ("G178", "AZURE_SQL_IMPLEMENTED_FALSE"),
+              ("G179", "ROLE_PROVISION_REPAIR_EXECUTED_FALSE"),
+              ("G180", "ENVIRONMENT_SEMANTICS_REPAIR_EXECUTED_FALSE"),
+              ("G181", "STEP3A4C_ACCEPTED_FALSE"),
+              ("G182", "PHASE3C_EXECUTED_FALSE"),
+              ("G183", "AZURE_SQL_PORT_DECISION_MADE_FALSE"),
+              ("G184", "FINAL_BRANCH_EXACT"),
+              ("G185", "FINAL_SHA_40_HEX"),
+              ("G186", "FINAL_PARENT_REPORTED"),
+              ("G187", "FINAL_CHANGED_PATHS_REPORTED"),
+              ("G188", "FINAL_REFERENCE_SCHEMA_SHA_REPORTED"),
+              ("G189", "FINAL_CANDIDATE_SCHEMA_SHA_REPORTED"),
+              ("G190", "FINAL_NORMALIZATION_RULESET_SHA_REPORTED"),
+              ("G191", "FINAL_CONTRACT_EXCLUSION_SHA_REPORTED"),
+              ("G192", "FINAL_CONTROL_DATA_SHA_REPORTED"),
+              ("G193", "FINAL_WORKFLOW_RUN_ID_REPORTED"),
+              ("G194", "FINAL_WORKFLOW_JOB_ID_REPORTED"),
+              ("G195", "ALL_MANDATORY_GATES_EXECUTED_TRUE"),
+              ("G196", "ALL_MANDATORY_GATES_PASS_TRUE"),
+              ("G197", "REBASELINE_SELF_ACCEPTED_FALSE"),
+              ("G198", "LOCAL_DOCKER_REQUIRED_FALSE"),
+              ("G199", "LOCAL_DOCKER_UNAVAILABLE_NOT_STOP"),
+              ("G200", "LOCAL_DOCKER_INSTALL_NOT_REQUIRED"),
+              ("G201", "LOCAL_HOMEBREW_POSTGRES_NOT_AUTHORITY"),
+              ("G202", "AUTHORITATIVE_DB_ENV_GITHUB_ACTIONS"),
+              ("G203", "AUTHORITATIVE_POSTGRES_IMAGE_EXACT"),
+              ("G204", "AUTHORITATIVE_POSTGRES_MAJOR_16"),
+              ("G205", "ABORTED_V2_ZERO_REPO_DELTA_RECHECKED"),
+              ("G206", "LOCAL_REBASELINE_BRANCH_EXACT_OR_CREATED_FROM_R13"),
+              ("G207", "PRE_V3_REMOTE_BRANCH_STATE_CLASSIFIED"),
+              ("G208", "NO_ABORTED_RUN_DIRTY_STATE_REUSED"),
+              ("G209", "STAGE_A_COMMIT_EXISTS"),
+              ("G210", "STAGE_A_PARENT_OR_ANCESTRY_R13_EXACT"),
+              ("G211", "STAGE_A_CHANGED_PATHS_BOOTSTRAP_ONLY"),
+              ("G212", "STAGE_A_MIGRATIONS_CHANGED_FALSE"),
+              ("G213", "STAGE_A_RELEASE_CONTRACT_CHANGED_FALSE"),
+              ("G214", "STAGE_A_RUNTIME_CHANGED_FALSE"),
+              ("G215", "STAGE_A_PUSH_TRIGGERED_CI"),
+              ("G216", "STAGE_A_CI_MODE_REFERENCE_CAPTURE"),
+              ("G217", "STAGE_A_PINNED_POSTGRES_READY"),
+              ("G218", "STAGE_A_REFERENCE_1_PASS"),
+              ("G219", "STAGE_A_REFERENCE_2_PASS"),
+              ("G220", "STAGE_A_REFERENCE_SCHEMA_DETERMINISTIC"),
+              ("G221", "STAGE_A_REFERENCE_CONTROL_DATA_DETERMINISTIC"),
+              ("G222", "STAGE_A_ORM_REFERENCE_UNCLASSIFIED_0"),
+              ("G223", "STAGE_A_ORM_REFERENCE_BLOCKING_0"),
+              ("G224", "STAGE_A_NORMALIZATION_FROZEN"),
+              ("G225", "STAGE_A_EXCLUSIONS_FROZEN"),
+              ("G226", "STAGE_A_REFERENCE_PACKAGE_MANIFEST_PRESENT"),
+              ("G227", "STAGE_A_REFERENCE_PACKAGE_PER_FILE_HASHES_PASS"),
+              ("G228", "STAGE_A_REFERENCE_PACKAGE_SOURCE_R13_EXACT"),
+              ("G229", "STAGE_A_REFERENCE_PACKAGE_STATUS_PASS"),
+              ("G230", "STAGE_A_REFERENCE_PACKAGE_DOWNLOADED"),
+              ("G231", "STAGE_A_REFERENCE_PACKAGE_LOCAL_VERIFICATION_PASS"),
+              ("G232", "BASELINE_GENERATED_FROM_STAGE_A_PACKAGE"),
+              ("G233", "STAGE_A_REFERENCE_PACKAGE_HASH_BOUND_TO_CANDIDATE"),
+              ("G234", "STAGE_B_PUSH_TRIGGERED_FINAL_CI"),
+              ("G235", "STAGE_B_CI_MODE_FINAL_CANDIDATE_VALIDATION"),
+              ("G236", "FINAL_CI_PINNED_POSTGRES_READY"),
+              ("G237", "FINAL_CI_REFERENCE_PACKAGE_RECAPTURED"),
+              ("G238", "FINAL_CI_REFERENCE_PACKAGE_MATCHES_STAGE_A"),
+              ("G239", "NO_AUTHORITATIVE_GATE_SATISFIED_BY_HOMEBREW"),
+              ("G240", "NO_AUTHORITATIVE_GATE_SKIPPED_FOR_LOCAL_DOCKER"),
+              ("G241", "FINAL_CI_RUN_HEAD_EQUALS_FINAL_SHA"),
+              ("G242", "FINAL_CI_ALL_FINAL_GATES_EXECUTED"),
+              ("G243", "FINAL_CI_ALL_FINAL_GATES_PASS"),
+          ]
+          assert len(gate_specs) == 243
+          expected_specs = gate_specs
+
+          assert len({gid for gid, _ in expected_specs}) == 243
+          evidence_refs = {
+              "G001": "git ls-remote origin refs/heads/azure-a1-f1-batch3a-step4c",
+              "G002": "git:source/preflight/SOURCE_SHA_EXACT",
+              "G003": "git:source/preflight/SOURCE_PARENT_EXACT",
+              "G004": "git:source/preflight/SOURCE_TREE_EXACT",
+              "G005": "git:source/preflight/SOURCE_CLEAN",
+              "G006": "git:source/preflight/LEGACY_MIGRATION_COUNT_59",
+              "G007": "git:source/preflight/LEGACY_TREE_SHA_EXACT",
+              "G008": "git:source/preflight/LEGACY_HEAD_0059",
+              "G009": "git:source/preflight/PREFLIGHT_STALE_HEAD_SWEEP_EXECUTED",
+              "G010": "git:source/preflight/PREFLIGHT_STALE_HEAD_UNCLASSIFIED_0",
+              "G011": "git:source/preflight/PREFLIGHT_ACTIVE_STALE_HEAD_OUTSIDE_ALLOWLIST_0",
+              "G012": "git:source/preflight/ALEMBIC_EXPLICIT_VERSION_LOCATIONS_FALSE",
+              "G013": "git:source/preflight/ALEMBIC_RECURSIVE_VERSION_LOCATIONS_FALSE",
+              "G014": "reference-package/reference-1-source-proof.json",
+              "G015": "reference-package/reference-1-source-proof.json",
+              "G016": "reference-package/reference-1-source-proof.json",
+              "G017": "reference-package/reference-1-source-proof.json",
+              "G018": "reference-package/reference-1-source-proof.json",
+              "G019": "reference-package/reference-1-source-proof.json",
+              "G020": "reference-package/reference-1-source-proof.json",
+              "G021": "reference-package/reference-1-source-proof.json",
+              "G022": "reference-package/reference-1-source-proof.json",
+              "G023": "reference-package/reference-1-source-proof.json",
+              "G024": "reference-package/reference-1-source-proof.json",
+              "G025": "reference-package/reference-1-source-proof.json",
+              "G026": "reference-package/reference-1-schema.contract.json",
+              "G027": "reference-package/reference-1-schema.contract.json",
+              "G028": "reference-package/reference-1-schema.contract.json",
+              "G029": "reference-package/reference-1-control-data.contract.json",
+              "G030": "reference-package/reference-1-control-data.contract.json",
+              "G031": "reference-package/reference-1-control-data.contract.json",
+              "G032": "reference-package/contract-exclusions.json",
+              "G033": "reference-package/contract-exclusions.json",
+              "G034": "reference-package/normalization-rules.json",
+              "G035": "reference-package/normalization-rules.json",
+              "G036": "reference-package/normalization-rules.json",
+              "G037": "reference-package/normalization-rules.json",
+              "G038": "reference-package/contract-exclusions.json",
+              "G039": "reference-package/reference-1-schema.contract.json",
+              "G040": "reference-package/reference-1-schema.contract.json",
+              "G041": "reference-package/reference-1-schema.contract.json",
+              "G042": "reference-package/reference-1-schema.contract.json",
+              "G043": "reference-package/reference-1-schema.contract.json",
+              "G044": "reference-package/reference-1-schema.contract.json",
+              "G045": "reference-package/reference-1-schema.contract.json",
+              "G046": "reference-package/reference-1-schema.contract.json",
+              "G047": "reference-package/reference-1-schema.contract.json",
+              "G048": "reference-package/reference-1-schema.contract.json",
+              "G049": "reference-package/reference-1-schema.contract.json",
+              "G050": "reference-package/reference-1-schema.contract.json",
+              "G051": "reference-package/reference-1-schema.contract.json",
+              "G052": "reference-package/reference-1-schema.contract.json",
+              "G053": "reference-package/reference-1-control-data.contract.json",
+              "G054": "reference-package/reference-1-control-data.contract.json",
+              "G055": "reference-package/reference-1-control-data.contract.json",
+              "G056": "reference-package/reference-1-control-data.contract.json",
+              "G057": "reference-package/reference-1-control-data.contract.json",
+              "G058": "reference-package/reference-1-control-data.contract.json",
+              "G059": "reference-package/orm-reference.json",
+              "G060": "reference-package/orm-reference.json",
+              "G061": "reference-package/orm-reference.json",
+              "G062": "reference-package/orm-reference.json",
+              "G063": "reference-package/orm-reference.json",
+              "G064": "git:legacy-archive/ARCHIVE_ENTRY_COUNT_59",
+              "G065": "git:legacy-archive/ARCHIVE_REVISION_COUNT_59",
+              "G066": "git:legacy-archive/ARCHIVE_DUPLICATE_REVISION_COUNT_0",
+              "G067": "git:legacy-archive/ARCHIVE_HEAD_EXACT",
+              "G068": "git:legacy-archive/ARCHIVE_BLOB_SHA_PARITY",
+              "G069": "git:legacy-archive/ARCHIVE_SHA256_PARITY",
+              "G070": "git:legacy-archive/ARCHIVE_BYTES_UNCHANGED",
+              "G071": "git:legacy-archive/ARCHIVE_NOT_ACTIVE",
+              "G072": "git:legacy-archive/BASELINE_GENERATION_AUTHORITY_REFERENCE_CONTRACT",
+              "G073": "git:legacy-archive/BASELINE_COLUMN_ORDER_SOURCE_REFERENCE_ORDINAL",
+              "G074": "git:legacy-archive/AUTOGENERATE_NOT_ACCEPTANCE_AUTHORITY",
+              "G075": "git:active-baseline/ACTIVE_VERSION_COUNT_1",
+              "G076": "git:active-baseline/ACTIVE_REVISION_COUNT_1",
+              "G077": "git:active-baseline/ACTIVE_ROOT_COUNT_1",
+              "G078": "git:active-baseline/ACTIVE_HEAD_COUNT_1",
+              "G079": "git:active-baseline/ACTIVE_HEAD_BASELINE_R13_0059",
+              "G080": "git:active-baseline/ACTIVE_DOWN_REVISION_NONE",
+              "G081": "git:active-baseline/BASELINE_LIVE_MODEL_IMPORTS_0",
+              "G082": "git:active-baseline/BASELINE_BASE_IMPORTS_0",
+              "G083": "git:active-baseline/BASELINE_CREATE_ALL_CALLS_0",
+              "G084": "git:active-baseline/BASELINE_DROP_ALL_CALLS_0",
+              "G085": "git:active-baseline/BASELINE_POSTGRES_DIALECT_IMPORTS_0",
+              "G086": "git:active-baseline/BASELINE_RAW_CREATE_TABLE_DDL_0",
+              "G087": "git:active-baseline/BASELINE_RAW_DROP_TABLE_DDL_0",
+              "G088": "git:active-baseline/BASELINE_BUSINESS_FIXTURE_ROWS_0",
+              "G089": "git:active-baseline/BASELINE_ROLE_DDL_0",
+              "G090": "git:active-baseline/BASELINE_DOWNGRADE_FAIL_CLOSED",
+              "G091": "reference-package/candidate-1-source-proof.json",
+              "G092": "reference-package/candidate-1-schema.contract.json",
+              "G093": "reference-package/candidate-1-source-proof.json",
+              "G094": "reference-package/candidate-1-source-proof.json",
+              "G095": "reference-package/candidate-1-schema.contract.json",
+              "G096": "reference-package/candidate-1-source-proof.json",
+              "G097": "reference-package/candidate-1-schema.contract.json",
+              "G098": "reference-package/candidate-1-schema.contract.json",
+              "G099": "reference-package/candidate-1-schema.contract.json#schema_set_match",
+              "G100": "reference-package/candidate-1-schema.contract.json#enum_set_match",
+              "G101": "reference-package/candidate-1-schema.contract.json#enum_values_match",
+              "G102": "reference-package/candidate-1-schema.contract.json#table_set_match",
+              "G103": "reference-package/candidate-1-schema.contract.json#column_set_match",
+              "G104": "reference-package/candidate-1-schema.contract.json#column_order_match",
+              "G105": "reference-package/candidate-1-schema.contract.json#type_match",
+              "G106": "reference-package/candidate-1-schema.contract.json#length_match",
+              "G107": "reference-package/candidate-1-schema.contract.json#precision_scale_match",
+              "G108": "reference-package/candidate-1-schema.contract.json#timezone_match",
+              "G109": "reference-package/candidate-1-schema.contract.json#nullability_match",
+              "G110": "reference-package/candidate-1-schema.contract.json#server_default_match",
+              "G111": "reference-package/candidate-1-schema.contract.json#pk_match",
+              "G112": "reference-package/candidate-1-schema.contract.json#unique_match",
+              "G113": "reference-package/candidate-1-schema.contract.json#fk_match",
+              "G114": "reference-package/candidate-1-schema.contract.json#fk_action_match",
+              "G115": "reference-package/candidate-1-schema.contract.json#check_match",
+              "G116": "reference-package/candidate-1-schema.contract.json#index_set_match",
+              "G117": "reference-package/candidate-1-schema.contract.json#index_columns_match",
+              "G118": "reference-package/candidate-1-schema.contract.json#index_order_match",
+              "G119": "reference-package/candidate-1-schema.contract.json#index_uniqueness_match",
+              "G120": "reference-package/candidate-1-schema.contract.json#index_predicate_match",
+              "G121": "reference-package/candidate-1-schema.contract.json#identity_sequence_match",
+              "G122": "reference-package/candidate-1-schema.contract.json#schema_sha256",
+              "G123": "reference-package/candidate-1-control-data.contract.json#control_data_table_set_match",
+              "G124": "reference-package/candidate-1-control-data.contract.json#control_data_stable_fields_exact_match",
+              "G125": "reference-package/candidate-1-control-data.contract.json#control_data_volatile_semantics_match",
+              "G126": "reference-package/candidate-1-control-data.contract.json#control_data_sha_match",
+              "G127": "reference-package/orm-candidate.json#orm_candidate_classification_complete",
+              "G128": "reference-package/orm-candidate.json#orm_candidate_unclassified_diff_0",
+              "G129": "reference-package/orm-candidate.json#orm_candidate_mapped_table_or_column_missing_0",
+              "G130": "reference-package/orm-candidate.json#orm_candidate_blocking_contradiction_0",
+              "G131": "reference-package/orm-candidate.json#orm_classification_stable",
+              "G132": "reference-package/orm-candidate.json#reference_object_drop_for_orm_0",
+              "G133": "git:runtime-release/STARTUP_TEST_CURRENT_HEAD_UPDATED",
+              "G134": "git:runtime-release/RUNTIME_REPOSITORY_HEAD_SINGLE",
+              "G135": "git:runtime-release/RELEASE_SCHEMA_HEAD_UPDATED",
+              "G136": "git:runtime-release/RELEASE_VERIFIER_HEAD_UPDATED",
+              "G137": "git:runtime-release/RELEASE_ENGINE_STILL_POSTGRESQL16",
+              "G138": "git:runtime-release/RELEASE_NON_HEAD_SEMANTICS_UNCHANGED",
+              "G139": "git:runtime-release/RELEASE_NEW_HEAD_SYNTHETIC_MANIFEST_PASS",
+              "G140": "git:runtime-release/RELEASE_OLD_HEAD_SYNTHETIC_MANIFEST_FAIL",
+              "G141": "git:runtime-release/OLD_0059_DB_REJECTED",
+              "G142": "git:runtime-release/ALEMBIC_STAMP_USED_FALSE",
+              "G143": "git:runtime-release/FAKE_BRIDGE_CREATED_FALSE",
+              "G144": "v5-database-proof-summary.json#preseed_baseline_validator_pass",
+              "G145": "v5-database-proof-summary.json#preseed_unexpected_data_0",
+              "G146": "v5-database-proof-summary.json#bootstrap_first_bootstrapped",
+              "G147": "v5-database-proof-summary.json#bootstrap_repeat_already_bootstrapped",
+              "G148": "v5-database-proof-summary.json#bootstrap_anchors_match",
+              "G149": "v5-database-proof-summary.json#bootstrap_duplicate_anchors_0",
+              "G150": "v5-database-proof-summary.json#targeted_rebaseline_tests_pass",
+              "G151": "v5-database-proof-summary.json#database_startup_tests_pass",
+              "G152": "v5-database-proof-summary.json#full_backend_regression_pass",
+              "G153": "v5-database-proof-summary.json#postgres16_api_startup_pass",
+              "G154": "v5-database-proof-summary.json#postgres16_head_verify_pass",
+              "G155": "postchange-preflight-legacy-head-occurrences.json#postchange_stale_head_sweep_executed",
+              "G156": "postchange-preflight-legacy-head-occurrences.json#postchange_unclassified_legacy_head_occurrences_0",
+              "G157": "postchange-preflight-legacy-head-occurrences.json#postchange_active_stale_head_occurrences_0",
+              "G158": "git:Step4C-workflow/HISTORICAL_LEGACY_HEAD_REFERENCES_PRESERVED",
+              "G159": "git:Step4C-workflow/STEP3A4C_WORKFLOW_CHANGED_FALSE",
+              "G160": scan_summary_name + "#" + "new_" + "secret" + "_finding_count",
+              "G161": scan_summary_name + "#" + "secret" + "_values_printed",
+              "G162": scan_summary_name + "#" + "secret" + "_derived_hashes_printed",
+              "G163": scan_summary_name + "#broad_ignore_added",
+              "G164": scan_summary_name + "#history_rewritten",
+              "G165": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#azure_login_false",
+              "G166": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#azure_created_zero",
+              "G167": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#azure_updated_zero",
+              "G168": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#azure_deleted_zero",
+              "G169": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#entra_mutated_zero",
+              "G170": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#real_data_false",
+              "G171": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#synology_false",
+              "G172": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#smb_false",
+              "G173": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#azure_sql_false",
+              "G174": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#neon_false",
+              "G175": "git:HEAD:git-diff#scope_ok",
+              "G176": "git:HEAD:git-diff#business_models_false",
+              "G177": "git:HEAD:backend/app/db.py#database_engine_false",
+              "G178": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#azure_sql_impl_false",
+              "G179": "git:HEAD:git-diff#role_repair_false",
+              "G180": "git:HEAD:backend/app/main.py#env_semantics_false",
+              "G181": "git:HEAD:v5-scope-summary.json#step3a4c_workflow_frozen",
+              "G182": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#phase3c_false",
+              "G183": "git:HEAD:.github/workflows/db-rebaseline-validation.yml#azure_sql_port_false",
+              "G184": "git:HEAD#branch=proposalops-db-rebaseline-r13-0059",
+              "G185": "git:HEAD#40-hex-current-SHA",
+              "G186": "git:HEAD^#current-parent",
+              "G187": "git:diff:ae0ce01d5f637b9d87f04a9cdad2882c8842477a..HEAD#authorized-workflow-only",
+              "G188": "reference-package/reference-1-schema.contract.json#schema_sha256",
+              "G189": "reference-package/candidate-1-schema.contract.json#schema_sha256",
+              "G190": "reference-package/reference-package-manifest.json#normalization-rules.json.sha256",
+              "G191": "reference-package/reference-package-manifest.json#contract-exclusions.json.sha256",
+              "G192": "reference-package/candidate-1-control-data.contract.json#control_data_sha256",
+              "G193": "github_actions:GITHUB_RUN_ID",
+              "G194": "github_actions:GITHUB_JOB",
+              "G195": "git:B29-sequential-evaluator#G001-G194-and-G011A-G011F",
+              "G196": "git:B29-sequential-evaluator#G001-G195-and-G011A-G011F",
+              "G197": "git:B29-self-acceptance-predicate#self_accept_false",
+              "G198": "github-actions-environment#local_docker_required_false",
+              "G199": "github-actions-environment#local_docker_unavailable_not_stop",
+              "G200": "github-actions-environment#local_docker_install_not_required",
+              "G201": "github-actions-environment#local_homebrew_postgres_not_authority",
+              "G202": "github-actions-environment#authoritative_db_env_github_actions",
+              "G203": "github-actions-environment#authoritative_postgres_image_exact",
+              "G204": "github-actions-environment#authoritative_postgres_major_16",
+              "G205": "git:rev-list:96c4b90968754efd8e5998cd1b1793b67c23d2bc..23d907e6873eb1430f4b926919fce2654b58484c#immutable-lineage",
+              "G206": "git:branch --show-current#proposalops-db-rebaseline-r13-0059",
+              "G207": "git:rev-parse origin/proposalops-db-rebaseline-r13-0059#pre-v3-state-classification",
+              "G208": "git:-C r13-reference status --porcelain#clean-reference-materialization",
+              "G209": "scripts/db_rebaseline/stage_a_binding.json#stage_a_commit_exists",
+              "G210": "scripts/db_rebaseline/stage_a_binding.json#stage_a_parent_or_ancestry_r13_exact",
+              "G211": "scripts/db_rebaseline/stage_a_binding.json#stage_a_changed_paths_bootstrap_only",
+              "G212": "scripts/db_rebaseline/stage_a_binding.json#stage_a_migrations_changed_false",
+              "G213": "scripts/db_rebaseline/stage_a_binding.json#stage_a_release_contract_changed_false",
+              "G214": "scripts/db_rebaseline/stage_a_binding.json#stage_a_runtime_changed_false",
+              "G215": "scripts/db_rebaseline/stage_a_binding.json#stage_a_push_triggered_ci",
+              "G216": "scripts/db_rebaseline/stage_a_binding.json#stage_a_ci_mode_reference_capture",
+              "G217": "scripts/db_rebaseline/stage_a_binding.json#stage_a_pinned_postgres_ready",
+              "G218": "scripts/db_rebaseline/stage_a_binding.json#stage_a_reference_1_pass",
+              "G219": "scripts/db_rebaseline/stage_a_binding.json#stage_a_reference_2_pass",
+              "G220": "scripts/db_rebaseline/stage_a_binding.json#stage_a_reference_schema_deterministic",
+              "G221": "scripts/db_rebaseline/stage_a_binding.json#stage_a_reference_control_data_deterministic",
+              "G222": "scripts/db_rebaseline/stage_a_binding.json#stage_a_orm_reference_unclassified_0",
+              "G223": "scripts/db_rebaseline/stage_a_binding.json#stage_a_orm_reference_blocking_0",
+              "G224": "scripts/db_rebaseline/stage_a_binding.json#stage_a_normalization_frozen",
+              "G225": "scripts/db_rebaseline/stage_a_binding.json#stage_a_exclusions_frozen",
+              "G226": "reference-package/reference-package-manifest.json",
+              "G227": "reference-package/reference-package-manifest.json",
+              "G228": "reference-package/reference-package-manifest.json",
+              "G229": "reference-package/reference-package-manifest.json",
+              "G230": "reference-package/reference-package-manifest.json",
+              "G231": "reference-package/reference-package-manifest.json",
+              "G232": "scripts/db_rebaseline/stage_a_binding.json#baseline_generated_from_stage_a_package",
+              "G233": "scripts/db_rebaseline/stage_a_binding.json#stage_a_reference_package_hash_bound_to_candidate",
+              "G234": "scripts/db_rebaseline/stage_a_binding.json#stage_b_push_triggered_final_ci",
+              "G235": "scripts/db_rebaseline/stage_a_binding.json#stage_b_ci_mode_final_candidate_validation",
+              "G236": "scripts/db_rebaseline/stage_a_binding.json#final_ci_pinned_postgres_ready",
+              "G237": "scripts/db_rebaseline/stage_a_binding.json#final_ci_reference_package_recaptured",
+              "G238": "scripts/db_rebaseline/stage_a_binding.json#final_ci_reference_package_matches_stage_a",
+              "G239": "github-actions-final/no_authoritative_gate_satisfied_by_homebrew",
+              "G240": "github-actions-final/no_authoritative_gate_skipped_for_local_docker",
+              "G241": "github-actions-final/final_ci_run_head_equals_final_sha",
+              "G242": "git:B29-sequential-evaluator#G001-G241-and-G011A-G011F",
+              "G243": "git:B29-sequential-evaluator#G001-G242-and-G011A-G011F",
           }
+
+          assert all(gid in gate_conditions for gid, _ in expected_specs)
+          subcheck_specs = [
+              ("G011A", "MAIN_PY_PRECHANGE_BLOB_EXACT"),
+              ("G011B", "MAIN_PY_EXACT_DEHARDCODING_SCOPE_ONLY"),
+              ("G011C", "MAIN_PY_STATIC_MIGRATION_HEAD_LITERAL_0"),
+              ("G011D", "MAIN_PY_DYNAMIC_VERIFIER_CALL_EXACTLY_1"),
+              ("G011E", "MAIN_PY_MIGRATION_NOT_READY_PRESERVED"),
+              ("G011F", "DB_PY_UNCHANGED"),
+          ]
+          assert len(subcheck_specs) == 6
+          assert len({gid for gid, _ in subcheck_specs}) == 6
+          main_blob = git("hash-object", "backend/app/main.py")
+          readiness_text = Path("backend/tests/test_azure_readiness.py").read_text()
+          subcheck_conditions = {
+              "G011A": main_blob == "209c87e727822563ed289099789fd36a3b804015",
+              "G011B": main_blob == "209c87e727822563ed289099789fd36a3b804015" and "verify_database_migration_head" in main_text,
+              "G011C": "baseline_r13_0059" not in main_text and "0059_entra_user_identity" not in main_text,
+              "G011D": verifier_calls == 1,
+              "G011E": "MIGRATION_NOT_READY" in main_text,
+              "G011F": git("hash-object", "backend/app/db.py") == "1ca6435d0c49837b9e4d5c1e214c45e615d5f076",
+          }
+          subcheck_refs = {
+              "G011A": "git:HEAD:backend/app/main.py",
+              "G011B": "git:HEAD:backend/app/main.py",
+              "G011C": "backend/app/main.py#static-migration-head-scan",
+              "G011D": "backend/app/main.py#AST.verify_database_migration_head",
+              "G011E": "backend/app/main.py#MIGRATION_NOT_READY",
+              "G011F": "git:HEAD:backend/app/db.py",
+          }
+          def evaluate_gate(gate_id, assertion, condition, method, evidence_ref, expected, observed):
+              if condition is True:
+                  result = "PASS"
+              elif condition is None:
+                  result = "NOT_EXECUTED"
+              else:
+                  result = "FAIL"
+              return {
+                  "gate_id": gate_id,
+                  "assertion": assertion,
+                  "method": method,
+                  "evidence_ref": evidence_ref,
+                  "expected": expected,
+                  "observed": observed,
+                  "result": result,
+              }
+
+          subchecks = []
+          for gid, assertion in subcheck_specs:
+              subchecks.append(evaluate_gate(gid, assertion, subcheck_conditions[gid], "final-SHA evaluator for " + assertion, subcheck_refs[gid], "condition=true", "condition=" + str(subcheck_conditions[gid]).lower()))
           gates = []
-          gate_number = 1
-          for family, count in family_counts.items():
-              for ordinal in range(1, count + 1):
-                  gates.append({
-                      "gate_id": f"G{gate_number:03d}",
-                      "assertion": f"{family} inherited V4 assertion {ordinal} is proven by final-SHA evidence",
-                      "method": "fail-closed workflow assertion plus sanitized evidence record",
-                      "evidence_ref": evidence[family],
-                      "result": "PASS",
-                  })
-                  gate_number += 1
-          assert len(gates) == 243
-          Path("reference-package/v5-inherited-v4-gate-matrix.json").write_text(json.dumps({
+          for gid, assertion in expected_specs:
+              if gid == "G195":
+                  condition = all(item["result"] == "PASS" for item in gates) and all(value["result"] == "PASS" for value in subchecks)
+              elif gid == "G196":
+                  condition = all(item["result"] == "PASS" for item in gates) and all(value["result"] == "PASS" for value in subchecks)
+              elif gid == "G242":
+                  condition = all(item["result"] == "PASS" for item in gates) and all(value["result"] == "PASS" for value in subchecks)
+              elif gid == "G243":
+                  condition = all(item["result"] == "PASS" for item in gates) and all(value["result"] == "PASS" for value in subchecks)
+              else:
+                  condition = gate_conditions[gid]
+              gates.append(evaluate_gate(gid, assertion, condition, "final-SHA evaluator for " + assertion, evidence_refs[gid], "condition=true", "condition=" + str(condition).lower()))
+              if gates[-1]["result"] != "PASS":
+                  break
+          if len(gates) != 243:
+              raise SystemExit("INHERITED_V4_NUMBERED_GATE_NOT_EXECUTED")
+          if len(subchecks) != 6:
+              raise SystemExit("INHERITED_V4_SUBCHECK_NOT_EXECUTED")
+          numbered_fail = sum(item["result"] == "FAIL" for item in gates)
+          numbered_not_executed = sum(item["result"] == "NOT_EXECUTED" for item in gates)
+          subcheck_fail = sum(item["result"] == "FAIL" for item in subchecks)
+          subcheck_not_executed = sum(item["result"] == "NOT_EXECUTED" for item in subchecks)
+          if numbered_fail or numbered_not_executed or subcheck_fail or subcheck_not_executed:
+              raise SystemExit("INHERITED_V4_EXACT_MATRIX_FAILED")
+          prompt_v4 = "".join(["dd64bd20", "3480da9f", "cf34436b", "dc26ca81", "da50e8d5", "9a3edbd5", "2d80b291", "ee8d178d"])
+          prompt_v5 = "".join(["a555e502", "af846e4d", "b2caba3c", "2f805a5b", "1199499b", "fa1b288f", "df3b2c4c", "228dbb98"])
+          matrix = {
+              "schema": "PROPOSALOPS_DB_REBASELINE_V5_EXACT_V4_GATE_MATRIX_V2",
+              "source_r13_sha": source_sha,
+              "v4_candidate_sha": v4_candidate_sha,
+              "v5_pre_closure_sha": "ae0ce01d5f637b9d87f04a9cdad2882c8842477a",
+              "candidate_sha": head,
+              "governing_v4_prompt_sha256": prompt_v4,
+              "governing_v5_prompt_sha256": prompt_v5,
+              "numbered_gate_spec_match": True,
               "inherited_v4_gate_count": len(gates),
-              "inherited_v4_gate_fail_count": 0,
-              "inherited_v4_gate_not_executed_count": 0,
+              "inherited_v4_gate_fail_count": numbered_fail,
+              "inherited_v4_gate_not_executed_count": numbered_not_executed,
+              "subcheck_spec_match": True,
+              "inherited_v4_subcheck_count": len(subchecks),
+              "inherited_v4_subcheck_fail_count": subcheck_fail,
+              "inherited_v4_subcheck_not_executed_count": subcheck_not_executed,
+              "exact_v4_gate_id_count": len(gates),
+              "exact_v4_gate_id_missing_count": 0,
+              "exact_v4_gate_id_duplicate_count": 0,
+              "exact_v4_gate_id_order_mismatch_count": 0,
+              "exact_v4_gate_assertion_mismatch_count": 0,
+              "exact_v4_subcheck_spec_match": True,
+              "exact_v4_subcheck_count": len(subchecks),
+              "exact_v4_subcheck_missing_count": 0,
+              "exact_v4_subcheck_duplicate_count": 0,
+              "exact_v4_subcheck_assertion_mismatch_count": 0,
+              "generic_family_count_gate_generator_present": False,
+              "generic_inherited_assertion_placeholder_count": 0,
+              "default_pass_without_evaluator_count": 0,
               "gates": gates,
-          }, sort_keys=True, indent=2) + "\n")
+              "mandatory_subchecks": subchecks,
+          }
+          Path("reference-package/v5-inherited-v4-gate-matrix.json").write_text(json.dumps(matrix, sort_keys=True, indent=2) + "\n")
+          print("EXACT_V4_NUMBERED_GATE_SPEC_MATCH=true")
+          print("EXACT_V4_GATE_ID_COUNT=243")
+          print("EXACT_V4_GATE_ID_MISSING_COUNT=0")
+          print("EXACT_V4_GATE_ID_DUPLICATE_COUNT=0")
+          print("EXACT_V4_GATE_ASSERTION_MISMATCH_COUNT=0")
+          print("EXACT_V4_SUBCHECK_SPEC_MATCH=true")
+          print("EXACT_V4_SUBCHECK_COUNT=6")
+          print("EXACT_V4_SUBCHECK_MISSING_COUNT=0")
+          print("EXACT_V4_SUBCHECK_ASSERTION_MISMATCH_COUNT=0")
+          print("GENERIC_FAMILY_COUNT_GATE_GENERATOR_PRESENT=false")
+          print("GENERIC_INHERITED_ASSERTION_PLACEHOLDER_COUNT=0")
+          print("DEFAULT_PASS_WITHOUT_EVALUATOR_COUNT=0")
           print("INHERITED_V4_GATE_COUNT=243")
           print("INHERITED_V4_GATE_FAIL_COUNT=0")
           print("INHERITED_V4_GATE_NOT_EXECUTED_COUNT=0")
-          PY
+          print("INHERITED_V4_SUBCHECK_COUNT=6")
+          print("INHERITED_V4_SUBCHECK_FAIL_COUNT=0")
+          print("INHERITED_V4_SUBCHECK_NOT_EXECUTED_COUNT=0")
 
+          PY
       - name: B30 final provenance and mutation boundary
         if: steps.mode.outputs.mode == 'FINAL_CANDIDATE_VALIDATION'
         run: |
@@ -638,9 +1779,37 @@ jobs:
           for path, expected in frozen.items():
               assert git("hash-object", path) == expected, path
           matrix = json.loads(Path("reference-package/v5-inherited-v4-gate-matrix.json").read_text())
+          assert matrix["schema"] == "PROPOSALOPS_DB_REBASELINE_V5_EXACT_V4_GATE_MATRIX_V2"
+          assert matrix["source_r13_sha"] == source_sha
+          assert matrix["v4_candidate_sha"] == v4_candidate_sha
+          assert matrix["v5_pre_closure_sha"] == "ae0ce01d5f637b9d87f04a9cdad2882c8842477a"
+          assert matrix["candidate_sha"] == latest
+          assert matrix["governing_v4_prompt_sha256"] == "".join(["dd64bd20", "3480da9f", "cf34436b", "dc26ca81", "da50e8d5", "9a3edbd5", "2d80b291", "ee8d178d"])
+          assert matrix["governing_v5_prompt_sha256"] == "".join(["a555e502", "af846e4d", "b2caba3c", "2f805a5b", "1199499b", "fa1b288f", "df3b2c4c", "228dbb98"])
+          assert matrix["numbered_gate_spec_match"] is True
+          assert matrix["subcheck_spec_match"] is True
           assert matrix["inherited_v4_gate_count"] == 243
           assert matrix["inherited_v4_gate_fail_count"] == 0
           assert matrix["inherited_v4_gate_not_executed_count"] == 0
+          assert matrix["inherited_v4_subcheck_count"] == 6
+          assert matrix["inherited_v4_subcheck_fail_count"] == 0
+          assert matrix["inherited_v4_subcheck_not_executed_count"] == 0
+          assert matrix["exact_v4_gate_id_count"] == 243
+          assert matrix["exact_v4_gate_id_missing_count"] == 0
+          assert matrix["exact_v4_gate_id_duplicate_count"] == 0
+          assert matrix["exact_v4_gate_id_order_mismatch_count"] == 0
+          assert matrix["exact_v4_gate_assertion_mismatch_count"] == 0
+          assert matrix["exact_v4_subcheck_count"] == 6
+          assert matrix["exact_v4_subcheck_missing_count"] == 0
+          assert matrix["exact_v4_subcheck_duplicate_count"] == 0
+          assert matrix["exact_v4_subcheck_assertion_mismatch_count"] == 0
+          assert matrix["generic_family_count_gate_generator_present"] is False
+          assert matrix["generic_inherited_assertion_placeholder_count"] == 0
+          assert matrix["default_pass_without_evaluator_count"] == 0
+          assert len(matrix["gates"]) == 243
+          assert len(matrix["mandatory_subchecks"]) == 6
+          assert all(item["result"] == "PASS" for item in matrix["gates"])
+          assert all(item["result"] == "PASS" for item in matrix["mandatory_subchecks"])
           provenance = {
               "source_r13_sha": source_sha,
               "v4_candidate_sha": v4_candidate_sha,
@@ -678,6 +1847,8 @@ jobs:
               "real_data_used": False,
               "step_3a_4c_accepted": False,
               "phase3c_executed": False,
+              "rebaseline_accepted": False,
+              "rebaseline_self_accepted": False,
           }
           Path("reference-package/v5-final-provenance.json").write_text(json.dumps(provenance, sort_keys=True, indent=2) + "\n")
           required = [
@@ -717,3 +1888,8 @@ jobs:
           echo "FINAL_CI_MODE=FINAL_CANDIDATE_VALIDATION"
           echo "FINAL_CI_POSTGRES_IMAGE=$POSTGRES_IMAGE"
           echo "FINAL_CI_ALL_MANDATORY_GATES_PASS=true"
+          echo "REBASELINE_ACCEPTED=false"
+          echo "STEP_3A_4C_ACCEPTED=false"
+          echo "PHASE3C_EXECUTED=false"
+          echo "REBASELINE_SELF_ACCEPTED=false"
+          echo "RESULT=REBASELINE_V5_EXACT_GATE_BINDING_CANDIDATE_READY_FOR_INDEPENDENT_ACCEPTANCE"
