@@ -13,6 +13,7 @@ OLD_HEAD = "0059_entra_user_identity"
 ACTIVE_ALLOWLIST = {
     "backend/app/main.py",
     "backend/tests/test_database_startup_contract.py",
+    "backend/tests/test_db_rebaseline.py",
     "release/a1-release-manifest.schema.json",
     "scripts/release/verify_a1_release_manifest.py",
 }
