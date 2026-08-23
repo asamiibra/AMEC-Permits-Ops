@@ -780,7 +780,7 @@ jobs:
           runtime_head_single = verifier_calls == 1
           release_schema_head = "baseline_r13_0059" in release_schema_text
           release_verifier_head = "baseline_r13_0059" in release_verifier_text
-          release_engine_pg16 = '"major": 16' in release_schema_text and 'database.get("major") != 16' in release_verifier_text
+          release_engine_pg16 = '"major": {"const": 16}' in release_schema_text and 'database.get("major") != 16' in release_verifier_text
           release_semantics_unchanged = git("hash-object", "backend/app/db.py") == "1ca6435d0c49837b9e4d5c1e214c45e615d5f076"
           from scripts.release.verify_a1_release_manifest import verify as verify_manifest
           new_manifest = {"stage":"PREDEPLOY","repository":"asamiibra/AMEC-Permits-Ops","source_sha":head,"database":{"engine":"postgresql","major":16,"migration_head":"baseline_r13_0059"},"entra":{"required_scope":"access_as_user","requested_access_token_version":2,"tenant_id":None,"api_client_id":None,"web_client_id":None},"azure":{"subscription_id":"61080f8b-16cb-4abc-bb8c-5d8e59ab15bf","region":"qatarcentral"},"safety":{"app_env":"AZURE-PREPROD","synthetic_only":True,"real_data_allowed":False,"storage_provider":"mock","synology_mode":"SYNTHETIC","azure_to_synology":False}}
