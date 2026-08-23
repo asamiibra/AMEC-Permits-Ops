@@ -257,7 +257,7 @@ jobs:
           print("PRESEED_REQUIRED_CONTROL_DATA=PASS")
           PY
           mkdir -p "$RUNNER_TEMP/v5-synthetic-fixtures"
-          APP_ENV=AZURE-PREPROD SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false STORAGE_PROVIDER=mock SYNOLOGY_MODE=SYNTHETIC SYNTHETIC_TEST_ROOT="$RUNNER_TEMP/v5-synthetic-fixtures" DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/candidate_db_3" python - <<'PY'
+          APP_ENV=AZURE-PREPROD SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false STORAGE_PROVIDER=mock SYNOLOGY_MODE=SYNTHETIC FRONTEND_ORIGINS=https://synthetic.example.invalid AUTH_MODE=ENTRA ENTRA_TENANT_ID=00000000-0000-0000-0000-000000000001 ENTRA_API_CLIENT_ID=00000000-0000-0000-0000-000000000002 ENTRA_WEB_CLIENT_ID=00000000-0000-0000-0000-000000000003 ENTRA_REQUIRED_SCOPE=access_as_user SYNTHETIC_TEST_ROOT="$RUNNER_TEMP/v5-synthetic-fixtures" DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/candidate_db_3" python - <<'PY'
           from backend.app.bootstrap_preprod import run_preprod_bootstrap
           first = run_preprod_bootstrap()
           repeat = run_preprod_bootstrap()
@@ -268,7 +268,7 @@ jobs:
           print("BOOTSTRAP_ANCHORS_MATCH=true")
           print("BOOTSTRAP_DUPLICATE_ANCHORS=0")
           PY
-          APP_ENV=AZURE-PREPROD SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false STORAGE_PROVIDER=mock SYNOLOGY_MODE=SYNTHETIC SYNTHETIC_TEST_ROOT="$RUNNER_TEMP/v5-synthetic-fixtures" DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/candidate_db_3" python - <<'PY'
+          APP_ENV=AZURE-PREPROD SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false STORAGE_PROVIDER=mock SYNOLOGY_MODE=SYNTHETIC FRONTEND_ORIGINS=https://synthetic.example.invalid AUTH_MODE=ENTRA ENTRA_TENANT_ID=00000000-0000-0000-0000-000000000001 ENTRA_API_CLIENT_ID=00000000-0000-0000-0000-000000000002 ENTRA_WEB_CLIENT_ID=00000000-0000-0000-0000-000000000003 ENTRA_REQUIRED_SCOPE=access_as_user SYNTHETIC_TEST_ROOT="$RUNNER_TEMP/v5-synthetic-fixtures" DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/candidate_db_3" python - <<'PY'
           from fastapi.testclient import TestClient
           from backend.app import main
           from backend.app.db import verify_database_migration_head
