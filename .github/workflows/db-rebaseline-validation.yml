@@ -378,8 +378,8 @@ jobs:
           mkdir -p "$r13_secret_root" "$v5_secret_root"
           git archive "$SOURCE_SHA" | tar -x -C "$r13_secret_root"
           git archive "$GITHUB_SHA" | tar -x -C "$v5_secret_root"
-          (cd "$r13_secret_root" && detect-secrets scan --all-files --force-use-all-plugins --exclude '(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)' > "$RUNNER_TEMP/v5-r13-secrets.json")
-          (cd "$v5_secret_root" && detect-secrets scan --all-files --force-use-all-plugins --exclude '(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)' > "$RUNNER_TEMP/v5-v5-secrets.json")
+          (cd "$r13_secret_root" && detect-secrets scan --all-files --force-use-all-plugins --exclude-files '(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)' > "$RUNNER_TEMP/v5-r13-secrets.json")
+          (cd "$v5_secret_root" && detect-secrets scan --all-files --force-use-all-plugins --exclude-files '(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)' > "$RUNNER_TEMP/v5-v5-secrets.json")
           python - <<'PY'
           import json
           from pathlib import Path
