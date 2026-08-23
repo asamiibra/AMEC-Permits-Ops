@@ -53,5 +53,13 @@
   "amec_phase3c_deferred_deployment_readiness_sha256": "13252fbf281a50db921673609498f7b456beaadfeb42c410fb9cf15d01e6b31b",
   "amec_phase3c_freeze_manifest_sha256": "bfb59dddb614f971e0880bc4f578ac76ac32069669c70b42e04fb7949cef16aa",
   "phase4_master_design_sha256": "c464a589e514871098929eaf0502d9226babf47742bcf010f2cb96cdf386933b",
-  "secret_used": false
+  "secret_used": false,
+  "phase4_branch": "phase4-v35-authority-closure-v1",
+  "phase4_predecessor_sha": "7cb840119237349c58bcbc7ad08380f0db3a85cc",
+  "phase4_predecessor_parent_sha": "c72e5bee7b217ff21d9fbe0dfa5183ecb96a5902",
+  "phase4_predecessor_tree_sha1": "9b831ae89c4cc5e385ed6044f70fe446ffa5a0e5",
+  "preserved_phase4_branch_sha": "237b4dd23b777e8b375e5a8bbe862090dfd64924",
+  "preserved_branch_relation_to_v34": "SIBLING_FROM_C72_OR_EARLIER",
+  "phase4_commit_pushed": false,
+  "phase5_started": false
 }

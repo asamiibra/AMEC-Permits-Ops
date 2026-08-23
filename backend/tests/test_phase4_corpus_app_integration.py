@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from uuid import uuid4
 
 import pytest
+from fastapi import HTTPException
 from sqlalchemy import select
 
 from backend.app.db import SessionLocal, engine
@@ -14,11 +15,16 @@ from backend.app.models import (
     AuditEvent,
     Phase4ClassificationEnvelope,
     Phase4ClassifierCorrectionEvent,
+    Phase4ProjectionReceipt,
     Phase4ReviewDecision,
+    Phase4SourceChangeEvent,
+    Finding,
+    NotificationEvent,
+    WorkflowTask,
     VerifiedAssertion,
 )
-from backend.app.schemas.phase4 import ProjectionRequest
-from backend.app.services.phase4 import ALLOWED_DECISIONS, execute_projection
+from backend.app.schemas.phase4 import ProjectionRequest, ReviewDecisionIn
+from backend.app.services.phase4 import ALLOWED_DECISIONS, execute_projection, record_review_decision
 
 
 def _token(label: str) -> str:
@@ -34,10 +40,10 @@ def test_phase4_contract_artifacts_are_complete():
     assert len(mapping["rows"]) == 419
     assert len(checks["checks"]) == 250
     assert all(item.get("result") == "PASS" for item in checks["checks"])
-    with open(f"{root}/AMEC_PHASE4_V34_REVALIDATION_v1.json", encoding="utf-8") as handle:
+    with open(f"{root}/AMEC_PHASE4_V35R1_REVALIDATION_v1.json", encoding="utf-8") as handle:
         revalidation = json.load(handle)
     assert len(revalidation["golden_paths"]) == 20
-    assert all(item["final_result"] == "PASS" and item["evidence_refs"] for item in revalidation["golden_paths"])
+    assert all(item["final_result"] == "PASS" and item["exact_executable_test_nodes"] and item["command"] and item["raw_final_sha_log_reference"] for item in revalidation["golden_paths"])
     assert revalidation["primary_checks"]["pip_047_executable_six_action_proof"] is True
     assert revalidation["primary_checks"]["gov_044_executable_golden_path_proof"] is True
 
@@ -47,7 +53,7 @@ def test_phase4_end_to_end_review_projection_and_idempotency(client):
     source = {
         "event_id": event_id,
         "scan_id_or_observation_group": _token("scan"),
-        "source_surface": "CONTROLLED_SYNTHETIC_FIXTURE",
+        "source_surface": "APP_UPLOAD",
         "source_artifact_id_or_locator": "fixture://amec/phase4/source-001",
         "source_version_token": "v1",
         "event_type": "NEW_VERSION",
@@ -81,12 +87,12 @@ def test_phase4_end_to_end_review_projection_and_idempotency(client):
         "source_mode": "RULES_ONLY",
         "module_truth_contract_sha": "d18ebed191b8f2633d5984ff57ab25803fe19beeb9c73999946abffddb974f2c",
         "corpus_app_contract_sha": "387a741b2531afb54398fadbe8aac0d73e2a1ba9aab619e48d5dd5b5d7289908",
-        "axes_json": {"document_type": "APPLICATION_FORM", "discipline": "ENGINEERING", "source_mode": "RULES_ONLY"},
+        "axes_json": {"document_type": "APPLICATION_FORM", "discipline": "ENGINEERING", "source_mode": "RULES_ONLY", "scope": {"scope_type": "PROJECT", "scope_id": "synthetic-project-001"}, "relationship_resolution": {"source_entity_id": "synthetic-source-001", "candidate_entity_id": "synthetic-project-001", "relationship_type": "PROJECT_DOCUMENT", "resolution": "BOUND_TO_PROJECT"}},
     }
     response = client.post("/api/phase4/classification-envelopes", json=classification)
     assert response.status_code == 200, response.text
     classification_id = response.json()["id"]
-    queue = client.get("/api/phase4/review-queue", headers={"X-Dev-Role": "PROCESS_CHAMPION"})
+    queue = client.get("/api/phase4/review-queue?scope_type=PROJECT&scope_id=synthetic-project-001", headers={"X-Dev-Role": "PROCESS_CHAMPION"})
     assert queue.status_code == 200 and any(item["id"] == classification_id for item in queue.json()["items"])
 
     decision = {
@@ -141,18 +147,72 @@ def test_phase4_end_to_end_review_projection_and_idempotency(client):
     assert response.status_code == 403
 
 
-def test_phase4_golden_path_catalog_is_revalidated():
-    golden_paths = [
-        "new synthetic app upload", "same-event retry", "modified source", "move/rename candidate",
-        "missing source", "contradictory evidence", "SECRET_EXCLUDE", "unsupported capability",
-        "review ACCEPT", "review CORRECT", "review DEFER", "review MARK_OUT_OF_SCOPE",
-        "RESOLVE_RELATIONSHIP", "review REJECT", "VerifiedAssertion supersession", "projection retry",
-        "protected-action denial", "Master Content candidate", "Finance candidate", "Reports mapping",
+def test_be_p4_v35_executable_golden_paths_source_and_negative_states(client):
+    """Execute the source/negative golden paths; the catalog cannot self-certify them."""
+    paths = [
+        ("GP-01", {"source_surface": "APP_UPLOAD", "event_type": "NEW_VERSION"}),
+        ("GP-03", {"source_surface": "APP_UPLOAD", "event_type": "MODIFIED_CANDIDATE"}),
+        ("GP-04", {"source_surface": "APP_UPLOAD", "event_type": "MOVE_RENAME_CANDIDATE"}),
+        ("GP-05", {"source_surface": "APP_UPLOAD", "event_type": "MISSING_CANDIDATE"}),
+        ("GP-06", {"source_surface": "APP_UPLOAD", "event_type": "CONTENT_CHANGED", "extra_axes": {"contradictions": [{"axis": "discipline", "values": ["ENGINEERING", "CIVIL"]}]}}),
+        ("GP-07", {"source_surface": "APP_UPLOAD", "event_type": "MISSING_CANDIDATE", "extra_axes": {"unsupported_capability_state": "SECRET_EXCLUDE"}}),
+        ("GP-08", {"source_surface": "APP_UPLOAD", "event_type": "NEW_VERSION", "extra_axes": {"unsupported_capability_state": "UNSUPPORTED_CAPABILITY"}}),
     ]
-    with open("contracts/amec/phase4/AMEC_PHASE4_V34_REVALIDATION_v1.json", encoding="utf-8") as handle:
-        evidence = json.load(handle)
-    assert [item["name"] for item in evidence["golden_paths"]] == golden_paths
-    assert all(item["final_result"] == "PASS" for item in evidence["golden_paths"])
+    for golden_path_id, options in paths:
+        envelope_id = _review_fixture(client, **options)
+        with SessionLocal() as db:
+            envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+            event = db.execute(select(Phase4SourceChangeEvent).where(Phase4SourceChangeEvent.id == envelope.root_event_id)).scalar_one()
+            assert event.source_surface == "APP_UPLOAD", golden_path_id
+            assert event.event_type == options["event_type"], golden_path_id
+            assert envelope is not None and envelope.axes_json, golden_path_id
+    secret_id = _review_fixture(client, source_surface="APP_UPLOAD", event_type="MISSING_CANDIDATE", extra_axes={"unsupported_capability_state": "SECRET_EXCLUDE"})
+    assert _post_review(client, _review_payload(secret_id, "MARK_OUT_OF_SCOPE")).status_code == 200
+
+
+def test_be_p4_v35_gp03_modified_source_creates_new_version_candidate(client):
+    """GP-03 uses one source artifact with two distinct source versions."""
+    artifact = "fixture://amec/phase4/modified-source-candidate"
+    first_id = _review_fixture(
+        client,
+        source_surface="APP_UPLOAD",
+        event_type="NEW_VERSION",
+        source_artifact_id=artifact,
+        source_version_token="v1",
+    )
+    second_id = _review_fixture(
+        client,
+        source_surface="APP_UPLOAD",
+        event_type="MODIFIED_CANDIDATE",
+        source_artifact_id=artifact,
+        source_version_token="v2",
+    )
+    with SessionLocal() as db:
+        first = db.get(Phase4ClassificationEnvelope, first_id)
+        second = db.get(Phase4ClassificationEnvelope, second_id)
+        first_event = db.get(Phase4SourceChangeEvent, first.root_event_id)
+        second_event = db.get(Phase4SourceChangeEvent, second.root_event_id)
+        assert first_event.source_artifact_id_or_locator == second_event.source_artifact_id_or_locator == artifact
+        assert first_event.source_version_token == "v1"
+        assert second_event.source_version_token == "v2"
+        assert first_event.id != second_event.id
+
+
+def test_be_p4_v35_gp06_contradictory_evidence_is_deferred(client):
+    """GP-06 persists a contradiction and exercises a real defer decision."""
+    envelope_id = _review_fixture(
+        client,
+        source_surface="APP_UPLOAD",
+        event_type="CONTENT_CHANGED",
+        extra_axes={"contradictions": [{"axis": "discipline", "values": ["ENGINEERING", "CIVIL"]}]},
+    )
+    response = _post_review(client, _review_payload(envelope_id, "DEFER"))
+    assert response.status_code == 200, response.text
+    with SessionLocal() as db:
+        decision = db.get(Phase4ReviewDecision, response.json()["id"])
+        envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+        assert envelope.axes_json["contradictions"]
+        assert decision.decision == "DEFER"
 
 
 @pytest.mark.skipif(engine.dialect.name != "postgresql", reason="Phase4 concurrency proof requires PostgreSQL")
@@ -183,15 +243,15 @@ def test_phase4_postgresql_projection_retry_is_serialized():
     assert result_ids[0] == result_ids[1]
 
 
-def _review_fixture(client, *, scope_id: str = "synthetic-project-001") -> str:
+def _review_fixture(client, *, scope_id: str = "synthetic-project-001", include_scope: bool = True, include_relationship: bool = True, source_surface: str = "CONTROLLED_SYNTHETIC_FIXTURE", event_type: str = "NEW_VERSION", source_artifact_id: str | None = None, source_version_token: str = "v1", extra_axes: dict | None = None) -> str:
     event_id = _token("review-event")
     source = {
         "event_id": event_id,
         "scan_id_or_observation_group": _token("review-scan"),
-        "source_surface": "CONTROLLED_SYNTHETIC_FIXTURE",
-        "source_artifact_id_or_locator": f"fixture://amec/phase4/{event_id}",
-        "source_version_token": "v1",
-        "event_type": "NEW_VERSION",
+        "source_surface": source_surface,
+        "source_artifact_id_or_locator": source_artifact_id or f"fixture://amec/phase4/{event_id}",
+        "source_version_token": source_version_token,
+        "event_type": event_type,
         "origin": "CONTROLLED_SYNTHETIC",
         "correlation_id": _token("review-correlation"),
         "observed_at": "2026-08-23T00:00:00Z",
@@ -199,18 +259,25 @@ def _review_fixture(client, *, scope_id: str = "synthetic-project-001") -> str:
     }
     event = client.post("/api/phase4/source-events", json=source, headers={"X-Dev-Role": "SYSTEM_ADMIN"})
     assert event.status_code == 200, event.text
+    axes = {
+        "document_type": "APPLICATION_FORM",
+        "discipline": "ENGINEERING",
+        "source_precedence": "accepted Phase3C Module Truth rules",
+        "classification_proposal": {"document_type": "APPLICATION_FORM", "discipline": "ENGINEERING"},
+    }
+    if include_scope:
+        axes["scope"] = {"scope_type": "PROJECT", "scope_id": scope_id}
+    if include_relationship:
+        axes["relationship_resolution"] = {"source_entity_id": "synthetic-source-001", "candidate_entity_id": scope_id, "relationship_type": "PROJECT_DOCUMENT", "resolution": "BOUND_TO_PROJECT"}
+    if extra_axes:
+        axes.update(extra_axes)
     classification = {
         "envelope_id": _token("review-classification"),
         "root_event_id": event.json()["id"],
         "source_mode": "RULES_ONLY",
         "module_truth_contract_sha": "d18ebed191b8f2633d5984ff57ab25803fe19beeb9c73999946abffddb974f2c",
         "corpus_app_contract_sha": "387a741b2531afb54398fadbe8aac0d73e2a1ba9aab619e48d5dd5b5d7289908",
-        "axes_json": {
-            "document_type": "APPLICATION_FORM",
-            "discipline": "ENGINEERING",
-            "source_precedence": "accepted Phase3C Module Truth rules",
-            "scope": {"scope_type": "PROJECT", "scope_id": scope_id},
-        },
+        "axes_json": axes,
     }
     response = client.post("/api/phase4/classification-envelopes", json=classification, headers={"X-Dev-Role": "SYSTEM_ADMIN"})
     assert response.status_code == 200, response.text
@@ -233,7 +300,7 @@ def _review_payload(envelope_id: str, decision: str, *, key: str | None = None, 
             "candidate_entity_id": "synthetic-project-001",
             "relationship_type": "PROJECT_DOCUMENT",
             "resolution": "BOUND_TO_PROJECT",
-        }] if decision == "RESOLVE_RELATIONSHIP" else [],
+        }] if decision == "RESOLVE_RELATIONSHIP" else ([{"axis": "discipline", "old_value": "ENGINEERING", "new_value": "CIVIL", "reason": "Synthetic correction requires human review.", "evidence_ids": []}] if decision == "CORRECT" else []),
     }
 
 
@@ -311,7 +378,7 @@ def test_be_p4_rd_015_correct_keeps_original_envelope_identity(client):
         before = db.get(Phase4ClassificationEnvelope, envelope_id)
         snapshot = (before.envelope_id, before.root_event_id, before.immutable_result_hash, before.axes_json)
     payload = _review_payload(envelope_id, "CORRECT")
-    payload["corrections_json"] = [{"axis": "discipline", "old_value": "ENGINEERING", "new_value": "CIVIL", "reason": "synthetic correction"}]
+    payload["corrections_json"] = [{"axis": "discipline", "old_value": "ENGINEERING", "new_value": "CIVIL", "reason": "synthetic correction", "evidence_ids": []}]
     assert _post_review(client, payload).status_code == 200
     with SessionLocal() as db:
         after = db.get(Phase4ClassificationEnvelope, envelope_id)
@@ -321,12 +388,12 @@ def test_be_p4_rd_015_correct_keeps_original_envelope_identity(client):
 def test_be_p4_rd_016_correct_creates_immutable_correction_event(client):
     envelope_id = _review_fixture(client)
     payload = _review_payload(envelope_id, "CORRECT")
-    payload["corrections_json"] = [{"axis": "document_type", "old_value": "FORM", "new_value": "APPLICATION_FORM", "reason": "synthetic correction"}]
+    payload["corrections_json"] = [{"axis": "document_type", "old_value": "APPLICATION_FORM", "new_value": "FORM", "reason": "synthetic correction", "evidence_ids": ["synthetic://evidence/correction"]}]
     assert _post_review(client, payload).status_code == 200
     with SessionLocal() as db:
         correction = db.scalar(select(Phase4ClassifierCorrectionEvent).where(Phase4ClassifierCorrectionEvent.classification_envelope_id == envelope_id))
         assert correction is not None
-        assert correction.new_value_json == "APPLICATION_FORM"
+        assert correction.new_value_json == "FORM"
 
 
 def test_be_p4_rd_017_out_of_scope_remains_distinct_from_reject(client):
@@ -347,8 +414,16 @@ def test_be_p4_rd_018_out_of_scope_does_not_create_verified_assertion(client):
 
 def test_be_p4_rd_019_out_of_scope_does_not_execute_projection(client):
     envelope_id = _review_fixture(client)
-    assert _post_review(client, _review_payload(envelope_id, "MARK_OUT_OF_SCOPE")).status_code == 200
-    assert client.get("/api/phase4/projection-receipts/not-created", headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 404
+    payload = _review_payload(envelope_id, "MARK_OUT_OF_SCOPE")
+    with SessionLocal() as db:
+        before = tuple(len(list(db.scalars(select(model)))) for model in (Phase4ProjectionReceipt, WorkflowTask, Finding, NotificationEvent))
+    assert _post_review(client, payload).status_code == 200
+    with SessionLocal() as db:
+        envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+        assert envelope is not None
+        assert db.scalar(select(Phase4ProjectionReceipt).where(Phase4ProjectionReceipt.root_event_id == envelope.root_event_id)) is None
+        after = tuple(len(list(db.scalars(select(model)))) for model in (Phase4ProjectionReceipt, WorkflowTask, Finding, NotificationEvent))
+        assert after == before
 
 
 def test_be_p4_rd_020_relationship_requires_dedicated_capability(client):
@@ -364,8 +439,8 @@ def test_be_p4_rd_021_relationship_payload_is_bound(client):
     payload = _review_payload(envelope_id, "RESOLVE_RELATIONSHIP")
     payload["corrections_json"] = []
     response = _post_review(client, payload)
-    assert response.status_code == 422
-    assert response.json()["detail"]["code"] == "RELATIONSHIP_RESOLUTION_PAYLOAD_REQUIRED"
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "RELATIONSHIP_RESOLUTION_CANDIDATE_MISMATCH"
 
 
 def test_be_p4_rd_022_relationship_is_version_checked(client):
@@ -376,9 +451,17 @@ def test_be_p4_rd_022_relationship_is_version_checked(client):
 
 def test_be_p4_rd_023_relationship_does_not_execute_protected_action(client):
     envelope_id = _review_fixture(client)
-    response = _post_review(client, _review_payload(envelope_id, "RESOLVE_RELATIONSHIP"))
+    payload = _review_payload(envelope_id, "RESOLVE_RELATIONSHIP")
+    with SessionLocal() as db:
+        before = tuple(len(list(db.scalars(select(model)))) for model in (Phase4ProjectionReceipt, WorkflowTask, Finding, NotificationEvent))
+    response = _post_review(client, payload)
     assert response.status_code == 200
-    assert client.get("/api/phase4/projection-receipts/not-created", headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 404
+    with SessionLocal() as db:
+        envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+        assert envelope is not None
+        assert db.scalar(select(Phase4ProjectionReceipt).where(Phase4ProjectionReceipt.root_event_id == envelope.root_event_id)) is None
+        after = tuple(len(list(db.scalars(select(model)))) for model in (Phase4ProjectionReceipt, WorkflowTask, Finding, NotificationEvent))
+        assert after == before
 
 
 @pytest.mark.parametrize("decision", ["ACCEPT", "CORRECT", "DEFER", "MARK_OUT_OF_SCOPE", "RESOLVE_RELATIONSHIP", "REJECT"])
@@ -397,9 +480,176 @@ def test_be_p4_rd_025_decision_retains_actor_project_entity_lineage(client):
     assert response.status_code == 200
     with SessionLocal() as db:
         decision = db.get(Phase4ReviewDecision, response.json()["id"])
-        assert decision.actor_id == "synthetic-owner-reviewer"
+        assert decision.actor_id == "local-phase4-role:SYSTEM_ADMIN"
         assert decision.scope_type == "PROJECT"
         assert decision.scope_id == "synthetic-project-001"
+
+
+def test_be_p4_v35_026_missing_server_scope_rejects_review_decision(client):
+    envelope_id = _review_fixture(client, include_scope=False)
+    response = _post_review(client, _review_payload(envelope_id, "ACCEPT"))
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "REVIEW_SCOPE_NOT_BOUND"
+
+
+def test_be_p4_v35_027_scoped_queue_excludes_wrong_project(client):
+    envelope_id = _review_fixture(client, scope_id="project-a")
+    missing = client.get("/api/phase4/review-queue", headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+    wrong = client.get("/api/phase4/review-queue?scope_type=PROJECT&scope_id=project-b", headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+    right = client.get("/api/phase4/review-queue?scope_type=PROJECT&scope_id=project-a", headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+    assert missing.status_code == 422
+    assert wrong.status_code == 200 and not any(item["id"] == envelope_id for item in wrong.json()["items"])
+    assert right.status_code == 200 and any(item["id"] == envelope_id for item in right.json()["items"])
+
+
+def test_be_p4_v35_028_client_actor_spoof_is_not_persisted_or_audited(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "ACCEPT")
+    payload["actor_id"] = "someone-else"
+    response = _post_review(client, payload)
+    assert response.status_code == 200
+    with SessionLocal() as db:
+        decision = db.get(Phase4ReviewDecision, response.json()["id"])
+        event = db.scalar(select(AuditEvent).where(AuditEvent.entity_id == envelope_id, AuditEvent.event_type == "PHASE4_REVIEW_DECISION_ACCEPT").order_by(AuditEvent.occurred_at.desc()))
+        assert decision.actor_id == "local-phase4-role:SYSTEM_ADMIN"
+        assert event is not None and event.actor_id == "local-phase4-role:SYSTEM_ADMIN"
+        assert decision.actor_id != "someone-else"
+
+
+def test_be_p4_v35_029_same_idempotency_key_changed_payload_rejects(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "ACCEPT", key=_token("collision"))
+    assert _post_review(client, payload).status_code == 200
+    changed = {**payload, "decision_id": _token("changed"), "decision": "REJECT"}
+    response = _post_review(client, changed)
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "IDEMPOTENCY_KEY_REUSE_MISMATCH"
+
+
+def test_be_p4_v35_030_same_idempotency_key_identical_payload_replays(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "ACCEPT", key=_token("replay"))
+    first = _post_review(client, payload)
+    second = _post_review(client, payload)
+    assert first.status_code == second.status_code == 200
+    assert first.json()["id"] == second.json()["id"]
+
+
+@pytest.mark.skipif(engine.dialect.name != "postgresql", reason="V3.5 envelope concurrency proof requires PostgreSQL")
+def test_be_p4_v35_031_concurrent_different_decisions_same_version_exactly_one_wins(client):
+    envelope_id = _review_fixture(client)
+    first = ReviewDecisionIn(**_review_payload(envelope_id, "ACCEPT", key=_token("concurrent-a")))
+    second = ReviewDecisionIn(**_review_payload(envelope_id, "DEFER", key=_token("concurrent-b")))
+
+    def invoke(payload: ReviewDecisionIn):
+        with SessionLocal() as db:
+            try:
+                item = record_review_decision(db, payload, "SYSTEM_ADMIN")
+                db.commit()
+                return ("PASS", item.id)
+            except HTTPException as exc:
+                db.rollback()
+                return ("FAIL", exc.status_code, exc.detail)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = list(pool.map(invoke, [first, second]))
+    assert sum(outcome[0] == "PASS" for outcome in outcomes) == 1
+    assert sum(outcome[0] == "FAIL" and outcome[1] == 409 for outcome in outcomes) == 1
+    with SessionLocal() as db:
+        envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+        decisions = list(db.scalars(select(Phase4ReviewDecision).where(Phase4ReviewDecision.classification_envelope_id == envelope_id)))
+        assert envelope is not None and envelope.record_version == 2
+        assert len(decisions) == 1
+
+
+def test_be_p4_v35_032_successful_decision_advances_record_version_once(client):
+    envelope_id = _review_fixture(client)
+    response = _post_review(client, _review_payload(envelope_id, "DEFER"))
+    assert response.status_code == 200
+    with SessionLocal() as db:
+        envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+        assert envelope is not None and envelope.record_version == 2
+        assert response.json()["record_version"] == 1
+
+
+def test_be_p4_v35_033_correct_empty_corrections_rejected(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "CORRECT")
+    payload["corrections_json"] = []
+    response = _post_review(client, payload)
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "CORRECTION_REQUIRED"
+
+
+def test_be_p4_v35_034_correct_validates_axis_old_new_reason_and_evidence(client):
+    envelope_id = _review_fixture(client)
+    invalid_cases = [
+        {"axis": "not_an_axis", "old_value": "ENGINEERING", "new_value": "CIVIL", "reason": "x", "evidence_ids": []},
+        {"axis": "discipline", "old_value": "WRONG", "new_value": "CIVIL", "reason": "x", "evidence_ids": []},
+        {"axis": "discipline", "old_value": "ENGINEERING", "new_value": "ENGINEERING", "reason": "x", "evidence_ids": []},
+        {"axis": "discipline", "old_value": "ENGINEERING", "new_value": "CIVIL", "reason": "", "evidence_ids": []},
+        {"axis": "discipline", "old_value": "ENGINEERING", "new_value": "CIVIL", "reason": "x"},
+    ]
+    for correction in invalid_cases:
+        payload = _review_payload(envelope_id, "CORRECT")
+        payload["corrections_json"] = [correction]
+        response = _post_review(client, payload)
+        assert response.status_code in {409, 422}
+
+
+def test_be_p4_v35_035_relationship_missing_server_candidate_rejected(client):
+    envelope_id = _review_fixture(client, include_relationship=False)
+    response = _post_review(client, _review_payload(envelope_id, "RESOLVE_RELATIONSHIP"))
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "RELATIONSHIP_SERVER_CANDIDATE_NOT_BOUND"
+
+
+def test_be_p4_v35_036_relationship_arbitrary_client_candidate_rejected(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "RESOLVE_RELATIONSHIP")
+    payload["corrections_json"][0]["candidate_entity_id"] = "client-invented-candidate"
+    response = _post_review(client, payload)
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "RELATIONSHIP_RESOLUTION_CANDIDATE_MISMATCH"
+
+
+def test_be_p4_v35_037_relationship_exact_server_candidate_accepted(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "RESOLVE_RELATIONSHIP")
+    response = _post_review(client, payload)
+    assert response.status_code == 200
+    assert response.json()["decision"] == "RESOLVE_RELATIONSHIP"
+
+
+def test_be_p4_v35_038_out_of_scope_actual_lineage_has_zero_projection_effect(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "MARK_OUT_OF_SCOPE")
+    with SessionLocal() as db:
+        envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+        before = len(list(db.scalars(select(Phase4ProjectionReceipt).where(Phase4ProjectionReceipt.root_event_id == envelope.root_event_id))))
+    assert _post_review(client, payload).status_code == 200
+    with SessionLocal() as db:
+        assert len(list(db.scalars(select(Phase4ProjectionReceipt).where(Phase4ProjectionReceipt.root_event_id == envelope.root_event_id)))) == before
+
+
+def test_be_p4_v35_039_relationship_actual_lineage_has_zero_protected_effect(client):
+    envelope_id = _review_fixture(client)
+    payload = _review_payload(envelope_id, "RESOLVE_RELATIONSHIP")
+    with SessionLocal() as db:
+        envelope = db.get(Phase4ClassificationEnvelope, envelope_id)
+        before = tuple(len(list(db.scalars(select(model)))) for model in (Phase4ProjectionReceipt, WorkflowTask, Finding, NotificationEvent))
+    assert _post_review(client, payload).status_code == 200
+    with SessionLocal() as db:
+        after = tuple(len(list(db.scalars(select(model)))) for model in (Phase4ProjectionReceipt, WorkflowTask, Finding, NotificationEvent))
+        assert after == before
+        assert db.scalar(select(Phase4ProjectionReceipt).where(Phase4ProjectionReceipt.root_event_id == envelope.root_event_id)) is None
+
+
+def test_be_p4_v35_040_review_queue_requires_and_enforces_scope(client):
+    envelope_id = _review_fixture(client, scope_id="project-scoped")
+    assert client.get("/api/phase4/review-queue", headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 422
+    wrong = client.get("/api/phase4/review-queue?scope_type=ENTITY&scope_id=project-scoped", headers={"X-Dev-Role": "SYSTEM_ADMIN"})
+    assert wrong.status_code == 200 and not any(item["id"] == envelope_id for item in wrong.json()["items"])
 
 
 def test_be_p4_v34_exact_primary_matrix_semantics():

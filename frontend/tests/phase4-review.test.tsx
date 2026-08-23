@@ -41,13 +41,14 @@ function response(body: unknown, status = 200) {
 function queueResponse(items = [item]) { return response({ items }); }
 
 async function renderReview(fetchMock = vi.fn().mockResolvedValue(queueResponse()), waitForItem = true) {
+  window.history.replaceState({}, "", "/phase4/review?scope_type=PROJECT&scope_id=synthetic-project-001");
   vi.stubGlobal("fetch", fetchMock);
   render(<Phase4ReviewPage role="SYSTEM_ADMIN" />);
   if (waitForItem) await screen.findByRole("button", { name: /envelope-001/ });
   return fetchMock;
 }
 
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); window.history.replaceState({}, "", "/phase4/review"); vi.unstubAllGlobals(); });
 
 describe("Phase4 review UX", () => {
   it("FE-P4-001 renders the canonical review queue and item", async () => {
@@ -68,6 +69,7 @@ describe("Phase4 review UX", () => {
 
   it("FE-P4-011 has a deterministic loading state", () => {
     const pending = vi.fn(() => new Promise(() => undefined));
+    window.history.replaceState({}, "", "/phase4/review?scope_type=PROJECT&scope_id=synthetic-project-001");
     vi.stubGlobal("fetch", pending);
     render(<Phase4ReviewPage role="SYSTEM_ADMIN" />);
     expect(screen.getByRole("status")).toHaveTextContent("Loading Phase4 review queue");
@@ -80,6 +82,7 @@ describe("Phase4 review UX", () => {
 
   it("FE-P4-013 has a deterministic error state", async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error("queue unavailable"));
+    window.history.replaceState({}, "", "/phase4/review?scope_type=PROJECT&scope_id=synthetic-project-001");
     vi.stubGlobal("fetch", fetchMock);
     render(<Phase4ReviewPage role="SYSTEM_ADMIN" />);
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("queue unavailable"));
@@ -107,6 +110,11 @@ describe("Phase4 review UX", () => {
   it.each(PHASE4_DECISIONS)("FE-P4 action submits exact %s token", async (decision) => {
     const fetchMock = vi.fn().mockResolvedValueOnce(queueResponse()).mockResolvedValueOnce(response({ decision })).mockResolvedValueOnce(queueResponse([]));
     await renderReview(fetchMock);
+    if (decision === "CORRECT") {
+      fireEvent.change(screen.getByLabelText("Axis"), { target: { value: "discipline" } });
+      fireEvent.change(screen.getByLabelText("New value"), { target: { value: "CIVIL" } });
+      fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "Synthetic correction" } });
+    }
     fireEvent.click(screen.getByRole("button", { name: decision.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase()) }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
     const [url, init] = fetchMock.mock.calls[1];
@@ -153,4 +161,82 @@ describe("Phase4 review UX", () => {
   it("FE-P4-029 aligns with the visible Owner persona", async () => { await renderReview(); expect(screen.getByTestId("phase4-persona")).toHaveTextContent("Owner"); });
   it("FE-P4-030 does not expose direct VerifiedAssertion promotion", async () => { await renderReview(); expect(screen.queryByText(/Promote VerifiedAssertion/i)).toBeNull(); expect(screen.queryByRole("button", { name: /Promote/i })).toBeNull(); });
   it("FE-P4-031 does not expose direct protected-action execution", async () => { await renderReview(); expect(screen.queryByRole("button", { name: /Submit|Approve|Activate|Writeback/i })).toBeNull(); });
+
+  it("FE-P4-V35-032 disables relationship resolution when the server candidate is absent", async () => {
+    await renderReview(vi.fn().mockResolvedValue(queueResponse([{ ...item, axes_json: { ...item.axes_json, relationship_resolution: undefined } as unknown as typeof item.axes_json }])))
+    expect(screen.getByRole("button", { name: "Resolve Relationship" })).toBeDisabled();
+  });
+
+  it("FE-P4-V35-033 sends no queue request without a scoped route", async () => {
+    window.history.replaceState({}, "", "/phase4/review");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    render(<Phase4ReviewPage role="SYSTEM_ADMIN" />);
+    expect(await screen.findByTestId("phase4-scope-required")).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("FE-P4-V35-034 has no synthetic project fallback", async () => {
+    await renderReview(vi.fn().mockResolvedValue(queueResponse([{ ...item, axes_json: { classification_proposal: { discipline: "ENGINEERING" } } as typeof item.axes_json }])))
+    expect(screen.getByText(/^Scope$/).parentElement).not.toHaveTextContent("synthetic-project-001");
+  });
+
+  it("FE-P4-V35-035 fails closed for an unknown role", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    window.history.replaceState({}, "", "/phase4/review?scope_type=PROJECT&scope_id=synthetic-project-001");
+    render(<Phase4ReviewPage role="UNKNOWN_ROLE" />);
+    expect(await screen.findByTestId("phase4-unsupported-role")).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("phase4-unsupported-role")).not.toHaveTextContent("Owner");
+  });
+
+  it("FE-P4-V35-036 renders missing source precedence honestly", async () => {
+    await renderReview(vi.fn().mockResolvedValue(queueResponse([{ ...item, axes_json: { ...item.axes_json, source_precedence: undefined } as unknown as typeof item.axes_json }])))
+    expect(screen.getByTestId("phase4-precedence")).toHaveTextContent("not supplied by the server");
+    expect(screen.getByTestId("phase4-precedence")).not.toHaveTextContent("Accepted Phase3C");
+  });
+
+  it("FE-P4-V35-037 requires a changed correction axis/value/reason", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(queueResponse());
+    await renderReview(fetchMock);
+    fireEvent.click(screen.getByRole("button", { name: "Correct" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("CORRECT requires");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("FE-P4-V35-038/039 reuses both identifiers after uncertain transport failure", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(queueResponse()).mockRejectedValueOnce(new Error("network failed")).mockResolvedValueOnce(response({ decision: "ACCEPT" })).mockResolvedValueOnce(queueResponse([]));
+    await renderReview(fetchMock);
+    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
+    const first = JSON.parse(fetchMock.mock.calls[1][1].body);
+    const retry = JSON.parse(fetchMock.mock.calls[2][1].body);
+    expect(retry.decision_id).toBe(first.decision_id);
+    expect(retry.idempotency_key).toBe(first.idempotency_key);
+  });
+
+  it("FE-P4-V35-040 creates new identity for changed intent", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(queueResponse()).mockRejectedValueOnce(new Error("network failed")).mockResolvedValueOnce(response({ decision: "REJECT" })).mockResolvedValueOnce(queueResponse([]));
+    await renderReview(fetchMock);
+    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByRole("button", { name: "Reject" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
+    const first = JSON.parse(fetchMock.mock.calls[1][1].body);
+    const changed = JSON.parse(fetchMock.mock.calls[2][1].body);
+    expect(changed.decision_id).not.toBe(first.decision_id);
+    expect(changed.idempotency_key).not.toBe(first.idempotency_key);
+  });
+
+  it("FE-P4-V35-041 submits the exact server relationship candidate", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(queueResponse()).mockResolvedValueOnce(response({ decision: "RESOLVE_RELATIONSHIP" })).mockResolvedValueOnce(queueResponse([]));
+    await renderReview(fetchMock);
+    fireEvent.click(screen.getByRole("button", { name: "Resolve Relationship" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    const body = JSON.parse(fetchMock.mock.calls[1][1].body);
+    expect(body.corrections_json).toEqual([item.axes_json.relationship_resolution]);
+  });
 });

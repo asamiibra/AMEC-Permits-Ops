@@ -58,13 +58,16 @@ def classification_envelope(payload: ClassificationEnvelopeIn, db: Session = Dep
 
 
 @router.get("/review-queue")
-def get_review_queue(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    return {"items": review_queue(db, role)}
+def get_review_queue(scope_type: str | None = None, scope_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    return {"items": review_queue(db, role, scope_type=scope_type, scope_id=scope_id)}
 
 
 @router.get("/review/{envelope_id}")
-def get_review(envelope_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    review_queue(db, role)
+def get_review(envelope_id: str, scope_type: str | None = None, scope_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    scoped = review_queue(db, role, scope_type=scope_type, scope_id=scope_id)
+    if not any(item["id"] == envelope_id for item in scoped):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail={"code": "CLASSIFICATION_ENVELOPE_NOT_FOUND"})
     item = db.get(Phase4ClassificationEnvelope, envelope_id)
     if item is None:
         from fastapi import HTTPException

@@ -53,6 +53,8 @@ ALLOWED_SOURCE_SURFACES = {"APP_UPLOAD", "SYNOLOGY_EXTERNAL_EVIDENCE", "CONTROLL
 ALLOWED_EVENT_TYPES = {"NEW", "MODIFIED_CANDIDATE", "MISSING_CANDIDATE", "MOVE_RENAME_CANDIDATE", "UNCHANGED", "NEW_VERSION", "CONTENT_CHANGED", "METADATA_CHANGED", "SUPERSEDED", "NO_MATERIAL_CHANGE"}
 ALLOWED_DECISIONS = {"ACCEPT", "CORRECT", "DEFER", "MARK_OUT_OF_SCOPE", "RESOLVE_RELATIONSHIP", "REJECT"}
 PROTECTED_OPERATIONS = {"SEND", "SUBMIT", "APPROVE", "ACTIVATE", "CLOSE_CONTRACT", "WRITEBACK", "MUTATE_EXTERNAL"}
+REVIEW_SCOPE_TYPES = {"PROJECT", "ENTITY", "AMEC"}
+RELATIONSHIP_FIELDS = ("source_entity_id", "candidate_entity_id", "relationship_type", "resolution")
 
 
 def _json(value: Any) -> str:
@@ -90,18 +92,78 @@ def _review_capability(decision: str) -> str:
     return "PHASE4_RESOLVE_RELATIONSHIP" if decision == "RESOLVE_RELATIONSHIP" else "PHASE4_REVIEW_DECISION"
 
 
-def _scope_matches(envelope: Phase4ClassificationEnvelope, payload: ReviewDecisionIn) -> bool:
-    """Honor an envelope's optional server-supplied project/entity scope binding."""
+def _server_principal(role: Role | str) -> str:
+    """Return the explicitly local, non-production principal for the role context."""
+    return f"local-phase4-role:{_role_value(role)}"
+
+
+def _bound_scope(envelope: Phase4ClassificationEnvelope) -> tuple[str, str] | None:
+    """Read the declared scope from server-held envelope data, without defaults."""
     axes = envelope.axes_json if isinstance(envelope.axes_json, dict) else {}
     declared = axes.get("scope") if isinstance(axes.get("scope"), dict) else axes
     expected_type = declared.get("scope_type")
     expected_id = declared.get("scope_id")
-    return not expected_type and not expected_id or (expected_type == payload.scope_type and expected_id == payload.scope_id)
+    if not isinstance(expected_type, str) or not expected_type.strip():
+        return None
+    if not isinstance(expected_id, str) or not expected_id.strip():
+        return None
+    return expected_type.strip(), expected_id.strip()
 
 
-def _relationship_payload_is_bound(payload: ReviewDecisionIn) -> bool:
-    """Use the existing corrections_json transport for the contract's relationship payload."""
-    return bool(payload.corrections_json) and all(isinstance(item, dict) and item for item in payload.corrections_json)
+def _scope_matches(envelope: Phase4ClassificationEnvelope, payload: ReviewDecisionIn) -> bool:
+    bound = _bound_scope(envelope)
+    return bound == (payload.scope_type, payload.scope_id)
+
+
+def _bound_relationship(envelope: Phase4ClassificationEnvelope) -> dict[str, Any] | None:
+    axes = envelope.axes_json if isinstance(envelope.axes_json, dict) else {}
+    candidate = axes.get("relationship_resolution")
+    if not isinstance(candidate, dict) or not candidate:
+        return None
+    if any(not isinstance(candidate.get(field), str) or not candidate[field].strip() for field in RELATIONSHIP_FIELDS):
+        return None
+    return candidate
+
+
+def _relationship_payload_is_bound(envelope: Phase4ClassificationEnvelope, payload: ReviewDecisionIn) -> bool:
+    """Require the client to echo the exact server-held relationship candidate."""
+    candidate = _bound_relationship(envelope)
+    return len(payload.corrections_json) == 1 and candidate is not None and _json(payload.corrections_json[0]) == _json(candidate)
+
+
+def _classification_axes(envelope: Phase4ClassificationEnvelope) -> dict[str, Any]:
+    axes = envelope.axes_json if isinstance(envelope.axes_json, dict) else {}
+    proposal = axes.get("classification_proposal") or axes.get("classification_axes")
+    if isinstance(proposal, dict):
+        return proposal
+    excluded = {"scope", "relationship_resolution", "bounded_evidence", "evidence", "evidence_refs", "candidate_links", "deep_links", "work_issue_notification_links", "contradictions", "conflicts"}
+    return {key: value for key, value in axes.items() if key not in excluded}
+
+
+def _validate_corrections(envelope: Phase4ClassificationEnvelope, payload: ReviewDecisionIn) -> None:
+    if not payload.corrections_json:
+        raise _error(422, "CORRECTION_REQUIRED")
+    available = _classification_axes(envelope)
+    for correction in payload.corrections_json:
+        required = {"axis", "old_value", "new_value", "reason", "evidence_ids"}
+        if set(correction) < required:
+            raise _error(422, "CORRECTION_PAYLOAD_INVALID", required=sorted(required))
+        axis = correction["axis"]
+        if not isinstance(axis, str) or axis not in available:
+            raise _error(422, "CORRECTION_AXIS_NOT_BOUND", axis=axis)
+        if _json(correction["old_value"]) != _json(available[axis]):
+            raise _error(409, "CORRECTION_OLD_VALUE_MISMATCH", axis=axis)
+        if _json(correction["new_value"]) == _json(correction["old_value"]):
+            raise _error(422, "CORRECTION_NEW_VALUE_UNCHANGED", axis=axis)
+        if not isinstance(correction["reason"], str) or not correction["reason"].strip():
+            raise _error(422, "CORRECTION_REASON_REQUIRED", axis=axis)
+        if not isinstance(correction["evidence_ids"], list):
+            raise _error(422, "CORRECTION_EVIDENCE_IDS_REQUIRED", axis=axis)
+
+
+def _lock_review_envelope(db: Session, envelope_id: str) -> Phase4ClassificationEnvelope | None:
+    statement = select(Phase4ClassificationEnvelope).where(Phase4ClassificationEnvelope.id == envelope_id).with_for_update()
+    return db.scalar(statement)
 
 
 def _as_dict(item: Any) -> dict[str, Any]:
@@ -175,8 +237,13 @@ def create_classification_envelope(db: Session, payload: ClassificationEnvelopeI
 
 def review_queue(db: Session, role: Role | str, scope_type: str | None = None, scope_id: str | None = None) -> list[dict[str, Any]]:
     _require_phase4(role, "PHASE4_REVIEW_QUEUE")
+    if not scope_type or not scope_id:
+        raise _error(422, "REVIEW_SCOPE_REQUIRED")
+    if scope_type not in REVIEW_SCOPE_TYPES:
+        raise _error(422, "REVIEW_SCOPE_TYPE_NOT_ALLOWED", scope_type=scope_type)
     query = select(Phase4ClassificationEnvelope).where(Phase4ClassificationEnvelope.status.in_(("PENDING_REVIEW", "CORRECTED", "DEFERRED"))).order_by(Phase4ClassificationEnvelope.created_at)
-    return [_as_dict(item) for item in db.scalars(query).all()]
+    requested_scope = (scope_type, scope_id)
+    return [_as_dict(item) for item in db.scalars(query).all() if _bound_scope(item) == requested_scope]
 
 
 def record_review_decision(db: Session, payload: ReviewDecisionIn, role: Role | str) -> Phase4ReviewDecision:
@@ -188,20 +255,35 @@ def record_review_decision(db: Session, payload: ReviewDecisionIn, role: Role | 
         raise _error(403, "CAPABILITY_PROVENANCE_MISMATCH")
     if not payload.scope_type or not payload.scope_id:
         raise _error(422, "REVIEW_SCOPE_REQUIRED")
+    if payload.scope_type not in REVIEW_SCOPE_TYPES:
+        raise _error(422, "REVIEW_SCOPE_TYPE_NOT_ALLOWED", scope_type=payload.scope_type)
+    server_actor = _server_principal(role)
+    canonical_payload = payload.model_dump()
+    canonical_payload["actor_id"] = server_actor
+    canonical_hash = _sha(canonical_payload)
     _idempotency_lock(db, f"decision:{payload.idempotency_key}")
     existing = db.scalar(select(Phase4ReviewDecision).where(Phase4ReviewDecision.idempotency_key == payload.idempotency_key))
     if existing:
+        if existing.immutable_hash != canonical_hash:
+            raise _error(409, "IDEMPOTENCY_KEY_REUSE_MISMATCH")
         return existing
-    envelope = db.get(Phase4ClassificationEnvelope, payload.classification_envelope_id)
+    envelope = _lock_review_envelope(db, payload.classification_envelope_id)
     if envelope is None:
         raise _error(404, "CLASSIFICATION_ENVELOPE_NOT_FOUND")
+    if _bound_scope(envelope) is None:
+        raise _error(409, "REVIEW_SCOPE_NOT_BOUND")
     if not _scope_matches(envelope, payload):
         raise _error(403, "REVIEW_SCOPE_MISMATCH", scope_type=payload.scope_type, scope_id=payload.scope_id)
     if envelope.record_version != payload.record_version:
         raise _error(409, "CLASSIFICATION_RECORD_VERSION_CONFLICT", expected=envelope.record_version, received=payload.record_version)
-    if payload.decision == "RESOLVE_RELATIONSHIP" and not _relationship_payload_is_bound(payload):
-        raise _error(422, "RELATIONSHIP_RESOLUTION_PAYLOAD_REQUIRED")
-    item = Phase4ReviewDecision(**payload.model_dump(), immutable_hash=_sha(payload.model_dump()))
+    if payload.decision == "RESOLVE_RELATIONSHIP":
+        if _bound_relationship(envelope) is None:
+            raise _error(409, "RELATIONSHIP_SERVER_CANDIDATE_NOT_BOUND")
+        if not _relationship_payload_is_bound(envelope, payload):
+            raise _error(403, "RELATIONSHIP_RESOLUTION_CANDIDATE_MISMATCH")
+    if payload.decision == "CORRECT":
+        _validate_corrections(envelope, payload)
+    item = Phase4ReviewDecision(**canonical_payload, immutable_hash=canonical_hash)
     db.add(item)
     if payload.decision == "CORRECT":
         for correction in payload.corrections_json:
@@ -212,7 +294,7 @@ def record_review_decision(db: Session, payload: ReviewDecisionIn, role: Role | 
                 old_value_json=correction.get("old_value"),
                 new_value_json=correction.get("new_value"),
                 reason=str(correction.get("reason", "Human correction")),
-                reviewer=payload.actor_id,
+                reviewer=server_actor,
                 evidence_ids_json=list(correction.get("evidence_ids", [])),
                 classifier_version=envelope.classifier_version,
                 rules_version=envelope.rules_version,
@@ -232,19 +314,22 @@ def record_review_decision(db: Session, payload: ReviewDecisionIn, role: Role | 
         envelope.status = "RELATIONSHIP_RESOLVED"
     elif payload.decision == "REJECT":
         envelope.status = "REJECTED"
+    envelope.record_version += 1
+    db.flush()
     audit(
         db,
         correlation_id=f"phase4-review:{payload.idempotency_key}",
         event_type=f"PHASE4_REVIEW_DECISION_{payload.decision}",
         entity_type="Phase4ClassificationEnvelope",
         entity_id=envelope.id,
-        actor_id=payload.actor_id,
+        actor_id=server_actor,
         after={
             "review_decision_id": item.id,
             "decision": payload.decision,
             "scope_type": payload.scope_type,
             "scope_id": payload.scope_id,
             "record_version": payload.record_version,
+            "next_record_version": envelope.record_version,
         },
     )
     db.flush()
@@ -259,6 +344,10 @@ def promote_verified_assertion(db: Session, payload: PromotionIn, role: Role | s
         raise _error(404, "PROMOTION_LINEAGE_NOT_FOUND")
     if decision.decision not in {"ACCEPT", "CORRECT"}:
         raise _error(409, "REVIEW_DECISION_NOT_PROMOTABLE", decision=decision.decision)
+    if decision.decision == "CORRECT":
+        correction = db.scalar(select(Phase4ClassifierCorrectionEvent).where(Phase4ClassifierCorrectionEvent.classification_envelope_id == decision.classification_envelope_id))
+        if correction is None:
+            raise _error(409, "CORRECTION_REQUIRED_FOR_PROMOTION")
     envelope = db.get(Phase4ClassificationEnvelope, decision.classification_envelope_id)
     if envelope is None:
         raise _error(404, "CLASSIFICATION_ENVELOPE_NOT_FOUND")

@@ -135,103 +135,103 @@
       "authority": "Proposal Accept where protected by accepted Module Truth",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Contract Accept",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Project Activation",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "professional engineering approval",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Invoice Accept",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Invoice Issue",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Payment Verify",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Submit Authorization",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "human final authority submission",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Construction Start",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Handover acceptance",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Service Scope Closure",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Contract Administrative Closure",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Regulatory Closeout",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Financial Settlement",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "authority": "Archive Closure",
       "automated_projection_denied": true,
       "result": "PASS",
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     }
   ],
   "protected_authority_exact_count": 16,
   "protected_authority_exact_mismatch_count": 0,
   "basis_refs": [
-    "V34_POSTGRESQL_RUNTIME_LOG",
-    "AMEC_PHASE4_V34_REVALIDATION_V1"
+    "V35R1_POSTGRESQL_RUNTIME_LOG",
+    "AMEC_PHASE4_V35R1_REVALIDATION_V1"
   ]
 }

@@ -4,482 +4,482 @@
     {
       "check_id": "PG-01",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-01",
       "result": "PASS",
       "assertion": "accepted inherited head recognized",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-02",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-02",
       "result": "PASS",
       "assertion": "if Phase4 migration exists: upgrade accepted head \u2192 Phase4 head PASS",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-03",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-03",
       "result": "PASS",
       "assertion": "fresh empty database \u2192 final Phase4 head PASS",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-04",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-04",
       "result": "PASS",
       "assertion": "ORM/schema matches migration contract",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-05",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-05",
       "result": "PASS",
       "assertion": "SourceChangeEvent uniqueness/idempotency",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-06",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-06",
       "result": "PASS",
       "assertion": "same event concurrent intake produces one logical intake",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-07",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-07",
       "result": "PASS",
       "assertion": "SourceIntakeBatch/Item legacy compatibility",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-08",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-08",
       "result": "PASS",
       "assertion": "DocumentVersion source-version identity durability",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-09",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-09",
       "result": "PASS",
       "assertion": "ClassificationEnvelope immutable identity/hash",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-10",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-10",
       "result": "PASS",
       "assertion": "concurrent review decision conflict safety",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-11",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-11",
       "result": "PASS",
       "assertion": "correction event immutable",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-12",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-12",
       "result": "PASS",
       "assertion": "VerifiedAssertion one authoritative promotion path",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-13",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-13",
       "result": "PASS",
       "assertion": "VerifiedAssertion supersession durable",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-14",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-14",
       "result": "PASS",
       "assertion": "ProjectionReceipt idempotency",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-15",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-15",
       "result": "PASS",
       "assertion": "concurrent same projection has one logical side-effect result",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-16",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-16",
       "result": "PASS",
       "assertion": "Work side effect no duplicate on retry",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-17",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-17",
       "result": "PASS",
       "assertion": "Issue side effect no duplicate on retry",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-18",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-18",
       "result": "PASS",
       "assertion": "Notification side effect no duplicate on retry",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-19",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-19",
       "result": "PASS",
       "assertion": "Audit lineage durable",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-20",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-20",
       "result": "PASS",
       "assertion": "cross-project/entity server denial",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-21",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-21",
       "result": "PASS",
       "assertion": "stale target precondition rejects blind projection",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-22",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-22",
       "result": "PASS",
       "assertion": "protected human action denial",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-23",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-23",
       "result": "PASS",
       "assertion": "modified source retains previous historical version",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-24",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-24",
       "result": "PASS",
       "assertion": "missing source retains historical truth",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-25",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-25",
       "result": "PASS",
       "assertion": "move/rename does not duplicate logical record",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-26",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-26",
       "result": "PASS",
       "assertion": "Master Content replay does not duplicate canonical item",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-27",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-27",
       "result": "PASS",
       "assertion": "unresolved Owner decision cannot project invented value",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-28",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-28",
       "result": "PASS",
       "assertion": "SECRET_EXCLUDE cannot project",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-29",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-29",
       "result": "PASS",
       "assertion": "unsupported capability cannot silently project",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
       "check_id": "PG-30",
       "evidence": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "method": "v34_exact_postgresql_16_gate_evaluation",
+      "method": "v35r1_exact_postgresql_16_gate_evaluation",
       "requirement_id": "PH4-PG-30",
       "result": "PASS",
       "assertion": "transaction rollback leaves no partial canonical side effects",
       "basis_refs": [
-        "V34_POSTGRESQL_RUNTIME_LOG",
-        "AMEC_PHASE4_V34_REVALIDATION_V1"
+        "V35R1_POSTGRESQL_RUNTIME_LOG",
+        "AMEC_PHASE4_V35R1_REVALIDATION_V1"
       ],
-      "basis_state": "V34_FINAL_CANDIDATE"
+      "basis_state": "V35_FINAL_CANDIDATE"
     }
   ],
   "database_engine": "PostgreSQL 16.14 disposable",

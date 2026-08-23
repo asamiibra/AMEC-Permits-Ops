@@ -1,7 +1,7 @@
 {
   "artifact_type": "AMEC_PHASE4_FREEZE_MANIFEST_V1",
-  "phase4_branch": "phase4-corpus-app-integration-v1",
-  "phase4_parent_sha": "c72e5bee7b217ff21d9fbe0dfa5183ecb96a5902",
+  "phase4_branch": "phase4-v35-authority-closure-v1",
+  "phase4_parent_sha": "7cb840119237349c58bcbc7ad08380f0db3a85cc",
   "phase3c_accepted_sha": "44968e3d43571ceb1df8493da683ff9e51a146d9",
   "phase3c_git_tree_sha1": "553492f7a7d84b2eb888490070a3d4ca3c219324",
   "phase3c_freeze_manifest_sha256": "bfb59dddb614f971e0880bc4f578ac76ac32069669c70b42e04fb7949cef16aa",
@@ -39,17 +39,17 @@
     "successor_blob_sha1": "2956a2f01af3ec91f14bc11824712eddd571a10e"
   },
   "required_artifacts": {
-    "AMEC_PHASE4_EXECUTION_ACCEPTANCE_REPORT_v1.json": "6f33ca76fd1c2de3849c9dbb9745728e3c68dded4213f4ee278b6ef272732104",
+    "AMEC_PHASE4_EXECUTION_ACCEPTANCE_REPORT_v1.json": "ea1f3aaf8a6e6b0d45a31e82d220e49da377462a67a7637072b0112d7669f037",
     "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_v1.json": "387a741b2531afb54398fadbe8aac0d73e2a1ba9aab619e48d5dd5b5d7289908",
     "amec_corpus_app_integration_contract_v1.schema.json": "7e8c4627f4e96c4a5cc395cce0ef96050fee674671ebd212f5d0403eaff3028d",
     "AMEC_PHASE4_REUSE_DECISION_MATRIX_v1.json": "4a1c649eff3186ad46c863ce71a0c12489d649306899984c15d17e7e2d109613",
     "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_v1.json": "1b9202460bfc3cd2a723ece81d72042705d3e8815a8203eda87e890c9acd56d5",
-    "AMEC_PHASE4_DOMAIN_INTEGRATION_COVERAGE_v1.json": "af39e0a135103a07254a6b4bc7f36af05b9bdc6c3bb42a1190c7fb579dee3afd",
-    "AMEC_PHASE4_PRIMARY_ACCEPTANCE_CHECKS_v1.json": "94a9fbc1d275ae4a94d86b8ce82a25694d37a83f04608ada4586aebf43825cbb",
-    "AMEC_PHASE4_POSTGRESQL_VALIDATION_v1.json": "b706ed393a04fca2b5c0045e9d9fb24bfc9c4f6b04b874b616e9f48aa01a8b52",
-    "AMEC_PHASE4_SECURITY_AUTHORITY_VALIDATION_v1.json": "65a7e3c37335cbd0e546fece806bb469155286611b9d056d2f145f7ba8522cda",
-    "AMEC_PHASE4_INPUT_IDENTITY_MANIFEST_v1.json": "5a00b128f82b12dd4ee17e93834287fc40693258c1bb4222830226c0f5669634",
-    "AMEC_PHASE4_V34_REVALIDATION_v1.json": "6bdd1e9dbadb476dcc66f7ea04915f57f83b17f86e5706e4637b0aa6089b5ce9"
+    "AMEC_PHASE4_DOMAIN_INTEGRATION_COVERAGE_v1.json": "e04e9301a34d6cc537e323b651211f392c0221867d2c5fd36f0dba79c8f8f434",
+    "AMEC_PHASE4_PRIMARY_ACCEPTANCE_CHECKS_v1.json": "ef46c69389508d1b17ba4a8ef0a2082b61a3283be3e98c504a9d13a8275deb89",
+    "AMEC_PHASE4_POSTGRESQL_VALIDATION_v1.json": "183e0b3e5bfc6b199c9795972659d05ba10438a3258ae326def8390592d5fb2f",
+    "AMEC_PHASE4_SECURITY_AUTHORITY_VALIDATION_v1.json": "3ece1a10a529ec04fefe61f680e4695d07ffe21c8b251be277b2c549aefcacad",
+    "AMEC_PHASE4_INPUT_IDENTITY_MANIFEST_v1.json": "8bcea90e1349866eef886b6e32bcee6095127db8f5fa41b5d364a8ba6a54593a",
+    "AMEC_PHASE4_V35R1_REVALIDATION_v1.json": "41c0b8970ee2ac841efc602a1d444f1da740e0e278100d9f643766cfb94a7e97"
   },
   "source_and_environment_safety": {
     "azure_accessed": false,
@@ -105,5 +105,8 @@
   "phase4_v34_local_gates_all_pass": true,
   "required_artifacts_exclude_self": true,
   "tracked_final_commit_sha": null,
-  "tracked_final_tree_sha": null
+  "tracked_final_tree_sha": null,
+  "phase4_predecessor_sha": "7cb840119237349c58bcbc7ad08380f0db3a85cc",
+  "phase4_v35r1_primary_matrix_exact": true,
+  "phase4_v35r1_local_gates_all_pass": true
 }

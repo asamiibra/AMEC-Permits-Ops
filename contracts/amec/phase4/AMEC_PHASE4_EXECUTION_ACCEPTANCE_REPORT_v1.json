@@ -1,7 +1,7 @@
 {
   "artifact_type": "AMEC_PHASE4_EXECUTION_ACCEPTANCE_REPORT_V1",
-  "phase4_branch": "phase4-corpus-app-integration-v1",
-  "phase4_parent_sha": "c72e5bee7b217ff21d9fbe0dfa5183ecb96a5902",
+  "phase4_branch": "phase4-v35-authority-closure-v1",
+  "phase4_parent_sha": "7cb840119237349c58bcbc7ad08380f0db3a85cc",
   "phase3c_accepted_sha": "44968e3d43571ceb1df8493da683ff9e51a146d9",
   "phase4_corpus_app_contract_sha256": "387a741b2531afb54398fadbe8aac0d73e2a1ba9aab619e48d5dd5b5d7289908",
   "phase3c_independent_acceptance": "PASS",
@@ -35,13 +35,13 @@
   "phase4_primary_acceptance_pass": 250,
   "backend_regression": {
     "database": "sqlite-disposable-test-harness",
-    "passed": 454,
-    "skipped": 16,
+    "passed": 470,
+    "skipped": 17,
     "failed": 0
   },
   "frontend_regression": {
     "test_files": 18,
-    "tests_passed": 99,
+    "tests_passed": 108,
     "failed": 0
   },
   "frontend_build": {
@@ -50,8 +50,8 @@
     "failed": 0
   },
   "targeted_phase4_tests": {
-    "sqlite_passed": 34,
-    "postgresql_passed": 35,
+    "sqlite_passed": 50,
+    "postgresql_passed": 52,
     "failed": 0
   },
   "migration_revalidation": {
@@ -133,5 +133,12 @@
   "full_backend_regression_failed": 0,
   "full_frontend_regression_failed": 0,
   "phase4_frontend_targeted_test_fail": 0,
-  "frontend_build_pass": true
+  "frontend_build_pass": true,
+  "phase4_predecessor_sha": "7cb840119237349c58bcbc7ad08380f0db3a85cc",
+  "frontend_targeted": {
+    "tests_passed": 40,
+    "failed": 0
+  },
+  "v35r1_revalidation_artifact": "AMEC_PHASE4_V35R1_REVALIDATION_v1.json",
+  "phase4_v35r1_targeted_fail": 0
 }
