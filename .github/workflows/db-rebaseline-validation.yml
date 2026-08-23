@@ -797,7 +797,7 @@ jobs:
           v4_paths = set(git("diff", "--name-only", v4_candidate_sha, head).splitlines())
           cumulative_paths = set(git("diff", "--name-only", source_sha, head).splitlines())
           closure_paths = set(git("diff", "--name-only", "ae0ce01d5f637b9d87f04a9cdad2882c8842477a", head).splitlines())
-          alembic_stamp_false = "stamp" not in baseline_text.lower()
+          alembic_stamp_false = re.search(r"\balembic\s+stamp\b", baseline_text, re.I) is None
           fake_bridge_false = "bridge" not in "\n".join(cumulative_paths).lower()
           old_rejection = proof["old_0059" + "_database_rejected_by_new_head_verification"] is True
           preseed_validator = proof["preseed_required_control_data"] == "PASS"
