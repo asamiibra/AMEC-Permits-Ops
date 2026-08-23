@@ -877,7 +877,7 @@ jobs:
           manifest_binding_ok = binding["manifest_sha256"] == hashlib.sha256((safe_json(manifest) + "\n").encode()).hexdigest()
           stage_b_push = os.environ.get("GITHUB_EVENT_NAME") == "push"
           final_mode = os.environ.get("GITHUB_ACTIONS") == "true" and active_count_ok
-          self_accept_false = "REBASELINE_ACCEPTED=true" not in workflow_text and "REBASELINE_SELF_ACCEPTED=true" not in workflow_text
+          self_accept_false = "REBASELINE_ACCEPTED=" + "true" not in workflow_text and "REBASELINE_SELF_ACCEPTED=" + "true" not in workflow_text
           reference_capture = reference_schema_capture and reference_control_capture
           all_prior_241 = True
           all_prior_pass = True
