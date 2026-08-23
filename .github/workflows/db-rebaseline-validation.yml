@@ -82,6 +82,7 @@ jobs:
           else
             echo "STOP_UNEXPECTED_MIGRATION_GRAPH_STATE active=$active_count baseline=$baseline_count"
             exit 1
+          fi
 
       - name: V5 scope and frozen identity proof
         if: steps.mode.outputs.mode == 'FINAL_CANDIDATE_VALIDATION'
