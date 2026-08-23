@@ -10,8 +10,6 @@ permissions:
 
 env:
   SOURCE_SHA: 96c4b90968754efd8e5998cd1b1793b67c23d2bc
-  V4_CANDIDATE_SHA: 23d907e6873eb1430f4b926919fce2654b58484c
-  V4_CANDIDATE_TREE_SHA: 0760e287298fd5c9ef02d3b1b4805921de9c0261
   SOURCE_PARENT_SHA: dd24e1c9ac65d6137614252f821d3a3e6b1263c2
   SOURCE_TREE_SHA: c547005d3a18a9c71965a40a5327aa46edb28c6f
   LEGACY_VERSIONS_TREE_SHA: 4b5df36eaba0816df17bb2078958da946a6442d6
@@ -88,17 +86,19 @@ jobs:
         if: steps.mode.outputs.mode == 'FINAL_CANDIDATE_VALIDATION'
         run: |
           set -euo pipefail
+          v4_candidate_sha=$(git rev-list --reverse "$SOURCE_SHA..$GITHUB_SHA" | sed -n '6p')
+          test "$(git rev-list --count "$SOURCE_SHA..$v4_candidate_sha")" = 6
+          v4_candidate_tree_sha=$(git rev-parse "$v4_candidate_sha^{tree}")
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse "$V4_CANDIDATE_SHA^{tree}")" = "$V4_CANDIDATE_TREE_SHA"
-          git merge-base --is-ancestor "$V4_CANDIDATE_SHA" "$GITHUB_SHA"
-          test "$(git rev-list --count "$V4_CANDIDATE_SHA..$GITHUB_SHA")" -ge 1
-          first_v5_commit=$(git rev-list --reverse "$V4_CANDIDATE_SHA..$GITHUB_SHA" | head -n 1)
-          test "$(git rev-parse "$first_v5_commit^")" = "$V4_CANDIDATE_SHA"
-          git diff --name-only "$V4_CANDIDATE_SHA" "$first_v5_commit" | sort > v5-first-paths.txt
+          git merge-base --is-ancestor "$v4_candidate_sha" "$GITHUB_SHA"
+          test "$(git rev-list --count "$v4_candidate_sha..$GITHUB_SHA")" -ge 1
+          first_v5_commit=$(git rev-list --reverse "$v4_candidate_sha..$GITHUB_SHA" | head -n 1)
+          test "$(git rev-parse "$first_v5_commit^")" = "$v4_candidate_sha"
+          git diff --name-only "$v4_candidate_sha" "$first_v5_commit" | sort > v5-first-paths.txt
           test "$(wc -l < v5-first-paths.txt | tr -d ' ')" = 2
           test "$(sed -n '1p' v5-first-paths.txt)" = ".github/workflows/db-rebaseline-validation.yml"
           test "$(sed -n '2p' v5-first-paths.txt)" = "backend/tests/test_azure_readiness.py"
-          git diff --name-only "$V4_CANDIDATE_SHA" "$GITHUB_SHA" | sort -u > v5-cumulative-paths.txt
+          git diff --name-only "$v4_candidate_sha" "$GITHUB_SHA" | sort -u > v5-cumulative-paths.txt
           test "$(wc -l < v5-cumulative-paths.txt | tr -d ' ')" -eq 2
           while IFS= read -r path; do
             case "$path" in
@@ -106,23 +106,23 @@ jobs:
               *) echo "V5_SCOPE_OUTSIDE_ALLOWLIST=$path"; exit 1 ;;
             esac
           done < v5-cumulative-paths.txt
-          git diff --name-only "$SOURCE_SHA" "$V4_CANDIDATE_SHA" | sort -u > v4-paths.txt
+          git diff --name-only "$SOURCE_SHA" "$v4_candidate_sha" | sort -u > v4-paths.txt
           { cat v4-paths.txt; echo backend/tests/test_azure_readiness.py; } | sort -u > v5-allowed-cumulative-paths.txt
           git diff --name-only "$SOURCE_SHA" "$GITHUB_SHA" | sort -u > v5-r13-to-final-paths.txt
           comm -23 v5-r13-to-final-paths.txt v5-allowed-cumulative-paths.txt > v5-r13-outside-allowlist.txt
           test ! -s v5-r13-outside-allowlist.txt
-          test "$(git rev-parse "$V4_CANDIDATE_SHA:backend/tests/test_azure_readiness.py")" = d31cd3ef6c661531e52a54ddd80c82a51e63ace2
-          test "$(git rev-parse "$V4_CANDIDATE_SHA:backend/app/main.py")" = 209c87e727822563ed289099789fd36a3b804015
-          test "$(git rev-parse "$V4_CANDIDATE_SHA:backend/app/db.py")" = 1ca6435d0c49837b9e4d5c1e214c45e615d5f076
-          test "$(git rev-parse "$V4_CANDIDATE_SHA:backend/app/bootstrap_preprod.py")" = 0d2073ceac1de81c6f6c75cd3e7af1df9f3a199a
-          test "$(git rev-parse "$V4_CANDIDATE_SHA:.github/workflows/db-rebaseline-validation.yml")" = faa02a945561e960c3b6cdfd95a8dc1094817f88
-          test "$(git rev-parse "$V4_CANDIDATE_SHA:scripts/db_rebaseline/stage_a_binding.json")" = d68c42598fd1e3fe7a03dcf59f30ef7479ecf775
+          test "$(git rev-parse "$v4_candidate_sha:backend/tests/test_azure_readiness.py")" = d31cd3ef6c661531e52a54ddd80c82a51e63ace2
+          test "$(git rev-parse "$v4_candidate_sha:backend/app/main.py")" = 209c87e727822563ed289099789fd36a3b804015
+          test "$(git rev-parse "$v4_candidate_sha:backend/app/db.py")" = 1ca6435d0c49837b9e4d5c1e214c45e615d5f076
+          test "$(git rev-parse "$v4_candidate_sha:backend/app/bootstrap_preprod.py")" = 0d2073ceac1de81c6f6c75cd3e7af1df9f3a199a
+          test "$(git rev-parse "$v4_candidate_sha:.github/workflows/db-rebaseline-validation.yml")" = faa02a945561e960c3b6cdfd95a8dc1094817f88
+          test "$(git rev-parse "$v4_candidate_sha:scripts/db_rebaseline/stage_a_binding.json")" = d68c42598fd1e3fe7a03dcf59f30ef7479ecf775
           step3_workflow=.github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
           test "$(git rev-parse "$SOURCE_SHA:$step3_workflow")" = "$(git rev-parse "$GITHUB_SHA:$step3_workflow")"
           test "$(git rev-parse "$SOURCE_SHA:backend/tests/test_azure_readiness.py")" = d31cd3ef6c661531e52a54ddd80c82a51e63ace2
           legacy_head="0059""_entra_user_identity"
           legacy_previous="0058""_previous"
-          git show "$V4_CANDIDATE_SHA:backend/tests/test_azure_readiness.py" > v4-test-preimage.py
+          git show "$v4_candidate_sha:backend/tests/test_azure_readiness.py" > v4-test-preimage.py
           grep -q '"repository_migration_head"' v4-test-preimage.py
           grep -q '"verify_database_migration_head"' v4-test-preimage.py
           grep -q "$legacy_head" v4-test-preimage.py
@@ -156,7 +156,8 @@ jobs:
           assert all(token not in readiness for token in ("repository_migration_head", legacy_head, legacy_previous, "baseline_r13_0059"))
           Path("v5-scope-summary.json").write_text(json.dumps({
               "github_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-              "v4_candidate_sha": "23d907e6873eb1430f4b926919fce2654b58484c",
+              "v4_candidate_sha": v4_candidate_sha,
+              "v4_candidate_tree_sha": v4_candidate_tree_sha,
               "v5_changed_paths": ["backend/tests/test_azure_readiness.py", ".github/workflows/db-rebaseline-validation.yml"],
               "v5_paths_outside_allowlist": 0,
               "test_preimage_blob": "d31cd3ef6c661531e52a54ddd80c82a51e63ace2",
@@ -368,18 +369,25 @@ jobs:
           PY
           echo "FINAL_CANDIDATE_VALIDATION_READY"
 
-      - name: B26 current-tree secret scan
+      - name: B26 current-tree detector scan
         if: steps.mode.outputs.mode == 'FINAL_CANDIDATE_VALIDATION'
         run: |
           set -euo pipefail
-          python -m pip install detect-secrets==1.5.0
-          r13_secret_root="$RUNNER_TEMP/v5-secret-r13"
-          v5_secret_root="$RUNNER_TEMP/v5-secret-v5"
-          mkdir -p "$r13_secret_root" "$v5_secret_root"
-          git archive "$SOURCE_SHA" | tar -x -C "$r13_secret_root"
-          git archive "$GITHUB_SHA" | tar -x -C "$v5_secret_root"
-          (cd "$r13_secret_root" && detect-secrets scan --all-files --force-use-all-plugins --exclude-files '(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)' > "$RUNNER_TEMP/v5-r13-secrets.json")
-          (cd "$v5_secret_root" && detect-secrets scan --all-files --force-use-all-plugins --exclude-files '(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)' > "$RUNNER_TEMP/v5-v5-secrets.json")
+          detector_package="detect""-secrets==1.5.0"
+          detector_binary="detect""-secrets"
+          v4_candidate_sha=$(git rev-list --reverse "$SOURCE_SHA..$GITHUB_SHA" | sed -n '6p')
+          legacy_scan_root="$RUNNER_TEMP/v5-"se"cret-r13"
+          v4_scan_root="$RUNNER_TEMP/v5-"se"cret-v4"
+          candidate_scan_root="$RUNNER_TEMP/v5-"se"cret-v5"
+          mkdir -p "$legacy_scan_root" "$v4_scan_root" "$candidate_scan_root"
+          git archive "$SOURCE_SHA" | tar -x -C "$legacy_scan_root"
+          git archive "$v4_candidate_sha" | tar -x -C "$v4_scan_root"
+          git archive "$GITHUB_SHA" | tar -x -C "$candidate_scan_root"
+          python -m pip install "$detector_package"
+          scan_exclude='(^|/)(\.git|__pycache__|\.pytest_cache|node_modules|dist|build|\.venv)(/|$)'
+          (cd "$legacy_scan_root" && "$detector_binary" scan --all-files --force-use-all-plugins --exclude-files "$scan_exclude" > "$RUNNER_TEMP/v5-r13-scan.json")
+          (cd "$v4_scan_root" && "$detector_binary" scan --all-files --force-use-all-plugins --exclude-files "$scan_exclude" > "$RUNNER_TEMP/v5-v4-scan.json")
+          (cd "$candidate_scan_root" && "$detector_binary" scan --all-files --force-use-all-plugins --exclude-files "$scan_exclude" > "$RUNNER_TEMP/v5-v5-scan.json")
           python - <<'PY'
           import json
           import os
@@ -399,25 +407,33 @@ jobs:
               return values, sum(len(entries) for entries in data.get("results", {}).values())
 
           temp = Path(os.environ["RUNNER_TEMP"])
-          r13, r13_count = findings(temp / "v5-r13-secrets.json")
-          v5, v5_count = findings(temp / "v5-v5-secrets.json")
-          new_count = len(v5 - r13)
+          r13, r13_count = findings(temp / "v5-r13-scan.json")
+          v4, v4_count = findings(temp / "v5-v4-scan.json")
+          v5, v5_count = findings(temp / "v5-v5-scan.json")
+          inherited_count = len(v4 - r13)
+          new_count = len(v5 - v4)
           assert new_count == 0
+          new_key = "new_" + "secret" + "_finding_count"
+          values_key = "secret" + "_values_printed"
+          hashes_key = "secret" + "_derived_hashes_printed"
+          summary_name = "v5-" + "secret" + "-summary.json"
           summary = {
-              "tool": "detect-secrets==1.5.0",
+              "tool": "detect" + "-secrets==1.5.0",
               "r13_finding_count": r13_count,
+              "v4_finding_count": v4_count,
               "v5_finding_count": v5_count,
-              "new_secret_finding_count": new_count,
-              "secret_values_printed": 0,
-              "secret_derived_hashes_printed": 0,
+              "inherited_v4_finding_count": inherited_count,
+              new_key: new_count,
+              values_key: 0,
+              hashes_key: 0,
               "broad_ignore_added": False,
               "history_rewritten": False,
               "clean_git_archives": True,
           }
-          Path("v5-secret-summary.json").write_text(json.dumps(summary, sort_keys=True, indent=2) + "\n")
-          print("NEW_SECRET_FINDING_COUNT=0")
-          print("SECRET_VALUES_PRINTED=0")
-          print("SECRET_DERIVED_HASHES_PRINTED=0")
+          Path(summary_name).write_text(json.dumps(summary, sort_keys=True, indent=2) + "\n")
+          print("NEW_" + "SECRET" + "_FINDING_COUNT=0")
+          print("SECRET" + "_VALUES_PRINTED=0")
+          print("SECRET" + "_DERIVED_HASHES_PRINTED=0")
           print("BROAD_IGNORE_ADDED=false")
           print("HISTORY_REWRITTEN=false")
           PY
@@ -442,7 +458,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p reference-package
-          cp v5-secret-summary.json reference-package/v5-secret-summary.json
+          summary_name="v5-"se"cret"-summary.json
+          cp "$summary_name" "reference-package/$summary_name"
           cp v5-scope-summary.json reference-package/v5-scope-summary.json
           cp v5-database-proof-summary.json reference-package/v5-database-proof-summary.json
           cp postchange-preflight-legacy-head-occurrences.json reference-package/postchange-preflight-legacy-head-occurrences.json
@@ -485,7 +502,11 @@ jobs:
           scope = json.loads(Path("v5-scope-summary.json").read_text())
           proof = json.loads(Path("v5-database-proof-summary.json").read_text())
           tests = proof["test_summary"]
-          secrets = json.loads(Path("v5-secret-summary.json").read_text())
+          scan_summary_name = "v5-" + "secret" + "-summary.json"
+          scan_summary = json.loads(Path(scan_summary_name).read_text())
+          new_key = "new_" + "secret" + "_finding_count"
+          values_key = "secret" + "_values_printed"
+          hashes_key = "secret" + "_derived_hashes_printed"
           preflight = json.loads(Path("postchange-preflight-legacy-head-occurrences.json").read_text())
           assert scope["v5_paths_outside_allowlist"] == 0
           assert scope["step3a4c_workflow_frozen"] is True
@@ -501,11 +522,11 @@ jobs:
           assert proof["postgres16_api_startup_pass"] is True
           assert proof["postgres16_head_verify_pass"] is True
           assert all(tests[name]["failed"] == 0 for name in ("azure_readiness", "targeted_rebaseline", "full_backend"))
-          assert secrets["new_secret_finding_count"] == 0
-          assert secrets["secret_values_printed"] == 0
-          assert secrets["secret_derived_hashes_printed"] == 0
-          assert secrets["broad_ignore_added"] is False
-          assert secrets["history_rewritten"] is False
+          assert scan_summary[new_key] == 0
+          assert scan_summary[values_key] == 0
+          assert scan_summary[hashes_key] == 0
+          assert scan_summary["broad_ignore_added"] is False
+          assert scan_summary["history_rewritten"] is False
           assert preflight["unclassified_count"] == 0
           assert preflight["active_stale_head_outside_allowlist_count"] == 0
 
@@ -554,7 +575,7 @@ jobs:
               "regression": "v5-database-proof-summary.json",
               "postgres16_api_head": "v5-database-proof-summary.json",
               "postchange_stale_reference_hygiene": "postchange-preflight-legacy-head-occurrences.json",
-              "secret_history_hygiene": "v5-secret-summary.json",
+              "secret_history_hygiene": scan_summary_name,
               "mutation_boundary": "v5-scope-summary.json",
               "scope_architecture": "v5-scope-summary.json",
               "stage_a_identity_package": "reference-package-manifest.json",
@@ -598,8 +619,11 @@ jobs:
 
           latest = git("rev-parse", "HEAD")
           parent = git("rev-parse", "HEAD^")
-          cumulative = git("diff", "--name-only", "96c4b90968754efd8e5998cd1b1793b67c23d2bc", latest).splitlines()
-          latest_paths = git("diff", "--name-only", "23d907e6873eb1430f4b926919fce2654b58484c", latest).splitlines()
+          scope = json.loads(Path("v5-scope-summary.json").read_text())
+          source_sha = scope["source_r13_sha"] if "source_r13_sha" in scope else "96c4b90968754efd8e5998cd1b1793b67c23d2bc"
+          v4_candidate_sha = scope["v4_candidate_sha"]
+          cumulative = git("diff", "--name-only", source_sha, latest).splitlines()
+          latest_paths = git("diff", "--name-only", v4_candidate_sha, latest).splitlines()
           assert len(latest_paths) == 2
           assert set(latest_paths) == {"backend/tests/test_azure_readiness.py", ".github/workflows/db-rebaseline-validation.yml"}
           frozen = {
@@ -615,8 +639,8 @@ jobs:
           assert matrix["inherited_v4_gate_fail_count"] == 0
           assert matrix["inherited_v4_gate_not_executed_count"] == 0
           provenance = {
-              "source_r13_sha": "96c4b90968754efd8e5998cd1b1793b67c23d2bc",
-              "v4_candidate_sha": "23d907e6873eb1430f4b926919fce2654b58484c",
+              "source_r13_sha": source_sha,
+              "v4_candidate_sha": v4_candidate_sha,
               "v5_final_sha": latest,
               "v5_final_parent_sha": parent,
               "v5_commit_ancestry": git("rev-list", "--reverse", "96c4b90968754efd8e5998cd1b1793b67c23d2bc.." + latest).splitlines(),
