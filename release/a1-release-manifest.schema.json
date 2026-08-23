@@ -16,7 +16,7 @@
       "properties": {
         "engine": {"const": "postgresql"},
         "major": {"const": 16},
-        "migration_head": {"const": "0059_entra_user_identity"}
+        "migration_head": {"const": "baseline_r13_0059"}
       },
       "additionalProperties": false
     },

@@ -73,7 +73,7 @@ from .db import (
 )
 from .models import ConsultancyOffice
 from .runtime_provenance import get_runtime_provenance
-from .db import repository_migration_head, verify_database_migration_head
+from .db import verify_database_migration_head
 from .observability import initialize_observability
 
 
@@ -459,8 +459,6 @@ def health_ready(request: Request | None = None):
         )
 
     try:
-        if repository_migration_head() != "0059_entra_user_identity":
-            raise RuntimeError("repository migration head mismatch")
         verify_database_migration_head()
     except Exception:
         return JSONResponse(

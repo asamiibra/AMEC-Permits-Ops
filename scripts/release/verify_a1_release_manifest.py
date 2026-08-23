@@ -98,7 +98,7 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
         raise ValueError("database section is required")
     if database.get("engine") != "postgresql" or database.get("major") != 16:
         raise ValueError("wrong database target")
-    if database.get("migration_head") != "0059_entra_user_identity":
+    if database.get("migration_head") != "baseline_r13_0059":
         raise ValueError("wrong migration head")
 
     entra = document.get("entra")

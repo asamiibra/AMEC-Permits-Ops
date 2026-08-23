@@ -127,6 +127,15 @@ jobs:
           test -f scripts/db_rebaseline/stage_a_binding.json
           test "$(python -c 'import json; print(json.load(open("scripts/db_rebaseline/stage_a_binding.json"))["source_sha"])')" = "$SOURCE_SHA"
           test "$(python -c 'import json; print(json.load(open("scripts/db_rebaseline/stage_a_binding.json"))["postgres_image"])')" = "$POSTGRES_IMAGE"
+          actual_manifest=$(python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          value=json.loads(Path("reference-package/reference-package-manifest.json").read_text())
+          print(hashlib.sha256((json.dumps(value,sort_keys=True,separators=(",",":"))+"\n").encode()).hexdigest())
+          PY
+          )
+          test "$actual_manifest" = "$(python -c 'import json; print(json.load(open("scripts/db_rebaseline/stage_a_binding.json"))["manifest_sha256"])')"
+          echo "FINAL_CI_REFERENCE_PACKAGE_MATCHES_STAGE_A=true"
           cp scripts/db_rebaseline/stage_a_binding.json reference-package/stage_a_binding.json
 
       - name: Validate the final baseline and two candidate databases

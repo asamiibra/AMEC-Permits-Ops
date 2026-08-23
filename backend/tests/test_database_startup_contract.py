@@ -68,10 +68,10 @@ def _create_version_table(
             )
 
 
-def test_repository_migration_head_is_current_entra_head():
+def test_repository_migration_head_is_current_rebaseline_head():
     assert (
         database.repository_migration_head()
-        == "0059_entra_user_identity"
+        == "baseline_r13_0059"
     )
 
 
@@ -101,13 +101,13 @@ def test_database_heads_read_exact_version(
 
     _create_version_table(
         isolated_engine,
-        "0059_entra_user_identity",
+        "baseline_r13_0059",
     )
 
     assert (
         database.database_migration_heads()
         == (
-            "0059_entra_user_identity",
+            "baseline_r13_0059",
         )
     )
 
@@ -118,20 +118,20 @@ def test_verify_database_head_accepts_exact_match(
     monkeypatch.setattr(
         database,
         "repository_migration_head",
-        lambda: "0059_entra_user_identity",
+        lambda: "baseline_r13_0059",
     )
 
     monkeypatch.setattr(
         database,
         "database_migration_heads",
         lambda: (
-            "0059_entra_user_identity",
+        "baseline_r13_0059",
         ),
     )
 
     assert (
         database.verify_database_migration_head()
-        == "0059_entra_user_identity"
+        == "baseline_r13_0059"
     )
 
 
@@ -141,7 +141,7 @@ def test_verify_database_head_rejects_missing_version(
     monkeypatch.setattr(
         database,
         "repository_migration_head",
-        lambda: "0059_entra_user_identity",
+        lambda: "baseline_r13_0059",
     )
 
     monkeypatch.setattr(
@@ -163,7 +163,7 @@ def test_verify_database_head_rejects_stale_version(
     monkeypatch.setattr(
         database,
         "repository_migration_head",
-        lambda: "0059_entra_user_identity",
+        lambda: "baseline_r13_0059",
     )
 
     monkeypatch.setattr(
@@ -187,14 +187,14 @@ def test_verify_database_head_rejects_multiple_heads(
     monkeypatch.setattr(
         database,
         "repository_migration_head",
-        lambda: "0059_entra_user_identity",
+        lambda: "baseline_r13_0059",
     )
 
     monkeypatch.setattr(
         database,
         "database_migration_heads",
         lambda: (
-            "0059_entra_user_identity",
+            "baseline_r13_0059",
             "synthetic_second_head",
         ),
     )
@@ -267,7 +267,7 @@ def test_prepare_database_for_runtime_uses_local_bootstrap_only_in_test(
         "verify_database_migration_head",
         lambda: (
             calls.append("verify")
-            or "0059_entra_user_identity"
+            or "baseline_r13_0059"
         ),
     )
 
@@ -308,7 +308,7 @@ def test_prepare_database_for_runtime_verifies_nonlocal_without_bootstrap(
         "verify_database_migration_head",
         lambda: (
             calls.append("verify")
-            or "0059_entra_user_identity"
+            or "baseline_r13_0059"
         ),
     )
 
@@ -320,7 +320,7 @@ def test_prepare_database_for_runtime_verifies_nonlocal_without_bootstrap(
         result
         == (
             "MIGRATION_VERIFIED:"
-            "0059_entra_user_identity"
+            "baseline_r13_0059"
         )
     )
     assert calls == ["verify"]

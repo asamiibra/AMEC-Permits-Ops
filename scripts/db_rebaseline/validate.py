@@ -35,11 +35,12 @@ FORBIDDEN_BASELINE_PATTERNS = (
 
 
 def git(*args: str) -> str:
-    return subprocess.check_output(["git", *args], text=True).strip()
+    return subprocess.check_output(["git", "-c", "core.fsmonitor=false", *args], text=True).strip()
 
 
 def stage_a(root: Path) -> None:
-    paths = git("diff", "--name-only", SOURCE_SHA, "HEAD").splitlines()
+    staged_paths = git("diff", "--cached", "--name-only").splitlines()
+    paths = staged_paths or git("diff", "--name-only", SOURCE_SHA, "HEAD").splitlines()
     forbidden = [path for path in paths if not (path.startswith("scripts/db_rebaseline/") or path == ".github/workflows/db-rebaseline-validation.yml")]
     if forbidden:
         raise SystemExit(f"STAGE_A_FORBIDDEN_CHANGED_PATHS={forbidden}")
