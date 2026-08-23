@@ -10368,7 +10368,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10397,7 +10397,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10423,7 +10423,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10452,7 +10452,7 @@
       ],
       "requirement_id": "MT-M1-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10482,7 +10482,7 @@
       ],
       "requirement_id": "MT-M1-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10508,7 +10508,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10538,7 +10538,7 @@
       ],
       "requirement_id": "MT-M1-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10561,10 +10561,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-M1-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10590,7 +10592,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10620,7 +10622,7 @@
       ],
       "requirement_id": "MT-M1-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10643,10 +10645,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-M1-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10672,7 +10676,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10698,7 +10702,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10724,7 +10728,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10750,7 +10754,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10777,7 +10781,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10807,7 +10811,7 @@
       ],
       "requirement_id": "MT-M1-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10833,7 +10837,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10857,10 +10861,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M1-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10889,7 +10895,7 @@
       ],
       "requirement_id": "MT-M1-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10912,10 +10918,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M1-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -10941,7 +10949,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10967,7 +10975,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -10993,7 +11001,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M1-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11025,7 +11033,7 @@
       ],
       "requirement_id": "MT-M1-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11053,7 +11061,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11081,7 +11089,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11109,7 +11117,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11138,7 +11146,7 @@
       ],
       "requirement_id": "MT-M2-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11172,7 +11180,7 @@
       ],
       "requirement_id": "MT-M2-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11198,7 +11206,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11224,7 +11232,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11247,10 +11255,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-M2-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11276,7 +11286,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11299,10 +11309,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-M2-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11325,10 +11337,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-M2-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11354,7 +11368,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11380,7 +11394,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11406,7 +11420,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11432,7 +11446,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11458,7 +11472,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11490,7 +11504,7 @@
       ],
       "requirement_id": "MT-M2-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11516,7 +11530,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11540,10 +11554,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M2-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11566,10 +11582,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M2-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11592,10 +11610,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M2-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11622,7 +11642,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11648,7 +11668,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11674,7 +11694,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M2-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11700,13 +11720,14 @@
       "owner_decision_refs": [
         "OD-001",
         "OD-002",
+        "OD-006",
         "OD-007",
         "OD-008",
         "OD-009"
       ],
       "requirement_id": "MT-M2-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11733,7 +11754,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11760,7 +11781,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11788,7 +11809,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -11816,7 +11837,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11843,7 +11864,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11869,7 +11890,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11895,7 +11916,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11918,10 +11939,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-M3-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11947,7 +11970,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11970,10 +11993,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-M3-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -11996,10 +12021,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-M3-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12025,7 +12052,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12051,7 +12078,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12077,7 +12104,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12103,7 +12130,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12132,7 +12159,7 @@
       ],
       "requirement_id": "MT-M3-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12161,7 +12188,7 @@
       ],
       "requirement_id": "MT-M3-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12192,7 +12219,7 @@
       ],
       "requirement_id": "MT-M3-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12221,7 +12248,7 @@
       ],
       "requirement_id": "MT-M3-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12244,10 +12271,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M3-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12276,7 +12305,7 @@
       ],
       "requirement_id": "MT-M3-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12302,7 +12331,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12328,7 +12357,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12354,7 +12383,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M3-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12386,7 +12415,7 @@
       ],
       "requirement_id": "MT-M3-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12414,7 +12443,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12442,7 +12471,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12468,7 +12497,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12501,7 +12530,7 @@
       ],
       "requirement_id": "MT-M4-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12530,7 +12559,7 @@
       ],
       "requirement_id": "MT-M4-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12559,7 +12588,7 @@
       ],
       "requirement_id": "MT-M4-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12585,7 +12614,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12608,10 +12637,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-M4-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12637,7 +12668,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12660,10 +12691,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-M4-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12686,10 +12719,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-M4-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12715,7 +12750,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12741,7 +12776,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12767,7 +12802,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12793,7 +12828,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12819,7 +12854,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -12847,11 +12882,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-004"
+        "OD-004",
+        "OD-010"
       ],
       "requirement_id": "MT-M4-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12875,10 +12911,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-003"
+      ],
       "requirement_id": "MT-M4-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12901,10 +12939,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M4-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12927,10 +12967,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M4-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12953,10 +12995,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M4-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -12982,7 +13026,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13008,7 +13052,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13034,7 +13078,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M4-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13068,7 +13112,7 @@
       ],
       "requirement_id": "MT-M4-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13094,7 +13138,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13122,7 +13166,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13148,7 +13192,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13176,7 +13220,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13203,7 +13247,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13229,7 +13273,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13255,7 +13299,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13278,10 +13322,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-M5-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13307,7 +13353,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13330,10 +13376,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-M5-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13356,10 +13404,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-M5-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13385,7 +13435,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13411,7 +13461,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13437,7 +13487,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13463,7 +13513,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13489,7 +13539,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13519,7 +13569,7 @@
       ],
       "requirement_id": "MT-M5-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13542,10 +13592,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-003"
+      ],
       "requirement_id": "MT-M5-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13568,10 +13620,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M5-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13594,10 +13648,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M5-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13620,10 +13676,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M5-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13650,7 +13708,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13676,7 +13734,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13702,7 +13760,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M5-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13735,7 +13793,7 @@
       ],
       "requirement_id": "MT-M5-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13762,7 +13820,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13789,7 +13847,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13815,7 +13873,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -13844,7 +13902,7 @@
       ],
       "requirement_id": "MT-M6-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13873,7 +13931,7 @@
       ],
       "requirement_id": "MT-M6-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13899,7 +13957,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13925,7 +13983,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13948,10 +14006,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-M6-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -13977,7 +14037,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14000,10 +14060,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-M6-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14026,10 +14088,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-M6-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14055,7 +14119,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14081,7 +14145,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14107,7 +14171,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14133,7 +14197,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14159,7 +14223,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14188,7 +14252,7 @@
       ],
       "requirement_id": "MT-M6-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14214,7 +14278,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14237,10 +14301,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M6-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14269,7 +14335,7 @@
       ],
       "requirement_id": "MT-M6-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14292,10 +14358,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M6-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14323,7 +14391,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14349,7 +14417,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14375,7 +14443,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M6-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14407,7 +14475,7 @@
       ],
       "requirement_id": "MT-M6-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14434,7 +14502,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14460,7 +14528,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14486,7 +14554,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14517,7 +14585,7 @@
       ],
       "requirement_id": "MT-M7-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14550,7 +14618,7 @@
       ],
       "requirement_id": "MT-M7-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14576,7 +14644,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14602,7 +14670,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14625,10 +14693,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-M7-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14654,7 +14724,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14677,10 +14747,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-M7-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14703,10 +14775,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-M7-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14732,7 +14806,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14758,7 +14832,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14784,7 +14858,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14810,7 +14884,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14836,7 +14910,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -14866,11 +14940,12 @@
         "EVID_STAGE1R_SUFFICIENCY"
       ],
       "owner_decision_refs": [
-        "OD-006"
+        "OD-006",
+        "OD-010"
       ],
       "requirement_id": "MT-M7-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14896,7 +14971,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14919,10 +14994,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M7-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14945,10 +15022,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-M7-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -14977,7 +15056,7 @@
       ],
       "requirement_id": "MT-M7-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15003,7 +15082,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15029,7 +15108,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15055,7 +15134,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-M7-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15089,7 +15168,7 @@
       ],
       "requirement_id": "MT-M7-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15117,7 +15196,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15144,7 +15223,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15170,7 +15249,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15201,7 +15280,7 @@
       ],
       "requirement_id": "MT-FINANCE-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15232,7 +15311,7 @@
       ],
       "requirement_id": "MT-FINANCE-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15258,7 +15337,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15286,7 +15365,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15309,10 +15388,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-FINANCE-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15338,7 +15419,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15361,10 +15442,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-FINANCE-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15387,10 +15470,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-FINANCE-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15416,7 +15501,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15442,7 +15527,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15468,7 +15553,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15494,7 +15579,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15520,7 +15605,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15555,7 +15640,7 @@
       ],
       "requirement_id": "MT-FINANCE-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15581,7 +15666,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15605,10 +15690,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-FINANCE-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15631,10 +15718,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-FINANCE-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15657,10 +15746,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-FINANCE-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15687,7 +15778,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15713,7 +15804,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15739,7 +15830,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-FINANCE-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15765,13 +15856,14 @@
       "owner_decision_refs": [
         "OD-002",
         "OD-005",
+        "OD-006",
         "OD-007",
         "OD-008",
         "OD-009"
       ],
       "requirement_id": "MT-FINANCE-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15804,7 +15896,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15833,7 +15925,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15859,7 +15951,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -15888,7 +15980,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15917,7 +16009,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15943,7 +16035,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -15972,7 +16064,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16001,7 +16093,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16027,7 +16119,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16050,10 +16142,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-008"
+      ],
       "requirement_id": "MT-MASTER_CONTENT-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16076,10 +16170,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-009"
+      ],
       "requirement_id": "MT-MASTER_CONTENT-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16105,7 +16201,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16131,7 +16227,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16157,7 +16253,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16183,7 +16279,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16209,7 +16305,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16238,7 +16334,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16264,7 +16360,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16287,10 +16383,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-MASTER_CONTENT-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16320,7 +16418,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16350,7 +16448,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16376,7 +16474,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16402,7 +16500,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16428,7 +16526,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-MASTER_CONTENT-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16459,7 +16557,7 @@
       ],
       "requirement_id": "MT-MASTER_CONTENT-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16491,7 +16589,7 @@
       ],
       "requirement_id": "MT-REPORTS-01",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16517,7 +16615,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-02",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16543,7 +16641,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-03",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16572,7 +16670,7 @@
       ],
       "requirement_id": "MT-REPORTS-04",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16601,7 +16699,7 @@
       ],
       "requirement_id": "MT-REPORTS-05",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16630,7 +16728,7 @@
       ],
       "requirement_id": "MT-REPORTS-06",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16660,7 +16758,7 @@
       ],
       "requirement_id": "MT-REPORTS-07",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16683,10 +16781,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-002"
+      ],
       "requirement_id": "MT-REPORTS-08",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16712,7 +16812,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-09",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16742,7 +16842,7 @@
       ],
       "requirement_id": "MT-REPORTS-10",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16772,7 +16872,7 @@
       ],
       "requirement_id": "MT-REPORTS-11",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16798,7 +16898,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-12",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16824,7 +16924,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-13",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16850,7 +16950,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-14",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16880,7 +16980,7 @@
       ],
       "requirement_id": "MT-REPORTS-15",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16906,7 +17006,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-16",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -16932,7 +17032,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-17",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16958,7 +17058,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-18",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -16981,10 +17081,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-REPORTS-19",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -17007,10 +17109,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-REPORTS-20",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -17033,10 +17137,12 @@
         "EVID_CANONICAL_TAXONOMY",
         "EVID_STAGE1R_SUFFICIENCY"
       ],
-      "owner_decision_refs": [],
+      "owner_decision_refs": [
+        "OD-007"
+      ],
       "requirement_id": "MT-REPORTS-21",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     },
     {
@@ -17062,7 +17168,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-22",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -17088,7 +17194,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-23",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -17114,7 +17220,7 @@
       "owner_decision_refs": [],
       "requirement_id": "MT-REPORTS-24",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_RULE"
     },
     {
@@ -17145,7 +17251,7 @@
       ],
       "requirement_id": "MT-REPORTS-25",
       "result": "PASS",
-      "semantic_validation_method": "derived_s19_authority_and_owner_applicability_graph_evaluation",
+      "semantic_validation_method": "derived_non25_projection_union_and_domain25_union_evaluation",
       "truth_state": "CANONICAL_OR_EXPLICITLY_UNCERTAIN"
     }
   ],
@@ -17166,6 +17272,7 @@
     "FINANCE": [
       "OD-002",
       "OD-005",
+      "OD-006",
       "OD-007",
       "OD-008",
       "OD-009"
@@ -17180,6 +17287,7 @@
     "M2": [
       "OD-001",
       "OD-002",
+      "OD-006",
       "OD-007",
       "OD-008",
       "OD-009"
@@ -17399,22 +17507,30 @@
         "S19-REPORTS-06"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-08",
         "FINANCE-25",
         "M1-07",
+        "M1-08",
         "M1-25",
+        "M2-08",
         "M2-25",
+        "M3-08",
         "M3-25",
+        "M4-08",
         "M4-25",
+        "M5-08",
         "M5-25",
+        "M6-08",
         "M6-25",
+        "M7-08",
         "M7-25",
         "MASTER_CONTENT-08",
         "MASTER_CONTENT-25",
         "REPORTS-07",
+        "REPORTS-08",
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -17422,6 +17538,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -17447,7 +17564,9 @@
         "M3-17",
         "M3-18",
         "M3-25",
+        "M4-18",
         "M4-25",
+        "M5-18",
         "M5-25"
       ],
       "affected_domains": [
@@ -17520,8 +17639,8 @@
         "M7-25"
       ],
       "affected_domains": [
-        "FINANCE",
-        "M7"
+        "M7",
+        "FINANCE"
       ],
       "current_evidence": [
         "EVID_V6_BINDINGS",
@@ -17557,7 +17676,9 @@
       ],
       "affected_coverage_cell_ids": [
         "FINANCE-17",
+        "FINANCE-25",
         "M2-05",
+        "M2-25",
         "M6-04",
         "M6-05",
         "M6-17",
@@ -17568,10 +17689,10 @@
         "M7-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M2",
         "M6",
-        "M7"
+        "M7",
+        "FINANCE"
       ],
       "current_evidence": [
         "EVID_V6_BINDINGS",
@@ -17596,27 +17717,49 @@
         "S19-REPORTS-08"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-19",
+        "FINANCE-20",
+        "FINANCE-21",
         "FINANCE-25",
+        "M1-19",
         "M1-20",
+        "M1-21",
         "M1-25",
+        "M2-19",
+        "M2-20",
+        "M2-21",
         "M2-25",
         "M3-19",
+        "M3-20",
         "M3-21",
         "M3-25",
+        "M4-19",
+        "M4-20",
+        "M4-21",
         "M4-25",
+        "M5-19",
+        "M5-20",
+        "M5-21",
         "M5-25",
+        "M6-19",
         "M6-20",
+        "M6-21",
         "M6-25",
+        "M7-19",
+        "M7-20",
         "M7-21",
         "M7-25",
+        "MASTER_CONTENT-19",
         "MASTER_CONTENT-20",
         "MASTER_CONTENT-21",
         "MASTER_CONTENT-25",
         "REPORTS-15",
+        "REPORTS-19",
+        "REPORTS-20",
+        "REPORTS-21",
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -17624,6 +17767,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -17655,21 +17799,29 @@
         "S19-REPORTS-11"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-10",
         "FINANCE-25",
         "M1-10",
         "M1-25",
+        "M2-10",
         "M2-25",
+        "M3-10",
         "M3-16",
         "M3-25",
+        "M4-10",
         "M4-25",
+        "M5-10",
         "M5-25",
+        "M6-10",
         "M6-25",
+        "M7-10",
         "M7-25",
         "MASTER_CONTENT-01",
         "MASTER_CONTENT-02",
         "MASTER_CONTENT-04",
         "MASTER_CONTENT-05",
         "MASTER_CONTENT-07",
+        "MASTER_CONTENT-10",
         "MASTER_CONTENT-17",
         "MASTER_CONTENT-20",
         "MASTER_CONTENT-21",
@@ -17679,7 +17831,6 @@
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -17687,6 +17838,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -17716,14 +17868,23 @@
         "S19-REPORTS-11"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-11",
         "FINANCE-25",
+        "M1-11",
         "M1-25",
+        "M2-11",
         "M2-25",
+        "M3-11",
         "M3-25",
+        "M4-11",
         "M4-25",
+        "M5-11",
         "M5-25",
+        "M6-11",
         "M6-25",
+        "M7-11",
         "M7-25",
+        "MASTER_CONTENT-11",
         "MASTER_CONTENT-25",
         "REPORTS-01",
         "REPORTS-04",
@@ -17736,7 +17897,6 @@
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -17744,6 +17904,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -17763,9 +17924,11 @@
         "S19-M5-07"
       ],
       "affected_coverage_cell_ids": [
+        "M4-17",
         "M4-25",
         "M5-17",
         "M5-25",
+        "M7-17",
         "M7-25"
       ],
       "affected_domains": [

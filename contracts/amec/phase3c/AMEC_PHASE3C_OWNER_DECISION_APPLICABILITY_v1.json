@@ -1,5 +1,404 @@
 {
   "artifact_type": "AMEC_PHASE3C_OWNER_DECISION_APPLICABILITY_V1",
+  "cross_cutting_projection_edges": [
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "M1"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "M2"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "M3"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "M6"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "M7"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "FINANCE"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "MASTER_CONTENT"
+    },
+    {
+      "basis": "global source-precedence exception question",
+      "decision_id": "OD-002",
+      "dimension": "source precedence",
+      "domain_code": "REPORTS"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "M1"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "M1"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "M1"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "M2"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "M2"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "M2"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "M3"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "M3"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "M3"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "M6"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "M6"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "M6"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "M7"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "M7"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "M7"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "FINANCE"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "FINANCE"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "FINANCE"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "MASTER_CONTENT"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "MASTER_CONTENT"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "MASTER_CONTENT"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "duplicate/version semantics",
+      "domain_code": "REPORTS"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "currentness rules",
+      "domain_code": "REPORTS"
+    },
+    {
+      "basis": "global currentness/version/supersession policy",
+      "decision_id": "OD-007",
+      "dimension": "supersession rules",
+      "domain_code": "REPORTS"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "M1"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "M2"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "M3"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "M6"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "M7"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "FINANCE"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "MASTER_CONTENT"
+    },
+    {
+      "basis": "cross-domain Master Content vs executed-artifact boundary",
+      "decision_id": "OD-008",
+      "dimension": "Master Content dependencies",
+      "domain_code": "REPORTS"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "M1"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "M2"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "M3"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "M6"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "M7"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "FINANCE"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "MASTER_CONTENT"
+    },
+    {
+      "basis": "cross-domain report definition/output boundary",
+      "decision_id": "OD-009",
+      "dimension": "report dependencies",
+      "domain_code": "REPORTS"
+    },
+    {
+      "basis": "professional authority/credential dependency",
+      "decision_id": "OD-003",
+      "dimension": "professional-approval dependencies",
+      "domain_code": "M3"
+    },
+    {
+      "basis": "professional authority/credential dependency",
+      "decision_id": "OD-003",
+      "dimension": "professional-approval dependencies",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "professional authority/credential dependency",
+      "decision_id": "OD-003",
+      "dimension": "professional-approval dependencies",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "external/adjacent authority boundary",
+      "decision_id": "OD-010",
+      "dimension": "party/authorization dependencies",
+      "domain_code": "M4"
+    },
+    {
+      "basis": "external/adjacent authority boundary",
+      "decision_id": "OD-010",
+      "dimension": "party/authorization dependencies",
+      "domain_code": "M5"
+    },
+    {
+      "basis": "external/adjacent authority boundary",
+      "decision_id": "OD-010",
+      "dimension": "party/authorization dependencies",
+      "domain_code": "M7"
+    }
+  ],
+  "cross_cutting_projection_method": "EXACT_GOVERNING_MATRIX",
   "decisions": [
     {
       "affected_assertion_ids": [
@@ -49,22 +448,30 @@
         "S19-REPORTS-06"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-08",
         "FINANCE-25",
         "M1-07",
+        "M1-08",
         "M1-25",
+        "M2-08",
         "M2-25",
+        "M3-08",
         "M3-25",
+        "M4-08",
         "M4-25",
+        "M5-08",
         "M5-25",
+        "M6-08",
         "M6-25",
+        "M7-08",
         "M7-25",
         "MASTER_CONTENT-08",
         "MASTER_CONTENT-25",
         "REPORTS-07",
+        "REPORTS-08",
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -72,6 +479,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -97,7 +505,9 @@
         "M3-17",
         "M3-18",
         "M3-25",
+        "M4-18",
         "M4-25",
+        "M5-18",
         "M5-25"
       ],
       "affected_domains": [
@@ -170,8 +580,8 @@
         "M7-25"
       ],
       "affected_domains": [
-        "FINANCE",
-        "M7"
+        "M7",
+        "FINANCE"
       ],
       "current_evidence": [
         "EVID_V6_BINDINGS",
@@ -207,7 +617,9 @@
       ],
       "affected_coverage_cell_ids": [
         "FINANCE-17",
+        "FINANCE-25",
         "M2-05",
+        "M2-25",
         "M6-04",
         "M6-05",
         "M6-17",
@@ -218,10 +630,10 @@
         "M7-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M2",
         "M6",
-        "M7"
+        "M7",
+        "FINANCE"
       ],
       "current_evidence": [
         "EVID_V6_BINDINGS",
@@ -246,27 +658,49 @@
         "S19-REPORTS-08"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-19",
+        "FINANCE-20",
+        "FINANCE-21",
         "FINANCE-25",
+        "M1-19",
         "M1-20",
+        "M1-21",
         "M1-25",
+        "M2-19",
+        "M2-20",
+        "M2-21",
         "M2-25",
         "M3-19",
+        "M3-20",
         "M3-21",
         "M3-25",
+        "M4-19",
+        "M4-20",
+        "M4-21",
         "M4-25",
+        "M5-19",
+        "M5-20",
+        "M5-21",
         "M5-25",
+        "M6-19",
         "M6-20",
+        "M6-21",
         "M6-25",
+        "M7-19",
+        "M7-20",
         "M7-21",
         "M7-25",
+        "MASTER_CONTENT-19",
         "MASTER_CONTENT-20",
         "MASTER_CONTENT-21",
         "MASTER_CONTENT-25",
         "REPORTS-15",
+        "REPORTS-19",
+        "REPORTS-20",
+        "REPORTS-21",
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -274,6 +708,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -305,21 +740,29 @@
         "S19-REPORTS-11"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-10",
         "FINANCE-25",
         "M1-10",
         "M1-25",
+        "M2-10",
         "M2-25",
+        "M3-10",
         "M3-16",
         "M3-25",
+        "M4-10",
         "M4-25",
+        "M5-10",
         "M5-25",
+        "M6-10",
         "M6-25",
+        "M7-10",
         "M7-25",
         "MASTER_CONTENT-01",
         "MASTER_CONTENT-02",
         "MASTER_CONTENT-04",
         "MASTER_CONTENT-05",
         "MASTER_CONTENT-07",
+        "MASTER_CONTENT-10",
         "MASTER_CONTENT-17",
         "MASTER_CONTENT-20",
         "MASTER_CONTENT-21",
@@ -329,7 +772,6 @@
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -337,6 +779,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -366,14 +809,23 @@
         "S19-REPORTS-11"
       ],
       "affected_coverage_cell_ids": [
+        "FINANCE-11",
         "FINANCE-25",
+        "M1-11",
         "M1-25",
+        "M2-11",
         "M2-25",
+        "M3-11",
         "M3-25",
+        "M4-11",
         "M4-25",
+        "M5-11",
         "M5-25",
+        "M6-11",
         "M6-25",
+        "M7-11",
         "M7-25",
+        "MASTER_CONTENT-11",
         "MASTER_CONTENT-25",
         "REPORTS-01",
         "REPORTS-04",
@@ -386,7 +838,6 @@
         "REPORTS-25"
       ],
       "affected_domains": [
-        "FINANCE",
         "M1",
         "M2",
         "M3",
@@ -394,6 +845,7 @@
         "M5",
         "M6",
         "M7",
+        "FINANCE",
         "MASTER_CONTENT",
         "REPORTS"
       ],
@@ -413,9 +865,11 @@
         "S19-M5-07"
       ],
       "affected_coverage_cell_ids": [
+        "M4-17",
         "M4-25",
         "M5-17",
         "M5-25",
+        "M7-17",
         "M7-25"
       ],
       "affected_domains": [
@@ -451,6 +905,7 @@
       "owner_decision_refs": [
         "OD-001",
         "OD-002",
+        "OD-006",
         "OD-007",
         "OD-008",
         "OD-009"
@@ -516,6 +971,7 @@
       "owner_decision_refs": [
         "OD-002",
         "OD-005",
+        "OD-006",
         "OD-007",
         "OD-008",
         "OD-009"
@@ -540,11 +996,12 @@
       ]
     }
   ],
+  "domain25_derivation_method": "UNION_OF_NON25_COVERAGE_OWNER_REFS",
   "owner_decision_domain_mismatch_count": 0,
   "owner_decision_edge_bijection": true,
-  "owner_decision_forward_edge_count": 198,
+  "owner_decision_forward_edge_count": 253,
   "owner_decision_forward_only_edge_count": 0,
-  "owner_decision_reverse_edge_count": 198,
+  "owner_decision_reverse_edge_count": 253,
   "owner_decision_reverse_only_edge_count": 0,
   "protected_authority_mappings": [
     {

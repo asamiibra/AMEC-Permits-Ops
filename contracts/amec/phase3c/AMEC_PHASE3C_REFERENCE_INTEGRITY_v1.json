@@ -13,53 +13,1462 @@
   "classifier_handoff_contract_sha_match": true,
   "cov_assertion_owner_ref_count": 0,
   "coverage_derived_owner_ref_mismatch_count": 0,
+  "cross_cutting_decision_dimension_actual_edge_count": 66,
+  "cross_cutting_decision_dimension_expected_edge_count": 66,
+  "cross_cutting_decision_dimension_extra_edge_count": 0,
+  "cross_cutting_decision_dimension_missing_edge_count": 0,
   "deferred_deployment_binds_accepted_sha": true,
   "domain25_decision_set_count": 10,
   "domain25_decision_set_exact_match_count": 10,
   "domain25_decision_set_mismatch_count": 0,
+  "domain25_extra_non25_decision_count": 0,
+  "domain25_missing_non25_decision_count": 0,
+  "domain25_summary_derivation_count": 10,
+  "domain25_summary_derivation_fail_count": 0,
+  "domain25_summary_derivation_pass_count": 10,
   "evidence_catalog_legacy_sha256_field_count": 0,
   "evidence_identity_type_value_mismatch_count": 0,
   "evidence_identity_untyped_count": 0,
+  "finance_domain25_has_od006": true,
   "freeze_manifest_excludes_itself": true,
   "freeze_member_hashes_match_excluding_self": true,
   "freeze_nonrecursive_member_hashes": {
-    "contracts/amec/phase3c/AMEC_MODULE_TRUTH_CONTRACT_v1.json": "060f0ad81d9eb4807da2a155f9e67efc082bcfd966c94a9cccf77125e44e0218",
-    "contracts/amec/phase3c/AMEC_PHASE3C_CLASSIFIER_HANDOFF_v1.json": "eb9f27d03b997d5c2f4753775a19b14502ef1f0218322fff50bff919f91fadea",
+    "contracts/amec/phase3c/AMEC_MODULE_TRUTH_CONTRACT_v1.json": "d18ebed191b8f2633d5984ff57ab25803fe19beeb9c73999946abffddb974f2c",
+    "contracts/amec/phase3c/AMEC_PHASE3C_CLASSIFIER_HANDOFF_v1.json": "0031c5d49cc9a7cc5a3be7ee26bf69a92d977d70968ead4a5f0bee1e487659b7",
     "contracts/amec/phase3c/AMEC_PHASE3C_DEFERRED_DEPLOYMENT_READINESS_v1.json": "13252fbf281a50db921673609498f7b456beaadfeb42c410fb9cf15d01e6b31b",
-    "contracts/amec/phase3c/AMEC_PHASE3C_GOVERNANCE_VALIDATION_v1.json": "19285a7601260a7f31620dd187f4d2ea9110208e191c8bd1af5e7d759cdbba73",
+    "contracts/amec/phase3c/AMEC_PHASE3C_GOVERNANCE_VALIDATION_v1.json": "3bae2fce17bf26525865f47476f3450bb3fc5b041113fadb1b906f78761f0d88",
     "contracts/amec/phase3c/AMEC_PHASE3C_INPUT_IDENTITY_MANIFEST_v1.json": "39056a667649de9159554d54d41985332e2864c8daf077bfaf93e07549f71c87",
-    "contracts/amec/phase3c/AMEC_PHASE3C_MODULE_DIMENSION_COVERAGE_v1.json": "662d47a587c4f5d8f54d899fe0899cfdc67b43464a6c0b7b7fc15adef2fe1abe",
-    "contracts/amec/phase3c/AMEC_PHASE3C_OWNER_DECISION_APPLICABILITY_v1.json": "1917c382c1818024cff153d79877bb01f72160ba61cf108a0c560560bf19745e",
+    "contracts/amec/phase3c/AMEC_PHASE3C_MODULE_DIMENSION_COVERAGE_v1.json": "ae47a418b87b38ddb9c3c28173649d9e829ec65632fc568f14baa84c6e61d736",
+    "contracts/amec/phase3c/AMEC_PHASE3C_OWNER_DECISION_APPLICABILITY_v1.json": "aa1c29484ee0a0567b3b828a2c073bc537775c97c9d2199d004a0b5324a8ca82",
     "contracts/amec/phase3c/AMEC_PHASE3C_SECTION19_MINIMUM_TRUTH_MAPPING_v1.json": "8aa2209b351cb73d0770ab70090b4b04b5e15fc2658f3be26111211c669c24fa",
     "contracts/amec/phase3c/AMEC_PHASE3C_SOURCE_STATE_LEDGER_v1.json": "8bb296fed5d0d973ee3e319d883d327182e7f8f3e4231e73e9891d524b07d7b9",
-    "contracts/amec/phase3c/AMEC_PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_VALIDATION_v1.json": "4f96d60654c6e277fd565e35fdd3c0ffdbe44b5b59e52330b60565de5afe3011",
-    "contracts/amec/phase3c/amec_module_truth_contract_v1.schema.json": "89a08c9f75094f693af2383aec71f7203e4e36d08a540cf5e319625eb4534180",
-    "docs/amec/phase3c/AMEC_MODULE_TRUTH_EVIDENCE_MATRIX_v1.md": "ba73afb6da408a6d405b019a064f8124203f2c1e7ca251b25598eca5cbaadc3c",
-    "docs/amec/phase3c/AMEC_OWNER_DECISION_LEDGER_v1.md": "e5dea6d83b0e0e660eb00585d7c4f4723eb0f86dec3971aeb791f5decf52d85d",
+    "contracts/amec/phase3c/AMEC_PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_VALIDATION_v1.json": "98a27d19a5cd9f414d88a26d94eb69768461a0165e4fe36bb181ad3ef5a01190",
+    "contracts/amec/phase3c/amec_module_truth_contract_v1.schema.json": "34800aba1814cb92ee9b879bcde4c7d3e449ebdfddd76fec5f6cbf5432677b4c",
+    "docs/amec/phase3c/AMEC_MODULE_TRUTH_EVIDENCE_MATRIX_v1.md": "99e6032f47d7265107208453e63bf02bb0b375cb854a1fa4525b1bb76d47b653",
+    "docs/amec/phase3c/AMEC_OWNER_DECISION_LEDGER_v1.md": "169c545e918de65a030ddaa6a54c3101baac5b92926ef7a2b1444c39b4f86379",
     "docs/amec/phase3c/AMEC_PHASE3C_DEFERRED_DEPLOYMENT_READINESS_v1.md": "aedf7046d0e33a753c6edc25288ecd5caca1c545a7099df117b8eb3ccaf421fc",
-    "docs/amec/phase3c/AMEC_PHASE3C_OWNER_DECISION_APPLICABILITY_v1.md": "febc8b2a3d95e4d2e5210eaa856cad11670b6c4800e50879f08507bee61036d1",
-    "docs/amec/phase3c/AMEC_PHASE3C_REFERENCE_INTEGRITY_v1.md": "0cafc85a197e23ab3e3ea019531c9146db7a95ae5b724de2d75dd3dd2adcd7a1",
+    "docs/amec/phase3c/AMEC_PHASE3C_OWNER_DECISION_APPLICABILITY_v1.md": "cb3b6045d83c5d84f45d31a5571a67cf62a7719431cb2e64b1aafac16a7a3a48",
+    "docs/amec/phase3c/AMEC_PHASE3C_REFERENCE_INTEGRITY_v1.md": "b29d71de4b4378566e482c79fd5b0bfc0dfd5b295c0f8fc61932a71f70adce27",
     "docs/amec/phase3c/AMEC_PHASE3C_SECTION19_MINIMUM_TRUTH_MAPPING_v1.md": "f158405cb50b7571de078079cb07403d7950dc38af86150393b053a4afe4b92a",
-    "docs/amec/phase3c/AMEC_PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_VALIDATION_v1.md": "4675cb9259fb22cee6983615b139f32b2c8bafe94163d63f51061aba8d6f517f",
+    "docs/amec/phase3c/AMEC_PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_VALIDATION_v1.md": "4b046dc64f07a9d1504993a6af75cc629aa55c195409dc4fd1b01e2b7d5cfb2b",
     "docs/amec/phase3c/AMEC_SOURCE_PRECEDENCE_AND_AUTHORITY_MATRIX_v1.md": "5612dbd6663ff089d6d80a587b3daa51d58e92bd4862f4196cafb56283f3789b"
   },
   "input_identity_hashes_match_known_accepted_identities": true,
+  "m2_domain25_has_od006": true,
   "owner_decision_domain_mismatch_count": 0,
   "owner_decision_edge_bijection": true,
-  "owner_decision_forward_edge_count": 198,
+  "owner_decision_forward_edge_count": 253,
   "owner_decision_forward_only_edge_count": 0,
-  "owner_decision_reverse_edge_count": 198,
+  "owner_decision_ref_catalog_key_count": 10,
+  "owner_decision_reverse_edge_count": 253,
   "owner_decision_reverse_only_edge_count": 0,
   "reference_integrity_dangling_count": 0,
   "reference_integrity_duplicate_id_count": 0,
   "reference_integrity_hash_mismatch_count": 0,
   "reference_integrity_semantic_edge_mismatch_count": 0,
-  "relational_edge_check_count": 337,
+  "relational_edge_check_count": 479,
   "relational_edge_check_fail": 0,
-  "relational_edge_check_pass": 337,
+  "relational_edge_check_pass": 479,
+  "schema_negative_check_count": 11,
+  "schema_negative_check_fail": 0,
   "section19_row_assertion_agreement": true,
   "section19_to_coverage_actual_link_count": 123,
   "section19_to_coverage_expected_link_count": 123,
   "section19_to_coverage_missing_link_count": 0,
-  "section19_to_coverage_wrong_cell_count": 0
+  "section19_to_coverage_wrong_cell_count": 0,
+  "strict_schema_validation_pass": true,
+  "typed_evidence_identity_record_count": 19,
+  "v6c_closure_check_count": 87,
+  "v6c_closure_check_fail": 0,
+  "v6c_closure_check_pass": 87,
+  "v6c_closure_checks": [
+    {
+      "check_id": "V6C-DOMAIN25-M1",
+      "expected": [
+        "OD-001",
+        "OD-002",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-001",
+        "OD-002",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-M2",
+      "expected": [
+        "OD-001",
+        "OD-002",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-001",
+        "OD-002",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-M3",
+      "expected": [
+        "OD-002",
+        "OD-003",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-003",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-M4",
+      "expected": [
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-M5",
+      "expected": [
+        "OD-002",
+        "OD-003",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-003",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-M6",
+      "expected": [
+        "OD-002",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-M7",
+      "expected": [
+        "OD-002",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-FINANCE",
+      "expected": [
+        "OD-002",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-MASTER_CONTENT",
+      "expected": [
+        "OD-002",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-DOMAIN25-REPORTS",
+      "expected": [
+        "OD-002",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "kind": "domain25_decision_set",
+      "observed": [
+        "OD-002",
+        "OD-007",
+        "OD-008",
+        "OD-009"
+      ],
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-01",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M1"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M1"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-02",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M2"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M2"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-03",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M3"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M3"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-04",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-05",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-06",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M6"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M6"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-07",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M7"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "M7"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-08",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "FINANCE"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "FINANCE"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-09",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-10",
+      "expected": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "REPORTS"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global source-precedence exception question",
+        "decision_id": "OD-002",
+        "dimension": "source precedence",
+        "domain_code": "REPORTS"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-11",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M1"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M1"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-12",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M1"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M1"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-13",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M1"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M1"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-14",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M2"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M2"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-15",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M2"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M2"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-16",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M2"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M2"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-17",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M3"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M3"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-18",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M3"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M3"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-19",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M3"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M3"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-20",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-21",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-22",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-23",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-24",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-25",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-26",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M6"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M6"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-27",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M6"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M6"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-28",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M6"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M6"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-29",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M7"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "M7"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-30",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M7"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "M7"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-31",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M7"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "M7"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-32",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "FINANCE"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "FINANCE"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-33",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "FINANCE"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "FINANCE"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-34",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "FINANCE"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "FINANCE"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-35",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-36",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-37",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-38",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "REPORTS"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "duplicate/version semantics",
+        "domain_code": "REPORTS"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-39",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "REPORTS"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "currentness rules",
+        "domain_code": "REPORTS"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-40",
+      "expected": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "REPORTS"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "global currentness/version/supersession policy",
+        "decision_id": "OD-007",
+        "dimension": "supersession rules",
+        "domain_code": "REPORTS"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-41",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M1"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M1"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-42",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M2"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M2"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-43",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M3"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M3"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-44",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-45",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-46",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M6"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M6"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-47",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M7"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "M7"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-48",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "FINANCE"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "FINANCE"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-49",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-50",
+      "expected": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "REPORTS"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain Master Content vs executed-artifact boundary",
+        "decision_id": "OD-008",
+        "dimension": "Master Content dependencies",
+        "domain_code": "REPORTS"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-51",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M1"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M1"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-52",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M2"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M2"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-53",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M3"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M3"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-54",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-55",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-56",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M6"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M6"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-57",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M7"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "M7"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-58",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "FINANCE"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "FINANCE"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-59",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "MASTER_CONTENT"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-60",
+      "expected": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "REPORTS"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "cross-domain report definition/output boundary",
+        "decision_id": "OD-009",
+        "dimension": "report dependencies",
+        "domain_code": "REPORTS"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-61",
+      "expected": {
+        "basis": "professional authority/credential dependency",
+        "decision_id": "OD-003",
+        "dimension": "professional-approval dependencies",
+        "domain_code": "M3"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "professional authority/credential dependency",
+        "decision_id": "OD-003",
+        "dimension": "professional-approval dependencies",
+        "domain_code": "M3"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-62",
+      "expected": {
+        "basis": "professional authority/credential dependency",
+        "decision_id": "OD-003",
+        "dimension": "professional-approval dependencies",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "professional authority/credential dependency",
+        "decision_id": "OD-003",
+        "dimension": "professional-approval dependencies",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-63",
+      "expected": {
+        "basis": "professional authority/credential dependency",
+        "decision_id": "OD-003",
+        "dimension": "professional-approval dependencies",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "professional authority/credential dependency",
+        "decision_id": "OD-003",
+        "dimension": "professional-approval dependencies",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-64",
+      "expected": {
+        "basis": "external/adjacent authority boundary",
+        "decision_id": "OD-010",
+        "dimension": "party/authorization dependencies",
+        "domain_code": "M4"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "external/adjacent authority boundary",
+        "decision_id": "OD-010",
+        "dimension": "party/authorization dependencies",
+        "domain_code": "M4"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-65",
+      "expected": {
+        "basis": "external/adjacent authority boundary",
+        "decision_id": "OD-010",
+        "dimension": "party/authorization dependencies",
+        "domain_code": "M5"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "external/adjacent authority boundary",
+        "decision_id": "OD-010",
+        "dimension": "party/authorization dependencies",
+        "domain_code": "M5"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-PROJECTION-66",
+      "expected": {
+        "basis": "external/adjacent authority boundary",
+        "decision_id": "OD-010",
+        "dimension": "party/authorization dependencies",
+        "domain_code": "M7"
+      },
+      "kind": "cross_cutting_projection_edge",
+      "observed": {
+        "basis": "external/adjacent authority boundary",
+        "decision_id": "OD-010",
+        "dimension": "party/authorization dependencies",
+        "domain_code": "M7"
+      },
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-001-UNKNOWN-TRUTH-DIMENSION",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-002-UNKNOWN-COVERAGE-DIMENSION",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-003-DIMENSION-ORDER-NAME-MISMATCH",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-004-TRUTH-DOMAIN-TRIPLE-MISMATCH",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-005-COVERAGE-DOMAIN-PAIR-MISMATCH",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-006-OWNER-DECISION-UNKNOWN-DOMAIN",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-007-PROTECTED-AUTHORITY-UNKNOWN-ID",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-008-PROTECTED-AUTHORITY-DOMAIN-MISMATCH",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-009-SHA256-WRONG-LENGTH",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-010-GIT-SHA1-WRONG-LENGTH",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    },
+    {
+      "check_id": "V6C-SCHEMA-011-UNKNOWN-EVIDENCE-IDENTITY-TYPE",
+      "expected": "REJECT",
+      "kind": "strict_schema_negative",
+      "result": "PASS"
+    }
+  ]
 }

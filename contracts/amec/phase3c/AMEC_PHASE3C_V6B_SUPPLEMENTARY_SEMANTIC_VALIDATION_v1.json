@@ -1594,15 +1594,43 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-001",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "M1-04",
+          "M1-05",
+          "M1-17",
+          "M1-25",
+          "M2-04",
+          "M2-05",
+          "M2-17",
+          "M2-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2"
+        ],
+        "decision_id": "OD-001",
         "default": "NONE",
-        "question_exact": "Confirm the source-bound conditions that distinguish Proposal Accept, Contract Accept, and explicit Project Activation.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "M1-04",
+          "M1-05",
+          "M1-17",
+          "M1-25",
+          "M2-04",
+          "M2-05",
+          "M2-17",
+          "M2-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2"
+        ],
+        "decision_id": "OD-001",
         "default": "NONE",
-        "question_exact": "Confirm the source-bound conditions that distinguish Proposal Accept, Contract Accept, and explicit Project Activation.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-001",
       "result": "PASS"
@@ -1611,15 +1639,87 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-002",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-08",
+          "FINANCE-25",
+          "M1-07",
+          "M1-08",
+          "M1-25",
+          "M2-08",
+          "M2-25",
+          "M3-08",
+          "M3-25",
+          "M4-08",
+          "M4-25",
+          "M5-08",
+          "M5-25",
+          "M6-08",
+          "M6-25",
+          "M7-08",
+          "M7-25",
+          "MASTER_CONTENT-08",
+          "MASTER_CONTENT-25",
+          "REPORTS-07",
+          "REPORTS-08",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-002",
         "default": "NONE",
-        "question_exact": "Confirm whether any Owner-approved source precedence exception exists beyond the canonical truth chain.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-08",
+          "FINANCE-25",
+          "M1-07",
+          "M1-08",
+          "M1-25",
+          "M2-08",
+          "M2-25",
+          "M3-08",
+          "M3-25",
+          "M4-08",
+          "M4-25",
+          "M5-08",
+          "M5-25",
+          "M6-08",
+          "M6-25",
+          "M7-08",
+          "M7-25",
+          "MASTER_CONTENT-08",
+          "MASTER_CONTENT-25",
+          "REPORTS-07",
+          "REPORTS-08",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-002",
         "default": "NONE",
-        "question_exact": "Confirm whether any Owner-approved source precedence exception exists beyond the canonical truth chain.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-002",
       "result": "PASS"
@@ -1628,15 +1728,43 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-003",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "M3-17",
+          "M3-18",
+          "M3-25",
+          "M4-18",
+          "M4-25",
+          "M5-18",
+          "M5-25"
+        ],
+        "affected_domains": [
+          "M3",
+          "M4",
+          "M5"
+        ],
+        "decision_id": "OD-003",
         "default": "NONE",
-        "question_exact": "Confirm the Owner policy that assigns professional approval authority and credential-validity responsibility.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "M3-17",
+          "M3-18",
+          "M3-25",
+          "M4-18",
+          "M4-25",
+          "M5-18",
+          "M5-25"
+        ],
+        "affected_domains": [
+          "M3",
+          "M4",
+          "M5"
+        ],
+        "decision_id": "OD-003",
         "default": "NONE",
-        "question_exact": "Confirm the Owner policy that assigns professional approval authority and credential-validity responsibility.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-003",
       "result": "PASS"
@@ -1645,15 +1773,35 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-004",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "M4-04",
+          "M4-05",
+          "M4-06",
+          "M4-17",
+          "M4-25"
+        ],
+        "affected_domains": [
+          "M4"
+        ],
+        "decision_id": "OD-004",
         "default": "NONE",
-        "question_exact": "Confirm the protected human authority and evidence required for Submit Authorization and final government submission.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "M4-04",
+          "M4-05",
+          "M4-06",
+          "M4-17",
+          "M4-25"
+        ],
+        "affected_domains": [
+          "M4"
+        ],
+        "decision_id": "OD-004",
         "default": "NONE",
-        "question_exact": "Confirm the protected human authority and evidence required for Submit Authorization and final government submission.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-004",
       "result": "PASS"
@@ -1662,15 +1810,39 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-005",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-04",
+          "FINANCE-05",
+          "FINANCE-17",
+          "FINANCE-25",
+          "M7-05",
+          "M7-25"
+        ],
+        "affected_domains": [
+          "M7",
+          "FINANCE"
+        ],
+        "decision_id": "OD-005",
         "default": "NONE",
-        "question_exact": "Confirm the Owner policy separating Invoice Accept, Invoice Issue, Payment Verify, and Financial Settlement.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-04",
+          "FINANCE-05",
+          "FINANCE-17",
+          "FINANCE-25",
+          "M7-05",
+          "M7-25"
+        ],
+        "affected_domains": [
+          "M7",
+          "FINANCE"
+        ],
+        "decision_id": "OD-005",
         "default": "NONE",
-        "question_exact": "Confirm the Owner policy separating Invoice Accept, Invoice Issue, Payment Verify, and Financial Settlement.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-005",
       "result": "PASS"
@@ -1679,15 +1851,55 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-006",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-17",
+          "FINANCE-25",
+          "M2-05",
+          "M2-25",
+          "M6-04",
+          "M6-05",
+          "M6-17",
+          "M6-25",
+          "M7-04",
+          "M7-05",
+          "M7-17",
+          "M7-25"
+        ],
+        "affected_domains": [
+          "M2",
+          "M6",
+          "M7",
+          "FINANCE"
+        ],
+        "decision_id": "OD-006",
         "default": "NONE",
-        "question_exact": "Confirm the independent completion, handover, service, regulatory, financial, and archive closeout boundaries.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-17",
+          "FINANCE-25",
+          "M2-05",
+          "M2-25",
+          "M6-04",
+          "M6-05",
+          "M6-17",
+          "M6-25",
+          "M7-04",
+          "M7-05",
+          "M7-17",
+          "M7-25"
+        ],
+        "affected_domains": [
+          "M2",
+          "M6",
+          "M7",
+          "FINANCE"
+        ],
+        "decision_id": "OD-006",
         "default": "NONE",
-        "question_exact": "Confirm the independent completion, handover, service, regulatory, financial, and archive closeout boundaries.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-006",
       "result": "PASS"
@@ -1696,15 +1908,125 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-007",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-19",
+          "FINANCE-20",
+          "FINANCE-21",
+          "FINANCE-25",
+          "M1-19",
+          "M1-20",
+          "M1-21",
+          "M1-25",
+          "M2-19",
+          "M2-20",
+          "M2-21",
+          "M2-25",
+          "M3-19",
+          "M3-20",
+          "M3-21",
+          "M3-25",
+          "M4-19",
+          "M4-20",
+          "M4-21",
+          "M4-25",
+          "M5-19",
+          "M5-20",
+          "M5-21",
+          "M5-25",
+          "M6-19",
+          "M6-20",
+          "M6-21",
+          "M6-25",
+          "M7-19",
+          "M7-20",
+          "M7-21",
+          "M7-25",
+          "MASTER_CONTENT-19",
+          "MASTER_CONTENT-20",
+          "MASTER_CONTENT-21",
+          "MASTER_CONTENT-25",
+          "REPORTS-15",
+          "REPORTS-19",
+          "REPORTS-20",
+          "REPORTS-21",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-007",
         "default": "NONE",
-        "question_exact": "Confirm currentness, duplicate, revision, supersession, and immutable-snapshot policy.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-19",
+          "FINANCE-20",
+          "FINANCE-21",
+          "FINANCE-25",
+          "M1-19",
+          "M1-20",
+          "M1-21",
+          "M1-25",
+          "M2-19",
+          "M2-20",
+          "M2-21",
+          "M2-25",
+          "M3-19",
+          "M3-20",
+          "M3-21",
+          "M3-25",
+          "M4-19",
+          "M4-20",
+          "M4-21",
+          "M4-25",
+          "M5-19",
+          "M5-20",
+          "M5-21",
+          "M5-25",
+          "M6-19",
+          "M6-20",
+          "M6-21",
+          "M6-25",
+          "M7-19",
+          "M7-20",
+          "M7-21",
+          "M7-25",
+          "MASTER_CONTENT-19",
+          "MASTER_CONTENT-20",
+          "MASTER_CONTENT-21",
+          "MASTER_CONTENT-25",
+          "REPORTS-15",
+          "REPORTS-19",
+          "REPORTS-20",
+          "REPORTS-21",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-007",
         "default": "NONE",
-        "question_exact": "Confirm currentness, duplicate, revision, supersession, and immutable-snapshot policy.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-007",
       "result": "PASS"
@@ -1713,15 +2035,103 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-008",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-10",
+          "FINANCE-25",
+          "M1-10",
+          "M1-25",
+          "M2-10",
+          "M2-25",
+          "M3-10",
+          "M3-16",
+          "M3-25",
+          "M4-10",
+          "M4-25",
+          "M5-10",
+          "M5-25",
+          "M6-10",
+          "M6-25",
+          "M7-10",
+          "M7-25",
+          "MASTER_CONTENT-01",
+          "MASTER_CONTENT-02",
+          "MASTER_CONTENT-04",
+          "MASTER_CONTENT-05",
+          "MASTER_CONTENT-07",
+          "MASTER_CONTENT-10",
+          "MASTER_CONTENT-17",
+          "MASTER_CONTENT-20",
+          "MASTER_CONTENT-21",
+          "MASTER_CONTENT-25",
+          "REPORTS-01",
+          "REPORTS-10",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-008",
         "default": "NONE",
-        "question_exact": "Confirm the governance and propagation policy separating reusable Master Content from executed project artifacts.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-10",
+          "FINANCE-25",
+          "M1-10",
+          "M1-25",
+          "M2-10",
+          "M2-25",
+          "M3-10",
+          "M3-16",
+          "M3-25",
+          "M4-10",
+          "M4-25",
+          "M5-10",
+          "M5-25",
+          "M6-10",
+          "M6-25",
+          "M7-10",
+          "M7-25",
+          "MASTER_CONTENT-01",
+          "MASTER_CONTENT-02",
+          "MASTER_CONTENT-04",
+          "MASTER_CONTENT-05",
+          "MASTER_CONTENT-07",
+          "MASTER_CONTENT-10",
+          "MASTER_CONTENT-17",
+          "MASTER_CONTENT-20",
+          "MASTER_CONTENT-21",
+          "MASTER_CONTENT-25",
+          "REPORTS-01",
+          "REPORTS-10",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-008",
         "default": "NONE",
-        "question_exact": "Confirm the governance and propagation policy separating reusable Master Content from executed project artifacts.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-008",
       "result": "PASS"
@@ -1730,15 +2140,97 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-009",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-11",
+          "FINANCE-25",
+          "M1-11",
+          "M1-25",
+          "M2-11",
+          "M2-25",
+          "M3-11",
+          "M3-25",
+          "M4-11",
+          "M4-25",
+          "M5-11",
+          "M5-25",
+          "M6-11",
+          "M6-25",
+          "M7-11",
+          "M7-25",
+          "MASTER_CONTENT-11",
+          "MASTER_CONTENT-25",
+          "REPORTS-01",
+          "REPORTS-04",
+          "REPORTS-05",
+          "REPORTS-06",
+          "REPORTS-07",
+          "REPORTS-10",
+          "REPORTS-11",
+          "REPORTS-15",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-009",
         "default": "NONE",
-        "question_exact": "Confirm the canonical relationship between Report definition, data dependency, generation, and output.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "FINANCE-11",
+          "FINANCE-25",
+          "M1-11",
+          "M1-25",
+          "M2-11",
+          "M2-25",
+          "M3-11",
+          "M3-25",
+          "M4-11",
+          "M4-25",
+          "M5-11",
+          "M5-25",
+          "M6-11",
+          "M6-25",
+          "M7-11",
+          "M7-25",
+          "MASTER_CONTENT-11",
+          "MASTER_CONTENT-25",
+          "REPORTS-01",
+          "REPORTS-04",
+          "REPORTS-05",
+          "REPORTS-06",
+          "REPORTS-07",
+          "REPORTS-10",
+          "REPORTS-11",
+          "REPORTS-15",
+          "REPORTS-25"
+        ],
+        "affected_domains": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "FINANCE",
+          "MASTER_CONTENT",
+          "REPORTS"
+        ],
+        "decision_id": "OD-009",
         "default": "NONE",
-        "question_exact": "Confirm the canonical relationship between Report definition, data dependency, generation, and output.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-009",
       "result": "PASS"
@@ -1747,15 +2239,41 @@
       "assertion": "Owner decision has exact question, status, reverse edges, and NONE default.",
       "check_id": "OD-CHECK-OD-010",
       "expected": {
+        "affected_coverage_cell_ids": [
+          "M4-17",
+          "M4-25",
+          "M5-17",
+          "M5-25",
+          "M7-17",
+          "M7-25"
+        ],
+        "affected_domains": [
+          "M4",
+          "M5",
+          "M7"
+        ],
+        "decision_id": "OD-010",
         "default": "NONE",
-        "question_exact": "Confirm the boundary between external or adjacent organizations and canonical AMEC authority roles.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
-      "method": "owner_decision_record_and_reverse_index_evaluation",
+      "method": "v6c_owner_decision_reverse_index_evaluation",
       "observed": {
+        "affected_coverage_cell_ids": [
+          "M4-17",
+          "M4-25",
+          "M5-17",
+          "M5-25",
+          "M7-17",
+          "M7-25"
+        ],
+        "affected_domains": [
+          "M4",
+          "M5",
+          "M7"
+        ],
+        "decision_id": "OD-010",
         "default": "NONE",
-        "question_exact": "Confirm the boundary between external or adjacent organizations and canonical AMEC authority roles.",
-        "status": "OWNER_DECISION_PENDING"
+        "owner_status": "OWNER_DECISION_PENDING"
       },
       "requirement_id": "OD-010",
       "result": "PASS"
@@ -1763,5 +2281,11 @@
   ],
   "count": 149,
   "fail": 0,
-  "pass": 149
+  "pass": 149,
+  "schema_negative_check_count": 11,
+  "schema_negative_check_fail": 0,
+  "strict_schema_validation_pass": true,
+  "v6c_closure_check_count": 87,
+  "v6c_closure_check_fail": 0,
+  "v6c_closure_check_pass": 87
 }

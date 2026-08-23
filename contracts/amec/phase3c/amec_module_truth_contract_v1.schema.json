@@ -36,8 +36,7 @@
           "type": "string"
         },
         "domain": {
-          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
-          "type": "string"
+          "$ref": "#/$defs/domainCode"
         },
         "evidence_ids": {
           "items": {
@@ -93,8 +92,7 @@
           "uniqueItems": true
         },
         "truth_dimension": {
-          "minLength": 1,
-          "type": "string"
+          "$ref": "#/$defs/truthDimensionName"
         },
         "truth_type": {
           "minLength": 1,
@@ -123,6 +121,162 @@
     },
     "coverageCell": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "domain": {
+                  "const": "INTAKE_OPPORTUNITY_BD"
+                },
+                "domain_code": {
+                  "const": "M1"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "CONTRACT_MOBILIZATION"
+                },
+                "domain_code": {
+                  "const": "M2"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "DESIGN_TECHNICAL_DELIVERY"
+                },
+                "domain_code": {
+                  "const": "M3"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "REGULATORY_SUBMISSIONS"
+                },
+                "domain_code": {
+                  "const": "M4"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "CONSTRUCTION_POST_APPROVAL"
+                },
+                "domain_code": {
+                  "const": "M5"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "COMPLETION_AS_BUILT"
+                },
+                "domain_code": {
+                  "const": "M6"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "HANDOVER_CLOSEOUT"
+                },
+                "domain_code": {
+                  "const": "M7"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "FINANCE"
+                },
+                "domain_code": {
+                  "const": "FINANCE"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "MASTER_CONTENT"
+                },
+                "domain_code": {
+                  "const": "MASTER_CONTENT"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "domain": {
+                  "const": "REPORTS"
+                },
+                "domain_code": {
+                  "const": "REPORTS"
+                }
+              },
+              "required": [
+                "domain_code",
+                "domain"
+              ],
+              "type": "object"
+            }
+          ]
+        }
+      ],
       "properties": {
         "basis_refs": {
           "items": {
@@ -159,8 +313,7 @@
           "type": "string"
         },
         "dimension": {
-          "minLength": 1,
-          "type": "string"
+          "$ref": "#/$defs/truthDimensionName"
         },
         "dimension_order": {
           "maximum": 25,
@@ -168,12 +321,10 @@
           "type": "integer"
         },
         "domain": {
-          "minLength": 1,
-          "type": "string"
+          "$ref": "#/$defs/domainName"
         },
         "domain_code": {
-          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
-          "type": "string"
+          "$ref": "#/$defs/domainCode"
         },
         "evidence_gap_refs": {
           "items": {
@@ -242,23 +393,96 @@
       ],
       "type": "object"
     },
-    "evidenceRecord": {
-      "additionalProperties": false,
-      "properties": {
-        "kind": {
-          "minLength": 1,
-          "type": "string"
+    "domainCode": {
+      "enum": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "FINANCE",
+        "MASTER_CONTENT",
+        "REPORTS"
+      ]
+    },
+    "domainName": {
+      "enum": [
+        "INTAKE_OPPORTUNITY_BD",
+        "CONTRACT_MOBILIZATION",
+        "DESIGN_TECHNICAL_DELIVERY",
+        "REGULATORY_SUBMISSIONS",
+        "CONSTRUCTION_POST_APPROVAL",
+        "COMPLETION_AS_BUILT",
+        "HANDOVER_CLOSEOUT",
+        "FINANCE",
+        "MASTER_CONTENT",
+        "REPORTS"
+      ]
+    },
+    "evidenceIdentityRecord": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "identity_type": {
+              "const": "SHA256"
+            },
+            "identity_value": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "identity_type",
+            "identity_value"
+          ],
+          "type": "object"
         },
-        "sha256": {
-          "pattern": "^([a-f0-9]{40}|[a-f0-9]{64}|ARCHITECTURE_INVARIANT)$",
-          "type": "string"
+        {
+          "additionalProperties": false,
+          "properties": {
+            "identity_type": {
+              "const": "GIT_COMMIT_SHA1"
+            },
+            "identity_value": {
+              "pattern": "^[0-9a-f]{40}$",
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "identity_type",
+            "identity_value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "identity_type": {
+              "const": "ARCHITECTURE_INVARIANT"
+            },
+            "identity_value": {
+              "const": "ARCHITECTURE_INVARIANT"
+            },
+            "kind": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "identity_type",
+            "identity_value"
+          ],
+          "type": "object"
         }
-      },
-      "required": [
-        "kind",
-        "sha256"
-      ],
-      "type": "object"
+      ]
     },
     "id": {
       "pattern": "^[A-Za-z][A-Za-z0-9_-]+$",
@@ -286,7 +510,7 @@
         },
         "affected_domains": {
           "items": {
-            "type": "string"
+            "$ref": "#/$defs/domainCode"
           },
           "minItems": 1,
           "type": "array",
@@ -345,6 +569,252 @@
     },
     "protectedAuthority": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "proposal_accept"
+                },
+                "domain_code": {
+                  "const": "M1"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "contract_accept"
+                },
+                "domain_code": {
+                  "const": "M2"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "project_activation"
+                },
+                "domain_code": {
+                  "const": "M2"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "professional_engineering_approval"
+                },
+                "domain_code": {
+                  "const": "M3"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "invoice_accept"
+                },
+                "domain_code": {
+                  "const": "FINANCE"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "invoice_issue"
+                },
+                "domain_code": {
+                  "const": "FINANCE"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "payment_verify"
+                },
+                "domain_code": {
+                  "const": "FINANCE"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "submit_authorization"
+                },
+                "domain_code": {
+                  "const": "M4"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "final_government_submission"
+                },
+                "domain_code": {
+                  "const": "M4"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "construction_start"
+                },
+                "domain_code": {
+                  "const": "M5"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "handover_acceptance"
+                },
+                "domain_code": {
+                  "const": "M7"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "service_scope_closure"
+                },
+                "domain_code": {
+                  "const": "M7"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "contract_administrative_closure"
+                },
+                "domain_code": {
+                  "const": "M7"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "regulatory_closeout"
+                },
+                "domain_code": {
+                  "const": "M7"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "financial_settlement"
+                },
+                "domain_code": {
+                  "const": "FINANCE"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "authority_id": {
+                  "const": "archive_closure"
+                },
+                "domain_code": {
+                  "const": "M7"
+                }
+              },
+              "required": [
+                "authority_id",
+                "domain_code"
+              ],
+              "type": "object"
+            }
+          ]
+        }
+      ],
       "properties": {
         "assertion_ids": {
           "items": {
@@ -356,16 +826,31 @@
           "uniqueItems": true
         },
         "authority_id": {
-          "pattern": "^[a-z][a-z0-9_]+$",
-          "type": "string"
+          "enum": [
+            "archive_closure",
+            "construction_start",
+            "contract_accept",
+            "contract_administrative_closure",
+            "final_government_submission",
+            "financial_settlement",
+            "handover_acceptance",
+            "invoice_accept",
+            "invoice_issue",
+            "payment_verify",
+            "professional_engineering_approval",
+            "project_activation",
+            "proposal_accept",
+            "regulatory_closeout",
+            "service_scope_closure",
+            "submit_authorization"
+          ]
         },
         "display_name": {
           "minLength": 1,
           "type": "string"
         },
         "domain_code": {
-          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
-          "type": "string"
+          "$ref": "#/$defs/domainCode"
         },
         "human_required": {
           "const": true
@@ -398,104 +883,641 @@
       "type": "object"
     },
     "truthDimension": {
-      "additionalProperties": false,
-      "properties": {
-        "name": {
-          "enum": [
-            "entities",
-            "document families",
-            "business identifiers",
-            "states",
-            "transitions",
-            "roles",
-            "source-of-truth rules",
-            "source precedence",
-            "source-role semantics",
-            "Master Content dependencies",
-            "report dependencies",
-            "Work triggers",
-            "Issue triggers",
-            "Notification triggers",
-            "Audit expectations",
-            "project/entity linking semantics",
-            "party/authorization dependencies",
-            "professional-approval dependencies",
-            "duplicate/version semantics",
-            "currentness rules",
-            "supersession rules",
-            "evidence IDs",
-            "basis type",
-            "basis refs",
-            "unresolved Owner decisions"
-          ]
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "entities"
+            },
+            "order": {
+              "const": 1
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
         },
-        "order": {
-          "maximum": 25,
-          "minimum": 1,
-          "type": "integer"
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "document families"
+            },
+            "order": {
+              "const": 2
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "business identifiers"
+            },
+            "order": {
+              "const": 3
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "states"
+            },
+            "order": {
+              "const": 4
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "transitions"
+            },
+            "order": {
+              "const": 5
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "roles"
+            },
+            "order": {
+              "const": 6
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "source-of-truth rules"
+            },
+            "order": {
+              "const": 7
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "source precedence"
+            },
+            "order": {
+              "const": 8
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "source-role semantics"
+            },
+            "order": {
+              "const": 9
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "Master Content dependencies"
+            },
+            "order": {
+              "const": 10
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "report dependencies"
+            },
+            "order": {
+              "const": 11
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "Work triggers"
+            },
+            "order": {
+              "const": 12
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "Issue triggers"
+            },
+            "order": {
+              "const": 13
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "Notification triggers"
+            },
+            "order": {
+              "const": 14
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "Audit expectations"
+            },
+            "order": {
+              "const": 15
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "project/entity linking semantics"
+            },
+            "order": {
+              "const": 16
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "party/authorization dependencies"
+            },
+            "order": {
+              "const": 17
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "professional-approval dependencies"
+            },
+            "order": {
+              "const": 18
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "duplicate/version semantics"
+            },
+            "order": {
+              "const": 19
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "currentness rules"
+            },
+            "order": {
+              "const": 20
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "supersession rules"
+            },
+            "order": {
+              "const": 21
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "evidence IDs"
+            },
+            "order": {
+              "const": 22
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "basis type"
+            },
+            "order": {
+              "const": 23
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "basis refs"
+            },
+            "order": {
+              "const": 24
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "unresolved Owner decisions"
+            },
+            "order": {
+              "const": 25
+            }
+          },
+          "required": [
+            "order",
+            "name"
+          ],
+          "type": "object"
         }
-      },
-      "required": [
-        "order",
-        "name"
-      ],
-      "type": "object"
+      ]
+    },
+    "truthDimensionName": {
+      "enum": [
+        "entities",
+        "document families",
+        "business identifiers",
+        "states",
+        "transitions",
+        "roles",
+        "source-of-truth rules",
+        "source precedence",
+        "source-role semantics",
+        "Master Content dependencies",
+        "report dependencies",
+        "Work triggers",
+        "Issue triggers",
+        "Notification triggers",
+        "Audit expectations",
+        "project/entity linking semantics",
+        "party/authorization dependencies",
+        "professional-approval dependencies",
+        "duplicate/version semantics",
+        "currentness rules",
+        "supersession rules",
+        "evidence IDs",
+        "basis type",
+        "basis refs",
+        "unresolved Owner decisions"
+      ]
     },
     "truthDomain": {
-      "additionalProperties": false,
-      "properties": {
-        "classifier_primary_tag": {
-          "enum": [
-            "INTAKE_OPPORTUNITY_BD",
-            "CONTRACT_MOBILIZATION",
-            "DESIGN_TECHNICAL_DELIVERY",
-            "REGULATORY_SUBMISSIONS",
-            "CONSTRUCTION_POST_APPROVAL",
-            "COMPLETION_AS_BUILT",
-            "HANDOVER_CLOSEOUT",
-            "FINANCE",
-            null
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "INTAKE_OPPORTUNITY_BD"
+            },
+            "code": {
+              "const": "M1"
+            },
+            "name": {
+              "const": "INTAKE_OPPORTUNITY_BD"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
           ],
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "object"
         },
-        "code": {
-          "enum": [
-            "M1",
-            "M2",
-            "M3",
-            "M4",
-            "M5",
-            "M6",
-            "M7",
-            "FINANCE",
-            "MASTER_CONTENT",
-            "REPORTS"
-          ]
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "CONTRACT_MOBILIZATION"
+            },
+            "code": {
+              "const": "M2"
+            },
+            "name": {
+              "const": "CONTRACT_MOBILIZATION"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
         },
-        "name": {
-          "enum": [
-            "INTAKE_OPPORTUNITY_BD",
-            "CONTRACT_MOBILIZATION",
-            "DESIGN_TECHNICAL_DELIVERY",
-            "REGULATORY_SUBMISSIONS",
-            "CONSTRUCTION_POST_APPROVAL",
-            "COMPLETION_AS_BUILT",
-            "HANDOVER_CLOSEOUT",
-            "FINANCE",
-            "MASTER_CONTENT",
-            "REPORTS"
-          ]
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "DESIGN_TECHNICAL_DELIVERY"
+            },
+            "code": {
+              "const": "M3"
+            },
+            "name": {
+              "const": "DESIGN_TECHNICAL_DELIVERY"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "REGULATORY_SUBMISSIONS"
+            },
+            "code": {
+              "const": "M4"
+            },
+            "name": {
+              "const": "REGULATORY_SUBMISSIONS"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "CONSTRUCTION_POST_APPROVAL"
+            },
+            "code": {
+              "const": "M5"
+            },
+            "name": {
+              "const": "CONSTRUCTION_POST_APPROVAL"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "COMPLETION_AS_BUILT"
+            },
+            "code": {
+              "const": "M6"
+            },
+            "name": {
+              "const": "COMPLETION_AS_BUILT"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "HANDOVER_CLOSEOUT"
+            },
+            "code": {
+              "const": "M7"
+            },
+            "name": {
+              "const": "HANDOVER_CLOSEOUT"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": "FINANCE"
+            },
+            "code": {
+              "const": "FINANCE"
+            },
+            "name": {
+              "const": "FINANCE"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": null
+            },
+            "code": {
+              "const": "MASTER_CONTENT"
+            },
+            "name": {
+              "const": "MASTER_CONTENT"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "classifier_primary_tag": {
+              "const": null
+            },
+            "code": {
+              "const": "REPORTS"
+            },
+            "name": {
+              "const": "REPORTS"
+            }
+          },
+          "required": [
+            "code",
+            "name",
+            "classifier_primary_tag"
+          ],
+          "type": "object"
         }
-      },
-      "required": [
-        "code",
-        "name",
-        "classifier_primary_tag"
-      ],
-      "type": "object"
+      ]
     }
   },
   "$id": "AMEC_MODULE_TRUTH_CONTRACT_V1_SCHEMA",
@@ -653,70 +1675,7 @@
       "minProperties": 1,
       "patternProperties": {
         "^EVID_[A-Z0-9_]+$": {
-          "oneOf": [
-            {
-              "additionalProperties": false,
-              "properties": {
-                "identity_type": {
-                  "const": "SHA256"
-                },
-                "identity_value": {
-                  "pattern": "^[a-f0-9]{64}$",
-                  "type": "string"
-                },
-                "kind": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "kind",
-                "identity_type",
-                "identity_value"
-              ],
-              "type": "object"
-            },
-            {
-              "additionalProperties": false,
-              "properties": {
-                "identity_type": {
-                  "const": "GIT_COMMIT_SHA1"
-                },
-                "identity_value": {
-                  "pattern": "^[a-f0-9]{40}$",
-                  "type": "string"
-                },
-                "kind": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "kind",
-                "identity_type",
-                "identity_value"
-              ],
-              "type": "object"
-            },
-            {
-              "additionalProperties": false,
-              "properties": {
-                "identity_type": {
-                  "const": "ARCHITECTURE_INVARIANT"
-                },
-                "identity_value": {
-                  "const": "ARCHITECTURE_INVARIANT"
-                },
-                "kind": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "kind",
-                "identity_type",
-                "identity_value"
-              ],
-              "type": "object"
-            }
-          ]
+          "$ref": "#/$defs/evidenceIdentityRecord"
         }
       },
       "type": "object"
@@ -778,12 +1737,50 @@
     },
     "owner_decision_catalog": {
       "additionalProperties": false,
-      "minProperties": 1,
-      "patternProperties": {
-        "^OD-[0-9]{3}$": {
+      "properties": {
+        "OD-001": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-002": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-003": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-004": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-005": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-006": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-007": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-008": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-009": {
+          "$ref": "#/$defs/ownerDecision"
+        },
+        "OD-010": {
           "$ref": "#/$defs/ownerDecision"
         }
       },
+      "required": [
+        "OD-001",
+        "OD-002",
+        "OD-003",
+        "OD-004",
+        "OD-005",
+        "OD-006",
+        "OD-007",
+        "OD-008",
+        "OD-009",
+        "OD-010"
+      ],
       "type": "object"
     },
     "protected_human_authorities": {

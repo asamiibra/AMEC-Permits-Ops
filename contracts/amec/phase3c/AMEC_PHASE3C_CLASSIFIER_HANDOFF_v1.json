@@ -60,7 +60,7 @@
     "MASTER_CONTENT",
     "REPORTS"
   ],
-  "module_truth_contract_sha256": "060f0ad81d9eb4807da2a155f9e67efc082bcfd966c94a9cccf77125e44e0218",
+  "module_truth_contract_sha256": "d18ebed191b8f2633d5984ff57ab25803fe19beeb9c73999946abffddb974f2c",
   "operational_tags": [
     "INTAKE_OPPORTUNITY_BD",
     "CONTRACT_MOBILIZATION",

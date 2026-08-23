@@ -1,21 +1,23 @@
-# AMEC Phase3C V6B acceptance report
+# AMEC Phase3C Acceptance Report v1
 
-Final semantic provenance repair candidate; independent acceptance remains pending.
+## V6C semantic closure candidate
 
-SECTION19_OWNER_REF_ROW_COUNT=123
-SECTION19_OWNER_REF_EXACT_MATCH_COUNT=123
-PROTECTED_AUTHORITY_OWNER_REF_COUNT=16
-PROTECTED_AUTHORITY_OWNER_REF_EXACT_MATCH_COUNT=16
-DOMAIN25_DECISION_SET_COUNT=10
-DOMAIN25_DECISION_SET_EXACT_MATCH_COUNT=10
-OWNER_DECISION_FORWARD_EDGE_COUNT=198
-OWNER_DECISION_REVERSE_EDGE_COUNT=198
-SECTION19_TO_COVERAGE_EXPECTED_LINK_COUNT=123
-AUTHORITY_TO_COVERAGE_EXPECTED_LINK_COUNT=16
-RELATIONAL_EDGE_CHECK_COUNT=337
-PHASE3C_PRIMARY_ACCEPTANCE_CHECKS=300
-PHASE3C_PRIMARY_ACCEPTANCE_PASS=300
-PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_CHECKS=149
-PHASE3C_V6B_SUPPLEMENTARY_SEMANTIC_PASS=149
+This additive candidate repairs Domain25 semantic closure, exact cross-cutting projection provenance, and strict schema enforcement.
 
-Freeze manifest SHA-256: `a235d97291840e537d570c0c1d9042bdde50191b118029a0715ec8baedbf2416`
+| Gate | Result |
+|---|---|
+| Module assertions | 419 |
+| Section19 assertions | 123 |
+| Coverage cells | 250 |
+| Protected authorities | 16 |
+| Domain25 decision sets | 10/10 exact |
+| Projection edges | 66/66 exact |
+| V6C closure checks | 87 PASS / 0 FAIL |
+| Strict schema and negative tests | PASS |
+| Owner decisions | OD-001..OD-010 pending; default NONE |
+| Phase3C executed | false |
+| Phase4/Phase5 executed | false |
+
+Freeze manifest SHA-256: `bfb59dddb614f971e0880bc4f578ac76ac32069669c70b42e04fb7949cef16aa`
+
+This is a candidate for independent Phase3C acceptance review. No independent acceptance record is created here.
