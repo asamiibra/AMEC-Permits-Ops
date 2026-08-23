@@ -166,7 +166,6 @@ jobs:
           PY
           echo "V5_SCOPE=PASS"
           echo "V5_PATHS_OUTSIDE_ALLOWLIST=0"
-          fi
 
       - name: Validate Stage A bootstrap scope
         if: steps.mode.outputs.mode == 'REFERENCE_CAPTURE'
