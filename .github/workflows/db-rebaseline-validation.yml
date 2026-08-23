@@ -1836,6 +1836,16 @@ jobs:
               "final_artifact_id": None,
               "final_artifact_digest": None,
               "artifact_binding_note": "The immutable artifact ID and digest are emitted by the immediately following pinned upload action.",
+              "remote_rebaseline_head_direct": "ae0ce01d5f637b9d87f04a9cdad2882c8842477a",
+              "cached_rebaseline_ref_before": "23d907e6873eb1430f4b926919fce2654b58484c",
+              "local_remote_tracking_ref_stale": True,
+              "cached_rebaseline_ref_after": "ae0ce01d5f637b9d87f04a9cdad2882c8842477a",
+              "remote_source_head_direct": "96c4b90968754efd8e5998cd1b1793b67c23d2bc",
+              "closure_preimage_sha": "ae0ce01d5f637b9d87f04a9cdad2882c8842477a",
+              "closure_workflow_preimage_blob": "3403d30c1ed90626dd855e32b8e2e4a72695d1c2",
+              "closure_readiness_test_frozen_blob": "28c0955fbec139d939469875c9c853b32c56b8c4",
+              "exact_v4_numbered_gate_spec_match": True,
+              "exact_v4_subcheck_spec_match": True,
               "inherited_v4_gate_count": 243,
               "inherited_v4_gate_fail_count": 0,
               "inherited_v4_gate_not_executed_count": 0,
@@ -1852,7 +1862,31 @@ jobs:
               "rebaseline_accepted": False,
               "rebaseline_self_accepted": False,
           }
-          Path("reference-package/v5-final-provenance.json").write_text(json.dumps(provenance, sort_keys=True, indent=2) + "\n")
+          provenance_path = Path("reference-package/v5-final-provenance.json")
+          provenance_path.write_text(json.dumps(provenance, sort_keys=True, indent=2) + "\n")
+          required_provenance = {
+              "remote_rebaseline_head_direct": "ae0ce01d5f637b9d87f04a9cdad2882c8842477a",
+              "cached_rebaseline_ref_before": "23d907e6873eb1430f4b926919fce2654b58484c",
+              "local_remote_tracking_ref_stale": True,
+              "cached_rebaseline_ref_after": "ae0ce01d5f637b9d87f04a9cdad2882c8842477a",
+              "remote_source_head_direct": "96c4b90968754efd8e5998cd1b1793b67c23d2bc",
+              "closure_preimage_sha": "ae0ce01d5f637b9d87f04a9cdad2882c8842477a",
+              "closure_workflow_preimage_blob": "3403d30c1ed90626dd855e32b8e2e4a72695d1c2",
+              "closure_readiness_test_frozen_blob": "28c0955fbec139d939469875c9c853b32c56b8c4",
+              "exact_v4_numbered_gate_spec_match": True,
+              "exact_v4_subcheck_spec_match": True,
+          }
+          persisted = json.loads(provenance_path.read_text())
+          present_count = sum(key in persisted for key in required_provenance)
+          match_count = sum(persisted.get(key) == value for key, value in required_provenance.items())
+          print(f"B30_REQUIRED_FIELD_COUNT={len(required_provenance)}")
+          print(f"B30_REQUIRED_FIELD_PRESENT_COUNT={present_count}")
+          print(f"B30_REQUIRED_FIELD_MATCH_COUNT={match_count}")
+          if present_count != len(required_provenance) or match_count != len(required_provenance):
+              print("RESULT=STOP_V5_B30_PROVENANCE_PERSISTENCE_MISMATCH")
+              print("REBASELINE_ACCEPTED=false")
+              print("PHASE3C_EXECUTED=false")
+              raise SystemExit("STOP_V5_B30_PROVENANCE_PERSISTENCE_MISMATCH")
           required = [
               "v5-inherited-v4-gate-matrix.json",
               "v5-final-provenance.json",
