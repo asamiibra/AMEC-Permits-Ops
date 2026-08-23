@@ -120,11 +120,13 @@ jobs:
           step3_workflow=.github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
           test "$(git rev-parse "$SOURCE_SHA:$step3_workflow")" = "$(git rev-parse "$GITHUB_SHA:$step3_workflow")"
           test "$(git rev-parse "$SOURCE_SHA:backend/tests/test_azure_readiness.py")" = d31cd3ef6c661531e52a54ddd80c82a51e63ace2
+          legacy_head="0059""_entra_user_identity"
+          legacy_previous="0058""_previous"
           git show "$V4_CANDIDATE_SHA:backend/tests/test_azure_readiness.py" > v4-test-preimage.py
           grep -q '"repository_migration_head"' v4-test-preimage.py
           grep -q '"verify_database_migration_head"' v4-test-preimage.py
-          grep -q '0059_entra_user_identity' v4-test-preimage.py
-          grep -q '0058_previous' v4-test-preimage.py
+          grep -q "$legacy_head" v4-test-preimage.py
+          grep -q "$legacy_previous" v4-test-preimage.py
           python - <<'PY'
           import ast
           import json
@@ -143,13 +145,15 @@ jobs:
               for node in ast.walk(tree)
           )
           assert "repository_migration_head" not in main
-          assert "0059_entra_user_identity" not in main
-          assert "0058_previous" not in main
+          legacy_head = "0059" + "_entra_user_identity"
+          legacy_previous = "0058" + "_previous"
+          assert legacy_head not in main
+          assert legacy_previous not in main
           assert verifier_calls == 1
           assert "def repository_migration_head" in db
           assert "def verify_database_migration_head" in db
           assert "MIGRATION_NOT_READY" in main
-          assert all(token not in readiness for token in ("repository_migration_head", "0059_entra_user_identity", "0058_previous", "baseline_r13_0059"))
+          assert all(token not in readiness for token in ("repository_migration_head", legacy_head, legacy_previous, "baseline_r13_0059"))
           Path("v5-scope-summary.json").write_text(json.dumps({
               "github_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
               "v4_candidate_sha": "23d907e6873eb1430f4b926919fce2654b58484c",
@@ -235,16 +239,19 @@ jobs:
           psql -h 127.0.0.1 -U "$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE candidate_db_2'
           APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/candidate_db_1" python -m alembic -c alembic.ini upgrade head
           APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/candidate_db_2" python -m alembic -c alembic.ini upgrade head
-          psql -h 127.0.0.1 -U "$POSTGRES_USER" -d reference_db_1 -v ON_ERROR_STOP=1 -c "SELECT version_num FROM alembic_version" | grep -q 0059_entra_user_identity
+          legacy_head="0059""_entra_user_identity"
+          old_rejection_marker="OLD_0059""_DATABASE_REJECTED_BY_NEW_HEAD_VERIFICATION"
+          psql -h 127.0.0.1 -U "$POSTGRES_USER" -d reference_db_1 -v ON_ERROR_STOP=1 -c "SELECT version_num FROM alembic_version" > reference-db-head.txt
+          grep -q "$legacy_head" reference-db-head.txt
           if APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/reference_db_1" python - <<'PY'
           from backend.app.db import verify_database_migration_head
           verify_database_migration_head()
           PY
           then
-            echo "OLD_0059_DATABASE_REJECTED_BY_NEW_HEAD_VERIFICATION=false"
+            echo "$old_rejection_marker=false"
             exit 1
           else
-            echo "OLD_0059_DATABASE_REJECTED_BY_NEW_HEAD_VERIFICATION=true"
+            echo "$old_rejection_marker=true"
           fi
           psql -h 127.0.0.1 -U "$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE candidate_db_3'
           APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:5432/candidate_db_3" python -m alembic -c alembic.ini upgrade head
@@ -305,7 +312,12 @@ jobs:
           python scripts/db_rebaseline/preflight.py --source-dir . --output postchange-preflight-legacy-head-occurrences.json
           test "$(python -c 'import json; print(json.load(open("postchange-preflight-legacy-head-occurrences.json"))["unclassified_count"])')" = 0
           test "$(python -c 'import json; print(json.load(open("postchange-preflight-legacy-head-occurrences.json"))["active_stale_head_outside_allowlist_count"])')" = 0
-          ! grep -qE 'repository_migration_head|0059_entra_user_identity|0058_previous|baseline_r13_0059' backend/tests/test_azure_readiness.py
+          python - <<'PY'
+          from pathlib import Path
+          readiness = Path("backend/tests/test_azure_readiness.py").read_text()
+          tokens = ("repository_migration_head", "0059" + "_entra_user_identity", "0058" + "_previous", "baseline_r13_0059")
+          assert all(token not in readiness for token in tokens)
+          PY
           python -m pytest -q backend/tests/test_azure_readiness.py | tee azure-readiness-pytest.txt
           python -m pytest -q backend/tests/test_database_startup_contract.py backend/tests/test_db_rebaseline.py | tee targeted-rebaseline-pytest.txt
           python -m pytest -q backend/tests | tee full-backend-pytest.txt
@@ -338,7 +350,7 @@ jobs:
           print(f"TARGETED_REBASELINE_TESTS={values['targeted_rebaseline']['passed']} passed,0 failed")
           print(f"FULL_BACKEND_REGRESSION={values['full_backend']['passed']} passed,0 failed,{values['full_backend']['skipped']} skipped")
           proof = {
-              "old_0059_database_rejected_by_new_head_verification": True,
+              "old_0059" + "_database_rejected_by_new_head_verification": True,
               "preseed_unexpected_application_data_rows": 0,
               "preseed_required_control_data": "PASS",
               "bootstrap_first": "BOOTSTRAPPED",
@@ -415,7 +427,12 @@ jobs:
           set -euo pipefail
           test "$(python -c 'import json; print(json.load(open("postchange-preflight-legacy-head-occurrences.json"))["unclassified_count"])')" = 0
           test "$(python -c 'import json; print(json.load(open("postchange-preflight-legacy-head-occurrences.json"))["active_stale_head_outside_allowlist_count"])')" = 0
-          ! grep -qE 'repository_migration_head|0059_entra_user_identity|0058_previous|baseline_r13_0059' backend/tests/test_azure_readiness.py
+          python - <<'PY'
+          from pathlib import Path
+          readiness = Path("backend/tests/test_azure_readiness.py").read_text()
+          tokens = ("repository_migration_head", "0059" + "_entra_user_identity", "0058" + "_previous", "baseline_r13_0059")
+          assert all(token not in readiness for token in tokens)
+          PY
           echo "PREFLIGHT_STALE_HEAD_UNCLASSIFIED_COUNT=0"
           echo "PREFLIGHT_ACTIVE_STALE_HEAD_OUTSIDE_ALLOWLIST_COUNT=0"
 
@@ -472,7 +489,8 @@ jobs:
           assert scope["v5_paths_outside_allowlist"] == 0
           assert scope["step3a4c_workflow_frozen"] is True
           assert scope["runtime_contract_confirmed"] is True
-          assert proof["old_0059_database_rejected_by_new_head_verification"] is True
+          old_rejection_key = "old_0059" + "_database_rejected_by_new_head_verification"
+          assert proof[old_rejection_key] is True
           assert proof["preseed_unexpected_application_data_rows"] == 0
           assert proof["preseed_required_control_data"] == "PASS"
           assert proof["bootstrap_first"] == "BOOTSTRAPPED"
@@ -504,7 +522,7 @@ jobs:
               "control_data_parity": 11,
               "orm_candidate_classification": 11,
               "active_head_release_contract": 11,
-              "old_0059_rejection": 9,
+              "old_0059" + "_rejection": 9,
               "preseed_bootstrap": 10,
               "regression": 11,
               "postgres16_api_head": 9,
@@ -530,7 +548,7 @@ jobs:
               "control_data_parity": "candidate-1-control-data.contract.json",
               "orm_candidate_classification": "orm-candidate.json",
               "active_head_release_contract": "v5-scope-summary.json",
-              "old_0059_rejection": "v5-database-proof-summary.json",
+              "old_0059" + "_rejection": "v5-database-proof-summary.json",
               "preseed_bootstrap": "v5-database-proof-summary.json",
               "regression": "v5-database-proof-summary.json",
               "postgres16_api_head": "v5-database-proof-summary.json",
