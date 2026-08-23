@@ -68,10 +68,10 @@ def _create_version_table(
             )
 
 
-def test_repository_migration_head_is_current_rebaseline_head():
+def test_repository_migration_head_is_current_phase4_successor_head():
     assert (
         database.repository_migration_head()
-        == "baseline_r13_0059"
+        == "phase4_corpus_app_integration_v1"
     )
 
 

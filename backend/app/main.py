@@ -25,6 +25,7 @@ from .api.expansion_routers import router as expansion_router
 from .api.handover_closeout_routers import router as handover_closeout_router
 from .api.master_content_routers import router as master_content_router
 from .api.owner_decision_routers import router as owner_decision_router
+from .api.phase4_routers import router as phase4_router
 from .api.permit_ux_routers import router as permit_ux_router
 from .api.persona_issues_notifications import (
     router as persona_issues_notifications_router,
@@ -1105,5 +1106,10 @@ app.include_router(
 
 app.include_router(
     handover_closeout_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+
+app.include_router(
+    phase4_router,
     dependencies=API_AUTH_DEPENDENCIES,
 )

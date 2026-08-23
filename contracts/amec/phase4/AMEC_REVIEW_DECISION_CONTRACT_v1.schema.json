@@ -1,0 +1,77 @@
+{
+  "$id": "https://amec.local/contracts/phase4/",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actor_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "capability": {
+      "type": "string"
+    },
+    "classification_envelope_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "corrections": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "ACCEPT",
+        "CORRECT",
+        "DEFER",
+        "MARK_OUT_OF_SCOPE",
+        "RESOLVE_RELATIONSHIP",
+        "REJECT"
+      ],
+      "type": "string"
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "record_version": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "review_decision_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "scope_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "scope_type": {
+      "enum": [
+        "PROJECT",
+        "ENTITY",
+        "AMEC"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "review_decision_id",
+    "classification_envelope_id",
+    "decision",
+    "actor_id",
+    "capability",
+    "scope_type",
+    "scope_id",
+    "record_version",
+    "created_at",
+    "idempotency_key"
+  ],
+  "title": "AMEC Review Decision Contract v1",
+  "type": "object"
+}

@@ -1,0 +1,3491 @@
+{
+  "accounted_cell_count": 120,
+  "artifact_type": "AMEC_PHASE4_DOMAIN_INTEGRATION_COVERAGE_V1",
+  "cells": [
+    {
+      "assertion": "M1 input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-001",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-01",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-002",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-02",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-003",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-03",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-004",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-04",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-005",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-05",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-006",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-06",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-007",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-07",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-008",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-08",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-009",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-09",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-010",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-10",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-011",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-11",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M1 protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-012",
+      "coverage_state": "PASS",
+      "domain": "M1",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M1-A01",
+        "M1-A02",
+        "M1-A03",
+        "S19-M1-01",
+        "S19-M1-02",
+        "S19-M1-03",
+        "S19-M1-04",
+        "S19-M1-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M1-12",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-013",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-13",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-014",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-14",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-015",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-15",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-016",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-16",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-017",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-17",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-018",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-18",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-019",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-19",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-020",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-20",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-021",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-21",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-022",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-22",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-023",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-23",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M2 protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-024",
+      "coverage_state": "PASS",
+      "domain": "M2",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M2-A01",
+        "M2-A02",
+        "M2-A03",
+        "S19-M2-01",
+        "S19-M2-02",
+        "S19-M2-03",
+        "S19-M2-04",
+        "S19-M2-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M2-24",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-025",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-25",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-026",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-26",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-027",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-27",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-028",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-28",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-029",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-29",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-030",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-30",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-031",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-31",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-032",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-32",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-033",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-33",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-034",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-34",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-035",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-35",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M3 protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-036",
+      "coverage_state": "PASS",
+      "domain": "M3",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M3-A01",
+        "M3-A02",
+        "M3-A03",
+        "S19-M3-01",
+        "S19-M3-02",
+        "S19-M3-03",
+        "S19-M3-04",
+        "S19-M3-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M3-36",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-037",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-37",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-038",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-38",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-039",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-39",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-040",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-40",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-041",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-41",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-042",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-42",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-043",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-43",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-044",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-44",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-045",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-45",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-046",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-46",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-047",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-47",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M4 protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-048",
+      "coverage_state": "PASS",
+      "domain": "M4",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M4-A01",
+        "M4-A02",
+        "M4-A03",
+        "S19-M4-01",
+        "S19-M4-02",
+        "S19-M4-03",
+        "S19-M4-04",
+        "S19-M4-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M4-48",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-049",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-49",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-050",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-50",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-051",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-51",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-052",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-52",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-053",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-53",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-054",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-54",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-055",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-55",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-056",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-56",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-057",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-57",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-058",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-58",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-059",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-59",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M5 protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-060",
+      "coverage_state": "PASS",
+      "domain": "M5",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M5-A01",
+        "M5-A02",
+        "M5-A03",
+        "S19-M5-01",
+        "S19-M5-02",
+        "S19-M5-03",
+        "S19-M5-04",
+        "S19-M5-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M5-60",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-061",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-61",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-062",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-62",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-063",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-63",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-064",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-64",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-065",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-65",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-066",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-66",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-067",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-67",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-068",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-68",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-069",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-69",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-070",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-70",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-071",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-71",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M6 protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-072",
+      "coverage_state": "PASS",
+      "domain": "M6",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M6-A01",
+        "M6-A02",
+        "M6-A03",
+        "S19-M6-01",
+        "S19-M6-02",
+        "S19-M6-03",
+        "S19-M6-04",
+        "S19-M6-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M6-72",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-073",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-73",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-074",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-74",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-075",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-75",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-076",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-76",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-077",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-77",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-078",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-78",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-079",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-79",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-080",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-80",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-081",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-81",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-082",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-82",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-083",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-83",
+      "result": "PASS"
+    },
+    {
+      "assertion": "M7 protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-084",
+      "coverage_state": "PASS",
+      "domain": "M7",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "M7-A01",
+        "M7-A02",
+        "M7-A03",
+        "S19-M7-01",
+        "S19-M7-02",
+        "S19-M7-03",
+        "S19-M7-04",
+        "S19-M7-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-M7-84",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-085",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-85",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-086",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-86",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-087",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-87",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-088",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-88",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-089",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-89",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-090",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-90",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-091",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-91",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-092",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-92",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-093",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-93",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-094",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-94",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-095",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-95",
+      "result": "PASS"
+    },
+    {
+      "assertion": "FINANCE protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-096",
+      "coverage_state": "PASS",
+      "domain": "FINANCE",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "FINANCE-A01",
+        "FINANCE-A02",
+        "FINANCE-A03",
+        "S19-FINANCE-01",
+        "S19-FINANCE-02",
+        "S19-FINANCE-03",
+        "S19-FINANCE-04",
+        "S19-FINANCE-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-FINANCE-96",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-097",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-97",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-098",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-98",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-099",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-99",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-100",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-100",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-101",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-101",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-102",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-102",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-103",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-103",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-104",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-104",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-105",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-105",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-106",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-106",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-107",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-107",
+      "result": "PASS"
+    },
+    {
+      "assertion": "MASTER_CONTENT protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-108",
+      "coverage_state": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "MASTER_CONTENT-A01",
+        "MASTER_CONTENT-A02",
+        "MASTER_CONTENT-A03",
+        "S19-MASTER_CONTENT-01",
+        "S19-MASTER_CONTENT-02",
+        "S19-MASTER_CONTENT-03",
+        "S19-MASTER_CONTENT-04",
+        "S19-MASTER_CONTENT-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-MASTER_CONTENT-108",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS input evidence types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-109",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "input evidence types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-109",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS classification axes has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-110",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "classification axes",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-110",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS review policy has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-111",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "review policy",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-111",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS VerifiedAssertion types has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-112",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "VerifiedAssertion types",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-112",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS projection targets has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-113",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection targets",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-113",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS projection preconditions has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-114",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "projection preconditions",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-114",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS source precedence has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-115",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "source precedence",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-115",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS currentness/version semantics has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-116",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "currentness/version semantics",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-116",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS idempotency has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-117",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "idempotency",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-117",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS conflict behavior has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-118",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "conflict behavior",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-118",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS Work/Issue/Notification/Audit effects has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-119",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "Work/Issue/Notification/Audit effects",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-119",
+      "result": "PASS"
+    },
+    {
+      "assertion": "REPORTS protected human gates has an explicit Phase4 integration disposition.",
+      "basis_refs": [
+        "PHASE3C_ACCEPTED_MODULE_TRUTH"
+      ],
+      "category": "DOMAIN_INTEGRATION",
+      "check_id": "DOM-120",
+      "coverage_state": "PASS",
+      "domain": "REPORTS",
+      "evidence": [
+        "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+        "AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_V1"
+      ],
+      "integration_dimension": "protected human gates",
+      "method": "contract_and_phase3c_mapping_evaluation",
+      "phase3c_assertion_refs": [
+        "REPORTS-A01",
+        "REPORTS-A02",
+        "REPORTS-A03",
+        "S19-REPORTS-01",
+        "S19-REPORTS-02",
+        "S19-REPORTS-03",
+        "S19-REPORTS-04",
+        "S19-REPORTS-05"
+      ],
+      "reason_if_not_applicable": null,
+      "requirement_id": "PH4-DOMAIN-REPORTS-120",
+      "result": "PASS"
+    }
+  ],
+  "domain_count": 10,
+  "duplicate_cell_count": 0,
+  "expected_cell_count": 120,
+  "integration_dimension_count": 12,
+  "uncovered_cell_count": 0
+}

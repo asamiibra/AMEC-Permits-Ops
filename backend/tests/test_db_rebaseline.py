@@ -13,12 +13,18 @@ from scripts.release.verify_a1_release_manifest import verify as verify_release_
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE = ROOT / "backend/migrations/versions/baseline_r13_0059.py"
+PHASE4 = ROOT / "backend/migrations/versions/phase4_corpus_app_integration.py"
 ARCHIVE = ROOT / "backend/migrations/history/postgresql_r13_0001_0059"
 SOURCE_SHA = "96c4b90968754efd8e5998cd1b1793b67c23d2bc"
 
 
 def test_active_graph_and_legacy_archive_are_exact():
-    assert [path.name for path in (ROOT / "backend/migrations/versions").glob("*.py")] == ["baseline_r13_0059.py"]
+    assert sorted(path.name for path in (ROOT / "backend/migrations/versions").glob("*.py")) == [
+        "baseline_r13_0059.py", "phase4_corpus_app_integration.py"
+    ]
+    phase4_source = PHASE4.read_text(encoding="utf-8")
+    assert 'revision = "phase4_corpus_app_integration_v1"' in phase4_source
+    assert 'down_revision = "baseline_r13_0059"' in phase4_source
     archived = sorted(ARCHIVE.glob("*.py"))
     assert len(archived) == 59
     for path in archived:

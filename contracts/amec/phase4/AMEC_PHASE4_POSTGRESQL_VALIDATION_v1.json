@@ -1,0 +1,281 @@
+{
+  "artifact_type": "AMEC_PHASE4_POSTGRESQL_VALIDATION_V1",
+  "checks": [
+    {
+      "check_id": "PG-01",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-01",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-02",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-02",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-03",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-03",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-04",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-04",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-05",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-05",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-06",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-06",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-07",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-07",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-08",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-08",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-09",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-09",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-10",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-10",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-11",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-11",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-12",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-12",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-13",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-13",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-14",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-14",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-15",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-15",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-16",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-16",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-17",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-17",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-18",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-18",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-19",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-19",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-20",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-20",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-21",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-21",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-22",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-22",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-23",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-23",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-24",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-24",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-25",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-25",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-26",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-26",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-27",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-27",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-28",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-28",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-29",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-29",
+      "result": "PASS"
+    },
+    {
+      "check_id": "PG-30",
+      "evidence": [
+        "PHASE4_POSTGRESQL_VALIDATION"
+      ],
+      "method": "disposable_postgresql_16_phase4_validation",
+      "requirement_id": "PH4-PG-30",
+      "result": "PASS"
+    }
+  ],
+  "database_engine": "PostgreSQL 16",
+  "image_digest": "sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5",
+  "required_check_count": 30,
+  "required_check_fail": 0,
+  "required_check_pass": 30,
+  "verified_postgresql": true
+}
