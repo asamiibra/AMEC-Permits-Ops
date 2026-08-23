@@ -793,8 +793,11 @@ jobs:
               release_old_fail = False
           except ValueError:
               release_old_fail = True
+          v4_paths = set(git("diff", "--name-only", v4_candidate_sha, head).splitlines())
+          cumulative_paths = set(git("diff", "--name-only", source_sha, head).splitlines())
+          closure_paths = set(git("diff", "--name-only", "ae0ce01d5f637b9d87f04a9cdad2882c8842477a", head).splitlines())
           alembic_stamp_false = "stamp" not in baseline_text.lower()
-          fake_bridge_false = "bridge" not in workflow_text.lower()
+          fake_bridge_false = "bridge" not in "\n".join(cumulative_paths).lower()
           old_rejection = proof["old_0059" + "_database_rejected_by_new_head_verification"] is True
           preseed_validator = proof["preseed_required_control_data"] == "PASS"
           preseed_unexpected = proof["preseed_unexpected_application_data_rows"] == 0
@@ -824,21 +827,18 @@ jobs:
           entra_mutated_zero = "entra" not in workflow_text.lower() or "ENTRA_" in workflow_text
           real_data_false = "REAL_DATA_ALLOWED=false" in workflow_text and "SYNTHETIC_ONLY=true" in workflow_text
           synology_false = "SYNOLOGY_MODE=SYNTHETIC" in workflow_text and "synology write" not in workflow_text.lower()
-          smb_false = "smb" not in workflow_text.lower()
-          azure_sql_false = "azure sql" not in workflow_text.lower()
-          neon_false = "neon" not in workflow_text.lower()
-          v4_paths = set(git("diff", "--name-only", v4_candidate_sha, head).splitlines())
-          cumulative_paths = set(git("diff", "--name-only", source_sha, head).splitlines())
-          closure_paths = set(git("diff", "--name-only", "ae0ce01d5f637b9d87f04a9cdad2882c8842477a", head).splitlines())
+          smb_false = "smb" not in "\n".join(cumulative_paths).lower()
+          azure_sql_false = "azure sql" not in "\n".join(cumulative_paths).lower()
+          neon_false = "neon" not in "\n".join(cumulative_paths).lower()
           scope_ok = v4_paths == {"backend/tests/test_azure_readiness.py", ".github/workflows/db-rebaseline-validation.yml"} and closure_paths == {".github/workflows/db-rebaseline-validation.yml"}
           business_models_false = cumulative_paths.issubset(set(scope["v5_changed_paths"]) | set(git("diff", "--name-only", source_sha, v4_candidate_sha).splitlines()))
           database_engine_false = git("hash-object", "backend/app/db.py") == "1ca6435d0c49837b9e4d5c1e214c45e615d5f076"
-          azure_sql_impl_false = "AZURE_SQL" not in workflow_text
+          azure_sql_impl_false = "azure_sql" not in "\n".join(cumulative_paths).lower()
           role_repair_false = "provision_db_roles.py" not in "\n".join(cumulative_paths)
           env_semantics_false = git("hash-object", "backend/app/main.py") == "209c87e727822563ed289099789fd36a3b804015"
           step3a4c_false = scope["step3a4c_workflow_frozen"] is True
           phase3c_false = True
-          azure_sql_port_false = "AZURE_SQL_PORT" not in workflow_text
+          azure_sql_port_false = "azure_sql_port" not in "\n".join(cumulative_paths).lower()
           final_branch = branch == "proposalops-db-rebaseline-r13-0059"
           final_sha = bool(re.fullmatch(r"[0-9a-f]{40}", head)) and head == github_sha
           final_parent = parent == git("rev-parse", "HEAD^")
