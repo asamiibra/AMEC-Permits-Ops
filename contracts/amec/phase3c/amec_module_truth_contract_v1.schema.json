@@ -1,9 +1,506 @@
 {
+  "$defs": {
+    "assertion": {
+      "additionalProperties": false,
+      "properties": {
+        "architecture_invariant_ref_if_applicable": {
+          "pattern": "^EVID_[A-Z0-9_]+$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "assertion_id": {
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]+$",
+          "type": "string"
+        },
+        "basis_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "basis_type": {
+          "enum": [
+            "OWNER_DECISION",
+            "EXECUTABLE_REPOSITORY_EVIDENCE",
+            "VERIFIED_STAGE1R_EVIDENCE",
+            "CANONICAL_ARCHITECTURE_INVARIANT",
+            "MIXED"
+          ]
+        },
+        "canonical_value_or_rule": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "domain": {
+          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "pattern": "^EVID_[A-Z0-9_]+$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "notes": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "owner_decision_ref_if_applicable": {
+          "pattern": "^OD-[0-9]{3}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repository_ref_if_applicable": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_state": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "stage1r_ref_if_applicable": {
+          "pattern": "^EVID_STAGE1R_[A-Z0-9_]+$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "enum": [
+            "CANONICAL_RULE",
+            "CANONICAL_OR_EXPLICITLY_UNCERTAIN",
+            "EXPLICIT_UNCERTAINTY"
+          ]
+        },
+        "supersedes_if_applicable": {
+          "items": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]+$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "truth_dimension": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "truth_type": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "assertion_id",
+        "domain",
+        "truth_dimension",
+        "truth_type",
+        "canonical_value_or_rule",
+        "state",
+        "basis_type",
+        "basis_refs",
+        "evidence_ids",
+        "owner_decision_ref_if_applicable",
+        "repository_ref_if_applicable",
+        "stage1r_ref_if_applicable",
+        "architecture_invariant_ref_if_applicable",
+        "supersedes_if_applicable",
+        "source_state",
+        "notes"
+      ],
+      "type": "object"
+    },
+    "coverageCell": {
+      "additionalProperties": false,
+      "properties": {
+        "basis_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "basis_type": {
+          "enum": [
+            "OWNER_DECISION",
+            "EXECUTABLE_REPOSITORY_EVIDENCE",
+            "VERIFIED_STAGE1R_EVIDENCE",
+            "CANONICAL_ARCHITECTURE_INVARIANT",
+            "MIXED"
+          ]
+        },
+        "cell_id": {
+          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)-[0-9]{2}$",
+          "type": "string"
+        },
+        "contract_assertion_ids": {
+          "items": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]+$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "coverage_claim": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "dimension": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "dimension_order": {
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "domain": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "domain_code": {
+          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
+          "type": "string"
+        },
+        "evidence_gap_refs": {
+          "items": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]+$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "evidence_ids": {
+          "items": {
+            "pattern": "^EVID_[A-Z0-9_]+$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "owner_decision_refs": {
+          "items": {
+            "pattern": "^OD-[0-9]{3}$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "requirement_id": {
+          "pattern": "^MT-(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)-[0-9]{2}$",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "semantic_validation_method": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "truth_state": {
+          "enum": [
+            "CANONICAL_RULE",
+            "CANONICAL_OR_EXPLICITLY_UNCERTAIN",
+            "EXPLICIT_UNCERTAINTY"
+          ]
+        }
+      },
+      "required": [
+        "cell_id",
+        "requirement_id",
+        "domain_code",
+        "domain",
+        "dimension_order",
+        "dimension",
+        "truth_state",
+        "basis_type",
+        "basis_refs",
+        "evidence_ids",
+        "contract_assertion_ids",
+        "owner_decision_refs",
+        "evidence_gap_refs",
+        "coverage_claim",
+        "semantic_validation_method",
+        "result"
+      ],
+      "type": "object"
+    },
+    "evidenceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^([a-f0-9]{40}|[a-f0-9]{64}|ARCHITECTURE_INVARIANT)$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "id": {
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]+$",
+      "type": "string"
+    },
+    "ownerDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_assertion_ids": {
+          "items": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]+$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "affected_domains": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "current_evidence": {
+          "items": {
+            "pattern": "^EVID_[A-Z0-9_]+$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "decision_id": {
+          "pattern": "^OD-[0-9]{3}$",
+          "type": "string"
+        },
+        "default": {
+          "const": "NONE"
+        },
+        "dependency_family": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "downstream_blocker": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "owner_status": {
+          "enum": [
+            "PENDING",
+            "OWNER_CONFIRMED",
+            "AMBIGUOUS",
+            "RECOMMENDED_NOT_CONFIRMED"
+          ]
+        },
+        "question_exact": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_id",
+        "dependency_family",
+        "question_exact",
+        "affected_domains",
+        "affected_assertion_ids",
+        "owner_status",
+        "current_evidence",
+        "downstream_blocker",
+        "default"
+      ],
+      "type": "object"
+    },
+    "protectedAuthority": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion_ids": {
+          "items": {
+            "pattern": "^AUTH-[a-z0-9_]+$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "authority_id": {
+          "pattern": "^[a-z][a-z0-9_]+$",
+          "type": "string"
+        },
+        "display_name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "domain_code": {
+          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
+          "type": "string"
+        },
+        "human_required": {
+          "const": true
+        },
+        "policy_bound": {
+          "const": true
+        },
+        "protected": {
+          "const": true
+        }
+      },
+      "required": [
+        "authority_id",
+        "display_name",
+        "domain_code",
+        "human_required",
+        "protected",
+        "policy_bound",
+        "assertion_ids"
+      ],
+      "type": "object"
+    },
+    "truthDimension": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "order": {
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "order",
+        "name"
+      ],
+      "type": "object"
+    },
+    "truthDomain": {
+      "additionalProperties": false,
+      "properties": {
+        "classifier_primary_tag": {
+          "enum": [
+            "INTAKE_OPPORTUNITY_BD",
+            "CONTRACT_MOBILIZATION",
+            "DESIGN_TECHNICAL_DELIVERY",
+            "REGULATORY_SUBMISSIONS",
+            "CONSTRUCTION_POST_APPROVAL",
+            "COMPLETION_AS_BUILT",
+            "HANDOVER_CLOSEOUT",
+            "FINANCE",
+            null
+          ],
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "code": {
+          "pattern": "^(M[1-7]|FINANCE|MASTER_CONTENT|REPORTS)$",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "classifier_primary_tag"
+      ],
+      "type": "object"
+    }
+  },
   "$id": "AMEC_MODULE_TRUTH_CONTRACT_V1_SCHEMA",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "properties": {
+    "approval_levels": {
+      "const": [
+        "upload",
+        "review",
+        "professional_approval",
+        "authority_approval"
+      ],
+      "type": "array"
+    },
     "assertions": {
+      "items": {
+        "$ref": "#/$defs/assertion"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "authority_separations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "canonical_lifecycle": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "classifier_operational_tags": {
+      "const": [
+        "INTAKE_OPPORTUNITY_BD",
+        "CONTRACT_MOBILIZATION",
+        "DESIGN_TECHNICAL_DELIVERY",
+        "REGULATORY_SUBMISSIONS",
+        "CONSTRUCTION_POST_APPROVAL",
+        "COMPLETION_AS_BUILT",
+        "HANDOVER_CLOSEOUT",
+        "FINANCE",
+        "NONE_OR_CROSS_CUTTING"
+      ],
+      "type": "array"
+    },
+    "classifier_reconciliation": {
+      "minProperties": 10,
+      "type": "object"
+    },
+    "closeout_axes": {
+      "const": [
+        "Contract_Admin",
+        "Regulatory",
+        "Financial",
+        "Archive"
+      ],
+      "type": "array"
+    },
+    "continuity_links": {
+      "items": {
+        "type": "string"
+      },
       "minItems": 1,
       "type": "array"
     },
@@ -14,37 +511,207 @@
       "const": "1.0.0"
     },
     "coverage_cells": {
+      "items": {
+        "$ref": "#/$defs/coverageCell"
+      },
       "maxItems": 250,
       "minItems": 250,
-      "type": "array"
+      "type": "array",
+      "uniqueItems": true
+    },
+    "coverage_summary": {
+      "properties": {
+        "cell_count": {
+          "const": 250
+        },
+        "dimension_count": {
+          "const": 25
+        },
+        "domain_count": {
+          "const": 10
+        },
+        "expected_cell_count": {
+          "const": 250
+        },
+        "semantic_binding_required": {
+          "const": true
+        }
+      },
+      "required": [
+        "domain_count",
+        "dimension_count",
+        "expected_cell_count",
+        "cell_count",
+        "semantic_binding_required"
+      ],
+      "type": "object"
+    },
+    "deployment_firewall": {
+      "additionalProperties": false,
+      "properties": {
+        "DEPLOYMENT_ARCHITECTURE_CHANGED_BY_PHASE3C": {
+          "const": false
+        },
+        "DEPLOYMENT_ARCHITECTURE_IMPLEMENTED_BY_PHASE3C": {
+          "const": false
+        },
+        "LIVE_AZURE_MUTATION_AUTHORIZED": {
+          "const": false
+        },
+        "STEP_3A_4C_ACCEPTED": {
+          "const": false
+        }
+      },
+      "required": [
+        "DEPLOYMENT_ARCHITECTURE_IMPLEMENTED_BY_PHASE3C",
+        "DEPLOYMENT_ARCHITECTURE_CHANGED_BY_PHASE3C",
+        "STEP_3A_4C_ACCEPTED",
+        "LIVE_AZURE_MUTATION_AUTHORIZED"
+      ],
+      "type": "object"
     },
     "evidence_catalog": {
+      "additionalProperties": false,
       "minProperties": 1,
+      "patternProperties": {
+        "^EVID_[A-Z0-9_]+$": {
+          "$ref": "#/$defs/evidenceRecord"
+        }
+      },
+      "type": "object"
+    },
+    "global_personas": {
+      "const": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "type": "array"
+    },
+    "master_content_libraries": {
+      "const": [
+        "FORM",
+        "REPORT",
+        "ENGINEERING_WORK",
+        "DEFINITION"
+      ],
+      "type": "array"
+    },
+    "master_content_rules": {
+      "additionalProperties": false,
+      "properties": {
+        "CHECKLIST": {
+          "const": "FORM"
+        },
+        "REPORT_CONTENT_TYPE_IS_NOT_REPORTS_DOMAIN": {
+          "const": true
+        }
+      },
+      "required": [
+        "CHECKLIST",
+        "REPORT_CONTENT_TYPE_IS_NOT_REPORTS_DOMAIN"
+      ],
       "type": "object"
     },
     "owner_decision_catalog": {
+      "additionalProperties": false,
+      "minProperties": 1,
+      "patternProperties": {
+        "^OD-[0-9]{3}$": {
+          "$ref": "#/$defs/ownerDecision"
+        }
+      },
       "type": "object"
     },
-    "truth_dimensions": {
-      "maxItems": 25,
-      "minItems": 25,
+    "protected_human_authorities": {
+      "items": {
+        "$ref": "#/$defs/protectedAuthority"
+      },
+      "maxItems": 16,
+      "minItems": 16,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "scope": {
+      "const": "CANONICAL_AMEC_MODULE_TRUTH_CONTRACT"
+    },
+    "section19_requirement_count": {
+      "const": 123
+    },
+    "section19_requirement_ids": {
+      "items": {
+        "pattern": "^S19-[A-Z0-9_]+-[0-9]{2}$",
+        "type": "string"
+      },
+      "maxItems": 123,
+      "minItems": 123,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "source_authority_model": {
+      "minProperties": 1,
+      "type": "object"
+    },
+    "source_state_chain": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
       "type": "array"
     },
+    "status": {
+      "enum": [
+        "CANDIDATE_PENDING_INDEPENDENT_ACCEPTANCE"
+      ],
+      "type": "string"
+    },
+    "truth_dimensions": {
+      "items": {
+        "$ref": "#/$defs/truthDimension"
+      },
+      "maxItems": 25,
+      "minItems": 25,
+      "type": "array",
+      "uniqueItems": true
+    },
     "truth_domains": {
+      "items": {
+        "$ref": "#/$defs/truthDomain"
+      },
       "maxItems": 10,
       "minItems": 10,
-      "type": "array"
+      "type": "array",
+      "uniqueItems": true
     }
   },
   "required": [
     "contract_id",
     "contract_version",
+    "scope",
+    "status",
     "truth_domains",
     "truth_dimensions",
+    "master_content_libraries",
+    "master_content_rules",
     "evidence_catalog",
     "owner_decision_catalog",
     "assertions",
-    "coverage_cells"
+    "source_state_chain",
+    "source_authority_model",
+    "authority_separations",
+    "global_personas",
+    "approval_levels",
+    "protected_human_authorities",
+    "canonical_lifecycle",
+    "closeout_axes",
+    "continuity_links",
+    "deployment_firewall",
+    "classifier_operational_tags",
+    "classifier_reconciliation",
+    "coverage_summary",
+    "coverage_cells",
+    "section19_requirement_count",
+    "section19_requirement_ids"
   ],
   "title": "AMEC Module Truth Contract v1",
   "type": "object"

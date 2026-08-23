@@ -31,10 +31,22 @@
     "workflow_precondition",
     "execution_policy",
     "protected_human_authority",
+    "proposal_accept",
+    "contract_accept",
+    "project_activation",
+    "professional_engineering_approval",
+    "invoice_accept",
+    "invoice_issue",
+    "payment_verify",
+    "submit_authorization",
     "final_government_submission",
-    "professional_approval",
-    "consequential_financial_authority",
-    "regulatory_closeout"
+    "construction_start",
+    "handover_acceptance",
+    "service_scope_closure",
+    "contract_administrative_closure",
+    "regulatory_closeout",
+    "financial_settlement",
+    "archive_closure"
   ],
   "domain_vocabulary": [
     "INTAKE_OPPORTUNITY_BD",
@@ -48,15 +60,16 @@
     "MASTER_CONTENT",
     "REPORTS"
   ],
-  "module_truth_contract_sha256": "7da0b662f856d6489949e344251c2bca36e5992d10f4623fbaadf27baf3f55d6",
+  "module_truth_contract_sha256": "b18271da8f3c83b2624adafdb3a5b04fc5810bbcb526af8971029aabccbc5479",
   "operational_tags": [
-    "M1",
-    "M2",
-    "M3",
-    "M4",
-    "M5",
-    "M6",
-    "M7",
+    "INTAKE_OPPORTUNITY_BD",
+    "CONTRACT_MOBILIZATION",
+    "DESIGN_TECHNICAL_DELIVERY",
+    "REGULATORY_SUBMISSIONS",
+    "CONSTRUCTION_POST_APPROVAL",
+    "COMPLETION_AS_BUILT",
+    "HANDOVER_CLOSEOUT",
+    "FINANCE",
     "NONE_OR_CROSS_CUTTING"
   ],
   "owner_decision_exclusions": "Pending Owner decisions remain pending; classifier cannot infer or promote policy.",
@@ -97,9 +110,52 @@
     "taxonomy": "AMEC_CANONICAL_MODULE_TAXONOMY"
   },
   "truth_domain_operational_tag_reconciliation": {
-    "FINANCE": "NONE_OR_CROSS_CUTTING",
-    "MASTER_CONTENT": "NONE_OR_CROSS_CUTTING",
-    "REPORTS": "NONE_OR_CROSS_CUTTING",
-    "cross_cutting_surfaces_are_not_truth_domains": true
+    "FINANCE": {
+      "primary_operational_tag": "FINANCE",
+      "primary_tag_applicable": true
+    },
+    "M1": {
+      "primary_operational_tag": "INTAKE_OPPORTUNITY_BD",
+      "primary_tag_applicable": true
+    },
+    "M2": {
+      "primary_operational_tag": "CONTRACT_MOBILIZATION",
+      "primary_tag_applicable": true
+    },
+    "M3": {
+      "primary_operational_tag": "DESIGN_TECHNICAL_DELIVERY",
+      "primary_tag_applicable": true
+    },
+    "M4": {
+      "primary_operational_tag": "REGULATORY_SUBMISSIONS",
+      "primary_tag_applicable": true
+    },
+    "M5": {
+      "primary_operational_tag": "CONSTRUCTION_POST_APPROVAL",
+      "primary_tag_applicable": true
+    },
+    "M6": {
+      "primary_operational_tag": "COMPLETION_AS_BUILT",
+      "primary_tag_applicable": true
+    },
+    "M7": {
+      "primary_operational_tag": "HANDOVER_CLOSEOUT",
+      "primary_tag_applicable": true
+    },
+    "MASTER_CONTENT": {
+      "primary_operational_tag": null,
+      "primary_tag_applicable": false,
+      "role": "ORTHOGONAL_CONTENT_GOVERNANCE"
+    },
+    "NONE_OR_CROSS_CUTTING": {
+      "is_real_operational_tag": true,
+      "use_condition": "genuinely_none_or_cross_cutting_operational_ownership"
+    },
+    "REPORTS": {
+      "is_classifier_primary_operational_tag": false,
+      "is_phase3c_truth_domain": true,
+      "primary_operational_tag": null,
+      "primary_tag_applicable": false
+    }
   }
 }

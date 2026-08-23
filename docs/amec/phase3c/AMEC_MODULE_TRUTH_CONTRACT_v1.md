@@ -1,5 +1,7 @@
 # AMEC Module Truth Contract v1
 
-This candidate freezes canonical business truth for ten domains: M1 Intake/Opportunity/BD, M2 Contract/Mobilization, M3 Design/Technical Delivery, M4 Regulatory Submissions, M5 Construction/Post Approval, M6 Completion/As-Built, M7 Handover/Closeout, Finance, Master Content, and Reports. It is a non-deployment contract pending independent acceptance.
+This additive semantic repair freezes ten Phase3C truth domains with explicit classifier reconciliation. M1-M7 and Finance map to the canonical operational tags; Master Content and Reports remain truth domains outside the primary operational-tag axis. `NONE_OR_CROSS_CUTTING` is reserved for genuinely cross-cutting operational ownership.
 
-The contract preserves the source truth chain, lifecycle continuity, authority separations, independent closeout axes, and explicit uncertainty. Master Content has exactly FORM, REPORT, ENGINEERING_WORK, and DEFINITION; Checklist is FORM. REPORT content type is not the REPORTS truth domain.
+The contract contains 419 distinct assertions, 123 Section 19 minimum-requirement mappings, 250 substantive domain-by-dimension cells, and 16 protected human authorities.
+
+Proposal Accept is not Contract execution; Contract existence is not Project Activation; Package readiness, submission authorization, external submission, and external approval remain separate; Completion is not Handover; and independent closeout axes are not compressed into one generic CLOSED state.

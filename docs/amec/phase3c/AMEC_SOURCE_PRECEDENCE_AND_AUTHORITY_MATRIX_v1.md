@@ -1,12 +1,5 @@
 # AMEC source precedence and authority matrix
 
-| Layer | Authority role | Allowed state effect | Prohibited shortcut |
-|---|---|---|---|
-| Synology | Durable binary/source filesystem authority | SourceArtifact and DocumentVersion | No filename or path promotion to verified truth |
-| PostgreSQL | Structured application truth | Typed projection and workflow state | No unverified source substitution |
-| Certified Document Intelligence Runtime | Deterministic evidence observation | FieldObservation | Observation is not verification |
-| Classifier | Typed classification proposal | Proposal only | No live authority or auto-promotion |
-| VerifiedAssertion | Verified fact authority | Verified fact and authorized projection | Requires reconciliation/verification basis |
-| Search/index/AI context | Derived non-authoritative context | Retrieval/context only | Never verified truth by itself |
+Synology remains durable binary/source filesystem authority; PostgreSQL remains structured application truth; Certified Document Intelligence Runtime remains deterministic evidence observation; Classifier remains a typed proposal; VerifiedAssertion remains verified fact authority; search/index/AI context remains derived and non-authoritative.
 
-The truth chain is SourceArtifact/DocumentVersion -> FieldObservation -> conflict or reconciliation -> authorized verification -> VerifiedAssertion -> typed projection -> immutable downstream snapshot when required. Personas, Party roles, professional assignments, credentials, authorization grants, RBAC, workflow preconditions, execution policy, and protected human authority are separate concepts.
+Classifier operational tags are reconciled explicitly. Master Content and Reports are Phase3C truth domains outside the primary operational-tag axis. Protected human authority is distinct from persona, Party role, assignment, credential, grant, RBAC, workflow precondition, and execution policy.

@@ -1,3 +1,3 @@
 # Deferred deployment readiness
 
-Phase3C is canonical Module Truth only. Step 3A4C remains not accepted and deployment readiness remains deferred/incomplete. Phase3C does not select cloud regions or database topology, mutate Azure or Entra, implement deployment architecture, or resume a deployment lane.
+Phase3C remains canonical Module Truth only. Step 3A4C is not accepted; deployment architecture is not implemented or changed; Azure and Entra mutation remain unauthorized; and Phase4/Phase5 remain unexecuted.

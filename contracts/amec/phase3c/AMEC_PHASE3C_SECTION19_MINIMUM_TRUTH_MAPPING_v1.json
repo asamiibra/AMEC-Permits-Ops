@@ -1,0 +1,1932 @@
+{
+  "artifact_type": "AMEC_PHASE3C_SECTION19_MINIMUM_TRUTH_MAPPING_V1",
+  "locked_section": "V6_SECTION_19",
+  "minimum_requirement_accounted_count": 123,
+  "minimum_requirement_count": 123,
+  "minimum_requirement_unaccounted_count": 0,
+  "rows": [
+    {
+      "contract_assertion_ids": [
+        "S19-M1-01"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-01",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_text": "source intake"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-02"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-02",
+      "owner_decision_refs": [],
+      "requirement_text": "Opportunity"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-03"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-03",
+      "owner_decision_refs": [],
+      "requirement_text": "Proposal"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-04"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-04",
+      "owner_decision_refs": [],
+      "requirement_text": "ProposalRevision"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-05"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-05",
+      "owner_decision_refs": [],
+      "requirement_text": "RFQ/tender evidence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-06"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-06",
+      "owner_decision_refs": [],
+      "requirement_text": "client evidence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-07"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-07",
+      "owner_decision_refs": [],
+      "requirement_text": "technical vs financial/commercial proposal"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-08"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-08",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_text": "Proposal Template"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-09"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-09",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_text": "Proposal Checklist"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-10"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-10",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_text": "proposal status/revision/currentness"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-11"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-11",
+      "owner_decision_refs": [],
+      "requirement_text": "client/project candidate linking"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-12"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-12",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "Proposal Accept only where source-bound"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-13"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-13",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "AcceptedProposalRevision"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-14"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-14",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "handoff to M2"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-15"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-15",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Proposal Accept is not Contract execution"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M1-16"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M1",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M1-16",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_text": "Proposal source intake is not verified downstream structured truth"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-01"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-01",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "accepted proposal handoff"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-02"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-02",
+      "owner_decision_refs": [],
+      "requirement_text": "signed Contract / ContractRevision"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-03"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-03",
+      "owner_decision_refs": [],
+      "requirement_text": "LOA/award"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-04"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-04",
+      "owner_decision_refs": [],
+      "requirement_text": "LPO/PIN only where supported"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-05"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-05",
+      "owner_decision_refs": [],
+      "requirement_text": "scope/commercial obligations"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-06",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "Party/client relationships"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-07"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-07",
+      "owner_decision_refs": [],
+      "requirement_text": "authorization evidence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-08"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-08",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "mobilization"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-09"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-09",
+      "owner_decision_refs": [],
+      "requirement_text": "insurance/bonds/guarantees"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-10"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-10",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "Contract Accept"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-11"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-11",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "explicit Project Activation"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-12"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-12",
+      "owner_decision_refs": [],
+      "requirement_text": "Project Code and Start Date only where source-bound"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-13"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-13",
+      "owner_decision_refs": [],
+      "requirement_text": "ServiceEngagement"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-14"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-14",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "handoff to M3"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-15"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-15",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Contract existence is not Project Activation"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M2-16"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M2",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M2-16",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Contract execution is not Service Scope Closure"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-01"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-01",
+      "owner_decision_refs": [],
+      "requirement_text": "engineering deliverables"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-02"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-02",
+      "owner_decision_refs": [],
+      "requirement_text": "drawing/calculation/report/specification/BOQ"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-03"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-03",
+      "owner_decision_refs": [],
+      "requirement_text": "reusable Engineering Work definition vs project instance"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-04"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-04",
+      "owner_decision_refs": [],
+      "requirement_text": "discipline"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-05"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-05",
+      "owner_decision_refs": [],
+      "requirement_text": "document/drawing number"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-06"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-06",
+      "owner_decision_refs": [],
+      "requirement_text": "revision"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-07"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-07",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "issue purpose"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-08"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-08",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "internal review"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-09"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-09",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_text": "professional assignment"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-10"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-10",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_text": "credential-validity dependency"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-11"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-11",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_text": "professional approval"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-12"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-12",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_text": "immutable ApprovedDesignBaseline"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M3-13"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M3",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M3-13",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "M3/M4/M5 routing"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-01"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-01",
+      "owner_decision_refs": [],
+      "requirement_text": "AuthorityCase"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-02"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-02",
+      "owner_decision_refs": [],
+      "requirement_text": "RegulatoryJourney"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-03"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-03",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "permit/submission preparation"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-04"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-04",
+      "owner_decision_refs": [],
+      "requirement_text": "requirements/rule sets"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-05"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-05",
+      "owner_decision_refs": [],
+      "requirement_text": "forms/package/attachment manifest"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-06",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "readiness/precheck/findings/corrections"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-07"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-07",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_text": "human final review"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-08"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-08",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "Submit Authorization"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-09"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-09",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "handed-to-human"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-10"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-10",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "external submission confirmation"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-11"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-11",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "authority comments/findings/approval"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-12"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-12",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_text": "project permit vs corporate/professional registration"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-13"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-13",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Package ready is not submit authorized, externally submitted, or externally approved"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M4-14"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M4",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M4-14",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "FINAL_GOVERNMENT_SUBMISSION=HUMAN_ONLY"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M5-01"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M5-01",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "post-approval construction gate"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M5-02"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M5-02",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Construction Start"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M5-03"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M5-03",
+      "owner_decision_refs": [],
+      "requirement_text": "shop drawing vs submittal"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M5-04"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M5-04",
+      "owner_decision_refs": [],
+      "requirement_text": "material technical data vs material submittal"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M5-05"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M5-05",
+      "owner_decision_refs": [],
+      "requirement_text": "site/construction evidence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M5-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M5-06",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "inspection/findings/corrective closure"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M5-07"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M5",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M5-07",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "authority/consultant dependencies"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-01"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-01",
+      "owner_decision_refs": [],
+      "requirement_text": "completion"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-02"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-02",
+      "owner_decision_refs": [],
+      "requirement_text": "completion evidence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-03"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-03",
+      "owner_decision_refs": [],
+      "requirement_text": "as-built"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-04"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-04",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_text": "revision/currentness"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-05"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-05",
+      "owner_decision_refs": [],
+      "requirement_text": "final engineering evidence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-06",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "acceptance/regulatory dependencies"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-07"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-07",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "handover readiness"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M6-08"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M6",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M6-08",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Completion is not Handover"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-01"
+      ],
+      "coverage_status": "PASS",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-01",
+      "owner_decision_refs": [],
+      "requirement_text": "HandoverPackage"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-02"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-02",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "Handover acceptance"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-03"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-03",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Service Scope Closure"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-04"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-04",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Contract Administrative Closure"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-05"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-05",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Regulatory Closeout"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-06",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Financial Settlement"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-07"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-07",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Archive readiness/closure"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-08"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-08",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_text": "reopen/supersession semantics"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-09"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-09",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "independent closeout axes"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-M7-10"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "M7",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-M7-10",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Never compress all closeout into one generic CLOSED"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-01"
+      ],
+      "coverage_status": "PASS",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-01",
+      "owner_decision_refs": [],
+      "requirement_text": "commercial obligation"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-02"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-02",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Pre-Billing"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-03"
+      ],
+      "coverage_status": "PASS",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-03",
+      "owner_decision_refs": [],
+      "requirement_text": "Invoice / revision"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-04"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-04",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "Invoice Accept"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-05"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-05",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Invoice Issue"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-06",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Invoice Delivery"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-07"
+      ],
+      "coverage_status": "PASS",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-07",
+      "owner_decision_refs": [],
+      "requirement_text": "Receivable"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-08"
+      ],
+      "coverage_status": "PASS",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-08",
+      "owner_decision_refs": [],
+      "requirement_text": "Payment evidence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-09"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-09",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "Payment Verify"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-10"
+      ],
+      "coverage_status": "PASS",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-10",
+      "owner_decision_refs": [],
+      "requirement_text": "bank guarantee distinction"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-11"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-11",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_text": "corporate finance truth"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-12"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-12",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_text": "personal finance exclusion"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-13"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-13",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Financial Settlement"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-14"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-14",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Invoice Accepted is not Invoice Issued and is not Invoice Delivered"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-FINANCE-15"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "FINANCE",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-FINANCE-15",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Payment evidence is not Payment Verified and is not Financial Settlement"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-01"
+      ],
+      "coverage_status": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-01",
+      "owner_decision_refs": [],
+      "requirement_text": "FORM"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-02"
+      ],
+      "coverage_status": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-02",
+      "owner_decision_refs": [],
+      "requirement_text": "REPORT"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-03"
+      ],
+      "coverage_status": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-03",
+      "owner_decision_refs": [],
+      "requirement_text": "ENGINEERING_WORK"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-04"
+      ],
+      "coverage_status": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-04",
+      "owner_decision_refs": [],
+      "requirement_text": "DEFINITION"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-05"
+      ],
+      "coverage_status": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-05",
+      "owner_decision_refs": [],
+      "requirement_text": "one canonical item"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-06",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_text": "one current revision"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-07"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-07",
+      "owner_decision_refs": [
+        "OD-007"
+      ],
+      "requirement_text": "immutable revision history"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-08"
+      ],
+      "coverage_status": "PASS",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-08",
+      "owner_decision_refs": [],
+      "requirement_text": "blank/template vs executed/project instance"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-09"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-09",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_text": "reusable controlled content"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-10"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-10",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "applicability"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-11"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-11",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_text": "source precedence"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-12"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-12",
+      "owner_decision_refs": [
+        "OD-003",
+        "OD-004"
+      ],
+      "requirement_text": "approval/governance"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-MASTER_CONTENT-13"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "MASTER_CONTENT",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-MASTER_CONTENT-13",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "propagation semantics"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-01"
+      ],
+      "coverage_status": "PASS",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-01",
+      "owner_decision_refs": [],
+      "requirement_text": "report definition"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-02"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-02",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_text": "query/data dependency"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-03"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-03",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "generation"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-04"
+      ],
+      "coverage_status": "PASS",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-04",
+      "owner_decision_refs": [],
+      "requirement_text": "report output"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-05"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-05",
+      "owner_decision_refs": [
+        "OD-003"
+      ],
+      "requirement_text": "module ownership"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-06"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-06",
+      "owner_decision_refs": [
+        "OD-002"
+      ],
+      "requirement_text": "source-of-truth relationship"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-07"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-07",
+      "owner_decision_refs": [
+        "OD-008"
+      ],
+      "requirement_text": "Master Content dependency"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-08"
+      ],
+      "coverage_status": "PASS",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-08",
+      "owner_decision_refs": [],
+      "requirement_text": "immutable/generated provenance"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-09"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-09",
+      "owner_decision_refs": [
+        "OD-009"
+      ],
+      "requirement_text": "Dashboard/report-module connection"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-10"
+      ],
+      "coverage_status": "EXPLICIT_UNCERTAINTY",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-10",
+      "owner_decision_refs": [
+        "OD-001",
+        "OD-006"
+      ],
+      "requirement_text": "Report definition is not report output"
+    },
+    {
+      "contract_assertion_ids": [
+        "S19-REPORTS-11"
+      ],
+      "coverage_status": "PASS",
+      "domain": "REPORTS",
+      "evidence_ids": [
+        "EVID_CANONICAL_TAXONOMY",
+        "EVID_V6_BINDINGS"
+      ],
+      "minimum_requirement_id": "S19-REPORTS-11",
+      "owner_decision_refs": [],
+      "requirement_text": "REPORT content type is not REPORTS truth domain"
+    }
+  ]
+}

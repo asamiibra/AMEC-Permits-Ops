@@ -1,5 +1,16 @@
 {
   "artifact_type": "AMEC_PHASE3C_SOURCE_STATE_LEDGER_V1",
+  "classifier_operational_tag_set": [
+    "INTAKE_OPPORTUNITY_BD",
+    "CONTRACT_MOBILIZATION",
+    "DESIGN_TECHNICAL_DELIVERY",
+    "REGULATORY_SUBMISSIONS",
+    "CONSTRUCTION_POST_APPROVAL",
+    "COMPLETION_AS_BUILT",
+    "HANDOVER_CLOSEOUT",
+    "FINANCE",
+    "NONE_OR_CROSS_CUTTING"
+  ],
   "currentness_model": {
     "approved_snapshot": "immutable_boundary_record",
     "current": "latest_valid_revision_under_source_precedence",

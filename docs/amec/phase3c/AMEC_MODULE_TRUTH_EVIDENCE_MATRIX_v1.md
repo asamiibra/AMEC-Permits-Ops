@@ -1,5 +1,5 @@
 # AMEC Module Truth evidence matrix
 
-The matrix contains exactly 250 domain-by-dimension cells: ten domains multiplied by 25 dimensions. Every cell is a unique PASS with either a canonical architecture basis or an explicit pending Owner decision. Evidence identifiers resolve to the sanitized catalog in the Module Truth contract.
+Every one of the 250 domain-by-dimension cells now binds at least one exact-domain contract assertion. Each claim is dimension-specific, has evidence IDs, and is checked through assertion-to-claim semantic matching rather than existence alone.
 
-No raw source content, real project identifiers, local paths, credentials, or secret-derived fingerprints are included.
+Section 19 mapping rows and protected authority rows are separately machine-readable and cross-checked. No raw source content or real business identifiers are included.

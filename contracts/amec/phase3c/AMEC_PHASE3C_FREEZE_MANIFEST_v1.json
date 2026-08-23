@@ -5,11 +5,11 @@
   "freeze_set": [
     {
       "path": "contracts/amec/phase3c/amec_module_truth_contract_v1.schema.json",
-      "sha256": "89ff37cd587fedd9837dbd93127a7c8373f8c97edda3322f54fb1edd8ccc2882"
+      "sha256": "9c417b19f80bdc49da95079e11303cd82e54e75acb0adbd61961928697f98ffa"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_MODULE_TRUTH_CONTRACT_v1.json",
-      "sha256": "7da0b662f856d6489949e344251c2bca36e5992d10f4623fbaadf27baf3f55d6"
+      "sha256": "b18271da8f3c83b2624adafdb3a5b04fc5810bbcb526af8971029aabccbc5479"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_INPUT_IDENTITY_MANIFEST_v1.json",
@@ -17,15 +17,15 @@
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_CLASSIFIER_HANDOFF_v1.json",
-      "sha256": "18f35e83feee0b2179f956e64a07336e5643f43a93c9d531201ec87378694df3"
+      "sha256": "f079e52bf869ce5a3cad8074ebd044225eb1e70df09f30be612d200fbba478d5"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_MODULE_DIMENSION_COVERAGE_v1.json",
-      "sha256": "eb14d5502f63eb97076d87cb171ed7609f754397f94402d2a66acffbc5a14afd"
+      "sha256": "c9116177aa90cff1a3a81ac59f5ab17708fb0f9b85894a8f7b481d9a93d7db08"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_GOVERNANCE_VALIDATION_v1.json",
-      "sha256": "edc3b867023ee0e3c4484a4ecb197cd62538049c439f903e99115134a19c8342"
+      "sha256": "e55bfe8ff2ba31ab83265202b8a0df349cebce5b7007cf8ccb5a1e6bdb06eedd"
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_DEFERRED_DEPLOYMENT_READINESS_v1.json",
@@ -33,23 +33,31 @@
     },
     {
       "path": "contracts/amec/phase3c/AMEC_PHASE3C_SOURCE_STATE_LEDGER_v1.json",
-      "sha256": "74ad3df352405820c8cd8c030f2ea0c1e98d9f3ba9072b8d896e13b5e4e351e9"
+      "sha256": "8bb296fed5d0d973ee3e319d883d327182e7f8f3e4231e73e9891d524b07d7b9"
+    },
+    {
+      "path": "contracts/amec/phase3c/AMEC_PHASE3C_SECTION19_MINIMUM_TRUTH_MAPPING_v1.json",
+      "sha256": "cf7a4120aa65526b006a53d3403e96fbd95333818963d26ef186ebbe9120feac"
+    },
+    {
+      "path": "contracts/amec/phase3c/AMEC_PHASE3C_REFERENCE_INTEGRITY_v1.json",
+      "sha256": "5142ac3b878b7502a62449c72bcff8fc9d34f3f6b802278733ed4f05c56fe3cd"
     },
     {
       "path": "docs/amec/phase3c/AMEC_MODULE_TRUTH_EVIDENCE_MATRIX_v1.md",
-      "sha256": "f2eba77cfe752f2591e4c08c616af516924160a50527d7c7a3b791ba1b829377"
+      "sha256": "077b6282f6572e1f02bacaa22ac74190ca26f3214b1f0b7259a45707feaf521e"
     },
     {
       "path": "docs/amec/phase3c/AMEC_SOURCE_PRECEDENCE_AND_AUTHORITY_MATRIX_v1.md",
-      "sha256": "7d4b2ac4c269fc097a0b4a24aa75f30ab7b51aedb5936fa9fdc0dc53cae6e9c6"
+      "sha256": "5612dbd6663ff089d6d80a587b3daa51d58e92bd4862f4196cafb56283f3789b"
     },
     {
       "path": "docs/amec/phase3c/AMEC_OWNER_DECISION_LEDGER_v1.md",
-      "sha256": "1d2f2259e3027c0a062b486e6d7558eb72ca941ba23cafda35879473fc679bbf"
+      "sha256": "7bbd3f17b90ead27eb1f79a58fd07caf96bd9a76d8644b4fc0bdb46b05279b92"
     },
     {
       "path": "docs/amec/phase3c/AMEC_PHASE3C_DEFERRED_DEPLOYMENT_READINESS_v1.md",
-      "sha256": "b11260a6cf8eb539ecd7dcd3f71fa91351f3ac4282cb46c828499f57353dc574"
+      "sha256": "aedf7046d0e33a753c6edc25288ecd5caca1c545a7099df117b8eb3ccaf421fc"
     }
   ]
 }
