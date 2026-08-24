@@ -162,8 +162,19 @@ def _validate_corrections(envelope: Phase4ClassificationEnvelope, payload: Revie
             raise _error(422, "CORRECTION_EVIDENCE_IDS_REQUIRED", axis=axis)
 
 
+def _review_lock_statement(envelope_id: str, dialect_name: str):
+    statement = select(Phase4ClassificationEnvelope).where(Phase4ClassificationEnvelope.id == envelope_id)
+    if dialect_name == "mssql":
+        return statement.with_hint(
+            Phase4ClassificationEnvelope,
+            "WITH (UPDLOCK, ROWLOCK, HOLDLOCK)",
+            dialect_name="mssql",
+        )
+    return statement.with_for_update()
+
+
 def _lock_review_envelope(db: Session, envelope_id: str) -> Phase4ClassificationEnvelope | None:
-    statement = select(Phase4ClassificationEnvelope).where(Phase4ClassificationEnvelope.id == envelope_id).with_for_update()
+    statement = _review_lock_statement(envelope_id, db.get_bind().dialect.name)
     return db.scalar(statement)
 
 

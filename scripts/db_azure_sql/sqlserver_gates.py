@@ -6,8 +6,10 @@ Server/application operations or fresh exact-contract checks.
 
 from __future__ import annotations
 
+import ast
 import json
 import os
+import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -72,6 +74,63 @@ def _expect_value_error(fn) -> bool:
     return False
 
 
+def _migration_postgresql_physical_findings(source: str) -> list[dict[str, object]]:
+    """Find executable PostgreSQL physical dependencies in the active migration."""
+    tree = ast.parse(source, filename="baseline_phase4_v36_azure_sql.py")
+    executable: list[ast.AST] = []
+    for node in tree.body:
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            continue
+        executable.extend(ast.walk(node))
+
+    findings: list[dict[str, object]] = []
+
+    def add(kind: str, node: ast.AST, detail: str) -> None:
+        findings.append({"kind": kind, "line": getattr(node, "lineno", None), "detail": detail})
+
+    for node in executable:
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if "sqlalchemy.dialects.postgresql" in alias.name.lower() or alias.name.lower() == "postgresql":
+                    add("POSTGRESQL_DIALECT_IMPORT", node, alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            module = (node.module or "").lower()
+            if "sqlalchemy.dialects.postgresql" in module or module == "postgresql":
+                add("POSTGRESQL_DIALECT_IMPORT", node, module)
+        elif isinstance(node, ast.Attribute):
+            parts: list[str] = []
+            current: ast.AST = node
+            while isinstance(current, ast.Attribute):
+                parts.append(current.attr)
+                current = current.value
+            if isinstance(current, ast.Name):
+                parts.append(current.id)
+            dotted = ".".join(reversed(parts)).lower()
+            if "postgresql" in dotted:
+                add("POSTGRESQL_DIALECT_REFERENCE", node, dotted)
+        elif isinstance(node, ast.Name) and "postgresql" in node.id.lower():
+            add("POSTGRESQL_DIALECT_REFERENCE", node, node.id)
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            value = node.value
+            upper = value.upper()
+            if "ON CONFLICT" in upper:
+                add("POSTGRESQL_ON_CONFLICT", node, "ON CONFLICT")
+            for cast in re.findall(r"::(?:uuid|jsonb?|[A-Za-z_][A-Za-z0-9_]*)", value, re.IGNORECASE):
+                if cast.lower() in {"::uuid", "::json", "::jsonb"}:
+                    add("POSTGRESQL_CAST", node, cast)
+            for function in re.findall(r"\b(?:nextval|currval)\s*\(", value, re.IGNORECASE):
+                add("POSTGRESQL_SEQUENCE_FUNCTION", node, function)
+            for function in re.findall(r"\bpg_[A-Za-z0-9_]+\s*\(", value, re.IGNORECASE):
+                add("POSTGRESQL_PHYSICAL_FUNCTION", node, function)
+        elif isinstance(node, ast.Call):
+            function = node.func.attr if isinstance(node.func, ast.Attribute) else node.func.id if isinstance(node.func, ast.Name) else ""
+            if function.lower() in {"nextval", "currval"}:
+                add("POSTGRESQL_SEQUENCE_FUNCTION", node, function)
+            if function.lower().startswith("pg_"):
+                add("POSTGRESQL_PHYSICAL_FUNCTION", node, function)
+    return findings
+
+
 def gate(check_id: str, assertion: str, evidence_type: str, node: str, refs: list[str], result: object, evidence: object) -> None:
     passed = bool(result)
     source_requirement_id = f"AZSQL-{int(check_id.split('-')[1]):02d}" if check_id.startswith("AZSQL-") else check_id
@@ -126,8 +185,21 @@ def schema_gates(project_id: str) -> None:
         arabic = connection.execute(text("SELECT CAST(N'اختبار Phase4' AS NVARCHAR(100))")).scalar_one()
         gate("AZSQL-005", AZSQL_ASSERTIONS[4], "RUNTIME_SQLSERVER", "SELECT NVARCHAR english", ["azsql-001-040.json#AZSQL-005"], english == "Phase4 English", english)
         gate("AZSQL-006", AZSQL_ASSERTIONS[5], "RUNTIME_SQLSERVER", "SELECT NVARCHAR arabic", ["azsql-001-040.json#AZSQL-006"], arabic == "اختبار Phase4", arabic)
-        json_values = connection.execute(text("SELECT JSON_VALUE(N'{\"ok\":true}', '$.ok'), JSON_QUERY(N'{\"items\":[1,2]}', '$.items'), JSON_QUERY(N'{\"nullValue\":null}', '$.nullValue')")).one()
-        gate("AZSQL-007", AZSQL_ASSERTIONS[6], "RUNTIME_SQLSERVER", "SQL Server JSON_VALUE/JSON_QUERY", ["azsql-001-040.json#AZSQL-007"], json_values[0] == "true" and json_values[1] == "[1,2]" and json_values[2] is None, list(json_values))
+        json_values = connection.exec_driver_sql(
+            "SELECT "
+            "JSON_QUERY(CAST(? AS NVARCHAR(MAX)), '$.obj'), "
+            "JSON_QUERY(CAST(? AS NVARCHAR(MAX)), '$.items'), "
+            "JSON_VALUE(CAST(? AS NVARCHAR(MAX)), '$.nullValue')",
+            (
+                json.dumps({"obj": {"ok": True}}, separators=(",", ":")),
+                json.dumps({"items": [1, 2]}, separators=(",", ":")),
+                json.dumps({"nullValue": None}, separators=(",", ":")),
+            ),
+        ).one()
+        json_object = json.loads(json_values[0])
+        json_array = json.loads(json_values[1])
+        json_null = json_values[2]
+        gate("AZSQL-007", AZSQL_ASSERTIONS[6], "RUNTIME_SQLSERVER", "SQL Server JSON_VALUE/JSON_QUERY", ["azsql-001-040.json#AZSQL-007"], json_object == {"ok": True} and json_array == [1, 2] and json_null is None, {"object": json_object, "array": json_array, "null": json_null})
         temporal = connection.execute(text("SELECT CAST('2026-08-23T12:34:56+03:00' AS DATETIMEOFFSET)" )).scalar_one()
         gate("AZSQL-008", AZSQL_ASSERTIONS[7], "RUNTIME_SQLSERVER", "DATETIMEOFFSET round-trip", ["azsql-001-040.json#AZSQL-008"], getattr(temporal, "tzinfo", None) is not None, str(temporal))
         numeric = connection.execute(text("SELECT CAST(12345.67890 AS DECIMAL(18,5))")).scalar_one()
@@ -201,11 +273,11 @@ def runtime_gates(project_id: str, assertion_id: str) -> None:
         changed_conflict = _expect_error(lambda: _decision(db, envelope, "REJECT", key=key), 409, "IDEMPOTENCY_KEY_REUSE_MISMATCH")
         db.commit()
         stored = db.get(Phase4ReviewDecision, first.id)
-        audit_row = db.scalar(select(AuditEvent).where(AuditEvent.entity_id == envelope.id, AuditEvent.event_type == "PHASE4_REVIEW_DECISION_ACCEPT").order_by(AuditEvent.created_at.desc()))
+        audit_row = db.scalar(select(AuditEvent).where(AuditEvent.entity_id == envelope.id, AuditEvent.event_type == "PHASE4_REVIEW_DECISION_ACCEPT").order_by(AuditEvent.occurred_at.desc()))
         version_once = db.get(Phase4ClassificationEnvelope, envelope.id).record_version == 2
     gate("AZSQL-024", AZSQL_ASSERTIONS[23], "RUNTIME_APPLICATION", "record_review_decision.idempotency", ["azsql-001-040.json#AZSQL-024"], first.id == replay.id and changed_conflict, {"same_id": first.id == replay.id, "changed_conflict": changed_conflict})
     gate("AZSQL-026", AZSQL_ASSERTIONS[25], "RUNTIME_SQLSERVER", "record_review_decision.record_version", ["azsql-001-040.json#AZSQL-026"], version_once, version_once)
-    gate("AZSQL-028", AZSQL_ASSERTIONS[27], "SECURITY_NEGATIVE_PROOF", "record_review_decision.actor", ["azsql-001-040.json#AZSQL-028"], bool(stored and stored.actor_id == "local-phase4-role:SYSTEM_ADMIN" and audit_row and audit_row.actor_id == "SYSTEM_ADMIN" and stored.actor_id != "client-spoof"), {"stored_actor": stored.actor_id if stored else None, "audit_actor": audit_row.actor_id if audit_row else None})
+    gate("AZSQL-028", AZSQL_ASSERTIONS[27], "SECURITY_NEGATIVE_PROOF", "record_review_decision.actor", ["azsql-001-040.json#AZSQL-028"], bool(stored and stored.actor_id == "local-phase4-role:SYSTEM_ADMIN" and audit_row and audit_row.actor_id == "local-phase4-role:SYSTEM_ADMIN" and stored.actor_id != "client-spoof" and audit_row.actor_id != "client-spoof"), {"stored_actor": stored.actor_id if stored else None, "audit_actor": audit_row.actor_id if audit_row else None})
 
     race_scope = f"race-{uuid4()}"
     with SessionLocal() as db:
@@ -299,8 +371,9 @@ def runtime_gates(project_id: str, assertion_id: str) -> None:
     gate("AZSQL-037", AZSQL_ASSERTIONS[36], "STATIC_CONFIG", "validate_mssql_connection_url", ["azsql-001-040.json#AZSQL-037"], strict_accepted and unsafe_rejected, {"secure": strict_accepted, "unsafe_rejected": unsafe_rejected})
     phase4_source = (ROOT / "backend/app/services/phase4.py").read_text(encoding="utf-8")
     migration_source = (ROOT / "backend/migrations/versions/baseline_phase4_v36_azure_sql.py").read_text(encoding="utf-8")
+    migration_findings = _migration_postgresql_physical_findings(migration_source)
     gate("AZSQL-038", AZSQL_ASSERTIONS[37], "STATIC_SOURCE", "phase4.py", ["azsql-001-040.json#AZSQL-038"], "pg_advisory_xact_lock" not in phase4_source, "advisory lock absent")
-    gate("AZSQL-039", AZSQL_ASSERTIONS[38], "STATIC_SOURCE", "baseline_phase4_v36_azure_sql.py", ["azsql-001-040.json#AZSQL-039"], "ON CONFLICT" not in migration_source and "postgresql" not in migration_source.lower(), "active migration physical lineage absent")
+    gate("AZSQL-039", AZSQL_ASSERTIONS[38], "STATIC_SOURCE", "_migration_postgresql_physical_findings", ["azsql-001-040.json#AZSQL-039"], len(migration_findings) == 0, {"finding_count": len(migration_findings), "findings": migration_findings})
     safe_state = os.environ.get("SYNTHETIC_ONLY") == "true" and os.environ.get("REAL_DATA_ALLOWED", "false") == "false"
     gate("AZSQL-040", AZSQL_ASSERTIONS[39], "SECURITY_NEGATIVE_PROOF", "synthetic_environment", ["azsql-001-040.json#AZSQL-040"], safe_state, {"synthetic_only": os.environ.get("SYNTHETIC_ONLY"), "real_data_allowed": os.environ.get("REAL_DATA_ALLOWED", "false")})
 

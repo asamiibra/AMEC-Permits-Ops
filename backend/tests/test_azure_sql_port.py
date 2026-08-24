@@ -4,18 +4,26 @@ import re
 import tomllib
 
 import pytest
-from sqlalchemy import inspect as sqlalchemy_inspect
+from sqlalchemy import inspect as sqlalchemy_inspect, text as sqlalchemy_text
+from sqlalchemy.dialects import mssql, postgresql
 
 from backend.app.config.settings import Settings
 from backend.app.db import validate_mssql_connection_url
 from backend.app.models import (
     ConsultancyOffice,
+    AuditEvent,
     FieldDefinition,
+    Phase4ClassifierCorrectionEvent,
+    Phase4ClassificationEnvelope,
+    Phase4ProjectionReceipt,
+    Phase4ReviewDecision,
+    Phase4SourceChangeEvent,
     PermitApplication,
     Project,
     VerifiedAssertion,
 )
-from backend.app.services.phase4 import ALLOWED_DECISIONS
+from backend.app.services.phase4 import ALLOWED_DECISIONS, _review_lock_statement
+from scripts.db_azure_sql.sqlserver_gates import _migration_postgresql_physical_findings
 
 
 MSSQL_TARGET = (
@@ -235,3 +243,99 @@ def test_sqlserver_gate_fixture_flushes_before_verified_assertion():
     assert any(isinstance(node, ast.Name) and node.id == "field" for node in ast.walk(add_all))
     assert add_all.lineno < flush.lineno < assertion.lineno
     print("SQLSERVER_GATE_FIXTURE_FLUSH_BEFORE_ASSERTION=true")
+
+
+def test_sqlserver_gate_text_literals_have_no_implicit_bind_parameters():
+    source = Path("scripts/db_azure_sql/sqlserver_gates.py").read_text(encoding="utf-8")
+    tree = ast.parse(source, filename="scripts/db_azure_sql/sqlserver_gates.py")
+    literal_calls = []
+    nonliteral_calls = []
+    implicit_bind_parameters = []
+    for call in ast.walk(tree):
+        if not isinstance(call, ast.Call):
+            continue
+        is_text_call = isinstance(call.func, ast.Name) and call.func.id == "text"
+        is_text_call = is_text_call or (isinstance(call.func, ast.Attribute) and call.func.attr == "text")
+        if not is_text_call:
+            continue
+        if len(call.args) != 1 or not isinstance(call.args[0], ast.Constant) or not isinstance(call.args[0].value, str):
+            nonliteral_calls.append(call.lineno)
+            continue
+        literal = call.args[0].value
+        literal_calls.append(call.lineno)
+        statement = sqlalchemy_text(literal)
+        implicit_bind_parameters.extend((call.lineno, name) for name in statement._bindparams)
+    assert literal_calls
+    assert nonliteral_calls == []
+    assert implicit_bind_parameters == []
+    print(f"SQLSERVER_GATE_TEXT_LITERAL_CALL_COUNT={len(literal_calls)}")
+    print("SQLSERVER_GATE_TEXT_NONLITERAL_CALL_COUNT=0")
+    print("SQLSERVER_GATE_TEXT_IMPLICIT_BIND_PARAMETER_COUNT=0")
+    print("SQLSERVER_GATE_TEXT_LITERAL_AUDIT=PASS")
+
+
+def test_sqlserver_gate_model_attribute_references_match_sqlalchemy_mappers():
+    source = Path("scripts/db_azure_sql/sqlserver_gates.py").read_text(encoding="utf-8")
+    tree = ast.parse(source, filename="scripts/db_azure_sql/sqlserver_gates.py")
+    models = {
+        "AuditEvent": AuditEvent,
+        "Phase4SourceChangeEvent": Phase4SourceChangeEvent,
+        "Phase4ClassificationEnvelope": Phase4ClassificationEnvelope,
+        "Phase4ReviewDecision": Phase4ReviewDecision,
+        "Phase4ClassifierCorrectionEvent": Phase4ClassifierCorrectionEvent,
+        "Phase4ProjectionReceipt": Phase4ProjectionReceipt,
+        "VerifiedAssertion": VerifiedAssertion,
+    }
+    references = []
+    invalid = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Attribute) or not isinstance(node.value, ast.Name):
+            continue
+        model_name = node.value.id
+        if model_name not in models or (model_name == "Base" and node.attr == "metadata"):
+            continue
+        references.append((model_name, node.attr, node.lineno))
+        if node.attr not in sqlalchemy_inspect(models[model_name]).attrs:
+            invalid.append((model_name, node.attr, node.lineno))
+    assert references
+    assert invalid == []
+    print(f"SQLSERVER_GATE_MODEL_ATTRIBUTE_REFERENCE_COUNT={len(references)}")
+    print("SQLSERVER_GATE_INVALID_MODEL_ATTRIBUTE_REFERENCE_COUNT=0")
+    print("SQLSERVER_GATE_MODEL_ATTRIBUTE_MAPPER_AUDIT=PASS")
+
+
+def test_phase4_review_lock_compiles_sqlserver_update_holdlock():
+    sqlserver_sql = str(_review_lock_statement("envelope-1", "mssql").compile(dialect=mssql.dialect()))
+    fallback_sql = str(_review_lock_statement("envelope-1", "postgresql").compile(dialect=postgresql.dialect()))
+    upper_sqlserver = sqlserver_sql.upper()
+    assert "WITH (UPDLOCK, ROWLOCK, HOLDLOCK)" in upper_sqlserver
+    assert "FOR UPDATE" not in upper_sqlserver
+    assert "FOR UPDATE" in fallback_sql.upper()
+    print("PHASE4_MSSQL_REVIEW_LOCK_UPDLOCK=true")
+    print("PHASE4_MSSQL_REVIEW_LOCK_ROWLOCK=true")
+    print("PHASE4_MSSQL_REVIEW_LOCK_HOLDLOCK=true")
+    print("PHASE4_MSSQL_REVIEW_LOCK_FOR_UPDATE=false")
+    print("PHASE4_NON_MSSQL_REVIEW_LOCK_FALLBACK=true")
+
+
+def test_active_migration_provenance_text_not_counted_as_postgresql_physical_dependency():
+    active = Path("backend/migrations/versions/baseline_phase4_v36_azure_sql.py").read_text(encoding="utf-8")
+    active_findings = _migration_postgresql_physical_findings(active)
+    docstring_only = _migration_postgresql_physical_findings(
+        '"""PostgreSQL provenance includes ON CONFLICT and ::uuid historical text."""\n'
+    )
+    synthetic_import = _migration_postgresql_physical_findings(
+        "import sqlalchemy.dialects.postgresql as postgresql\n"
+    )
+    synthetic_conflict = _migration_postgresql_physical_findings(
+        'def upgrade():\n    op.execute("INSERT INTO t VALUES (1) ON CONFLICT (id) DO NOTHING")\n'
+    )
+    assert len(active_findings) == 0
+    assert len(docstring_only) == 0
+    assert len(synthetic_import) >= 1
+    assert len(synthetic_conflict) >= 1
+    print("ACTIVE_MIGRATION_POSTGRESQL_PHYSICAL_FINDING_COUNT=0")
+    print("ACTIVE_MIGRATION_PROVENANCE_DOCSTRING_FINDING_COUNT=0")
+    print("SYNTHETIC_POSTGRESQL_IMPORT_FINDING_COUNT_GE_1=true")
+    print("SYNTHETIC_ON_CONFLICT_FINDING_COUNT_GE_1=true")
+    print("ACTIVE_MIGRATION_PROVENANCE_ANALYZER_AUDIT=PASS")
