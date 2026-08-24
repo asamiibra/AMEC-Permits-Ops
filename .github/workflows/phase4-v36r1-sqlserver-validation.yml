@@ -1,0 +1,203 @@
+name: Phase4 V3.6R1 SQL Server validation
+
+on:
+  push:
+    branches:
+      - phase4-v36r1-sqlserver-validation-v1
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_SHA: 53bae9f86f83c834aaaac8819d64be0de65dddf1
+  CANDIDATE_BRANCH: phase4-v36r1-azure-sql-port-v1
+  VALIDATION_BRANCH: phase4-v36r1-sqlserver-validation-v1
+
+jobs:
+  validate:
+    name: Native x64 SQL Server 2022 gates
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout immutable validation commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prove candidate and workflow binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^1)" = "$CANDIDATE_SHA"
+          test "$(git rev-parse "$CANDIDATE_SHA^{tree}")" = "$(git rev-parse HEAD^1^{tree})"
+          test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = ".github/workflows/phase4-v36r1-sqlserver-validation.yml"
+          test "${GITHUB_REF_NAME}" = "$VALIDATION_BRANCH"
+          test -z "$(git status --porcelain)"
+          echo "CANDIDATE_SHA=$CANDIDATE_SHA"
+          echo "VALIDATION_HEAD=$(git rev-parse HEAD)"
+          echo "VALIDATION_PARENT=$(git rev-parse HEAD^1)"
+
+      - name: Prove native x64 runner and Docker daemon
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "x86_64"
+          docker info >/dev/null
+          echo "RUNNER_ARCH=$(uname -m)"
+          echo "DOCKER_INFO=PASS"
+
+      - name: Install Python, ODBC, and test dependencies
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Microsoft ODBC Driver 18
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg unixodbc-dev
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft-prod.gpg >/dev/null
+          curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list >/dev/null
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+
+      - name: Install frontend dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: npm ci
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run SQL Server 2022 authoritative gates
+        shell: bash
+        env:
+          SQLSERVER_CONTAINER: proposalops-v36r1-sqlserver-${{ github.run_id }}
+          SQLSERVER_VOLUME: proposalops-v36r1-volume-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          export AZSQL_GATE_OUTPUT="$RUNNER_TEMP/azsql-gates.json"
+          SQLSERVER_PASSWORD="$(python - <<'PY'
+          import secrets
+          print(secrets.token_hex(32))
+          PY
+          )"
+          echo "::add-mask::$SQLSERVER_PASSWORD"
+          docker volume create "$SQLSERVER_VOLUME" >/dev/null
+          cleanup() {
+            docker rm -f "$SQLSERVER_CONTAINER" >/dev/null 2>&1 || true
+            docker volume rm "$SQLSERVER_VOLUME" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          docker run --detach --platform linux/amd64 --name "$SQLSERVER_CONTAINER" \
+            --publish 127.0.0.1:1433:1433 \
+            --volume "$SQLSERVER_VOLUME:/var/opt/mssql" \
+            --env ACCEPT_EULA=Y \
+            --env MSSQL_PID=Developer \
+            --env MSSQL_SA_PASSWORD="$SQLSERVER_PASSWORD" \
+            mcr.microsoft.com/mssql/server:2022-latest >/dev/null
+          SQLCMD=/opt/mssql-tools18/bin/sqlcmd
+          ready=false
+          for attempt in $(seq 1 40); do
+            if docker exec "$SQLSERVER_CONTAINER" "$SQLCMD" -S localhost -U sa -P "$SQLSERVER_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1; then
+              ready=true
+              break
+            fi
+            sleep 5
+          done
+          test "$ready" = true
+          docker exec "$SQLSERVER_CONTAINER" "$SQLCMD" -S localhost -U sa -P "$SQLSERVER_PASSWORD" -C -Q "SET NOCOUNT ON; SELECT @@VERSION; SELECT CAST(SERVERPROPERTY('ProductMajorVersion') AS INT) AS product_major_version;" > "$RUNNER_TEMP/sqlserver-version.txt"
+          grep -Eq '(^|[^0-9])16([^0-9]|$)' "$RUNNER_TEMP/sqlserver-version.txt"
+          docker exec "$SQLSERVER_CONTAINER" "$SQLCMD" -S localhost -U sa -P "$SQLSERVER_PASSWORD" -C -Q "IF DB_ID(N'proposalops_e3') IS NULL CREATE DATABASE [proposalops_e3];" >/dev/null
+          export APP_ENV=TEST
+          export SYNTHETIC_ONLY=true
+          export DATABASE_URL="$(SQLSERVER_PASSWORD="$SQLSERVER_PASSWORD" python - <<'PY'
+          import os
+          from urllib.parse import quote
+          password = quote(os.environ["SQLSERVER_PASSWORD"], safe="")
+          print(f"mssql+pyodbc://sa:{password}@127.0.0.1:1433/proposalops_e3?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes")
+          PY
+          )"
+          python -m alembic -c alembic.ini upgrade head
+          python scripts/db_azure_sql/sqlserver_gates.py
+          test -s "$AZSQL_GATE_OUTPUT"
+          test "$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["result"])' "$AZSQL_GATE_OUTPUT")" = PASS
+
+      - name: Full backend regression on disposable SQLite
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_ENV=TEST SYNTHETIC_ONLY=true DATABASE_URL="sqlite:///$RUNNER_TEMP/phase4-regression.db" pytest -q backend/tests
+
+      - name: Frontend tests and production build
+        working-directory: frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm test -- --run
+          npm run build
+
+      - name: Static, contract, hygiene, and exact-count gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q backend scripts
+          python scripts/db_azure_sql/port_inventory.py
+          git diff --check "$CANDIDATE_SHA" HEAD
+          test "$(find backend/migrations/versions -maxdepth 1 -name '*.py' | wc -l | tr -d ' ')" = 1
+          if rg -n 'proposalops_reader_ro\.secret|BEGIN (RSA|OPENSSH|PRIVATE KEY)|ghp_[A-Za-z0-9]+' backend scripts contracts release .github; then
+            echo "SECRET_HYGIENE=FAIL"
+            exit 1
+          fi
+          test "$(python - <<'PY'
+          import json
+          p=json.load(open('contracts/amec/phase4/AMEC_PHASE4_PRIMARY_ACCEPTANCE_CHECKS_v1.json'))
+          print(p['primary_check_count'])
+          PY
+          )" = 250
+          test "$(python - <<'PY'
+          import json
+          p=json.load(open('contracts/amec/phase4/AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_v1.json'))
+          print(len(p['rows']))
+          PY
+          )" = 419
+
+      - name: Materialize credential-free evidence bundle
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          bundle="$RUNNER_TEMP/phase4-v36r1-evidence-${GITHUB_RUN_ID}"
+          mkdir -p "$bundle"
+          if test -f "$RUNNER_TEMP/azsql-gates.json"; then cp "$RUNNER_TEMP/azsql-gates.json" "$bundle/azsql-gates.json"; fi
+          if test -f "$RUNNER_TEMP/sqlserver-version.txt"; then cp "$RUNNER_TEMP/sqlserver-version.txt" "$bundle/sqlserver-version.txt"; fi
+          cat > "$bundle/run-context.txt" <<EOF
+          RESULT_CONTEXT=E3_NATIVE_X64_SQLSERVER
+          CANDIDATE_SHA=$CANDIDATE_SHA
+          VALIDATION_SHA=$(git rev-parse HEAD)
+          VALIDATION_PARENT=$(git rev-parse HEAD^1)
+          AZURE_ACCESSED=false
+          ENTRA_ACCESSED=false
+          SYNOLOGY_ACCESSED=false
+          SMB_ACCESSED=false
+          REAL_DATA_USED=false
+          EOF
+          if test -f "$bundle/azsql-gates.json"; then
+            ! rg -n 'MSSQL_SA_PASSWORD|SQLSERVER_PASSWORD|DATABASE_URL=.*sa:' "$bundle" || exit 1
+          fi
+
+      - name: Upload credential-free evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-v36r1-sqlserver-e3-${{ github.run_id }}-${{ github.sha }}
+          path: ${{ runner.temp }}/phase4-v36r1-evidence-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 14
