@@ -211,12 +211,11 @@ class Settings(BaseSettings):
                     "ENTRA_REQUIRED_SCOPE=access_as_user"
                 )
 
-            if self.database_url.lower().startswith("mssql+"):
-                self._validate_mssql_url(self.database_url)
-            elif not self.database_url.lower().startswith("postgresql+psycopg://"):
+            if not self.database_url.lower().startswith("mssql+pyodbc://"):
                 raise ValueError(
                     "AZURE-PREPROD requires mssql+pyodbc:// for Azure SQL"
                 )
+            self._validate_mssql_url(self.database_url)
 
             if self.monitoring_mode.upper() not in {"DISABLED", "APPLICATION_INSIGHTS"}:
                 raise ValueError("MONITORING_MODE must be DISABLED or APPLICATION_INSIGHTS")

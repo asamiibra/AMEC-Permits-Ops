@@ -25,17 +25,31 @@ ENV RELEASE_SHA="${RELEASE_SHA}" \
 WORKDIR /workspace
 
 COPY backend/requirements-runtime.lock /tmp/requirements-runtime.lock
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl gnupg unixodbc unixodbc-dev \
-    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
-    && curl -fsSL https://packages.microsoft.com/config/debian/13/prod.list > /etc/apt/sources.list.d/microsoft-prod.list \
-    && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
-    && odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server' \
-    && rm -rf /var/lib/apt/lists/* \
-    && python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements-runtime.lock \
-    && python -m pip check \
-    && rm -f /tmp/requirements-runtime.lock
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+      ca-certificates \
+      curl \
+      unixodbc \
+      unixodbc-dev \
+      libgssapi-krb5-2; \
+    . /etc/os-release; \
+    test "$ID" = "debian"; \
+    DEBIAN_MAJOR="${VERSION_ID%%.*}"; \
+    test "$DEBIAN_MAJOR" = "13"; \
+    curl -fsSLo /tmp/packages-microsoft-prod.deb \
+      "https://packages.microsoft.com/config/debian/${DEBIAN_MAJOR}/packages-microsoft-prod.deb"; \
+    dpkg-deb --info /tmp/packages-microsoft-prod.deb >/dev/null; \
+    dpkg -i /tmp/packages-microsoft-prod.deb; \
+    rm -f /tmp/packages-microsoft-prod.deb; \
+    apt-get update; \
+    ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18; \
+    odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server'; \
+    dpkg-query -W -f='${Package}=${Version}\n' packages-microsoft-prod msodbcsql18; \
+    rm -rf /var/lib/apt/lists/*; \
+    python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements-runtime.lock; \
+    python -m pip check; \
+    rm -f /tmp/requirements-runtime.lock
 
 COPY backend/__init__.py /workspace/backend/__init__.py
 COPY backend/app /workspace/backend/app

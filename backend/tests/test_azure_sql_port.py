@@ -47,6 +47,59 @@ def test_settings_accepts_only_secure_mssql_target_for_azure_preprod(monkeypatch
     settings.validate_environment()
 
 
+def _azure_preprod_settings(database_url: str) -> Settings:
+    return Settings(
+        app_env="AZURE-PREPROD",
+        database_url=database_url,
+        frontend_origins="https://synthetic.example",
+        synthetic_only=True,
+        real_data_allowed=False,
+        auth_mode="ENTRA",
+        entra_tenant_id="11111111-1111-4111-8111-111111111111",
+        entra_api_client_id="22222222-2222-4222-8222-222222222222",
+        entra_web_client_id="33333333-3333-4333-8333-333333333333",
+        storage_provider="mock",
+        synology_mode="SYNTHETIC",
+    )
+
+
+def test_azure_preprod_secure_mssql_accepted(monkeypatch):
+    monkeypatch.setenv("FRONTEND_ORIGINS", "https://synthetic.example")
+    _azure_preprod_settings(MSSQL_TARGET).validate_environment()
+
+
+def test_azure_preprod_postgresql_rejected(monkeypatch):
+    monkeypatch.setenv("FRONTEND_ORIGINS", "https://synthetic.example")
+    with pytest.raises(ValueError, match="mssql\\+pyodbc"):
+        _azure_preprod_settings(
+            "postgresql+psycopg://runtime:secret@db.example/proposalops"
+        ).validate_environment()
+
+
+def test_azure_preprod_sqlite_rejected(monkeypatch):
+    monkeypatch.setenv("FRONTEND_ORIGINS", "https://synthetic.example")
+    with pytest.raises(ValueError, match="mssql\\+pyodbc"):
+        _azure_preprod_settings("sqlite:///synthetic.db").validate_environment()
+
+
+def test_azure_preprod_encrypt_no_rejected(monkeypatch):
+    monkeypatch.setenv("FRONTEND_ORIGINS", "https://synthetic.example")
+    with pytest.raises(ValueError, match="Encrypt=yes"):
+        _azure_preprod_settings(
+            MSSQL_TARGET.replace("Encrypt=yes", "Encrypt=no")
+        ).validate_environment()
+
+
+def test_azure_preprod_trust_server_certificate_yes_rejected(monkeypatch):
+    monkeypatch.setenv("FRONTEND_ORIGINS", "https://synthetic.example")
+    with pytest.raises(ValueError, match="TrustServerCertificate=no"):
+        _azure_preprod_settings(
+            MSSQL_TARGET.replace(
+                "TrustServerCertificate=no", "TrustServerCertificate=yes"
+            )
+        ).validate_environment()
+
+
 def test_phase4_has_exactly_six_review_actions_and_no_advisory_lock():
     assert ALLOWED_DECISIONS == {
         "ACCEPT",
