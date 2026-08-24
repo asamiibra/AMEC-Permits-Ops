@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, utcnow
@@ -295,7 +295,7 @@ class ContractAdministrativeClosure(Base):
 
 class RegulatoryCloseoutAssessment(Base):
     __tablename__ = "regulatory_closeout_assessments"
-    __table_args__ = (UniqueConstraint("project_id", "service_engagement_id", name="uq_regulatory_closeout_scope"),)
+    __table_args__ = (Index("uq_regulatory_closeout_scope", "project_id", "service_engagement_id", unique=True, mssql_where=text("service_engagement_id IS NOT NULL")),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)

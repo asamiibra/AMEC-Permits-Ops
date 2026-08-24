@@ -212,7 +212,6 @@ def upgrade() -> None:
         sa.Column('pinned_hash', sa.String(64), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='as_built_baseline_members_pkey'),
-        sa.UniqueConstraint('baseline_id', 'engineering_revision_id', 'rendition_id', 'building_snapshot_id', name='uq_as_built_baseline_member'),
     )
     op.create_table('as_built_baselines',
         sa.Column('id', sa.String(36), nullable=False),
@@ -272,7 +271,6 @@ def upgrade() -> None:
         sa.Column('dispositioned_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='as_built_variances_pkey'),
-        sa.UniqueConstraint('comparison_run_id', 'building_asset_id', 'field_key', name='uq_as_built_variance_field'),
     )
     op.create_table('assistant_capability_definitions',
         sa.Column('id', sa.String(36), nullable=False),
@@ -1030,7 +1028,6 @@ def upgrade() -> None:
         sa.Column('captured_by', sa.String(200), nullable=False),
         sa.Column('captured_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='case_party_snapshots_pkey'),
-        sa.UniqueConstraint('authority_case_id', 'preparation_revision_id', 'snapshot_number', name='uq_case_party_snapshot_scope'),
     )
     op.create_table('checklist_items',
         sa.Column('id', sa.String(36), nullable=False),
@@ -1341,7 +1338,6 @@ def upgrade() -> None:
         sa.Column('recorded_by', sa.String(200), nullable=False),
         sa.Column('recorded_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='construction_inspections_pkey'),
-        sa.UniqueConstraint('construction_execution_id', 'idempotency_key', name='uq_construction_inspection_idempotency'),
     )
     op.create_table('construction_issues',
         sa.Column('id', sa.String(36), nullable=False),
@@ -2088,7 +2084,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='engineering_category_assignments_pkey'),
-        sa.UniqueConstraint('project_id', 'work_package_id', 'review_category_id', name='uq_engineering_category_assignment_scope'),
     )
     op.create_table('engineering_comments',
         sa.Column('id', sa.String(36), nullable=False),
@@ -2138,7 +2133,6 @@ def upgrade() -> None:
         sa.Column('idempotency_key', sa.String(200), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='engineering_deliverable_revisions_pkey'),
-        sa.UniqueConstraint('idempotency_key', name='engineering_deliverable_revisions_idempotency_key_key'),
         sa.UniqueConstraint('deliverable_id', 'revision_code', name='uq_engineering_deliverable_revision'),
         sa.UniqueConstraint('deliverable_id', 'sequence', name='uq_engineering_deliverable_revision_sequence'),
     )
@@ -2332,7 +2326,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='engineering_work_packages_pkey'),
-        sa.UniqueConstraint('idempotency_key', name='engineering_work_packages_idempotency_key_key'),
         sa.UniqueConstraint('project_id', 'package_ref', name='uq_engineering_work_package_ref'),
     )
     op.create_table('evidence_artifacts',
@@ -3684,7 +3677,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='master_content_applicability_pkey'),
-        sa.UniqueConstraint('master_content_item_id', 'source_document_version_id', 'external_body_id', 'jurisdiction_id', 'service_type_id', 'lifecycle_phase_id', name='uq_master_content_applicability_version'),
     )
     op.create_table('master_content_change_events',
         sa.Column('id', sa.String(36), nullable=False),
@@ -3807,8 +3799,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='master_content_module_bindings_pkey'),
-        sa.UniqueConstraint('definition_id', 'module', 'usage_type', name='uq_definition_module_binding'),
-        sa.UniqueConstraint('master_content_id', 'module', 'usage_type', name='uq_master_content_module_binding'),
         sa.CheckConstraint(sa.text('master_content_id IS NOT NULL OR definition_id IS NOT NULL'), name='ck_binding_source_present'),
     )
     op.create_table('master_content_quality_flags',
@@ -5495,7 +5485,6 @@ def upgrade() -> None:
         sa.Column('assessed_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('assessed_by', sa.String(200), nullable=False),
         sa.PrimaryKeyConstraint('id', name='regulatory_closeout_assessments_pkey'),
-        sa.UniqueConstraint('project_id', 'service_engagement_id', name='uq_regulatory_closeout_scope'),
     )
     op.create_table('regulatory_journeys',
         sa.Column('id', sa.String(36), nullable=False),
@@ -5747,7 +5736,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='requirement_policy_items_pkey'),
-        sa.UniqueConstraint('policy_version_id', 'requirement_definition_id', 'phase_id', name='uq_requirement_policy_item'),
     )
     op.create_table('requirement_policy_lineage',
         sa.Column('id', sa.String(36), nullable=False),
@@ -5764,7 +5752,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='requirement_policy_lineage_pkey'),
-        sa.UniqueConstraint('policy_version_id', 'master_content_item_id', 'document_version_id', 'source_section_id', name='uq_requirement_policy_lineage'),
     )
     op.create_table('requirement_policy_versions',
         sa.Column('id', sa.String(36), nullable=False),
@@ -5783,7 +5770,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='requirement_policy_versions_pkey'),
-        sa.UniqueConstraint('service_type_id', 'jurisdiction_id', 'external_body_id', 'version', name='uq_requirement_policy_context_version'),
     )
     op.create_table('restore_rehearsals',
         sa.Column('id', sa.String(36), nullable=False),
@@ -6490,7 +6476,6 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint('id', name='technical_rule_lineage_pkey'),
-        sa.UniqueConstraint('technical_rule_id', 'master_content_item_id', 'document_version_id', 'source_section_id', name='uq_technical_rule_lineage'),
     )
     op.create_table('technical_rule_set_versions',
         sa.Column('id', sa.String(36), nullable=False),
@@ -8182,7 +8167,7 @@ def upgrade() -> None:
     op.create_index('ix_project_engineering_review_revision', 'project_engineering_reviews', ['revision_id', 'status'])
     op.create_index('ix_project_engineering_reviews_review_category_id', 'project_engineering_reviews', ['review_category_id'])
     op.create_index('ix_project_handovers_project_id', 'project_handovers', ['project_id'])
-    op.create_index('ix_projects_project_code', 'projects', ['project_code'], unique=True)
+    op.create_index('ix_projects_project_code', 'projects', ['project_code'], unique=True, mssql_where=sa.text('project_code IS NOT NULL'))
     op.create_index('ix_properties_project_id', 'properties', ['project_id'])
     op.create_index('ix_proposal_accepted_revisions_content_hash', 'proposal_accepted_revisions', ['content_hash'])
     op.create_index('ix_proposal_accepted_revisions_proposal_id', 'proposal_accepted_revisions', ['proposal_id'])
@@ -8379,11 +8364,26 @@ def upgrade() -> None:
     op.create_index('ix_template_versions_template_definition_id', 'template_versions', ['template_definition_id'])
     op.create_index('ix_tender_documents_document_version_id', 'tender_documents', ['document_version_id'])
     op.create_index('ix_tender_documents_opportunity_id', 'tender_documents', ['opportunity_id'])
-    op.create_index('ix_users_entra_object_id', 'users', ['entra_object_id'], unique=True)
+    op.create_index('ix_users_entra_object_id', 'users', ['entra_object_id'], unique=True, mssql_where=sa.text('entra_object_id IS NOT NULL'))
     op.create_index('ix_verified_assertions_project_id', 'verified_assertions', ['project_id'])
     op.create_index('ix_workflow_tasks_assistant_id', 'workflow_tasks', ['assistant_id'])
     op.create_index('ix_workflow_tasks_context_id', 'workflow_tasks', ['context_id'])
     op.create_index('ix_workflow_tasks_task_family', 'workflow_tasks', ['task_family'])
+    op.create_index('uq_as_built_baseline_member', 'as_built_baseline_members', ['baseline_id', 'engineering_revision_id', 'rendition_id', 'building_snapshot_id'], unique=True, mssql_where=sa.text('engineering_revision_id IS NOT NULL AND rendition_id IS NOT NULL AND building_snapshot_id IS NOT NULL'))
+    op.create_index('uq_as_built_variance_field', 'as_built_variances', ['comparison_run_id', 'building_asset_id', 'field_key'], unique=True, mssql_where=sa.text('building_asset_id IS NOT NULL'))
+    op.create_index('uq_case_party_snapshot_scope', 'case_party_snapshots', ['authority_case_id', 'preparation_revision_id', 'snapshot_number'], unique=True, mssql_where=sa.text('preparation_revision_id IS NOT NULL'))
+    op.create_index('uq_construction_inspection_idempotency', 'construction_inspections', ['construction_execution_id', 'idempotency_key'], unique=True, mssql_where=sa.text('idempotency_key IS NOT NULL'))
+    op.create_index('uq_engineering_category_assignment_scope', 'engineering_category_assignments', ['project_id', 'work_package_id', 'review_category_id'], unique=True, mssql_where=sa.text('work_package_id IS NOT NULL'))
+    op.create_index('engineering_deliverable_revisions_idempotency_key_key', 'engineering_deliverable_revisions', ['idempotency_key'], unique=True, mssql_where=sa.text('idempotency_key IS NOT NULL'))
+    op.create_index('engineering_work_packages_idempotency_key_key', 'engineering_work_packages', ['idempotency_key'], unique=True, mssql_where=sa.text('idempotency_key IS NOT NULL'))
+    op.create_index('uq_master_content_applicability_version', 'master_content_applicability', ['master_content_item_id', 'source_document_version_id', 'external_body_id', 'jurisdiction_id', 'service_type_id', 'lifecycle_phase_id'], unique=True, mssql_where=sa.text('jurisdiction_id IS NOT NULL AND lifecycle_phase_id IS NOT NULL'))
+    op.create_index('uq_definition_module_binding', 'master_content_module_bindings', ['definition_id', 'module', 'usage_type'], unique=True, mssql_where=sa.text('definition_id IS NOT NULL'))
+    op.create_index('uq_master_content_module_binding', 'master_content_module_bindings', ['master_content_id', 'module', 'usage_type'], unique=True, mssql_where=sa.text('master_content_id IS NOT NULL'))
+    op.create_index('uq_regulatory_closeout_scope', 'regulatory_closeout_assessments', ['project_id', 'service_engagement_id'], unique=True, mssql_where=sa.text('service_engagement_id IS NOT NULL'))
+    op.create_index('uq_requirement_policy_item', 'requirement_policy_items', ['policy_version_id', 'requirement_definition_id', 'phase_id'], unique=True, mssql_where=sa.text('phase_id IS NOT NULL'))
+    op.create_index('uq_requirement_policy_lineage', 'requirement_policy_lineage', ['policy_version_id', 'master_content_item_id', 'document_version_id', 'source_section_id'], unique=True, mssql_where=sa.text('source_section_id IS NOT NULL'))
+    op.create_index('uq_requirement_policy_context_version', 'requirement_policy_versions', ['service_type_id', 'jurisdiction_id', 'external_body_id', 'version'], unique=True, mssql_where=sa.text('jurisdiction_id IS NOT NULL AND external_body_id IS NOT NULL'))
+    op.create_index('uq_technical_rule_lineage', 'technical_rule_lineage', ['technical_rule_id', 'master_content_item_id', 'document_version_id', 'source_section_id'], unique=True, mssql_where=sa.text('source_section_id IS NOT NULL'))
 
     bind = op.get_bind()
     bind.execute(sa.text("INSERT INTO master_content_reference_sequences (active, content_type, created_at, current_value, id, padding, prefix, scope, updated_at) SELECT :value_0, :value_1, CURRENT_TIMESTAMP, :value_3, :value_4, :value_5, :value_6, :value_7, CURRENT_TIMESTAMP WHERE NOT EXISTS (SELECT 1 FROM master_content_reference_sequences WHERE content_type = :value_1 AND scope = :value_7)"),

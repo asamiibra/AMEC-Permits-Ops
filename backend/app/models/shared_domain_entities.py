@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TimestampMixin, utcnow
@@ -210,7 +210,7 @@ class MasterContentApplicability(Base, TimestampMixin):
     """Version-pinned regulatory applicability for a canonical source."""
     __tablename__ = "master_content_applicability"
     __table_args__ = (
-        UniqueConstraint("master_content_item_id", "source_document_version_id", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id", name="uq_master_content_applicability_version"),
+        Index("uq_master_content_applicability_version", "master_content_item_id", "source_document_version_id", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id", unique=True, mssql_where=text("jurisdiction_id IS NOT NULL AND lifecycle_phase_id IS NOT NULL")),
         Index("ix_master_content_applicability_context", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id"),
     )
 
@@ -263,7 +263,7 @@ class RequirementDefinition(Base, TimestampMixin):
 
 class RequirementPolicyVersion(Base, TimestampMixin):
     __tablename__ = "requirement_policy_versions"
-    __table_args__ = (UniqueConstraint("service_type_id", "jurisdiction_id", "external_body_id", "version", name="uq_requirement_policy_context_version"), Index("ix_requirement_policy_context", "service_type_id", "jurisdiction_id", "external_body_id"), Index("ix_requirement_policy_effective", "effective_from", "effective_to"), Index("ix_requirement_policy_status", "status"))
+    __table_args__ = (Index("uq_requirement_policy_context_version", "service_type_id", "jurisdiction_id", "external_body_id", "version", unique=True, mssql_where=text("jurisdiction_id IS NOT NULL AND external_body_id IS NOT NULL")), Index("ix_requirement_policy_context", "service_type_id", "jurisdiction_id", "external_body_id"), Index("ix_requirement_policy_effective", "effective_from", "effective_to"), Index("ix_requirement_policy_status", "status"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     service_type_id: Mapped[str] = mapped_column(ForeignKey("service_types.id"), nullable=False)
@@ -294,7 +294,7 @@ class RequirementGroup(Base, TimestampMixin):
 
 class RequirementPolicyItem(Base, TimestampMixin):
     __tablename__ = "requirement_policy_items"
-    __table_args__ = (UniqueConstraint("policy_version_id", "requirement_definition_id", "phase_id", name="uq_requirement_policy_item"), Index("ix_requirement_policy_item_policy", "policy_version_id"), Index("ix_requirement_policy_item_requirement", "requirement_definition_id"))
+    __table_args__ = (Index("uq_requirement_policy_item", "policy_version_id", "requirement_definition_id", "phase_id", unique=True, mssql_where=text("phase_id IS NOT NULL")), Index("ix_requirement_policy_item_policy", "policy_version_id"), Index("ix_requirement_policy_item_requirement", "requirement_definition_id"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     policy_version_id: Mapped[str] = mapped_column(ForeignKey("requirement_policy_versions.id"), nullable=False)
@@ -328,7 +328,7 @@ class RequirementEvidenceConstraint(Base, TimestampMixin):
 
 class RequirementPolicyLineage(Base, TimestampMixin):
     __tablename__ = "requirement_policy_lineage"
-    __table_args__ = (UniqueConstraint("policy_version_id", "master_content_item_id", "document_version_id", "source_section_id", name="uq_requirement_policy_lineage"),)
+    __table_args__ = (Index("uq_requirement_policy_lineage", "policy_version_id", "master_content_item_id", "document_version_id", "source_section_id", unique=True, mssql_where=text("source_section_id IS NOT NULL")),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     policy_version_id: Mapped[str] = mapped_column(ForeignKey("requirement_policy_versions.id"), nullable=False, index=True)
@@ -440,7 +440,7 @@ class TechnicalRule(Base, TimestampMixin):
 
 class TechnicalRuleLineage(Base, TimestampMixin):
     __tablename__ = "technical_rule_lineage"
-    __table_args__ = (UniqueConstraint("technical_rule_id", "master_content_item_id", "document_version_id", "source_section_id", name="uq_technical_rule_lineage"),)
+    __table_args__ = (Index("uq_technical_rule_lineage", "technical_rule_id", "master_content_item_id", "document_version_id", "source_section_id", unique=True, mssql_where=text("source_section_id IS NOT NULL")),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     technical_rule_id: Mapped[str] = mapped_column(ForeignKey("technical_rules.id"), nullable=False, index=True)

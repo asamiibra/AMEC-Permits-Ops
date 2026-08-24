@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, utcnow
@@ -38,7 +38,7 @@ class EngineeringReviewCategory(Base):
 
 class EngineeringCategoryAssignment(Base):
     __tablename__ = "engineering_category_assignments"
-    __table_args__ = (UniqueConstraint("project_id", "work_package_id", "review_category_id", name="uq_engineering_category_assignment_scope"), Index("ix_engineering_category_assignment_project_state", "project_id", "effective_state"))
+    __table_args__ = (Index("uq_engineering_category_assignment_scope", "project_id", "work_package_id", "review_category_id", unique=True, mssql_where=text("work_package_id IS NOT NULL")), Index("ix_engineering_category_assignment_project_state", "project_id", "effective_state"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)

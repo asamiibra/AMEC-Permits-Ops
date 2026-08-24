@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, CheckConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, CheckConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, utcnow
@@ -70,8 +70,8 @@ class MasterContentReferenceSequence(Base, TimestampMixin):
 class MasterContentModuleBinding(Base, TimestampMixin):
     __tablename__ = "master_content_module_bindings"
     __table_args__ = (
-        UniqueConstraint("master_content_id", "module", "usage_type", name="uq_master_content_module_binding"),
-        UniqueConstraint("definition_id", "module", "usage_type", name="uq_definition_module_binding"),
+        Index("uq_master_content_module_binding", "master_content_id", "module", "usage_type", unique=True, mssql_where=text("master_content_id IS NOT NULL")),
+        Index("uq_definition_module_binding", "definition_id", "module", "usage_type", unique=True, mssql_where=text("definition_id IS NOT NULL")),
         CheckConstraint("master_content_id IS NOT NULL OR definition_id IS NOT NULL", name="ck_binding_source_present"),
     )
 

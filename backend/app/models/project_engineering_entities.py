@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, utcnow
@@ -34,7 +34,7 @@ class EngineeringProjectMember(Base):
 
 class EngineeringWorkPackage(Base):
     __tablename__ = "engineering_work_packages"
-    __table_args__ = (UniqueConstraint("project_id", "package_ref", name="uq_engineering_work_package_ref"), Index("ix_engineering_work_package_project", "project_id", "status"))
+    __table_args__ = (UniqueConstraint("project_id", "package_ref", name="uq_engineering_work_package_ref"), Index("ix_engineering_work_package_project", "project_id", "status"), Index("engineering_work_packages_idempotency_key_key", "idempotency_key", unique=True, mssql_where=text("idempotency_key IS NOT NULL")))
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False)
     package_ref: Mapped[str] = mapped_column(String(120), nullable=False)
@@ -43,7 +43,7 @@ class EngineeringWorkPackage(Base):
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="OPEN")
     owner_actor: Mapped[str] = mapped_column(String(200), nullable=False)
     metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
-    idempotency_key: Mapped[str | None] = mapped_column(String(200), unique=True)
+    idempotency_key: Mapped[str | None] = mapped_column(String(200))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
@@ -67,7 +67,7 @@ class EngineeringDeliverable(Base):
 
 class EngineeringDeliverableRevision(Base):
     __tablename__ = "engineering_deliverable_revisions"
-    __table_args__ = (UniqueConstraint("deliverable_id", "revision_code", name="uq_engineering_deliverable_revision"), UniqueConstraint("deliverable_id", "sequence", name="uq_engineering_deliverable_revision_sequence"), Index("ix_engineering_revision_status", "status", "approval_status"), Index("ix_engineering_revision_deliverable", "deliverable_id", "sequence"))
+    __table_args__ = (UniqueConstraint("deliverable_id", "revision_code", name="uq_engineering_deliverable_revision"), UniqueConstraint("deliverable_id", "sequence", name="uq_engineering_deliverable_revision_sequence"), Index("ix_engineering_revision_status", "status", "approval_status"), Index("ix_engineering_revision_deliverable", "deliverable_id", "sequence"), Index("engineering_deliverable_revisions_idempotency_key_key", "idempotency_key", unique=True, mssql_where=text("idempotency_key IS NOT NULL")))
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False)
     deliverable_id: Mapped[str] = mapped_column(ForeignKey("engineering_deliverables.id"), nullable=False)
@@ -80,7 +80,7 @@ class EngineeringDeliverableRevision(Base):
     prepared_by: Mapped[str] = mapped_column(String(200), nullable=False)
     supersedes_revision_id: Mapped[str | None] = mapped_column(ForeignKey("engineering_deliverable_revisions.id"))
     immutable_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    idempotency_key: Mapped[str | None] = mapped_column(String(200), unique=True)
+    idempotency_key: Mapped[str | None] = mapped_column(String(200))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
 

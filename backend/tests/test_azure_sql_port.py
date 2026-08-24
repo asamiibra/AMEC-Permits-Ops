@@ -9,10 +9,12 @@ from sqlalchemy.dialects import mssql, postgresql
 from sqlalchemy.engine.default import DefaultDialect
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.schema import CreateIndex
 
 from backend.app.config.settings import Settings
 from backend.app.db import validate_mssql_connection_url
 from backend.app.models import (
+    Base,
     ConsultancyOffice,
     AuditEvent,
     FieldDefinition,
@@ -23,10 +25,12 @@ from backend.app.models import (
     Phase4SourceChangeEvent,
     PermitApplication,
     Project,
+    User,
     VerifiedAssertion,
 )
 from backend.app.services.phase4 import ALLOWED_DECISIONS, _review_lock_statement
 from scripts.db_azure_sql.sqlserver_gates import _migration_postgresql_physical_findings, _mssql_unique_constraints
+from scripts.db_azure_sql.nullable_unique_audit import audit as nullable_unique_audit
 
 
 MSSQL_TARGET = (
@@ -539,3 +543,74 @@ def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
     assert has_len_equals("stored_decisions", 1)
     assert has_name_equals("final_envelope_record_version", 2)
     print("AZSQL025_SOURCE_SHAPE_REGRESSION=PASS")
+
+
+def test_sqlserver_nullable_unique_inventory_is_fully_classified():
+    result = nullable_unique_audit("post")
+    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 216
+    assert result["unclassified_unique_object_count"] == 0
+    assert result["unsafe_fk_or_semantic_review_required_count"] == 0
+    assert result["nullable_unique_filter_required_count"] == 17
+    assert result["nullable_unique_filter_required_open_count"] == 0
+    assert result["nullable_unique_filter_implemented_count"] == 17
+    assert result["result"] == "PASS"
+    print("UNIQUE_OBJECT_TOTAL_COUNT=216")
+    print("UNCLASSIFIED_UNIQUE_OBJECT_COUNT=0")
+    print("UNSAFE_FK_OR_SEMANTIC_REVIEW_REQUIRED_COUNT=0")
+    print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=17")
+
+
+def test_sqlserver_nullable_unique_filters_match_orm_and_migration():
+    result = nullable_unique_audit("post")
+    objects = {item["object_name"]: item for item in result["objects"]}
+    expected = {
+        "ix_users_entra_object_id": ("users", ["entra_object_id"], "entra_object_id is not null"),
+        "ix_projects_project_code": ("projects", ["project_code"], "project_code is not null"),
+    }
+    for name, (table, columns, predicate) in expected.items():
+        item = objects[name]
+        assert item["table_name"] == table
+        assert item["ordered_key_columns"] == columns
+        assert item["model_filter"] == predicate
+        assert item["migration_filter"] == predicate
+        assert item["expected_mssql_filter"] == predicate
+    assert all(item["model_filter"] == item["migration_filter"] for item in objects.values())
+    print("MODEL_MIGRATION_NULLABLE_UNIQUE_PARITY_MISMATCH_COUNT=0")
+    print("IX_USERS_ENTRA_OBJECT_ID_FILTERED_PARITY=PASS")
+    print("IX_PROJECTS_PROJECT_CODE_FILTERED_PARITY=PASS")
+
+
+def test_sqlserver_known_nullable_unique_indexes_compile_filtered():
+    users_index = next(index for index in Base.metadata.tables["users"].indexes if index.name == "ix_users_entra_object_id")
+    projects_index = next(index for index in Base.metadata.tables["projects"].indexes if index.name == "ix_projects_project_code")
+    users_sql = str(CreateIndex(users_index).compile(dialect=mssql.dialect())).upper()
+    projects_sql = str(CreateIndex(projects_index).compile(dialect=mssql.dialect())).upper()
+    assert users_index.unique is True
+    assert projects_index.unique is True
+    assert "WHERE ENTRA_OBJECT_ID IS NOT NULL" in users_sql
+    assert "WHERE PROJECT_CODE IS NOT NULL" in projects_sql
+    assert "CREATE UNIQUE INDEX IX_USERS_ENTRA_OBJECT_ID" in users_sql
+    assert "CREATE UNIQUE INDEX IX_PROJECTS_PROJECT_CODE" in projects_sql
+    print("IX_USERS_ENTRA_OBJECT_ID_MSSQL_DDL_FILTER=PASS")
+    print("IX_PROJECTS_PROJECT_CODE_MSSQL_DDL_FILTER=PASS")
+
+
+def test_sqlserver_nullable_unique_objects_are_not_fk_target_rewrites():
+    result = nullable_unique_audit("post")
+    safe_nullable = [item for item in result["objects"] if item["classification"] == "NULLABLE_UNIQUE_FILTER_REQUIRED"]
+    assert len(safe_nullable) == 17
+    assert all(item["foreign_key_target_usage"] is False for item in safe_nullable)
+    assert all(item["foreign_key_references"] == [] for item in safe_nullable)
+    print("NULLABLE_UNIQUE_FK_TARGET_REWRITE_COUNT=0")
+
+
+def test_sqlserver_seed_contract_preserves_optional_entra_and_project_code():
+    assert User.__table__.c.entra_object_id.nullable is True
+    assert Project.__table__.c.project_code.nullable is True
+    source = Path("backend/app/seed/cli.py").read_text(encoding="utf-8")
+    assert "User(email=e, display_name=n, role=r, office_id=office.id)" in source
+    assert "Project(project_number=CANONICAL_PROJECT_IDS[0]" in source
+    assert "entra_object_id=" not in source
+    assert "project_code=" not in source
+    print("SEED_OPTIONAL_ENTRA_OBJECT_ID_PRESERVED=true")
+    print("SEED_OPTIONAL_PROJECT_CODE_PRESERVED=true")

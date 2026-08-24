@@ -9,9 +9,11 @@ from sqlalchemy import (
     DateTime,
     Enum as SAEnum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -101,6 +103,14 @@ class ConsultancyOffice(Base, TimestampMixin):
 
 class User(Base, TimestampMixin):
     __tablename__ = "users"
+    __table_args__ = (
+        Index(
+            "ix_users_entra_object_id",
+            "entra_object_id",
+            unique=True,
+            mssql_where=text("entra_object_id IS NOT NULL"),
+        ),
+    )
 
     id: Mapped[str] = mapped_column(
         String(36),
@@ -114,8 +124,6 @@ class User(Base, TimestampMixin):
     # claims must never be used as authorization keys.
     entra_object_id: Mapped[str | None] = mapped_column(
         String(36),
-        unique=True,
-        index=True,
         nullable=True,
     )
 
@@ -148,6 +156,14 @@ class User(Base, TimestampMixin):
 
 class Project(Base, TimestampMixin):
     __tablename__ = "projects"
+    __table_args__ = (
+        Index(
+            "ix_projects_project_code",
+            "project_code",
+            unique=True,
+            mssql_where=text("project_code IS NOT NULL"),
+        ),
+    )
 
     id: Mapped[str] = mapped_column(
         String(36),
@@ -192,8 +208,6 @@ class Project(Base, TimestampMixin):
     # permit consumers; the two values are intentionally separate.
     project_code: Mapped[str | None] = mapped_column(
         String(80),
-        unique=True,
-        index=True,
     )
     start_date: Mapped[date | None] = mapped_column(
         Date,

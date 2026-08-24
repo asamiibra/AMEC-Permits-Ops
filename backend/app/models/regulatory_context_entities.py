@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, utcnow
@@ -97,7 +97,7 @@ class ContactPoint(Base):
 
 class CasePartySnapshot(Base):
     __tablename__ = "case_party_snapshots"
-    __table_args__ = (UniqueConstraint("authority_case_id", "preparation_revision_id", "snapshot_number", name="uq_case_party_snapshot_scope"), Index("ix_case_party_snapshot_case", "authority_case_id", "snapshot_number"))
+    __table_args__ = (Index("uq_case_party_snapshot_scope", "authority_case_id", "preparation_revision_id", "snapshot_number", unique=True, mssql_where=text("preparation_revision_id IS NOT NULL")), Index("ix_case_party_snapshot_case", "authority_case_id", "snapshot_number"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)

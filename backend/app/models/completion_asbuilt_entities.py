@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, utcnow
@@ -134,7 +134,7 @@ class AsBuiltBaseline(Base):
 class AsBuiltBaselineMember(Base):
     __tablename__ = "as_built_baseline_members"
     __table_args__ = (
-        UniqueConstraint("baseline_id", "engineering_revision_id", "rendition_id", "building_snapshot_id", name="uq_as_built_baseline_member"),
+        Index("uq_as_built_baseline_member", "baseline_id", "engineering_revision_id", "rendition_id", "building_snapshot_id", unique=True, mssql_where=text("engineering_revision_id IS NOT NULL AND rendition_id IS NOT NULL AND building_snapshot_id IS NOT NULL")),
         Index("ix_as_built_baseline_member_baseline", "baseline_id"),
     )
 
@@ -174,7 +174,7 @@ class AsBuiltComparisonRun(Base):
 class AsBuiltVariance(Base):
     __tablename__ = "as_built_variances"
     __table_args__ = (
-        UniqueConstraint("comparison_run_id", "building_asset_id", "field_key", name="uq_as_built_variance_field"),
+        Index("uq_as_built_variance_field", "comparison_run_id", "building_asset_id", "field_key", unique=True, mssql_where=text("building_asset_id IS NOT NULL")),
         Index("ix_as_built_variance_project_status", "project_id", "status"),
     )
 
