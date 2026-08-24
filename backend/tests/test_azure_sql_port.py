@@ -1,11 +1,20 @@
+import ast
 from pathlib import Path
 import re
 import tomllib
 
 import pytest
+from sqlalchemy import inspect as sqlalchemy_inspect
 
 from backend.app.config.settings import Settings
 from backend.app.db import validate_mssql_connection_url
+from backend.app.models import (
+    ConsultancyOffice,
+    FieldDefinition,
+    PermitApplication,
+    Project,
+    VerifiedAssertion,
+)
 from backend.app.services.phase4 import ALLOWED_DECISIONS
 
 
@@ -154,3 +163,75 @@ def test_sqlserver_driver_dependency_metadata_consistent():
     print("RUNTIME_TXT_PYODBC_EXACT=pyodbc==5.3.0")
     print("RUNTIME_LOCK_PYODBC_VERSION=5.3.0")
     print("SQLSERVER_DRIVER_DEPENDENCY_METADATA_PARITY=PASS")
+
+
+def test_sqlserver_gate_model_constructor_keywords_match_sqlalchemy_mappers():
+    source = Path("scripts/db_azure_sql/sqlserver_gates.py").read_text(encoding="utf-8")
+    tree = ast.parse(source, filename="scripts/db_azure_sql/sqlserver_gates.py")
+    models = {
+        "ConsultancyOffice": ConsultancyOffice,
+        "Project": Project,
+        "PermitApplication": PermitApplication,
+        "FieldDefinition": FieldDefinition,
+        "VerifiedAssertion": VerifiedAssertion,
+    }
+    constructor_calls = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id in models
+    ]
+    invalid_keywords = []
+    for call in constructor_calls:
+        mapped_names = set(sqlalchemy_inspect(models[call.func.id]).attrs.keys())
+        for keyword in call.keywords:
+            if keyword.arg is None or keyword.arg not in mapped_names:
+                invalid_keywords.append((call.func.id, keyword.arg, call.lineno))
+    assert constructor_calls
+    assert invalid_keywords == []
+    print(f"SQLSERVER_GATE_MODEL_CONSTRUCTOR_CALL_COUNT={len(constructor_calls)}")
+    print(f"SQLSERVER_GATE_INVALID_MODEL_CONSTRUCTOR_KWARG_COUNT={len(invalid_keywords)}")
+    print("SQLSERVER_GATE_MODEL_CONSTRUCTOR_MAPPER_AUDIT=PASS")
+
+
+def test_sqlserver_gate_fixture_flushes_before_verified_assertion():
+    source = Path("scripts/db_azure_sql/sqlserver_gates.py").read_text(encoding="utf-8")
+    tree = ast.parse(source, filename="scripts/db_azure_sql/sqlserver_gates.py")
+    fixture = next(
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "_fixture"
+    )
+    add_all_calls = [
+        node
+        for node in ast.walk(fixture)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "add_all"
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "db"
+    ]
+    flush_calls = [
+        node
+        for node in ast.walk(fixture)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "flush"
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "db"
+    ]
+    assertion_calls = [
+        node
+        for node in ast.walk(fixture)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "VerifiedAssertion"
+    ]
+    assert add_all_calls and flush_calls and assertion_calls
+    add_all = min(add_all_calls, key=lambda node: node.lineno)
+    flush = min(flush_calls, key=lambda node: node.lineno)
+    assertion = min(assertion_calls, key=lambda node: node.lineno)
+    assert any(isinstance(node, ast.Name) and node.id == "field" for node in ast.walk(add_all))
+    assert add_all.lineno < flush.lineno < assertion.lineno
+    print("SQLSERVER_GATE_FIXTURE_FLUSH_BEFORE_ASSERTION=true")

@@ -103,8 +103,10 @@ def _fixture() -> tuple[str, str]:
         project = Project(id=project_id, project_number=f"FINAL-{uuid4().hex[:10]}", project_name="Synthetic Final Project", office=office, workstream="PERMITTING", status="ACTIVE", municipality="Doha", permit_type="BUILDING")
         application = PermitApplication(project=project, authority="SYNTHETIC_AUTHORITY", municipality="Doha", permit_type="BUILDING", external_request_number=f"FINAL-{uuid4().hex[:12]}", application_status=ApplicationStatus.DRAFT)
         field = FieldDefinition(field_code=f"FINAL_FIELD_{uuid4().hex[:10]}", name_en="Synthetic field", data_type=DataType.STRING, criticality=Criticality.NORMAL, normalization_rule="IDENTITY", description="Controlled synthetic fixture")
-        assertion = VerifiedAssertion(project=project, field_definition=field, semantic_value_json={"value": "synthetic"}, display_value="synthetic", status=AssertionStatus.CURRENT, verification_method=VerificationMethod.MANUAL_KEYED_VERIFIED, verified_by="synthetic-system", reason="Final controlled fixture")
-        db.add_all([office, project, application, field, assertion])
+        db.add_all([office, project, application, field])
+        db.flush()
+        assertion = VerifiedAssertion(project_id=project.id, field_definition_id=field.id, semantic_value_json={"value": "synthetic"}, display_value="synthetic", status=AssertionStatus.CURRENT, verification_method=VerificationMethod.MANUAL_KEYED_VERIFIED, verified_by="synthetic-system", reason="Final controlled fixture")
+        db.add(assertion)
         db.commit()
         return project_id, assertion.id
 
