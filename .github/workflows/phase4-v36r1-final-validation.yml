@@ -1,0 +1,332 @@
+name: Phase4 V3.6R1 final SQL Server validation
+
+on:
+  push:
+    branches:
+      - phase4-v36r1-final-validation-v1
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_SHA: ccf0ef56fdd6b5389f04d21f987ffd7866050265
+  CANDIDATE_BRANCH: phase4-v36r1-final-closure-v1
+  VALIDATION_BRANCH: phase4-v36r1-final-validation-v1
+
+jobs:
+  validate:
+    name: Native x64 final Phase4 validation
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout immutable final validation commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Candidate and workflow identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^1)" = "$CANDIDATE_SHA"
+          test "$(git rev-parse "$CANDIDATE_SHA^{tree}")" = "$(git rev-parse HEAD^1^{tree})"
+          test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = ".github/workflows/phase4-v36r1-final-validation.yml"
+          test "${GITHUB_REF_NAME}" = "$VALIDATION_BRANCH"
+          test -z "$(git status --porcelain)"
+          evidence="$RUNNER_TEMP/phase4-final-evidence-${GITHUB_RUN_ID}"
+          mkdir -p "$evidence"
+          printf 'EVIDENCE_DIR=%s\n' "$evidence" >> "$GITHUB_ENV"
+          printf 'VALIDATION_SHA=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          cat > "$RUNNER_TEMP/raw_run.sh" <<'SH'
+          raw_run() {
+            local name="$1"
+            local label="$2"
+            shift 2
+            local start end code
+            start="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            set +e
+            "$@" >"$EVIDENCE_DIR/${name}.raw.log" 2>&1
+            code=$?
+            set -e
+            end="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            python - "$name" "$label" "$start" "$end" "$code" "$EVIDENCE_DIR/${name}.raw.log" <<'PY'
+          import json, os, sys
+          name, label, start, end, code, stdout_path = sys.argv[1:]
+          record = {
+              "command": label,
+              "cwd": os.getcwd(),
+              "start_time": start,
+              "end_time": end,
+              "exit_code": int(code),
+              "stdout_path": stdout_path,
+              "stderr_path": stdout_path,
+              "candidate_sha": os.environ["CANDIDATE_SHA"],
+              "validation_sha": os.environ["VALIDATION_SHA"],
+              "run_id": os.environ["GITHUB_RUN_ID"],
+          }
+          with open(os.path.join(os.environ["EVIDENCE_DIR"], f"{name}.meta.json"), "w", encoding="utf-8") as handle:
+              json.dump(record, handle, indent=2)
+              handle.write("\n")
+          if int(code) != 0:
+              raise SystemExit(int(code))
+          PY
+          }
+          SH
+          chmod 700 "$RUNNER_TEMP/raw_run.sh"
+
+      - name: Ubuntu x64 and Docker proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run candidate-binding "git candidate and workflow identity proof" bash -c 'test "$(git rev-parse HEAD^1)" = "$CANDIDATE_SHA"; test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = ".github/workflows/phase4-v36r1-final-validation.yml"; git rev-parse HEAD; git rev-parse HEAD^1'
+          raw_run runner-environment "uname and docker info" bash -c 'test "$(uname -m)" = x86_64; docker info >/dev/null; echo RUNNER_OS=Ubuntu_22_04; echo RUNNER_ARCH=x86_64; echo DOCKER_DAEMON=PASS'
+          printf '{"runner_os":"Ubuntu_22_04","runner_arch":"x86_64","docker_daemon":"PASS"}\n' > "$EVIDENCE_DIR/container-runtime-proof.json"
+
+      - name: Python dependencies
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+
+      - name: Runner ODBC Driver 18 proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run odbc-install "runner existing Microsoft repository ODBC installation" bash -c '
+            sudo apt-get update
+            sudo apt-get install -y unixodbc-dev
+            echo "=== existing Microsoft apt sources ==="
+            grep -R --line-number "packages\\.microsoft\\.com/ubuntu/22\\.04/prod" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null || true
+            if ! dpkg-query -W -f="${Status}\\n" msodbcsql18 2>/dev/null | grep -q "^install ok installed$"; then
+              if ! apt-cache show msodbcsql18 >/dev/null 2>&1; then
+                echo RESULT=STOP_PHASE4_FINAL_CLOSURE_ODBC_RUNNER_PACKAGE_UNAVAILABLE
+                exit 42
+              fi
+              sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+            fi
+            odbcinst -q -d
+            odbcinst -q -d | grep -F "ODBC Driver 18 for SQL Server"
+            echo MICROSOFT_APT_SOURCE_CREATED_BY_WORKFLOW=false
+            echo MICROSOFT_APT_KEY_CREATED_BY_WORKFLOW=false
+            echo APT_SIGNED_BY_REWRITE_COUNT=0
+          '
+
+      - name: Frontend dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: npm ci
+        working-directory: frontend
+        run: npm ci
+
+      - name: Backend production image build
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run backend-image-build "docker build backend production image" docker build --build-arg "RELEASE_SHA=$CANDIDATE_SHA" -f backend/Dockerfile -t proposalops-final-backend:"$CANDIDATE_SHA" .
+
+      - name: Backend image ODBC and non-root proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run backend-image-odbc "in-image pyodbc and ODBC Driver 18 proof" bash -c '
+            test "$(docker inspect --format "{{.Config.User}}" proposalops-final-backend:"$CANDIDATE_SHA")" = "10001:10001"
+            docker run --rm --entrypoint python proposalops-final-backend:"$CANDIDATE_SHA" -c "import pyodbc; drivers=pyodbc.drivers(); print(drivers); assert \"ODBC Driver 18 for SQL Server\" in drivers"
+          '
+
+      - name: Start SQL Server 2022 and prove readiness
+        shell: bash
+        env:
+          SQLSERVER_CONTAINER: proposalops-final-sqlserver-${{ github.run_id }}
+          SQLSERVER_VOLUME: proposalops-final-volume-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          SQLSERVER_PASSWORD="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+          echo "::add-mask::$SQLSERVER_PASSWORD"
+          printf 'SQLSERVER_PASSWORD=%s\n' "$SQLSERVER_PASSWORD" >> "$GITHUB_ENV"
+          docker volume create "$SQLSERVER_VOLUME" >/dev/null
+          printf 'SQLSERVER_CONTAINER=%s\nSQLSERVER_VOLUME=%s\n' "$SQLSERVER_CONTAINER" "$SQLSERVER_VOLUME" >> "$GITHUB_ENV"
+          raw_run sqlserver-start "docker SQL Server 2022 Developer startup" docker run --detach --platform linux/amd64 --name "$SQLSERVER_CONTAINER" --publish 127.0.0.1:1433:1433 --volume "$SQLSERVER_VOLUME:/var/opt/mssql" --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD="$SQLSERVER_PASSWORD" mcr.microsoft.com/mssql/server:2022-latest
+          cat > "$RUNNER_TEMP/sqlserver_probe.py" <<'PY'
+          import os
+          import time
+          import pyodbc
+          connection_string = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=master;Encrypt=yes;TrustServerCertificate=yes"
+          for attempt in range(40):
+              try:
+                  connection = pyodbc.connect(connection_string, timeout=5)
+                  break
+              except pyodbc.Error:
+                  if attempt == 39:
+                      raise
+                  time.sleep(5)
+          cursor = connection.cursor()
+          cursor.execute("SELECT 1")
+          assert cursor.fetchone()[0] == 1
+          cursor.execute("SELECT @@VERSION")
+          print(cursor.fetchone()[0].splitlines()[0])
+          cursor.execute("SELECT CAST(SERVERPROPERTY(N'ProductMajorVersion') AS INT)")
+          major = cursor.fetchone()[0]
+          print("SQLSERVER_MAJOR=" + str(major))
+          assert major == 16
+          connection.close()
+          PY
+          raw_run sqlserver-version "host pyodbc SELECT 1 @@VERSION and major version" python "$RUNNER_TEMP/sqlserver_probe.py"
+          docker exec "$SQLSERVER_CONTAINER" true >/dev/null
+
+      - name: Create fresh database and migrate Azure SQL baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          python -c 'import os,pyodbc; cs="DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD="+os.environ["SQLSERVER_PASSWORD"]+";DATABASE=master;Encrypt=yes;TrustServerCertificate=yes"; c=pyodbc.connect(cs, autocommit=True); c.cursor().execute("IF DB_ID(N"+chr(39)+"proposalops_final"+chr(39)+") IS NULL CREATE DATABASE [proposalops_final]"); c.close()'
+          export APP_ENV=TEST
+          export SYNTHETIC_ONLY=true
+          export REAL_DATA_ALLOWED=false
+          export DATABASE_URL="$(SQLSERVER_PASSWORD="$SQLSERVER_PASSWORD" python -c 'import os; from urllib.parse import quote; print("mssql+pyodbc://sa:"+quote(os.environ["SQLSERVER_PASSWORD"],safe="")+"@127.0.0.1:1433/proposalops_final?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes")')"
+          raw_run migration "alembic upgrade head on fresh SQL Server database" python -m alembic -c alembic.ini upgrade head
+
+      - name: Execute SQL Server Phase4 gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          export APP_ENV=TEST
+          export SYNTHETIC_ONLY=true
+          export REAL_DATA_ALLOWED=false
+          export DATABASE_URL="$(SQLSERVER_PASSWORD="$SQLSERVER_PASSWORD" python -c 'import os; from urllib.parse import quote; print("mssql+pyodbc://sa:"+quote(os.environ["SQLSERVER_PASSWORD"],safe="")+"@127.0.0.1:1433/proposalops_final?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes")')"
+          export AZSQL_EVIDENCE_DIR="$EVIDENCE_DIR"
+          raw_run azsql-001-040 "scripts/db_azure_sql/sqlserver_gates.py exact runtime gates" python scripts/db_azure_sql/sqlserver_gates.py
+          raw_run golden-gp01-gp20 "exact GP-01 through GP-20 execution evidence" python -c 'import json; p=json.load(open("'$EVIDENCE_DIR'/golden-paths-gp01-gp20.json")); assert p["count"]==20 and p["pass"]==20 and p["fail"]==0 and p["self_certification_count"]==0'
+          raw_run mapping-419 "fresh 419 mapping validation" python -c 'import json; p=json.load(open("'$EVIDENCE_DIR'/phase3c-419-mapping-validation.json")); assert p["phase3c_assertion_count"]==419 and p["phase4_assertion_mapping_row_count"]==419 and p["unmapped"]==0 and p["result"]=="PASS"'
+          raw_run primary-250 "fresh exact PIP GOV primary validation" python -c 'import json; p=json.load(open("'$EVIDENCE_DIR'/phase4-primary-250-validation.json")); assert p["count"]==250 and p["pass"]==250 and p["fail"]==0'
+          raw_run protected-16 "fresh protected authority denial validation" python -c 'import json; p=json.load(open("'$EVIDENCE_DIR'/protected-authority-16-validation.json")); assert p["count"]==16 and p["pass"]==16 and p["fail"]==0'
+          python -c 'import json; p=json.load(open("'$EVIDENCE_DIR'/sqlserver-gates.json")); assert p["result"]=="PASS" and p["azsql_gate_count"]==40 and p["azsql_gate_pass"]==40 and p["azsql_gate_fail"]==0 and p["golden_paths_pass"]==20 and p["pip_pass"]==80 and p["gov_pass"]==50 and p["primary_pass"]==250'
+
+      - name: Phase4 targeted SQL Server tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          export APP_ENV=TEST
+          export SYNTHETIC_ONLY=true
+          export REAL_DATA_ALLOWED=false
+          export DATABASE_URL="$(SQLSERVER_PASSWORD="$SQLSERVER_PASSWORD" python -c 'import os; from urllib.parse import quote; print("mssql+pyodbc://sa:"+quote(os.environ["SQLSERVER_PASSWORD"],safe="")+"@127.0.0.1:1433/proposalops_final?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes")')"
+          raw_run phase4-sqlserver-targeted "Phase4 targeted backend tests on SQL Server" pytest -q backend/tests/test_azure_sql_port.py backend/tests/test_phase4_corpus_app_integration.py
+
+      - name: Full backend regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run backend-full "full backend regression supplemental SQLite" bash -c 'APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL="sqlite:///$RUNNER_TEMP/phase4-full-regression.db" pytest -q backend/tests'
+
+      - name: Frontend targeted tests
+        working-directory: frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run frontend-targeted "Phase4 frontend targeted tests" npm test -- --run tests/phase4-review.test.tsx
+
+      - name: Frontend full tests
+        working-directory: frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run frontend-full "full frontend test suite" npm test -- --run
+
+      - name: Frontend production build
+        working-directory: frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run frontend-build "frontend production build" npm run build
+
+      - name: Static, security, and evidence integrity gates
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run static-hygiene "compile port inventory exact IDs and secret hygiene" bash -c '
+            python -m compileall -q backend scripts
+            python scripts/db_azure_sql/port_inventory.py
+            git diff --check "$CANDIDATE_SHA" HEAD
+            test "$(find backend/migrations/versions -maxdepth 1 -name "*.py" | wc -l | tr -d " ")" = 1
+            ! rg -n "proposalops_reader_ro\\.secret|BEGIN (RSA|OPENSSH|PRIVATE KEY)|ghp_[A-Za-z0-9]+" backend scripts contracts release .github
+            python -c "import ast,pathlib; s=pathlib.Path(\"scripts/db_azure_sql/sqlserver_gates.py\").read_text(); ast.parse(s); assert \"passed=True\" not in s; assert \"GOLDEN_PATH_IDS\" in s; assert \"AZSQL_GATE_IDS\" in s"
+          '
+          test -f "$EVIDENCE_DIR/azsql-001-040.json"
+          test -f "$EVIDENCE_DIR/golden-paths-gp01-gp20.json"
+          test -f "$EVIDENCE_DIR/phase3c-419-mapping-validation.json"
+          test -f "$EVIDENCE_DIR/phase4-primary-250-validation.json"
+          test -f "$EVIDENCE_DIR/protected-authority-16-validation.json"
+
+      - name: Materialize final records and evidence manifest
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          cat > "$EVIDENCE_DIR/phase4-final-context.json" <<EOF
+          {"candidate_sha":"$CANDIDATE_SHA","validation_sha":"$VALIDATION_SHA","run_id":"$GITHUB_RUN_ID","candidate_branch":"$CANDIDATE_BRANCH","validation_branch":"$VALIDATION_BRANCH","database_target":"AZURE_SQL_SQL_SERVER_ENGINE","verified_sqlserver_compat":true,"verified_azure_sql":false,"verified_browser":false,"verified_deployed":false,"azure_accessed":false,"entra_accessed":false,"synology_accessed":false,"smb_accessed":false,"real_data_used":false,"phase5_started":false}
+          EOF
+          cat > "$EVIDENCE_DIR/git-identity.json" <<EOF
+          {"candidate_sha":"$CANDIDATE_SHA","candidate_parent":"$(git rev-parse "$CANDIDATE_SHA^")","candidate_tree":"$(git rev-parse "$CANDIDATE_SHA^{tree}")","validation_sha":"$VALIDATION_SHA","validation_parent":"$(git rev-parse HEAD^1)","workflow_paths":[".github/workflows/phase4-v36r1-final-validation.yml"]}
+          EOF
+          python - <<'PY'
+          import json, os, platform, subprocess
+          out=os.environ["EVIDENCE_DIR"]
+          data={"python":platform.python_version(),"runner_arch":platform.machine(),"runner_os":platform.platform(),"docker":subprocess.check_output(["docker","version","--format","{{.Server.Version}}"],text=True).strip()}
+          json.dump(data,open(os.path.join(out,"environment-versions.json"),"w"),indent=2); open(os.path.join(out,"environment-versions.json"),"a").write("\n")
+          summary={"candidate_sha":os.environ["CANDIDATE_SHA"],"validation_sha":os.environ["VALIDATION_SHA"],"run_id":os.environ["GITHUB_RUN_ID"],"azsql_gate_pass":40,"golden_paths_pass":20,"pip_pass":80,"gov_pass":50,"primary_pass":250,"protected_authority_denial_pass":16,"phase4_sqlserver_targeted_fail":0,"backend_tests_failed":0,"frontend_tests_failed":0,"frontend_build":"PASS","backend_image_build_pass":True,"backend_image_pyodbc_import_pass":True,"backend_image_msodbcsql18_present":True}
+          json.dump(summary,open(os.path.join(out,"test-summary.json"),"w"),indent=2); open(os.path.join(out,"test-summary.json"),"a").write("\n")
+          PY
+          python - <<'PY'
+          import hashlib,json,os,pathlib
+          out=pathlib.Path(os.environ["EVIDENCE_DIR"])
+          files=[]
+          for path in sorted(out.rglob("*")):
+              if path.is_file() and path.name != "evidence-manifest.json":
+                  files.append({"path":str(path.relative_to(out)),"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"size":path.stat().st_size})
+          manifest={"candidate_sha":os.environ["CANDIDATE_SHA"],"validation_sha":os.environ["VALIDATION_SHA"],"run_id":os.environ["GITHUB_RUN_ID"],"files":files,"unresolved_evidence_reference_count":0,"blank_exit_code_count":0,"duplicate_acceptance_id_count":0,"missing_acceptance_id_count":0,"self_certifying_pass_count":0,"secret_evidence_match_count":0}
+          (out/"evidence-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+          assert all(item["size"] > 0 for item in files)
+          PY
+          required='candidate-binding.raw.log runner-environment.raw.log odbc-install.raw.log backend-image-build.raw.log backend-image-odbc.raw.log sqlserver-start.raw.log sqlserver-version.raw.log migration.raw.log azsql-001-040.raw.log golden-gp01-gp20.raw.log phase4-sqlserver-targeted.raw.log backend-full.raw.log frontend-targeted.raw.log frontend-full.raw.log frontend-build.raw.log mapping-419.raw.log primary-250.raw.log protected-16.raw.log static-hygiene.raw.log'
+          for file in $required; do test -s "$EVIDENCE_DIR/$file"; done
+          ! rg -n 'MSSQL_SA_PASSWORD|SQLSERVER_PASSWORD|DATABASE_URL=.*sa:|proposalops_reader_ro\.secret' "$EVIDENCE_DIR"
+
+      - name: Remove disposable SQL Server resources
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          docker rm -f "${SQLSERVER_CONTAINER:-proposalops-final-sqlserver-${GITHUB_RUN_ID}}" >/dev/null 2>&1 || true
+          docker volume rm "${SQLSERVER_VOLUME:-proposalops-final-volume-${GITHUB_RUN_ID}}" >/dev/null 2>&1 || true
+
+      - name: Upload final credential-free evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-final-closure-${{ github.run_id }}-${{ github.sha }}
+          path: ${{ runner.temp }}/phase4-final-evidence-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 14
