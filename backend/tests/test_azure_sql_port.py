@@ -6,6 +6,8 @@ import tomllib
 import pytest
 from sqlalchemy import inspect as sqlalchemy_inspect, text as sqlalchemy_text
 from sqlalchemy.dialects import mssql, postgresql
+from sqlalchemy.engine.default import DefaultDialect
+from sqlalchemy.engine.interfaces import Dialect
 
 from backend.app.config.settings import Settings
 from backend.app.db import validate_mssql_connection_url
@@ -23,7 +25,7 @@ from backend.app.models import (
     VerifiedAssertion,
 )
 from backend.app.services.phase4 import ALLOWED_DECISIONS, _review_lock_statement
-from scripts.db_azure_sql.sqlserver_gates import _migration_postgresql_physical_findings
+from scripts.db_azure_sql.sqlserver_gates import _migration_postgresql_physical_findings, _mssql_unique_constraints
 
 
 MSSQL_TARGET = (
@@ -339,3 +341,75 @@ def test_active_migration_provenance_text_not_counted_as_postgresql_physical_dep
     print("SYNTHETIC_POSTGRESQL_IMPORT_FINDING_COUNT_GE_1=true")
     print("SYNTHETIC_ON_CONFLICT_FINDING_COUNT_GE_1=true")
     print("ACTIVE_MIGRATION_PROVENANCE_ANALYZER_AUDIT=PASS")
+
+
+def test_sqlserver_gate_reflection_methods_are_mssql_implemented():
+    source = Path("scripts/db_azure_sql/sqlserver_gates.py").read_text(encoding="utf-8")
+    tree = ast.parse(source, filename="scripts/db_azure_sql/sqlserver_gates.py")
+    inspector_variables = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Call):
+            continue
+        if isinstance(node.value.func, ast.Name) and node.value.func.id == "inspect":
+            inspector_variables.update(target.id for target in node.targets if isinstance(target, ast.Name))
+
+    methods = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute) or not node.func.attr.startswith("get_"):
+            continue
+        value = node.func.value
+        direct_inspector = isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and value.func.id == "inspect"
+        assigned_inspector = isinstance(value, ast.Name) and value.id in inspector_variables
+        if direct_inspector or assigned_inspector:
+            methods.add(node.func.attr)
+
+    expected = {"get_table_names", "get_pk_constraint", "get_foreign_keys", "get_indexes", "get_columns"}
+    unsupported = []
+    for method in sorted(methods):
+        owner = next((candidate for candidate in mssql.dialect.mro() if method in candidate.__dict__), None)
+        if owner in {Dialect, DefaultDialect} or owner is None or not owner.__module__.startswith("sqlalchemy.dialects.mssql"):
+            unsupported.append((method, owner.__module__ if owner else None))
+    assert methods == expected
+    assert "get_unique_constraints" not in methods
+    assert unsupported == []
+    print("SQLSERVER_GATE_INSPECTOR_METHOD_COUNT=5")
+    print("SQLSERVER_GATE_GET_UNIQUE_CONSTRAINTS_CALL_COUNT=0")
+    print("SQLSERVER_GATE_UNSUPPORTED_INSPECTOR_METHOD_COUNT=0")
+    print("SQLSERVER_GATE_MSSQL_REFLECTION_API_AUDIT=PASS")
+
+
+def test_mssql_unique_constraint_catalog_helper_is_parameterized_and_exact():
+    class FakeResult:
+        def all(self):
+            return [
+                {"name": "uq_phase4_review_decision_idempotency", "column_name": "idempotency_key", "key_ordinal": 1},
+                {"name": "uq_catalog_order", "column_name": "second", "key_ordinal": 2},
+                {"name": "uq_catalog_order", "column_name": "first", "key_ordinal": 1},
+            ]
+
+    class FakeConnection:
+        def __init__(self):
+            self.statement = None
+            self.parameters = None
+
+        def exec_driver_sql(self, statement, parameters):
+            self.statement = statement
+            self.parameters = parameters
+            return FakeResult()
+
+    connection = FakeConnection()
+    result = _mssql_unique_constraints(connection, "phase4_review_decisions")
+    expected = {"name": "uq_phase4_review_decision_idempotency", "column_names": ["idempotency_key"]}
+    assert connection.statement is not None
+    assert connection.parameters == (None, "phase4_review_decisions")
+    assert connection.statement.count("?") >= 2
+    assert "sys.key_constraints" in connection.statement
+    assert "key_ordinal" in connection.statement
+    assert "phase4_review_decisions" not in connection.statement
+    assert expected in result
+    assert next(item for item in result if item["name"] == "uq_catalog_order")["column_names"] == ["first", "second"]
+    print("MSSQL_UNIQUE_CATALOG_HELPER_UNIT=PASS")
+    print("MSSQL_UQ_HELPER_USES_EXEC_DRIVER_SQL=true")
+    print("MSSQL_UQ_HELPER_QMARK_PARAMETER_COUNT=2")
+    print("MSSQL_UQ_HELPER_SYS_KEY_CONSTRAINTS=true")
+    print("MSSQL_UQ_HELPER_PRESERVES_KEY_ORDINAL=true")

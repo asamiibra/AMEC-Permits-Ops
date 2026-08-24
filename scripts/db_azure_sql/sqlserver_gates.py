@@ -131,6 +131,32 @@ def _migration_postgresql_physical_findings(source: str) -> list[dict[str, objec
     return findings
 
 
+def _mssql_unique_constraints(connection, table_name: str, schema_name: str | None = None) -> list[dict[str, object]]:
+    """Reflect SQL Server unique constraints without the unsupported generic API."""
+    query = (
+        "SELECT kc.name AS name, c.name AS column_name, ic.key_ordinal AS key_ordinal "
+        "FROM sys.key_constraints AS kc "
+        "JOIN sys.tables AS t ON t.object_id = kc.parent_object_id "
+        "JOIN sys.schemas AS s ON s.schema_id = t.schema_id "
+        "JOIN sys.index_columns AS ic ON ic.object_id = kc.parent_object_id AND ic.index_id = kc.unique_index_id "
+        "JOIN sys.columns AS c ON c.object_id = ic.object_id AND c.column_id = ic.column_id "
+        "WHERE kc.type = 'UQ' AND s.name = COALESCE(?, SCHEMA_NAME()) AND t.name = ? "
+        "ORDER BY kc.name, ic.key_ordinal"
+    )
+    rows = connection.exec_driver_sql(query, (schema_name, table_name)).all()
+    grouped: dict[str, list[tuple[int, str]]] = {}
+    for row in rows:
+        values = getattr(row, "_mapping", row)
+        name = str(values["name"])
+        column_name = str(values["column_name"])
+        key_ordinal = int(values["key_ordinal"])
+        grouped.setdefault(name, []).append((key_ordinal, column_name))
+    return [
+        {"name": name, "column_names": [column for _, column in sorted(columns)]}
+        for name, columns in sorted(grouped.items())
+    ]
+
+
 def gate(check_id: str, assertion: str, evidence_type: str, node: str, refs: list[str], result: object, evidence: object) -> None:
     passed = bool(result)
     source_requirement_id = f"AZSQL-{int(check_id.split('-')[1]):02d}" if check_id.startswith("AZSQL-") else check_id
@@ -207,16 +233,24 @@ def schema_gates(project_id: str) -> None:
         boolean = connection.execute(text("SELECT CAST(1 AS BIT)")).scalar_one()
         gate("AZSQL-010", AZSQL_ASSERTIONS[9], "RUNTIME_SQLSERVER", "BIT round-trip", ["azsql-001-040.json#AZSQL-010"], bool(boolean), boolean)
         primary_keys = inspect(connection).get_pk_constraint("phase4_source_change_events").get("constrained_columns", [])
-        unique_constraints = inspect(connection).get_unique_constraints("phase4_review_decisions")
-        foreign_keys = inspect(connection).get_foreign_keys("verified_assertions")
-        indexes = inspect(connection).get_indexes("phase4_review_decisions")
         gate("AZSQL-012", AZSQL_ASSERTIONS[11], "SCHEMA_INTROSPECTION", "inspect.primary_key", ["azsql-001-040.json#AZSQL-012"], primary_keys == ["id"], primary_keys)
-        gate("AZSQL-013", AZSQL_ASSERTIONS[12], "SCHEMA_INTROSPECTION", "inspect.unique_constraints", ["azsql-001-040.json#AZSQL-013"], any(set(item.get("column_names", [])) == {"idempotency_key"} for item in unique_constraints), unique_constraints)
-        gate("AZSQL-014", AZSQL_ASSERTIONS[13], "SCHEMA_INTROSPECTION", "inspect.foreign_keys", ["azsql-001-040.json#AZSQL-014"], any(item.get("referred_table") == "projects" for item in foreign_keys), foreign_keys)
-        gate("AZSQL-016", AZSQL_ASSERTIONS[15], "SCHEMA_INTROSPECTION", "inspect.indexes", ["azsql-001-040.json#AZSQL-016"], any("idempotency_key" in item.get("column_names", []) for item in indexes) or any(set(item.get("column_names", [])) == {"idempotency_key"} for item in unique_constraints), indexes)
+        unique_constraints = _mssql_unique_constraints(connection, "phase4_review_decisions")
+        expected_unique = {"name": "uq_phase4_review_decision_idempotency", "column_names": ["idempotency_key"]}
+        unique_match = next((item for item in unique_constraints if item.get("name") == expected_unique["name"]), None)
+        gate("AZSQL-013", AZSQL_ASSERTIONS[12], "SCHEMA_INTROSPECTION", "_mssql_unique_constraints", ["azsql-001-040.json#AZSQL-013"], unique_match == expected_unique, {"expected": expected_unique, "catalog": unique_constraints})
+        foreign_keys = inspect(connection).get_foreign_keys("verified_assertions")
+        project_fk = next((item for item in foreign_keys if item.get("name") == "verified_assertions_project_id_fkey"), None)
+        fk_delete_action = ((project_fk or {}).get("options") or {}).get("ondelete") or (project_fk or {}).get("ondelete") or "NO ACTION"
+        fk_exact = bool(project_fk and project_fk.get("constrained_columns") == ["project_id"] and project_fk.get("referred_table") == "projects" and project_fk.get("referred_columns") == ["id"] and str(fk_delete_action).upper() == "NO ACTION")
+        gate("AZSQL-014", AZSQL_ASSERTIONS[13], "SCHEMA_INTROSPECTION", "inspect.foreign_keys", ["azsql-001-040.json#AZSQL-014"], fk_exact, {"expected_name": "verified_assertions_project_id_fkey", "foreign_key": project_fk, "ondelete": fk_delete_action})
+        indexes = inspect(connection).get_indexes("verified_assertions")
+        expected_index = {"name": "ix_verified_assertions_project_id", "column_names": ["project_id"], "unique": False}
+        index_match = next((item for item in indexes if item.get("name") == expected_index["name"]), None)
+        index_exact = bool(index_match and index_match.get("column_names") == expected_index["column_names"] and index_match.get("unique") is False)
+        gate("AZSQL-016", AZSQL_ASSERTIONS[15], "SCHEMA_INTROSPECTION", "inspect.indexes", ["azsql-001-040.json#AZSQL-016"], index_exact, {"expected": expected_index, "indexes": indexes})
         sequence_columns = {item["name"] for item in inspect(connection).get_columns("master_content_reference_sequences")}
-        sequence_count = connection.execute(text("SELECT COUNT(*) FROM master_content_reference_sequences")).scalar_one()
         gate("AZSQL-019", AZSQL_ASSERTIONS[18], "RUNTIME_SQLSERVER", "master_content_reference_sequences", ["azsql-001-040.json#AZSQL-019"], {"current_value", "prefix"} <= sequence_columns, sorted(sequence_columns))
+        sequence_count = connection.execute(text("SELECT COUNT(*) FROM master_content_reference_sequences")).scalar_one()
         gate("AZSQL-020", AZSQL_ASSERTIONS[19], "RUNTIME_SQLSERVER", "migration_control_data", ["azsql-001-040.json#AZSQL-020"], int(sequence_count or 0) >= 1, sequence_count)
     with SessionLocal() as db:
         invalid_decision = _expect_error(lambda: _decision(db, _envelope(db, scope_id=f"enum-{uuid4()}"), "NOT_A_DECISION"), 422, "REVIEW_DECISION_NOT_ALLOWED")
