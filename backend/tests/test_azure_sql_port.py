@@ -1,4 +1,6 @@
 from pathlib import Path
+import re
+import tomllib
 
 import pytest
 
@@ -121,3 +123,34 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert "down_revision = None" in source
     assert "ON CONFLICT" not in source
     assert "Base.metadata.create_all" not in source
+
+
+def test_sqlserver_driver_dependency_metadata_consistent():
+    root = Path(__file__).resolve().parents[2]
+    pyproject = tomllib.loads((root / "backend/pyproject.toml").read_text(encoding="utf-8"))
+    project_dependencies = pyproject["project"]["dependencies"]
+    pyproject_matches = [item for item in project_dependencies if item.startswith("pyodbc")]
+    assert len(pyproject_matches) == 1
+    assert pyproject_matches[0] == "pyodbc==5.3.0"
+
+    def requirement_matches(path: Path) -> list[str]:
+        return re.findall(r"^pyodbc==([^\s\\]+)", path.read_text(encoding="utf-8"), re.MULTILINE)
+
+    requirements_matches = requirement_matches(root / "backend/requirements.txt")
+    runtime_matches = requirement_matches(root / "backend/requirements-runtime.txt")
+    lock_matches = requirement_matches(root / "backend/requirements-runtime.lock")
+    assert requirements_matches == ["5.3.0"]
+    assert runtime_matches == ["5.3.0"]
+    assert lock_matches == ["5.3.0"]
+
+    dockerfile = (root / "backend/Dockerfile").read_text(encoding="utf-8")
+    assert "COPY backend/requirements-runtime.lock /tmp/requirements-runtime.lock" in dockerfile
+    assert "--require-hashes -r /tmp/requirements-runtime.lock" in dockerfile
+    print("PYPROJECT_PYODBC_DECLARATION_COUNT=1")
+    print("PYPROJECT_PYODBC_EXACT=pyodbc==5.3.0")
+    print("REQUIREMENTS_TXT_PYODBC_DECLARATION_COUNT=1")
+    print("REQUIREMENTS_TXT_PYODBC_EXACT=pyodbc==5.3.0")
+    print("RUNTIME_TXT_PYODBC_DECLARATION_COUNT=1")
+    print("RUNTIME_TXT_PYODBC_EXACT=pyodbc==5.3.0")
+    print("RUNTIME_LOCK_PYODBC_VERSION=5.3.0")
+    print("SQLSERVER_DRIVER_DEPENDENCY_METADATA_PARITY=PASS")
