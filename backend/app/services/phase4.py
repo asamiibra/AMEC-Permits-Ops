@@ -163,7 +163,11 @@ def _validate_corrections(envelope: Phase4ClassificationEnvelope, payload: Revie
 
 
 def _review_lock_statement(envelope_id: str, dialect_name: str):
-    statement = select(Phase4ClassificationEnvelope).where(Phase4ClassificationEnvelope.id == envelope_id)
+    statement = (
+        select(Phase4ClassificationEnvelope)
+        .where(Phase4ClassificationEnvelope.id == envelope_id)
+        .execution_options(populate_existing=True)
+    )
     if dialect_name == "mssql":
         return statement.with_hint(
             Phase4ClassificationEnvelope,

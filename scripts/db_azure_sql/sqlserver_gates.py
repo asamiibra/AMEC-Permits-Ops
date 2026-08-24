@@ -14,6 +14,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
+from threading import Barrier
 from uuid import uuid4
 
 from fastapi import HTTPException
@@ -318,20 +319,103 @@ def runtime_gates(project_id: str, assertion_id: str) -> None:
         race_envelope = _envelope(db, scope_id=race_scope)
         race_id = race_envelope.id
         db.commit()
-    def decision_worker(decision: str):
-        try:
-            with SessionLocal() as local:
-                item = _decision(local, local.get(Phase4ClassificationEnvelope, race_id), decision, key=f"race-{decision}-{uuid4()}")
+    race_barrier = Barrier(2)
+
+    def decision_worker(decision: str) -> dict[str, object]:
+        result: dict[str, object] = {
+            "decision": decision,
+            "preloaded_record_version": None,
+            "outcome": "UNEXPECTED_EXCEPTION",
+            "http_status": None,
+            "error_code": None,
+            "exception_type": None,
+        }
+        with SessionLocal() as local:
+            try:
+                preloaded = local.get(Phase4ClassificationEnvelope, race_id)
+                result["preloaded_record_version"] = preloaded.record_version if preloaded else None
+                race_barrier.wait()
+                if preloaded is None:
+                    raise RuntimeError("race envelope preload returned no row")
+                item = record_review_decision(
+                    local,
+                    ReviewDecisionIn(
+                        decision_id=f"decision-{uuid4()}",
+                        classification_envelope_id=preloaded.id,
+                        decision=decision,
+                        actor_id="client-spoof",
+                        capability="PHASE4_REVIEW_DECISION",
+                        scope_type="PROJECT",
+                        scope_id=_scope(preloaded),
+                        record_version=preloaded.record_version,
+                        idempotency_key=f"race-{decision}-{uuid4()}",
+                        corrections_json=[],
+                    ),
+                    Role.SYSTEM_ADMIN,
+                )
                 local.commit()
-                return item.decision
-        except Exception as exc:
-            return type(exc).__name__
+                result["outcome"] = "SUCCESS"
+            except HTTPException as exc:
+                local.rollback()
+                detail = exc.detail if isinstance(exc.detail, dict) else {}
+                result.update(
+                    outcome="HTTP_CONFLICT",
+                    http_status=exc.status_code,
+                    error_code=detail.get("code"),
+                    exception_type=type(exc).__name__,
+                )
+            except Exception as exc:
+                local.rollback()
+                result["exception_type"] = type(exc).__name__
+        return result
+
     with ThreadPoolExecutor(max_workers=2) as pool:
-        race_outcomes = list(pool.map(decision_worker, ["DEFER", "REJECT"]))
+        worker_results = list(pool.map(decision_worker, ["DEFER", "REJECT"]))
     with SessionLocal() as db:
         race_state = db.get(Phase4ClassificationEnvelope, race_id)
-        winner_count = db.scalar(select(text("COUNT(*)")).select_from(Phase4ReviewDecision).where(Phase4ReviewDecision.classification_envelope_id == race_id))
-    gate("AZSQL-025", AZSQL_ASSERTIONS[24], "RUNTIME_CONCURRENCY", "decision_worker", ["azsql-001-040.json#AZSQL-025"], int(winner_count or 0) == 1 and sum(value in {"DEFER", "REJECT"} for value in race_outcomes) == 1 and race_state.record_version == 2, {"outcomes": race_outcomes, "winner_count": winner_count})
+        stored_decisions = list(db.scalars(select(Phase4ReviewDecision).where(Phase4ReviewDecision.classification_envelope_id == race_id)).all())
+    preloaded_record_versions = [item["preloaded_record_version"] for item in worker_results]
+    successes = [item for item in worker_results if item["outcome"] == "SUCCESS"]
+    conflicts = [item for item in worker_results if item["outcome"] == "HTTP_CONFLICT"]
+    unexpected = [item for item in worker_results if item["outcome"] == "UNEXPECTED_EXCEPTION"]
+    successful_worker_decision = successes[0]["decision"] if len(successes) == 1 else None
+    stored_decision = stored_decisions[0].decision if len(stored_decisions) == 1 else None
+    final_envelope_record_version = race_state.record_version if race_state else None
+    final_envelope_status = race_state.status if race_state else None
+    expected_status = {"DEFER": "DEFERRED", "REJECT": "REJECTED"}.get(str(successful_worker_decision))
+    azsql025_evidence = {
+        "worker_session_count": len(worker_results),
+        "preloaded_record_versions": preloaded_record_versions,
+        "worker_results": worker_results,
+        "success_count": len(successes),
+        "version_conflict_count": len(conflicts),
+        "unexpected_exception_count": len(unexpected),
+        "loser_http_status": conflicts[0].get("http_status") if len(conflicts) == 1 else None,
+        "loser_error_code": conflicts[0].get("error_code") if len(conflicts) == 1 else None,
+        "stored_review_decision_count": len(stored_decisions),
+        "stored_decision": stored_decision,
+        "successful_worker_decision": successful_worker_decision,
+        "stored_decision_equals_successful_worker": stored_decision == successful_worker_decision,
+        "final_envelope_record_version": final_envelope_record_version,
+        "final_envelope_status": final_envelope_status,
+        "final_status_matches_successful_decision": final_envelope_status == expected_status,
+    }
+    azsql025_pass = all(
+        [
+            len(worker_results) == 2,
+            preloaded_record_versions == [1, 1],
+            len(successes) == 1,
+            len(conflicts) == 1,
+            len(unexpected) == 0,
+            conflicts[0].get("http_status") == 409 if len(conflicts) == 1 else False,
+            conflicts[0].get("error_code") == "CLASSIFICATION_RECORD_VERSION_CONFLICT" if len(conflicts) == 1 else False,
+            len(stored_decisions) == 1,
+            stored_decision == successful_worker_decision,
+            final_envelope_record_version == 2,
+            final_envelope_status == expected_status,
+        ]
+    )
+    gate("AZSQL-025", AZSQL_ASSERTIONS[24], "RUNTIME_CONCURRENCY", "decision_worker", ["azsql-001-040.json#AZSQL-025"], azsql025_pass, azsql025_evidence)
 
     with SessionLocal() as db:
         good_scope = f"scope-good-{uuid4()}"

@@ -4,10 +4,11 @@ import re
 import tomllib
 
 import pytest
-from sqlalchemy import inspect as sqlalchemy_inspect, text as sqlalchemy_text
+from sqlalchemy import create_engine, inspect as sqlalchemy_inspect, text as sqlalchemy_text
 from sqlalchemy.dialects import mssql, postgresql
 from sqlalchemy.engine.default import DefaultDialect
 from sqlalchemy.engine.interfaces import Dialect
+from sqlalchemy.orm import sessionmaker
 
 from backend.app.config.settings import Settings
 from backend.app.db import validate_mssql_connection_url
@@ -307,17 +308,68 @@ def test_sqlserver_gate_model_attribute_references_match_sqlalchemy_mappers():
 
 
 def test_phase4_review_lock_compiles_sqlserver_update_holdlock():
-    sqlserver_sql = str(_review_lock_statement("envelope-1", "mssql").compile(dialect=mssql.dialect()))
-    fallback_sql = str(_review_lock_statement("envelope-1", "postgresql").compile(dialect=postgresql.dialect()))
+    sqlserver_statement = _review_lock_statement("envelope-1", "mssql")
+    fallback_statement = _review_lock_statement("envelope-1", "postgresql")
+    sqlserver_sql = str(sqlserver_statement.compile(dialect=mssql.dialect()))
+    fallback_sql = str(fallback_statement.compile(dialect=postgresql.dialect()))
     upper_sqlserver = sqlserver_sql.upper()
     assert "WITH (UPDLOCK, ROWLOCK, HOLDLOCK)" in upper_sqlserver
     assert "FOR UPDATE" not in upper_sqlserver
     assert "FOR UPDATE" in fallback_sql.upper()
+    assert sqlserver_statement.get_execution_options()["populate_existing"] is True
+    assert fallback_statement.get_execution_options()["populate_existing"] is True
     print("PHASE4_MSSQL_REVIEW_LOCK_UPDLOCK=true")
     print("PHASE4_MSSQL_REVIEW_LOCK_ROWLOCK=true")
     print("PHASE4_MSSQL_REVIEW_LOCK_HOLDLOCK=true")
     print("PHASE4_MSSQL_REVIEW_LOCK_FOR_UPDATE=false")
     print("PHASE4_NON_MSSQL_REVIEW_LOCK_FALLBACK=true")
+    print("PHASE4_REVIEW_LOCK_POPULATE_EXISTING=true")
+
+
+def test_phase4_review_lock_refreshes_preloaded_identity_state(tmp_path):
+    sqlite_engine = create_engine(f"sqlite:///{tmp_path / 'identity-refresh.db'}")
+    Phase4ClassificationEnvelope.__table__.create(sqlite_engine)
+    SessionFactory = sessionmaker(bind=sqlite_engine, expire_on_commit=False)
+    envelope_id = "identity-refresh-envelope"
+    with SessionFactory() as seed:
+        seed.add(
+            Phase4ClassificationEnvelope(
+                id=envelope_id,
+                envelope_id="identity-refresh-envelope-key",
+                root_event_id="identity-refresh-event",
+                source_mode="CONTROLLED_SYNTHETIC",
+                classifier_version="test-v1",
+                rules_version="test-v1",
+                taxonomy_revision="test-v1",
+                module_truth_contract_sha="a" * 64,
+                corpus_app_contract_sha="b" * 64,
+                axes_json={"scope": {"scope_type": "PROJECT", "scope_id": "identity-refresh-project"}},
+                immutable_result_hash="c" * 64,
+                record_version=1,
+                status="PENDING_REVIEW",
+            )
+        )
+        seed.commit()
+
+    session_a = SessionFactory()
+    session_b = SessionFactory()
+    try:
+        preloaded = session_a.get(Phase4ClassificationEnvelope, envelope_id)
+        assert preloaded is not None
+        assert preloaded.record_version == 1
+        changed = session_b.get(Phase4ClassificationEnvelope, envelope_id)
+        assert changed is not None
+        changed.record_version = 2
+        session_b.commit()
+        refreshed = session_a.scalar(_review_lock_statement(envelope_id, "sqlite"))
+        assert refreshed is preloaded
+        assert refreshed.record_version == 2
+        assert preloaded.record_version == 2
+    finally:
+        session_a.close()
+        session_b.close()
+        sqlite_engine.dispose()
+    print("PHASE4_PRELOADED_IDENTITY_REFRESH_REGRESSION=PASS")
 
 
 def test_active_migration_provenance_text_not_counted_as_postgresql_physical_dependency():
@@ -413,3 +465,77 @@ def test_mssql_unique_constraint_catalog_helper_is_parameterized_and_exact():
     print("MSSQL_UQ_HELPER_QMARK_PARAMETER_COUNT=2")
     print("MSSQL_UQ_HELPER_SYS_KEY_CONSTRAINTS=true")
     print("MSSQL_UQ_HELPER_PRESERVES_KEY_ORDINAL=true")
+
+
+def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
+    source = Path("scripts/db_azure_sql/sqlserver_gates.py").read_text(encoding="utf-8")
+    tree = ast.parse(source, filename="scripts/db_azure_sql/sqlserver_gates.py")
+    runtime_gates = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "runtime_gates")
+    decision_worker = next(node for node in ast.walk(runtime_gates) if isinstance(node, ast.FunctionDef) and node.name == "decision_worker")
+
+    barrier_calls = [
+        node
+        for node in ast.walk(runtime_gates)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "Barrier"
+        and len(node.args) == 1
+        and isinstance(node.args[0], ast.Constant)
+        and node.args[0].value == 2
+    ]
+    preload_calls = [
+        node
+        for node in ast.walk(decision_worker)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "get"
+        and any(isinstance(argument, ast.Name) and argument.id == "Phase4ClassificationEnvelope" for argument in node.args)
+    ]
+    barrier_waits = [
+        node
+        for node in ast.walk(decision_worker)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "wait"
+    ]
+    service_calls = [
+        node
+        for node in ast.walk(decision_worker)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "record_review_decision"
+    ]
+    assert barrier_calls
+    assert preload_calls and barrier_waits and service_calls
+    assert min(node.lineno for node in preload_calls) < min(node.lineno for node in barrier_waits) < min(node.lineno for node in service_calls)
+
+    def has_len_equals(name: str, expected: int) -> bool:
+        return any(
+            isinstance(node, ast.Compare)
+            and isinstance(node.left, ast.Call)
+            and isinstance(node.left.func, ast.Name)
+            and node.left.func.id == "len"
+            and node.left.args
+            and isinstance(node.left.args[0], ast.Name)
+            and node.left.args[0].id == name
+            and any(isinstance(comparator, ast.Constant) and comparator.value == expected for comparator in node.comparators)
+            for node in ast.walk(runtime_gates)
+        )
+
+    def has_name_equals(name: str, expected: object) -> bool:
+        return any(
+            isinstance(node, ast.Compare)
+            and isinstance(node.left, ast.Name)
+            and node.left.id == name
+            and any(isinstance(comparator, ast.Constant) and comparator.value == expected for comparator in node.comparators)
+            for node in ast.walk(runtime_gates)
+        )
+
+    constants = {node.value for node in ast.walk(runtime_gates) if isinstance(node, ast.Constant)}
+    assert "CLASSIFICATION_RECORD_VERSION_CONFLICT" in constants
+    assert 409 in constants
+    assert has_len_equals("successes", 1)
+    assert has_len_equals("conflicts", 1)
+    assert has_len_equals("stored_decisions", 1)
+    assert has_name_equals("final_envelope_record_version", 2)
+    print("AZSQL025_SOURCE_SHAPE_REGRESSION=PASS")
