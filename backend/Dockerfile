@@ -1,4 +1,4 @@
-FROM python:3.12-slim@sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa7036991a2a63c4a
+FROM python:3.12-slim-trixie@sha256:876416ecde9aca2bcc90e1fb0c7a9500bbf749f5788b70f82d4c5a5c2357f8b4
 
 ARG RELEASE_SHA
 
@@ -26,7 +26,12 @@ WORKDIR /workspace
 
 COPY backend/requirements-runtime.lock /tmp/requirements-runtime.lock
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends unixodbc \
+    && apt-get install -y --no-install-recommends ca-certificates curl gnupg unixodbc unixodbc-dev \
+    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+    && curl -fsSL https://packages.microsoft.com/config/debian/13/prod.list > /etc/apt/sources.list.d/microsoft-prod.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
+    && odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server' \
     && rm -rf /var/lib/apt/lists/* \
     && python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements-runtime.lock \
     && python -m pip check \

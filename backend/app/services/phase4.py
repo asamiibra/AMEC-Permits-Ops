@@ -186,6 +186,9 @@ def record_source_event(db: Session, payload: SourceChangeEventIn, role: Role | 
     _idempotency_lock(db, f"source:{payload.event_id}")
     existing = db.scalar(select(Phase4SourceChangeEvent).where(Phase4SourceChangeEvent.event_id == payload.event_id))
     if existing:
+        expected_hash = _sha(payload.model_dump())
+        if existing.immutable_payload_hash != expected_hash:
+            raise _error(409, "SOURCE_EVENT_IDEMPOTENCY_PAYLOAD_MISMATCH", event_id=payload.event_id)
         return existing
     content = payload.model_dump()
     item = Phase4SourceChangeEvent(**content, immutable_payload_hash=_sha(content), record_version=1)
