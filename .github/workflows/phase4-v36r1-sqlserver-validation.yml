@@ -57,11 +57,23 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y curl gnupg unixodbc-dev
-          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft-prod.gpg >/dev/null
-          curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list >/dev/null
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+          sudo apt-get install -y unixodbc-dev
+          echo "=== existing Microsoft apt sources ==="
+          grep -R --line-number 'packages\.microsoft\.com/ubuntu/22\.04/prod' /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null || true
+          if dpkg-query -W -f='${Status}\n' msodbcsql18 2>/dev/null | grep -q '^install ok installed$'; then
+            echo "MSODBCSQL18_ALREADY_INSTALLED=true"
+          else
+            apt-cache policy msodbcsql18
+            if ! apt-cache show msodbcsql18 >/dev/null 2>&1; then
+              echo "MSODBCSQL18_AVAILABLE_FROM_EXISTING_REPOS=false"
+              echo "RESULT=STOP_PHASE4_V3_6R1_E3R1_ODBC_PACKAGE_UNAVAILABLE_FROM_RUNNER"
+              exit 42
+            fi
+            echo "MSODBCSQL18_AVAILABLE_FROM_EXISTING_REPOS=true"
+            sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+          fi
+          odbcinst -q -d
+          odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server'
           python -m pip install --upgrade pip
           python -m pip install -r backend/requirements.txt
 
