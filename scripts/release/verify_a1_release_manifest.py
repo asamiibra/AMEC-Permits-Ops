@@ -96,9 +96,9 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
     database = document.get("database")
     if not isinstance(database, dict):
         raise ValueError("database section is required")
-    if database.get("engine") != "postgresql" or database.get("major") != 16:
+    if database.get("engine") != "azure_sql" or database.get("major") != 16:
         raise ValueError("wrong database target")
-    if database.get("migration_head") != "baseline_r13_0059":
+    if database.get("migration_head") != "baseline_phase4_v36_azure_sql":
         raise ValueError("wrong migration head")
 
     entra = document.get("entra")
@@ -125,8 +125,8 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
             "resource_group",
             "frontend_site",
             "backend_site",
-            "postgres_server",
-            "postgres_database",
+            "sql_server",
+            "sql_database",
         ):
             _required(azure, key, f"azure.{key}")
         _verify_image("frontend", document.get("frontend"), source_sha)

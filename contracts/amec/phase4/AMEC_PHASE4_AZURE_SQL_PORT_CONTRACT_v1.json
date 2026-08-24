@@ -1,0 +1,31 @@
+{
+  "contract": "AMEC_PHASE4_AZURE_SQL_PORT_CONTRACT_V1",
+  "owner_addendum_sha256": "05335b4b535d88155306783e20b94f16e49e3a2b88049d0fa4e270a7e3efbe90",
+  "accepted_phase3c_sha": "44968e3d43571ceb1df8493da683ff9e51a146d9",
+  "accepted_rebaseline_sha": "8dfcc55a48f44ba88ee5cb9fb9c0c7dd096f42dd",
+  "v35r1_source_sha": "fcc4aa8fdabaea14495d7724227120bcf48c87e0",
+  "source_schema_contract_sha256": "1f75d13fbac7b42585504df2da7c48a2bf6c22def49fedff64a13954dfa540e1",
+  "source_control_data_sha256": "b423173037fb3b16a4d0a158faa8321397e926c2721b6a4c5b12c501b2b0f27f",
+  "active_baseline_revision": "baseline_phase4_v36_azure_sql",
+  "service_variant": "OWNER_DECISION_PENDING",
+  "database_engine_target": "AZURE_SQL_SQL_SERVER_ENGINE",
+  "driver": {
+    "sqlalchemy_url_scheme": "mssql+pyodbc",
+    "driver": "ODBC Driver 18 for SQL Server",
+    "production_encryption": "Encrypt=yes",
+    "production_certificate_policy": "TrustServerCertificate=no",
+    "credentials": "deployment-secret-manager-only"
+  },
+  "unicode_policy": "All business text remains Unicode-capable; no varchar downgrade is permitted.",
+  "json_policy": "JSON values remain application-owned JSON text with deterministic serialization and round-trip tests.",
+  "enum_policy": "Logical enum/domain values remain constrained strings with application and database checks where supported.",
+  "timezone_policy": "UTC-aware DateTime values remain timezone-aware at the ORM boundary and are normalized explicitly.",
+  "identifier_policy": "Application UUID strings remain stable logical identifiers; no PostgreSQL sequence or RETURNING dependency is active.",
+  "transaction_policy": "All Phase4 decisions and projections remain transactional; immutable unique keys and row locks provide retry/concurrency protection.",
+  "differences_and_exclusions": [
+    "PostgreSQL 0001-0059 and the V3.5R1 Phase4 migration are historical provenance only.",
+    "PostgreSQL advisory locks are not active runtime behavior.",
+    "Azure SQL resources, Entra, deployment, Synology, SMB, and real AMEC data are outside this candidate.",
+    "Azure SQL service variant remains OWNER_DECISION_PENDING; compatibility proof is not Azure deployment proof."
+  ]
+}

@@ -9,7 +9,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import HTTPException
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -74,11 +74,12 @@ def _role_value(role: Role | str) -> str:
 
 
 def _idempotency_lock(db: Session, key: str) -> None:
-    """Serialize retries on PostgreSQL without holding an application lock."""
-    bind = db.get_bind()
-    if bind.dialect.name == "postgresql":
-        lock_key = int(hashlib.sha256(key.encode("utf-8")).hexdigest()[:15], 16)
-        db.execute(text("select pg_advisory_xact_lock(:phase4_lock_key)"), {"phase4_lock_key": lock_key})
+    """Keep the operation portable; unique keys and row locks enforce retries."""
+    # PostgreSQL advisory locks were intentionally removed from the active
+    # Phase4 path.  SQL Server and PostgreSQL both enforce the immutable
+    # idempotency keys at the database boundary, while review envelopes use
+    # SELECT ... FOR UPDATE where a row already exists.
+    del db, key
 
 
 def _require_phase4(role: Role | str, capability: str) -> str:

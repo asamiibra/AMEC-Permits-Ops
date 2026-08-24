@@ -71,7 +71,7 @@ def _create_version_table(
 def test_repository_migration_head_is_current_phase4_successor_head():
     assert (
         database.repository_migration_head()
-        == "phase4_corpus_app_integration_v1"
+        == "baseline_phase4_v36_azure_sql"
     )
 
 

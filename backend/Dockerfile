@@ -25,7 +25,10 @@ ENV RELEASE_SHA="${RELEASE_SHA}" \
 WORKDIR /workspace
 
 COPY backend/requirements-runtime.lock /tmp/requirements-runtime.lock
-RUN python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements-runtime.lock \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unixodbc \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements-runtime.lock \
     && python -m pip check \
     && rm -f /tmp/requirements-runtime.lock
 

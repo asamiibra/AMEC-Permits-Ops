@@ -13,6 +13,7 @@ from .config.settings import get_settings
 from .db import (
     create_database_engine,
     repository_migration_head,
+    validate_mssql_connection_url,
     validate_postgres_tls_url,
     verify_database_migration_head,
 )
@@ -85,12 +86,14 @@ def run_migrations() -> str:
             "requires REAL_DATA_ALLOWED=false."
         )
 
-    if not settings.database_url.lower().startswith(
-        "postgresql+psycopg://"
+    database_url = settings.database_url.lower()
+    if not (
+        database_url.startswith("postgresql+psycopg://")
+        or database_url.startswith("mssql+pyodbc://")
     ):
         raise RuntimeError(
-            "AZURE-PREPROD migrations require "
-            "PostgreSQL via postgresql+psycopg://."
+            "AZURE-PREPROD migrations require PostgreSQL via "
+            "postgresql+psycopg:// or Azure SQL via mssql+pyodbc://."
         )
 
     expected_head = repository_migration_head()
@@ -98,7 +101,10 @@ def run_migrations() -> str:
     configured_migration_url = getattr(settings, "database_migration_url", "")
     migration_url = configured_migration_url or settings.database_url
     if configured_migration_url:
-        validate_postgres_tls_url(migration_url)
+        if migration_url.lower().startswith("mssql+"):
+            validate_mssql_connection_url(migration_url, require_encryption=True)
+        else:
+            validate_postgres_tls_url(migration_url)
     config = _alembic_config(migration_url)
 
     migration_scope = (

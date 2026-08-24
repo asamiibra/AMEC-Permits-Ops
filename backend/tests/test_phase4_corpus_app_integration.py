@@ -762,9 +762,9 @@ GOV-017|Phase3C 300/300 + 149/149 + 87/87 acceptance/closure evidence bound
 GOV-018|Phase3C 253/253 Owner edge bijection + 66 projection edges + 10 exact Domain25 sets hold
 GOV-019|Stage1R base/completion/handoff identities match; Stage1R-B not required/no rerun
 GOV-020|Phase4 branch zero-delta from exact accepted Phase3C SHA
-GOV-021|inherited active versions directory contains only baseline_r13_0059.py
+GOV-021|inherited active versions directory contains only baseline_phase4_v36_azure_sql.py
 GOV-022|inherited active baseline blob equals 8d6112a26b195eba45a5db8fa453cd530bb2c1e7
-GOV-023|active Alembic root/head = 1/1 and root/head = baseline_r13_0059
+GOV-023|active Alembic root/head = 1/1 and root/head = baseline_phase4_v36_azure_sql
 GOV-024|historical 0001–0059 remain archive-only and unchanged
 GOV-025|no role-provision/Step3A4C/deployment repair bundled into Phase4 migration
 GOV-026|reuse decision matrix complete before implementation
@@ -786,9 +786,9 @@ GOV-041|full backend regression passes
 GOV-042|full frontend regression passes
 GOV-043|frontend production build passes
 GOV-044|targeted Phase4 tests and 20 golden paths pass
-GOV-045|disposable PostgreSQL 16 PG-01..PG-30 all pass
+GOV-045|disposable SQL Server 2022 AZSQL-01..AZSQL-40 all pass
 GOV-046|VERIFIED_LOCAL claim evidence-consistent
-GOV-047|VERIFIED_POSTGRESQL claim evidence-consistent
+GOV-047|VERIFIED_SQLSERVER_COMPAT claim evidence-consistent and VERIFIED_AZURE_SQL remains false without actual Azure SQL service proof
 GOV-048|VERIFIED_BROWSER=false / VERIFIED_DEPLOYED=false
 GOV-049|deterministic serialization/reference integrity/freeze SHA recomputation all pass
 GOV-050|Phase5/live shadow/writeback/Azure/Entra/deployment execution count = 0

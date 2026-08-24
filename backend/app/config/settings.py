@@ -2,7 +2,7 @@ from functools import lru_cache
 import os
 from pathlib import Path
 from uuid import UUID
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -94,6 +94,19 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"AZURE-PREPROD requires {setting_name} to be a valid GUID"
             ) from exc
+
+    @staticmethod
+    def _validate_mssql_url(database_url: str, setting_name: str = "DATABASE_URL") -> None:
+        parsed = urlsplit(database_url)
+        if not parsed.scheme.lower().startswith("mssql+"):
+            raise ValueError(
+                f"{setting_name} must use mssql+pyodbc:// for Azure SQL"
+            )
+        query = {key.lower(): value[-1] for key, value in parse_qs(parsed.query, keep_blank_values=True).items()}
+        if query.get("encrypt", "").lower() != "yes":
+            raise ValueError(f"{setting_name} requires Encrypt=yes")
+        if query.get("trustservercertificate", "").lower() != "no":
+            raise ValueError(f"{setting_name} requires TrustServerCertificate=no")
 
     def validate_environment(self) -> None:
         environment = self.app_env.upper()
@@ -198,12 +211,11 @@ class Settings(BaseSettings):
                     "ENTRA_REQUIRED_SCOPE=access_as_user"
                 )
 
-            if not self.database_url.lower().startswith(
-                "postgresql+psycopg://"
-            ):
+            if self.database_url.lower().startswith("mssql+"):
+                self._validate_mssql_url(self.database_url)
+            elif not self.database_url.lower().startswith("postgresql+psycopg://"):
                 raise ValueError(
-                    "AZURE-PREPROD requires PostgreSQL via "
-                    "postgresql+psycopg://"
+                    "AZURE-PREPROD requires mssql+pyodbc:// for Azure SQL"
                 )
 
             if self.monitoring_mode.upper() not in {"DISABLED", "APPLICATION_INSIGHTS"}:
@@ -266,9 +278,9 @@ class Settings(BaseSettings):
                 )
 
             if self.database_url.lower().startswith("sqlite"):
-                raise ValueError(
-                    "PROD requires PostgreSQL, not SQLite"
-                )
+                raise ValueError("PROD requires a server database, not SQLite")
+            if self.database_url.lower().startswith("mssql+"):
+                self._validate_mssql_url(self.database_url)
 
             if self.synology_mode.upper() != "REAL":
                 raise ValueError(

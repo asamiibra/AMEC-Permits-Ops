@@ -1,0 +1,29 @@
+{
+  "schema_version": "v3.6r1",
+  "candidate_base_sha": "fcc4aa8fdabaea14495d7724227120bcf48c87e0",
+  "source_engine": "PostgreSQL 16",
+  "target_engine": "Azure SQL / SQL Server 2022",
+  "generator": "scripts/db_azure_sql/port_inventory.py",
+  "classification_policy": {
+    "active_runtime": "ACTIVE_RUNTIME_MUST_PORT",
+    "active_migrations": "ACTIVE_MIGRATION_MUST_PORT",
+    "active_tests": "ACTIVE_TEST_MUST_PORT",
+    "historical_migrations": "HISTORICAL_PROVENANCE_KEEP",
+    "reference_tests": "POSTGRES_REFERENCE_TEST_KEEP",
+    "superseded_docs": "DOCUMENTATION_SUPERSEDED"
+  },
+  "required_entries": [
+    {"path": "backend/app/db.py", "classification": "ACTIVE_RUNTIME_MUST_PORT"},
+    {"path": "backend/app/config/settings.py", "classification": "ACTIVE_RUNTIME_MUST_PORT"},
+    {"path": "backend/app/services/phase4.py", "classification": "ACTIVE_RUNTIME_MUST_PORT"},
+    {"path": "backend/migrations/versions/baseline_phase4_v36_azure_sql.py", "classification": "ACTIVE_MIGRATION_MUST_PORT"},
+    {"path": "backend/migrations/history/postgresql_accepted_v5_phase4_v35r1", "classification": "HISTORICAL_PROVENANCE_KEEP"},
+    {"path": "backend/tests/test_azure_sql_port.py", "classification": "ACTIVE_TEST_MUST_PORT"},
+    {"path": "backend/tests/test_azure_database_tls.py", "classification": "POSTGRES_REFERENCE_TEST_KEEP"},
+    {"path": "backend/requirements-runtime.txt", "classification": "ACTIVE_RUNTIME_MUST_PORT"},
+    {"path": "backend/Dockerfile", "classification": "ACTIVE_RUNTIME_MUST_PORT"},
+    {"path": "release/a1-release-manifest.schema.json", "classification": "ACTIVE_RUNTIME_MUST_PORT"},
+    {"path": "scripts/release/verify_a1_release_manifest.py", "classification": "ACTIVE_RUNTIME_MUST_PORT"}
+  ],
+  "unclassified_database_engine_coupling_count": 0
+}

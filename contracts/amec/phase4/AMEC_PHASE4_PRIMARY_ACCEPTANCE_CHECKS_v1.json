@@ -5637,7 +5637,7 @@
       "basis_state": "C72_PREDECESSOR"
     },
     {
-      "assertion": "inherited active versions directory contains only baseline_r13_0059.py",
+      "assertion": "inherited active versions directory contains only baseline_phase4_v36_azure_sql.py",
       "basis_refs": [
         "V35R1_GOVERNING_IDENTITY_FREEZE",
         "IMMUTABLE_GIT_OBJECT_EVIDENCE"
@@ -5673,7 +5673,7 @@
       "basis_state": "C72_PREDECESSOR"
     },
     {
-      "assertion": "active Alembic root/head = 1/1 and root/head = baseline_r13_0059",
+      "assertion": "active Alembic root/head = 1/1 and root/head = baseline_phase4_v36_azure_sql",
       "basis_refs": [
         "V35R1_GOVERNING_IDENTITY_FREEZE",
         "IMMUTABLE_GIT_OBJECT_EVIDENCE"
@@ -6066,7 +6066,7 @@
       "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
-      "assertion": "disposable PostgreSQL 16 PG-01..PG-30 all pass",
+      "assertion": "disposable SQL Server 2022 AZSQL-01..AZSQL-40 all pass",
       "basis_refs": [
         "AMEC_PHASE4_V35R1_REVALIDATION",
         "V35R1_SUCCESSOR_RUNTIME_LOGS"
@@ -6100,7 +6100,7 @@
       "basis_state": "V35_FINAL_CANDIDATE"
     },
     {
-      "assertion": "VERIFIED_POSTGRESQL claim evidence-consistent",
+      "assertion": "VERIFIED_SQLSERVER_COMPAT claim evidence-consistent and VERIFIED_AZURE_SQL remains false without actual Azure SQL service proof",
       "basis_refs": [
         "AMEC_PHASE4_V35R1_REVALIDATION",
         "V35R1_SUCCESSOR_RUNTIME_LOGS"

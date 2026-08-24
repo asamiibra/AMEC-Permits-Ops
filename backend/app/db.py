@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
@@ -14,6 +14,7 @@ from .models import Base
 
 settings = get_settings()
 
+MSSQL_SQLALCHEMY_SCHEME = "mssql+pyodbc"
 POSTGRES_CONNECT_TIMEOUT_SECONDS = 10
 POSTGRES_POOL_RECYCLE_SECONDS = 1_800
 
@@ -32,9 +33,29 @@ def validate_postgres_tls_url(database_url: str, *, environ: dict[str, str] | No
         raise ValueError("Azure PostgreSQL requires sslrootcert or PGSSLROOTCERT")
 
 
+def validate_mssql_connection_url(database_url: str, *, require_encryption: bool = False) -> None:
+    """Validate the SQL Server connection contract without inspecting secrets."""
+    parsed = urlsplit(database_url)
+    if not parsed.scheme.lower().startswith("mssql+"):
+        return
+    query = {key.lower(): value[-1] for key, value in parse_qs(parsed.query, keep_blank_values=True).items()}
+    if require_encryption or (parsed.hostname or "").lower().endswith(".database.windows.net"):
+        if query.get("encrypt", "").lower() != "yes":
+            raise ValueError("Azure SQL requires Encrypt=yes")
+        if query.get("trustservercertificate", "").lower() != "no":
+            raise ValueError("Azure SQL requires TrustServerCertificate=no")
+
+
 def _engine_options(database_url: str) -> dict[str, object]:
     if database_url.startswith("sqlite"):
         return {"connect_args": {"check_same_thread": False}}
+    if database_url.lower().startswith(MSSQL_SQLALCHEMY_SCHEME):
+        validate_mssql_connection_url(database_url)
+        return {
+            "connect_args": {"timeout": POSTGRES_CONNECT_TIMEOUT_SECONDS},
+            "pool_pre_ping": True,
+            "pool_recycle": POSTGRES_POOL_RECYCLE_SECONDS,
+        }
     validate_postgres_tls_url(database_url)
     return {
         "connect_args": {"connect_timeout": POSTGRES_CONNECT_TIMEOUT_SECONDS},

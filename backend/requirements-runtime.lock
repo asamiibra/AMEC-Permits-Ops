@@ -1683,3 +1683,6 @@ wrapt==2.3.0 \
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-urllib3
+pyodbc==5.3.0 \
+    --hash=sha256:5dd3d5e469f89a3112cf8b0658c43108a4712fad65e576071e4dd44d2bd763c7
+    # via -r backend/requirements-runtime.txt

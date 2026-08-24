@@ -14,9 +14,9 @@
       "type": "object",
       "required": ["engine", "major", "migration_head"],
       "properties": {
-        "engine": {"const": "postgresql"},
+        "engine": {"const": "azure_sql"},
         "major": {"const": 16},
-        "migration_head": {"const": "baseline_r13_0059"}
+        "migration_head": {"const": "baseline_phase4_v36_azure_sql"}
       },
       "additionalProperties": false
     },
@@ -41,8 +41,8 @@
         "resource_group": {"type": ["string", "null"], "minLength": 1},
         "frontend_site": {"type": ["string", "null"], "minLength": 1},
         "backend_site": {"type": ["string", "null"], "minLength": 1},
-        "postgres_server": {"type": ["string", "null"], "minLength": 1},
-        "postgres_database": {"type": ["string", "null"], "minLength": 1}
+        "sql_server": {"type": ["string", "null"], "minLength": 1},
+        "sql_database": {"type": ["string", "null"], "minLength": 1}
       },
       "additionalProperties": false
     },
@@ -88,7 +88,7 @@
             "required": ["tenant_id", "api_client_id", "web_client_id"]
           },
           "azure": {
-            "required": ["resource_group", "frontend_site", "backend_site", "postgres_server", "postgres_database"]
+            "required": ["resource_group", "frontend_site", "backend_site", "sql_server", "sql_database"]
           }
         }
       }
