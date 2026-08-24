@@ -358,21 +358,79 @@ def contract_records() -> None:
     primary = _read_json("contracts/amec/phase4/AMEC_PHASE4_PRIMARY_ACCEPTANCE_CHECKS_v1.json")
     checks = primary["checks"]
     mapping = _read_json("contracts/amec/phase4/AMEC_PHASE4_PHASE3C_ASSERTION_MAPPING_v1.json").get("rows", [])
-    exact = {f"PIP-{i:03d}" for i in range(1, 81)} | {f"GOV-{i:03d}" for i in range(1, 51)}
+    expected_dom = {f"DOM-{i:03d}" for i in range(1, 121)}
+    expected_pip = {f"PIP-{i:03d}" for i in range(1, 81)}
+    expected_gov = {f"GOV-{i:03d}" for i in range(1, 51)}
+    expected_primary = expected_dom | expected_pip | expected_gov
     ids = [item.get("check_id") for item in checks]
-    schema = all(set(("check_id", "requirement_id", "category", "assertion", "method", "evidence", "basis_refs", "result")) <= set(item) for item in checks)
-    structural = len(checks) == 250 and set(ids) == exact and len(ids) == len(set(ids)) and all(item.get("assertion") and item.get("requirement_id") for item in checks)
+    id_set = set(ids)
+    schema = all(
+        set(("check_id", "requirement_id", "category", "assertion", "method", "evidence", "basis_refs", "basis_state", "result")) <= set(item)
+        for item in checks
+    )
+    structural = (
+        len(checks) == 250
+        and id_set == expected_primary
+        and len(ids) == len(id_set)
+        and all(
+            item.get("assertion")
+            and item.get("requirement_id")
+            and item.get("category")
+            and item.get("evidence")
+            and item.get("basis_refs")
+            and item.get("basis_state")
+            for item in checks
+        )
+    )
+    dom = [item for item in checks if str(item.get("check_id", "")).startswith("DOM-")]
     pip = [item for item in checks if str(item.get("check_id", "")).startswith("PIP-")]
     gov = [item for item in checks if str(item.get("check_id", "")).startswith("GOV-")]
-    rows = [{"check_id": item.get("check_id"), "assertion": item.get("assertion"), "evidence_refs": ["final-candidate:primary-matrix"], "result": "PASS" if structural and schema and item.get("result") == "PASS" else "FAIL"} for item in checks]
+    rows = []
+    for item in checks:
+        row = dict(item)
+        row["evidence_refs"] = ["final-candidate:primary-matrix"]
+        row["result"] = "PASS" if structural and schema and item.get("result") == "PASS" else "FAIL"
+        rows.append(row)
+    domain_pass = sum(item["result"] == "PASS" for item in rows if str(item.get("check_id", "")).startswith("DOM-"))
+    pipeline_pass = sum(item["result"] == "PASS" for item in rows if str(item.get("check_id", "")).startswith("PIP-"))
+    governance_pass = sum(item["result"] == "PASS" for item in rows if str(item.get("check_id", "")).startswith("GOV-"))
+    exact_id_missing_count = len(expected_primary - id_set)
+    exact_id_duplicate_count = len(ids) - len(id_set)
+    primary_pass = sum(item["result"] == "PASS" for item in rows)
+    primary_fail = sum(item["result"] == "FAIL" for item in rows)
+    primary_result = (
+        structural
+        and domain_pass == 120
+        and pipeline_pass == 80
+        and governance_pass == 50
+        and exact_id_missing_count == 0
+        and exact_id_duplicate_count == 0
+        and primary_pass == 250
+        and primary_fail == 0
+    )
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "phase3c-419-mapping-validation.json").write_text(json.dumps({"candidate_sha": os.environ.get("CANDIDATE_SHA", "unknown"), "phase3c_assertion_count": 419, "phase4_assertion_mapping_row_count": len(mapping), "unmapped": 0 if len(mapping) == 419 else 419, "result": "PASS" if len(mapping) == 419 else "FAIL"}, indent=2) + "\n")
-    (OUT_DIR / "phase4-primary-250-validation.json").write_text(json.dumps({"candidate_sha": os.environ.get("CANDIDATE_SHA", "unknown"), "checks": rows, "count": len(rows), "pass": sum(item["result"] == "PASS" for item in rows), "fail": sum(item["result"] == "FAIL" for item in rows)}, indent=2) + "\n")
+    (OUT_DIR / "phase4-primary-250-validation.json").write_text(json.dumps({
+        "candidate_sha": os.environ.get("CANDIDATE_SHA", "unknown"),
+        "checks": rows,
+        "domain_dimension_count": len(dom),
+        "domain_dimension_pass": domain_pass,
+        "pipeline_count": len(pip),
+        "pipeline_pass": pipeline_pass,
+        "governance_count": len(gov),
+        "governance_pass": governance_pass,
+        "count": len(rows),
+        "pass": primary_pass,
+        "fail": primary_fail,
+        "exact_id_missing_count": exact_id_missing_count,
+        "exact_id_duplicate_count": exact_id_duplicate_count,
+        "result": "PASS" if primary_result else "FAIL",
+    }, indent=2) + "\n")
     gate("CONTRACT-419", "419 Phase3C assertions and mapping rows are freshly accounted", "SCHEMA_INTROSPECTION", "contract_records.mapping", ["phase3c-419-mapping-validation.json"], len(mapping) == 419, len(mapping))
-    gate("CONTRACT-120", "120 domain-dimension cells are freshly accounted", "SCHEMA_INTROSPECTION", "contract_records.domain_dimension", ["phase4-primary-250-validation.json"], primary.get("domain_dimension_count") == 120, primary.get("domain_dimension_count"))
-    gate("CONTRACT-PIP-80", "PIP-001 through PIP-080 exact assertions pass", "SCHEMA_INTROSPECTION", "contract_records.pip", ["phase4-primary-250-validation.json"], len(pip) == 80 and all(item.get("result") == "PASS" and item.get("assertion") for item in pip), len(pip))
-    gate("CONTRACT-GOV-50", "GOV-001 through GOV-050 exact assertions pass", "SCHEMA_INTROSPECTION", "contract_records.gov", ["phase4-primary-250-validation.json"], len(gov) == 50 and all(item.get("result") == "PASS" and item.get("assertion") for item in gov), len(gov))
-    gate("CONTRACT-PRIMARY-250", "All 250 primary checks pass with complete schema", "SCHEMA_INTROSPECTION", "contract_records.primary", ["phase4-primary-250-validation.json"], structural and schema and all(item["result"] == "PASS" for item in rows), len(rows))
+    gate("CONTRACT-120", "120 domain-dimension cells are freshly accounted", "SCHEMA_INTROSPECTION", "contract_records.domain_dimension", ["phase4-primary-250-validation.json"], len(dom) == 120 and domain_pass == 120, len(dom))
+    gate("CONTRACT-PIP-80", "PIP-001 through PIP-080 exact assertions pass", "SCHEMA_INTROSPECTION", "contract_records.pip", ["phase4-primary-250-validation.json"], len(pip) == 80 and pipeline_pass == 80, len(pip))
+    gate("CONTRACT-GOV-50", "GOV-001 through GOV-050 exact assertions pass", "SCHEMA_INTROSPECTION", "contract_records.gov", ["phase4-primary-250-validation.json"], len(gov) == 50 and governance_pass == 50, len(gov))
+    gate("CONTRACT-PRIMARY-250", "All 250 primary checks pass with complete schema", "SCHEMA_INTROSPECTION", "contract_records.primary", ["phase4-primary-250-validation.json"], primary_result, primary_pass)
 
 
 def write_records(dialect: str, version: str) -> None:
