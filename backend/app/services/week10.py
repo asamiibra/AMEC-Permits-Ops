@@ -8,7 +8,7 @@ it never submits to an authority or makes a professional decision.
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -257,7 +257,7 @@ def link_prior_finding(db: Session, current: Finding, *, actor: str, correlation
 
 def evaluate_precheck_clearance(db: Session, run: AuthorityPrecheckRun) -> PrecheckClearanceEvaluation:
     revision = db.get(PreparationRevision, run.preparation_revision_id)
-    findings = db.scalars(select(Finding).where(Finding.authority_precheck_run_id == run.id, Finding.blocking.is_(True))).all()
+    findings = db.scalars(select(Finding).where(Finding.authority_precheck_run_id == run.id, Finding.blocking == true())).all()
     unresolved = [x for x in findings if x.status not in {FindingStatus.CLOSED_VERIFIED}]
     stale = run.status in {"STALE", "SUPERSEDED"} or bool(run.invalidated_at) or revision is None or revision.status in {"STALE", "SUPERSEDED"}
     result = "STALE" if stale else "BLOCKED_FINDINGS" if unresolved else "CLEAR" if run.status == "CLEAR" or not findings else "BLOCKED_FINDINGS"
@@ -326,7 +326,7 @@ def evaluate_resubmission(db: Session, application: PermitApplication, *, cycle:
     holds = db.scalars(select(WorkflowSafetyHold).where(WorkflowSafetyHold.scope_type == "APPLICATION", WorkflowSafetyHold.scope_id == application.id, WorkflowSafetyHold.released_at.is_(None))).all()
     if holds:
         check("WORKFLOW_SAFETY_HOLD", "BLOCK", "An unreleased integrity safety hold blocks resubmission readiness.", [x.id for x in holds])
-    official = db.scalars(select(Finding).where(Finding.application_id == application.id, Finding.source_type == FindingSourceType.OFFICIAL_MUNICIPALITY_COMMENT, Finding.blocking.is_(True))).all()
+    official = db.scalars(select(Finding).where(Finding.application_id == application.id, Finding.source_type == FindingSourceType.OFFICIAL_MUNICIPALITY_COMMENT, Finding.blocking == true())).all()
     blockers = []; allowed_disputes = 0
     for finding in official:
         accepted = db.scalar(select(FindingDispute).where(FindingDispute.finding_id == finding.id, FindingDispute.status == "ACCEPTED", FindingDispute.resubmission_effect == "ALLOWED_FORMAL_DISPUTE"))
@@ -358,7 +358,7 @@ def requirement_coverage(db: Session) -> RequirementMatrixCoverage:
 
 def field_coverage(db: Session) -> FieldMatrixCoverage:
     scenario = db.scalar(select(ScenarioConfig).where(ScenarioConfig.scenario_code == "DEMO_BUILDING_PERMIT_V1"))
-    fields = db.scalars(select(FieldDefinition).where(FieldDefinition.active.is_(True))).all()
+    fields = db.scalars(select(FieldDefinition).where(FieldDefinition.active == true())).all()
     critical = [x for x in fields if str(x.criticality.value if hasattr(x.criticality, "value") else x.criticality) == "CRITICAL"]
     complete = 0
     missing = []
@@ -388,7 +388,7 @@ def control_result(db: Session, definition: ControlDefinition, project_id: str, 
     if definition.control_code == "CTRL_PRECHECK_CURRENT":
         run = db.scalar(select(AuthorityPrecheckRun).where(AuthorityPrecheckRun.preparation_revision_id == revision_id).order_by(AuthorityPrecheckRun.run_at.desc())) if revision_id else None; return ("PASS" if run and run.clearance_result == "CLEAR" else "FAIL", [run.id] if run else [])
     if definition.control_code == "CTRL_PRIOR_BLOCKING_FINDINGS_CLOSED":
-        app = db.scalar(select(PermitApplication).join(PreparationRevision, PreparationRevision.application_id == PermitApplication.id).where(PreparationRevision.id == revision_id)) if revision_id else None; findings = db.scalars(select(Finding).where(Finding.application_id == app.id, Finding.source_type == FindingSourceType.OFFICIAL_MUNICIPALITY_COMMENT, Finding.blocking.is_(True), Finding.status != FindingStatus.CLOSED_VERIFIED)) .all() if app else []; return ("PASS" if not findings else "FAIL", [x.id for x in findings])
+        app = db.scalar(select(PermitApplication).join(PreparationRevision, PreparationRevision.application_id == PermitApplication.id).where(PreparationRevision.id == revision_id)) if revision_id else None; findings = db.scalars(select(Finding).where(Finding.application_id == app.id, Finding.source_type == FindingSourceType.OFFICIAL_MUNICIPALITY_COMMENT, Finding.blocking == true(), Finding.status != FindingStatus.CLOSED_VERIFIED)) .all() if app else []; return ("PASS" if not findings else "FAIL", [x.id for x in findings])
     return "PASS", evidence
 
 

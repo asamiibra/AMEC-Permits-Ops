@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import re
 
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..models import MasterContentReferenceSequence, Opportunity
 
 
 def allocate_proposal_reference(db: Session) -> str:
-    sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == "PROPOSAL_REFERENCE", MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active.is_(True)).with_for_update())
+    sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == "PROPOSAL_REFERENCE", MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active == true()).with_for_update())
     if not sequence:
         sequence = MasterContentReferenceSequence(content_type="PROPOSAL_REFERENCE", prefix="AMEC-SYN-PROP", padding=4, scope="GLOBAL", active=True, current_value=0)
         db.add(sequence)

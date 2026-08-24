@@ -10,7 +10,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -442,7 +442,7 @@ def record_acceptance(package_id: str, payload: AcceptanceCreate, request: Reque
         policy = db.get(HandoverPolicyVersion, revision.policy_version_id) if revision.policy_version_id else None
         if not policy or not policy.acceptance_rules_json.get("accepted_with_remarks"):
             raise HTTPException(409, "Acceptance with remarks is disabled by policy")
-    open_blocking = db.scalar(select(func.count(HandoverPunchItem.id)).where(HandoverPunchItem.handover_package_revision_id == revision.id, HandoverPunchItem.blocking.is_(True), HandoverPunchItem.status.in_({"OPEN", "ACTION_REQUIRED", "UNDER_REVIEW"}))) or 0
+    open_blocking = db.scalar(select(func.count(HandoverPunchItem.id)).where(HandoverPunchItem.handover_package_revision_id == revision.id, HandoverPunchItem.blocking == true(), HandoverPunchItem.status.in_({"OPEN", "ACTION_REQUIRED", "UNDER_REVIEW"}))) or 0
     if open_blocking and payload.acceptance_status == "ACCEPTED": raise HTTPException(409, "Blocking Handover punch remains open")
     existing = db.scalar(select(HandoverAcceptance).where(HandoverAcceptance.idempotency_key == payload.idempotency_key))
     if existing: return {"acceptance": _row(existing), "idempotent": True}

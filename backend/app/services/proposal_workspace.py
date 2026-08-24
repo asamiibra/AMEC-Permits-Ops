@@ -7,7 +7,7 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, true, false
 from sqlalchemy.orm import Session
 
 from ..models import (
@@ -74,7 +74,7 @@ def definitions_for_bd(db: Session) -> list[dict[str, Any]]:
         .join(MasterContentModuleBinding, MasterContentModuleBinding.definition_id == DefinitionEntry.id)
         .where(
             MasterContentModuleBinding.module == "BD",
-            MasterContentModuleBinding.active.is_(True),
+            MasterContentModuleBinding.active == true(),
             DefinitionEntry.status == "ACTIVE",
         )
         .order_by(DefinitionEntry.term)
@@ -97,9 +97,9 @@ def engineering_references_for_proposal(db: Session, proposal: Opportunity) -> d
         .where(
             MasterContentItem.content_type == "ENGINEERING_WORK",
             MasterContentItem.status == "ACTIVE",
-            MasterContentItem.needs_review.is_(False),
+            MasterContentItem.needs_review == false(),
             MasterContentModuleBinding.module == "ENGINEERING",
-            MasterContentModuleBinding.active.is_(True),
+            MasterContentModuleBinding.active == true(),
             MasterContentModuleBinding.usage_type == "AVAILABLE",
         )
         .order_by(MasterContentItem.ref)

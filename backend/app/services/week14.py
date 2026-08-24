@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -25,7 +25,7 @@ def _metric(db: Session, run: AcceptanceRehearsalRun, name: str, value: float | 
 
 def run_acceptance_rehearsal(db: Session, *, actor: str = "synthetic-acceptance-operator", operator_assistance_required: bool = False) -> dict[str, Any]:
     fixture = fixture_metadata()
-    variants = db.scalars(select(ScenarioVariant).where(ScenarioVariant.included.is_(True)).order_by(ScenarioVariant.variant_code)).all()
+    variants = db.scalars(select(ScenarioVariant).where(ScenarioVariant.included == true()).order_by(ScenarioVariant.variant_code)).all()
     coverage = db.scalars(select(TargetRenderingCoverage)).all()
     missing = sum(len(x.missing_fields) for x in coverage)
     edges = edge_coverage(db)
@@ -60,7 +60,7 @@ def run_acceptance_rehearsal(db: Session, *, actor: str = "synthetic-acceptance-
     metrics = [_metric(db, run, *spec) for spec in metric_specs]
     for role in ["PERMIT_PREPARER", "PROCESS_CHAMPION", "REQUIREMENT_STEWARD", "RESPONSIBLE_ENGINEER", "FINAL_SUBMITTER", "SYSTEM_ADMIN"]:
         db.add(RoleReadinessMatrix(role=role, training_material_exists=True, rehearsal_performed=True, competency_evidence="SYNTHETIC_ROLE_REHEARSAL_PASS", open_questions=["Client-approved training remains external."], client_approved=False, g10_impact="READY_FOR_CLIENT_APPROVAL", evidence_class="SYNTHETIC_IMPLEMENTATION_EVIDENCE"))
-        user = db.scalar(select(User).where(User.role == role, User.active.is_(True)))
+        user = db.scalar(select(User).where(User.role == role, User.active == true()))
         if user:
             db.add(PilotWorkflowApproval(user_id=user.id, role=role, scenario_variant="INDIVIDUAL_OWNER + COMPANY_OWNER", workflow_version="W14-ACCEPTANCE-1.0", rehearsal_run_id=run.id, result="SYNTHETIC_ROLE_REHEARSAL_PASS", blockers=[], comments="Synthetic persona rehearsal only; no client approval asserted.", evidence_class="SYNTHETIC_IMPLEMENTATION_EVIDENCE", client_approved=False))
     safety = {"automated_final_submissions": 0, "wrong_application_actions": 0, "critical_false_accept_escapes": 0, "accepted_attachment_misfiles": 0, "silent_readback_mismatch_accepts": 0, "open_blocker_resubmission_escapes": 0, "stale_package_final_review_escapes": 0, "stale_precheck_final_review_escapes": 0, "trusted_drifted_parses": 0, "stored_secrets": 0, "unauthorized_professional_closures": 0}

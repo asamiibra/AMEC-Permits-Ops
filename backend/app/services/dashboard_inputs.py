@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..api.admin_owner_ready import _connections
@@ -153,12 +153,12 @@ def _current_state(db: Session, spec: dict[str, Any]) -> dict[str, Any]:
         state["summary"] = f"{state['total']} active starter/demo record(s); {state['confirmed_production']} confirmed production record(s)."
         return state
     if key == "DASHBOARD_CATEGORY_TAXONOMY":
-        categories = list(db.scalars(select(ContentCategory).where(ContentCategory.active.is_(True)).order_by(ContentCategory.sort_order, ContentCategory.label)).all())
+        categories = list(db.scalars(select(ContentCategory).where(ContentCategory.active == true()).order_by(ContentCategory.sort_order, ContentCategory.label)).all())
         return {"categories": [{"label": c.label, "content_types": c.allowed_content_types} for c in categories], "summary": f"{len(categories)} starter configurable categories are available across the four libraries."}
     if key == "DASHBOARD_CATEGORY_SEMANTICS":
         return {"category": "Owner-managed business classification", "engineering_source_type": "Provenance taxonomy", "engineering_discipline": "Technical applicability taxonomy", "summary": "Category, Engineering Source Type, and Discipline are separate fields; Owner confirmation is still required."}
     if key == "DASHBOARD_REFERENCE_NUMBERING":
-        sequences = list(db.scalars(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.active.is_(True), MasterContentReferenceSequence.content_type.in_(("FORM", "REPORT", "ENGINEERING_WORK", "DEFINITION"))).order_by(MasterContentReferenceSequence.content_type)).all())
+        sequences = list(db.scalars(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.active == true(), MasterContentReferenceSequence.content_type.in_(("FORM", "REPORT", "ENGINEERING_WORK", "DEFINITION"))).order_by(MasterContentReferenceSequence.content_type)).all())
         patterns = [f"{s.prefix}-{s.current_value + 1:0{s.padding}d}" for s in sequences] or ["F-0001", "R-0001", "E-0001", "D-0001"]
         return {"patterns": patterns, "summary": "Proposed references are F-0001, R-0001, E-0001, and D-0001."}
     if key == "DASHBOARD_ENGINEERING_SOURCE_TYPES":
@@ -167,7 +167,7 @@ def _current_state(db: Session, spec: dict[str, Any]) -> dict[str, Any]:
         return {"values": list(ENGINEERING_DISCIPLINES), "summary": "Starter discipline values are explicit and separate from Category; Owner confirmation is still required."}
     if key.endswith("_REFERENCE_POLICY"):
         content_type = {"DASHBOARD_FORM_REFERENCE_POLICY": "FORM", "DASHBOARD_REPORT_REFERENCE_POLICY": "REPORT", "DASHBOARD_ENGINEERING_REFERENCE_POLICY": "ENGINEERING_WORK", "DASHBOARD_DEFINITION_REFERENCE_POLICY": "DEFINITION"}[key]
-        sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.active.is_(True)))
+        sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.active == true()))
         return {"content_type": content_type, "prefix": sequence.prefix if sequence else None, "padding": sequence.padding if sequence else None, "renumber_existing": False, "summary": "Current policy is a proposed default; changing it does not renumber existing references."}
     if key == "DASHBOARD_MODULE_USAGE_POLICY":
         return {"policy": {"Forms": "Proposal, Contract, Permit, Engineering, Administration", "Reports": "Proposal, Contract, Permit, Engineering, Reports, Administration", "Engineering Works": "Engineering, Permit, Issues, Reports", "Definitions": "Proposal, Contract, Permit, Engineering, Reports, Administration"}, "summary": "Starter module bindings are configurable and visible in each library."}

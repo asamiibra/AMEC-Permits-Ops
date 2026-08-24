@@ -8,7 +8,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, true, false
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -86,7 +86,7 @@ def stakeholder_projection(db: Session, row: ProposalStakeholderIntent) -> dict[
 
 
 def source_links_projection(db: Session, proposal_id: str) -> list[dict[str, Any]]:
-    rows = db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal_id, ProposalSourceLink.active.is_(True)).order_by(ProposalSourceLink.created_at)).all()
+    rows = db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal_id, ProposalSourceLink.active == true()).order_by(ProposalSourceLink.created_at)).all()
     return [{"id": row.id, "source_evidence_id": row.source_evidence_id, "document_id": row.document_id, "document_version_id": row.document_version_id, "source_role": row.source_role, "added_by": row.added_by, "note": row.note} for row in rows]
 
 
@@ -107,7 +107,7 @@ def _preview_projection(db: Session, row: ProposalExpectedInputPreview | None) -
 
 
 def latest_preview(db: Session, proposal_id: str) -> ProposalExpectedInputPreview | None:
-    return db.scalar(select(ProposalExpectedInputPreview).where(ProposalExpectedInputPreview.proposal_id == proposal_id, ProposalExpectedInputPreview.superseded.is_(False)).order_by(ProposalExpectedInputPreview.created_at.desc()))
+    return db.scalar(select(ProposalExpectedInputPreview).where(ProposalExpectedInputPreview.proposal_id == proposal_id, ProposalExpectedInputPreview.superseded == false()).order_by(ProposalExpectedInputPreview.created_at.desc()))
 
 
 def preview_is_stale(db: Session, row: ProposalExpectedInputPreview) -> bool:

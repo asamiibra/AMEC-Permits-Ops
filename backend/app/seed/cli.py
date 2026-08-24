@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from datetime import datetime, timezone, date
 from types import SimpleNamespace
-from sqlalchemy import delete, select, text, update
+from sqlalchemy import delete, select, text, update, true
 from reportlab.pdfgen.canvas import Canvas
 from ..config.settings import get_settings, repo_root
 from ..db import engine, SessionLocal, init_db
@@ -835,7 +835,7 @@ def seed_week10(db, projects):
         ]
         existing_requirement_codes = {x.requirement_code for x in db.scalars(select(RequirementConfig).where(RequirementConfig.scenario_id == scenario.id)).all()}
         db.add_all([RequirementConfig(scenario_id=scenario.id, requirement_code=code, description=description, requirement_type=kind, applicability_expression_json={"signed_scenario": True}, human_decision_required=human, blocking=True, effective_from=date(2026, 1, 1), status=ConfigStatus.PROVISIONAL) for code, description, kind, human in matrix_requirements if code not in existing_requirement_codes])
-        for field in db.scalars(select(FieldDefinition).where(FieldDefinition.active.is_(True))).all():
+        for field in db.scalars(select(FieldDefinition).where(FieldDefinition.active == true())).all():
             authority = db.scalar(select(FieldAuthorityRule).where(FieldAuthorityRule.scenario_id == scenario.id, FieldAuthorityRule.field_definition_id == field.id))
             if not authority:
                 db.add(FieldAuthorityRule(scenario_id=scenario.id, field_definition_id=field.id, purpose="PERMIT_PREPARATION", primary_source_type="SYNTHETIC_CANONICAL", fallback_source_type=None, conflict_behavior="BLOCK_CRITICAL_CONFLICT", human_verifier_role=Role.RESPONSIBLE_ENGINEER.value if field.criticality == Criticality.CRITICAL else Role.REQUIREMENT_STEWARD.value, notes="Synthetic Week 10 signed-scenario matrix rule.", status=ConfigStatus.PROVISIONAL))
@@ -898,7 +898,7 @@ def seed_week12(db, projects):
     ]
     db.add_all(variants); db.flush()
     db.add(VariantCompatibilityResult(scenario_id=scenario.id, base_variant=variants[0].variant_code, second_variant=variants[1].variant_code, domain_schema_change_required=False, new_semantic_fields=["OWNER.CR_NUMBER"], new_rendering_rules=["OWNER.TYPE", "OWNER.CR_NUMBER"], new_requirement_rules=["COMPANY_CR"], new_attachment_rules=["COMMERCIAL_REGISTRATION"], new_grid_rules=[], new_human_decisions=["company registration applicability"], core_code_fork_required=False, result="CONFIGURATION_ONLY"))
-    fields = [x.field_code for x in db.scalars(select(FieldDefinition).where(FieldDefinition.active.is_(True)).order_by(FieldDefinition.field_code)).all()]
+    fields = [x.field_code for x in db.scalars(select(FieldDefinition).where(FieldDefinition.active == true()).order_by(FieldDefinition.field_code)).all()]
     for variant in variants:
         for target in ["FORM", "EXCEL", "MUNICIPALITY_SCALAR", "MUNICIPALITY_DROPDOWN", "MUNICIPALITY_GRID_FIELD"]:
             mapped = fields

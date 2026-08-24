@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, true, false
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -215,10 +215,10 @@ def seed_reference_sequences(db: Session) -> None:
 def _allocate_reference(db: Session, content_type: str, requested: str | None = None) -> tuple[str, bool]:
     if requested and requested.strip():
         return requested.strip(), False
-    sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active.is_(True)).with_for_update())
+    sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active == true()).with_for_update())
     if not sequence:
         seed_reference_sequences(db)
-        sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active.is_(True)).with_for_update())
+        sequence = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL", MasterContentReferenceSequence.active == true()).with_for_update())
     if not sequence:
         raise _error("REFERENCE_SEQUENCE_UNAVAILABLE", 503, content_type=content_type)
     prefix_pattern = re.compile(rf"^{re.escape(sequence.prefix)}-(\d+)$")
@@ -263,7 +263,7 @@ def _sync_module_bindings(db: Session, *, item_id: str, modules: list[str], acto
 
 
 def _modules_for(db: Session, *, item_id: str | None = None, definition_id: str | None = None) -> list[str]:
-    query = select(MasterContentModuleBinding.module).where(MasterContentModuleBinding.active.is_(True))
+    query = select(MasterContentModuleBinding.module).where(MasterContentModuleBinding.active == true())
     if item_id:
         query = query.where(MasterContentModuleBinding.master_content_id == item_id)
     if definition_id:
@@ -280,9 +280,9 @@ def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str)
         .where(
             MasterContentModuleBinding.module == module,
             MasterContentModuleBinding.usage_type == usage_type,
-            MasterContentModuleBinding.active.is_(True),
+            MasterContentModuleBinding.active == true(),
             MasterContentItem.status == "ACTIVE",
-            MasterContentItem.needs_review.is_(False),
+            MasterContentItem.needs_review == false(),
         )
         .order_by(MasterContentItem.updated_at.desc(), MasterContentItem.ref)
     ).all()
@@ -461,7 +461,7 @@ def revalidate_dependency(db: Session, *, dependency_id: str, actor: str, correl
 
 def eligible_master_content(db: Session, *, use: str = "ENGINEERING_AI") -> list[dict[str, Any]]:
     rows = []
-    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE", MasterContentItem.needs_review.is_(False)).order_by(MasterContentItem.ref)).all():
+    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE", MasterContentItem.needs_review == false()).order_by(MasterContentItem.ref)).all():
         version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
         if not version or _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
             continue
@@ -509,7 +509,7 @@ def _is_confirmed_test_artifact(row: Any) -> bool:
 
 
 def _demo_category_id(db: Session, content_type: str, label: str) -> str | None:
-    categories = db.scalars(select(ContentCategory).where(ContentCategory.active.is_(True))).all()
+    categories = db.scalars(select(ContentCategory).where(ContentCategory.active == true())).all()
     matching = [row for row in categories if row.label == label and content_type in (row.allowed_content_types or [])]
     return (sorted(matching, key=lambda row: (0 if row.code.startswith(f"{content_type}_") else 1, row.sort_order, row.code))[0].id if matching else None)
 
@@ -601,7 +601,7 @@ def _archive_obsolete_generic_placeholders(db: Session, *, actor: str) -> dict[s
             classification["classification"] = "UNKNOWN"
             result["unclassified"].append(classification)
             continue
-        bindings = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active.is_(True))).all()
+        bindings = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active == true())).all()
         has_non_available_binding = any(binding.usage_type != "AVAILABLE" for binding in bindings)
         dependency_models = (
             (MasterContentDependency, MasterContentDependency.master_content_id),
@@ -780,7 +780,7 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         "category": {"id": category.id, "code": category.code, "label": category.label} if category else None,
         "description": item.description,
         "used_in": _modules_for(db, item_id=item.id),
-        "purpose_bindings": [{"module": binding.module, "usage_type": binding.usage_type, "active": binding.active} for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active.is_(True)).order_by(MasterContentModuleBinding.module, MasterContentModuleBinding.usage_type)).all()],
+        "purpose_bindings": [{"module": binding.module, "usage_type": binding.usage_type, "active": binding.active} for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active == true()).order_by(MasterContentModuleBinding.module, MasterContentModuleBinding.usage_type)).all()],
         "source_type_code": item.source_type_code,
         "engineering_metadata": item.engineering_metadata or {},
         "status": item.status,

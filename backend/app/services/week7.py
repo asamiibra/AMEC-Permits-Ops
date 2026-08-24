@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -79,13 +79,13 @@ def resolve_code_for_item(db: Session, item_code: str, source_type: str) -> Find
 
 def _policy(db: Session, severity: str, source_type: str) -> FindingSlaPolicy | None:
     exact = db.scalar(select(FindingSlaPolicy).where(
-        FindingSlaPolicy.active.is_(True), FindingSlaPolicy.severity == severity,
+        FindingSlaPolicy.active == true(), FindingSlaPolicy.severity == severity,
         FindingSlaPolicy.source_type == source_type,
     ))
     if exact:
         return exact
     return db.scalar(select(FindingSlaPolicy).where(
-        FindingSlaPolicy.active.is_(True), FindingSlaPolicy.severity == severity,
+        FindingSlaPolicy.active == true(), FindingSlaPolicy.severity == severity,
         FindingSlaPolicy.source_type.is_(None),
     ))
 
@@ -94,9 +94,9 @@ def _route(db: Session, *, code: FindingCode | None, source_type: str, severity:
            discipline: str, owner_role_override: str | None = None) -> tuple[str, str, User | None]:
     if owner_role_override:
         role = owner_role_override
-        user = db.scalar(select(User).where(User.role == role, User.active.is_(True)))
+        user = db.scalar(select(User).where(User.role == role, User.active == true()))
         return role, "PROCESS_CHAMPION", user
-    rules = list(db.scalars(select(FindingRoutingRule).where(FindingRoutingRule.active.is_(True))).all())
+    rules = list(db.scalars(select(FindingRoutingRule).where(FindingRoutingRule.active == true())).all())
     ranked: list[tuple[int, FindingRoutingRule]] = []
     for rule in rules:
         if rule.finding_code_id and (not code or rule.finding_code_id != code.id):
@@ -112,7 +112,7 @@ def _route(db: Session, *, code: FindingCode | None, source_type: str, severity:
     if not ranked:
         return "UNASSIGNED", "PROCESS_CHAMPION", None
     rule = sorted(ranked, key=lambda x: x[0], reverse=True)[0][1]
-    user = db.get(User, rule.preferred_user_id) if rule.preferred_user_id else db.scalar(select(User).where(User.role == rule.owner_role, User.active.is_(True)))
+    user = db.get(User, rule.preferred_user_id) if rule.preferred_user_id else db.scalar(select(User).where(User.role == rule.owner_role, User.active == true()))
     return rule.owner_role, rule.escalation_role, user
 
 

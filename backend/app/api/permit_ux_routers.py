@@ -13,7 +13,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, func, or_, select, true
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import current_user_role
@@ -106,7 +106,7 @@ def _joined_cases(db: Session, request: Request, role: Role):
 
 def _identifier(db: Session, case_id: str) -> dict[str, Any] | None:
     priorities = {"PERMIT_NUMBER": 0, "LICENSE_NUMBER": 1, "APPLICATION_NUMBER": 2, "OFFICIAL_APPLICATION": 3, "AUTHORITY_CASE": 4}
-    rows = db.scalars(select(AuthorityCaseIdentifier).where(AuthorityCaseIdentifier.authority_case_id == case_id, AuthorityCaseIdentifier.active.is_(True)).order_by(AuthorityCaseIdentifier.created_at)).all()
+    rows = db.scalars(select(AuthorityCaseIdentifier).where(AuthorityCaseIdentifier.authority_case_id == case_id, AuthorityCaseIdentifier.active == true()).order_by(AuthorityCaseIdentifier.created_at)).all()
     if not rows:
         return None
     item = sorted(rows, key=lambda x: (priorities.get(x.identifier_type, 99), x.created_at))[0]
@@ -222,7 +222,7 @@ def portfolio(request: Request, q: str | None = None, lane: str | None = None, s
     bodies = {x.id: x for x in db.scalars(select(ExternalBody).where(ExternalBody.id.in_(body_ids)) if body_ids else select(ExternalBody).where(False)).all()}
     services = {x.id: x for x in db.scalars(select(ServiceType).where(ServiceType.id.in_(service_ids)) if service_ids else select(ServiceType).where(False)).all()}
     case_ids = [x.id for x in cases]
-    identifiers = db.scalars(select(AuthorityCaseIdentifier).where(AuthorityCaseIdentifier.authority_case_id.in_(case_ids), AuthorityCaseIdentifier.active.is_(True)).order_by(AuthorityCaseIdentifier.created_at)) if case_ids else []
+    identifiers = db.scalars(select(AuthorityCaseIdentifier).where(AuthorityCaseIdentifier.authority_case_id.in_(case_ids), AuthorityCaseIdentifier.active == true()).order_by(AuthorityCaseIdentifier.created_at)) if case_ids else []
     identifier_map: dict[str, list[Any]] = {}
     for identifier in identifiers: identifier_map.setdefault(identifier.authority_case_id, []).append(identifier)
     rows: list[dict[str, Any]] = []

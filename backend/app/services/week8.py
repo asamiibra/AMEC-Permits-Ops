@@ -8,7 +8,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -186,7 +186,7 @@ def record_material_change(
         material = bool(metadata.get("semantic_change", True))
         if source_type in {"RequirementConfig", "FieldAuthorityRule", "TargetRenderingRule", "ScenarioConfig"} and "semantic_change" not in metadata:
             policy_type = {"RequirementConfig": "REQUIREMENT_SET", "TargetRenderingRule": "TARGET_RENDERING_RULE", "FieldAuthorityRule": "FIELD_AUTHORITY_RULE", "ScenarioConfig": "SCENARIO_CONFIG"}[source_type]
-            policy = db.scalar(select(ConfigurationChangeImpactPolicy).where(ConfigurationChangeImpactPolicy.config_type == policy_type, ConfigurationChangeImpactPolicy.active.is_(True), ConfigurationChangeImpactPolicy.change_severity == "MATERIAL"))
+            policy = db.scalar(select(ConfigurationChangeImpactPolicy).where(ConfigurationChangeImpactPolicy.config_type == policy_type, ConfigurationChangeImpactPolicy.active == true(), ConfigurationChangeImpactPolicy.change_severity == "MATERIAL"))
             material = bool(policy.requires_re_evaluation) if policy else material
     if "material" in metadata:
         material = bool(metadata["material"])

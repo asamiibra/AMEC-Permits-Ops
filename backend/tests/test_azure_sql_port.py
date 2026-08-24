@@ -4,7 +4,7 @@ import re
 import tomllib
 
 import pytest
-from sqlalchemy import create_engine, inspect as sqlalchemy_inspect, text as sqlalchemy_text
+from sqlalchemy import create_engine, false, inspect as sqlalchemy_inspect, select, text as sqlalchemy_text, true
 from sqlalchemy.dialects import mssql, postgresql
 from sqlalchemy.engine.default import DefaultDialect
 from sqlalchemy.engine.interfaces import Dialect
@@ -614,3 +614,115 @@ def test_sqlserver_seed_contract_preserves_optional_entra_and_project_code():
     assert "project_code=" not in source
     print("SEED_OPTIONAL_ENTRA_OBJECT_ID_PRESERVED=true")
     print("SEED_OPTIONAL_PROJECT_CODE_PRESERVED=true")
+
+
+def _boolean_column_map():
+    from sqlalchemy import Boolean
+
+    result = {}
+    for mapper in Base.registry.mappers:
+        for property_ in mapper.column_attrs:
+            column = property_.columns[0]
+            if isinstance(column.type, Boolean):
+                result[(mapper.class_.__name__, property_.key)] = (mapper.class_, getattr(mapper.class_, property_.key))
+    return result
+
+
+def _boolean_ast_inventory(source_loader):
+    root = Path(__file__).resolve().parents[2]
+    inventory = {"boolean": [], "null": []}
+    for pattern in ("backend/app/**/*.py", "scripts/db_azure_sql/**/*.py"):
+        for path in sorted(root.glob(pattern)):
+            relative = path.relative_to(root).as_posix()
+            source = source_loader(relative, path)
+            tree = ast.parse(source, filename=relative)
+            for node in ast.walk(tree):
+                if not (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and len(node.args) == 1
+                ):
+                    continue
+                argument = node.args[0]
+                if node.func.attr == "is_" and isinstance(argument, ast.Constant) and isinstance(argument.value, bool):
+                    inventory["boolean"].append((relative, node.lineno, ast.get_source_segment(source, node)))
+                elif node.func.attr in {"is_", "is_not"} and isinstance(argument, ast.Constant) and argument.value is None:
+                    inventory["null"].append((relative, node.lineno, node.func.attr, ast.get_source_segment(source, node)))
+    return inventory
+
+
+def test_sqlserver_boolean_literal_is_predicates_are_eliminated():
+    current = _boolean_ast_inventory(lambda _relative, path: path.read_text(encoding="utf-8"))
+    assert current["boolean"] == []
+    print("BOOLEAN_LITERAL_IS_TRUE_FALSE_CALL_COUNT_AFTER=0")
+
+
+def test_seed_field_definition_active_predicate_compiles_portably():
+    expression = FieldDefinition.active == true()
+    mssql_sql = str(select(FieldDefinition).where(expression).compile(dialect=mssql.dialect())).upper()
+    postgresql_sql = str(select(FieldDefinition).where(expression).compile(dialect=postgresql.dialect())).lower()
+    assert " IS 1" not in mssql_sql
+    assert " IS 0" not in mssql_sql
+    assert "=" in mssql_sql and "FIELD_DEFINITIONS.ACTIVE" in mssql_sql
+    assert "=" in postgresql_sql and "field_definitions.active" in postgresql_sql
+    print("MSSQL_SEED_BOOLEAN_COMPILE_CONTAINS_INVALID_IS_1=false")
+    print("MSSQL_SEED_BOOLEAN_COMPILE_CONTAINS_INVALID_IS_0=false")
+    print("MSSQL_SEED_BOOLEAN_COMPILE_USES_EQUALITY=true")
+
+
+def test_sqlserver_boolean_predicates_never_compile_is_1_or_is_0():
+    columns = _boolean_column_map()
+    root = Path(__file__).resolve().parents[2]
+    compiled_count = 0
+    invalid_is_1 = 0
+    invalid_is_0 = 0
+    for pattern in ("backend/app/**/*.py", "scripts/db_azure_sql/**/*.py"):
+        for path in sorted(root.glob(pattern)):
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source, filename=str(path))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Compare) or len(node.ops) != 1 or len(node.comparators) != 1:
+                    continue
+                left = node.left
+                comparator = node.comparators[0]
+                if not (
+                    isinstance(left, ast.Attribute)
+                    and isinstance(left.value, ast.Name)
+                    and isinstance(comparator, ast.Call)
+                    and isinstance(comparator.func, ast.Name)
+                    and comparator.func.id in {"true", "false"}
+                    and not comparator.args
+                ):
+                    continue
+                mapped = columns.get((left.value.id, left.attr))
+                if mapped is None:
+                    continue
+                model, column = mapped
+                expression = column == (true() if comparator.func.id == "true" else false())
+                sql = str(select(model).where(expression).compile(dialect=mssql.dialect()))
+                normalized = " ".join(sql.upper().split())
+                compiled_count += 1
+                invalid_is_1 += int(" IS 1" in normalized)
+                invalid_is_0 += int(" IS 0" in normalized)
+    assert compiled_count > 0
+    assert invalid_is_1 == 0
+    assert invalid_is_0 == 0
+    print(f"MSSQL_COMPILED_INVALID_IS_1_COUNT={invalid_is_1}")
+    print(f"MSSQL_COMPILED_INVALID_IS_0_COUNT={invalid_is_0}")
+    print("MSSQL_BOOLEAN_COMPILE_AUDIT=PASS")
+
+
+def test_boolean_portability_scan_preserves_null_is_predicates():
+    current = _boolean_ast_inventory(lambda _relative, path: path.read_text(encoding="utf-8"))
+
+    def baseline_loader(relative, _path):
+        import subprocess
+
+        return subprocess.check_output(
+            ["git", "show", f"fb1d504ae058c09a9fdd84a5afd68bcb3916e35c:{relative}"],
+            text=True,
+        )
+
+    baseline = _boolean_ast_inventory(baseline_loader)
+    assert current["null"] == baseline["null"]
+    print("NULL_IS_PREDICATE_UNAUTHORIZED_CHANGE_COUNT=0")

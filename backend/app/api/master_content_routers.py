@@ -9,7 +9,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, true
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import current_user_role
@@ -256,7 +256,7 @@ def categories(db: Session = Depends(get_db), role: Role = Depends(current_user_
     seed_categories(db)
     seed_reference_sequences(db)
     db.commit()
-    return [{"id": item.id, "code": item.code, "label": item.label, "description": item.description, "allowed_content_types": item.allowed_content_types, "active": item.active, "sort_order": item.sort_order, "source_kind": item.source_kind} for item in db.scalars(select(ContentCategory).where(ContentCategory.active.is_(True)).order_by(ContentCategory.sort_order, ContentCategory.label)).all()]
+    return [{"id": item.id, "code": item.code, "label": item.label, "description": item.description, "allowed_content_types": item.allowed_content_types, "active": item.active, "sort_order": item.sort_order, "source_kind": item.source_kind} for item in db.scalars(select(ContentCategory).where(ContentCategory.active == true()).order_by(ContentCategory.sort_order, ContentCategory.label)).all()]
 
 
 @router.post("/master-content/categories")
@@ -300,7 +300,7 @@ def patch_category(category_id: str, payload: CategoryPatch, request: Request, d
 def reference_policies(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     seed_reference_sequences(db)
     db.commit()
-    return [{"content_type": row.content_type, "prefix": row.prefix, "padding": row.padding, "scope": row.scope, "next_reference": f"{row.prefix}-{row.current_value + 1:0{row.padding}d}", "renumber_existing": False} for row in db.scalars(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.active.is_(True)).order_by(MasterContentReferenceSequence.content_type)).all()]
+    return [{"content_type": row.content_type, "prefix": row.prefix, "padding": row.padding, "scope": row.scope, "next_reference": f"{row.prefix}-{row.current_value + 1:0{row.padding}d}", "renumber_existing": False} for row in db.scalars(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.active == true()).order_by(MasterContentReferenceSequence.content_type)).all()]
 
 
 @router.put("/master-content/reference-policies/{content_type}")

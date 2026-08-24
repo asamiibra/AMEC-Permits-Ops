@@ -3,7 +3,7 @@
 from datetime import timedelta, timezone
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -75,7 +75,7 @@ def _revision_ready(db: Session, revision: PreparationRevision, final_submitter_
     if newer: blockers.append("STALE_REVISION")
     clearance = db.scalar(select(PrecheckClearanceEvaluation).where(PrecheckClearanceEvaluation.preparation_revision_id == revision.id).order_by(PrecheckClearanceEvaluation.evaluated_at.desc()))
     if not clearance or clearance.result != "CLEAR": blockers.append("PRECHECK_CLEARANCE_REQUIRED")
-    findings = db.scalars(select(Finding).where(Finding.application_id == revision.application_id, Finding.blocking.is_(True), Finding.status.in_(list(ACTIVE_FINDING_STATUSES)))).all()
+    findings = db.scalars(select(Finding).where(Finding.application_id == revision.application_id, Finding.blocking == true(), Finding.status.in_(list(ACTIVE_FINDING_STATUSES)))).all()
     blockers.extend(f"BLOCKING_FINDING:{x.id}" for x in findings)
     submitter = db.get(User, final_submitter_id)
     if not submitter or not submitter.active or getattr(submitter.role, "value", submitter.role) != Role.FINAL_SUBMITTER.value: blockers.append("FINAL_SUBMITTER_ROLE_REQUIRED")
@@ -115,7 +115,7 @@ def return_handoff(db: Session, item: SubmissionHandoff, payload: dict[str, Any]
 
 
 def edge_coverage(db: Session, variant_id: str | None = None) -> dict[str, Any]:
-    variants = db.scalars(select(ScenarioVariant).where(ScenarioVariant.included.is_(True))).all()
+    variants = db.scalars(select(ScenarioVariant).where(ScenarioVariant.included == true())).all()
     if variant_id: variants = [x for x in variants if x.id == variant_id]
     cases = ["multi_file", "conditional_active", "conditional_not_applicable", "wrong_category", "language_ar_en", "format_rejection", "size_rejection", "persistence", "revision_replacement", "grid_zero_rows", "grid_multiple_rows", "grid_reorder", "grid_duplicate_key", "grid_parent_mismatch", "grid_persistence", "grid_schema_drift"]
     return {"variants": [{"variant_id": x.id, "variant_code": x.variant_code, "supported_cases": cases, "passed_cases": cases, "failed_cases": [], "evidence_class": "SYNTHETIC_MEASURED"} for x in variants], "case_count": len(cases) * len(variants), "passed": len(cases) * len(variants), "failed": 0, "fixture": fixture_metadata()}
