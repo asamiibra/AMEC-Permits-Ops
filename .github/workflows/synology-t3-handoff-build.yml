@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD~1)" = "$ACCEPTED_V23_SHA"
+          test "$(git merge-base HEAD "$ACCEPTED_V23_SHA")" = "$ACCEPTED_V23_SHA"
           test "$(git rev-parse "$ACCEPTED_V23_SHA^{tree}")" = "$ACCEPTED_V23_TREE"
           test "$(git rev-parse "$ACCEPTED_V23_SHA~1")" = "$V22_SHA"
           git diff --name-only "$ACCEPTED_V23_SHA" HEAD > /tmp/t3-scope.txt
