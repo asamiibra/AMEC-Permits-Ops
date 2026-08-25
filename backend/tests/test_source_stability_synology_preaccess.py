@@ -33,7 +33,7 @@ def test_stable_observations_reach_ready_without_sleeping():
     clock.advance(1)
     assert tracker.observe(observation()) == StabilityState.WAITING_FOR_STABILITY
     clock.advance(1)
-    assert tracker.observe(observation()) == StabilityState.READY_FOR_INTAKE
+    assert tracker.observe(observation()) == StabilityState.READY_FOR_BOUNDED_READ
     assert tracker.stable_count == 3
 
 
@@ -58,12 +58,39 @@ def test_disappear_reappear_requires_new_stability_window():
     assert tracker.stable_count == 1
 
 
+def test_stability_does_not_count_observation_before_interval():
+    clock = FakeClock()
+    tracker = SourceStabilityTracker(StabilityPolicy(observation_interval_seconds=10), clock=clock)
+    assert tracker.observe(observation()) == StabilityState.DETECTED
+    assert tracker.observe(observation()) == StabilityState.WAITING_FOR_STABILITY
+    assert tracker.stable_count == 1
+
+
+def test_stability_max_wait_is_terminal():
+    clock = FakeClock()
+    tracker = SourceStabilityTracker(StabilityPolicy(maximum_wait_seconds=2), clock=clock)
+    tracker.observe(observation())
+    clock.advance(3)
+    assert tracker.observe(observation()) == StabilityState.STABILITY_TIMEOUT
+    clock.advance(3)
+    assert tracker.observe(observation()) == StabilityState.STABILITY_TIMEOUT
+
+
+def test_default_stability_state_is_ready_for_bounded_read_only_after_interval():
+    clock = FakeClock()
+    tracker = SourceStabilityTracker(StabilityPolicy(), clock=clock)
+    assert tracker.observe(observation()) == StabilityState.DETECTED
+    assert tracker.observe(observation()) == StabilityState.WAITING_FOR_STABILITY
+    clock.advance(1)
+    assert tracker.observe(observation()) == StabilityState.READY_FOR_BOUNDED_READ
+
+
 def test_max_wait_exhaustion_does_not_promote_old_observation():
     clock = FakeClock()
     tracker = SourceStabilityTracker(StabilityPolicy(maximum_wait_seconds=2), clock=clock)
     tracker.observe(observation())
     clock.advance(3)
-    assert tracker.observe(observation()) == StabilityState.DETECTED
+    assert tracker.observe(observation()) == StabilityState.STABILITY_TIMEOUT
     assert tracker.stable_count == 1
 
 
@@ -82,4 +109,3 @@ def test_stability_policy_is_not_business_identity_or_assertion_creation():
     tracker.observe(observation())
     tracker.observe(observation())
     assert not hasattr(tracker, "create_verified_assertion")
-

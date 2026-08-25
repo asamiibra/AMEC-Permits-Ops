@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import io
-import itertools
 import time
 from dataclasses import dataclass
 from typing import BinaryIO
 
 from .errors import StorageError, StorageErrorCode
 from .path_policy import normalize_relative_path
-from .external import run_with_deadline
 from .port import BinaryStorePort, ReadOnlySourcePort, SourceCapabilities, SourcePage, StorageCapabilities, StorageHealth, StorageLocator, StoragePage, StorageStat, StorageTarget, TemporaryObject
 
 
@@ -59,6 +57,59 @@ class SMBSourceConfig:
             raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source operation timeout must be positive")
 
 
+class BoundedReadHandle:
+    """A chunk-limited view over an smbclient file handle.
+
+    Opening a source never reads data.  The caller must provide an explicit
+    positive chunk size, and each call is capped at the frozen adapter limit.
+    """
+
+    MAX_CHUNK_BYTES = 1024 * 1024
+
+    def __init__(self, raw: BinaryIO, length: int):
+        self._raw = raw
+        self._remaining = length
+        self._closed = False
+
+    def read(self, size: int = -1) -> bytes:
+        if size is None or size < 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "bounded source reads require an explicit chunk size")
+        if size > self.MAX_CHUNK_BYTES:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read chunk exceeds frozen maximum")
+        if self._remaining <= 0:
+            return b""
+        requested = min(size, self._remaining)
+        try:
+            data = self._raw.read(requested)
+        except StorageError:
+            self.close()
+            raise
+        except Exception as exc:
+            self.close()
+            text = str(exc).lower()
+            name = type(exc).__name__.lower()
+            if "timeout" in text or "timeout" in name:
+                raise StorageError(StorageErrorCode.TIMEOUT, "The external source operation timed out", retryable=True) from exc
+            raise StorageError(StorageErrorCode.UNAVAILABLE, "External source read failed", retryable=True, details={"exception": type(exc).__name__}) from exc
+        self._remaining -= len(data)
+        return data
+
+    def close(self) -> None:
+        if not self._closed:
+            self._closed = True
+            self._raw.close()
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        self.close()
+
+
 class SMBSourceStore(ReadOnlySourcePort):
     """Read-only SMB source implementation; never a managed write provider."""
 
@@ -105,39 +156,52 @@ class SMBSourceStore(ReadOnlySourcePort):
             return StorageError(StorageErrorCode.OBJECT_NOT_FOUND, "The external source object was not found")
         return StorageError(StorageErrorCode.UNAVAILABLE, message, retryable=True, details={"exception": type(exc).__name__})
 
-    def _run(self, operation):
-        try:
-            return run_with_deadline(operation, self.config.operation_timeout_seconds)
-        except StorageError:
-            raise
-        except TimeoutError as exc:
-            raise StorageError(StorageErrorCode.TIMEOUT, "The external source operation timed out", retryable=True) from exc
-        except Exception as exc:
-            raise self._map_error(exc) from exc
-
     def health(self) -> StorageHealth:
         started = time.perf_counter()
         try:
-            info = self._run(lambda: self._client().stat(self._unc(self.config.root or "."), **self._session_kwargs()))
+            info = self._client().stat(self._unc(self.config.root or "."), **self._session_kwargs())
             connection = next(iter(self._connection_cache.values()), None)
-            return StorageHealth("HEALTHY", self.config.provider_id, (time.perf_counter() - started) * 1000, {"server": self.config.server, "port": self.config.port, "share": self.config.share, "auth_mode": self.config.auth_mode.lower(), "negotiated_dialect": str(getattr(connection, "dialect", None)) if connection else None, "signing_required": True, "encryption_required": True, "root_stat_size": int(getattr(info, "st_size", 0))})
+            endpoint = f"{self.config.server}:{self.config.port}/{self.config.share}".encode()
+            return StorageHealth("HEALTHY", self.config.provider_id, (time.perf_counter() - started) * 1000, {"provider_id": self.config.provider_id, "endpoint_fingerprint": hashlib.sha256(endpoint).hexdigest()[:16], "security": {"auth_mode": self.config.auth_mode.lower(), "anonymous": False, "guest": False, "signing_required": True, "encryption_required": True}, "negotiated_dialect": str(getattr(connection, "dialect", None)) if connection else None})
         except StorageError as exc:
             return StorageHealth("UNAVAILABLE", self.config.provider_id, (time.perf_counter() - started) * 1000, {"error_class": exc.code.value})
+        except Exception as exc:
+            mapped = self._map_error(exc)
+            return StorageHealth("UNAVAILABLE", self.config.provider_id, (time.perf_counter() - started) * 1000, {"error_class": mapped.code.value})
 
     def capabilities(self) -> SourceCapabilities:
         return SourceCapabilities()
 
     def stat(self, locator: StorageLocator) -> StorageStat:
-        info = self._run(lambda: self._client().stat(self._unc(locator.relative_path), **self._session_kwargs()))
-        return StorageStat(locator, int(info.st_size), modified_at=str(getattr(info, "st_mtime", "")))
+        try:
+            info = self._client().stat(self._unc(locator.relative_path), **self._session_kwargs())
+            return StorageStat(locator, int(info.st_size), modified_at=str(getattr(info, "st_mtime", "")))
+        except StorageError:
+            raise
+        except Exception as exc:
+            raise self._map_error(exc, "External source stat failed") from exc
 
     def open_read(self, locator: StorageLocator, *, offset: int | None = None, length: int | None = None) -> BinaryIO:
-        stream = self._run(lambda: self._client().open_file(self._unc(locator.relative_path), mode="rb", buffering=0, **self._session_kwargs()))
-        if offset:
-            self._run(lambda: stream.seek(offset))
+        if offset is not None and offset < 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read offset must be non-negative")
         if length is None:
-            return stream
-        return self._run(lambda: io.BytesIO(stream.read(length)))
+            length = self.stat(locator).size - (offset or 0)
+        if length < 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read length must be non-negative")
+        raw = None
+        try:
+            raw = self._client().open_file(self._unc(locator.relative_path), mode="rb", buffering=0, **self._session_kwargs())
+            if offset:
+                raw.seek(offset)
+            return BoundedReadHandle(raw, length)
+        except StorageError:
+            if raw is not None:
+                raw.close()
+            raise
+        except Exception as exc:
+            if raw is not None:
+                raw.close()
+            raise self._map_error(exc, "External source read failed") from exc
 
     def list(self, prefix: StorageTarget, *, cursor: str | None = None, max_entries_per_page: int = 100) -> SourcePage:
         if max_entries_per_page <= 0:
@@ -149,11 +213,13 @@ class SMBSourceStore(ReadOnlySourcePort):
         else:
             raise StorageError(StorageErrorCode.PATH_INVALID, "Invalid source continuation cursor")
 
-        def enumerate_bounded():
-            names = self._client().listdir(self._unc(prefix.relative_path.rstrip("/")), **self._session_kwargs())
-            return list(itertools.islice(names, start, start + max_entries_per_page + 1))
-
-        names = self._run(enumerate_bounded)
+        try:
+            names = sorted(self._client().listdir(self._unc(prefix.relative_path.rstrip("/")), **self._session_kwargs()))
+        except StorageError:
+            raise
+        except Exception as exc:
+            raise self._map_error(exc, "External source listing failed") from exc
+        names = names[start:start + max_entries_per_page + 1]
         truncated = len(names) > max_entries_per_page
         if truncated:
             names = names[:max_entries_per_page]
@@ -168,7 +234,9 @@ class SMBSourceStore(ReadOnlySourcePort):
                 failures += 1
                 issues.append("ENTRY_STAT_FAILED")
         complete = not truncated and failures == 0
-        next_cursor = f"v1:{start + len(names)}" if not complete else None
+        # A failed page is terminal.  Returning a continuation cursor here
+        # would let a caller silently skip the failed entry on the next page.
+        next_cursor = f"v1:{start + len(names)}" if truncated and failures == 0 else None
         return SourcePage(items, next_cursor, complete, failures, tuple(issues), len(names))
 
 

@@ -3,10 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
-
 import time
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Callable
@@ -28,19 +25,23 @@ class StableSourceRead:
 
 
 def read_stable_source(store: ReadOnlySourcePort, locator: StorageLocator) -> StableSourceRead:
-    before = store.stat(locator)
-    with store.open_read(locator) as stream:
-        content = stream.read()
+    """Compatibility wrapper that still uses the bounded source-read path.
+
+    Callers should prefer ``read_bounded_content`` when they need explicit
+    per-run budgets.  This wrapper intentionally cannot call ``read()`` on a
+    provider stream without a bounded length.
+    """
+    budgets = SourceReadBudgets()
+    content, before, digest = read_bounded_content(store, locator, budgets)
     after = store.stat(locator)
-    if before.size != after.size or before.modified_at != after.modified_at:
-        raise SourceChangedDuringImport("external source changed during SMB read")
-    return StableSourceRead(content, len(content), hashlib.sha256(content).hexdigest(), before.modified_at, after.modified_at)
+    return StableSourceRead(content, len(content), digest, before.modified_at, after.modified_at)
 
 
 class StabilityState(StrEnum):
     DETECTED = "DETECTED"
     WAITING_FOR_STABILITY = "WAITING_FOR_STABILITY"
-    READY_FOR_INTAKE = "READY_FOR_INTAKE"
+    READY_FOR_BOUNDED_READ = "READY_FOR_BOUNDED_READ"
+    STABILITY_TIMEOUT = "STABILITY_TIMEOUT"
 
 
 class ContentBudgetExceeded(RuntimeError):
@@ -57,15 +58,16 @@ class SourceReadBudgets:
     max_total_content_bytes_per_run: int = 50 * 1024 * 1024
     max_files_with_content_per_run: int = 100
     max_runtime_seconds: float = 60
-    max_retries: int = 2
     max_parallelism: int = 1
     max_entries_per_page: int = 100
     max_entries_per_run: int = 500
 
     def __post_init__(self) -> None:
         values = (self.max_file_bytes, self.max_total_content_bytes_per_run, self.max_files_with_content_per_run, self.max_runtime_seconds, self.max_parallelism, self.max_entries_per_page, self.max_entries_per_run)
-        if any(value <= 0 for value in values) or self.max_retries < 0:
-            raise ValueError("source budgets must be positive and retries cannot be negative")
+        if any(value <= 0 for value in values):
+            raise ValueError("source budgets must be positive")
+        if self.max_parallelism != 1:
+            raise ValueError("Synology preaccess requires max_parallelism=1")
 
 
 @dataclass
@@ -82,17 +84,20 @@ class ReadBudgetState:
 
 
 def run_with_deadline(operation: Callable[[], object], timeout_seconds: float) -> object:
+    """Run synchronously and fail closed after the operation returns.
+
+    Python threads cannot safely kill an arbitrary SMB operation.  The SMB
+    adapter therefore does not use this helper; it relies on smbclient's
+    transport/session timeout.  A future hard-stop implementation must move
+    the operation into a killable fetcher process or container.
+    """
     if timeout_seconds <= 0:
         raise ValueError("timeout_seconds must be positive")
-    executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="source-deadline")
-    future = executor.submit(operation)
-    try:
-        return future.result(timeout=timeout_seconds)
-    except FutureTimeoutError as exc:
-        future.cancel()
-        raise OperationDeadlineExceeded("source operation exceeded its deadline") from exc
-    finally:
-        executor.shutdown(wait=False, cancel_futures=True)
+    started = time.monotonic()
+    result = operation()
+    if time.monotonic() - started > timeout_seconds:
+        raise OperationDeadlineExceeded("source operation exceeded its deadline")
+    return result
 
 
 @dataclass(frozen=True)
@@ -115,10 +120,9 @@ class StabilityPolicy:
     required_stable_observations: int = 2
     observation_interval_seconds: float = 1
     maximum_wait_seconds: float = 60
-    max_retries: int = 2
 
     def __post_init__(self) -> None:
-        if self.required_stable_observations < 2 or self.observation_interval_seconds < 0 or self.maximum_wait_seconds <= 0 or self.max_retries < 0:
+        if self.required_stable_observations < 2 or self.observation_interval_seconds < 0 or self.maximum_wait_seconds <= 0:
             raise ValueError("invalid stability policy")
 
 
@@ -130,6 +134,8 @@ class SourceStabilityTracker:
         self._last: StabilityObservation | None = None
         self._stable_count = 0
         self._started_at: float | None = None
+        self._last_observed_at: float | None = None
+        self._terminal = False
 
     @property
     def stable_count(self) -> int:
@@ -139,25 +145,31 @@ class SourceStabilityTracker:
         now = self.clock()
         if self._started_at is None:
             self._started_at = now
+        if self._terminal:
+            return self.state
         if observation is None:
             self.state = StabilityState.DETECTED
             self._last = None
             self._stable_count = 0
+            self._last_observed_at = None
             return self.state
         if now - self._started_at > self.policy.maximum_wait_seconds:
-            self.state = StabilityState.DETECTED
-            self._last = observation
-            self._stable_count = 1
-            self._started_at = now
+            self.state = StabilityState.STABILITY_TIMEOUT
+            self._terminal = True
             return self.state
         if self._last is None or self._last.identity_token() != observation.identity_token():
             self.state = StabilityState.DETECTED
             self._stable_count = 1
             self._last = observation
+            self._last_observed_at = now
+            return self.state
+        if self._last_observed_at is not None and now - self._last_observed_at < self.policy.observation_interval_seconds:
+            self.state = StabilityState.WAITING_FOR_STABILITY
             return self.state
         self._stable_count += 1
         self._last = observation
-        self.state = StabilityState.READY_FOR_INTAKE if self._stable_count >= self.policy.required_stable_observations else StabilityState.WAITING_FOR_STABILITY
+        self._last_observed_at = now
+        self.state = StabilityState.READY_FOR_BOUNDED_READ if self._stable_count >= self.policy.required_stable_observations else StabilityState.WAITING_FOR_STABILITY
         return self.state
 
 

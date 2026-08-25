@@ -20,7 +20,7 @@ def test_default_content_budgets_are_frozen_and_positive():
     assert budgets.max_file_bytes > 0
     assert budgets.max_total_content_bytes_per_run >= budgets.max_file_bytes
     assert budgets.max_files_with_content_per_run > 0
-    assert budgets.max_retries >= 0 and budgets.max_parallelism > 0
+    assert budgets.max_parallelism == 1
 
 
 def test_oversized_object_is_rejected_before_open():
@@ -73,3 +73,8 @@ def test_incremental_hash_is_returned_only_after_full_bounded_read():
 def test_negative_budget_configuration_is_rejected():
     with pytest.raises(ValueError):
         SourceReadBudgets(max_file_bytes=0)
+
+
+def test_preaccess_parallelism_above_one_rejected():
+    with pytest.raises(ValueError, match="max_parallelism=1"):
+        SourceReadBudgets(max_parallelism=2)
