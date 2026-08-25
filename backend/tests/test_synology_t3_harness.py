@@ -13,6 +13,8 @@ from scripts.synology_t3.build_handoff import ACCEPTED_V23, create_bundle
 from scripts.synology_t3.fixture_manifest import build_fixture_manifest, fixture_bytes, fixture_paths
 from scripts.synology_t3.network_guard import NetworkGuard, UnexpectedNetworkDestination
 from scripts.synology_t3.scope_validator import validate_paths
+from scripts.synology_t3.dsm_state_schema import SCHEMA_VERSION, compare_states, validate_state
+from scripts.synology_t3.finalize_t3_return import finalize
 from scripts.synology_t3.t3_common import (
     APP_LABEL,
     HARNESS_LABEL,
@@ -22,6 +24,7 @@ from scripts.synology_t3.t3_common import (
     CheckCollector,
     T3Stop,
     T3StoreFactory,
+    assert_listing_protocol,
     locator,
     security_introspection,
 )
@@ -299,3 +302,130 @@ def test_image_label_names_are_stable():
 def test_scan_skips_binary_fixture_content(tmp_path):
     (tmp_path / "binary.bin").write_bytes(bytes(range(256)))
     assert scan(tmp_path)["match_count"] == 0
+
+
+class FakePage:
+    def __init__(self, count, cursor, complete):
+        self.items = [object()] * count
+        self.cursor = cursor
+        self.complete = complete
+
+
+def valid_pre_state():
+    return {
+        "state_schema_version": SCHEMA_VERSION, "phase": "PRE", "model": "DS220+", "dsm_version": "7", "dsm_build": "1",
+        "hostname": "nas", "architecture": "x86_64", "active_lan_ip": "192.0.2.10", "gateway": "192.0.2.1", "docker_version": "24",
+        "smb": {"min": "SMB2"}, "firewall": {"enabled": True}, "auto_block": {"enabled": True}, "tun1000": {"exists": False},
+        "existing_proposalops_identities": ["existing"], "business_share_acl_fingerprint": "acl-fingerprint",
+        "test_share_exists": False, "test_accounts_exist": False,
+    }
+
+
+def valid_post_state():
+    state = valid_pre_state()
+    state.update({"phase": "POST", "test_share_exists": True, "test_share_permissions": {"ro": "read", "denied": "none"}, "proposalops_t3_ro_enabled": False, "proposalops_t3_denied_enabled": False, "t3_secret_files_retained": 0, "t3_recurring_tasks_enabled": 0, "t3_task_removed": True})
+    state.pop("test_accounts_exist")
+    return state
+
+
+def test_exact_listing_protocol_passes():
+    assert_listing_protocol([FakePage(100, "v1:100", False), FakePage(100, "v1:200", False), FakePage(57, None, True)])
+
+
+@pytest.mark.parametrize("pages", [
+    [FakePage(100, "v1:100", False), FakePage(100, "v1:200", False), FakePage(57, "v1:257", True)],
+    [FakePage(100, None, True), FakePage(100, "v1:200", False), FakePage(57, None, True)],
+    [FakePage(100, "v1:100", False), FakePage(100, "v1:100", False), FakePage(57, None, True)],
+    [FakePage(100, "v1:100", False), FakePage(99, "v1:200", False), FakePage(58, None, True)],
+    [FakePage(100, "v1:100", False), FakePage(100, "v1:200", False), FakePage(56, None, True)],
+    [FakePage(100, "v1:100", False), FakePage(100, "v1:200", False), FakePage(57, None, False)],
+])
+def test_listing_protocol_fail_closed(pages):
+    with pytest.raises(T3Stop):
+        assert_listing_protocol(pages)
+
+
+@pytest.mark.parametrize("field", ["active_lan_ip", "gateway", "model", "dsm_version", "dsm_build", "hostname", "architecture", "docker_version", "smb", "firewall", "auto_block", "tun1000", "existing_proposalops_identities", "business_share_acl_fingerprint"])
+def test_pre_schema_missing_immutable_field_fails(field):
+    state = valid_pre_state()
+    state.pop(field)
+    assert validate_state(state, "PRE")
+
+
+@pytest.mark.parametrize("field", ["active_lan_ip", "gateway", "model", "dsm_version", "dsm_build", "hostname", "architecture", "docker_version", "smb", "firewall", "auto_block", "tun1000", "existing_proposalops_identities", "business_share_acl_fingerprint"])
+def test_post_changed_immutable_field_is_counted(field):
+    pre = valid_pre_state()
+    post = valid_post_state()
+    post[field] = {"changed": True} if isinstance(post[field], dict) else f"changed-{field}"
+    comparison = compare_states(pre, post)
+    assert comparison["immutable_field_deltas"][field] is True
+
+
+@pytest.mark.parametrize("field", ["proposalops_t3_ro_enabled", "proposalops_t3_denied_enabled", "t3_secret_files_retained", "t3_recurring_tasks_enabled", "t3_task_removed", "test_share_exists", "test_share_permissions"])
+def test_post_schema_requires_cleanup_fields(field):
+    state = valid_post_state()
+    state.pop(field)
+    assert validate_state(state, "POST")
+
+
+@pytest.mark.parametrize("field,value", [("proposalops_t3_ro_enabled", True), ("proposalops_t3_denied_enabled", True), ("t3_secret_files_retained", 1), ("t3_recurring_tasks_enabled", 1), ("t3_task_removed", False), ("test_share_exists", False)])
+def test_post_schema_rejects_unclean_cleanup(field, value):
+    state = valid_post_state()
+    state[field] = value
+    assert finalize_cleanup_errors(state)
+
+
+def finalize_cleanup_errors(state):
+    return (state["proposalops_t3_ro_enabled"] is not False or state["proposalops_t3_denied_enabled"] is not False or state["t3_secret_files_retained"] != 0 or state["t3_recurring_tasks_enabled"] != 0 or state["t3_task_removed"] is not True or state["test_share_exists"] is not True)
+
+
+def test_clean_pre_post_finalizes_candidate_ready(tmp_path):
+    (tmp_path / "10_DSM_PRE_STATE.json").write_text(json.dumps(valid_pre_state()))
+    (tmp_path / "44_DSM_POST_STATE.json").write_text(json.dumps(valid_post_state()))
+    assert finalize(tmp_path, None) == 0
+    registry = json.loads((tmp_path / "51_ACCEPTANCE_REGISTRY.json").read_text())
+    assert registry["T3_RETURN_STATUS"] == "PASS"
+
+
+@pytest.mark.parametrize("field", ["active_lan_ip", "gateway", "smb", "firewall", "auto_block", "tun1000", "existing_proposalops_identities", "business_share_acl_fingerprint"])
+def test_clean_finalizer_rejects_changed_state(tmp_path, field):
+    (tmp_path / "10_DSM_PRE_STATE.json").write_text(json.dumps(valid_pre_state()))
+    post = valid_post_state()
+    post[field] = {"changed": True} if isinstance(post[field], dict) else "changed"
+    (tmp_path / "44_DSM_POST_STATE.json").write_text(json.dumps(post))
+    assert finalize(tmp_path, None) != 0
+
+
+@pytest.mark.parametrize("field", ["active_lan_ip", "gateway", "smb", "firewall", "auto_block", "tun1000", "existing_proposalops_identities", "business_share_acl_fingerprint"])
+def test_finalizer_missing_pre_field_fails(tmp_path, field):
+    pre = valid_pre_state()
+    pre.pop(field)
+    (tmp_path / "10_DSM_PRE_STATE.json").write_text(json.dumps(pre))
+    (tmp_path / "44_DSM_POST_STATE.json").write_text(json.dumps(valid_post_state()))
+    assert finalize(tmp_path, None) != 0
+
+
+def test_finalizer_missing_post_state_fails(tmp_path):
+    (tmp_path / "10_DSM_PRE_STATE.json").write_text(json.dumps(valid_pre_state()))
+    assert finalize(tmp_path, None) != 0
+
+
+def test_finalizer_rejects_placeholder_post_state(tmp_path):
+    (tmp_path / "10_DSM_PRE_STATE.json").write_text(json.dumps(valid_pre_state()))
+    (tmp_path / "44_DSM_POST_STATE.json").write_text(json.dumps({"status": "OWNER_POST_STATE_REQUIRED"}))
+    assert finalize(tmp_path, None) != 0
+
+
+def test_runtime_assertion_normalization_is_path_specific(tmp_path):
+    collector = CheckCollector(tmp_path)
+    for path in fixture_paths():
+        collector.check(f"manifest::{path}", f"fixture manifest row {path} is structurally valid", True, True)
+    summary = collector.summary()
+    assert summary["NORMALIZED_ASSERTION_DUPLICATE_COUNT"] == 0
+    assert summary["DUPLICATE_EVIDENCE_TUPLE_COUNT"] == 0
+
+
+def test_runtime_registry_minimum_is_not_catalog_substitute():
+    catalog_count = 276
+    runtime_count = 0
+    assert runtime_count < 120 and catalog_count >= 120

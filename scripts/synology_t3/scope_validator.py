@@ -9,6 +9,7 @@ ALLOWED = (
     "contracts/amec/synology_t3/",
     "backend/tests/test_synology_t3_",
     ".github/workflows/synology-t3-handoff-build-r1.yml",
+    ".github/workflows/synology-t3-handoff-build-r1r1.yml",
 )
 FORBIDDEN = (
     "backend/app/",
@@ -37,7 +38,7 @@ def validate_paths(paths: list[str]) -> list[str]:
             normalized.startswith("scripts/synology_t3/")
             or normalized.startswith("contracts/amec/synology_t3/")
             or normalized.startswith("backend/tests/test_synology_t3_")
-            or normalized == ".github/workflows/synology-t3-handoff-build-r1.yml"
+            or normalized in {".github/workflows/synology-t3-handoff-build-r1.yml", ".github/workflows/synology-t3-handoff-build-r1r1.yml"}
         ):
             errors.append(f"unexpected T3 path:{raw}")
     return errors

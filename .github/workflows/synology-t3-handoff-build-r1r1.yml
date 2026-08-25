@@ -1,0 +1,169 @@
+name: Synology T3 synthetic DSM handoff build R1.1
+
+on:
+  push:
+    branches: [synology-t3-owner-dsm-synthetic-r1r1-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ACCEPTED_V23_SHA: 4925518b35b58956aaa5870f226af5e57d14b610
+  ACCEPTED_V23_TREE: 9dafcf25ac59d4dc2940c03bb081206d7f2820fa
+  V22_SHA: 835bcc6208b274d5d95bd0cbd1d414a14e52e9e8
+  R1_PARENT_SHA: 86a7fe26bb3094646c265bbb9f146d33e5d453de
+  PHASE4_SHA: 707003fc16767fb28b9c968fbcf168ab03ebadc1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact R1.1 SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact parent, V2.3 ancestry, frozen storage, and strict scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$ACCEPTED_V23_SHA")" = "$ACCEPTED_V23_SHA"
+          test "$(git rev-parse "$ACCEPTED_V23_SHA^{tree}")" = "$ACCEPTED_V23_TREE"
+          test "$(git rev-parse "$ACCEPTED_V23_SHA~1")" = "$V22_SHA"
+          test "$(git rev-parse HEAD~1)" = "$R1_PARENT_SHA"
+          git diff --name-only "$R1_PARENT_SHA" HEAD > /tmp/t3-r1r1-scope.txt
+          python3 scripts/synology_t3/scope_validator.py $(< /tmp/t3-r1r1-scope.txt)
+          test "$(git diff --name-only "$R1_PARENT_SHA" HEAD -- backend/app/storage backend/app/config/settings.py backend/requirements.txt | wc -l | tr -d ' ')" = "0"
+          for path in backend/app/storage/smb.py backend/app/storage/external.py backend/app/storage/port.py backend/app/storage/factory.py; do
+            case "$path" in
+              backend/app/storage/smb.py) expected=ad3720c23a9b2d9f65145b32896f8fec60372911 ;;
+              backend/app/storage/external.py) expected=2e4c8ee0bf4b91ecf5b66894751f750a9179af19 ;;
+              backend/app/storage/port.py) expected=2a280b4c06f85fc75812c69b7509fc15f2945507 ;;
+              backend/app/storage/factory.py) expected=fa5836adc7abf040acf7354c0377cb88f0034c8b ;;
+            esac
+            test "$(git rev-parse "$ACCEPTED_V23_SHA:$path")" = "$expected"
+          done
+
+      - name: Scope validator fail-closed self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          if python3 scripts/synology_t3/scope_validator.py backend/app/storage/smb.py; then exit 1; fi
+
+      - name: Fresh all-Phase5 overlap gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin 'refs/heads/phase5*:refs/remotes/origin/phase5*'
+          python3 - "$PHASE4_SHA" <<'PY'
+          import subprocess, sys
+          phase4 = sys.argv[1]
+          refs = subprocess.check_output(["git", "for-each-ref", "--format=%(refname:short)", "refs/remotes/origin/phase5"], text=True).splitlines()
+          for ref in refs:
+              changed = subprocess.check_output(["git", "diff", "--name-only", phase4, ref, "--", "backend/app/storage", "backend/app/config/settings.py", "backend/requirements.txt"], text=True)
+              if changed.strip():
+                  raise SystemExit(f"Phase5 overlap:{ref}:{changed}")
+          PY
+
+      - name: Install dependencies and run at least 75 local harness tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check -r backend/requirements.txt
+          count="$(python3 -m pytest --collect-only -q backend/tests/test_synology_t3_harness.py | tail -n 1 | awk '{print $1}')"
+          test "$count" -ge 75
+          python3 -m pytest -q backend/tests/test_synology_t3_harness.py
+          python3 -m compileall -q scripts/synology_t3
+
+      - name: Shell syntax checks
+        shell: bash
+        run: for file in scripts/synology_t3/*.sh; do bash -n "$file"; done
+
+      - name: Source secret scan
+        shell: bash
+        run: python3 scripts/synology_t3/source_secret_scan.py scripts/synology_t3
+
+      - name: Build R1.1 handoff skeleton
+        shell: bash
+        run: |
+          set -euo pipefail
+          export T3_OUTPUT="$RUNNER_TEMP/t3-r1r1-handoff"
+          python3 scripts/synology_t3/build_handoff.py --repo-root . --output "$T3_OUTPUT" --run-id "SYN-T3-R1R1-${GITHUB_RUN_ID}" --harness-sha "$GITHUB_SHA"
+          echo "T3_OUTPUT=$T3_OUTPUT" >> "$GITHUB_ENV"
+          echo "T3_BUNDLE=$T3_OUTPUT/ProposalOps_SYN_T3_Handoff_SYN-T3-R1R1-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
+
+      - name: Build linux amd64 dual-identity image and bind policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          export IMAGE_REF="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["image_ref"])' "$T3_BUNDLE/06_IMAGE_BUILD_POLICY.json")"
+          docker build --platform linux/amd64 --file scripts/synology_t3/Dockerfile --build-arg ACCEPTED_V23_SHA="$ACCEPTED_V23_SHA" --build-arg T3_HARNESS_SHA="$GITHUB_SHA" --tag "$IMAGE_REF" .
+          docker image inspect "$IMAGE_REF" --format '{{json .}}' > "$T3_BUNDLE/07_DOCKER_IMAGE_INSPECT.json"
+          python3 - "$T3_BUNDLE" "$IMAGE_REF" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          ref = sys.argv[2]
+          policy_path = root / "06_IMAGE_BUILD_POLICY.json"
+          policy = json.loads(policy_path.read_text())
+          image = json.loads((root / "07_DOCKER_IMAGE_INSPECT.json").read_text())
+          labels = image["Config"]["Labels"]
+          assert policy["image_ref"] == ref
+          assert labels["org.opencontainers.image.revision"] == policy["harness_sha"]
+          assert labels["org.opencontainers.image.proposalops-application-revision"] == policy["application_sha"]
+          assert labels["org.opencontainers.image.synthetic-only"] == "true"
+          assert image["Config"]["User"] in {"10001", "10001:10001"}
+          policy["image_id"] = image["Id"]
+          policy_path.write_text(json.dumps(policy, indent=2, sort_keys=True) + "\n")
+          PY
+          docker run --rm --platform linux/amd64 "$IMAGE_REF" python3 --version > "$T3_BUNDLE/08_PYTHON_VERSION.txt"
+          docker run --rm --platform linux/amd64 "$IMAGE_REF" python3 -c 'import ssl; print(ssl.OPENSSL_VERSION)' > "$T3_BUNDLE/09_OPENSSL_VERSION.txt"
+          docker run --rm --platform linux/amd64 "$IMAGE_REF" python3 -m pip freeze > "$T3_BUNDLE/10_PIP_FREEZE.txt"
+          docker run --rm --platform linux/amd64 "$IMAGE_REF" python3 -m compileall -q /opt/proposalops/scripts/synology_t3
+          docker save --output "$T3_BUNDLE/proposalops-syn-t3-image.tar" "$IMAGE_REF"
+
+      - name: Validate fixture staging and assertion catalog semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - "$T3_BUNDLE" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          manifest = json.loads((root / "13_FIXTURE_MANIFEST.json").read_text())
+          catalog = json.loads((root / "T3_ASSERTION_CATALOG.json").read_text())
+          assert manifest["root"] == "cert/v1" and len(manifest["entries"]) == 270
+          assert catalog["distinct_assertions"] >= 120
+          assert not any(row["assertion_id"].startswith("fixture_integrity::") for row in catalog["assertions"])
+          for row in manifest["entries"]:
+              assert (root / "fixture_staging" / "cert" / "v1" / row["relative_path"]).is_file()
+          PY
+
+      - name: Finalize, validate, reopen, and upload immutable handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/synology_t3/build_handoff.py --finalize "$T3_BUNDLE"
+          python3 scripts/synology_t3/validate_t3_return.py --handoff-root "$T3_BUNDLE"
+          python3 - "$T3_BUNDLE" <<'PY'
+          import pathlib, sys, tarfile
+          root = pathlib.Path(sys.argv[1])
+          with tarfile.open(root.with_suffix('.tar.gz'), 'r:gz') as tar:
+              names = [member.name for member in tar.getmembers()]
+              if any(pathlib.Path(name).is_absolute() or '..' in pathlib.Path(name).parts for name in names):
+                  raise SystemExit('unsafe archive')
+              if not all(name == root.name or name.startswith(root.name + '/') for name in names):
+                  raise SystemExit('archive topology mismatch')
+          print('T3_R1R1_HANDOFF_ARCHIVE_REOPEN=PASS')
+          PY
+          gh_artifact_name="synology-t3-owner-dsm-handoff-r1r1-${GITHUB_RUN_ID}"
+          echo "GITHUB_ARTIFACT_NAME=$gh_artifact_name" >> "$GITHUB_ENV"
+
+      - name: Upload complete immutable R1.1 handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: synology-t3-owner-dsm-handoff-r1r1-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/t3-r1r1-handoff/ProposalOps_SYN_T3_Handoff_SYN-T3-R1R1-${{ github.run_id }}/
+            ${{ runner.temp }}/t3-r1r1-handoff/ProposalOps_SYN_T3_Handoff_SYN-T3-R1R1-${{ github.run_id }}.tar.gz
+          if-no-files-found: error

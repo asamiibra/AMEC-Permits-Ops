@@ -25,7 +25,7 @@ BASE_IMAGE = "python:3.12-slim-trixie@sha256:876416ecde9aca2bcc90e1fb0c7a9500bbf
 
 
 def git(repo: Path, *args: str) -> str:
-    return subprocess.check_output(["git", *args], cwd=repo, text=True).strip()
+    return subprocess.check_output(["git", *args], cwd=repo, text=True, stderr=subprocess.DEVNULL).strip()
 
 
 def write_json(path: Path, payload: object) -> None:
@@ -62,7 +62,7 @@ def harness_manifest(repo: Path, harness_sha: str) -> dict:
 
 
 def assertion_catalog(manifest: dict) -> dict:
-    assertions = [{"assertion_id": f"fixture_integrity::{row['relative_path']}", "category": "fixture integrity", "expected": {"size": row["size"], "sha256": row["sha256"]}} for row in manifest["entries"]]
+    assertions = [{"assertion_id": f"fixture_manifest_expectation::{row['relative_path']}", "category": "fixture manifest expectation", "expected": {"size": row["size"], "sha256": row["sha256"]}} for row in manifest["entries"]]
     assertions.extend([
         {"assertion_id": "identity::accepted_v23", "category": "identity/scope", "expected": ACCEPTED_V23},
         {"assertion_id": "security::session_table", "category": "security negotiation", "expected": "smbprotocol 1.15.0 Connection.session_table"},
@@ -86,12 +86,12 @@ def create_bundle(repo: Path, output: Path, run_id: str, harness_sha: str | None
     write_json(bundle / "05_T3_TEST_SPEC.json", {"target_share": "ProposalOps-T3-Synthetic", "target_root": ROOT, "positive_identity": "proposalops_t3_ro", "negative_identity": "proposalops_t3_denied", "port": 445, "require_signing": True, "require_encryption": True, "real_amec_access": False, "parser_classifier_llm": False, "managed_write_lane": False, "residual_deferrals": ["REAL_SMB_SERVER_SIDE_PAGINATION", "REAL_SMB_HARD_OPERATION_ABORT", "REAL_DSM_REPARSE_REFERRAL"]})
     write_json(bundle / "D1_D2_REPAIR_EVIDENCE.json", {"STORAGE_LOCATOR_NAMEERROR_REPRODUCIBLE_BEFORE_FIX": True, "STORAGE_LOCATOR_NAMEERROR_AFTER_FIX": 0, "SECURITY_INTROSPECTION_PINNED_TO_SMBPROTOCOL_1_15_0": True, "connection_object": "smbprotocol.connection.Connection", "session_source": "Connection.session_table"})
     manifest = write_manifest(bundle / "fixture_staging", bundle / "13_FIXTURE_MANIFEST.json")
-    write_json(bundle / "06_IMAGE_BUILD_POLICY.json", {"platform": "linux/amd64", "base_image": BASE_IMAGE, "credentials_in_image": False, "business_content_in_image": False, "application_sha": ACCEPTED_V23, "harness_sha": harness_sha, "labels": {HARNESS_LABEL: harness_sha, APP_LABEL: ACCEPTED_V23, "org.opencontainers.image.synthetic-only": "true"}})
+    write_json(bundle / "06_IMAGE_BUILD_POLICY.json", {"platform": "linux/amd64", "base_image": BASE_IMAGE, "credentials_in_image": False, "business_content_in_image": False, "application_sha": ACCEPTED_V23, "harness_sha": harness_sha, "image_ref": f"proposalops/syn-t3:r1r1-{harness_sha[:12]}", "image_id": None, "image_tar_sha256": None, "labels": {HARNESS_LABEL: harness_sha, APP_LABEL: ACCEPTED_V23, "org.opencontainers.image.synthetic-only": "true"}})
     write_json(bundle / "SOURCE_MANIFEST.json", application_manifest(repo))
     write_json(bundle / "HARNESS_MANIFEST.json", harness_manifest(repo, harness_sha))
     write_json(bundle / "T3_ASSERTION_CATALOG.json", assertion_catalog(manifest))
     write_json(bundle / "51_HANDOFF_REGISTRY.json", {"status": "OWNER_DSM_SYNTHETIC_HANDOFF_READY_FOR_INDEPENDENT_HANDOFF_ACCEPTANCE", "T3_OWNER_EXECUTION_READY": False, "FAIL": 0, "distinct_assertions": len(assertion_catalog(manifest)["assertions"]), "UNRESOLVED_EVIDENCE_REF_COUNT": 0, "NORMALIZED_ASSERTION_DUPLICATE_COUNT": 0, "SELF_REFERENCE_COUNT": 0})
-    for name in ("run_t3_owner_dsm.sh", "seed_t3_synthetic_share.sh", "verify_t3_dsm_state.sh", "finalize_t3_return.py", "validate_t3_return.py", "preflight_t3_handoff.py", "fixture_manifest.py", "OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md", "OWNER_DSM_T3_ATTESTATION_TEMPLATE.json"):
+    for name in ("run_t3_owner_dsm.sh", "seed_t3_synthetic_share.sh", "verify_t3_dsm_state.sh", "finalize_t3_return.py", "validate_t3_return.py", "preflight_t3_handoff.py", "dsm_state_schema.py", "fixture_manifest.py", "OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md", "OWNER_DSM_T3_ATTESTATION_TEMPLATE.json"):
         shutil.copy2(repo / "scripts/synology_t3" / name, bundle / name)
     shutil.copytree(repo / "scripts/synology_t3", bundle / "harness_source", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     return bundle
@@ -102,6 +102,8 @@ def finalize(bundle: Path) -> None:
     if not image.is_file():
         raise SystemExit("image tar missing")
     policy = json.loads((bundle / "06_IMAGE_BUILD_POLICY.json").read_text(encoding="utf-8"))
+    if not policy.get("image_ref") or not policy.get("image_id"):
+        raise SystemExit("image ref/id must be bound before handoff finalization")
     policy["image_tar_sha256"] = hashlib.sha256(image.read_bytes()).hexdigest()
     write_json(bundle / "06_IMAGE_BUILD_POLICY.json", policy)
     hygiene = scan_text_tree(bundle, excluded_names={"43_ARTIFACT_HYGIENE.json", "MANIFEST.sha256"})

@@ -23,6 +23,7 @@ from scripts.synology_t3.t3_common import (
     CheckCollector,
     T3Stop,
     T3StoreFactory,
+    assert_listing_protocol,
     locator,
     scan_text_tree,
     security_introspection,
@@ -146,7 +147,7 @@ def run(args: argparse.Namespace) -> int:
     checks.require("identity_fixture_count", "fixture manifest contains 270 rows", 270, len(expected_rows))
     for path, row in expected_rows.items():
         valid = bool(path and not path.startswith("/") and row.get("size", -1) >= 0 and re.fullmatch(r"[0-9a-f]{64}", row.get("sha256", "")))
-        checks.require(f"fixture_manifest_row::{path}", "fixture manifest row is structurally valid", True, valid)
+        checks.require(f"fixture_manifest_row::{path}", f"fixture manifest row {path} is structurally valid", True, valid)
     password = read_secret(args.ro_secret)
     denied_password = read_secret(args.denied_secret)
     checks.require("secret_mode_ro", "RO secret is mode 600", 0o600, args.ro_secret.stat().st_mode & 0o777)
@@ -173,8 +174,8 @@ def run(args: argparse.Namespace) -> int:
         for path in selected:
             result = read_hash(store, StorageLocator, path, expected_rows[path], ledger)
             read_results.append(result)
-            checks.require(f"fixture_read_size::{path}", "positive read size matches manifest", result["expected_size"], result["actual_size"])
-            checks.require(f"fixture_read_hash::{path}", "positive read SHA256 matches manifest", result["expected_sha256"], result["actual_sha256"])
+            checks.require(f"fixture_read_size::{path}", f"positive read {path} size matches manifest", result["expected_size"], result["actual_size"])
+            checks.require(f"fixture_read_hash::{path}", f"positive read {path} SHA256 matches manifest", result["expected_sha256"], result["actual_sha256"])
         ranges = [row for row in read_results if row["relative_path"] in {"range/range-4MiB.bin", "stream/stream-8MiB.bin"}]
         checks.require("range_4mib_bound", "4 MiB read is under 10 MiB cap", True, expected_rows["range/range-4MiB.bin"]["size"] <= MAX_FILE_BYTES)
         checks.require("stream_8mib_bound", "8 MiB stream is under 10 MiB cap", True, expected_rows["stream/stream-8MiB.bin"]["size"] <= MAX_FILE_BYTES)
@@ -182,6 +183,7 @@ def run(args: argparse.Namespace) -> int:
         pages = [store.list(target, cursor=None, max_entries_per_page=100)]
         pages.append(store.list(target, cursor=pages[0].cursor, max_entries_per_page=100))
         pages.append(store.list(target, cursor=pages[1].cursor, max_entries_per_page=100))
+        assert_listing_protocol(pages)
         page_lengths = [len(page.items) for page in pages]
         cursors = [page.cursor for page in pages]
         checks.require("listing_page_1_bound", "listing page 1 has at most 100 items", True, page_lengths[0] <= 100)
@@ -213,35 +215,62 @@ def run(args: argparse.Namespace) -> int:
         checks.require("stability_detected", "first observation is DETECTED", "DETECTED", states[0])
         checks.require("stability_waiting", "immediate duplicate is WAITING_FOR_STABILITY", "WAITING_FOR_STABILITY", states[1])
         checks.require("stability_ready", "post-interval observation is READY_FOR_BOUNDED_READ", "READY_FOR_BOUNDED_READ", states[2])
+        cache_a_object_id = id(store._connection_cache)
         ro_cache_before = hashlib.sha256(repr(sorted(store._connection_cache)).encode()).hexdigest()[:16]
         reset_cache(store)
+        checks.require("ro_cache_a_empty_after_reset", "RO provider A cache is empty after reset", 0, len(store._connection_cache))
         denied_config = smb.SMBSourceConfig(server=args.nas_ip, share=SHARE, username=args.denied_username, password=denied_password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES)
         denied = factory.create(denied_config, operation_class="denied_identity")
+        cache_b_object_id = id(denied._connection_cache)
+        checks.require("denied_cache_is_distinct", "denied provider B has a distinct cache object", True, cache_a_object_id != cache_b_object_id)
         denied_success = 0
+        denied_errors = {}
+        denied_health = denied.health()
+        if denied_health.state == "HEALTHY":
+            denied_success += 1
+        denied_errors["health"] = denied_health.detail.get("error_class") if denied_health.state != "HEALTHY" else "HEALTHY"
         try:
             denied.stat(locator(StorageLocator, "basic/small.txt"))
             denied_success += 1
-        except Exception:
-            pass
+        except Exception as exc:
+            denied_errors["stat"] = getattr(getattr(exc, "code", None), "value", type(exc).__name__)
+        try:
+            denied.list(StorageTarget("smb-external-source", SHARE, "listing"), max_entries_per_page=1)
+            denied_success += 1
+        except Exception as exc:
+            denied_errors["list"] = getattr(getattr(exc, "code", None), "value", type(exc).__name__)
+        try:
+            with denied.open_read(locator(StorageLocator, "basic/small.txt"), offset=0, length=1):
+                denied_success += 1
+        except Exception as exc:
+            denied_errors["open_read"] = getattr(getattr(exc, "code", None), "value", type(exc).__name__)
         checks.require("denied_identity_data_access", "denied identity cannot read data", 0, denied_success)
         reset_cache(denied)
+        checks.require("denied_cache_b_empty_after_reset", "denied provider B cache is empty after reset", 0, len(denied._connection_cache))
         fresh = factory.create(config, operation_class="reconnect")
+        checks.require("ro_provider_c_is_new", "RO provider C is a new provider object", True, fresh is not store)
+        checks.require("ro_cache_c_is_new", "RO provider C has a new cache object", True, id(fresh._connection_cache) not in {cache_a_object_id, cache_b_object_id})
         reconnect = read_hash(fresh, StorageLocator, "basic/small.txt", expected_rows["basic/small.txt"], ledger)
         checks.require("reconnect_canary_hash", "new RO provider reads expected canary hash", expected_rows["basic/small.txt"]["sha256"], reconnect["actual_sha256"])
+        fresh_security = security_introspection(fresh._connection_cache, args.ro_username)
+        checks.require("fresh_ro_authenticated_session", "fresh RO provider has an authenticated session", True, fresh_security["authenticated_session_count"] > 0)
+        checks.require("fresh_ro_username", "fresh RO provider session username is proposalops_t3_ro", True, fresh_security["all_expected_username"])
         ro_cache_after = hashlib.sha256(repr(sorted(fresh._connection_cache)).encode()).hexdigest()[:16]
-        checks.require("session_cache_fingerprints_distinct", "RO cache was reset before fresh provider", True, ro_cache_before != ro_cache_after)
+        cross_credential_session_leak_count = int(denied_success != 0 or id(fresh._connection_cache) == cache_b_object_id)
+        checks.require("session_cache_isolation", "RO and denied observations show no cross-credential session leak", 0, cross_credential_session_leak_count)
         missing_object = f"missing/object-{args.run_id}.bin"
         missing_object_code = None
         try:
             read_hash(store, StorageLocator, missing_object, {"size": 0, "sha256": ""}, ledger)
         except Exception as exc:
             raw_code = getattr(exc, "code", None)
-            missing_object_code = getattr(raw_code, "value", None) or raw_code or "OBJECT_NOT_FOUND"
+            missing_object_code = getattr(raw_code, "value", None) or raw_code
         checks.require("missing_object_normalized", "missing object normalizes to OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND", str(missing_object_code))
         missing_share = args.missing_share
         missing = factory.create(smb.SMBSourceConfig(server=args.nas_ip, share=missing_share, username=args.ro_username, password=password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES), operation_class="missing_share")
         missing_health = missing.health()
         checks.require("missing_share_not_healthy", "missing share is unavailable", True, missing_health.state != "HEALTHY")
+        checks.require("missing_share_error_class", "missing share exposes OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND", missing_health.detail.get("error_class"))
         ro_acl = probe_acl(store, checks)
     invalid_paths = ["../escape", "/absolute", "\\\\server\\share", "C:/drive", "bad:name", "bad\x00name", "CON"]
     normalize_relative_path = modules["path_policy"].normalize_relative_path
@@ -283,9 +312,9 @@ def run(args: argparse.Namespace) -> int:
     write_json(evidence, "28_STABILITY_RESULTS.json", {"states": states, "timestamps_epoch_seconds": timestamps, "elapsed_seconds": timestamps[-1] - timestamps[0]})
     write_json(evidence, "29_MUTATION_RACE_RESULTS.json", {"result": "T3_DSM_MUTATION_RACE=NOT_REPRODUCED_ON_OWNER_NAS"})
     write_json(evidence, "30_RO_ACL_NEGATIVES.json", {"success_counts": {key: ro_acl[key] for key in ("create", "write", "rename", "delete", "mkdir")}, "errors": ro_acl["errors"]})
-    write_json(evidence, "31_DENIED_IDENTITY_RESULTS.json", {"data_access_success_count": denied_success})
+    write_json(evidence, "31_DENIED_IDENTITY_RESULTS.json", {"data_access_success_count": denied_success, "normalized_error_classes": denied_errors})
     write_json(evidence, "32_MISSING_SHARE_OBJECT_RESULTS.json", {"missing_share": args.missing_share, "missing_object": missing_object, "health_state": missing_health.state, "missing_object_error": "OBJECT_NOT_FOUND"})
-    write_json(evidence, "33_SESSION_ISOLATION.json", {"cross_credential_session_leak_count": 0, "cache_fingerprints": [ro_cache_before, ro_cache_after], "sequence": ["ro_success", "ro_cache_reset", "denied_failure", "denied_cache_reset", "ro_success"]})
+    write_json(evidence, "33_SESSION_ISOLATION.json", {"cross_credential_session_leak_count": cross_credential_session_leak_count, "cache_fingerprints": [ro_cache_before, ro_cache_after], "provider_cache_object_ids": [cache_a_object_id, cache_b_object_id, id(fresh._connection_cache)], "sequence": ["ro_success", "ro_cache_reset", "denied_failure", "denied_cache_reset", "ro_success"]})
     write_json(evidence, "34_RECONNECT_RESULTS.json", {"fresh_session_reconnect_pass": True, "real_nas_restart_recovery": "NOT_EXECUTED_NO_RESTART_AUTHORIZATION"})
     zero = {"real_amec_share_connect_attempts": ledger_summary["real_amec_share_connect_attempts"], "real_amec_directory_lists": ledger_summary["real_amec_directory_lists"], "real_amec_stats": ledger_summary["real_amec_stats"], "real_amec_file_opens": ledger_summary["real_amec_file_opens"], "real_amec_bytes": ledger_summary["real_amec_bytes"], "real_amec_writes": ledger_summary["real_amec_writes"], "parser_executions": 0, "classifier_executions": 0, "llm_calls": 0, "managed_write": False}
     write_json(evidence, "40_ZERO_REAL_DATA.json", zero)

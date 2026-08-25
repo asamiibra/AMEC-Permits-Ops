@@ -174,6 +174,14 @@ class T3StoreFactory:
         return self.store_cls(config)
 
 
+def assert_listing_protocol(pages: list[Any]) -> None:
+    """Enforce the exact 257-entry terminal cursor protocol."""
+    observed = [(len(page.items), page.cursor, page.complete) for page in pages]
+    expected = [(100, "v1:100", False), (100, "v1:200", False), (57, None, True)]
+    if observed != expected:
+        raise T3Stop("LISTING_PROTOCOL", f"expected {expected!r}, observed {observed!r}")
+
+
 def locator(storage_locator_type: type, path: str, *, share: str = SHARE) -> Any:
     """Construct a locator from the deliberately bound dynamic type."""
     return storage_locator_type("smb-external-source", share, path)
