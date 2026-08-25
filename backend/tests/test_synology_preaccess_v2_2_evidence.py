@@ -20,6 +20,15 @@ def complete_artifact(tmp_path):
     raw = write_fixture(tmp_path)
     checks, metadata = build_registry(raw, artifact_root=tmp_path)
     write_evidence(tmp_path, "synthetic-v2.2", checks, metadata)
+    (tmp_path / "evidence" / "52_ARTIFACT_HYGIENE.json").write_text(json.dumps({
+        "scanner_executed": True,
+        "files_scanned": 1,
+        "patterns_checked": ["GHP_TOKEN"],
+        "match_count": 0,
+        "matches": [],
+        "errors": [],
+        "status": "PASS",
+    }), encoding="utf-8")
     root_manifest(tmp_path)
     return tmp_path
 

@@ -22,13 +22,19 @@ def candidate_repo(tmp_path, content):
     return git(tmp_path, "rev-parse", "HEAD^"), git(tmp_path, "rev-parse", "HEAD")
 
 
-@pytest.mark.parametrize("content,pattern", [
-    ("token=ghp_" + "A" * 20, "GHP_TOKEN"),
-    ("token=AKIA" + "A" * 16, "AWS_ACCESS_KEY"),
-    ("-----BEGIN " + "RSA PRIVATE KEY-----", "PRIVATE_KEY_MARKER"),
-    ("SMB_EXTERNAL_" + "PASSWORD=" + "not-a-sentinel", "SMB_EXTERNAL_PASSWORD"),
-])
-def test_secret_scanner_hostile_fixture_matches_without_disclosure(tmp_path, content, pattern):
+@pytest.mark.parametrize(
+    "pattern_kind",
+    ["ghp", "aws", "private_key", "smb_password"],
+    ids=["ghp-shape", "aws-key-shape", "private-key-shape", "smb-password-shape"],
+)
+def test_secret_scanner_hostile_fixture_matches_without_disclosure(tmp_path, pattern_kind):
+    fixtures = {
+        "ghp": ("token=ghp_" + "A" * 20, "GHP_TOKEN"),
+        "aws": ("token=AKIA" + "A" * 16, "AWS_ACCESS_KEY"),
+        "private_key": ("-----BEGIN " + "RSA PRIVATE KEY-----", "PRIVATE_KEY_MARKER"),
+        "smb_password": ("SMB_EXTERNAL_" + "PASSWORD=" + "not-a-sentinel", "SMB_EXTERNAL_PASSWORD"),
+    }
+    content, pattern = fixtures[pattern_kind]
     base, candidate = candidate_repo(tmp_path, content)
     result = scan(tmp_path, base_sha=base, candidate_sha=candidate, source_roots=())
     assert result["scanner_executed"] is True

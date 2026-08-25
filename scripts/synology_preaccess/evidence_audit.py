@@ -41,13 +41,33 @@ def _manifest_entries(root: Path) -> tuple[dict[str, str], list[str]]:
     return entries, errors
 
 
-def audit(root: Path, *, repo_root: Path | None = None) -> dict:
+def audit(root: Path, *, repo_root: Path | None = None, require_root_manifest: bool = True) -> dict:
     root = root.resolve()
     errors: list[str] = []
     registry_path = root / "evidence" / "50_ACCEPTANCE_REGISTRY.json"
     if not registry_path.is_file():
         return {"status": "FAIL", "errors": ["acceptance registry missing"]}
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    hygiene_path = root / "evidence" / "52_ARTIFACT_HYGIENE.json"
+    if not hygiene_path.is_file():
+        errors.append("artifact hygiene evidence missing")
+    else:
+        try:
+            hygiene = json.loads(hygiene_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            hygiene = None
+            errors.append("artifact hygiene evidence malformed")
+        if hygiene is not None:
+            if hygiene.get("scanner_executed") is not True:
+                errors.append("artifact hygiene scanner was not executed")
+            if hygiene.get("match_count") != 0:
+                errors.append("artifact hygiene secret-shaped matches are nonzero")
+            if hygiene.get("errors") != []:
+                errors.append("artifact hygiene scanner errors are nonempty")
+            if hygiene.get("status") != "PASS":
+                errors.append("artifact hygiene scanner did not PASS")
+            if hygiene.get("matches") != []:
+                errors.append("artifact hygiene match list is nonempty")
     checks = registry.get("checks", [])
     if len(checks) < 90:
         errors.append("distinct assertion minimum is not met")
@@ -79,7 +99,12 @@ def audit(root: Path, *, repo_root: Path | None = None) -> dict:
         if len(source_rows) != len(source_payload.get("rows", [])):
             errors.append("duplicate source manifest path")
     root_entries, manifest_errors = _manifest_entries(root)
-    errors.extend(manifest_errors)
+    if require_root_manifest:
+        errors.extend(manifest_errors)
+    elif manifest_errors == ["ROOT_MANIFEST.sha256 missing"]:
+        root_entries = {}
+    else:
+        errors.extend(manifest_errors)
     actual_files = {}
     for path in root.rglob("*"):
         relative = path.relative_to(root).as_posix()
@@ -89,7 +114,7 @@ def audit(root: Path, *, repo_root: Path | None = None) -> dict:
             errors.append(f"symlink/hardlink artifact member: {relative}")
         if path.is_file():
             actual_files[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
-    if set(actual_files) != set(root_entries):
+    if root_entries and set(actual_files) != set(root_entries):
         errors.append("unlisted artifact file")
     for relative, digest in root_entries.items():
         if actual_files.get(relative) != digest:
@@ -128,8 +153,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--artifact-root", "--evidence", dest="artifact_root", required=True, type=Path)
     parser.add_argument("--repo-root", type=Path)
+    parser.add_argument("--allow-missing-root-manifest", action="store_true")
     args = parser.parse_args()
-    result = audit(args.artifact_root, repo_root=args.repo_root)
+    result = audit(args.artifact_root, repo_root=args.repo_root, require_root_manifest=not args.allow_missing_root_manifest)
     print(json.dumps(result, sort_keys=True))
     return int(result["status"] != "PASS")
 

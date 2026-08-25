@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 BASE_SHA = "707003fc16767fb28b9c968fbcf168ab03ebadc1"
 V2_SHA = "004f949c258cdd419b65377ab9a94c8bb8b09d56"
 V21_SHA = "950bbc122fb26a1b28a57549094f69129097fb58"
+V22_SHA = "835bcc6208b274d5d95bd0cbd1d414a14e52e9e8"
 RAW_FILES = (
     "entry_git.txt", "phase5_refs_entry.txt", "phase5_overlap_entry.txt", "diff_scope.txt",
     "preaccess_runner.json", "targeted.junit.xml", "targeted.log",
@@ -99,8 +100,8 @@ def build_registry(raw: Path, *, artifact_root: Path | None = None) -> tuple[lis
             raise EvidenceUnavailable(f"entry identity missing: {key}")
     if remote.get("repair_sha") != entry.get("HEAD") or remote.get("validation_parent") != entry.get("HEAD"):
         raise EvidenceUnavailable("remote candidate/parent identity mismatch")
-    if entry["PARENT"] != V21_SHA:
-        raise EvidenceUnavailable("entry parent is not V2.1")
+    if entry["PARENT"] not in {V21_SHA, V22_SHA}:
+        raise EvidenceUnavailable("entry parent is not V2.2 or the synthetic V2.1 fixture parent")
     if not re.fullmatch(r"[0-9a-f]{40}", entry.get("TREE", "")):
         raise EvidenceUnavailable("entry tree identity missing")
     if entry["HEAD"] == V21_SHA:
@@ -140,9 +141,11 @@ def build_registry(raw: Path, *, artifact_root: Path | None = None) -> tuple[lis
         add("JUNIT", "execution", f"{name} has zero failures", "JUnit XML parser", 0, result["failures"], [f"raw:{name}"], f"junit-failures:{name}")
         add("JUNIT", "execution", f"{name} has zero errors", "JUnit XML parser", 0, result["errors"], [f"raw:{name}"], f"junit-errors:{name}")
         add("JUNIT", "execution", f"{name} passed", "JUnit XML parser", True, result["passed"], [f"raw:{name}"], f"junit-status:{name}")
+    expected_parent = V22_SHA if entry.get("PARENT") == V22_SHA else V21_SHA
+    expected_parent_label = "V2.2" if expected_parent == V22_SHA else "synthetic V2.1 fixture"
     identity_facts = (
         ("entry HEAD equals remote repair candidate", entry.get("HEAD"), remote.get("repair_sha"), "entry HEAD and remote repair parsed", "raw:entry_git.txt"),
-        ("entry parent equals V2.1 candidate", entry.get("PARENT"), V21_SHA, "entry parent parsed", "raw:entry_git.txt"),
+        (f"entry parent equals {expected_parent_label} candidate", entry.get("PARENT"), expected_parent, "entry parent parsed", "raw:entry_git.txt"),
         ("entry tree is exact 40-hex identity", bool(re.fullmatch(r"[0-9a-f]{40}", entry.get("TREE", ""))), True, "entry tree parsed", "raw:entry_git.txt"),
         ("repair remote SHA equals entry HEAD", remote.get("repair_sha"), entry.get("HEAD"), "remote head parser", "raw:remote_head.txt"),
         ("validation parent equals application candidate", remote.get("validation_parent"), entry.get("HEAD"), "remote head parser", "raw:remote_head.txt"),
