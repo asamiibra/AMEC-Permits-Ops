@@ -45,22 +45,89 @@ REQUIREMENT_GROUPS = {
 }
 
 
-def run(output_path: Path | None = None) -> dict:
+_CATEGORY_PRODUCERS = {
+    "IDENTITY": ("entry-identity", "input-identity"),
+    "L0": ("classifier-calibration",), "L1": ("classifier-validation",),
+    "L2": ("classifier-calibration",), "L3": ("classifier-validation",),
+    "L4": ("classifier-holdout",), "L5": ("classifier-cross-context",),
+    "LINEAGE": ("input-identity",), "REVIEW": ("shadow-replay", "sqlserver-targeted"),
+    "PROMOTION": ("shadow-replay", "authority-denial"), "CORRECTION": ("shadow-replay",),
+    "BOUNDARY": ("shadow-replay", "security-hygiene"), "SQLSERVER": ("sqlserver-bootstrap", "sqlserver-targeted"),
+    "FRONTEND": ("browser-quality",), "PERSONA": ("authority-denial", "browser-quality"),
+    "BROWSER_NEW": ("browser-required-paths",), "BROWSER_AMBIGUOUS": ("browser-required-paths",),
+    "BROWSER_OOS": ("browser-required-paths",), "BROWSER_SECRET": ("browser-required-paths",),
+    "BROWSER_MODIFIED": ("browser-required-paths",), "BROWSER_MOVE": ("browser-required-paths",),
+    "BROWSER_MISSING": ("browser-required-paths",), "BROWSER_CORRECTION": ("browser-required-paths",),
+    "BROWSER_PROTECTED": ("browser-required-paths",), "DRIFT": ("classifier-validation",),
+    "FREEZE": ("freeze-reproducibility",), "FINALIZER": ("freeze-reproducibility",),
+    "EVIDENCE": ("input-identity",), "REGRESSION": ("backend-targeted", "backend-full", "frontend-full", "frontend-build"),
+    "HYGIENE": ("source-preflight", "security-hygiene"),
+}
+
+
+def _producer_state(evidence_dir: Path | None, producer_id: str, dry_run: bool) -> tuple[str, str]:
+    if dry_run or evidence_dir is None:
+        return "NOT_EXECUTED", f"evidence://{producer_id}/not-executed"
+    contract = EVIDENCE_PRODUCERS[producer_id]
+    result_path = evidence_dir / contract["result_name"]
+    meta_path = evidence_dir / contract["meta_name"]
+    raw_path = evidence_dir / contract["raw_log_name"]
+    if not result_path.is_file() or not meta_path.is_file() or not raw_path.is_file():
+        return "FAIL", f"evidence://{producer_id}/missing"
+    try:
+        payload = json.loads(result_path.read_text(encoding="utf-8"))
+        metadata = json.loads(meta_path.read_text(encoding="utf-8"))
+        state = str(payload.get("result", "FAIL"))
+        if metadata.get("exit_code") != 0:
+            state = "FAIL"
+        return state, result_path.as_posix()
+    except (OSError, json.JSONDecodeError):
+        return "FAIL", result_path.as_posix()
+
+
+def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_run: bool | None = None) -> dict:
+    dry_run = evidence_dir is None if dry_run is None else dry_run
     checks = []
     number = 1
     for category, assertions in REQUIREMENT_GROUPS.items():
+        producers = _CATEGORY_PRODUCERS[category]
         for assertion in assertions:
-            producer_id = (list(EVIDENCE_PRODUCERS)[number % len(EVIDENCE_PRODUCERS)])
-            evidence_path = "scripts/phase5/acceptance.py"
-            checks.append({"check_id": f"P5-ACC-{number:03d}", "requirement_id": f"P5-{category}-{number:03d}", "category": category, "assertion": assertion, "method": "deterministic fixture, source inspection, or native SQL Server/browser proof", "evidence": [evidence_path], "evidence_ids": [producer_id], "basis_refs": ["AMEC_PHASE5_INPUT_IDENTITY_MANIFEST_v1", "AMEC_CLASSIFIER_V2_FREEZE_MANIFEST_v1"], "result": "PASS"})
+            states = [_producer_state(evidence_dir, producer, dry_run) for producer in producers]
+            state = "PASS" if all(item[0] == "PASS" for item in states) else ("NOT_EXECUTED" if any(item[0] == "NOT_EXECUTED" for item in states) else "FAIL")
+            checks.append({
+                "check_id": f"P5-ACC-{number:03d}", "requirement_id": f"P5-{category}-{number:03d}",
+                "category": category, "assertion": assertion,
+                "method": "producer evidence parsed from deterministic or runtime execution",
+                "evidence": [item[1] for item in states], "evidence_ids": list(producers),
+                "basis_refs": ["AMEC_PHASE5_INPUT_IDENTITY_MANIFEST_v1", "AMEC_CLASSIFIER_V2_FREEZE_MANIFEST_v1"],
+                "result": state,
+            })
             number += 1
     fingerprints = {(c["requirement_id"], c["category"], c["assertion"].strip().lower(), c["method"], tuple(sorted(c["evidence_ids"]))) for c in checks}
-    result = {"version": 1, "result": "PASS", "primary_check_count": len(checks), "primary_check_pass_count": len(checks), "primary_check_fail_count": 0, "missing_check_id_count": 0, "duplicate_check_id_count": 0, "duplicate_assertion_count": len(checks) - len(fingerprints), "unknown_evidence_id_count": 0, "unresolved_evidence_reference_count": 0, "checks": checks, "synthetic_only": True, "real_data_used": False, "llm_external_call_count": 0}
+    passed = sum(check["result"] == "PASS" for check in checks)
+    failed = sum(check["result"] == "FAIL" for check in checks)
+    not_executed = sum(check["result"] == "NOT_EXECUTED" for check in checks)
+    result = {
+        "version": 2, "result": "PASS" if not dry_run and passed == len(checks) else ("DRY_RUN" if dry_run else "FAIL"),
+        "primary_check_count": len(checks), "primary_check_pass_count": passed,
+        "primary_check_fail_count": failed, "primary_check_not_executed_count": not_executed,
+        "missing_check_id_count": 0, "duplicate_check_id_count": len(checks) - len({c["check_id"] for c in checks}),
+        "duplicate_assertion_count": len(checks) - len(fingerprints), "unknown_evidence_id_count": 0,
+        "unresolved_evidence_reference_count": 0, "checks": checks, "dry_run": dry_run,
+        "false_accept": dry_run or failed > 0 or not_executed > 0, "synthetic_only": True,
+        "real_data_used": False, "llm_external_call_count": 0,
+    }
     write_json(output_path or (PHASE5_ARTIFACTS / "acceptance-result.json"), result)
     return result
 
 
 if __name__ == "__main__":
-    output = run()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--evidence-dir", type=Path)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+    output = run(args.output, args.evidence_dir, args.dry_run or args.evidence_dir is None)
     print(json.dumps({key: output[key] for key in output if key != "checks"}, indent=2, sort_keys=True))
     raise SystemExit(0 if output["result"] == "PASS" and output["primary_check_count"] >= 300 else 1)

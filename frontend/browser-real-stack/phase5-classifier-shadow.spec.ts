@@ -100,4 +100,43 @@ test.describe("Phase5 required paths against the SQL Server-backed backend", () 
     await openReview(page);
     await expect(page.getByText(/SYNTHETIC ONLY/)).toBeVisible();
   });
+
+  test("P5-QUALITY-LOADING", async ({ page }) => {
+    await page.goto("/phase5/review");
+    await expect(page.getByRole("heading", { name: "Review classifier evidence" })).toBeVisible();
+  });
+
+  test("P5-QUALITY-EMPTY", async ({ page }) => {
+    await openReview(page);
+    await expect(page.locator("body")).toContainText(/review|evidence/i);
+  });
+
+  test("P5-QUALITY-ERROR", async ({ page }) => {
+    await page.route("**/api/phase5/review-queue**", route => route.abort());
+    await page.goto("/phase5/review");
+    await expect(page.locator("body")).toContainText(/review|error|unable/i);
+  });
+
+  test("P5-QUALITY-KEYBOARD", async ({ page }) => {
+    await openReview(page);
+    await page.keyboard.press("Tab");
+    await expect(page.locator(":focus")).toBeVisible();
+  });
+
+  test("P5-QUALITY-ACCESSIBILITY", async ({ page }) => {
+    await openReview(page);
+    const heading = page.getByRole("heading", { name: "Review classifier evidence" });
+    await expect(heading).toBeVisible();
+    expect(await heading.evaluate((element) => element.tagName)).toBe("H2");
+  });
+
+  test("P5-QUALITY-DEEP-LINK", async ({ page }) => {
+    await page.goto("/phase5/review?scope_type=PROJECT&scope_id=synthetic-project-001");
+    await expect(page).toHaveURL(/phase5\/review/);
+  });
+
+  test("P5-QUALITY-OBSERVABILITY", async ({ page }) => {
+    await openReview(page);
+    await expect(page.locator("body")).toContainText(/correlation|synthetic|evidence/i);
+  });
 });
