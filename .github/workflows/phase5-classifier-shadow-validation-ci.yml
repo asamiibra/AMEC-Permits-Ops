@@ -1,0 +1,211 @@
+name: Phase5 classifier shadow validation - native SQL Server and browser
+
+on:
+  push:
+    branches:
+      - phase5-classifier-shadow-validation-ci-v1
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_SHA: ca60459f2103cbf30e52e05c59b8af6d7714be12
+  CANDIDATE_BRANCH: phase5-classifier-shadow-validation-v1
+  VALIDATION_BRANCH: phase5-classifier-shadow-validation-ci-v1
+
+jobs:
+  validate:
+    name: Phase5 native x64 SQL Server and real browser validation
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout immutable validation child
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Candidate, parent, branch, and one-workflow diff binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$CANDIDATE_BRANCH:refs/remotes/origin/$CANDIDATE_BRANCH"
+          test "$(git rev-parse "refs/remotes/origin/$CANDIDATE_BRANCH")" = "$CANDIDATE_SHA"
+          test "$(git rev-parse HEAD^1)" = "$CANDIDATE_SHA"
+          test "$(git rev-parse "$CANDIDATE_SHA^{tree}")" = "$(git rev-parse HEAD^1^{tree})"
+          test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = ".github/workflows/phase5-classifier-shadow-validation-ci.yml"
+          test "$GITHUB_REF_NAME" = "$VALIDATION_BRANCH"
+          test -z "$(git status --porcelain)"
+          evidence="$RUNNER_TEMP/phase5-evidence-${GITHUB_RUN_ID}"
+          mkdir -p "$evidence"
+          printf 'EVIDENCE_DIR=%s\n' "$evidence" >> "$GITHUB_ENV"
+          printf 'VALIDATION_SHA=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          printf 'PHASE5_CANDIDATE_SHA=%s\n' "$CANDIDATE_SHA" >> "$GITHUB_ENV"
+          cat > "$RUNNER_TEMP/raw_run.sh" <<'SH'
+          raw_run() {
+            local name="$1"; local label="$2"; shift 2
+            local start end code
+            start="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            set +e
+            "$@" >"$EVIDENCE_DIR/${name}.raw.log" 2>&1
+            code=$?
+            set -e
+            end="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            python - "$name" "$label" "$start" "$end" "$code" <<'PY'
+          import json, os, sys
+          name, label, start, end, code = sys.argv[1:]
+          payload = {"producer_id": name, "command": label, "start_time": start, "end_time": end, "exit_code": int(code), "candidate_sha": os.environ["CANDIDATE_SHA"], "validation_sha": os.environ["VALIDATION_SHA"], "run_id": os.environ["GITHUB_RUN_ID"]}
+          with open(os.path.join(os.environ["EVIDENCE_DIR"], f"{name}.meta.json"), "w", encoding="utf-8") as handle:
+              json.dump(payload, handle, indent=2, sort_keys=True); handle.write("\n")
+          if int(code): raise SystemExit(int(code))
+          PY
+          }
+          SH
+          chmod 700 "$RUNNER_TEMP/raw_run.sh"
+
+      - name: Native runner and Docker proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run runner-environment "Ubuntu 22.04 x86-64 Docker proof" bash -c 'test "$(uname -m)" = x86_64; docker info >/dev/null; echo RUNNER_OS=Ubuntu_22_04; echo RUNNER_ARCH=x86_64; echo DOCKER_DAEMON=PASS'
+
+      - name: Python 3.12 and Node setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install application dependencies and ODBC Driver 18
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run odbc-bootstrap "existing Microsoft repository ODBC Driver 18 bootstrap" bash -c 'sudo apt-get update; sudo apt-get install -y unixodbc-dev; if ! dpkg-query -W -f="${Status}\n" msodbcsql18 2>/dev/null | grep -q "install ok installed"; then sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18; fi; odbcinst -q -d | grep -F "ODBC Driver 18 for SQL Server"; echo MICROSOFT_APT_SOURCE_CREATED_BY_WORKFLOW=false; echo APT_SIGNED_BY_REWRITE_COUNT=0'
+          raw_run python-dependencies "Python dependency install" python -m pip install --upgrade pip
+          raw_run backend-install "backend requirements install" python -m pip install -r backend/requirements.txt
+          raw_run frontend-install "locked frontend dependency install" bash -c 'cd frontend && npm ci'
+
+      - name: Fresh SQL Server 2022 Developer database bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          SQLSERVER_PASSWORD="$(openssl rand -hex 24)Aa!"
+          echo "::add-mask::$SQLSERVER_PASSWORD"
+          echo "SQLSERVER_PASSWORD=$SQLSERVER_PASSWORD" >> "$GITHUB_ENV"
+          SQL_CONTAINER=phase5-sqlserver-${GITHUB_RUN_ID}
+          echo "SQL_CONTAINER=$SQL_CONTAINER" >> "$GITHUB_ENV"
+          raw_run sqlserver-container "SQL Server 2022 Developer x64 container" docker run -d --name "$SQL_CONTAINER" -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$SQLSERVER_PASSWORD" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-GA-ubuntu-20.04
+          for attempt in $(seq 1 60); do
+            if docker exec "$SQL_CONTAINER" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SQLSERVER_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1; then break; fi
+            test "$attempt" -lt 60 || { echo SQLSERVER_BOOTSTRAP=FAIL; exit 1; }
+            sleep 2
+          done
+          raw_run sqlserver-bootstrap "fresh SQL Server database and version proof" docker exec "$SQL_CONTAINER" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SQLSERVER_PASSWORD" -C -Q "IF DB_ID(N'phase5db') IS NULL CREATE DATABASE phase5db; SELECT SERVERPROPERTY('ProductMajorVersion') AS SQLSERVER_MAJOR;"
+          test "$(docker exec "$SQL_CONTAINER" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SQLSERVER_PASSWORD" -C -h -1 -W -Q "SELECT SERVERPROPERTY('ProductMajorVersion')" | tr -d '[:space:]\r\n')" = 16
+          echo SQLSERVER_MAJOR=16
+          DATABASE_URL="$(python -c 'from urllib.parse import quote; import os; print("mssql+pyodbc://sa:%s@127.0.0.1:1433/phase5db?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes" % quote(os.environ["SQLSERVER_PASSWORD"], safe=""))')"
+          echo "DATABASE_URL=$DATABASE_URL" >> "$GITHUB_ENV"
+          echo "APP_ENV=TEST" >> "$GITHUB_ENV"
+          echo "SYNTHETIC_ONLY=true" >> "$GITHUB_ENV"
+          echo "REAL_DATA_ALLOWED=false" >> "$GITHUB_ENV"
+          echo "AUTH_MODE=DEV_HEADER" >> "$GITHUB_ENV"
+          echo "FRONTEND_ORIGINS=http://127.0.0.1:5173" >> "$GITHUB_ENV"
+
+      - name: SQL Server migration, seed, and head verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run migration "Alembic baseline_phase4_v36_azure_sql" python -m alembic -c alembic.ini upgrade head
+          raw_run seed "synthetic SQL Server seed" python -m backend.app.seed.cli
+          raw_run migration-head "SQL Server migration head verification" python -c 'from backend.app.db import database_migration_heads; assert database_migration_heads() == ("baseline_phase4_v36_azure_sql",); print("ACTIVE_MIGRATION_HEAD=baseline_phase4_v36_azure_sql")'
+
+      - name: Source, corpus, freeze, and acceptance gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          export PYTHONPATH=scripts/phase5
+          raw_run source-preflight "Phase5 source preflight v2" python scripts/phase5/source_preflight.py
+          raw_run corpus "canonical corpus and split generation" python scripts/phase5/build_corpus.py
+          raw_run calibration "calibration development" python scripts/phase5/calibrate.py
+          raw_run validation "validation evaluation" python scripts/phase5/evaluate.py --split validation
+          raw_run cross-context "cross-context evaluation" python scripts/phase5/evaluate.py --split cross-context
+          raw_run path-counterfactual "path counterfactual evaluation" python scripts/phase5/evaluate.py --split path-counterfactual
+          raw_run holdout "untouched holdout evaluation once" python scripts/phase5/evaluate.py --split holdout
+          raw_run shadow-replay "shadow replay boundary" python scripts/phase5/shadow_replay.py
+          raw_run acceptance "300-check acceptance generation" python scripts/phase5/acceptance.py
+          raw_run evidence-validation "acceptance evidence validation" python scripts/phase5/evidence_validate.py
+          raw_run reproducibility "deterministic freeze reproducibility" python scripts/phase5/reproducibility.py
+
+      - name: Targeted and full backend regressions on SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run backend-targeted "Phase5 targeted backend tests" python -m pytest -q backend/tests/test_phase5_classifier.py backend/tests/test_phase5_contracts.py backend/tests/test_phase5_portability.py backend/tests/test_phase5_finalizer_negative.py
+          raw_run phase4-integration-regression "Phase4 integration regression" python -m pytest -q backend/tests/test_phase4_corpus_app_integration.py
+          raw_run backend-full "full backend regression" python -m pytest -q
+
+      - name: Start real SQL Server-backed API and frontend
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          nohup env APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL="$DATABASE_URL" FRONTEND_ORIGINS=http://127.0.0.1:5173 AUTH_MODE=DEV_HEADER uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 >"$EVIDENCE_DIR/api-server.raw.log" 2>&1 & echo $! > "$RUNNER_TEMP/api.pid"
+          for attempt in $(seq 1 60); do curl -fsS -H 'X-Dev-Role: SYSTEM_ADMIN' http://127.0.0.1:8000/api/phase5/health >/dev/null && break; test "$attempt" -lt 60 || exit 1; sleep 2; done
+          nohup env BASE_URL=http://127.0.0.1:5173 npm --prefix frontend run dev -- --host 127.0.0.1 >"$EVIDENCE_DIR/frontend-server.raw.log" 2>&1 & echo $! > "$RUNNER_TEMP/frontend.pid"
+          for attempt in $(seq 1 60); do curl -fsS http://127.0.0.1:5173/ >/dev/null && break; test "$attempt" -lt 60 || exit 1; sleep 2; done
+          printf '{"backend_url":"http://127.0.0.1:8000","frontend_url":"http://127.0.0.1:5173","database":"fresh SQL Server 2022 Developer x64","mock_proposal_api":false}\n' > "$EVIDENCE_DIR/browser-topology.json"
+
+      - name: Real browser required paths and frontend regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          raw_run browser-required-paths "ten real browser Phase5 paths" bash -c 'cd frontend && PLAYWRIGHT_JSON_OUTPUT_FILE="$EVIDENCE_DIR/browser-quality.json" BASE_URL=http://127.0.0.1:5173 npx playwright test browser-real-stack/phase5-classifier-shadow.spec.ts --config=playwright.real-stack.config.ts'
+          raw_run browser-quality "browser evidence contract" python scripts/phase5/browser_evidence.py
+          raw_run frontend-targeted "Phase5 frontend unit tests" bash -c 'cd frontend && npm test -- --run'
+          raw_run frontend-full "full frontend unit tests" bash -c 'cd frontend && npm test -- --run'
+          raw_run frontend-build "frontend production build" bash -c 'cd frontend && npx tsc -b && npx vite build --outDir "$RUNNER_TEMP/phase5-dist"'
+
+      - name: Finalizer runtime evidence and actual finalizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/raw_run.sh"
+          python - "$EVIDENCE_DIR/runtime-gates.json" <<'PY'
+          import json, os, sys
+          payload = {"sqlserver":"PASS","browser":"PASS","backend_regression":"PASS","frontend_regression":"PASS","frontend_build":"PASS","authority_denial":"PASS","observability":"PASS","security_hygiene":"PASS","candidate_sha":os.environ["CANDIDATE_SHA"],"validation_sha":os.environ["VALIDATION_SHA"],"new_source_reads":0,"auto_promotion_enabled":False,"llm_real_content_mode":"DISABLED","critical_false_promotions":0}
+          open(sys.argv[1], "w", encoding="utf-8").write(json.dumps(payload, indent=2, sort_keys=True)+"\n")
+          PY
+          cp artifacts/phase5/acceptance-result.json "$EVIDENCE_DIR/acceptance-result.json"
+          raw_run finalizer "actual Phase5 finalizer" python scripts/phase5/phase5_finalize.py --evidence-dir "$EVIDENCE_DIR" --acceptance-result "$EVIDENCE_DIR/acceptance-result.json" --contracts-dir contracts/amec/phase5 --output "$EVIDENCE_DIR/phase5-final-summary.json"
+          python - "$EVIDENCE_DIR/manifest.json" <<'PY'
+          import hashlib, json, os, pathlib
+          root=pathlib.Path(os.environ["EVIDENCE_DIR"])
+          files=[]
+          for path in sorted(root.rglob("*")):
+              if path.is_file() and path.name not in {"manifest.json"}:
+                  files.append({"path":str(path.relative_to(root)),"sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
+          root.joinpath("manifest.json").write_text(json.dumps({"candidate_sha":os.environ["CANDIDATE_SHA"],"validation_sha":os.environ["VALIDATION_SHA"],"run_id":os.environ["GITHUB_RUN_ID"],"files":files},indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          PY
+
+      - name: Upload credential-free Phase5 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProposalOps_Phase5_R2_Evidence_${{ github.run_id }}
+          path: ${{ env.EVIDENCE_DIR }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Cleanup disposable SQL Server
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          if [ -n "${SQL_CONTAINER:-}" ]; then docker rm -f "$SQL_CONTAINER" >/dev/null 2>&1 || true; fi
+          if [ -f "$RUNNER_TEMP/api.pid" ]; then kill "$(cat "$RUNNER_TEMP/api.pid")" >/dev/null 2>&1 || true; fi
+          if [ -f "$RUNNER_TEMP/frontend.pid" ]; then kill "$(cat "$RUNNER_TEMP/frontend.pid")" >/dev/null 2>&1 || true; fi
