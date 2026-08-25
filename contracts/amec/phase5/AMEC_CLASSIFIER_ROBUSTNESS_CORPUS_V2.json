@@ -1,0 +1,144 @@
+{
+  "cases": [
+    {
+      "case_id": "P5-GOLD-NEW-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-NEW-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-NEW-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "NEW_UNKNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-GOLD-AMBIG-001",
+      "contradiction_families": [
+        "DISCIPLINE_CONFLICT"
+      ],
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-AMBIG-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-AMBIG-001/02"
+      ],
+      "expected": "NEEDS_REVIEW",
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-GOLD-OOS-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-OOS-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-OOS-001/02"
+      ],
+      "expected": "OUT_OF_SCOPE",
+      "out_of_scope": true,
+      "source_mode": "NEW_UNKNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-GOLD-SECRET-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-SECRET-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-SECRET-001/02"
+      ],
+      "expected": "SECRET_EXCLUDE",
+      "secret_exclude": true,
+      "source_mode": "NEW_UNKNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-VAL-MODIFIED-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-MODIFIED-001/01",
+        "synthetic-evidence://phase5/P5-VAL-MODIFIED-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "MODIFIED_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "candidate_entity_id": "synthetic-project-001",
+      "case_id": "P5-VAL-MOVE-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-MOVE-001/01",
+        "synthetic-evidence://phase5/P5-VAL-MOVE-001/02"
+      ],
+      "expected": "RELATIONSHIP_REVIEW",
+      "source_mode": "MOVE_RENAME_CANDIDATE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-VAL-MISSING-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-MISSING-001/01",
+        "synthetic-evidence://phase5/P5-VAL-MISSING-001/02"
+      ],
+      "expected": "MISSING_CANDIDATE",
+      "missing_candidate": true,
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-VAL-FINANCE-001",
+      "document_type_hint": "FINANCE",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-FINANCE-001/01",
+        "synthetic-evidence://phase5/P5-VAL-FINANCE-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-HOLDOUT-UNTOUCHED-001",
+      "document_type_hint": "MASTER_CONTENT",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-001/01",
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-HOLDOUT-UNTOUCHED-002",
+      "contradiction_families": [
+        "CURRENTNESS_CONFLICT"
+      ],
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-002/01",
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-002/02"
+      ],
+      "expected": "NEEDS_REVIEW",
+      "source_mode": "MODIFIED_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-ADV-CONFLICT-001",
+      "contradiction_families": [
+        "CURRENTNESS_CONFLICT",
+        "RELATIONSHIP_CONFLICT"
+      ],
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-ADV-CONFLICT-001/01",
+        "synthetic-evidence://phase5/P5-ADV-CONFLICT-001/02"
+      ],
+      "expected": "NEEDS_REVIEW",
+      "source_mode": "MODIFIED_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-ADV-SECRET-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-ADV-SECRET-001/01",
+        "synthetic-evidence://phase5/P5-ADV-SECRET-001/02"
+      ],
+      "expected": "SECRET_EXCLUDE",
+      "secret_exclude": true,
+      "source_mode": "MOVE_RENAME_CANDIDATE",
+      "synthetic_only": true
+    }
+  ],
+  "content_mode": "METADATA_ONLY",
+  "corpus_id": "AMEC_CLASSIFIER_ROBUSTNESS_CORPUS_V2",
+  "version": 2
+}

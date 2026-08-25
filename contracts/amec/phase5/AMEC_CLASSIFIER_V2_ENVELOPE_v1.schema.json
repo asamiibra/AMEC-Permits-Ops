@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "AMEC_CLASSIFIER_V2_ENVELOPE_v1",
+  "type": "object",
+  "required": ["classifier_version", "rules_version", "taxonomy_revision", "source_mode", "l0_prior_state", "scope", "classification_proposal", "hard_gate", "bounded_evidence", "rule_evaluations", "executed_layers", "review_required", "auto_promotion_allowed", "projection_allowed", "correlation_id"],
+  "properties": {
+    "classifier_version": {"type": "string"},
+    "rules_version": {"type": "string"},
+    "taxonomy_revision": {"type": "string"},
+    "source_mode": {"enum": ["EXISTING_KNOWN_SOURCE", "NEW_UNKNOWN_SOURCE", "MODIFIED_KNOWN_SOURCE", "MOVE_RENAME_CANDIDATE"]},
+    "l0_prior_state": {"type": "string"},
+    "scope": {"type": "object", "required": ["value", "scope_type", "scope_id"]},
+    "classification_proposal": {"type": "object"},
+    "hard_gate": {"type": "object", "required": ["state", "deeper_processing", "llm_allowed", "projection_allowed"]},
+    "bounded_evidence": {"type": "array", "items": {"type": "object", "required": ["evidence_id", "content_state"]}},
+    "rule_evaluations": {"type": "array", "items": {"type": "object", "required": ["rule_id", "rule_version", "axis", "evidence_ids", "result", "reason"]}},
+    "review_required": {"const": true},
+    "auto_promotion_allowed": {"const": false},
+    "projection_allowed": {"const": false},
+    "correlation_id": {"type": "string"}
+  },
+  "additionalProperties": true
+}

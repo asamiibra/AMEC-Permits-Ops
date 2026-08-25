@@ -63,6 +63,7 @@ import { readDemoRole } from "./rebrand";
 import { CurrentDashboard } from "./Dashboard";
 import { DashboardInputsPage } from "./DashboardInputs";
 import { Phase4ReviewPage } from "./Phase4Review";
+import { Phase5ReviewPage } from "./Phase5Review";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
@@ -80,6 +81,7 @@ import "./handover.css";
 import "./home-command-center.css";
 import "./home-command-center-accessibility.css";
 import "./phase4-review.css";
+import "./phase5-review.css";
 
 type Decision = {
   id: string;
@@ -110,6 +112,7 @@ type BusinessNavItem = {
 const businessNav: BusinessNavItem[] = [
   { id: "home", page: "home", label: "Home", icon: "dashboard", path: "/home", group: "HOME" },
   { id: "phase4-review", page: "phase4-review", label: "Evidence Review", icon: "check", path: "/phase4/review", group: "HOME" },
+  { id: "phase5-review", page: "phase5-review", label: "Classifier Review", icon: "check", path: "/phase5/review", group: "HOME" },
   { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
   { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
   { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
@@ -163,6 +166,7 @@ const pageFromPath = () => {
   const path = window.location.pathname;
   if (path === "/" || path === "/home") return "home";
   if (path === "/phase4/review") return "phase4-review";
+  if (path === "/phase5/review") return "phase5-review";
   if (path === "/dashboard") return "dashboard";
   if (path === "/dashboard-v2") return "dashboard";
   if (path === "/content-library" || path === "/library" || path === "/master-content") return "dashboard";
@@ -351,6 +355,8 @@ function App() {
             ? "/contract-mobilization"
           : nextPage === "phase4-review"
             ? "/phase4/review"
+          : nextPage === "phase5-review"
+            ? "/phase5/review"
           : nextPage === "about"
             ? "/operating-guide"
             : nextPage === "administration"
@@ -409,6 +415,7 @@ function App() {
       return [
         "home",
         "phase4-review",
+        "phase5-review",
         "intake-opportunity",
         "contract-mobilization",
         "regulatory-submissions",
@@ -418,13 +425,14 @@ function App() {
       return [
         "home",
         "phase4-review",
+        "phase5-review",
         "design-delivery",
         "regulatory-submissions",
         "construction-post-approval",
         "completion-as-built",
         "handover-closeout",
       ].includes(item.id);
-    return ["home", "phase4-review", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
+    return ["home", "phase4-review", "phase5-review", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
   });
   const title =
     page === "permit-workspace" && selected
@@ -583,6 +591,7 @@ function App() {
           {page === "dashboard" && <CurrentDashboard role={role} />}{" "}
           {page === "home" && <HomeCommandCenter role={role} />}{" "}
           {page === "phase4-review" && <Phase4ReviewPage role={role} />}
+          {page === "phase5-review" && <Phase5ReviewPage role={role} />}
           {page === "my-work" && (
             <MyWorkPage
               projects={projects}

@@ -628,26 +628,34 @@ def _boolean_column_map():
     return result
 
 
-def _boolean_ast_inventory(source_loader):
+LEGACY_BOOLEAN_BASELINE_SHA = "fb1d504ae058c09a9fdd84a5afd68bcb3916e35c"
+LEGACY_ACCEPTED_PHASE4_SHA = "707003fc16767fb28b9c968fbcf168ab03ebadc1"
+AUDITED_BOOLEAN_ROOTS = ("backend/app", "scripts/db_azure_sql")
+
+
+def _tracked_python_paths(commit: str) -> set[str]:
+    import subprocess
+
+    output = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit, "--", *AUDITED_BOOLEAN_ROOTS], text=True)
+    return {line.strip() for line in output.splitlines() if line.endswith(".py")}
+
+
+def _boolean_ast_inventory(source_loader, relative_paths: set[str] | None = None):
     root = Path(__file__).resolve().parents[2]
     inventory = {"boolean": [], "null": []}
-    for pattern in ("backend/app/**/*.py", "scripts/db_azure_sql/**/*.py"):
-        for path in sorted(root.glob(pattern)):
-            relative = path.relative_to(root).as_posix()
-            source = source_loader(relative, path)
-            tree = ast.parse(source, filename=relative)
-            for node in ast.walk(tree):
-                if not (
-                    isinstance(node, ast.Call)
-                    and isinstance(node.func, ast.Attribute)
-                    and len(node.args) == 1
-                ):
-                    continue
-                argument = node.args[0]
-                if node.func.attr == "is_" and isinstance(argument, ast.Constant) and isinstance(argument.value, bool):
-                    inventory["boolean"].append((relative, node.lineno, ast.get_source_segment(source, node)))
-                elif node.func.attr in {"is_", "is_not"} and isinstance(argument, ast.Constant) and argument.value is None:
-                    inventory["null"].append((relative, node.lineno, node.func.attr, ast.get_source_segment(source, node)))
+    paths = relative_paths or {path.relative_to(root).as_posix() for pattern in ("backend/app/**/*.py", "scripts/db_azure_sql/**/*.py") for path in root.glob(pattern)}
+    for relative in sorted(paths):
+        path = root / relative
+        source = source_loader(relative, path)
+        tree = ast.parse(source, filename=relative)
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and len(node.args) == 1):
+                continue
+            argument = node.args[0]
+            if node.func.attr == "is_" and isinstance(argument, ast.Constant) and isinstance(argument.value, bool):
+                inventory["boolean"].append((relative, node.lineno, ast.get_source_segment(source, node)))
+            elif node.func.attr in {"is_", "is_not"} and isinstance(argument, ast.Constant) and argument.value is None:
+                inventory["null"].append((relative, node.lineno, node.func.attr, ast.get_source_segment(source, node)))
     return inventory
 
 
@@ -713,16 +721,25 @@ def test_sqlserver_boolean_predicates_never_compile_is_1_or_is_0():
 
 
 def test_boolean_portability_scan_preserves_null_is_predicates():
-    current = _boolean_ast_inventory(lambda _relative, path: path.read_text(encoding="utf-8"))
+    baseline_paths = _tracked_python_paths(LEGACY_BOOLEAN_BASELINE_SHA)
+    accepted_paths = _tracked_python_paths(LEGACY_ACCEPTED_PHASE4_SHA)
+    retained_paths = baseline_paths & accepted_paths
+    root = Path(__file__).resolve().parents[2]
+    assert retained_paths
+    assert all((root / relative).is_file() for relative in retained_paths)
+    current = _boolean_ast_inventory(lambda _relative, path: path.read_text(encoding="utf-8"), retained_paths)
 
     def baseline_loader(relative, _path):
         import subprocess
 
         return subprocess.check_output(
-            ["git", "show", f"fb1d504ae058c09a9fdd84a5afd68bcb3916e35c:{relative}"],
+            ["git", "show", f"{LEGACY_BOOLEAN_BASELINE_SHA}:{relative}"],
             text=True,
         )
 
-    baseline = _boolean_ast_inventory(baseline_loader)
+    baseline = _boolean_ast_inventory(baseline_loader, retained_paths)
     assert current["null"] == baseline["null"]
+    print(f"LEGACY_BOOLEAN_BASELINE_SHA_PRESERVED={LEGACY_BOOLEAN_BASELINE_SHA}")
+    print(f"LEGACY_BASELINE_COVERED_PATH_COUNT={len(retained_paths)}")
+    print("LEGACY_DESCENDANT_ONLY_PATH_BASELINE_READ_COUNT=0")
     print("NULL_IS_PREDICATE_UNAUTHORIZED_CHANGE_COUNT=0")

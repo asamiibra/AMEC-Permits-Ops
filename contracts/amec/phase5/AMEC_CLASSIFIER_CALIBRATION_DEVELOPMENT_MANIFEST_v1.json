@@ -1,0 +1,11 @@
+{
+  "case_ids": [
+    "P5-GOLD-NEW-001",
+    "P5-GOLD-AMBIG-001",
+    "P5-GOLD-OOS-001"
+  ],
+  "frozen": true,
+  "leakage_overlap_count": 0,
+  "split": "CALIBRATION_DEVELOPMENT",
+  "version": 1
+}

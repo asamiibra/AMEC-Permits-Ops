@@ -1,0 +1,16 @@
+{
+  "adversarial_case_ids": [
+    "P5-ADV-CONFLICT-001",
+    "P5-ADV-SECRET-001"
+  ],
+  "evaluated_once": true,
+  "frozen": true,
+  "holdout_case_ids": [
+    "P5-HOLDOUT-UNTOUCHED-001",
+    "P5-HOLDOUT-UNTOUCHED-002"
+  ],
+  "prior_holdout_state": "BURNED_HISTORICAL_DEVELOPMENT_EVIDENCE",
+  "reserve": "UNTOUCHED_SYNTHETIC",
+  "split": "HOLDOUT_ADVERSARIAL",
+  "version": 1
+}

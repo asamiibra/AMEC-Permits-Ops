@@ -1,0 +1,29 @@
+{
+  "active_alembic_revision": "baseline_phase4_v36_azure_sql",
+  "azure_sql_owner_addendum_sha256": "05335b4b535d88155306783e20b94f16e49e3a2b88049d0fa4e270a7e3efbe90",
+  "database_engine_target": "AZURE_SQL_SQL_SERVER_ENGINE",
+  "module_truth_contract_sha256": "d18ebed191b8f2633d5984ff57ab25803fe19beeb9c73999946abffddb974f2c",
+  "phase3c_accepted_sha": "44968e3d43571ceb1df8493da683ff9e51a146d9",
+  "phase3c_classifier_handoff_sha256": "0031c5d49cc9a7cc5a3be7ee26bf69a92d977d70968ead4a5f0bee1e487659b7",
+  "phase4_acceptance_artifact_sha256": "877f1e39c4bb0e16187dcf4de76ba47cff7df3bdf7cb01a2ae6027da1df4f4a6",
+  "phase4_acceptance_run_id": "32778775085",
+  "phase4_acceptance_validation_sha": "d56817d27a9aaaf69aa08b5e314f78297ed45376",
+  "phase4_accepted_sha": "707003fc16767fb28b9c968fbcf168ab03ebadc1",
+  "phase4_accepted_tree": "af473134f6a92b9dc9919eae71f1e02a3ed81e1e",
+  "phase4_azure_sql_port_contract_sha256": "ef87b18fd644429cbfb6581e2121ca1f4f6c6bb8408870d9b0ddc9002021c2fd",
+  "phase4_corpus_app_contract_sha256": "387a741b2531afb54398fadbe8aac0d73e2a1ba9aab619e48d5dd5b5d7289908",
+  "phase4_freeze_manifest_sha256": "e904b564680581e114228bf988cdfcf1da3a2852ad34c94e652a388f5d303724",
+  "phase5_design_validation_sha256": "61e57216ca5b8671df7337420bb7d116c94be138da62cde851dcab6236ecbe0f",
+  "phase5_master_design_sha256": "761dd4e642ce8dc30589bab393808e965a4f931e9e2a9ddda94cff6f217fa81b",
+  "phase5_step3a4c_entry_gate_superseded": true,
+  "real_data_used": false,
+  "source_mode_values": [
+    "EXISTING_KNOWN_SOURCE",
+    "NEW_UNKNOWN_SOURCE",
+    "MODIFIED_KNOWN_SOURCE",
+    "MOVE_RENAME_CANDIDATE"
+  ],
+  "step3a4c_accepted": false,
+  "synthetic_only": true,
+  "version": 1
+}

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "contract_id": "AMEC_PHASE5_SHADOW_CONTRACT_V1",
+  "state": "REVIEW_COMPARE_ONLY",
+  "classification_generated": true,
+  "comparison_recorded": true,
+  "classification_envelope_immutable": true,
+  "correction_append_only": true,
+  "classifier_only_verified_assertion": false,
+  "classifier_only_typed_projection": false,
+  "synology_writeback": false,
+  "external_protected_action": false,
+  "accepted_stage1_replay_default": "REVIEW_COMPARE_ONLY",
+  "reviewed_synthetic_accept_or_correct_may_use_existing_phase4_seam": true
+}

@@ -1,0 +1,16 @@
+{
+  "all_review_gates_pass": true,
+  "case_count": 2,
+  "classifier_version": "classifier-v2-rules-only-1.0.0",
+  "critical_false_promotions": 0,
+  "critical_false_promotions_by_case": [],
+  "duplicate_cluster_cross_split_leakage": 0,
+  "llm_external_call_count": 0,
+  "overlap_count": 0,
+  "result": "PASS",
+  "rules_version": "classifier-v2-rules-1.0.0",
+  "split": "HOLDOUT",
+  "synthetic_only": true,
+  "template_family_forbidden_leakage": 0,
+  "version": 1
+}
