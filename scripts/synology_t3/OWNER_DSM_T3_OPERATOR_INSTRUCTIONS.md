@@ -5,7 +5,7 @@ This handoff certifies only the read-only SMB source lane against one isolated s
 ## Before execution
 
 1. Confirm the independently accepted V2.3 application SHA is exactly `4925518b35b58956aaa5870f226af5e57d14b610` and the validation child is `cfa6a0271161f5131403c86aaaf728da8d21cc5f`.
-2. Confirm the independent R1.1 handoff acceptance has passed. Do not execute DSM from the repair-build artifact alone.
+2. Before any DSM execution, confirm that independent acceptance has passed for this exact handoff candidate, including the exact candidate commit, handoff archive SHA256, GitHub artifact ID and digest, image tar SHA256, image ID, application label, and harness label. A repair-build PASS by itself does not authorize DSM execution. `T3_OWNER_EXECUTION_READY` is set only by the independent acceptance record external to the handoff artifact, and this handoff candidate registry remains `T3_OWNER_EXECUTION_READY=false`.
 3. In DSM, verify the current model, DSM build, architecture, active LAN IPv4, gateway, Docker version, SMB policy, firewall, Auto Block, `tun1000`, existing ProposalOps identities, and business-share ACL fingerprint. Record only sanitized values with `state_schema_version=SYN-T3-DSM-STATE-V1`, `phase=PRE` in `10_DSM_PRE_STATE.json`.
 4. Confirm that `ProposalOps-T3-Synthetic`, `proposalops_t3_ro`, and `proposalops_t3_denied` do not already exist. If any name collides, stop; do not overwrite or reuse it.
 5. Create the dedicated share and two non-admin local identities. Grant `proposalops_t3_ro` read-only access to this share only. Grant `proposalops_t3_denied` no access. Do not touch business shares or existing ProposalOps identities.

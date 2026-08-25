@@ -5,6 +5,7 @@ import io
 import json
 import stat
 import types
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
@@ -31,7 +32,7 @@ from scripts.synology_t3.t3_common import (
     security_introspection,
 )
 from scripts.synology_t3 import t3_runner
-from scripts.synology_t3.t3_runner import normalize_error_code, read_hash
+from scripts.synology_t3.t3_runner import normalize_error_code, probe_acl, read_hash
 from scripts.synology_t3.t3_runner import normalized_exception_code
 from scripts.synology_t3.validate_t3_return import scan, validate_handoff, validate_return
 
@@ -456,7 +457,7 @@ def test_access_ledger_exposes_synthetic_acl_counters():
 
 
 def test_scope_validator_accepts_r1r2_workflow():
-    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r2.yml"]) == []
+    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r2.yml", ".github/workflows/synology-t3-handoff-build-r1r3.yml"]) == []
 
 
 def test_runner_source_has_no_stale_terminal_cursor_gate():
@@ -476,7 +477,88 @@ def test_missing_share_envelope_is_exactly_run_scoped():
     assert f"ProposalOps-T3-Missing-{run_id}" == "ProposalOps-T3-Missing-SYN-T3-123"
 
 
+class FaultingAclClient:
+    def __init__(self, fault):
+        self.fault = fault
+
+    def _raise(self):
+        if isinstance(self.fault, BaseException):
+            raise self.fault
+        raise self.fault()
+
+    def open_file(self, *args, **kwargs):
+        self._raise()
+
+    def rename(self, *args, **kwargs):
+        self._raise()
+
+    def remove(self, *args, **kwargs):
+        self._raise()
+
+    def mkdir(self, *args, **kwargs):
+        self._raise()
+
+
+class FaultingAclStore:
+    def __init__(self, fault):
+        self.client = FaultingAclClient(fault)
+
+    def _client(self):
+        return self.client
+
+    def _session_kwargs(self):
+        return {}
+
+    def _unc(self, relative_path):
+        return "\\\\synthetic\\share\\" + relative_path
+
+
+def assert_acl_fault_is_not_proof(tmp_path, fault):
+    collector = CheckCollector(tmp_path)
+    with pytest.raises(T3Stop):
+        probe_acl(FaultingAclStore(fault), collector, AccessLedger())
+    assert json.loads((tmp_path / "49_CHECKS.json").read_text())["checks"][-1]["observed"] != "ACCESS_DENIED"
+
+
+def test_negative_acl_typeerror_is_not_access_denied_proof(tmp_path):
+    assert_acl_fault_is_not_proof(tmp_path, TypeError)
+
+
+def test_negative_acl_object_not_found_is_not_access_denied_proof(tmp_path):
+    errors = t3_runner.storage_types()["errors"]
+    assert_acl_fault_is_not_proof(tmp_path, errors.StorageError(errors.StorageErrorCode.OBJECT_NOT_FOUND))
+
+
+def test_negative_acl_unavailable_is_not_access_denied_proof(tmp_path):
+    errors = t3_runner.storage_types()["errors"]
+    assert_acl_fault_is_not_proof(tmp_path, errors.StorageError(errors.StorageErrorCode.UNAVAILABLE))
+
+
+def test_owner_instructions_use_exact_candidate_external_acceptance_only():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
+    assert text.count("R1.1 handoff acceptance") == 0
+    assert text.count("R1.2 handoff acceptance") == 0
+    assert "independent acceptance has passed for this exact handoff candidate" in text
+    assert "T3_OWNER_EXECUTION_READY=false" in text
+
+
+def test_handoff_image_ref_is_r1r3(tmp_path):
+    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R3", "7400a2c50d69a2b57c23239412b8275f129ab57c")
+    policy = json.loads((bundle / "06_IMAGE_BUILD_POLICY.json").read_text())
+    assert policy["image_ref"] == "proposalops/syn-t3:r1r3-7400a2c50d69"
+
+
+def test_handoff_registry_cannot_self_authorize_owner_execution(tmp_path):
+    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R3-REG", "UNCOMMITTED")
+    registry = json.loads((bundle / "51_HANDOFF_REGISTRY.json").read_text())
+    assert registry["T3_OWNER_EXECUTION_READY"] is False
+
+
 def test_runner_e2e_is_pure_synthetic_and_emits_typed_evidence(tmp_path, monkeypatch):
+    _run_synthetic_whole_run(tmp_path, monkeypatch)
+
+
+def _run_synthetic_whole_run(tmp_path, monkeypatch, *, run_id="SYN-T3-E2E-001", denied_health_error="STORAGE_ACCESS_DENIED", missing_share=None, construction_log=None, expect_success=True):
     """Execute t3_runner.run through a fake provider; no socket or DSM path exists."""
     actual = t3_runner.storage_types()
     errors = actual["errors"]
@@ -493,7 +575,6 @@ def test_runner_e2e_is_pure_synthetic_and_emits_typed_evidence(tmp_path, monkeyp
     ro_secret.chmod(0o600)
     denied_secret.chmod(0o600)
     evidence = tmp_path / "evidence"
-    run_id = "SYN-T3-E2E-001"
 
     class FakeConfig:
         def __init__(self, **kwargs):
@@ -527,6 +608,8 @@ def test_runner_e2e_is_pure_synthetic_and_emits_typed_evidence(tmp_path, monkeyp
             self.config = config
             self._connection_cache = {}
             self._smbclient = None
+            if construction_log is not None:
+                construction_log.append(config.share)
 
         @property
         def denied(self):
@@ -561,7 +644,7 @@ def test_runner_e2e_is_pure_synthetic_and_emits_typed_evidence(tmp_path, monkeyp
 
         def health(self):
             if self.denied:
-                return port.StorageHealth("UNAVAILABLE", self.config.provider_id, detail={"error_class": "STORAGE_ACCESS_DENIED"})
+                return port.StorageHealth("UNAVAILABLE", self.config.provider_id, detail={"error_class": denied_health_error})
             if self.missing:
                 return port.StorageHealth("UNAVAILABLE", self.config.provider_id, detail={"error_class": "STORAGE_OBJECT_NOT_FOUND"})
             self._connect()
@@ -618,19 +701,50 @@ def test_runner_e2e_is_pure_synthetic_and_emits_typed_evidence(tmp_path, monkeyp
     args = SimpleNamespace(
         nas_ip="192.0.2.10", share=SHARE, root=ROOT, port=445,
         ro_username="proposalops_t3_ro", denied_username="proposalops_t3_denied",
-        missing_share=f"ProposalOps-T3-Missing-{run_id}", run_id=run_id,
+        missing_share=missing_share or f"ProposalOps-T3-Missing-{run_id}", run_id=run_id,
         ro_secret=ro_secret, denied_secret=denied_secret, pre_state=pre,
         fixture_manifest=tmp_path / "fixture-source" / "13_FIXTURE_MANIFEST.json",
         evidence_root=evidence, image_revision="synthetic-test", synthetic_no_network=True,
     )
-    assert t3_runner.run(args) == 0
+    result = t3_runner.run(args)
+    if not expect_success:
+        return result
+    assert result == 0
     acl = json.loads((evidence / "30_RO_ACL_NEGATIVES.json").read_text())
     assert (acl["attempt_count"], acl["access_denied_count"], acl["mutation_success_count"]) == (5, 5, 0)
     assert all(row["normalized_error_class"] == "ACCESS_DENIED" for row in acl["errors"])
     auth = json.loads((evidence / "00_AUTHORIZATION.json").read_text())
     assert "repair_run_counters" not in auth
     assert json.loads((evidence / "31_DENIED_IDENTITY_RESULTS.json").read_text())["access_denied_count"] == 4
+    denied = json.loads((evidence / "31_DENIED_IDENTITY_RESULTS.json").read_text())
+    assert denied["data_access_success_count"] == 0
     ledger = json.loads((evidence / "48_ACCESS_LEDGER.json").read_text())
     assert ledger["synthetic_t3_acl_write_attempts"] == 5
     registry = json.loads((evidence / "51_ACCEPTANCE_REGISTRY.json").read_text())
-    assert registry["FAIL"] == 0 and registry["distinct_assertions"] >= 130
+    checks = json.loads((evidence / "49_CHECKS.json").read_text())
+    junit = ET.parse(evidence / "50_TEST_RESULTS.junit.xml").getroot()
+    assert registry["distinct_assertions"] >= 130
+    assert registry["PASS"] == registry["distinct_assertions"]
+    assert registry["FAIL"] == registry["WARN"] == registry["ENV_BLOCKED"] == registry["NOT_EXECUTED"] == 0
+    assert all(registry[key] == 0 for key in ("UNRESOLVED_EVIDENCE_REF_COUNT", "NORMALIZED_ASSERTION_DUPLICATE_COUNT", "DUPLICATE_EVIDENCE_TUPLE_COUNT", "SELF_REFERENCE_COUNT"))
+    assert checks["check_count"] == registry["distinct_assertions"]
+    assert int(junit.attrib["tests"]) == registry["distinct_assertions"]
+    assert all(int(junit.attrib[key]) == 0 for key in ("failures", "errors", "skipped"))
+    assert registry["SYNTHETIC_T3_ACL_WRITE_ATTEMPTS"] == 5
+    assert registry["SYNTHETIC_T3_ACL_WRITE_SUCCESSES"] == 0
+    assert registry["REAL_AMEC_WRITE_ATTEMPTS"] == 0
+    assert json.loads((evidence / "26_LISTING_RESULTS.json").read_text())["direct_pages"] == [100, 100, 57]
+    assert json.loads((evidence / "49_CHECKS.json").read_text())["checks"][-1]["result"] == "PASS"
+
+
+def test_negative_denied_unavailable_is_not_denied_identity_proof(tmp_path, monkeypatch):
+    with pytest.raises(T3Stop):
+        _run_synthetic_whole_run(tmp_path, monkeypatch, run_id="SYN-T3-E2E-NEG-DENIED", denied_health_error="STORAGE_UNAVAILABLE", expect_success=False)
+
+
+def test_negative_wrong_missing_share_fails_before_provider_construction(tmp_path, monkeypatch):
+    constructions = []
+    wrong = "ProposalOps-T3-Missing-WRONG"
+    with pytest.raises(T3Stop):
+        _run_synthetic_whole_run(tmp_path, monkeypatch, run_id="SYN-T3-E2E-NEG-001", missing_share=wrong, construction_log=constructions, expect_success=False)
+    assert constructions.count(wrong) == 0
