@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from common import CLASSIFIER_VERSION, INPUT_IDENTITIES, PHASE5_ARTIFACTS, PHASE5_CONTRACTS, RULES_VERSION, TAXONOMY_REVISION, read_json, sha256_file, write_json
-from registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, producer_paths
+from registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, producer_paths, validate_producer_payload_contract
 
 
 # Normative, machine-readable source map. Every governing summary value is
@@ -67,6 +67,9 @@ def derive_summary(evidence_dir: Path, expected_candidate_sha: str, expected_val
         for producer_id in mapping["producer_ids"]:
             paths = producer_paths(producer_id, evidence_dir)
             payload = read_json(paths["result"]); meta = read_json(paths["meta"])
+            contract = validate_producer_payload_contract(producer_id, payload)
+            if contract["result"] != "PASS":
+                raise RuntimeError(f"FINALIZER_STOP:summary-source-contract:{producer_id}:{','.join(contract['errors'])}")
             if payload.get("result") == "FAIL" or meta.get("producer_id") != producer_id or meta.get("candidate_sha") != expected_candidate_sha or meta.get("validation_sha") != expected_validation_sha or str(meta.get("run_id")) != expected_run_id or meta.get("exit_code") != 0:
                 raise RuntimeError(f"FINALIZER_STOP:summary-source-failed:{producer_id}")
             source_values.append(_at(payload, mapping["json_paths"][0]))
@@ -105,6 +108,9 @@ def _producer_errors(contracts_dir: Path, evidence_dir: Path, expected: tuple[st
             errors.append(f"identity-or-exit:{producer_id}")
         if payload.get("result") != "PASS":
             errors.append(f"producer-failed:{producer_id}")
+        contract = validate_producer_payload_contract(producer_id, payload)
+        if contract["result"] != "PASS":
+            errors.extend(f"producer-contract:{producer_id}:{item}" for item in contract["errors"])
     for key in RESULT_KEYS:
         try:
             payload = read_json(contracts_dir / CANONICAL_ARTIFACTS[key])
@@ -120,6 +126,25 @@ def _require_stage_result(path: Path, expected_count: int, label: str) -> dict[s
     if payload.get("result") != "PASS" or payload.get("primary_check_count") != expected_count or payload.get("primary_check_fail_count") != 0 or payload.get("primary_check_not_executed_count") != 0:
         raise RuntimeError(f"FINALIZER_STOP:{label}-not-pass")
     return payload
+
+
+def validate_final_summary_schema(payload: dict[str, Any], contracts_dir: Path) -> list[str]:
+    """Validate the governing schema subset without adding a dependency."""
+    schema = read_json(contracts_dir / CANONICAL_ARTIFACTS["final_summary_schema"])
+    errors: list[str] = []
+    for field in schema.get("required", []):
+        if field not in payload:
+            errors.append(f"missing:{field}")
+    for field, rule in schema.get("properties", {}).items():
+        if field not in payload:
+            continue
+        if "const" in rule and payload[field] != rule["const"]:
+            errors.append(f"const:{field}")
+        if rule.get("type") == "integer" and (not isinstance(payload[field], int) or isinstance(payload[field], bool)):
+            errors.append(f"type:{field}")
+        if "minimum" in rule and payload[field] < rule["minimum"]:
+            errors.append(f"minimum:{field}")
+    return errors
 
 
 def _write_finalizer_triplet(evidence_dir: Path, candidate: str, validation: str, run_id: str, payload: dict[str, Any]) -> None:
@@ -145,7 +170,7 @@ def produce(*, contracts_dir: Path, evidence_dir: Path, pre_finalizer_acceptance
     hashes = {CANONICAL_ARTIFACTS[key]: sha256_file(contracts_dir / CANONICAL_ARTIFACTS[key]) for key in PRE_FINALIZER_KEYS}
     manifest = {"version": 4, "manifest_id": "AMEC_CLASSIFIER_V2_FREEZE_MANIFEST_V1", "freeze_state": "FROZEN", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "taxonomy_revision": TAXONOMY_REVISION, "classifier_version": CLASSIFIER_VERSION, "rules_version": RULES_VERSION, "classification_envelope_schema_path": CANONICAL_ARTIFACTS["envelope_schema"], "classification_envelope_schema_sha256": sha256_file(contracts_dir / CANONICAL_ARTIFACTS["envelope_schema"]), "phase4_accepted_sha": INPUT_IDENTITIES["phase4_accepted_sha"], "input_identity_manifest_path": CANONICAL_ARTIFACTS["input_identity"], "input_identity_manifest_sha256": sha256_file(contracts_dir / CANONICAL_ARTIFACTS["input_identity"]), "robustness_corpus_path": CANONICAL_ARTIFACTS["corpus"], "robustness_corpus_sha256": sha256_file(contracts_dir / CANONICAL_ARTIFACTS["corpus"]), "artifact_sha256": hashes, "classifier_source_path": "backend/app/services/classifier_v2.py", "classifier_source_sha256": sha256_file(Path(__file__).resolve().parents[2] / "backend/app/services/classifier_v2.py"), "final_commit_identity": "POST_COMMIT_EXTERNAL_HANDOFF", "final_tree_identity": "POST_COMMIT_EXTERNAL_HANDOFF", "recursive_self_hash": False, "synthetic_only": True, "llm_external_call_count": summary["llm_external_call_count"]}
     write_json(evidence_dir / "runtime-freeze-manifest.json", manifest)
-    payload = {"version": 4, "producer_id": "finalizer", "result": "PASS", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "derived_summary": summary, **summary, "derived_summary_field_count": len(summary), "summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "summary_source_map_missing_count": 0, "summary_literal_fallback_count": 0, "handoff_state": "FINALIZER_COMPLETE_PENDING_FULL_ACCEPTANCE", "runtime_freeze_manifest": "runtime-freeze-manifest.json", "synthetic_only": True, "real_data_used": False}
+    payload = {"version": 1, "producer_id": "finalizer", "result": "PASS", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "derived_summary": summary, **summary, "derived_summary_field_count": len(summary), "summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "summary_source_map_missing_count": 0, "summary_literal_fallback_count": 0, "handoff_state": "FINALIZER_COMPLETE_PENDING_FULL_ACCEPTANCE", "runtime_freeze_manifest": "runtime-freeze-manifest.json", "synthetic_only": True, "real_data_used": False}
     _write_finalizer_triplet(evidence_dir, expected_candidate_sha, expected_validation_sha, expected_run_id, payload)
     stage_result = {"version": 1, "stage": "FINALIZER_PRODUCE", "result": "PASS", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "derived_summary_field_count": len(summary), "summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "summary_literal_fallback_count": 0, "handoff_state": "FINALIZER_COMPLETE_PENDING_FULL_ACCEPTANCE", "synthetic_only": True}
     write_json(output_path, stage_result)
@@ -166,7 +191,10 @@ def seal(*, contracts_dir: Path, evidence_dir: Path, acceptance_path: Path, vali
     if errors:
         raise RuntimeError("HANDOFF_SEAL_STOP:" + ",".join(errors))
     summary = {field: finalizer[field] for field in REQUIRED_SUMMARY_FIELDS}
-    final = {"version": 4, "result": "PASS", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "summary": summary, **summary, "acceptance_check_count": acceptance["primary_check_count"], "failed_acceptance_check_count": acceptance.get("primary_check_fail_count", 0), "required_evidence_files_present": True, "freeze_manifest": "runtime-freeze-manifest.json", "handoff_state": "READY_FOR_INDEPENDENT_PHASE5_ACCEPTANCE", "RUN_EVIDENCE_STATE": "COMPLETE_PASS", "synthetic_only": True, "real_data_used": False}
+    final = {"version": 1, "result": "PASS", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "summary": summary, **summary, "acceptance_check_count": acceptance["primary_check_count"], "failed_acceptance_check_count": acceptance.get("primary_check_fail_count", 0), "required_evidence_files_present": True, "freeze_manifest": "runtime-freeze-manifest.json", "classifier_version": finalizer.get("classifier_version", CLASSIFIER_VERSION), "rules_version": finalizer.get("rules_version", RULES_VERSION), "handoff_state": "READY_FOR_INDEPENDENT_PHASE5_ACCEPTANCE", "RUN_EVIDENCE_STATE": "COMPLETE_PASS", "synthetic_only": True, "real_data_used": False}
+    schema_errors = validate_final_summary_schema(final, contracts_dir)
+    if schema_errors:
+        raise RuntimeError("HANDOFF_SEAL_STOP:final-summary-schema:" + ",".join(schema_errors))
     write_json(output_path, final)
     handoff = {"version": 1, "result": "PASS", "stage": "HANDOFF_SEAL", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "final_acceptance_check_count": acceptance["primary_check_count"], "final_validation_result": validation["result"], "finalizer_result": finalizer["result"], "acceptance_integrity_result": integrity["result"], "derived_summary_field_count": len(summary), "runtime_freeze_present": (evidence_dir / "runtime-freeze-manifest.json").is_file(), "synthetic_only": True}
     write_json(handoff_path, handoff)
@@ -197,7 +225,7 @@ def run(contracts_dir: Path = PHASE5_CONTRACTS, acceptance_path: Path | None = N
     if errors:
         raise RuntimeError("FINALIZER_STOP:" + ",".join(errors))
     summary = derive_summary(evidence_dir, *expected)
-    payload = {"version": 4, "result": "PASS", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "derived_summary": summary, **summary, "derived_summary_field_count": len(summary), "summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "summary_literal_fallback_count": 0, "handoff_state": "READY_FOR_INDEPENDENT_PHASE5_ACCEPTANCE"}
+    payload = {"version": 1, "result": "PASS", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "derived_summary": summary, **summary, "derived_summary_field_count": len(summary), "summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "summary_literal_fallback_count": 0, "classifier_version": CLASSIFIER_VERSION, "rules_version": RULES_VERSION, "freeze_manifest": "runtime-freeze-manifest.json", "handoff_state": "READY_FOR_INDEPENDENT_PHASE5_ACCEPTANCE"}
     write_json(output_path or PHASE5_ARTIFACTS / "phase5-final-summary.json", payload)
     _write_finalizer_triplet(evidence_dir, *expected, {"producer_id": "finalizer", **payload})
     return {"summary": payload, "manifest": {}}

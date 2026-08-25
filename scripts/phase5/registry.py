@@ -93,13 +93,132 @@ CATEGORY_EVIDENCE_POLICY: dict[str, dict[str, Any]] = {
 }
 
 
-PREDICATE_REGISTRY = {
-    "assertion_binding", "producer_result_pass", "producer_exit_zero",
-    "stable_evidence_uri", "identity_eq", "json_field_eq", "json_field_zero",
-    "json_field_exists", "json_count_eq", "json_all_pass", "no_local_path",
-    "no_secret_pattern", "source_literal_absent", "file_exists_nonempty",
-    "acceptance_integrity_pass", "finalizer_result_pass",
+def _path_spec(expected_type: str, *, const: Any = None, minimum: int | float | None = None,
+               count_eq: int | None = None) -> dict[str, Any]:
+    spec: dict[str, Any] = {"type": expected_type}
+    if const is not None:
+        spec["const"] = const
+    if minimum is not None:
+        spec["minimum"] = minimum
+    if count_eq is not None:
+        spec["count_eq"] = count_eq
+    return spec
+
+
+# One closed, fail-closed contract for every producer.  The result field is
+# deliberately present for all producers, while every field consumed by the
+# finalizer or exact assertion map is declared explicitly below.
+PRODUCER_RESULT_CONTRACTS: dict[str, dict[str, Any]] = {
+    producer: {
+        "required_paths": {"result": _path_spec("string", const="PASS")},
+        "summary_consumed_paths": (),
+        "runtime_required": producer in _RUNTIME,
+    }
+    for producer in EVIDENCE_PRODUCERS
 }
+
+
+def _declare(producer: str, **paths: dict[str, Any]) -> None:
+    PRODUCER_RESULT_CONTRACTS[producer]["required_paths"].update(paths)
+
+
+_declare("sqlserver-bootstrap", sqlserver_major=_path_spec("integer", const=16),
+         migration_head=_path_spec("string", const="baseline_phase4_v36_azure_sql"),
+         migration_pass=_path_spec("boolean", const=True),
+         engine=_path_spec("string", const="MICROSOFT_SQL_SERVER_2022_X64"))
+_declare("sqlserver-targeted", sqlserver_major=_path_spec("integer", const=16),
+         gate_count=_path_spec("integer", const=16), failed_count=_path_spec("integer", const=0),
+         skipped_count=_path_spec("integer", const=0), migration_head=_path_spec("string", const="baseline_phase4_v36_azure_sql"), gates=_path_spec("object"))
+for _producer in ("browser-required-paths", "browser-quality"):
+    _declare(_producer, required_path_count=_path_spec("integer", const=10),
+             required_path_pass=_path_spec("integer", const=10),
+             required_path_fail=_path_spec("integer", const=0),
+             required_path_skip=_path_spec("integer", const=0),
+             declared_ids=_path_spec("array", count_eq=10),
+             api_mock_count_for_required_paths=_path_spec("integer", const=0))
+_declare("browser-quality", quality_check_count=_path_spec("integer", minimum=7),
+         quality_pass_count=_path_spec("integer", minimum=7), quality_fail_count=_path_spec("integer", const=0),
+         quality_skip_count=_path_spec("integer", const=0))
+_declare("shadow-replay", shadow_state=_path_spec("string", const="REVIEW_COMPARE_ONLY"),
+         new_source_reads=_path_spec("integer", const=0, minimum=0),
+         new_source_bytes=_path_spec("integer", const=0, minimum=0),
+         llm_external_call_count=_path_spec("integer", const=0, minimum=0),
+         real_content=_path_spec("boolean", const=False),
+         classifier_only_verified_assertion_count=_path_spec("integer", const=0, minimum=0),
+         classifier_only_projection_count=_path_spec("integer", const=0, minimum=0),
+         synology_writeback_count=_path_spec("integer", const=0, minimum=0),
+         external_protected_action_count=_path_spec("integer", const=0, minimum=0),
+         replay_stable=_path_spec("boolean", const=True), replay_same_envelope=_path_spec("boolean", const=True),
+         replay_side_effect_duplicate_count=_path_spec("integer", const=0, minimum=0))
+_declare("source-preflight",
+         **{"authority.promotion_requires_human_review": _path_spec("boolean", const=True),
+            "authority.projection_requires_existing_verified_assertion": _path_spec("boolean", const=True),
+            "authority.auto_promotion_enabled": _path_spec("boolean", const=False)})
+for _producer in ("classifier-calibration", "classifier-validation", "classifier-holdout",
+                  "classifier-cross-context", "classifier-path-counterfactual"):
+    _declare(_producer, critical_false_promotions=_path_spec("integer", const=0, minimum=0))
+
+SUMMARY_CONSUMED_PATHS = {
+    (producer, path)
+    for producer, path in (
+        ("browser-required-paths", "required_path_count"), ("browser-required-paths", "required_path_pass"),
+        ("browser-required-paths", "required_path_fail"), ("sqlserver-targeted", "result"),
+        ("sqlserver-bootstrap", "sqlserver_major"), ("sqlserver-bootstrap", "migration_head"),
+        ("classifier-calibration", "critical_false_promotions"),
+        ("shadow-replay", "shadow_state"), ("source-preflight", "authority.promotion_requires_human_review"),
+        ("source-preflight", "authority.projection_requires_existing_verified_assertion"),
+        ("backend-full", "result"), ("frontend-full", "result"), ("frontend-build", "result"),
+        ("shadow-replay", "new_source_reads"), ("source-preflight", "authority.auto_promotion_enabled"),
+        ("shadow-replay", "real_content"), ("shadow-replay", "llm_external_call_count"),
+    )
+}
+for _producer, _path in SUMMARY_CONSUMED_PATHS:
+    PRODUCER_RESULT_CONTRACTS[_producer]["summary_consumed_paths"] = tuple(sorted(set(PRODUCER_RESULT_CONTRACTS[_producer]["summary_consumed_paths"]) | {_path}))
+
+
+def _at_path(payload: Any, path: str) -> Any:
+    value = payload
+    for part in path.split("."):
+        if not isinstance(value, dict) or part not in value:
+            raise KeyError(path)
+        value = value[part]
+    return value
+
+
+def _type_matches(value: Any, expected: str) -> bool:
+    return {"integer": isinstance(value, int) and not isinstance(value, bool),
+            "number": isinstance(value, (int, float)) and not isinstance(value, bool),
+            "string": isinstance(value, str), "boolean": isinstance(value, bool),
+            "array": isinstance(value, list), "object": isinstance(value, dict)}.get(expected, False)
+
+
+def validate_producer_payload_contract(producer_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+    contract = PRODUCER_RESULT_CONTRACTS.get(producer_id)
+    if contract is None:
+        return {"result": "FAIL", "errors": ["unknown_producer"], "producer_id": producer_id}
+    errors: list[str] = []
+    if not isinstance(payload, dict):
+        errors.append("payload_not_object")
+        return {"result": "FAIL", "errors": errors, "producer_id": producer_id}
+    for path, spec in contract["required_paths"].items():
+        try:
+            value = _at_path(payload, path)
+        except KeyError:
+            errors.append(f"missing:{path}")
+            continue
+        if not _type_matches(value, spec["type"]):
+            errors.append(f"type:{path}:{spec['type']}")
+            continue
+        if "const" in spec and value != spec["const"]:
+            errors.append(f"const:{path}")
+        if "minimum" in spec and value < spec["minimum"]:
+            errors.append(f"minimum:{path}")
+        if "count_eq" in spec and len(value) != spec["count_eq"]:
+            errors.append(f"count:{path}")
+    return {"result": "PASS" if not errors else "FAIL", "errors": errors, "producer_id": producer_id}
+
+
+PREDICATE_REGISTRY = {"eq", "zero", "nonzero", "true", "false", "exists", "count_eq", "set_eq", "contains", "all_pass", "sha256_eq", "identity_eq", "file_exists_nonempty", "no_local_path", "no_secret_pattern"}
 
 PIPELINE_STAGES = (
     "BASE_EVIDENCE", "PRE_FINALIZER_ACCEPTANCE", "PRE_FINALIZER_VALIDATION",
@@ -126,35 +245,32 @@ def pipeline_audit(edges: tuple[tuple[str, str], ...] = PIPELINE_EDGES) -> dict[
     return {"stage_count": len(PIPELINE_STAGES), "cycle_count": len(PIPELINE_STAGES) - len(order), "topological_order": order, "topological_order_pass": len(order) == len(PIPELINE_STAGES)}
 
 
-def _semantic_predicates(category: str, assertion: str) -> tuple[str, ...]:
-    lower = assertion.lower()
-    predicates = ["assertion_binding", "producer_result_pass", "producer_exit_zero", "stable_evidence_uri"]
-    if category == "IDENTITY": predicates.append("identity_eq")
-    if category == "SQLSERVER":
-        predicates.extend(("json_field_exists", "json_field_eq" if "2022" in lower or "target" in lower else "json_field_zero"))
-    elif category.startswith("BROWSER") or category == "FRONTEND":
-        predicates.extend(("json_field_exists", "json_count_eq" if "count" in lower or "visible" in lower else "json_all_pass"))
-    elif category == "REGRESSION": predicates.append("json_all_pass")
-    elif category == "HYGIENE": predicates.extend(("no_local_path", "no_secret_pattern"))
-    elif "no " in lower or "cannot" in lower or "zero" in lower: predicates.append("source_literal_absent")
-    else: predicates.append("json_field_exists")
-    return tuple(dict.fromkeys(predicates))
+_BOUNDARY_FIELDS = (("shadow-replay", "new_source_reads", "zero", 0, "integer"), ("shadow-replay", "new_source_bytes", "zero", 0, "integer"), ("shadow-replay", "real_content", "false", False, "boolean"), ("shadow-replay", "llm_external_call_count", "zero", 0, "integer"), ("shadow-replay", "classifier_only_projection_count", "zero", 0, "integer"), ("shadow-replay", "synology_writeback_count", "zero", 0, "integer"), ("shadow-replay", "external_protected_action_count", "zero", 0, "integer"), ("authority-denial", "result", "eq", "PASS", "string"), ("security-hygiene", "result", "eq", "PASS", "string"), ("shadow-replay", "replay_side_effect_duplicate_count", "zero", 0, "integer"))
+_SQL_FIELDS = (("sqlserver-bootstrap", "sqlserver_major", "eq", 16, "integer"), ("sqlserver-bootstrap", "migration_head", "eq", "baseline_phase4_v36_azure_sql", "string"), ("sqlserver-bootstrap", "engine", "eq", "MICROSOFT_SQL_SERVER_2022_X64", "string"), ("sqlserver-bootstrap", "migration_pass", "true", True, "boolean"), ("sqlserver-targeted", "gate_count", "eq", 16, "integer"), ("sqlserver-targeted", "failed_count", "zero", 0, "integer"), ("sqlserver-targeted", "skipped_count", "zero", 0, "integer"), ("sqlserver-targeted", "gates", "all_pass", "PASS", "object"), ("sqlserver-targeted", "sqlserver_major", "eq", 16, "integer"), ("sqlserver-targeted", "migration_head", "eq", "baseline_phase4_v36_azure_sql", "string"))
+_BROWSER_FIELDS = (("browser-required-paths", "required_path_count", "eq", 10, "integer"), ("browser-required-paths", "required_path_pass", "eq", 10, "integer"), ("browser-required-paths", "required_path_fail", "zero", 0, "integer"), ("browser-required-paths", "required_path_skip", "zero", 0, "integer"), ("browser-required-paths", "declared_ids", "count_eq", 10, "array"), ("browser-quality", "quality_check_count", "nonzero", 1, "integer"), ("browser-quality", "quality_pass_count", "nonzero", 1, "integer"), ("browser-quality", "quality_fail_count", "zero", 0, "integer"), ("browser-quality", "quality_skip_count", "zero", 0, "integer"), ("browser-required-paths", "api_mock_count_for_required_paths", "zero", 0, "integer"))
+
+
+def _exact_spec(category: str, index: int, requirement_groups: dict[str, list[str]]) -> dict[str, Any]:
+    if category == "BOUNDARY": row = _BOUNDARY_FIELDS[index]
+    elif category == "SQLSERVER": row = _SQL_FIELDS[index]
+    elif category in {"FRONTEND", "BROWSER_NEW", "BROWSER_AMBIGUOUS", "BROWSER_OOS", "BROWSER_SECRET", "BROWSER_MODIFIED", "BROWSER_MOVE", "BROWSER_MISSING", "BROWSER_CORRECTION", "BROWSER_PROTECTED"}: row = _BROWSER_FIELDS[index]
+    elif category == "EVIDENCE": row = ("acceptance-integrity", "result", "eq", "PASS", "string")
+    elif category == "FINALIZER": row = ("freeze-reproducibility", "result", "eq", "PASS", "string")
+    else: row = (CATEGORY_EVIDENCE_POLICY[category]["required_producer_ids"][0], "result", "eq", "PASS", "string")
+    return {"producer_id": row[0], "json_path": row[1], "operator": row[2], "expected": row[3], "expected_type": row[4], "runtime_required": bool(CATEGORY_EVIDENCE_POLICY.get(category, {}).get("runtime_required", False))}
 
 
 def assertion_policy(requirement_groups: dict[str, list[str]]) -> dict[tuple[str, str], dict[str, Any]]:
+    global ASSERTION_EVIDENCE_SPEC
     policy: dict[tuple[str, str], dict[str, Any]] = {}
     for category, assertions in requirement_groups.items():
-        for assertion in assertions:
-            if category == "FINALIZER":
-                producers = ("finalizer", "freeze-reproducibility")
-                predicates = ("assertion_binding", "finalizer_result_pass", "producer_exit_zero", "stable_evidence_uri", "json_field_exists", "file_exists_nonempty")
-            elif category == "EVIDENCE":
-                producers = ("acceptance-integrity",)
-                predicates = ("assertion_binding", "acceptance_integrity_pass", "producer_exit_zero", "stable_evidence_uri", "json_field_exists")
-            else:
-                producers = tuple(CATEGORY_EVIDENCE_POLICY[category]["required_producer_ids"])
-                predicates = _semantic_predicates(category, assertion)
-            policy[(category, assertion)] = {"category": category, "assertion": assertion, "required_producer_ids": producers, "predicate_ids": predicates, "runtime_required": bool(CATEGORY_EVIDENCE_POLICY.get(category, {}).get("runtime_required", False))}
+        for index, assertion in enumerate(assertions):
+            spec = _exact_spec(category, index, requirement_groups)
+            if category == "FINALIZER": producers = ("finalizer", "freeze-reproducibility")
+            elif category == "EVIDENCE": producers = ("acceptance-integrity",)
+            else: producers = tuple(CATEGORY_EVIDENCE_POLICY[category]["required_producer_ids"])
+            policy[(category, assertion)] = {"category": category, "assertion": assertion, "required_producer_ids": producers, "proof_specs": (spec,), "predicate_ids": (spec["operator"],), "runtime_required": spec["runtime_required"]}
+    ASSERTION_EVIDENCE_SPEC = {(category, assertion): item["proof_specs"][0] for (category, assertion), item in policy.items()}
     return policy
 
 
@@ -165,7 +281,7 @@ def assertion_policy_audit(requirement_groups: dict[str, list[str]]) -> dict[str
     empty_producers = sum(not item["required_producer_ids"] for item in policy.values())
     empty_predicates = sum(not item["predicate_ids"] for item in policy.values())
     defaults = sum("DEFAULT" in item["predicate_ids"] for item in policy.values())
-    return {"count": len(policy), "expected_count": expected, "duplicate_key_count": duplicate_count, "missing_count": max(0, expected - len(policy)), "unknown_assertion_count": 0, "empty_producer_set_count": empty_producers, "empty_predicate_set_count": empty_predicates, "default_fallback_count": defaults, "result": "PASS" if len(policy) == expected and not duplicate_count and not empty_producers and not empty_predicates and not defaults else "FAIL"}
+    return {"count": len(policy), "expected_count": expected, "duplicate_key_count": duplicate_count, "missing_count": max(0, expected - len(policy)), "unknown_assertion_count": 0, "empty_producer_set_count": empty_producers, "empty_predicate_set_count": empty_predicates, "empty_proof_count": empty_predicates, "default_fallback_count": defaults, "keyword_heuristic_count": 0, "result": "PASS" if len(policy) == expected and not duplicate_count and not empty_producers and not empty_predicates and not defaults else "FAIL"}
 
 
 def _read_json(path: Path) -> Any:
@@ -183,31 +299,26 @@ def _proof_value(payload: Any, field: str) -> Any:
 def semantic_proofs(check: dict[str, Any], evidence_dir: Path, expected_candidate_sha: str, expected_validation_sha: str, expected_run_id: str, requirement_groups: dict[str, list[str]]) -> list[dict[str, Any]]:
     policy = assertion_policy(requirement_groups)[(check["category"], check["assertion"])]
     proofs: list[dict[str, Any]] = []
-    for predicate_id in policy["predicate_ids"]:
-        producer_id = policy["required_producer_ids"][1] if check["category"] == "FINALIZER" and predicate_id == "file_exists_nonempty" else policy["required_producer_ids"][0]
+    for spec in policy["proof_specs"]:
+        producer_id = spec["producer_id"]
         paths = producer_paths(producer_id, evidence_dir)
-        observed: Any = None; expected: Any = True; passed = False
+        observed: Any = None; expected: Any = spec["expected"]; passed = False
         try:
-            payload = _read_json(paths["result"]); meta = _read_json(paths["meta"])
-            if predicate_id == "assertion_binding": observed = [check["category"], check["assertion"]]; expected = [policy["category"], policy["assertion"]]; passed = observed == expected
-            elif predicate_id in {"producer_result_pass", "finalizer_result_pass", "acceptance_integrity_pass"}: observed = payload.get("result"); expected = "PASS"; passed = observed == expected
-            elif predicate_id == "producer_exit_zero": observed = meta.get("exit_code"); expected = 0; passed = observed == 0 and not isinstance(observed, bool)
-            elif predicate_id == "stable_evidence_uri": observed = check.get("evidence", []); expected = "evidence://phase5/..."; passed = all(isinstance(value, str) and value.startswith("evidence://phase5/") for value in observed)
-            elif predicate_id == "file_exists_nonempty": observed = paths["result"].is_file() and paths["result"].stat().st_size > 0 and paths["meta"].is_file() and paths["meta"].stat().st_size > 0; expected = True; passed = observed is True
-            elif predicate_id == "identity_eq": observed = [meta.get("candidate_sha"), meta.get("validation_sha"), str(meta.get("run_id"))]; expected = [expected_candidate_sha, expected_validation_sha, expected_run_id]; passed = (not any(expected)) or observed == expected
-            elif predicate_id == "json_field_exists": observed = sorted(payload) if isinstance(payload, dict) else []; expected = "non-empty JSON payload"; passed = isinstance(payload, dict) and bool(payload)
-            elif predicate_id == "json_field_eq":
-                observed = payload.get("sqlserver_major", payload.get("required_path_count", payload.get("gate_count"))); expected = 16 if "2022" in check["assertion"].lower() else observed; passed = observed == expected
-            elif predicate_id == "json_field_zero": observed = payload.get("failed_count", payload.get("skipped_count", payload.get("api_mock_count_for_required_paths", 0))); expected = 0; passed = observed == expected
-            elif predicate_id == "json_count_eq": observed = payload.get("required_path_count", payload.get("gate_count", payload.get("quality_check_count"))); expected = 10 if check["category"].startswith("BROWSER") else observed; passed = observed == expected
-            elif predicate_id == "json_all_pass": observed = payload.get("result"); expected = "PASS"; passed = observed == expected
-            elif predicate_id == "no_local_path": observed = bool(re.search(r"/Users/|/home/|/private/tmp/|[A-Za-z]:[\\/]", json.dumps(payload))); expected = False; passed = not observed
-            elif predicate_id == "no_secret_pattern": observed = bool(re.search(r"(?:password|secret|token|api[_-]?key)\s*[:=]\s*[^\s,}\"]+", json.dumps(payload), re.I)); expected = False; passed = not observed
-            elif predicate_id == "source_literal_absent": observed = payload.get("result"); expected = "PASS"; passed = observed == expected
+            payload = _read_json(paths["result"])
+            contract = validate_producer_payload_contract(producer_id, payload)
+            if contract["result"] != "PASS":
+                observed = {"contract_errors": contract["errors"]}
+            else:
+                observed = _at_path(payload, spec["json_path"])
+                op = spec["operator"]
+                passed = ((op == "eq" and observed == expected) or (op == "zero" and observed == 0) or (op == "nonzero" and observed != 0) or (op == "true" and observed is True) or (op == "false" and observed is False) or (op == "exists") or (op == "count_eq" and isinstance(observed, list) and len(observed) == expected) or (op == "set_eq" and set(observed) == set(expected)) or (op == "contains" and expected in observed) or (op == "all_pass" and isinstance(observed, dict) and all(item == "PASS" for item in observed.values())))
         except (OSError, json.JSONDecodeError, KeyError):
             observed = "MISSING"; passed = False
-        proofs.append({"predicate_id": predicate_id, "producer_id": producer_id, "source": paths["result"].name, "observed": observed, "expected": expected, "result": "PASS" if passed else "FAIL"})
+        proofs.append({"predicate_id": spec["operator"], "producer_id": producer_id, "json_path": spec["json_path"], "operator": spec["operator"], "expected_type": spec["expected_type"], "source": paths["result"].name, "observed": observed, "expected": expected, "result": "PASS" if passed else "FAIL"})
     return proofs
+
+
+ASSERTION_EVIDENCE_SPEC: dict[tuple[str, str], dict[str, Any]] = {}
 
 
 def category_policy_audit(categories: set[str] | None = None) -> dict[str, Any]:

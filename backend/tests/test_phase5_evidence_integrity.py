@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from scripts.phase5.browser_evidence import REQUIRED_BROWSER_PATHS
-from scripts.phase5.sanitize_evidence import run as sanitize_evidence
+from scripts.phase5.sanitize_evidence import MANIFEST_NAME, reconcile_manifest, run as sanitize_evidence
 from scripts.phase5.registry import EVIDENCE_PRODUCERS, producer_paths
 
 
@@ -58,3 +58,25 @@ def test_sanitizer_replaces_linux_macos_windows_paths_and_preserves_stable_ids(t
     payload = json.loads((sanitized / "paths.json").read_text())
     assert payload["stable"] == "evidence://phase5/browser-quality/result"
     assert all("/home/" not in value and "/Users/" not in value and "C:\\Users" not in value for value in payload.values() if isinstance(value, str))
+
+
+def test_sanitizer_post_manifest_negative_matrix_is_fail_closed(tmp_path: Path):
+    mutations = {
+        "modify": lambda path: path.write_text("changed", encoding="utf-8"),
+        "unmanifested": lambda path: (path.parent / "unmanifested.json").write_text("{}", encoding="utf-8"),
+        "delete": lambda path: path.unlink(),
+        "corrupt_json": lambda path: path.write_text("{", encoding="utf-8"),
+        "local_path": lambda path: path.write_text(json.dumps({"path": "/home/runner/work/evidence.json"}), encoding="utf-8"),
+        "secret": lambda path: path.write_text(json.dumps({"password": "not-a-real-secret"}), encoding="utf-8"),
+    }
+    for name, mutate in mutations.items():
+        working, sanitized = tmp_path / name / "working", tmp_path / name / "sanitized"
+        working.mkdir(parents=True)
+        source = working / "evidence.json"
+        source.write_text(json.dumps({"result": "PASS"}), encoding="utf-8")
+        result = sanitize_evidence(working, sanitized, Path(__file__).resolve().parents[2])
+        assert result["result"] == "PASS"
+        target = sanitized / "evidence.json"
+        mutate(target)
+        post = reconcile_manifest(sanitized, sanitized / MANIFEST_NAME)
+        assert post["SANITIZED_POST_MANIFEST_RECONCILIATION"] == "FAIL", name

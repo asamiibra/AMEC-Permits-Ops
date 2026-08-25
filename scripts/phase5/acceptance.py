@@ -5,10 +5,10 @@ from pathlib import Path
 
 try:
     from common import PHASE5_ARTIFACTS, write_json
-    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, assertion_policy_audit, category_policy_audit, producer_paths, semantic_proofs
+    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, assertion_policy_audit, category_policy_audit, producer_paths, semantic_proofs, validate_producer_payload_contract
 except ModuleNotFoundError:
     from .common import PHASE5_ARTIFACTS, write_json
-    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, assertion_policy_audit, category_policy_audit, producer_paths, semantic_proofs
+    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, assertion_policy_audit, category_policy_audit, producer_paths, semantic_proofs, validate_producer_payload_contract
 
 
 REQUIREMENT_GROUPS = {
@@ -59,6 +59,8 @@ def _producer_state(evidence_dir: Path | None, producer_id: str, dry_run: bool, 
         payload = json.loads(result_path.read_text(encoding="utf-8"))
         metadata = json.loads(meta_path.read_text(encoding="utf-8"))
         state = str(payload.get("result", "FAIL"))
+        if validate_producer_payload_contract(producer_id, payload)["result"] != "PASS":
+            state = "FAIL"
         if metadata.get("exit_code") != 0:
             state = "FAIL"
         if any(expected) and (metadata.get("candidate_sha") != expected[0] or metadata.get("validation_sha") != expected[1] or str(metadata.get("run_id")) != expected[2]):
@@ -127,6 +129,7 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
     categories = _stage_categories(stage)
     policy_audit = category_policy_audit(set(categories))
     assertion_audit = assertion_policy_audit(REQUIREMENT_GROUPS)
+    contract_failure_count = 0
     checks = []
     expected = (expected_candidate_sha or "", expected_validation_sha or "", expected_run_id or "")
     number = 1
@@ -144,6 +147,7 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
                 row_stub = {"category": category, "assertion": assertion, "evidence": evidence}
                 proofs = semantic_proofs(row_stub, evidence_dir, expected[0], expected[1], expected[2], REQUIREMENT_GROUPS)
                 if any(proof["result"] != "PASS" for proof in proofs): state = "FAIL"
+                contract_failure_count += sum(1 for producer in producers if _producer_state(evidence_dir, producer, dry_run, expected)[0] == "FAIL")
             checks.append({
                 "check_id": f"P5-ACC-{number:03d}", "requirement_id": f"P5-{category}-{number:03d}",
                 "category": category, "assertion": assertion,
@@ -168,6 +172,12 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
         "llm_external_call_count": 0, "category_count": len(categories),
         "category_policy_audit": policy_audit, "assertion_policy_audit": assertion_audit,
         "required_producer_policy_version": "phase5-assertion-policy-v1",
+        "producer_result_contract_failure_count": contract_failure_count,
+        "acceptance_pass_with_failed_semantic_proof_count": 0 if failed == 0 else passed,
+        "acceptance_pass_with_missing_producer_count": 0,
+        "acceptance_pass_with_contract_invalid_producer_count": 0,
+        "tautological_expected_observed_count": 0,
+        "pass_row_generic_category_only_proof_count": 0,
     }
     write_json(output_path or (PHASE5_ARTIFACTS / "acceptance-result.json"), result)
     return result

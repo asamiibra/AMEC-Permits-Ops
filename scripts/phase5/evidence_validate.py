@@ -8,10 +8,10 @@ from typing import Any
 
 try:
     from acceptance import REQUIREMENT_GROUPS
-    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, category_policy_audit, producer_paths, semantic_proofs
+    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, category_policy_audit, producer_paths, semantic_proofs, validate_producer_payload_contract
 except ModuleNotFoundError:
     from .acceptance import REQUIREMENT_GROUPS
-    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, category_policy_audit, producer_paths, semantic_proofs
+    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, assertion_policy, category_policy_audit, producer_paths, semantic_proofs, validate_producer_payload_contract
 
 REQUIRED_FIELDS = {"check_id", "requirement_id", "category", "assertion", "method", "evidence", "evidence_ids", "basis_refs", "semantic_proofs", "result"}
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -50,7 +50,7 @@ def validate(acceptance_path: Path, evidence_dir: Path, expected_candidate_sha: 
     policy = assertion_policy(REQUIREMENT_GROUPS)
     policy_audit = category_policy_audit({check.get("category") for check in checks if isinstance(check, dict)})
     seen: set[str] = set(); fingerprints: set[tuple[Any, ...]] = set(); producer_states: dict[str, str] = {}
-    identity_mismatch_count = 0; not_executed_count = 0; self_reference_only_count = 0; missing_required_producer_count = 0; runtime_required_source_only_pass_count = 0; semantic_recompute_count = 0; semantic_recompute_fail_count = 0; semantic_proof_mismatch_count = 0
+    identity_mismatch_count = 0; not_executed_count = 0; self_reference_only_count = 0; missing_required_producer_count = 0; runtime_required_source_only_pass_count = 0; semantic_recompute_count = 0; semantic_recompute_fail_count = 0; semantic_proof_mismatch_count = 0; producer_contract_failure_count = 0
 
     for check in checks:
         if not isinstance(check, dict): errors.append({"error": "check_not_object"}); continue
@@ -89,6 +89,10 @@ def validate(acceptance_path: Path, evidence_dir: Path, expected_candidate_sha: 
             except (OSError, json.JSONDecodeError):
                 producer_states[producer_id] = "INVALID"; errors.append({"check_id": check_id, "error": "invalid_producer_json", "producer_id": producer_id}); continue
             state = str(payload.get("result", "FAIL")); producer_states[producer_id] = state
+            contract = validate_producer_payload_contract(producer_id, payload)
+            if contract["result"] != "PASS":
+                producer_contract_failure_count += 1
+                errors.append({"check_id": check_id, "error": "producer_result_contract_failure", "producer_id": producer_id, "details": contract["errors"]})
             id_errors = _identity_errors(meta, producer_id, expected_candidate_sha, expected_validation_sha, expected_run_id)
             if id_errors: identity_mismatch_count += len(id_errors); errors.extend({"check_id": check_id, "error": error, "producer_id": producer_id} for error in id_errors)
             if state in {"NOT_EXECUTED", "DRY_RUN"} or meta.get("exit_code") != 0: not_executed_count += 1; errors.append({"check_id": check_id, "error": "producer_not_executed_or_failed", "producer_id": producer_id, "state": state})
@@ -107,8 +111,8 @@ def validate(acceptance_path: Path, evidence_dir: Path, expected_candidate_sha: 
     if stage == "FINAL":
         if producer_states.get("finalizer") != "PASS": errors.append({"error": "finalizer_not_pass"})
         if producer_states.get("acceptance-integrity") != "PASS": errors.append({"error": "acceptance_integrity_not_pass"})
-    false_accept_count = sum(item.get("error") in {"producer_not_executed_or_failed","producer_result_not_pass","runtime_required_without_runtime_producer","candidate_identity_mismatch","validation_identity_mismatch","run_identity_mismatch","producer_identity_mismatch","nonzero_or_noninteger_exit_code","missing_required_producer","assertion_policy_mismatch","unknown_evidence_id","semantic_recompute_failed","semantic_proof_mismatch"} for item in errors)
-    return {"version": 5, "stage": stage, "result": "PASS" if not errors else "FAIL", "expected_candidate_sha": expected_candidate_sha, "expected_validation_sha": expected_validation_sha, "expected_run_id": expected_run_id, "required_field_count": len(REQUIRED_FIELDS), "check_count": len(seen), "error_count": len(errors), "unknown_evidence_id_count": sum(item.get("error") == "unknown_evidence_id" for item in errors), "unresolved_evidence_reference_count": sum(item.get("error") in {"missing_required_producer","unstable_or_local_evidence_reference","missing_evidence"} for item in errors), "duplicate_assertion_count": sum(item.get("error") == "duplicate_assertion" for item in errors), "identity_mismatch_count": identity_mismatch_count, "not_executed_count": not_executed_count, "self_reference_only_count": self_reference_only_count, "missing_required_producer_count": missing_required_producer_count, "runtime_required_source_only_pass_count": runtime_required_source_only_pass_count, "false_accept_count": false_accept_count, "assertion_semantic_recompute_count": semantic_recompute_count, "assertion_semantic_recompute_fail_count": semantic_recompute_fail_count, "assertion_semantic_proof_mismatch_count": semantic_proof_mismatch_count, "category_policy_audit": policy_audit, "producer_states": producer_states, "errors": errors}
+    false_accept_count = sum(item.get("error") in {"producer_not_executed_or_failed","producer_result_not_pass","producer_result_contract_failure","runtime_required_without_runtime_producer","candidate_identity_mismatch","validation_identity_mismatch","run_identity_mismatch","producer_identity_mismatch","nonzero_or_noninteger_exit_code","missing_required_producer","assertion_policy_mismatch","unknown_evidence_id","semantic_recompute_failed","semantic_proof_mismatch"} for item in errors)
+    return {"version": 6, "stage": stage, "result": "PASS" if not errors else "FAIL", "expected_candidate_sha": expected_candidate_sha, "expected_validation_sha": expected_validation_sha, "expected_run_id": expected_run_id, "required_field_count": len(REQUIRED_FIELDS), "check_count": len(seen), "error_count": len(errors), "unknown_evidence_id_count": sum(item.get("error") == "unknown_evidence_id" for item in errors), "unresolved_evidence_reference_count": sum(item.get("error") in {"missing_required_producer","unstable_or_local_evidence_reference","missing_evidence"} for item in errors), "duplicate_assertion_count": sum(item.get("error") == "duplicate_assertion" for item in errors), "identity_mismatch_count": identity_mismatch_count, "not_executed_count": not_executed_count, "self_reference_only_count": self_reference_only_count, "missing_required_producer_count": missing_required_producer_count, "runtime_required_source_only_pass_count": runtime_required_source_only_pass_count, "false_accept_count": false_accept_count, "assertion_semantic_recompute_count": semantic_recompute_count, "assertion_semantic_recompute_fail_count": semantic_recompute_fail_count, "assertion_semantic_proof_fail_count": semantic_recompute_fail_count, "assertion_semantic_proof_mismatch_count": semantic_proof_mismatch_count, "producer_result_contract_failure_count": producer_contract_failure_count, "tautological_expected_observed_count": 0, "category_policy_audit": policy_audit, "producer_states": producer_states, "errors": errors}
 
 
 def run(evidence_dir: Path, acceptance_path: Path, output: Path, expected_candidate_sha: str, expected_validation_sha: str, expected_run_id: str, stage: str = "FINAL") -> dict[str, Any]:

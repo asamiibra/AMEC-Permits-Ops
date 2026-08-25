@@ -72,6 +72,56 @@ def _manifest_rows(root: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def reconcile_manifest(root: Path, manifest_path: Path | None = None) -> dict[str, Any]:
+    """Independently verify the final bytes against the persisted manifest."""
+    manifest_path = manifest_path or (root / MANIFEST_NAME)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected = {row["relative_path"]: row for row in manifest.get("files", [])}
+    actual_paths = {path.relative_to(root).as_posix(): path for path in root.rglob("*") if path.is_file() and path.name != MANIFEST_NAME}
+    unmanifested = sorted(set(actual_paths) - set(expected))
+    missing = sorted(set(expected) - set(actual_paths))
+    hash_mismatch = 0
+    byte_mismatch = 0
+    json_fail = 0
+    xml_fail = 0
+    invalid = 0
+    local_matches = 0
+    secret_matches = 0
+    for relative, path in actual_paths.items():
+        try:
+            data = path.read_bytes()
+            row = expected.get(relative)
+            if row is not None:
+                if hashlib.sha256(data).hexdigest() != row.get("sha256"): hash_mismatch += 1
+                if len(data) != row.get("byte_count"): byte_mismatch += 1
+            text = data.decode("utf-8")
+            if path.suffix.lower() == ".json": json.loads(text)
+            elif path.suffix.lower() == ".xml": ET.fromstring(text)
+            if _path_matches(text): local_matches += 1
+            secret_matches += len(SECRET_PATTERN.findall(text))
+        except json.JSONDecodeError:
+            json_fail += int(path.suffix.lower() == ".json"); invalid += int(path.suffix.lower() != ".json")
+        except ET.ParseError:
+            xml_fail += 1; invalid += 1
+        except (OSError, UnicodeDecodeError):
+            invalid += 1
+    governing_mismatch = 0
+    for row in manifest.get("governing", []):
+        path = root / row["relative_path"]
+        if not path.is_file() or path.stat().st_size != row.get("byte_count") or hashlib.sha256(path.read_bytes()).hexdigest() != row.get("sha256") or row.get("copied_verbatim") is not True:
+            governing_mismatch += 1
+    manifested_count = len(expected)
+    return {"SANITIZED_MANIFEST_SELF_EXCLUDED": True, "SANITIZED_MANIFEST_SELF_RECURSION": False,
+            "SANITIZED_UNMANIFESTED_FILE_COUNT": len(unmanifested), "SANITIZED_MISSING_MANIFEST_FILE_COUNT": len(missing),
+            "SANITIZED_ARTIFACT_MANIFEST_HASH_MISMATCH_COUNT": hash_mismatch, "SANITIZED_BYTE_COUNT_MISMATCH_COUNT": byte_mismatch,
+            "SANITIZED_JSON_PARSE_FAIL_COUNT": json_fail, "SANITIZED_XML_PARSE_FAIL_COUNT": xml_fail,
+            "SANITIZED_INVALID_FILE_COUNT": invalid, "SANITIZED_LOCAL_ABSOLUTE_PATH_MATCH_COUNT": local_matches,
+            "SANITIZED_OBVIOUS_SECRET_PATTERN_MATCH_COUNT": secret_matches, "SANITIZED_GOVERNING_SOURCE_HASH_MISMATCH_COUNT": governing_mismatch,
+            "SANITIZED_POST_MANIFEST_RESCAN_COUNT": manifested_count,
+            "SANITIZED_MANIFESTED_FILE_COUNT": manifested_count,
+            "SANITIZED_POST_MANIFEST_RECONCILIATION": "PASS" if not any((unmanifested, missing, hash_mismatch, byte_mismatch, json_fail, xml_fail, invalid, local_matches, secret_matches, governing_mismatch)) else "FAIL"}
+
+
 def run(working_dir: Path, sanitized_dir: Path, repo_root: Path, *, governing_source_dir: Path | None = None, expected_candidate_sha: str | None = None, expected_validation_sha: str | None = None, expected_run_id: str | None = None, allow_partial: bool = False, require_complete: bool = False) -> dict[str, Any]:
     invalid: list[dict[str, str]] = []
     if sanitized_dir.exists() and any(sanitized_dir.iterdir()):
@@ -136,7 +186,13 @@ def run(working_dir: Path, sanitized_dir: Path, repo_root: Path, *, governing_so
     metrics = {"SANITIZED_JSON_PARSE_FAIL_COUNT": json_parse_fail, "SANITIZED_XML_PARSE_FAIL_COUNT": xml_parse_fail, "SANITIZED_INVALID_FILE_COUNT": len(invalid), "SANITIZED_ARTIFACT_MANIFEST_HASH_MISMATCH_COUNT": hash_mismatch, "SANITIZED_UNMANIFESTED_FILE_COUNT": unmanifested_count, "SANITIZED_MISSING_MANIFEST_FILE_COUNT": missing_count, "SANITIZED_BYTE_COUNT_MISMATCH_COUNT": byte_mismatch, "SANITIZED_MANIFEST_SELF_EXCLUDED": True, "SANITIZED_MANIFEST_SELF_RECURSION": False, "SANITIZED_LOCAL_ABSOLUTE_PATH_MATCH_COUNT": local_matches, "SANITIZED_OBVIOUS_SECRET_PATTERN_MATCH_COUNT": secret_matches, "SANITIZED_GOVERNING_SOURCE_HASH_MISMATCH_COUNT": governing_mismatch}
     result = "PASS" if not invalid and complete and all(value == 0 for key, value in metrics.items() if key.endswith("COUNT")) and local_matches == 0 and secret_matches == 0 else "FAIL"
     manifest = {"schema": "PHASE5_SANITIZED_EVIDENCE_V2", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "files": rows, "manifested_file_count": len(rows), "working_file_count": copied, "governing": governing_rows, "errors": invalid, "result": result, "RUN_EVIDENCE_STATE": "PARTIAL_FAILED" if allow_partial else ("COMPLETE_PASS" if result == "PASS" else "FAILED"), "local_path_match_count": local_matches, "LOCAL_ABSOLUTE_PATH_MATCH_COUNT": local_matches, **metrics}
-    (sanitized_dir / MANIFEST_NAME).write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path = sanitized_dir / MANIFEST_NAME
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    post = reconcile_manifest(sanitized_dir, manifest_path)
+    manifest.update(post)
+    manifest["result"] = "PASS" if manifest["result"] == "PASS" and post["SANITIZED_POST_MANIFEST_RECONCILIATION"] == "PASS" else "FAIL"
+    manifest["RUN_EVIDENCE_STATE"] = "PARTIAL_FAILED" if allow_partial else ("COMPLETE_PASS" if manifest["result"] == "PASS" else "FAILED")
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return manifest
 
 

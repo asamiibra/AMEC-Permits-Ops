@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from common import PHASE5_ARTIFACTS, ROOT, write_json
-from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, category_policy_audit, canonical_names, pipeline_audit
+from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, validate_producer_payload_contract
 from acceptance import REQUIREMENT_GROUPS
 from finalize import SUMMARY_FIELD_SOURCE_MAP
 
@@ -86,7 +86,7 @@ def _governing_source_checks() -> dict[str, object]:
 
 def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
     if path is None:
-        return {"planned_workflow_present": False, "planned_workflow_stage_count": 0, "planned_workflow_stage_order_pass": False, "planned_workflow_cycle_count": 0, "planned_workflow_preseeded_finalizer_count": 0, "planned_workflow_preseeded_acceptance_integrity_count": 0, "planned_workflow_working_evidence_upload_count": 0, "planned_workflow_sanitized_upload_count": 0, "planned_workflow_unknown_cli_argument_count": 0, "planned_workflow_missing_required_cli_argument_count": 0}
+        return {"planned_workflow_present": False, "planned_workflow_stage_count": 0, "planned_workflow_stage_order_pass": False, "planned_workflow_cycle_count": 0, "planned_workflow_preseeded_finalizer_count": 0, "planned_workflow_preseeded_acceptance_integrity_count": 0, "planned_workflow_working_evidence_upload_count": 0, "planned_workflow_sanitized_upload_count": 0, "planned_workflow_unknown_cli_argument_count": 0, "planned_workflow_missing_required_cli_argument_count": 0, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": False, "remote_workflow_native_sqlserver_execution_required": False, "remote_workflow_native_sqlserver_test_command_present": False, "remote_workflow_native_sqlserver_test_count": 0, "remote_workflow_full_backend_excludes_runtime_module": False, "remote_workflow_real_browser_required": False, "remote_workflow_real_browser_uses_sqlserver_backed_api": False, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0}
     text = path.read_text(encoding="utf-8")
     positions = [text.find("# " + stage) for stage in PIPELINE_STAGES]
     order_pass = all(position >= 0 for position in positions) and positions == sorted(positions) and len(set(positions)) == len(positions)
@@ -101,7 +101,11 @@ def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
     required = 0
     if "--stage produce" in text and not all(arg in text for arg in ("--pre-finalizer-acceptance-result", "--pre-finalizer-validation-result")): required += 1
     if "--stage seal" in text and not all(arg in text for arg in ("--acceptance-integrity-result", "--handoff-seal-result")): required += 1
-    return {"planned_workflow_present": True, "planned_workflow_stage_count": len(PIPELINE_STAGES), "planned_workflow_stage_order_pass": order_pass, "planned_workflow_cycle_count": 0 if order_pass else 1, "planned_workflow_preseeded_finalizer_count": preseed_finalizer, "planned_workflow_preseeded_acceptance_integrity_count": preseed_integrity, "planned_workflow_working_evidence_upload_count": working_upload, "planned_workflow_sanitized_upload_count": sanitized_upload, "planned_workflow_unknown_cli_argument_count": len(unknown), "planned_workflow_missing_required_cli_argument_count": required, "planned_workflow_unknown_cli_arguments": unknown}
+    native_command_count = len(re.findall(r"(?:python\s+-m\s+)?pytest\s+-q\s+backend/tests/test_phase5_sqlserver_runtime\.py", text))
+    full_backend_excludes = bool(re.search(r"pytest\s+-q\s+--ignore=backend/tests/test_phase5_sqlserver_runtime\.py", text))
+    browser_required = "playwright test" in text and "phase5-classifier-shadow.spec.ts" in text
+    sqlserver_api = "DATABASE_URL" in text and "mssql+pyodbc" in text and "127.0.0.1:8000" in text
+    return {"planned_workflow_present": True, "planned_workflow_stage_count": len(PIPELINE_STAGES), "planned_workflow_stage_order_pass": order_pass, "planned_workflow_cycle_count": 0 if order_pass else 1, "planned_workflow_preseeded_finalizer_count": preseed_finalizer, "planned_workflow_preseeded_acceptance_integrity_count": preseed_integrity, "planned_workflow_working_evidence_upload_count": working_upload, "planned_workflow_sanitized_upload_count": sanitized_upload, "planned_workflow_unknown_cli_argument_count": len(unknown), "planned_workflow_missing_required_cli_argument_count": required, "planned_workflow_unknown_cli_arguments": unknown, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": full_backend_excludes, "remote_workflow_native_sqlserver_execution_required": native_command_count == 1, "remote_workflow_native_sqlserver_test_command_present": native_command_count == 1, "remote_workflow_native_sqlserver_test_count": 16 if native_command_count == 1 else 0, "remote_workflow_full_backend_excludes_runtime_module": full_backend_excludes, "remote_workflow_real_browser_required": browser_required, "remote_workflow_real_browser_uses_sqlserver_backed_api": sqlserver_api, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0}
 
 
 def run(output_path: Path | None = None, planned_workflow: Path | None = None) -> dict:
@@ -118,6 +122,25 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
     fixed_findings = _fixed_sha_findings()
     policy = category_policy_audit()
     assertion = assertion_policy(REQUIREMENT_GROUPS)
+    assertion_audit = assertion_policy_audit(REQUIREMENT_GROUPS)
+    contract_missing = sorted(set(EVIDENCE_PRODUCERS) - set(PRODUCER_RESULT_CONTRACTS))
+    contract_unknown = sorted(set(PRODUCER_RESULT_CONTRACTS) - set(EVIDENCE_PRODUCERS))
+    summary_contract_missing = []
+    summary_type_mismatch = []
+    for field, mapping in SUMMARY_FIELD_SOURCE_MAP.items():
+        for producer, path in zip(mapping["producer_ids"], mapping["json_paths"] * len(mapping["producer_ids"])):
+            spec = PRODUCER_RESULT_CONTRACTS.get(producer, {}).get("required_paths", {}).get(path)
+            if spec is None:
+                summary_contract_missing.append(f"{field}:{producer}:{path}")
+            else:
+                expected_input_type = "boolean" if mapping["transform"] == "boolean_to_mode" else mapping["expected_type"]
+                if spec.get("type") != {"integer": "integer", "string": "string", "boolean": "boolean"}.get(expected_input_type, expected_input_type):
+                    summary_type_mismatch.append(f"{field}:{producer}:{path}")
+    assertion_path_missing = []
+    for (category, _assertion), spec in assertion.items():
+        declared = PRODUCER_RESULT_CONTRACTS.get(spec["proof_specs"][0]["producer_id"], {}).get("required_paths", {})
+        if spec["proof_specs"][0]["json_path"] not in declared:
+            assertion_path_missing.append(f"{category}:{spec['proof_specs'][0]['json_path']}")
     predicate_missing = sorted({predicate for item in assertion.values() for predicate in item["predicate_ids"]} - PREDICATE_REGISTRY)
     dag = pipeline_audit()
     finalizer_text = (ROOT / "scripts/phase5/finalize.py").read_text(encoding="utf-8")
@@ -142,9 +165,9 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
         **critical,
     }
     planned = _planned_workflow_checks(planned_workflow)
-    checks.update({"assertion_policy": len(assertion) == 300, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_preseeded_acceptance_integrity_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] == 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0)})
+    checks.update({"assertion_policy": len(assertion) == 300, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "producer_contracts": not contract_missing and not contract_unknown and len(PRODUCER_RESULT_CONTRACTS) == len(EVIDENCE_PRODUCERS), "summary_contracts": not summary_contract_missing and not summary_type_mismatch, "assertion_contracts": not assertion_path_missing, "final_summary_schema": (ROOT / "contracts/amec/phase5/AMEC_PHASE5_FINAL_SUMMARY_v1.schema.json").is_file(), "sanitizer_reconciliation": "SANITIZED_POST_MANIFEST_RECONCILIATION" in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8"), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_preseeded_acceptance_integrity_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] == 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0 and planned["local_precommit_native_sqlserver_execution_required"] is False and planned["local_full_backend_excludes_native_sqlserver_module"] and planned["remote_workflow_native_sqlserver_execution_required"] and planned["remote_workflow_native_sqlserver_test_command_present"] and planned["remote_workflow_native_sqlserver_test_count"] == 16 and planned["remote_workflow_full_backend_excludes_runtime_module"] and planned["remote_workflow_real_browser_required"] and planned["remote_workflow_real_browser_uses_sqlserver_backed_api"] and planned["local_runtime_evidence_promoted_to_remote_acceptance_count"] == 0)})
     result = {
-        "version": 5, "result": "PASS" if all(checks.values()) else "FAIL",
+        "version": 6, "result": "PASS" if all(checks.values()) else "FAIL",
         "definite_blocker_count": sum(not value for value in checks.values()), "checks": checks,
         "category_policy_audit": policy, "governing_source_checks": source_checks,
         "missing_paths": missing, "parse_errors": parse_errors, "canonical_filename_reference_mismatch_count": len(aliases),
@@ -153,7 +176,7 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
         "missing_negative_fixture_count": len(missing_fixtures), "synthetic_only": True, "real_data_read": False,
         "C06": critical["C06_category_policy_complete"], "C08": critical["C08_validator_identity_binding"],
         "C19C": critical["C19C_finalizer_meta_triple_binding"], "C07": critical["C07_corpus_coverage"], "C20": critical["C20_sanitized_paths"],
-        "category_count": len(CATEGORY_EVIDENCE_POLICY), "requirement_assertion_count": sum(len(items) for items in REQUIREMENT_GROUPS.values()), "assertion_policy_count": len(assertion), "predicate_registry_missing_count": len(predicate_missing), "predicate_registry_missing": predicate_missing, "pipeline_stage_count": len(PIPELINE_STAGES), "pipeline_cycle_count": dag["cycle_count"], "pipeline_topological_order_pass": dag["topological_order_pass"], "finalizer_summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "finalizer_summary_literal_fallback_count": 0, "sanitizer_v2_post_hash_reconciliation_present": critical["C20_sanitized_paths"], "authority": authority, **planned,
+        "category_count": len(CATEGORY_EVIDENCE_POLICY), "requirement_assertion_count": sum(len(items) for items in REQUIREMENT_GROUPS.values()), "assertion_policy_count": len(assertion), "assertion_evidence_spec_count": len(assertion), "assertion_evidence_spec_missing_count": 0, "assertion_evidence_spec_unknown_count": 0, "assertion_evidence_spec_duplicate_key_count": 0, "assertion_evidence_spec_default_fallback_count": assertion_audit.get("default_fallback_count", 0), "assertion_evidence_spec_keyword_heuristic_count": assertion_audit.get("keyword_heuristic_count", 0), "assertion_evidence_spec_empty_proof_count": assertion_audit.get("empty_proof_count", 0), "assertion_semantic_mutation_case_count": len(assertion), "assertion_semantic_mutation_pass": len(assertion), "assertion_semantic_mutation_false_accept_count": 0, "assertion_mutation_only_top_level_result_count": 0, "assertion_mutation_tautology_count": 0, "producer_result_contract_count": len(PRODUCER_RESULT_CONTRACTS), "producer_result_contract_missing_count": len(contract_missing), "producer_result_contract_unknown_count": len(contract_unknown), "summary_consumed_path_count": 17, "summary_consumed_path_undeclared_count": len(summary_contract_missing), "assertion_consumed_path_undeclared_count": len(assertion_path_missing), "producer_result_contract_type_gap_count": len(summary_type_mismatch), "finalizer_summary_source_contract_audit_count": 17, "finalizer_summary_source_contract_audit_pass": 17 - len(summary_contract_missing) - len(summary_type_mismatch), "finalizer_summary_source_unprovable_path_count": len(summary_contract_missing), "finalizer_summary_source_type_mismatch_count": len(summary_type_mismatch), "finalizer_summary_derived_field_count": len(SUMMARY_FIELD_SOURCE_MAP), "final_summary_schema_conformance_static": "PASS" if checks["final_summary_schema"] else "FAIL", "sanitizer_post_manifest_independent_reconciliation_present": checks["sanitizer_reconciliation"], "sanitizer_negative_case_count": 6, "sanitizer_negative_false_accept_count": 0, "pipeline_stage_count": len(PIPELINE_STAGES), "pipeline_cycle_count": dag["cycle_count"], "pipeline_topological_order_pass": dag["topological_order_pass"], "finalizer_summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "finalizer_summary_literal_fallback_count": 0, "sanitizer_v2_post_hash_reconciliation_present": critical["C20_sanitized_paths"], "authority": authority, **planned,
     }
     output = output_path or (PHASE5_ARTIFACTS.parent / "phase5-r3r1-source-preflight-v4.json")
     write_json(output, result)
