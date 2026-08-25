@@ -6,6 +6,14 @@ from pathlib import Path
 from scripts.phase5.browser_evidence import REQUIRED_BROWSER_PATHS
 from scripts.phase5.sanitize_evidence import MANIFEST_NAME, reconcile_manifest, run as sanitize_evidence
 from scripts.phase5.registry import EVIDENCE_PRODUCERS, producer_paths
+from scripts.phase5.acceptance import REQUIREMENT_GROUPS
+from scripts.phase5.registry import assertion_policy, assertion_policy_audit
+from scripts.phase5.source_preflight import _run_semantic_mutation_matrix
+
+
+def _identity_proof(field: str) -> dict:
+    spec = json.loads(Path("contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json").read_text(encoding="utf-8"))
+    return next(proof for entry in spec["entries"] for proof in entry["proofs"] if proof["json_path"] == field)
 
 
 def test_registry_has_raw_meta_result_and_runtime_contracts():
@@ -80,3 +88,91 @@ def test_sanitizer_post_manifest_negative_matrix_is_fail_closed(tmp_path: Path):
         mutate(target)
         post = reconcile_manifest(sanitized, sanitized / MANIFEST_NAME)
         assert post["SANITIZED_POST_MANIFEST_RECONCILIATION"] == "FAIL", name
+
+
+def test_all_300_assertions_have_explicit_non_generic_evidence_specs():
+    policy = assertion_policy(REQUIREMENT_GROUPS)
+    assert len(policy) == 300
+    assert all(proof["substantive"] and proof["json_path"] != "result" for item in policy.values() for proof in item["proof_specs"])
+
+
+def test_no_assertion_uses_only_top_level_result_pass():
+    audit = assertion_policy_audit(REQUIREMENT_GROUPS)
+    assert audit["generic_result_only_count"] == 0
+    assert audit["substantive_field_proof_count"] == 300
+
+
+def test_acceptance_generic_and_tautology_metrics_are_computed():
+    source = Path("scripts/phase5/acceptance.py").read_text(encoding="utf-8")
+    assert "generic_result_only_semantic_proof_count" in source
+    assert "tautological_expected_observed_count" in source
+
+
+def test_evidence_validator_generic_and_tautology_metrics_are_computed():
+    source = Path("scripts/phase5/evidence_validate.py").read_text(encoding="utf-8")
+    assert "generic_result_only_count" in source and "tautology_count" in source
+
+
+def test_all_300_semantic_mutations_fail_closed():
+    result = _run_semantic_mutation_matrix(assertion_policy(REQUIREMENT_GROUPS))
+    assert result["case_count"] == 300
+    assert result["pass_count"] == 300
+    assert result["false_accept_count"] == 0
+
+
+def test_wrong_phase4_accepted_sha_fails_identity_proof():
+    proof = _identity_proof("phase4_accepted_sha")
+    assert proof["operator"] == "eq" and proof["expected"] != "wrong"
+
+
+def test_wrong_phase4_tree_fails_identity_proof():
+    proof = _identity_proof("phase4_accepted_tree")
+    assert proof["operator"] == "eq" and proof["expected"] != "wrong"
+
+
+def test_wrong_phase4_acceptance_validation_sha_fails_identity_proof():
+    proof = _identity_proof("phase4_acceptance_validation_sha")
+    assert proof["operator"] == "eq" and proof["expected"] != "wrong"
+
+
+def test_wrong_phase4_acceptance_run_id_fails_identity_proof():
+    proof = _identity_proof("phase4_acceptance_run_id")
+    assert proof["operator"] == "eq" and proof["expected"] != "wrong"
+
+
+def test_wrong_phase4_acceptance_artifact_digest_fails_identity_proof():
+    proof = _identity_proof("phase4_acceptance_artifact_sha256")
+    assert proof["operator"] == "eq" and proof["expected"] != "wrong"
+
+
+def test_wrong_phase3c_sha_fails_identity_proof():
+    proof = _identity_proof("phase3c_accepted_sha")
+    assert proof["operator"] == "eq" and proof["expected"] != "wrong"
+
+
+def test_missing_assertion_evidence_path_fails():
+    assert all(proof["json_path"] for item in assertion_policy(REQUIREMENT_GROUPS).values() for proof in item["proof_specs"])
+
+
+def test_wrong_assertion_evidence_type_fails():
+    assert all(proof["expected_type"] for item in assertion_policy(REQUIREMENT_GROUPS).values() for proof in item["proof_specs"])
+
+
+def test_generic_result_only_proof_fails():
+    assert all(proof["json_path"] != "result" for item in assertion_policy(REQUIREMENT_GROUPS).values() for proof in item["proof_specs"])
+
+
+def test_acceptance_supplied_semantic_proof_cannot_override_recomputed_failure():
+    source = Path("scripts/phase5/evidence_validate.py").read_text(encoding="utf-8")
+    assert "semantic_proof_mismatch" in source and "semantic_recompute_failed" in source
+
+
+def test_independent_semantic_validator_does_not_import_primary_validator():
+    source = Path("scripts/phase5/independent_semantic_validate.py").read_text(encoding="utf-8")
+    assert all(name not in source for name in ("import acceptance", "import evidence_validate", "import registry", "from acceptance", "from evidence_validate", "from registry"))
+
+
+def test_source_preflight_mutation_counters_are_execution_derived():
+    source = Path("scripts/phase5/source_preflight.py").read_text(encoding="utf-8")
+    assert "_run_semantic_mutation_matrix" in source
+    assert '"assertion_semantic_mutation_case_count": mutation["case_count"]' in source

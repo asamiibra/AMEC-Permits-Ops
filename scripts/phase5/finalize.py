@@ -5,8 +5,12 @@ import re
 from pathlib import Path
 from typing import Any
 
-from common import CLASSIFIER_VERSION, INPUT_IDENTITIES, PHASE5_ARTIFACTS, PHASE5_CONTRACTS, RULES_VERSION, TAXONOMY_REVISION, read_json, sha256_file, write_json
-from registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, producer_paths, validate_producer_payload_contract
+try:
+    from common import CLASSIFIER_VERSION, INPUT_IDENTITIES, PHASE5_ARTIFACTS, PHASE5_CONTRACTS, RULES_VERSION, TAXONOMY_REVISION, read_json, sha256_file, write_json
+    from registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, producer_paths, validate_producer_payload_contract
+except ModuleNotFoundError:
+    from .common import CLASSIFIER_VERSION, INPUT_IDENTITIES, PHASE5_ARTIFACTS, PHASE5_CONTRACTS, RULES_VERSION, TAXONOMY_REVISION, read_json, sha256_file, write_json
+    from .registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, producer_paths, validate_producer_payload_contract
 
 
 # Normative, machine-readable source map. Every governing summary value is
@@ -128,6 +132,11 @@ def _require_stage_result(path: Path, expected_count: int, label: str) -> dict[s
     return payload
 
 
+def _require_truth_metrics(payload: dict[str, Any], expected_count: int, label: str) -> None:
+    if payload.get("generic_result_only_semantic_proof_count") != 0 or payload.get("specific_field_semantic_proof_count") != expected_count or payload.get("tautological_expected_observed_count") != 0 or payload.get("acceptance_pass_with_failed_semantic_proof_count") != 0 or payload.get("acceptance_pass_with_missing_producer_count") != 0 or payload.get("acceptance_pass_with_contract_invalid_producer_count") != 0:
+        raise RuntimeError(f"FINALIZER_STOP:{label}-evidence-truth-metrics")
+
+
 def validate_final_summary_schema(payload: dict[str, Any], contracts_dir: Path) -> list[str]:
     """Validate the governing schema subset without adding a dependency."""
     schema = read_json(contracts_dir / CANONICAL_ARTIFACTS["final_summary_schema"])
@@ -158,9 +167,10 @@ def produce(*, contracts_dir: Path, evidence_dir: Path, pre_finalizer_acceptance
     if not re.fullmatch(r"[0-9a-f]{40}", expected_candidate_sha) or not re.fullmatch(r"[0-9a-f]{40}", expected_validation_sha) or not expected_run_id:
         raise RuntimeError("FINALIZER_STOP:invalid-identity")
     expected = (expected_candidate_sha, expected_validation_sha, expected_run_id)
-    _require_stage_result(pre_finalizer_acceptance_path, 280, "pre-finalizer-acceptance")
+    pre_acceptance = _require_stage_result(pre_finalizer_acceptance_path, 280, "pre-finalizer-acceptance")
+    _require_truth_metrics(pre_acceptance, 280, "pre-finalizer-acceptance")
     validation = read_json(pre_finalizer_validation_path)
-    if validation.get("result") != "PASS" or validation.get("stage") != "PRE_FINALIZER" or validation.get("check_count") != 280 or validation.get("false_accept_count") != 0:
+    if validation.get("result") != "PASS" or validation.get("stage") != "PRE_FINALIZER" or validation.get("check_count") != 280 or validation.get("false_accept_count") != 0 or validation.get("generic_result_only_semantic_proof_count") != 0 or validation.get("specific_field_semantic_proof_count") != 280 or validation.get("tautological_expected_observed_count") != 0:
         raise RuntimeError("FINALIZER_STOP:pre-finalizer-validation-not-pass")
     missing_contracts = [name for key, name in CANONICAL_ARTIFACTS.items() if key in PRE_FINALIZER_KEYS and not (contracts_dir / name).is_file()]
     errors = missing_contracts + _producer_errors(contracts_dir, evidence_dir, expected)
@@ -180,8 +190,9 @@ def produce(*, contracts_dir: Path, evidence_dir: Path, pre_finalizer_acceptance
 def seal(*, contracts_dir: Path, evidence_dir: Path, acceptance_path: Path, validation_path: Path, acceptance_integrity_path: Path, output_path: Path, handoff_path: Path, expected_candidate_sha: str, expected_validation_sha: str, expected_run_id: str) -> dict[str, Any]:
     expected = (expected_candidate_sha, expected_validation_sha, expected_run_id)
     acceptance = _require_stage_result(acceptance_path, 300, "final-acceptance")
+    _require_truth_metrics(acceptance, 300, "final-acceptance")
     validation = read_json(validation_path); integrity = read_json(acceptance_integrity_path); finalizer = read_json(producer_paths("finalizer", evidence_dir)["result"])
-    if validation.get("result") != "PASS" or validation.get("stage") != "FINAL" or validation.get("check_count") != 300 or validation.get("false_accept_count") != 0:
+    if validation.get("result") != "PASS" or validation.get("stage") != "FINAL" or validation.get("check_count") != 300 or validation.get("false_accept_count") != 0 or validation.get("generic_result_only_semantic_proof_count") != 0 or validation.get("specific_field_semantic_proof_count") != 300 or validation.get("tautological_expected_observed_count") != 0:
         raise RuntimeError("HANDOFF_SEAL_STOP:final-validation-not-pass")
     if integrity.get("result") != "PASS" or integrity.get("draft_check_count") != 290:
         raise RuntimeError("HANDOFF_SEAL_STOP:acceptance-integrity-not-pass")

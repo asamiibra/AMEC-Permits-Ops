@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import platform
+import pyodbc
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
@@ -47,6 +49,11 @@ def run(junitxml: Path, bootstrap_result: Path, output: Path) -> dict[str, Any]:
         "gate_count": len(REQUIRED_GATES), "failed_count": failed, "skipped_count": skipped,
         "gates": gates, "gate_test_names": {gate: next((name for name in statuses if gate in name), None) for gate in REQUIRED_GATES},
         "database_schema_delta": bootstrap.get("database_schema_delta"), "junit_testcase_count": len(statuses),
+        "native_x64": platform.machine().lower() in {"x86_64", "amd64"},
+        "pyodbc_driver": "ODBC Driver 18 for SQL Server" in pyodbc.drivers(),
+        "boolean_predicates_portable": gates.get("boolean_predicates_portable", "NOT_EXECUTED") == "PASS",
+        "reflection_portable": gates.get("reflection_compatibility", "NOT_EXECUTED") == "PASS",
+        "result_version": 2,
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")

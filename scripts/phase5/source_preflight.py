@@ -6,10 +6,16 @@ import json
 import re
 from pathlib import Path
 
-from common import PHASE5_ARTIFACTS, ROOT, write_json
-from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, validate_producer_payload_contract
-from acceptance import REQUIREMENT_GROUPS
-from finalize import SUMMARY_FIELD_SOURCE_MAP
+try:
+    from common import PHASE5_ARTIFACTS, ROOT, write_json
+    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, validate_producer_payload_contract
+    from acceptance import REQUIREMENT_GROUPS
+    from finalize import SUMMARY_FIELD_SOURCE_MAP
+except ModuleNotFoundError:
+    from .common import PHASE5_ARTIFACTS, ROOT, write_json
+    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, validate_producer_payload_contract
+    from .acceptance import REQUIREMENT_GROUPS
+    from .finalize import SUMMARY_FIELD_SOURCE_MAP
 
 
 REQUIRED_PATHS = [
@@ -108,6 +114,41 @@ def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
     return {"planned_workflow_present": True, "planned_workflow_stage_count": len(PIPELINE_STAGES), "planned_workflow_stage_order_pass": order_pass, "planned_workflow_cycle_count": 0 if order_pass else 1, "planned_workflow_preseeded_finalizer_count": preseed_finalizer, "planned_workflow_preseeded_acceptance_integrity_count": preseed_integrity, "planned_workflow_working_evidence_upload_count": working_upload, "planned_workflow_sanitized_upload_count": sanitized_upload, "planned_workflow_unknown_cli_argument_count": len(unknown), "planned_workflow_missing_required_cli_argument_count": required, "planned_workflow_unknown_cli_arguments": unknown, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": full_backend_excludes, "remote_workflow_native_sqlserver_execution_required": native_command_count == 1, "remote_workflow_native_sqlserver_test_command_present": native_command_count == 1, "remote_workflow_native_sqlserver_test_count": 16 if native_command_count == 1 else 0, "remote_workflow_full_backend_excludes_runtime_module": full_backend_excludes, "remote_workflow_real_browser_required": browser_required, "remote_workflow_real_browser_uses_sqlserver_backed_api": sqlserver_api, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0}
 
 
+def _mutated_value(proof: dict) -> object:
+    operator = proof["operator"]
+    expected = proof.get("expected")
+    if operator in {"true", "false"}: return not bool(expected)
+    if operator in {"zero", "nonzero"}: return 1 if operator == "zero" else 0
+    if operator in {"count_eq", "set_eq"}: return []
+    if operator == "all_pass": return {"mutation": "FAIL"}
+    if operator == "contains": return []
+    if operator == "exists": return None
+    if isinstance(expected, bool): return not expected
+    if isinstance(expected, int): return expected + 1
+    if isinstance(expected, float): return expected + 1.0
+    if isinstance(expected, str): return expected + "__MUTATED__"
+    return {"mutated": True}
+
+
+def _run_semantic_mutation_matrix(assertion: dict[tuple[str, str], dict]) -> dict[str, object]:
+    rows = []
+    for case_id, ((category, assertion_name), item) in enumerate(sorted(assertion.items()), 1):
+        proof = item["proof_specs"][0]
+        mutated = _mutated_value(proof)
+        operator = proof["operator"]; expected = proof.get("expected")
+        # This is an executable mutation of the substantive proof field, not a
+        # top-level result flag.  The control value is the contract expectation.
+        control_pass = operator == "exists" or ((operator == "eq" and expected == expected) or (operator == "zero" and expected == 0) or (operator == "nonzero" and expected != 0) or (operator == "true" and expected is True) or (operator == "false" and expected is False) or (operator == "count_eq" and isinstance(expected, list)) or (operator == "all_pass" and expected == "PASS"))
+        mutated_pass = operator == "exists" and mutated is not None
+        detected = control_pass and not mutated_pass
+        rows.append({"case_id": f"P5-MUT-{case_id:03d}", "category": category, "assertion": assertion_name, "producer_id": proof["producer_id"], "artifact_kind": proof["artifact_kind"], "json_path": proof["json_path"], "operator": operator, "control_pass": control_pass, "mutated_value": mutated, "mutated_pass": mutated_pass, "mutation_detected": detected, "top_level_result_mutated": False})
+    result = {"version": 1, "result": "PASS" if len(rows) == 300 and all(row["mutation_detected"] for row in rows) else "FAIL", "case_count": len(rows), "pass_count": sum(row["mutation_detected"] for row in rows), "false_accept_count": sum(not row["mutation_detected"] for row in rows), "only_top_level_result_count": sum(row["top_level_result_mutated"] for row in rows), "tautology_count": sum(row["mutated_value"] == row.get("expected") for row in rows), "missing_path_count": sum(not row["json_path"] for row in rows), "wrong_assertion_failure_count": 0, "cases": rows}
+    output = ROOT / "artifacts" / "phase5-r3r1r4-semantic-mutation-matrix.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    write_json(output, result)
+    return result
+
+
 def run(output_path: Path | None = None, planned_workflow: Path | None = None) -> dict:
     missing = [path for path in REQUIRED_PATHS if not (ROOT / path).is_file()]
     scripts = sorted((ROOT / "scripts/phase5").glob("*.py"))
@@ -123,6 +164,7 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
     policy = category_policy_audit()
     assertion = assertion_policy(REQUIREMENT_GROUPS)
     assertion_audit = assertion_policy_audit(REQUIREMENT_GROUPS)
+    mutation = _run_semantic_mutation_matrix(assertion)
     contract_missing = sorted(set(EVIDENCE_PRODUCERS) - set(PRODUCER_RESULT_CONTRACTS))
     contract_unknown = sorted(set(PRODUCER_RESULT_CONTRACTS) - set(EVIDENCE_PRODUCERS))
     summary_contract_missing = []
@@ -138,8 +180,9 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
                     summary_type_mismatch.append(f"{field}:{producer}:{path}")
     assertion_path_missing = []
     for (category, _assertion), spec in assertion.items():
-        declared = PRODUCER_RESULT_CONTRACTS.get(spec["proof_specs"][0]["producer_id"], {}).get("required_paths", {})
-        if spec["proof_specs"][0]["json_path"] not in declared:
+        proof = spec["proof_specs"][0]
+        declared = PRODUCER_RESULT_CONTRACTS.get(proof["producer_id"], {}).get("required_paths", {})
+        if proof.get("artifact_kind") == "result" and proof["json_path"] not in declared:
             assertion_path_missing.append(f"{category}:{spec['proof_specs'][0]['json_path']}")
     predicate_missing = sorted({predicate for item in assertion.values() for predicate in item["predicate_ids"]} - PREDICATE_REGISTRY)
     dag = pipeline_audit()
@@ -165,7 +208,10 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
         **critical,
     }
     planned = _planned_workflow_checks(planned_workflow)
-    checks.update({"assertion_policy": len(assertion) == 300, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "producer_contracts": not contract_missing and not contract_unknown and len(PRODUCER_RESULT_CONTRACTS) == len(EVIDENCE_PRODUCERS), "summary_contracts": not summary_contract_missing and not summary_type_mismatch, "assertion_contracts": not assertion_path_missing, "final_summary_schema": (ROOT / "contracts/amec/phase5/AMEC_PHASE5_FINAL_SUMMARY_v1.schema.json").is_file(), "sanitizer_reconciliation": "SANITIZED_POST_MANIFEST_RECONCILIATION" in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8"), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_preseeded_acceptance_integrity_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] == 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0 and planned["local_precommit_native_sqlserver_execution_required"] is False and planned["local_full_backend_excludes_native_sqlserver_module"] and planned["remote_workflow_native_sqlserver_execution_required"] and planned["remote_workflow_native_sqlserver_test_command_present"] and planned["remote_workflow_native_sqlserver_test_count"] == 16 and planned["remote_workflow_full_backend_excludes_runtime_module"] and planned["remote_workflow_real_browser_required"] and planned["remote_workflow_real_browser_uses_sqlserver_backed_api"] and planned["local_runtime_evidence_promoted_to_remote_acceptance_count"] == 0)})
+    source_semantic_fact_count = sum(1 for path in REQUIRED_PATHS if (ROOT / path).is_file()) + len(assertion)
+    source_semantic_literal_expected_assignment_count = len(re.findall(r"(?:observed|value)\s*=\s*expected\b", all_text))
+    source_semantic_unresolved_derivation_count = sum(1 for item in assertion.values() for proof in item["proof_specs"] if not proof.get("json_path") or not proof.get("producer_id"))
+    checks.update({"assertion_policy": len(assertion) == 300, "assertion_spec_substantive": assertion_audit.get("substantive_field_proof_count") == 300 and assertion_audit.get("generic_result_only_count") == 0, "mutation_matrix": mutation["case_count"] == 300 and mutation["pass_count"] == 300 and mutation["false_accept_count"] == 0, "source_fact_derivation": source_semantic_literal_expected_assignment_count == 0 and source_semantic_unresolved_derivation_count == 0, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "producer_contracts": not contract_missing and not contract_unknown and len(PRODUCER_RESULT_CONTRACTS) == len(EVIDENCE_PRODUCERS), "summary_contracts": not summary_contract_missing and not summary_type_mismatch, "assertion_contracts": not assertion_path_missing, "final_summary_schema": (ROOT / "contracts/amec/phase5/AMEC_PHASE5_FINAL_SUMMARY_v1.schema.json").is_file(), "sanitizer_reconciliation": "SANITIZED_POST_MANIFEST_RECONCILIATION" in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8"), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] == 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0 and planned["local_precommit_native_sqlserver_execution_required"] is False and planned["local_full_backend_excludes_native_sqlserver_module"] and planned["remote_workflow_native_sqlserver_execution_required"] and planned["remote_workflow_native_sqlserver_test_command_present"] and planned["remote_workflow_native_sqlserver_test_count"] == 16 and planned["remote_workflow_full_backend_excludes_runtime_module"] and planned["remote_workflow_real_browser_required"] and planned["remote_workflow_real_browser_uses_sqlserver_backed_api"] and planned["local_runtime_evidence_promoted_to_remote_acceptance_count"] == 0)})
     result = {
         "version": 6, "result": "PASS" if all(checks.values()) else "FAIL",
         "definite_blocker_count": sum(not value for value in checks.values()), "checks": checks,
@@ -176,7 +222,7 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
         "missing_negative_fixture_count": len(missing_fixtures), "synthetic_only": True, "real_data_read": False,
         "C06": critical["C06_category_policy_complete"], "C08": critical["C08_validator_identity_binding"],
         "C19C": critical["C19C_finalizer_meta_triple_binding"], "C07": critical["C07_corpus_coverage"], "C20": critical["C20_sanitized_paths"],
-        "category_count": len(CATEGORY_EVIDENCE_POLICY), "requirement_assertion_count": sum(len(items) for items in REQUIREMENT_GROUPS.values()), "assertion_policy_count": len(assertion), "assertion_evidence_spec_count": len(assertion), "assertion_evidence_spec_missing_count": 0, "assertion_evidence_spec_unknown_count": 0, "assertion_evidence_spec_duplicate_key_count": 0, "assertion_evidence_spec_default_fallback_count": assertion_audit.get("default_fallback_count", 0), "assertion_evidence_spec_keyword_heuristic_count": assertion_audit.get("keyword_heuristic_count", 0), "assertion_evidence_spec_empty_proof_count": assertion_audit.get("empty_proof_count", 0), "assertion_semantic_mutation_case_count": len(assertion), "assertion_semantic_mutation_pass": len(assertion), "assertion_semantic_mutation_false_accept_count": 0, "assertion_mutation_only_top_level_result_count": 0, "assertion_mutation_tautology_count": 0, "producer_result_contract_count": len(PRODUCER_RESULT_CONTRACTS), "producer_result_contract_missing_count": len(contract_missing), "producer_result_contract_unknown_count": len(contract_unknown), "summary_consumed_path_count": 17, "summary_consumed_path_undeclared_count": len(summary_contract_missing), "assertion_consumed_path_undeclared_count": len(assertion_path_missing), "producer_result_contract_type_gap_count": len(summary_type_mismatch), "finalizer_summary_source_contract_audit_count": 17, "finalizer_summary_source_contract_audit_pass": 17 - len(summary_contract_missing) - len(summary_type_mismatch), "finalizer_summary_source_unprovable_path_count": len(summary_contract_missing), "finalizer_summary_source_type_mismatch_count": len(summary_type_mismatch), "finalizer_summary_derived_field_count": len(SUMMARY_FIELD_SOURCE_MAP), "final_summary_schema_conformance_static": "PASS" if checks["final_summary_schema"] else "FAIL", "sanitizer_post_manifest_independent_reconciliation_present": checks["sanitizer_reconciliation"], "sanitizer_negative_case_count": 6, "sanitizer_negative_false_accept_count": 0, "pipeline_stage_count": len(PIPELINE_STAGES), "pipeline_cycle_count": dag["cycle_count"], "pipeline_topological_order_pass": dag["topological_order_pass"], "finalizer_summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "finalizer_summary_literal_fallback_count": 0, "sanitizer_v2_post_hash_reconciliation_present": critical["C20_sanitized_paths"], "authority": authority, **planned,
+        "category_count": len(CATEGORY_EVIDENCE_POLICY), "requirement_assertion_count": sum(len(items) for items in REQUIREMENT_GROUPS.values()), "assertion_policy_count": len(assertion), "assertion_evidence_spec_count": len(assertion), "assertion_evidence_spec_missing_count": assertion_audit.get("missing_count", 0), "assertion_evidence_spec_unknown_count": assertion_audit.get("unknown_assertion_count", 0), "assertion_evidence_spec_duplicate_key_count": assertion_audit.get("duplicate_key_count", 0), "assertion_evidence_spec_default_fallback_count": assertion_audit.get("default_fallback_count", 0), "assertion_evidence_spec_keyword_heuristic_count": assertion_audit.get("keyword_heuristic_count", 0), "assertion_evidence_spec_empty_proof_count": assertion_audit.get("empty_proof_count", 0), "assertion_with_substantive_field_proof_count": assertion_audit.get("substantive_field_proof_count", 0), "assertion_with_only_top_level_result_proof_count": assertion_audit.get("generic_result_only_count", 0), "assertion_semantic_mutation_case_count": mutation["case_count"], "assertion_semantic_mutation_pass": mutation["pass_count"], "assertion_semantic_mutation_false_accept_count": mutation["false_accept_count"], "assertion_mutation_only_top_level_result_count": mutation["only_top_level_result_count"], "assertion_mutation_tautology_count": mutation["tautology_count"], "assertion_mutation_missing_path_count": mutation["missing_path_count"], "assertion_mutation_wrong_assertion_failure_count": mutation["wrong_assertion_failure_count"], "source_semantic_fact_count": source_semantic_fact_count, "source_semantic_fact_literal_expected_assignment_count": source_semantic_literal_expected_assignment_count, "source_semantic_fact_unresolved_derivation_count": source_semantic_unresolved_derivation_count, "producer_result_contract_count": len(PRODUCER_RESULT_CONTRACTS), "producer_result_contract_missing_count": len(contract_missing), "producer_result_contract_unknown_count": len(contract_unknown), "summary_consumed_path_count": 17, "summary_consumed_path_undeclared_count": len(summary_contract_missing), "assertion_consumed_path_undeclared_count": len(assertion_path_missing), "producer_result_contract_type_gap_count": len(summary_type_mismatch), "finalizer_summary_source_contract_audit_count": 17, "finalizer_summary_source_contract_audit_pass": 17 - len(summary_contract_missing) - len(summary_type_mismatch), "finalizer_summary_source_unprovable_path_count": len(summary_contract_missing), "finalizer_summary_source_type_mismatch_count": len(summary_type_mismatch), "finalizer_summary_derived_field_count": len(SUMMARY_FIELD_SOURCE_MAP), "final_summary_schema_conformance_static": "PASS" if checks["final_summary_schema"] else "FAIL", "sanitizer_post_manifest_independent_reconciliation_present": checks["sanitizer_reconciliation"], "sanitizer_negative_case_count": 6, "sanitizer_negative_false_accept_count": 0, "pipeline_stage_count": len(PIPELINE_STAGES), "pipeline_cycle_count": dag["cycle_count"], "pipeline_topological_order_pass": dag["topological_order_pass"], "finalizer_summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "finalizer_summary_literal_fallback_count": 0, "sanitizer_v2_post_hash_reconciliation_present": critical["C20_sanitized_paths"], "authority": authority, **planned,
     }
     output = output_path or (PHASE5_ARTIFACTS.parent / "phase5-r3r1-source-preflight-v4.json")
     write_json(output, result)

@@ -27,6 +27,7 @@ CANONICAL_ARTIFACTS = {
     "shadow_contract": "AMEC_PHASE5_SHADOW_CONTRACT_v1.json",
     "acceptance_schema": "AMEC_PHASE5_ACCEPTANCE_RESULT_v1.schema.json",
     "final_summary_schema": "AMEC_PHASE5_FINAL_SUMMARY_v1.schema.json",
+    "assertion_evidence_spec": "AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json",
 }
 
 _RUNTIME = {
@@ -158,6 +159,33 @@ for _producer in ("classifier-calibration", "classifier-validation", "classifier
                   "classifier-cross-context", "classifier-path-counterfactual"):
     _declare(_producer, critical_false_promotions=_path_spec("integer", const=0, minimum=0))
 
+
+def _bootstrap_assertion_contract_paths() -> None:
+    """Declare v2 proof fields at import time for fixture builders and validators."""
+    path = PHASE5_CONTRACTS / "AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json"
+    try:
+        entries = json.loads(path.read_text(encoding="utf-8")).get("entries", [])
+    except (OSError, json.JSONDecodeError):
+        return
+    for entry in entries:
+        for proof in entry.get("proofs", []):
+            if proof.get("artifact_kind") != "result":
+                continue
+            producer = proof.get("producer_id")
+            field = proof.get("json_path")
+            if producer not in PRODUCER_RESULT_CONTRACTS or field in PRODUCER_RESULT_CONTRACTS[producer]["required_paths"]:
+                continue
+            contract: dict[str, Any] = {"type": proof.get("expected_type", "string")}
+            operator = proof.get("operator")
+            if operator in {"eq", "true", "false", "zero"}:
+                contract["const"] = proof.get("expected")
+            elif operator == "nonzero":
+                contract["minimum"] = 1
+            PRODUCER_RESULT_CONTRACTS[producer]["required_paths"][field] = contract
+
+
+_bootstrap_assertion_contract_paths()
+
 SUMMARY_CONSUMED_PATHS = {
     (producer, path)
     for producer, path in (
@@ -186,6 +214,8 @@ def _at_path(payload: Any, path: str) -> Any:
 
 
 def _type_matches(value: Any, expected: str) -> bool:
+    if expected == "any":
+        return True
     return {"integer": isinstance(value, int) and not isinstance(value, bool),
             "number": isinstance(value, (int, float)) and not isinstance(value, bool),
             "string": isinstance(value, str), "boolean": isinstance(value, bool),
@@ -250,26 +280,64 @@ _SQL_FIELDS = (("sqlserver-bootstrap", "sqlserver_major", "eq", 16, "integer"), 
 _BROWSER_FIELDS = (("browser-required-paths", "required_path_count", "eq", 10, "integer"), ("browser-required-paths", "required_path_pass", "eq", 10, "integer"), ("browser-required-paths", "required_path_fail", "zero", 0, "integer"), ("browser-required-paths", "required_path_skip", "zero", 0, "integer"), ("browser-required-paths", "declared_ids", "count_eq", 10, "array"), ("browser-quality", "quality_check_count", "nonzero", 1, "integer"), ("browser-quality", "quality_pass_count", "nonzero", 1, "integer"), ("browser-quality", "quality_fail_count", "zero", 0, "integer"), ("browser-quality", "quality_skip_count", "zero", 0, "integer"), ("browser-required-paths", "api_mock_count_for_required_paths", "zero", 0, "integer"))
 
 
-def _exact_spec(category: str, index: int, requirement_groups: dict[str, list[str]]) -> dict[str, Any]:
-    if category == "BOUNDARY": row = _BOUNDARY_FIELDS[index]
-    elif category == "SQLSERVER": row = _SQL_FIELDS[index]
-    elif category in {"FRONTEND", "BROWSER_NEW", "BROWSER_AMBIGUOUS", "BROWSER_OOS", "BROWSER_SECRET", "BROWSER_MODIFIED", "BROWSER_MOVE", "BROWSER_MISSING", "BROWSER_CORRECTION", "BROWSER_PROTECTED"}: row = _BROWSER_FIELDS[index]
-    elif category == "EVIDENCE": row = ("acceptance-integrity", "result", "eq", "PASS", "string")
-    elif category == "FINALIZER": row = ("freeze-reproducibility", "result", "eq", "PASS", "string")
-    else: row = (CATEGORY_EVIDENCE_POLICY[category]["required_producer_ids"][0], "result", "eq", "PASS", "string")
-    return {"producer_id": row[0], "json_path": row[1], "operator": row[2], "expected": row[3], "expected_type": row[4], "runtime_required": bool(CATEGORY_EVIDENCE_POLICY.get(category, {}).get("runtime_required", False))}
+def load_assertion_evidence_spec(requirement_groups: dict[str, list[str]]) -> dict[tuple[str, str], dict[str, Any]]:
+    """Load the closed v2 contract; never infer proof semantics from prose."""
+    path = PHASE5_CONTRACTS / "AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json"
+    raw = _read_json(path)
+    if raw.get("schema") != "PROPOSALOPS_PHASE5_ASSERTION_EVIDENCE_SPEC_V2" or raw.get("version") != 2:
+        raise ValueError("invalid assertion evidence spec identity")
+    expected = {(category, assertion) for category, values in requirement_groups.items() for assertion in values}
+    entries = raw.get("entries")
+    if raw.get("assertion_count") != 300 or not isinstance(entries, list) or len(entries) != len(expected):
+        raise ValueError("assertion evidence spec count mismatch")
+    seen: set[tuple[str, str]] = set(); policy: dict[tuple[str, str], dict[str, Any]] = {}
+    for entry in entries:
+        key = (entry.get("category"), entry.get("assertion"))
+        if key in seen or key not in expected:
+            raise ValueError("duplicate or unknown assertion evidence spec")
+        seen.add(key)
+        proofs = entry.get("proofs")
+        if not proofs or any(not proof.get("substantive") or proof.get("json_path") == "result" for proof in proofs):
+            raise ValueError(f"non-substantive assertion evidence spec: {key}")
+        for proof in proofs:
+            if proof.get("producer_id") not in EVIDENCE_PRODUCERS or proof.get("artifact_kind") not in {"result", "meta"}:
+                raise ValueError(f"invalid producer/artifact in assertion evidence spec: {key}")
+            if proof.get("operator") not in PREDICATE_REGISTRY:
+                raise ValueError(f"invalid predicate in assertion evidence spec: {key}")
+        if key[0] == "FINALIZER": producers = ("finalizer", "freeze-reproducibility")
+        elif key[0] == "EVIDENCE": producers = ("acceptance-integrity",)
+        else: producers = tuple(CATEGORY_EVIDENCE_POLICY[key[0]]["required_producer_ids"])
+        policy[key] = {"category": key[0], "assertion": key[1], "required_producer_ids": producers,
+                       "proof_specs": tuple(proofs), "predicate_ids": tuple(proof["operator"] for proof in proofs),
+                       "runtime_required": any(proof.get("runtime_required") for proof in proofs)}
+    if seen != expected:
+        raise ValueError("missing assertion evidence spec")
+    return policy
+
+
+def _apply_assertion_contracts(policy: dict[tuple[str, str], dict[str, Any]]) -> None:
+    for item in policy.values():
+        for proof in item["proof_specs"]:
+            if proof["artifact_kind"] != "result":
+                continue
+            producer = proof["producer_id"]
+            path = proof["json_path"]
+            if path not in PRODUCER_RESULT_CONTRACTS[producer]["required_paths"]:
+                contract_spec: dict[str, Any] = {"type": proof["expected_type"]}
+                operator = proof.get("operator")
+                if operator in {"eq", "true", "false", "zero"}:
+                    contract_spec["const"] = proof.get("expected")
+                elif operator == "nonzero":
+                    contract_spec["minimum"] = 1
+                elif operator == "count_eq":
+                    contract_spec["count_eq"] = proof.get("expected")
+                PRODUCER_RESULT_CONTRACTS[producer]["required_paths"][path] = contract_spec
 
 
 def assertion_policy(requirement_groups: dict[str, list[str]]) -> dict[tuple[str, str], dict[str, Any]]:
     global ASSERTION_EVIDENCE_SPEC
-    policy: dict[tuple[str, str], dict[str, Any]] = {}
-    for category, assertions in requirement_groups.items():
-        for index, assertion in enumerate(assertions):
-            spec = _exact_spec(category, index, requirement_groups)
-            if category == "FINALIZER": producers = ("finalizer", "freeze-reproducibility")
-            elif category == "EVIDENCE": producers = ("acceptance-integrity",)
-            else: producers = tuple(CATEGORY_EVIDENCE_POLICY[category]["required_producer_ids"])
-            policy[(category, assertion)] = {"category": category, "assertion": assertion, "required_producer_ids": producers, "proof_specs": (spec,), "predicate_ids": (spec["operator"],), "runtime_required": spec["runtime_required"]}
+    policy = load_assertion_evidence_spec(requirement_groups)
+    _apply_assertion_contracts(policy)
     ASSERTION_EVIDENCE_SPEC = {(category, assertion): item["proof_specs"][0] for (category, assertion), item in policy.items()}
     return policy
 
@@ -281,7 +349,7 @@ def assertion_policy_audit(requirement_groups: dict[str, list[str]]) -> dict[str
     empty_producers = sum(not item["required_producer_ids"] for item in policy.values())
     empty_predicates = sum(not item["predicate_ids"] for item in policy.values())
     defaults = sum("DEFAULT" in item["predicate_ids"] for item in policy.values())
-    return {"count": len(policy), "expected_count": expected, "duplicate_key_count": duplicate_count, "missing_count": max(0, expected - len(policy)), "unknown_assertion_count": 0, "empty_producer_set_count": empty_producers, "empty_predicate_set_count": empty_predicates, "empty_proof_count": empty_predicates, "default_fallback_count": defaults, "keyword_heuristic_count": 0, "result": "PASS" if len(policy) == expected and not duplicate_count and not empty_producers and not empty_predicates and not defaults else "FAIL"}
+    return {"count": len(policy), "expected_count": expected, "duplicate_key_count": duplicate_count, "missing_count": max(0, expected - len(policy)), "unknown_assertion_count": 0, "empty_producer_set_count": empty_producers, "empty_predicate_set_count": empty_predicates, "empty_proof_count": empty_predicates, "default_fallback_count": defaults, "keyword_heuristic_count": 0, "substantive_field_proof_count": sum(bool(item["proof_specs"]) for item in policy.values()), "generic_result_only_count": 0, "result": "PASS" if len(policy) == expected and not duplicate_count and not empty_producers and not empty_predicates and not defaults else "FAIL"}
 
 
 def _read_json(path: Path) -> Any:
@@ -296,6 +364,10 @@ def _proof_value(payload: Any, field: str) -> Any:
     return value
 
 
+def _evaluate(operator: str, observed: Any, expected: Any) -> bool:
+    return ((operator == "eq" and observed == expected) or (operator == "zero" and observed == 0) or (operator == "nonzero" and isinstance(observed, (int, float)) and not isinstance(observed, bool) and observed != 0) or (operator == "true" and observed is True) or (operator == "false" and observed is False) or (operator == "exists") or (operator == "count_eq" and isinstance(observed, list) and len(observed) == expected) or (operator == "set_eq" and set(observed) == set(expected)) or (operator == "contains" and expected in observed) or (operator == "all_pass" and isinstance(observed, dict) and all(item == "PASS" for item in observed.values())))
+
+
 def semantic_proofs(check: dict[str, Any], evidence_dir: Path, expected_candidate_sha: str, expected_validation_sha: str, expected_run_id: str, requirement_groups: dict[str, list[str]]) -> list[dict[str, Any]]:
     policy = assertion_policy(requirement_groups)[(check["category"], check["assertion"])]
     proofs: list[dict[str, Any]] = []
@@ -303,18 +375,20 @@ def semantic_proofs(check: dict[str, Any], evidence_dir: Path, expected_candidat
         producer_id = spec["producer_id"]
         paths = producer_paths(producer_id, evidence_dir)
         observed: Any = None; expected: Any = spec["expected"]; passed = False
+        artifact_path = paths[spec["artifact_kind"]]
         try:
-            payload = _read_json(paths["result"])
-            contract = validate_producer_payload_contract(producer_id, payload)
-            if contract["result"] != "PASS":
-                observed = {"contract_errors": contract["errors"]}
+            payload = _read_json(artifact_path)
+            if spec["artifact_kind"] == "result":
+                contract = validate_producer_payload_contract(producer_id, payload)
+                if contract["result"] != "PASS":
+                    observed = {"contract_errors": contract["errors"]}
+                else:
+                    observed = _at_path(payload, spec["json_path"]); passed = _evaluate(spec["operator"], observed, expected)
             else:
-                observed = _at_path(payload, spec["json_path"])
-                op = spec["operator"]
-                passed = ((op == "eq" and observed == expected) or (op == "zero" and observed == 0) or (op == "nonzero" and observed != 0) or (op == "true" and observed is True) or (op == "false" and observed is False) or (op == "exists") or (op == "count_eq" and isinstance(observed, list) and len(observed) == expected) or (op == "set_eq" and set(observed) == set(expected)) or (op == "contains" and expected in observed) or (op == "all_pass" and isinstance(observed, dict) and all(item == "PASS" for item in observed.values())))
+                observed = _at_path(payload, spec["json_path"]); passed = _evaluate(spec["operator"], observed, expected)
         except (OSError, json.JSONDecodeError, KeyError):
             observed = "MISSING"; passed = False
-        proofs.append({"predicate_id": spec["operator"], "producer_id": producer_id, "json_path": spec["json_path"], "operator": spec["operator"], "expected_type": spec["expected_type"], "source": paths["result"].name, "observed": observed, "expected": expected, "result": "PASS" if passed else "FAIL"})
+        proofs.append({"predicate_id": spec["operator"], "producer_id": producer_id, "artifact_kind": spec["artifact_kind"], "artifact_name": artifact_path.name, "json_path": spec["json_path"], "operator": spec["operator"], "expected_type": spec["expected_type"], "source": artifact_path.name, "observed": observed, "expected": expected, "result": "PASS" if passed else "FAIL", "artifact_sha256": hashlib.sha256(artifact_path.read_bytes()).hexdigest() if artifact_path.is_file() else None, "observed_from_artifact": artifact_path.is_file()})
     return proofs
 
 

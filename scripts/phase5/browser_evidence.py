@@ -88,6 +88,8 @@ def run(playwright_json: Path, spec: Path, output: Path) -> dict[str, Any]:
         "api_mock_count_for_required_paths": source["business_api_mock_count"],
         "declared_ids": REQUIRED_BROWSER_PATHS,
         "quality_ids": QUALITY_IDS,
+        "required_path_status_by_id": {identifier: by_id.get(identifier, "missing") for identifier in REQUIRED_BROWSER_PATHS},
+        "quality_status_by_id": {identifier: by_id.get(identifier, "missing") for identifier in QUALITY_IDS},
         "loading_state_proven": by_id.get("P5-QUALITY-LOADING") == "passed",
         "error_state_proven": by_id.get("P5-QUALITY-ERROR") == "passed",
         "empty_state_proven": by_id.get("P5-QUALITY-EMPTY") == "passed",
