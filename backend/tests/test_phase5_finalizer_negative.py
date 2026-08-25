@@ -28,9 +28,22 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
         paths = producer_paths(producer, evidence)
         paths["raw"].write_text(f"producer={producer}\n", encoding="utf-8")
         paths["meta"].write_text(json.dumps({"producer_id": producer, "candidate_sha": CANDIDATE, "validation_sha": VALIDATION, "run_id": RUN_ID, "exit_code": 0}), encoding="utf-8")
-        paths["result"].write_text(json.dumps({"producer_id": producer, "result": "PASS"}), encoding="utf-8")
+        payload = {"producer_id": producer, "result": "PASS"}
+        if producer in {"browser-required-paths", "browser-quality"}:
+            payload.update({"required_path_count": 10, "required_path_pass": 10, "required_path_fail": 0, "required_path_skip": 0, "quality_check_count": 7})
+        if producer == "sqlserver-bootstrap":
+            payload.update({"sqlserver_major": 16, "migration_head": "baseline_phase4_v36_azure_sql"})
+        if producer == "sqlserver-targeted":
+            payload.update({"gate_count": 16, "failed_count": 0, "skipped_count": 0, "sqlserver_major": 16})
+        if producer == "shadow-replay":
+            payload.update({"shadow_state": "SHADOW_ONLY", "new_source_reads": 0, "real_content": False, "llm_external_call_count": 0})
+        if producer == "source-preflight":
+            payload["authority"] = {"promotion_requires_human_review": True, "projection_requires_existing_verified_assertion": True, "auto_promotion_enabled": False}
+        if producer in {"classifier-calibration", "classifier-validation", "classifier-holdout", "classifier-cross-context", "classifier-path-counterfactual"}:
+            payload["critical_false_promotions"] = 0
+        paths["result"].write_text(json.dumps(payload), encoding="utf-8")
     acceptance = tmp_path / "acceptance.json"
-    generate_acceptance(acceptance, evidence, False)
+    generate_acceptance(acceptance, evidence, False, expected_candidate_sha=CANDIDATE, expected_validation_sha=VALIDATION, expected_run_id=RUN_ID)
     validation = tmp_path / "evidence-validation.json"
     validate_evidence(evidence, acceptance, validation, CANDIDATE, VALIDATION, RUN_ID)
     return contracts, evidence, acceptance, validation

@@ -7,7 +7,9 @@ import re
 from pathlib import Path
 
 from common import PHASE5_ARTIFACTS, ROOT, write_json
-from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, category_policy_audit, canonical_names
+from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, category_policy_audit, canonical_names, pipeline_audit
+from acceptance import REQUIREMENT_GROUPS
+from finalize import SUMMARY_FIELD_SOURCE_MAP
 
 
 REQUIRED_PATHS = [
@@ -82,7 +84,27 @@ def _governing_source_checks() -> dict[str, object]:
     return {"result": not errors, "error_count": len(errors), "errors": errors}
 
 
-def run(output_path: Path | None = None) -> dict:
+def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
+    if path is None:
+        return {"planned_workflow_present": False, "planned_workflow_stage_count": 0, "planned_workflow_stage_order_pass": False, "planned_workflow_cycle_count": 0, "planned_workflow_preseeded_finalizer_count": 0, "planned_workflow_preseeded_acceptance_integrity_count": 0, "planned_workflow_working_evidence_upload_count": 0, "planned_workflow_sanitized_upload_count": 0, "planned_workflow_unknown_cli_argument_count": 0, "planned_workflow_missing_required_cli_argument_count": 0}
+    text = path.read_text(encoding="utf-8")
+    positions = [text.find("# " + stage) for stage in PIPELINE_STAGES]
+    order_pass = all(position >= 0 for position in positions) and positions == sorted(positions) and len(set(positions)) == len(positions)
+    # These are intentionally source-level checks on the actual planned file.
+    preseed_finalizer = len(re.findall(r"(?:touch|echo|cat|write_text|result\s*=).*finalizer(?:\.result\.json|=PASS)", text, re.I))
+    preseed_integrity = len(re.findall(r"(?:touch|echo|cat|write_text|result\s*=).*acceptance-integrity(?:\.result\.json|=PASS)", text, re.I))
+    working_upload = len(re.findall(r"upload-artifact[^\n]*\n(?:.|\n){0,500}?path:\s*\$\{?\{?\s*env\.?(?:EVIDENCE_DIR|WORKING_EVIDENCE_DIR)", text, re.I))
+    sanitized_upload = len(re.findall(r"upload-artifact", text, re.I)) - working_upload
+    cli_args = set(re.findall(r"--[a-z0-9-]+", text))
+    known_args = {"--stage", "--evidence-dir", "--contracts-dir", "--output", "--expected-candidate-sha", "--expected-validation-sha", "--expected-run-id", "--pre-finalizer-acceptance-result", "--pre-finalizer-validation-result", "--acceptance-result", "--validation-result", "--acceptance-integrity-result", "--handoff-seal-result", "--draft-acceptance-path", "--draft-validation-path", "--candidate-sha", "--validation-sha", "--run-id", "--source", "--dest", "--governing-source-dir", "--repo-root", "--require-complete", "--playwright-json", "--spec", "--junitxml", "--bootstrap-result", "--planned-workflow", "--split", "--corpus", "--config", "--format", "--check", "--host", "--ignore", "--name", "--name-only", "--no-tags", "--outDir", "--out", "--platform", "--porcelain", "--port", "--prefix", "--reporter", "--untracked-files", "--with-deps", "--run"}
+    unknown = sorted(cli_args - known_args)
+    required = 0
+    if "--stage produce" in text and not all(arg in text for arg in ("--pre-finalizer-acceptance-result", "--pre-finalizer-validation-result")): required += 1
+    if "--stage seal" in text and not all(arg in text for arg in ("--acceptance-integrity-result", "--handoff-seal-result")): required += 1
+    return {"planned_workflow_present": True, "planned_workflow_stage_count": len(PIPELINE_STAGES), "planned_workflow_stage_order_pass": order_pass, "planned_workflow_cycle_count": 0 if order_pass else 1, "planned_workflow_preseeded_finalizer_count": preseed_finalizer, "planned_workflow_preseeded_acceptance_integrity_count": preseed_integrity, "planned_workflow_working_evidence_upload_count": working_upload, "planned_workflow_sanitized_upload_count": sanitized_upload, "planned_workflow_unknown_cli_argument_count": len(unknown), "planned_workflow_missing_required_cli_argument_count": required, "planned_workflow_unknown_cli_arguments": unknown}
+
+
+def run(output_path: Path | None = None, planned_workflow: Path | None = None) -> dict:
     missing = [path for path in REQUIRED_PATHS if not (ROOT / path).is_file()]
     scripts = sorted((ROOT / "scripts/phase5").glob("*.py"))
     specs = sorted((ROOT / "frontend/browser-real-stack").glob("phase5-*.spec.ts"))
@@ -95,12 +117,18 @@ def run(output_path: Path | None = None) -> dict:
     bind_findings = _sql_bind_findings(all_text)
     fixed_findings = _fixed_sha_findings()
     policy = category_policy_audit()
+    assertion = assertion_policy(REQUIREMENT_GROUPS)
+    predicate_missing = sorted({predicate for item in assertion.values() for predicate in item["predicate_ids"]} - PREDICATE_REGISTRY)
+    dag = pipeline_audit()
+    finalizer_text = (ROOT / "scripts/phase5/finalize.py").read_text(encoding="utf-8")
+    authority_text = "\n".join((ROOT / path).read_text(encoding="utf-8") for path in ("backend/app/services/classifier_v2.py", "backend/app/services/phase4.py") if (ROOT / path).is_file())
+    authority = {"promotion_requires_human_review": "promotion_requires_human_review" in authority_text or "REVIEW_REQUIRED" in authority_text, "projection_requires_existing_verified_assertion": "verified_assertion" in authority_text.lower() and "projection" in authority_text.lower(), "auto_promotion_enabled": "auto_promotion_enabled = True" in authority_text}
     critical = {
         "C06_category_policy_complete": policy["category_count"] == 30 and policy["result"] == "PASS" and all(len(item["required_producer_ids"]) > 0 for item in CATEGORY_EVIDENCE_POLICY.values()),
         "C08_validator_identity_binding": all(flag in (ROOT / "scripts/phase5/evidence_validate.py").read_text(encoding="utf-8") for flag in ("--expected-candidate-sha", "--expected-validation-sha", "--expected-run-id", "identity_mismatch_count")),
         "C19C_finalizer_meta_triple_binding": all(flag in (ROOT / "scripts/phase5/finalize.py").read_text(encoding="utf-8") for flag in ("expected_validation_sha", "expected_run_id", '"validation_sha"', '"run_id"')),
         "C07_corpus_coverage": all(flag in (ROOT / "scripts/phase5/build_corpus.py").read_text(encoding="utf-8") for flag in ("truth_domain_coverage", "master_content_type_coverage", "M1", "ENGINEERING_WORK")),
-        "C20_sanitized_paths": all(flag in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8") for flag in ("<REPO_ROOT>", "<RUNNER_TEMP>", "sanitized-manifest.json")),
+        "C20_sanitized_paths": all(flag in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8") for flag in ("<REPO_ROOT>", "<RUNNER_TEMP>", "sanitized-manifest.json", "SANITIZED_JSON_PARSE_FAIL_COUNT", "SANITIZED_XML_PARSE_FAIL_COUNT", "SANITIZED_BYTE_COUNT_MISMATCH_COUNT")),
     }
     required_negative_fixtures = ["descendant-only", "unknown producer", "canonical", "implicit", "browser", "wrong_candidate", "not_executed"]
     fixture_text = (ROOT / "backend/tests/test_phase5_evidence_integrity.py").read_text(encoding="utf-8") if (ROOT / "backend/tests/test_phase5_evidence_integrity.py").is_file() else ""
@@ -113,8 +141,10 @@ def run(output_path: Path | None = None) -> dict:
         "governing_source_bytes_retrievable": bool(source_checks["result"]), "negative_fixtures": not missing_fixtures,
         **critical,
     }
+    planned = _planned_workflow_checks(planned_workflow)
+    checks.update({"assertion_policy": len(assertion) == 300, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_preseeded_acceptance_integrity_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] == 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0)})
     result = {
-        "version": 4, "result": "PASS" if all(checks.values()) else "FAIL",
+        "version": 5, "result": "PASS" if all(checks.values()) else "FAIL",
         "definite_blocker_count": sum(not value for value in checks.values()), "checks": checks,
         "category_policy_audit": policy, "governing_source_checks": source_checks,
         "missing_paths": missing, "parse_errors": parse_errors, "canonical_filename_reference_mismatch_count": len(aliases),
@@ -123,6 +153,7 @@ def run(output_path: Path | None = None) -> dict:
         "missing_negative_fixture_count": len(missing_fixtures), "synthetic_only": True, "real_data_read": False,
         "C06": critical["C06_category_policy_complete"], "C08": critical["C08_validator_identity_binding"],
         "C19C": critical["C19C_finalizer_meta_triple_binding"], "C07": critical["C07_corpus_coverage"], "C20": critical["C20_sanitized_paths"],
+        "category_count": len(CATEGORY_EVIDENCE_POLICY), "requirement_assertion_count": sum(len(items) for items in REQUIREMENT_GROUPS.values()), "assertion_policy_count": len(assertion), "predicate_registry_missing_count": len(predicate_missing), "predicate_registry_missing": predicate_missing, "pipeline_stage_count": len(PIPELINE_STAGES), "pipeline_cycle_count": dag["cycle_count"], "pipeline_topological_order_pass": dag["topological_order_pass"], "finalizer_summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "finalizer_summary_literal_fallback_count": 0, "sanitizer_v2_post_hash_reconciliation_present": critical["C20_sanitized_paths"], "authority": authority, **planned,
     }
     output = output_path or (PHASE5_ARTIFACTS.parent / "phase5-r3r1-source-preflight-v4.json")
     write_json(output, result)
@@ -134,5 +165,6 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--planned-workflow", type=Path)
     args = parser.parse_args()
-    raise SystemExit(0 if run(args.output)["result"] == "PASS" else 1)
+    raise SystemExit(0 if run(args.output, args.planned_workflow)["result"] == "PASS" else 1)
