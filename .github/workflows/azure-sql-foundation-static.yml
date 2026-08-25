@@ -1,0 +1,40 @@
+name: Azure SQL foundation static validation
+
+on:
+  push:
+    branches:
+      - azure-sql-foundation-prephase5-v1
+    paths:
+      - 'infra/azure_sql_foundation/**'
+      - 'scripts/azure_sql_foundation/validate_foundation.sh'
+      - '.github/workflows/azure-sql-foundation-static.yml'
+  pull_request:
+    branches:
+      - azure-sql-foundation-prephase5-v1
+    paths:
+      - 'infra/azure_sql_foundation/**'
+      - 'scripts/azure_sql_foundation/validate_foundation.sh'
+      - '.github/workflows/azure-sql-foundation-static.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Azure CLI Bicep extension
+        shell: bash
+        run: az bicep install
+      - name: Build foundation Bicep
+        shell: bash
+        run: az bicep build --file infra/azure_sql_foundation/main.bicep --stdout >/tmp/azure-sql-foundation.json
+      - name: Run static foundation validator
+        shell: bash
+        run: bash scripts/azure_sql_foundation/validate_foundation.sh
+      - name: Upload static validation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-sql-foundation-static
+          path: /tmp/azure-sql-foundation.json
