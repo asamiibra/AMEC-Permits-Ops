@@ -99,11 +99,30 @@ def reset_cache(store) -> None:
     store._smbclient = None
 
 
-def probe_acl(store, collector: CheckCollector) -> dict:
+def normalize_error_code(value: object) -> str:
+    """Return the evidence vocabulary, independent of adapter enum spelling."""
+    raw = getattr(value, "value", value)
+    text = str(raw or "UNKNOWN").upper().split(".")[-1]
+    return text.removeprefix("STORAGE_")
+
+
+def normalized_exception_code(store, exc: Exception) -> str:
+    raw = getattr(exc, "code", None)
+    if raw is None:
+        mapper = getattr(store, "_map_error", None)
+        if mapper is not None:
+            try:
+                raw = getattr(mapper(exc), "code", None)
+            except Exception:
+                raw = None
+    return normalize_error_code(raw or type(exc).__name__)
+
+
+def probe_acl(store, collector: CheckCollector, ledger: AccessLedger) -> dict:
     client = store._client()
     kwargs = store._session_kwargs()
     root = store._unc("")
-    outcomes = {"create": 0, "write": 0, "rename": 0, "delete": 0, "mkdir": 0, "errors": []}
+    outcomes = {"attempt_count": 0, "access_denied_count": 0, "mutation_success_count": 0, "create": 0, "write": 0, "rename": 0, "delete": 0, "mkdir": 0, "errors": []}
     operations = [
         ("create", lambda: client.open_file(root + "\\forbidden-marker.bin", mode="xb", buffering=0, **kwargs)),
         ("write", lambda: client.open_file(root + "\\acl\\rename-me.bin", mode="wb", buffering=0, **kwargs)),
@@ -112,16 +131,26 @@ def probe_acl(store, collector: CheckCollector) -> dict:
         ("mkdir", lambda: client.mkdir(root + "\\forbidden-dir", **kwargs)),
     ]
     for name, operation in operations:
+        outcomes["attempt_count"] += 1
+        ledger.record_operation("synthetic_acl_write", SHARE, ROOT)
         try:
             handle = operation()
             if hasattr(handle, "close"):
                 handle.close()
             outcomes[name] += 1
+            outcomes["mutation_success_count"] += 1
+            ledger.record_operation("synthetic_acl_write_success", SHARE, ROOT)
+            outcomes["errors"].append({"operation": name, "result": "MUTATION_SUCCEEDED"})
+            collector.require(f"acl_{name}_blocked", f"RO identity cannot {name}", "ACCESS_DENIED", "MUTATION_SUCCEEDED")
         except Exception as exc:
-            outcomes["errors"].append({"operation": name, "error_class": type(exc).__name__})
-        collector.require(f"acl_{name}_blocked", f"RO identity cannot {name}", 0, outcomes[name])
-        if outcomes[name]:
-            raise T3Stop("RO_ACL_MUTATION_SUCCESS", name)
+            normalized = normalized_exception_code(store, exc)
+            outcomes["errors"].append({"operation": name, "result": normalized, "normalized_error_class": normalized})
+            if normalized == "ACCESS_DENIED":
+                outcomes["access_denied_count"] += 1
+            collector.require(f"acl_{name}_blocked", f"RO identity cannot {name}", "ACCESS_DENIED", normalized)
+    collector.require("acl_attempt_count", "all five synthetic ACL mutation probes execute", 5, outcomes["attempt_count"])
+    collector.require("acl_access_denied_count", "all five synthetic ACL mutation probes normalize to ACCESS_DENIED", 5, outcomes["access_denied_count"])
+    collector.require("acl_mutation_success_count", "no synthetic ACL mutation succeeds", 0, outcomes["mutation_success_count"])
     return outcomes
 
 
@@ -189,8 +218,9 @@ def run(args: argparse.Namespace) -> int:
         checks.require("listing_page_1_bound", "listing page 1 has at most 100 items", True, page_lengths[0] <= 100)
         checks.require("listing_page_2_bound", "listing page 2 has at most 100 items", True, page_lengths[1] <= 100)
         checks.require("listing_page_3_bound", "listing page 3 has at most 100 items", True, page_lengths[2] <= 100)
-        checks.require("listing_cursor_progress_1", "listing cursor progresses page 1 to page 2", True, bool(cursors[0] and cursors[1] and cursors[0] != cursors[1]))
-        checks.require("listing_cursor_progress_2", "listing cursor progresses page 2 to page 3", True, bool(cursors[1] and cursors[2] and cursors[1] != cursors[2]))
+        checks.require("listing_cursor_page_1", "listing page 1 returns the v1:100 continuation cursor", "v1:100", cursors[0])
+        checks.require("listing_cursor_page_2", "listing page 2 returns the v1:200 continuation cursor", "v1:200", cursors[1])
+        checks.require("listing_cursor_page_3_terminal", "listing page 3 returns a terminal null cursor", None, cursors[2])
         checks.require("listing_page_3_complete", "third listing page is complete", True, pages[2].complete)
         direct_items = [item.locator.relative_path for page in pages for item in page.items]
         expected_listing = [f"listing/entry-{index:04d}.bin" for index in range(1, 258)]
@@ -228,22 +258,26 @@ def run(args: argparse.Namespace) -> int:
         denied_health = denied.health()
         if denied_health.state == "HEALTHY":
             denied_success += 1
-        denied_errors["health"] = denied_health.detail.get("error_class") if denied_health.state != "HEALTHY" else "HEALTHY"
+        denied_errors["health"] = normalize_error_code(denied_health.detail.get("error_class") if denied_health.state != "HEALTHY" else "HEALTHY")
+        checks.require("denied_health_not_healthy", "denied identity health is not HEALTHY", True, denied_health.state != "HEALTHY")
+        checks.require("denied_health_access_denied", "denied identity health normalizes to ACCESS_DENIED", "ACCESS_DENIED", denied_errors["health"])
         try:
             denied.stat(locator(StorageLocator, "basic/small.txt"))
             denied_success += 1
         except Exception as exc:
-            denied_errors["stat"] = getattr(getattr(exc, "code", None), "value", type(exc).__name__)
+            denied_errors["stat"] = normalized_exception_code(denied, exc)
         try:
             denied.list(StorageTarget("smb-external-source", SHARE, "listing"), max_entries_per_page=1)
             denied_success += 1
         except Exception as exc:
-            denied_errors["list"] = getattr(getattr(exc, "code", None), "value", type(exc).__name__)
+            denied_errors["list"] = normalized_exception_code(denied, exc)
         try:
             with denied.open_read(locator(StorageLocator, "basic/small.txt"), offset=0, length=1):
                 denied_success += 1
         except Exception as exc:
-            denied_errors["open_read"] = getattr(getattr(exc, "code", None), "value", type(exc).__name__)
+            denied_errors["open_read"] = normalized_exception_code(denied, exc)
+        for operation in ("stat", "list", "open_read"):
+            checks.require(f"denied_{operation}_access_denied", f"denied identity {operation} normalizes to ACCESS_DENIED", "ACCESS_DENIED", denied_errors[operation])
         checks.require("denied_identity_data_access", "denied identity cannot read data", 0, denied_success)
         reset_cache(denied)
         checks.require("denied_cache_b_empty_after_reset", "denied provider B cache is empty after reset", 0, len(denied._connection_cache))
@@ -263,15 +297,18 @@ def run(args: argparse.Namespace) -> int:
         try:
             read_hash(store, StorageLocator, missing_object, {"size": 0, "sha256": ""}, ledger)
         except Exception as exc:
-            raw_code = getattr(exc, "code", None)
-            missing_object_code = getattr(raw_code, "value", None) or raw_code
-        checks.require("missing_object_normalized", "missing object normalizes to OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND", str(missing_object_code))
+            missing_object_code = normalized_exception_code(store, exc)
+        checks.require("missing_object_normalized", "missing object normalizes to OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND", missing_object_code)
         missing_share = args.missing_share
+        expected_missing_share = f"ProposalOps-T3-Missing-{args.run_id}"
+        checks.require("missing_share_run_scoped_envelope", "missing share uses the exact run-scoped synthetic envelope", expected_missing_share, missing_share)
+        if missing_share == SHARE:
+            raise T3Stop("MISSING_SHARE_ENVELOPE", "missing share must differ from the positive synthetic share")
         missing = factory.create(smb.SMBSourceConfig(server=args.nas_ip, share=missing_share, username=args.ro_username, password=password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES), operation_class="missing_share")
         missing_health = missing.health()
         checks.require("missing_share_not_healthy", "missing share is unavailable", True, missing_health.state != "HEALTHY")
-        checks.require("missing_share_error_class", "missing share exposes OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND", missing_health.detail.get("error_class"))
-        ro_acl = probe_acl(store, checks)
+        checks.require("missing_share_error_class", "missing share exposes OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND", normalize_error_code(missing_health.detail.get("error_class")))
+        ro_acl = probe_acl(store, checks, ledger)
     invalid_paths = ["../escape", "/absolute", "\\\\server\\share", "C:/drive", "bad:name", "bad\x00name", "CON"]
     normalize_relative_path = modules["path_policy"].normalize_relative_path
     root_escape = 0
@@ -287,9 +324,10 @@ def run(args: argparse.Namespace) -> int:
     ledger_summary = ledger.summary()
     for suffix, key in (("share_connect_zero", "real_amec_share_connect_attempts"), ("directory_lists_zero", "real_amec_directory_lists"), ("stats_zero", "real_amec_stats"), ("file_opens_zero", "real_amec_file_opens"), ("bytes_zero", "real_amec_bytes"), ("writes_zero", "real_amec_writes")):
         checks.require(f"ledger_real_{suffix}", f"no real AMEC {key}", 0, ledger_summary[key])
-    checks.require("network_one_destination", "only the verified NAS endpoint was attempted", [(args.nas_ip, PORT)], guard.unique_destinations)
-    checks.require("network_unexpected_zero", "unexpected network destinations are zero", 0, sum(1 for item in guard.attempted if item != (args.nas_ip, PORT)))
-    write_json(evidence, "00_AUTHORIZATION.json", {"accepted_v23_sha": ACCEPTED_V23, "synthetic_only": True, "real_amec_authorized": False, "repair_run_counters": {"DSM_CONNECTION_ATTEMPTS": 0, "SMB_CONNECTION_ATTEMPTS": 0, "SYNOLOGY_CONNECTION_ATTEMPTS": 0, "REAL_AMEC_READS": 0, "REAL_AMEC_BYTES": 0}})
+    expected_destinations = [] if getattr(args, "synthetic_no_network", False) else [(args.nas_ip, PORT)]
+    checks.require("network_destination_set", "network destinations match the authorized execution mode", expected_destinations, guard.unique_destinations)
+    checks.require("network_unexpected_zero", "unexpected network destinations are zero", 0, sum(1 for item in guard.attempted if item not in expected_destinations))
+    write_json(evidence, "00_AUTHORIZATION.json", {"accepted_v23_sha": ACCEPTED_V23, "synthetic_only": True, "real_amec_authorized": False, "inherited_preaccess": {"new_smb_connections": 0, "new_synology_connections": 0, "real_amec_reads": 0}, "runtime_counter_source": {"synthetic_network": "41_ZERO_UNEXPECTED_NETWORK.json", "real_amec": "40_ZERO_REAL_DATA.json"}})
     write_json(evidence, "01_APPLICATION_IDENTITY.json", {"accepted_v23_sha": ACCEPTED_V23, "storage_blobs": {"smb.py": "ad3720c23a9b2d9f65145b32896f8fec60372911", "external.py": "2e4c8ee0bf4b91ecf5b66894751f750a9179af19", "port.py": "2a280b4c06f85fc75812c69b7509fc15f2945507", "factory.py": "fa5836adc7abf040acf7354c0377cb88f0034c8b"}, "smbprotocol": "1.15.0"})
     write_json(evidence, "02_HARNESS_IDENTITY.json", {"image_revision": args.image_revision, "platform": "linux/amd64", "harness_source": "scripts/synology_t3"})
     write_json(evidence, "03_STAGE1R_REFERENCE.json", {"complete": True, "rerun": False})
@@ -311,12 +349,12 @@ def run(args: argparse.Namespace) -> int:
     write_json(evidence, "27_UNICODE_PATH_RESULTS.json", {"tested": [item["relative_path"] for item in read_results if item["relative_path"].startswith("unicode/")]})
     write_json(evidence, "28_STABILITY_RESULTS.json", {"states": states, "timestamps_epoch_seconds": timestamps, "elapsed_seconds": timestamps[-1] - timestamps[0]})
     write_json(evidence, "29_MUTATION_RACE_RESULTS.json", {"result": "T3_DSM_MUTATION_RACE=NOT_REPRODUCED_ON_OWNER_NAS"})
-    write_json(evidence, "30_RO_ACL_NEGATIVES.json", {"success_counts": {key: ro_acl[key] for key in ("create", "write", "rename", "delete", "mkdir")}, "errors": ro_acl["errors"]})
-    write_json(evidence, "31_DENIED_IDENTITY_RESULTS.json", {"data_access_success_count": denied_success, "normalized_error_classes": denied_errors})
+    write_json(evidence, "30_RO_ACL_NEGATIVES.json", {"attempt_count": ro_acl["attempt_count"], "access_denied_count": ro_acl["access_denied_count"], "mutation_success_count": ro_acl["mutation_success_count"], "synthetic_t3_acl_write_attempts": ledger_summary["synthetic_t3_acl_write_attempts"], "synthetic_t3_acl_write_successes": ledger_summary["synthetic_t3_acl_write_successes"], "real_amec_write_attempts": ledger_summary["real_amec_writes"], "success_counts": {key: ro_acl[key] for key in ("create", "write", "rename", "delete", "mkdir")}, "errors": ro_acl["errors"]})
+    write_json(evidence, "31_DENIED_IDENTITY_RESULTS.json", {"data_access_success_count": denied_success, "access_denied_count": sum(value == "ACCESS_DENIED" for value in denied_errors.values()), "normalized_error_classes": denied_errors, "results": [{"operation": operation, "result": denied_errors[operation]} for operation in ("health", "stat", "list", "open_read")]})
     write_json(evidence, "32_MISSING_SHARE_OBJECT_RESULTS.json", {"missing_share": args.missing_share, "missing_object": missing_object, "health_state": missing_health.state, "missing_object_error": "OBJECT_NOT_FOUND"})
     write_json(evidence, "33_SESSION_ISOLATION.json", {"cross_credential_session_leak_count": cross_credential_session_leak_count, "cache_fingerprints": [ro_cache_before, ro_cache_after], "provider_cache_object_ids": [cache_a_object_id, cache_b_object_id, id(fresh._connection_cache)], "sequence": ["ro_success", "ro_cache_reset", "denied_failure", "denied_cache_reset", "ro_success"]})
     write_json(evidence, "34_RECONNECT_RESULTS.json", {"fresh_session_reconnect_pass": True, "real_nas_restart_recovery": "NOT_EXECUTED_NO_RESTART_AUTHORIZATION"})
-    zero = {"real_amec_share_connect_attempts": ledger_summary["real_amec_share_connect_attempts"], "real_amec_directory_lists": ledger_summary["real_amec_directory_lists"], "real_amec_stats": ledger_summary["real_amec_stats"], "real_amec_file_opens": ledger_summary["real_amec_file_opens"], "real_amec_bytes": ledger_summary["real_amec_bytes"], "real_amec_writes": ledger_summary["real_amec_writes"], "parser_executions": 0, "classifier_executions": 0, "llm_calls": 0, "managed_write": False}
+    zero = {"real_amec_share_connect_attempts": ledger_summary["real_amec_share_connect_attempts"], "real_amec_directory_lists": ledger_summary["real_amec_directory_lists"], "real_amec_stats": ledger_summary["real_amec_stats"], "real_amec_file_opens": ledger_summary["real_amec_file_opens"], "real_amec_bytes": ledger_summary["real_amec_bytes"], "real_amec_writes": ledger_summary["real_amec_writes"], "real_amec_write_attempts": ledger_summary["real_amec_writes"], "parser_executions": 0, "classifier_executions": 0, "llm_calls": 0, "managed_write": False}
     write_json(evidence, "40_ZERO_REAL_DATA.json", zero)
     write_json(evidence, "41_ZERO_UNEXPECTED_NETWORK.json", {"unique_destinations": guard.unique_destinations, "unexpected_network_destination_count": 0})
     write_json(evidence, "42_SECRET_HYGIENE.json", {"secret_files_mounted_read_only": True, "passwords_in_evidence": False, "passwords_in_logs": False, "secret_files_retained": 0})
@@ -327,7 +365,7 @@ def run(args: argparse.Namespace) -> int:
     checks.require("artifact_hygiene_final_status", "final artifact scanner executed with no matches/errors", {"scanner_executed": True, "match_count": 0, "errors": [], "status": "PASS"}, {key: hygiene[key] for key in ("scanner_executed", "match_count", "errors", "status")})
     write_json(evidence, "43_ARTIFACT_HYGIENE.json", hygiene)
     summary = checks.summary()
-    summary.update({"status": "PENDING_POST_STATE_AND_INDEPENDENT_ACCEPTANCE", "source_secret_match_count": 0, "artifact_secret_shaped_match_count": hygiene["match_count"]})
+    summary.update({"status": "PENDING_POST_STATE_AND_INDEPENDENT_ACCEPTANCE", "source_secret_match_count": 0, "artifact_secret_shaped_match_count": hygiene["match_count"], "SYNTHETIC_T3_ACL_WRITE_ATTEMPTS": ledger_summary["synthetic_t3_acl_write_attempts"], "SYNTHETIC_T3_ACL_WRITE_SUCCESSES": ledger_summary["synthetic_t3_acl_write_successes"], "REAL_AMEC_WRITE_ATTEMPTS": ledger_summary["real_amec_writes"]})
     write_json(evidence, "51_ACCEPTANCE_REGISTRY.json", summary)
     write_json(evidence, "52_FINAL_HANDOFF.json", {"status": "PENDING_POST_STATE_AND_INDEPENDENT_ACCEPTANCE", "next": "finalize_t3_return.py then independent acceptance"})
     (evidence / "50_TEST_RESULTS.junit.xml").write_text(checks.junit(), encoding="utf-8")
@@ -350,6 +388,7 @@ def main() -> int:
     parser.add_argument("--fixture-manifest", type=Path, required=True)
     parser.add_argument("--evidence-root", type=Path, required=True)
     parser.add_argument("--image-revision", required=True)
+    parser.add_argument("--synthetic-no-network", action="store_true")
     args = parser.parse_args()
     try:
         return run(args)

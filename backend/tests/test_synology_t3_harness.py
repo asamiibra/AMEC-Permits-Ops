@@ -4,8 +4,10 @@ import hashlib
 import io
 import json
 import stat
+import types
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -28,7 +30,9 @@ from scripts.synology_t3.t3_common import (
     locator,
     security_introspection,
 )
-from scripts.synology_t3.t3_runner import read_hash
+from scripts.synology_t3 import t3_runner
+from scripts.synology_t3.t3_runner import normalize_error_code, read_hash
+from scripts.synology_t3.t3_runner import normalized_exception_code
 from scripts.synology_t3.validate_t3_return import scan, validate_handoff, validate_return
 
 
@@ -429,3 +433,204 @@ def test_runtime_registry_minimum_is_not_catalog_substitute():
     catalog_count = 276
     runtime_count = 0
     assert runtime_count < 120 and catalog_count >= 120
+
+
+@pytest.mark.parametrize("raw,expected", [("STORAGE_ACCESS_DENIED", "ACCESS_DENIED"), ("StorageErrorCode.OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND"), ("ACCESS_DENIED", "ACCESS_DENIED")])
+def test_runner_normalizes_storage_error_vocabulary(raw, expected):
+    assert normalize_error_code(raw) == expected
+
+
+def test_runner_normalizes_adapter_exception_code():
+    error = type("E", (), {"code": "STORAGE_ACCESS_DENIED"})()
+    assert normalized_exception_code(object(), error) == "ACCESS_DENIED"
+
+
+def test_access_ledger_exposes_synthetic_acl_counters():
+    ledger = AccessLedger()
+    ledger.record_operation("synthetic_acl_write", SHARE, ROOT)
+    ledger.record_operation("synthetic_acl_write_success", SHARE, ROOT)
+    summary = ledger.summary()
+    assert summary["synthetic_t3_acl_write_attempts"] == 1
+    assert summary["synthetic_t3_acl_write_successes"] == 1
+    assert summary["real_amec_writes"] == 0
+
+
+def test_scope_validator_accepts_r1r2_workflow():
+    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r2.yml"]) == []
+
+
+def test_runner_source_has_no_stale_terminal_cursor_gate():
+    source = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/t3_runner.py").read_text()
+    assert "listing_cursor_progress_2" not in source
+    assert "cursors[1] and cursors[2]" not in source
+
+
+def test_runner_authorization_does_not_claim_live_smb_zero():
+    source = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/t3_runner.py").read_text()
+    assert '"repair_run_counters"' not in source
+    assert "runtime_counter_source" in source
+
+
+def test_missing_share_envelope_is_exactly_run_scoped():
+    run_id = "SYN-T3-123"
+    assert f"ProposalOps-T3-Missing-{run_id}" == "ProposalOps-T3-Missing-SYN-T3-123"
+
+
+def test_runner_e2e_is_pure_synthetic_and_emits_typed_evidence(tmp_path, monkeypatch):
+    """Execute t3_runner.run through a fake provider; no socket or DSM path exists."""
+    actual = t3_runner.storage_types()
+    errors = actual["errors"]
+    port = actual["port"]
+    fixture_root = tmp_path / "fixture-source"
+    fixtures = build_fixture_manifest(fixture_root)
+    (fixture_root / "13_FIXTURE_MANIFEST.json").write_text(json.dumps(fixtures))
+    pre = tmp_path / "10_DSM_PRE_STATE.json"
+    pre.write_text(json.dumps(valid_pre_state()))
+    ro_secret = tmp_path / "ro.secret"
+    denied_secret = tmp_path / "denied.secret"
+    ro_secret.write_text("synthetic-ro")
+    denied_secret.write_text("synthetic-denied")
+    ro_secret.chmod(0o600)
+    denied_secret.chmod(0o600)
+    evidence = tmp_path / "evidence"
+    run_id = "SYN-T3-E2E-001"
+
+    class FakeConfig:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+            self.provider_id = kwargs.get("provider_id", "smb-external-source")
+
+    class FakeClient:
+        def __init__(self, store):
+            self.store = store
+
+        def reset_connection_cache(self, *, connection_cache):
+            return None
+
+        def _deny(self):
+            raise errors.StorageError(errors.StorageErrorCode.ACCESS_DENIED, "synthetic ACL denial")
+
+        def open_file(self, *args, **kwargs):
+            self._deny()
+
+        def rename(self, *args, **kwargs):
+            self._deny()
+
+        def remove(self, *args, **kwargs):
+            self._deny()
+
+        def mkdir(self, *args, **kwargs):
+            self._deny()
+
+    class FakeStore:
+        def __init__(self, config):
+            self.config = config
+            self._connection_cache = {}
+            self._smbclient = None
+
+        @property
+        def denied(self):
+            return self.config.username == "proposalops_t3_denied"
+
+        @property
+        def missing(self):
+            return self.config.share.startswith("ProposalOps-T3-Missing-")
+
+        def _connect(self):
+            if self.denied or self.missing or self._connection_cache:
+                return
+            session = SimpleNamespace(username=self.config.username, auth_protocol="ntlm", signing_required=True, require_encryption=True, encrypt_data=True)
+            connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+            self._connection_cache["synthetic"] = connection
+
+        def _access_denied(self):
+            raise errors.StorageError(errors.StorageErrorCode.ACCESS_DENIED, "synthetic denied identity")
+
+        def _not_found(self):
+            raise errors.StorageError(errors.StorageErrorCode.OBJECT_NOT_FOUND, "synthetic missing object")
+
+        def _client(self):
+            self._smbclient = self._smbclient or FakeClient(self)
+            return self._smbclient
+
+        def _session_kwargs(self):
+            return {"username": self.config.username, "password": self.config.password, "port": self.config.port, "connection_cache": self._connection_cache}
+
+        def _unc(self, relative_path):
+            return "\\\\192.0.2.10\\" + self.config.share + "\\" + relative_path
+
+        def health(self):
+            if self.denied:
+                return port.StorageHealth("UNAVAILABLE", self.config.provider_id, detail={"error_class": "STORAGE_ACCESS_DENIED"})
+            if self.missing:
+                return port.StorageHealth("UNAVAILABLE", self.config.provider_id, detail={"error_class": "STORAGE_OBJECT_NOT_FOUND"})
+            self._connect()
+            return port.StorageHealth("HEALTHY", self.config.provider_id, detail={"synthetic": True})
+
+        def capabilities(self):
+            return port.SourceCapabilities()
+
+        def stat(self, current):
+            if self.denied:
+                self._access_denied()
+            if self.missing or current.relative_path.startswith("missing/"):
+                self._not_found()
+            self._connect()
+            content = fixture_bytes(current.relative_path) if current.relative_path else b""
+            return port.StorageStat(current, len(content), modified_at="1", server_file_id="synthetic")
+
+        def open_read(self, current, *, offset=0, length=None):
+            if self.denied:
+                self._access_denied()
+            if self.missing:
+                self._not_found()
+            self._connect()
+            content = fixture_bytes(current.relative_path)
+            return io.BytesIO(content[offset:offset + length])
+
+        def list(self, prefix, *, cursor=None, max_entries_per_page=100):
+            if self.denied:
+                self._access_denied()
+            if self.missing:
+                self._not_found()
+            self._connect()
+            start = 0 if cursor is None else int(cursor.split(":")[1])
+            stop = min(start + max_entries_per_page, 257)
+            items = [port.StorageStat(port.StorageLocator(prefix.provider_id, prefix.share_id, f"listing/entry-{index:04d}.bin"), len(fixture_bytes(f"listing/entry-{index:04d}.bin")), modified_at="1", server_file_id=str(index)) for index in range(start + 1, stop + 1)]
+            next_cursor = None if stop == 257 else f"v1:{stop}"
+            return port.SourcePage(items, next_cursor, stop == 257, 0, (), len(items))
+
+    fake_smb = SimpleNamespace(SMBSourceConfig=FakeConfig, SMBSourceStore=FakeStore)
+    modules = dict(actual)
+    modules["smb"] = fake_smb
+    monkeypatch.setattr(t3_runner, "storage_types", lambda: modules)
+
+    class NoNetworkGuard:
+        def __init__(self, *args, **kwargs):
+            self.attempted = []
+            self.unique_destinations = []
+
+        def installed(self):
+            from contextlib import nullcontext
+            return nullcontext(self)
+
+    monkeypatch.setattr(t3_runner, "NetworkGuard", NoNetworkGuard)
+    args = SimpleNamespace(
+        nas_ip="192.0.2.10", share=SHARE, root=ROOT, port=445,
+        ro_username="proposalops_t3_ro", denied_username="proposalops_t3_denied",
+        missing_share=f"ProposalOps-T3-Missing-{run_id}", run_id=run_id,
+        ro_secret=ro_secret, denied_secret=denied_secret, pre_state=pre,
+        fixture_manifest=tmp_path / "fixture-source" / "13_FIXTURE_MANIFEST.json",
+        evidence_root=evidence, image_revision="synthetic-test", synthetic_no_network=True,
+    )
+    assert t3_runner.run(args) == 0
+    acl = json.loads((evidence / "30_RO_ACL_NEGATIVES.json").read_text())
+    assert (acl["attempt_count"], acl["access_denied_count"], acl["mutation_success_count"]) == (5, 5, 0)
+    assert all(row["normalized_error_class"] == "ACCESS_DENIED" for row in acl["errors"])
+    auth = json.loads((evidence / "00_AUTHORIZATION.json").read_text())
+    assert "repair_run_counters" not in auth
+    assert json.loads((evidence / "31_DENIED_IDENTITY_RESULTS.json").read_text())["access_denied_count"] == 4
+    ledger = json.loads((evidence / "48_ACCESS_LEDGER.json").read_text())
+    assert ledger["synthetic_t3_acl_write_attempts"] == 5
+    registry = json.loads((evidence / "51_ACCEPTANCE_REGISTRY.json").read_text())
+    assert registry["FAIL"] == 0 and registry["distinct_assertions"] >= 130

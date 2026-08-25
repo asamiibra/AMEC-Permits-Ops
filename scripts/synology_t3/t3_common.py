@@ -153,6 +153,8 @@ class AccessLedger:
             "real_amec_file_opens": classes["file_open"],
             "real_amec_bytes": classes["bytes"],
             "real_amec_writes": classes["write"],
+            "synthetic_t3_acl_write_attempts": sum(row["operation_class"] == "synthetic_acl_write" for row in self.operations),
+            "synthetic_t3_acl_write_successes": sum(row["operation_class"] == "synthetic_acl_write_success" for row in self.operations),
         }
 
 
