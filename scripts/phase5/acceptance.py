@@ -127,7 +127,8 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
             raise RuntimeError("ACCEPTANCE_INTEGRITY_STOP: draft acceptance and validation are required")
         return _integrity_result(output_path or evidence_dir / "acceptance-integrity.result.json", evidence_dir, draft_acceptance_path, draft_validation_path, (expected_candidate_sha or "", expected_validation_sha or "", expected_run_id or ""))
     categories = _stage_categories(stage)
-    policy_audit = category_policy_audit(set(categories))
+    policy = assertion_policy(REQUIREMENT_GROUPS)
+    policy_audit = category_policy_audit(set(categories), policy)
     assertion_audit = assertion_policy_audit(REQUIREMENT_GROUPS)
     contract_failure_count = 0
     semantic_generic_count = 0
@@ -136,18 +137,22 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
     semantic_missing_producer_count = 0
     semantic_contract_invalid_count = 0
     semantic_failed_pass_count = 0
+    contract_failure_producers: set[str] = set()
+    contract_failure_errors: dict[str, set[str]] = {}
+    contract_failure_reference_count = 0
+    assertion_rows_impacted_by_contract_failure: set[str] = set()
     checks = []
     expected = (expected_candidate_sha or "", expected_validation_sha or "", expected_run_id or "")
     number = 1
     for category in categories:
         for assertion in REQUIREMENT_GROUPS[category]:
-            policy = assertion_policy(REQUIREMENT_GROUPS)[(category, assertion)]
-            producers = tuple(policy["required_producer_ids"])
+            row_policy = policy[(category, assertion)]
+            producers = tuple(row_policy["required_producer_ids"])
             states = [_producer_state(evidence_dir, producer, dry_run, expected) for producer in producers]
             evidence = [item[1] for item in states]
             if dry_run:
                 state = "NOT_EXECUTED"
-                proofs = [{"predicate_id": predicate, "producer_id": producer, "source": "not-executed", "observed": "NOT_EXECUTED", "expected": "PASS", "result": "NOT_EXECUTED"} for predicate, producer in zip(policy["predicate_ids"], producers * max(1, len(policy["predicate_ids"])))]
+                proofs = [{"predicate_id": predicate, "producer_id": producer, "source": "not-executed", "observed": "NOT_EXECUTED", "expected": "PASS", "result": "NOT_EXECUTED"} for predicate, producer in zip(row_policy["predicate_ids"], producers * max(1, len(row_policy["predicate_ids"])))]
             else:
                 state = "PASS" if all(item[0] == "PASS" for item in states) else "FAIL"
                 row_stub = {"category": category, "assertion": assertion, "evidence": evidence}
@@ -159,8 +164,22 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
                 semantic_missing_producer_count += sum(1 for proof in proofs if proof.get("observed") == "MISSING")
                 if row_semantic_failed and state == "PASS": semantic_failed_pass_count += 1
                 if row_semantic_failed: state = "FAIL"
-                contract_failure_count += sum(1 for producer in producers if _producer_state(evidence_dir, producer, dry_run, expected)[0] == "FAIL")
-                semantic_contract_invalid_count += sum(1 for producer in producers if _producer_state(evidence_dir, producer, dry_run, expected)[0] == "FAIL")
+                row_contract_failures = 0
+                for producer in producers:
+                    state, _ = _producer_state(evidence_dir, producer, dry_run, expected)
+                    if state != "PASS":
+                        row_contract_failures += 1
+                        contract_failure_producers.add(producer)
+                        assertion_rows_impacted_by_contract_failure.add(f"{category}::{assertion}")
+                        try:
+                            payload = json.loads(producer_paths(producer, evidence_dir)["result"].read_text(encoding="utf-8"))
+                            errors = validate_producer_payload_contract(producer, payload).get("errors", [])
+                        except (OSError, json.JSONDecodeError):
+                            errors = ["invalid_or_missing_result"]
+                        contract_failure_errors.setdefault(producer, set()).update(str(error) for error in errors)
+                contract_failure_count += row_contract_failures
+                contract_failure_reference_count += row_contract_failures
+                semantic_contract_invalid_count += row_contract_failures
             checks.append({
                 "check_id": f"P5-ACC-{number:03d}", "requirement_id": f"P5-{category}-{number:03d}",
                 "category": category, "assertion": assertion,
@@ -186,13 +205,18 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
         "category_policy_audit": policy_audit, "assertion_policy_audit": assertion_audit,
         "required_producer_policy_version": "phase5-assertion-policy-v1",
         "producer_result_contract_failure_count": contract_failure_count,
+        "producer_result_contract_unique_failure_count": len(contract_failure_producers),
+        "producer_result_contract_failed_producer_ids": sorted(contract_failure_producers),
+        "producer_result_contract_failure_reference_count": contract_failure_reference_count,
+        "producer_result_contract_errors_by_producer": {producer: sorted(errors) for producer, errors in sorted(contract_failure_errors.items())},
+        "assertion_rows_impacted_by_contract_failure_count": len(assertion_rows_impacted_by_contract_failure),
         "generic_result_only_semantic_proof_count": semantic_generic_count,
         "specific_field_semantic_proof_count": semantic_specific_count,
         "acceptance_pass_with_failed_semantic_proof_count": semantic_failed_pass_count,
         "acceptance_pass_with_missing_producer_count": semantic_missing_producer_count,
         "acceptance_pass_with_contract_invalid_producer_count": semantic_contract_invalid_count,
         "tautological_expected_observed_count": semantic_tautology_count,
-        "pass_row_generic_category_only_proof_count": semantic_generic_count if failed == 0 else 0,
+        "pass_row_generic_category_only_proof_count": sum(1 for check in checks if check.get("result") == "PASS" and check.get("semantic_proofs") and all(proof.get("json_path") == "result" for proof in check["semantic_proofs"])),
     }
     write_json(output_path or (PHASE5_ARTIFACTS / "acceptance-result.json"), result)
     return result

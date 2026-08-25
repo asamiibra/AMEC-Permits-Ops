@@ -39,13 +39,24 @@ def _evaluate(operator: str, observed: Any, expected: Any) -> bool:
     return False
 
 
+def _type_matches(value: Any, expected_type: str) -> bool:
+    return {
+        "integer": isinstance(value, int) and not isinstance(value, bool),
+        "number": isinstance(value, (int, float)) and not isinstance(value, bool),
+        "string": isinstance(value, str),
+        "boolean": isinstance(value, bool),
+        "array": isinstance(value, list),
+        "object": isinstance(value, dict),
+    }.get(expected_type, False)
+
+
 def validate(spec_path: Path, acceptance_path: Path, evidence_dir: Path, candidate: str, validation: str, run_id: str) -> dict[str, Any]:
     spec = _json(spec_path)
     entries = {(item.get("category"), item.get("assertion")): item for item in spec.get("entries", [])}
     acceptance = _json(acceptance_path)
     checks = acceptance.get("checks", [])
     failures: list[dict[str, Any]] = []
-    generic = specific = tautology = mismatches = 0
+    generic = specific = tautology = mismatches = expected_type_mismatch = 0
     for check in checks:
         key = (check.get("category"), check.get("assertion"))
         entry = entries.get(key)
@@ -62,12 +73,15 @@ def validate(spec_path: Path, acceptance_path: Path, evidence_dir: Path, candida
             try:
                 payload = _json(path); digest = hashlib.sha256(path.read_bytes()).hexdigest()
                 observed = _at(payload, proof["json_path"])
-                passed = _evaluate(proof["operator"], observed, proof.get("expected"))
+                if not _type_matches(observed, proof.get("expected_type", "")):
+                    expected_type_mismatch += 1
+                else:
+                    passed = _evaluate(proof["operator"], observed, proof.get("expected"))
                 if kind == "meta" and (payload.get("producer_id") != producer or payload.get("candidate_sha") != candidate or payload.get("validation_sha") != validation or str(payload.get("run_id")) != str(run_id) or payload.get("exit_code") != 0):
                     passed = False
             except (OSError, json.JSONDecodeError, KeyError, TypeError):
                 passed = False
-            row = {"producer_id": producer, "artifact_kind": kind, "artifact_name": name, "json_path": proof.get("json_path"), "operator": proof.get("operator"), "expected": proof.get("expected"), "observed": observed, "result": "PASS" if passed else "FAIL", "artifact_sha256": digest, "observed_from_artifact": digest is not None}
+            row = {"producer_id": producer, "artifact_kind": kind, "artifact_name": name, "json_path": proof.get("json_path"), "operator": proof.get("operator"), "expected_type": proof.get("expected_type"), "expected": proof.get("expected"), "observed": observed, "failure_reason": None if passed else ("EXPECTED_TYPE_MISMATCH" if digest is not None and not _type_matches(observed, proof.get("expected_type", "")) else "PREDICATE_FALSE"), "result": "PASS" if passed else "FAIL", "artifact_sha256": digest, "observed_from_artifact": digest is not None}
             recomputed.append(row)
             if not passed: row_fail = True
             if digest is None or proof.get("json_path") == "result": tautology += 1
@@ -78,7 +92,7 @@ def validate(spec_path: Path, acceptance_path: Path, evidence_dir: Path, candida
             mismatches += 1; row_fail = True
         if row_fail or check.get("result") != "PASS":
             failures.append({"check_id": check.get("check_id"), "error": "semantic_failure"})
-    result = {"version": 1, "result": "PASS" if len(checks) == 300 and not failures and generic == 0 and specific == 300 and tautology == 0 and mismatches == 0 else "FAIL", "independent_semantic_validator": "PASS" if len(checks) == 300 and not failures else "FAIL", "independent_semantic_check_count": len(checks), "independent_semantic_fail_count": len(failures), "independent_semantic_mismatch_count": mismatches, "independent_generic_result_only_count": generic, "independent_specific_field_count": specific, "independent_tautology_count": tautology, "failures": failures}
+    result = {"version": 1, "result": "PASS" if len(checks) == 300 and not failures and generic == 0 and specific == 300 and tautology == 0 and mismatches == 0 and expected_type_mismatch == 0 else "FAIL", "independent_semantic_validator": "PASS" if len(checks) == 300 and not failures else "FAIL", "independent_expected_type_enforcement": True, "independent_semantic_check_count": len(checks), "independent_semantic_fail_count": len(failures), "independent_semantic_mismatch_count": mismatches, "independent_generic_result_only_count": generic, "independent_specific_field_count": specific, "independent_tautology_count": tautology, "independent_expected_type_mismatch_count": expected_type_mismatch, "failures": failures}
     return result
 
 

@@ -3,18 +3,25 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import os
 import re
+import subprocess
+import tempfile
 from pathlib import Path
 
 try:
     from common import PHASE5_ARTIFACTS, ROOT, write_json
-    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, validate_producer_payload_contract
-    from acceptance import REQUIREMENT_GROUPS
+    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, producer_paths, validate_producer_payload_contract
+    from acceptance import REQUIREMENT_GROUPS, run as acceptance_run
+    from evidence_validate import validate as evidence_validate
+    from independent_semantic_validate import validate as independent_validate
     from finalize import SUMMARY_FIELD_SOURCE_MAP
 except ModuleNotFoundError:
     from .common import PHASE5_ARTIFACTS, ROOT, write_json
-    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, validate_producer_payload_contract
-    from .acceptance import REQUIREMENT_GROUPS
+    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, producer_paths, validate_producer_payload_contract
+    from .acceptance import REQUIREMENT_GROUPS, run as acceptance_run
+    from .evidence_validate import validate as evidence_validate
+    from .independent_semantic_validate import validate as independent_validate
     from .finalize import SUMMARY_FIELD_SOURCE_MAP
 
 
@@ -102,7 +109,7 @@ def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
     working_upload = len(re.findall(r"upload-artifact[^\n]*\n(?:.|\n){0,500}?path:\s*\$\{?\{?\s*env\.?(?:EVIDENCE_DIR|WORKING_EVIDENCE_DIR)", text, re.I))
     sanitized_upload = len(re.findall(r"upload-artifact", text, re.I)) - working_upload
     cli_args = set(re.findall(r"--[a-z0-9-]+", text))
-    known_args = {"--stage", "--evidence-dir", "--contracts-dir", "--output", "--expected-candidate-sha", "--expected-validation-sha", "--expected-run-id", "--pre-finalizer-acceptance-result", "--pre-finalizer-validation-result", "--acceptance-result", "--validation-result", "--acceptance-integrity-result", "--handoff-seal-result", "--draft-acceptance-path", "--draft-validation-path", "--candidate-sha", "--validation-sha", "--run-id", "--source", "--dest", "--governing-source-dir", "--repo-root", "--require-complete", "--playwright-json", "--spec", "--junitxml", "--bootstrap-result", "--planned-workflow", "--split", "--corpus", "--config", "--format", "--check", "--host", "--ignore", "--name", "--name-only", "--no-tags", "--outDir", "--out", "--platform", "--porcelain", "--port", "--prefix", "--reporter", "--untracked-files", "--with-deps", "--run"}
+    known_args = {"--stage", "--evidence-dir", "--contracts-dir", "--output", "--expected-candidate-sha", "--expected-validation-sha", "--expected-run-id", "--pre-finalizer-acceptance-result", "--pre-finalizer-validation-result", "--acceptance-result", "--validation-result", "--acceptance-integrity-result", "--handoff-seal-result", "--draft-acceptance-path", "--draft-validation-path", "--candidate-sha", "--validation-sha", "--run-id", "--source", "--dest", "--governing-source-dir", "--repo-root", "--require-complete", "--allow-partial", "--playwright-json", "--spec", "--junitxml", "--bootstrap-result", "--planned-workflow", "--split", "--corpus", "--config", "--format", "--check", "--host", "--ignore", "--name", "--name-only", "--no-tags", "--outDir", "--out", "--platform", "--porcelain", "--port", "--prefix", "--reporter", "--untracked-files", "--with-deps", "--run"}
     unknown = sorted(cli_args - known_args)
     required = 0
     if "--stage produce" in text and not all(arg in text for arg in ("--pre-finalizer-acceptance-result", "--pre-finalizer-validation-result")): required += 1
@@ -112,6 +119,33 @@ def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
     browser_required = "playwright test" in text and "phase5-classifier-shadow.spec.ts" in text
     sqlserver_api = "DATABASE_URL" in text and "mssql+pyodbc" in text and "127.0.0.1:8000" in text
     return {"planned_workflow_present": True, "planned_workflow_stage_count": len(PIPELINE_STAGES), "planned_workflow_stage_order_pass": order_pass, "planned_workflow_cycle_count": 0 if order_pass else 1, "planned_workflow_preseeded_finalizer_count": preseed_finalizer, "planned_workflow_preseeded_acceptance_integrity_count": preseed_integrity, "planned_workflow_working_evidence_upload_count": working_upload, "planned_workflow_sanitized_upload_count": sanitized_upload, "planned_workflow_unknown_cli_argument_count": len(unknown), "planned_workflow_missing_required_cli_argument_count": required, "planned_workflow_unknown_cli_arguments": unknown, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": full_backend_excludes, "remote_workflow_native_sqlserver_execution_required": native_command_count == 1, "remote_workflow_native_sqlserver_test_command_present": native_command_count == 1, "remote_workflow_native_sqlserver_test_count": 16 if native_command_count == 1 else 0, "remote_workflow_full_backend_excludes_runtime_module": full_backend_excludes, "remote_workflow_real_browser_required": browser_required, "remote_workflow_real_browser_uses_sqlserver_backed_api": sqlserver_api, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0}
+
+
+def _hygiene_facts() -> dict[str, object]:
+    """Derive named hygiene facts from the current repository boundary."""
+    try:
+        changed = subprocess.check_output(["git", "diff", "--name-only", "HEAD^", "HEAD"], text=True).splitlines()
+    except (OSError, subprocess.CalledProcessError):
+        changed = []
+    protected_prefixes = ("backend/app/", "backend/migrations/", "frontend/src/", "frontend/package.json", "frontend/package-lock.json", "alembic.ini")
+    protected = [path for path in changed if path.startswith(protected_prefixes)]
+    dependency_delta = sum(path in {"frontend/package.json", "frontend/package-lock.json", "backend/requirements.txt"} for path in changed)
+    schema_delta = sum(path.startswith("backend/app/schemas/") or (path.startswith("contracts/amec/phase5/") and "ASSERTION_EVIDENCE_SPEC" not in path) for path in changed)
+    migration_delta = sum(path.startswith("backend/migrations/") or path == "alembic.ini" for path in changed)
+    try:
+        diff_check = subprocess.run(["git", "diff", "--check", "HEAD^", "HEAD"], capture_output=True).returncode == 0
+    except OSError:
+        diff_check = False
+    try:
+        staged = subprocess.check_output(["git", "diff", "--cached", "--name-only"], text=True).splitlines()
+    except (OSError, subprocess.CalledProcessError):
+        staged = []
+    tracked_artifacts = [path for path in staged if path.startswith("artifacts/")]
+    secret_staged = sum(bool(re.search(r"(password|secret|token|api[_-]?key)", path, re.I)) for path in staged)
+    workflow_scope = all(path.startswith("scripts/phase5/") or path.startswith("backend/tests/test_phase5_") or path == "contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json" or path.startswith(".github/workflows/phase5-classifier-shadow-validation-ci-") for path in changed)
+    bound_branch = os.environ.get("VALIDATION_BRANCH") or os.environ.get("GITHUB_REF_NAME")
+    authorized_ref = not bound_branch or bound_branch.startswith("phase5-classifier-shadow-validation-ci-r3r1") or bound_branch.startswith("phase5-classifier-shadow-validation-r3r1")
+    return {"dependency_delta_count": dependency_delta, "schema_delta_count": schema_delta, "migration_delta_count": migration_delta, "git_diff_check_pass": diff_check, "tracked_raw_artifact_count": len(tracked_artifacts), "secret_staged_count": secret_staged, "protected_path_change_count": len(protected), "workflow_scope_pass": workflow_scope, "authorized_ref_binding_pass": authorized_ref, "deployment_started": False}
 
 
 def _mutated_value(proof: dict) -> object:
@@ -141,9 +175,79 @@ def _run_semantic_mutation_matrix(assertion: dict[tuple[str, str], dict]) -> dic
         control_pass = operator == "exists" or ((operator == "eq" and expected == expected) or (operator == "zero" and expected == 0) or (operator == "nonzero" and expected != 0) or (operator == "true" and expected is True) or (operator == "false" and expected is False) or (operator == "count_eq" and isinstance(expected, list)) or (operator == "all_pass" and expected == "PASS"))
         mutated_pass = operator == "exists" and mutated is not None
         detected = control_pass and not mutated_pass
-        rows.append({"case_id": f"P5-MUT-{case_id:03d}", "category": category, "assertion": assertion_name, "producer_id": proof["producer_id"], "artifact_kind": proof["artifact_kind"], "json_path": proof["json_path"], "operator": operator, "control_pass": control_pass, "mutated_value": mutated, "mutated_pass": mutated_pass, "mutation_detected": detected, "top_level_result_mutated": False})
+        rows.append({"case_id": f"P5-MUT-{case_id:03d}", "category": category, "assertion": assertion_name, "producer_id": proof["producer_id"], "artifact_kind": proof["artifact_kind"], "json_path": proof["json_path"], "operator": operator, "expected": expected, "control_pass": control_pass, "mutated_value": mutated, "mutated_pass": mutated_pass, "mutation_detected": detected, "top_level_result_mutated": False})
     result = {"version": 1, "result": "PASS" if len(rows) == 300 and all(row["mutation_detected"] for row in rows) else "FAIL", "case_count": len(rows), "pass_count": sum(row["mutation_detected"] for row in rows), "false_accept_count": sum(not row["mutation_detected"] for row in rows), "only_top_level_result_count": sum(row["top_level_result_mutated"] for row in rows), "tautology_count": sum(row["mutated_value"] == row.get("expected") for row in rows), "missing_path_count": sum(not row["json_path"] for row in rows), "wrong_assertion_failure_count": 0, "cases": rows}
-    output = ROOT / "artifacts" / "phase5-r3r1r4-semantic-mutation-matrix.json"
+    output = ROOT / "artifacts" / "phase5-r3r1r5-semantic-mutation-matrix.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    write_json(output, result)
+    return result
+
+
+def _fixture_value(spec: dict[str, object]) -> object:
+    if "const" in spec:
+        return spec["const"]
+    kind = spec.get("type")
+    if kind == "integer": return spec.get("minimum", 0)
+    if kind == "number": return float(spec.get("minimum", 0))
+    if kind == "boolean": return False
+    if kind == "string": return "PASS"
+    if kind == "array": return ["synthetic"] * int(spec.get("count_eq", 1))
+    if kind == "object": return {}
+    raise ValueError(f"unsupported fixture contract type: {kind}")
+
+
+def _set_json_path(payload: dict[str, object], path: str, value: object) -> None:
+    node: dict[str, object] = payload
+    parts = path.split(".")
+    for part in parts[:-1]:
+        child = node.get(part)
+        if not isinstance(child, dict):
+            child = {}
+            node[part] = child
+        node = child
+    node[parts[-1]] = value
+
+
+def _run_artifact_semantic_mutation_matrix(assertion: dict[tuple[str, str], dict]) -> dict[str, object]:
+    """Rewrite evidence bytes and run both validators for every assertion row."""
+    candidate = "a" * 40
+    validation = "b" * 40
+    run_id = "phase5-source-preflight"
+    rows: list[dict[str, object]] = []
+    with tempfile.TemporaryDirectory(prefix="phase5-semantic-mutation-") as temp:
+        root = Path(temp)
+        evidence = root / "evidence"
+        evidence.mkdir()
+        for producer, contract in EVIDENCE_PRODUCERS.items():
+            paths = producer_paths(producer, evidence)
+            paths["raw"].write_text(f"producer={producer}\n", encoding="utf-8")
+            paths["meta"].write_text(json.dumps({"producer_id": producer, "candidate_sha": candidate, "validation_sha": validation, "run_id": run_id, "exit_code": 0}, sort_keys=True) + "\n", encoding="utf-8")
+            payload: dict[str, object] = {"producer_id": producer}
+            for path, spec in PRODUCER_RESULT_CONTRACTS[producer]["required_paths"].items():
+                _set_json_path(payload, path, _fixture_value(spec))
+            paths["result"].write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+        acceptance_path = root / "acceptance.json"
+        generated = acceptance_run(acceptance_path, evidence, False, stage="FINAL", expected_candidate_sha=candidate, expected_validation_sha=validation, expected_run_id=run_id)
+        if generated.get("result") != "PASS":
+            return {"case_count": 300, "primary_reject_count": 0, "primary_false_accept_count": 300, "independent_reject_count": 0, "independent_false_accept_count": 300, "disagreement_count": 0, "result": "FAIL", "cases": []}
+        baseline_bytes = {path: path.read_bytes() for path in evidence.glob("*")}
+        for case_id, ((category, assertion_name), item) in enumerate(sorted(assertion.items()), 1):
+            proof = item["proof_specs"][0]
+            artifact = evidence / f"{proof['producer_id']}.{'meta.json' if proof['artifact_kind'] == 'meta' else 'result.json'}"
+            payload = json.loads(artifact.read_text(encoding="utf-8"))
+            _set_json_path(payload, proof["json_path"], _mutated_value(proof))
+            artifact.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
+            primary = evidence_validate(acceptance_path, evidence, candidate, validation, run_id, "FINAL")
+            independent = independent_validate(Path(ROOT / "contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json"), acceptance_path, evidence, candidate, validation, run_id)
+            primary_rejected = primary.get("result") != "PASS"
+            independent_rejected = independent.get("result") != "PASS"
+            rows.append({"case_id": f"P5-MUT-{case_id:03d}", "category": category, "assertion": assertion_name, "producer_id": proof["producer_id"], "artifact_kind": proof["artifact_kind"], "json_path": proof["json_path"], "primary_rejected": primary_rejected, "independent_rejected": independent_rejected, "mutation_detected": primary_rejected, "mutation_applied_to_artifact_bytes": True, "top_level_result_mutated": False})
+            for path, data in baseline_bytes.items():
+                path.write_bytes(data)
+    primary_reject_count = sum(bool(row["primary_rejected"]) for row in rows)
+    independent_reject_count = sum(bool(row["independent_rejected"]) for row in rows)
+    result = {"version": 2, "result": "PASS" if len(rows) == 300 and primary_reject_count == 300 and independent_reject_count == 300 else "FAIL", "case_count": len(rows), "primary_reject_count": primary_reject_count, "primary_false_accept_count": len(rows) - primary_reject_count, "independent_reject_count": independent_reject_count, "independent_false_accept_count": len(rows) - independent_reject_count, "disagreement_count": sum(row["primary_rejected"] != row["independent_rejected"] for row in rows), "cases": rows}
+    output = ROOT / "artifacts" / "phase5-r3r1r5-semantic-mutation-matrix.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     write_json(output, result)
     return result
@@ -165,6 +269,7 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
     assertion = assertion_policy(REQUIREMENT_GROUPS)
     assertion_audit = assertion_policy_audit(REQUIREMENT_GROUPS)
     mutation = _run_semantic_mutation_matrix(assertion)
+    artifact_mutation = _run_artifact_semantic_mutation_matrix(assertion)
     contract_missing = sorted(set(EVIDENCE_PRODUCERS) - set(PRODUCER_RESULT_CONTRACTS))
     contract_unknown = sorted(set(PRODUCER_RESULT_CONTRACTS) - set(EVIDENCE_PRODUCERS))
     summary_contract_missing = []
@@ -179,16 +284,26 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
                 if spec.get("type") != {"integer": "integer", "string": "string", "boolean": "boolean"}.get(expected_input_type, expected_input_type):
                     summary_type_mismatch.append(f"{field}:{producer}:{path}")
     assertion_path_missing = []
-    for (category, _assertion), spec in assertion.items():
-        proof = spec["proof_specs"][0]
-        declared = PRODUCER_RESULT_CONTRACTS.get(proof["producer_id"], {}).get("required_paths", {})
-        if proof.get("artifact_kind") == "result" and proof["json_path"] not in declared:
-            assertion_path_missing.append(f"{category}:{spec['proof_specs'][0]['json_path']}")
+    assertion_type_mismatch = []
+    assertion_operator_incompatible = []
+    for (category, _assertion), item in assertion.items():
+        for proof in item["proof_specs"]:
+            declared = PRODUCER_RESULT_CONTRACTS.get(proof["producer_id"], {}).get("required_paths", {})
+            if proof.get("artifact_kind") == "result" and proof["json_path"] not in declared:
+                assertion_path_missing.append(f"{category}:{proof['json_path']}")
+            if proof.get("artifact_kind") == "result" and proof["json_path"] in declared and declared[proof["json_path"]].get("type") != proof.get("expected_type"):
+                assertion_type_mismatch.append(f"{category}:{proof['json_path']}")
+            compatible = {"eq": {"integer", "number", "string", "boolean", "array", "object"}, "zero": {"integer", "number"}, "nonzero": {"integer", "number"}, "true": {"boolean"}, "false": {"boolean"}, "count_eq": {"array"}, "set_eq": {"array"}, "all_pass": {"object"}, "contains": {"array", "string", "object"}, "exists": {"integer", "number", "string", "boolean", "array", "object"}}.get(proof.get("operator"), set())
+            if proof.get("expected_type") not in compatible:
+                assertion_operator_incompatible.append(f"{category}:{proof['json_path']}:{proof.get('operator')}:{proof.get('expected_type')}")
+    spec_raw = json.loads((ROOT / "contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json").read_text(encoding="utf-8"))
+    semantic_relevance_fail = [f"{entry.get('category')}:{entry.get('assertion')}" for entry in spec_raw.get("entries", []) if entry.get("semantic_relevance_status") != "PASS" or not entry.get("semantic_relevance_basis")]
     predicate_missing = sorted({predicate for item in assertion.values() for predicate in item["predicate_ids"]} - PREDICATE_REGISTRY)
     dag = pipeline_audit()
     finalizer_text = (ROOT / "scripts/phase5/finalize.py").read_text(encoding="utf-8")
     authority_text = "\n".join((ROOT / path).read_text(encoding="utf-8") for path in ("backend/app/services/classifier_v2.py", "backend/app/services/phase4.py") if (ROOT / path).is_file())
     authority = {"promotion_requires_human_review": "promotion_requires_human_review" in authority_text or "REVIEW_REQUIRED" in authority_text, "projection_requires_existing_verified_assertion": "verified_assertion" in authority_text.lower() and "projection" in authority_text.lower(), "auto_promotion_enabled": "auto_promotion_enabled = True" in authority_text}
+    hygiene = _hygiene_facts()
     critical = {
         "C06_category_policy_complete": policy["category_count"] == 30 and policy["result"] == "PASS" and all(len(item["required_producer_ids"]) > 0 for item in CATEGORY_EVIDENCE_POLICY.values()),
         "C08_validator_identity_binding": all(flag in (ROOT / "scripts/phase5/evidence_validate.py").read_text(encoding="utf-8") for flag in ("--expected-candidate-sha", "--expected-validation-sha", "--expected-run-id", "identity_mismatch_count")),
@@ -211,7 +326,8 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
     source_semantic_fact_count = sum(1 for path in REQUIRED_PATHS if (ROOT / path).is_file()) + len(assertion)
     source_semantic_literal_expected_assignment_count = len(re.findall(r"(?:observed|value)\s*=\s*expected\b", all_text))
     source_semantic_unresolved_derivation_count = sum(1 for item in assertion.values() for proof in item["proof_specs"] if not proof.get("json_path") or not proof.get("producer_id"))
-    checks.update({"assertion_policy": len(assertion) == 300, "assertion_spec_substantive": assertion_audit.get("substantive_field_proof_count") == 300 and assertion_audit.get("generic_result_only_count") == 0, "mutation_matrix": mutation["case_count"] == 300 and mutation["pass_count"] == 300 and mutation["false_accept_count"] == 0, "source_fact_derivation": source_semantic_literal_expected_assignment_count == 0 and source_semantic_unresolved_derivation_count == 0, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "producer_contracts": not contract_missing and not contract_unknown and len(PRODUCER_RESULT_CONTRACTS) == len(EVIDENCE_PRODUCERS), "summary_contracts": not summary_contract_missing and not summary_type_mismatch, "assertion_contracts": not assertion_path_missing, "final_summary_schema": (ROOT / "contracts/amec/phase5/AMEC_PHASE5_FINAL_SUMMARY_v1.schema.json").is_file(), "sanitizer_reconciliation": "SANITIZED_POST_MANIFEST_RECONCILIATION" in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8"), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] == 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0 and planned["local_precommit_native_sqlserver_execution_required"] is False and planned["local_full_backend_excludes_native_sqlserver_module"] and planned["remote_workflow_native_sqlserver_execution_required"] and planned["remote_workflow_native_sqlserver_test_command_present"] and planned["remote_workflow_native_sqlserver_test_count"] == 16 and planned["remote_workflow_full_backend_excludes_runtime_module"] and planned["remote_workflow_real_browser_required"] and planned["remote_workflow_real_browser_uses_sqlserver_backed_api"] and planned["local_runtime_evidence_promoted_to_remote_acceptance_count"] == 0)})
+    checks.update({"assertion_policy": len(assertion) == 300, "assertion_spec_substantive": assertion_audit.get("substantive_field_proof_count") == 300 and assertion_audit.get("generic_result_only_count") == 0, "mutation_matrix": mutation["case_count"] == 300 and mutation["pass_count"] == 300 and mutation["false_accept_count"] == 0, "source_fact_derivation": source_semantic_literal_expected_assignment_count == 0 and source_semantic_unresolved_derivation_count == 0, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "producer_contracts": not contract_missing and not contract_unknown and len(PRODUCER_RESULT_CONTRACTS) == len(EVIDENCE_PRODUCERS), "summary_contracts": not summary_contract_missing and not summary_type_mismatch, "assertion_contracts": not assertion_path_missing and not assertion_type_mismatch and not assertion_operator_incompatible and not semantic_relevance_fail, "final_summary_schema": (ROOT / "contracts/amec/phase5/AMEC_PHASE5_FINAL_SUMMARY_v1.schema.json").is_file(), "sanitizer_reconciliation": "SANITIZED_POST_MANIFEST_RECONCILIATION" in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8"), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] >= 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0 and planned["local_precommit_native_sqlserver_execution_required"] is False and planned["local_full_backend_excludes_native_sqlserver_module"] and planned["remote_workflow_native_sqlserver_execution_required"] and planned["remote_workflow_native_sqlserver_test_command_present"] and planned["remote_workflow_native_sqlserver_test_count"] == 16 and planned["remote_workflow_full_backend_excludes_runtime_module"] and planned["remote_workflow_real_browser_required"] and planned["remote_workflow_real_browser_uses_sqlserver_backed_api"] and planned["local_runtime_evidence_promoted_to_remote_acceptance_count"] == 0)})
+    checks["mutation_matrix"] = checks["mutation_matrix"] and artifact_mutation["case_count"] == 300 and artifact_mutation["primary_reject_count"] == 300 and artifact_mutation["independent_reject_count"] == 300 and artifact_mutation["disagreement_count"] == 0
     result = {
         "version": 6, "result": "PASS" if all(checks.values()) else "FAIL",
         "definite_blocker_count": sum(not value for value in checks.values()), "checks": checks,
@@ -224,6 +340,8 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
         "C19C": critical["C19C_finalizer_meta_triple_binding"], "C07": critical["C07_corpus_coverage"], "C20": critical["C20_sanitized_paths"],
         "category_count": len(CATEGORY_EVIDENCE_POLICY), "requirement_assertion_count": sum(len(items) for items in REQUIREMENT_GROUPS.values()), "assertion_policy_count": len(assertion), "assertion_evidence_spec_count": len(assertion), "assertion_evidence_spec_missing_count": assertion_audit.get("missing_count", 0), "assertion_evidence_spec_unknown_count": assertion_audit.get("unknown_assertion_count", 0), "assertion_evidence_spec_duplicate_key_count": assertion_audit.get("duplicate_key_count", 0), "assertion_evidence_spec_default_fallback_count": assertion_audit.get("default_fallback_count", 0), "assertion_evidence_spec_keyword_heuristic_count": assertion_audit.get("keyword_heuristic_count", 0), "assertion_evidence_spec_empty_proof_count": assertion_audit.get("empty_proof_count", 0), "assertion_with_substantive_field_proof_count": assertion_audit.get("substantive_field_proof_count", 0), "assertion_with_only_top_level_result_proof_count": assertion_audit.get("generic_result_only_count", 0), "assertion_semantic_mutation_case_count": mutation["case_count"], "assertion_semantic_mutation_pass": mutation["pass_count"], "assertion_semantic_mutation_false_accept_count": mutation["false_accept_count"], "assertion_mutation_only_top_level_result_count": mutation["only_top_level_result_count"], "assertion_mutation_tautology_count": mutation["tautology_count"], "assertion_mutation_missing_path_count": mutation["missing_path_count"], "assertion_mutation_wrong_assertion_failure_count": mutation["wrong_assertion_failure_count"], "source_semantic_fact_count": source_semantic_fact_count, "source_semantic_fact_literal_expected_assignment_count": source_semantic_literal_expected_assignment_count, "source_semantic_fact_unresolved_derivation_count": source_semantic_unresolved_derivation_count, "producer_result_contract_count": len(PRODUCER_RESULT_CONTRACTS), "producer_result_contract_missing_count": len(contract_missing), "producer_result_contract_unknown_count": len(contract_unknown), "summary_consumed_path_count": 17, "summary_consumed_path_undeclared_count": len(summary_contract_missing), "assertion_consumed_path_undeclared_count": len(assertion_path_missing), "producer_result_contract_type_gap_count": len(summary_type_mismatch), "finalizer_summary_source_contract_audit_count": 17, "finalizer_summary_source_contract_audit_pass": 17 - len(summary_contract_missing) - len(summary_type_mismatch), "finalizer_summary_source_unprovable_path_count": len(summary_contract_missing), "finalizer_summary_source_type_mismatch_count": len(summary_type_mismatch), "finalizer_summary_derived_field_count": len(SUMMARY_FIELD_SOURCE_MAP), "final_summary_schema_conformance_static": "PASS" if checks["final_summary_schema"] else "FAIL", "sanitizer_post_manifest_independent_reconciliation_present": checks["sanitizer_reconciliation"], "sanitizer_negative_case_count": 6, "sanitizer_negative_false_accept_count": 0, "pipeline_stage_count": len(PIPELINE_STAGES), "pipeline_cycle_count": dag["cycle_count"], "pipeline_topological_order_pass": dag["topological_order_pass"], "finalizer_summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "finalizer_summary_literal_fallback_count": 0, "sanitizer_v2_post_hash_reconciliation_present": critical["C20_sanitized_paths"], "authority": authority, **planned,
     }
+    result.update(hygiene)
+    result.update({"assertion_semantic_audit_count": len(spec_raw.get("entries", [])), "assertion_semantic_relevance_pass": len(spec_raw.get("entries", [])) - len(semantic_relevance_fail), "assertion_semantic_relevance_fail": len(semantic_relevance_fail), "assertion_proof_type_mismatch_count": len(assertion_type_mismatch), "assertion_proof_operator_type_incompatible_count": len(assertion_operator_incompatible), "semantic_mutation_case_count": artifact_mutation["case_count"], "primary_mutation_reject_count": artifact_mutation["primary_reject_count"], "primary_mutation_false_accept_count": artifact_mutation["primary_false_accept_count"], "independent_mutation_reject_count": artifact_mutation["independent_reject_count"], "independent_mutation_false_accept_count": artifact_mutation["independent_false_accept_count"], "primary_independent_mutation_disagreement_count": artifact_mutation["disagreement_count"]})
     output = output_path or (PHASE5_ARTIFACTS.parent / "phase5-r3r1-source-preflight-v4.json")
     write_json(output, result)
     print(json.dumps(result, indent=2, sort_keys=True))

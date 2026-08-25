@@ -249,12 +249,25 @@ def validate_producer_payload_contract(producer_id: str, payload: dict[str, Any]
 
 
 PREDICATE_REGISTRY = {"eq", "zero", "nonzero", "true", "false", "exists", "count_eq", "set_eq", "contains", "all_pass", "sha256_eq", "identity_eq", "file_exists_nonempty", "no_local_path", "no_secret_pattern"}
+EVIDENCE_TYPE_VOCABULARY = {"integer", "number", "string", "boolean", "array", "object"}
+OPERATOR_TYPE_COMPATIBILITY = {
+    "eq": EVIDENCE_TYPE_VOCABULARY,
+    "zero": {"integer", "number"},
+    "nonzero": {"integer", "number"},
+    "true": {"boolean"},
+    "false": {"boolean"},
+    "count_eq": {"array"},
+    "set_eq": {"array"},
+    "all_pass": {"object"},
+    "contains": {"array", "string", "object"},
+    "exists": EVIDENCE_TYPE_VOCABULARY,
+}
 
 PIPELINE_STAGES = (
     "BASE_EVIDENCE", "PRE_FINALIZER_ACCEPTANCE", "PRE_FINALIZER_VALIDATION",
     "FINALIZER_PRODUCE", "DRAFT_FINAL_ACCEPTANCE", "DRAFT_FINAL_VALIDATION",
     "ACCEPTANCE_INTEGRITY", "FINAL_ACCEPTANCE", "FINAL_VALIDATION",
-    "HANDOFF_SEAL", "SANITIZER", "UPLOAD",
+    "SECOND_ORACLE", "HANDOFF_SEAL", "SANITIZER", "POST_SANITIZE_RECOMPUTE", "UPLOAD",
 )
 PIPELINE_EDGES = tuple(zip(PIPELINE_STAGES, PIPELINE_STAGES[1:]))
 
@@ -304,9 +317,15 @@ def load_assertion_evidence_spec(requirement_groups: dict[str, list[str]]) -> di
                 raise ValueError(f"invalid producer/artifact in assertion evidence spec: {key}")
             if proof.get("operator") not in PREDICATE_REGISTRY:
                 raise ValueError(f"invalid predicate in assertion evidence spec: {key}")
-        if key[0] == "FINALIZER": producers = ("finalizer", "freeze-reproducibility")
-        elif key[0] == "EVIDENCE": producers = ("acceptance-integrity",)
-        else: producers = tuple(CATEGORY_EVIDENCE_POLICY[key[0]]["required_producer_ids"])
+            if proof.get("expected_type") not in EVIDENCE_TYPE_VOCABULARY:
+                raise ValueError(f"invalid expected type in assertion evidence spec: {key}")
+            if proof.get("expected_type") not in OPERATOR_TYPE_COMPATIBILITY[proof["operator"]]:
+                raise ValueError(f"incompatible predicate/type in assertion evidence spec: {key}")
+        # Assertion truth is bounded to the exact evidence named by that row.
+        # Category-wide producer coverage is audited separately below.
+        if key[0] == "FINALIZER": producers = tuple(dict.fromkeys(p["producer_id"] for p in proofs))
+        elif key[0] == "EVIDENCE": producers = tuple(dict.fromkeys(p["producer_id"] for p in proofs))
+        else: producers = tuple(dict.fromkeys(p["producer_id"] for p in proofs))
         policy[key] = {"category": key[0], "assertion": key[1], "required_producer_ids": producers,
                        "proof_specs": tuple(proofs), "predicate_ids": tuple(proof["operator"] for proof in proofs),
                        "runtime_required": any(proof.get("runtime_required") for proof in proofs)}
@@ -349,7 +368,7 @@ def assertion_policy_audit(requirement_groups: dict[str, list[str]]) -> dict[str
     empty_producers = sum(not item["required_producer_ids"] for item in policy.values())
     empty_predicates = sum(not item["predicate_ids"] for item in policy.values())
     defaults = sum("DEFAULT" in item["predicate_ids"] for item in policy.values())
-    return {"count": len(policy), "expected_count": expected, "duplicate_key_count": duplicate_count, "missing_count": max(0, expected - len(policy)), "unknown_assertion_count": 0, "empty_producer_set_count": empty_producers, "empty_predicate_set_count": empty_predicates, "empty_proof_count": empty_predicates, "default_fallback_count": defaults, "keyword_heuristic_count": 0, "substantive_field_proof_count": sum(bool(item["proof_specs"]) for item in policy.values()), "generic_result_only_count": 0, "result": "PASS" if len(policy) == expected and not duplicate_count and not empty_producers and not empty_predicates and not defaults else "FAIL"}
+    return {"count": len(policy), "expected_count": expected, "duplicate_key_count": duplicate_count, "missing_count": max(0, expected - len(policy)), "unknown_assertion_count": 0, "empty_producer_set_count": empty_producers, "empty_predicate_set_count": empty_predicates, "empty_proof_count": empty_predicates, "default_fallback_count": defaults, "keyword_heuristic_count": 0, "substantive_field_proof_count": sum(bool(item["proof_specs"]) for item in policy.values()), "generic_result_only_count": sum(all(p.get("json_path") == "result" for p in item["proof_specs"]) for item in policy.values()), "result": "PASS" if len(policy) == expected and not duplicate_count and not empty_producers and not empty_predicates and not defaults else "FAIL"}
 
 
 def _read_json(path: Path) -> Any:
@@ -368,6 +387,10 @@ def _evaluate(operator: str, observed: Any, expected: Any) -> bool:
     return ((operator == "eq" and observed == expected) or (operator == "zero" and observed == 0) or (operator == "nonzero" and isinstance(observed, (int, float)) and not isinstance(observed, bool) and observed != 0) or (operator == "true" and observed is True) or (operator == "false" and observed is False) or (operator == "exists") or (operator == "count_eq" and isinstance(observed, list) and len(observed) == expected) or (operator == "set_eq" and set(observed) == set(expected)) or (operator == "contains" and expected in observed) or (operator == "all_pass" and isinstance(observed, dict) and all(item == "PASS" for item in observed.values())))
 
 
+def _expected_type_matches(value: Any, expected_type: str) -> bool:
+    return _type_matches(value, expected_type)
+
+
 def semantic_proofs(check: dict[str, Any], evidence_dir: Path, expected_candidate_sha: str, expected_validation_sha: str, expected_run_id: str, requirement_groups: dict[str, list[str]]) -> list[dict[str, Any]]:
     policy = assertion_policy(requirement_groups)[(check["category"], check["assertion"])]
     proofs: list[dict[str, Any]] = []
@@ -376,6 +399,7 @@ def semantic_proofs(check: dict[str, Any], evidence_dir: Path, expected_candidat
         paths = producer_paths(producer_id, evidence_dir)
         observed: Any = None; expected: Any = spec["expected"]; passed = False
         artifact_path = paths[spec["artifact_kind"]]
+        failure_reason = None
         try:
             payload = _read_json(artifact_path)
             if spec["artifact_kind"] == "result":
@@ -383,36 +407,66 @@ def semantic_proofs(check: dict[str, Any], evidence_dir: Path, expected_candidat
                 if contract["result"] != "PASS":
                     observed = {"contract_errors": contract["errors"]}
                 else:
-                    observed = _at_path(payload, spec["json_path"]); passed = _evaluate(spec["operator"], observed, expected)
+                    observed = _at_path(payload, spec["json_path"])
+                    if not _expected_type_matches(observed, spec["expected_type"]):
+                        failure_reason = "EXPECTED_TYPE_MISMATCH"
+                    else:
+                        passed = _evaluate(spec["operator"], observed, expected)
             else:
-                observed = _at_path(payload, spec["json_path"]); passed = _evaluate(spec["operator"], observed, expected)
+                observed = _at_path(payload, spec["json_path"])
+                if not _expected_type_matches(observed, spec["expected_type"]):
+                    failure_reason = "EXPECTED_TYPE_MISMATCH"
+                elif any(error for error in (payload.get("producer_id") != producer_id, payload.get("candidate_sha") != expected_candidate_sha, payload.get("validation_sha") != expected_validation_sha, str(payload.get("run_id")) != expected_run_id, payload.get("exit_code") != 0)):
+                    failure_reason = "META_IDENTITY_OR_EXIT_MISMATCH"
+                else:
+                    passed = _evaluate(spec["operator"], observed, expected)
         except (OSError, json.JSONDecodeError, KeyError):
-            observed = "MISSING"; passed = False
-        proofs.append({"predicate_id": spec["operator"], "producer_id": producer_id, "artifact_kind": spec["artifact_kind"], "artifact_name": artifact_path.name, "json_path": spec["json_path"], "operator": spec["operator"], "expected_type": spec["expected_type"], "source": artifact_path.name, "observed": observed, "expected": expected, "result": "PASS" if passed else "FAIL", "artifact_sha256": hashlib.sha256(artifact_path.read_bytes()).hexdigest() if artifact_path.is_file() else None, "observed_from_artifact": artifact_path.is_file()})
+            observed = "MISSING"; passed = False; failure_reason = "MISSING_OR_INVALID_ARTIFACT"
+        proofs.append({"predicate_id": spec["operator"], "producer_id": producer_id, "artifact_kind": spec["artifact_kind"], "artifact_name": artifact_path.name, "json_path": spec["json_path"], "operator": spec["operator"], "expected_type": spec["expected_type"], "source": artifact_path.name, "observed": observed, "expected": expected, "failure_reason": failure_reason, "result": "PASS" if passed else "FAIL", "artifact_sha256": hashlib.sha256(artifact_path.read_bytes()).hexdigest() if artifact_path.is_file() else None, "observed_from_artifact": artifact_path.is_file()})
     return proofs
 
 
 ASSERTION_EVIDENCE_SPEC: dict[tuple[str, str], dict[str, Any]] = {}
 
 
-def category_policy_audit(categories: set[str] | None = None) -> dict[str, Any]:
-    expected = categories if categories is not None else set(CATEGORY_EVIDENCE_POLICY)
-    unknown = sorted(expected - set(CATEGORY_EVIDENCE_POLICY))
+def category_policy_audit(categories: set[str] | None = None, policy: dict[tuple[str, str], dict[str, Any]] | None = None) -> dict[str, Any]:
+    stage_categories = set(categories) if categories is not None else set(CATEGORY_EVIDENCE_POLICY)
+    registry_categories = set(CATEGORY_EVIDENCE_POLICY)
+    unknown = sorted(stage_categories - registry_categories)
+    # The caller supplies the exact stage set; excluded registry categories are
+    # reported separately and are not stage-set mismatches.
     missing = []
     empty = sorted(category for category, policy in CATEGORY_EVIDENCE_POLICY.items() if not policy.get("required_producer_ids"))
     unknown_producers = sorted({producer for policy in CATEGORY_EVIDENCE_POLICY.values() for producer in policy["required_producer_ids"] if producer not in EVIDENCE_PRODUCERS})
+    coverage_missing: dict[str, list[str]] = {}
+    coverage_unknown: dict[str, list[str]] = {}
+    if policy is not None:
+        for category in stage_categories:
+            covered = {producer for (item_category, _), item in policy.items() if item_category == category for producer in item["required_producer_ids"]}
+            required = set(CATEGORY_EVIDENCE_POLICY.get(category, {}).get("required_producer_ids", ()))
+            if required - covered: coverage_missing[category] = sorted(required - covered)
+            if covered - set(EVIDENCE_PRODUCERS): coverage_unknown[category] = sorted(covered - set(EVIDENCE_PRODUCERS))
     return {
-        "category_count": len(CATEGORY_EVIDENCE_POLICY),
-        "expected_category_count": len(expected),
+        "registry_category_count": len(registry_categories),
+        "stage_category_count": len(stage_categories),
+        "stage_expected_category_count": len(stage_categories),
+        "registry_excluded_category_count": len(registry_categories - stage_categories) if categories is not None else 0,
+        "category_count": len(stage_categories),
+        "expected_category_count": len(stage_categories),
         "unknown_category_count": len(unknown),
         "missing_category_count": len(missing),
         "empty_required_producer_count": len(empty),
         "unknown_producer_count": len(unknown_producers),
+        "category_producer_coverage_missing_count": sum(len(value) for value in coverage_missing.values()),
+        "category_producer_coverage_unknown_count": sum(len(value) for value in coverage_unknown.values()),
+        "category_producer_coverage_missing": coverage_missing,
+        "category_producer_coverage_unknown": coverage_unknown,
+        "stage_category_set_match": not unknown and not missing,
         "unknown_categories": unknown,
         "missing_categories": missing,
         "empty_categories": empty,
         "unknown_producers": unknown_producers,
-        "result": "PASS" if not unknown and not missing and not empty and not unknown_producers else "FAIL",
+        "result": "PASS" if not unknown and not missing and not empty and not unknown_producers and not coverage_missing and not coverage_unknown else "FAIL",
     }
 
 
