@@ -56,7 +56,10 @@ def create_bundle(repo: Path, output: Path, run_id: str) -> Path:
         shutil.copy2(repo / "scripts/synology_t3" / name, bundle / name)
     shutil.copytree(repo / "scripts/synology_t3", bundle / "harness_source", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     staging = bundle / "fixture_staging"
-    from scripts.synology_t3.fixture_manifest import write_manifest
+    try:
+        from scripts.synology_t3.fixture_manifest import write_manifest
+    except ModuleNotFoundError:
+        from fixture_manifest import write_manifest
     write_manifest(staging, bundle / "13_FIXTURE_MANIFEST.json")
     (bundle / "03_FIXTURE_MANIFEST_PLACEHOLDER.json").unlink()
     return bundle
