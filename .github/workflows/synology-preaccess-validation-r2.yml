@@ -1,0 +1,111 @@
+name: Synology preaccess validation R2
+
+on:
+  push:
+    branches:
+      - synology-preaccess-validation-r2-ci-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_REPAIR_SHA: 950bbc122fb26a1b28a57549094f69129097fb58
+  EXPECTED_V2_SHA: 004f949c258cdd419b65377ab9a94c8bb8b09d56
+  EXPECTED_BASE_SHA: 707003fc16767fb28b9c968fbcf168ab03ebadc1
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact validation child
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify immutable child and repair identity
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$EXPECTED_REPAIR_SHA"
+          test "$(git rev-parse HEAD^~1)" = "$EXPECTED_V2_SHA"
+          test "$(git rev-parse HEAD^~2)" = "$EXPECTED_BASE_SHA"
+          test "$(git diff --name-only HEAD^ HEAD | wc -l | tr -d ' ')" = "1"
+          test "$(git diff --name-only HEAD^ HEAD)" = ".github/workflows/synology-preaccess-validation-r2.yml"
+
+      - name: Install backend requirements
+        shell: bash
+        run: python3 -m pip install -r backend/requirements.txt
+
+      - name: Initialize isolated evidence paths
+        shell: bash
+        run: |
+          echo "RUN_ID=SYN-PRE-V2.1-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+          echo "EVIDENCE_ROOT=$RUNNER_TEMP/syn-pre-v2.1-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/syn-pre-v2.1-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/raw"
+
+      - name: Capture entry identity and Phase5 isolation
+        shell: bash
+        run: |
+          raw="$EVIDENCE_ROOT/raw"
+          git status --porcelain=v1 > "$raw/entry_git.txt"
+          git show -s --format='HEAD=%H%nPARENT=%P%nTREE=%T%nSUBJECT=%s' HEAD >> "$raw/entry_git.txt"
+          git ls-remote origin 'refs/heads/phase5*' > "$raw/phase5_refs_entry.txt"
+          git fetch origin 'refs/heads/phase5*:refs/remotes/origin/phase5*'
+          : > "$raw/phase5_overlap_entry.txt"
+          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/phase5\*); do
+            git diff --name-only "$EXPECTED_BASE_SHA" "$ref" -- backend/app/storage backend/app/config/settings.py backend/requirements.txt >> "$raw/phase5_overlap_entry.txt"
+          done
+          git diff --name-only "$EXPECTED_V2_SHA" "$EXPECTED_REPAIR_SHA" > "$raw/diff_scope.txt"
+
+      - name: Run synthetic preaccess network guard
+        shell: bash
+        env:
+          STORAGE_CONTRACT_PROVIDER: mock
+          SYNOLOGY_MODE: SYNTHETIC
+          REAL_DATA_ALLOWED: "false"
+        run: python3 scripts/synology_preaccess/validate_preaccess.py --json="$EVIDENCE_ROOT/raw/preaccess_runner.json" --junitxml="$EVIDENCE_ROOT/raw/targeted.junit.xml" > "$EVIDENCE_ROOT/raw/targeted.log"
+
+      - name: Run targeted JUnit
+        shell: bash
+        run: python3 -m pytest -q backend/tests/test_synology_preaccess_interface.py backend/tests/test_synology_preaccess_network_guard.py backend/tests/test_source_stability_synology_preaccess.py backend/tests/test_source_budget_synology_preaccess.py backend/tests/test_source_deadline_synology_preaccess.py backend/tests/test_external_source_readonly_listing.py backend/tests/test_evidence_synology_preaccess.py --junitxml="$EVIDENCE_ROOT/raw/targeted-postrunner.junit.xml" > "$EVIDENCE_ROOT/raw/targeted-postrunner.log"
+
+      - name: Run managed storage regression
+        shell: bash
+        run: python3 -m pytest -q backend/tests/test_binary_store_contract.py backend/tests/test_document_storage_service.py backend/tests/test_synology_adapter_contract.py --junitxml="$EVIDENCE_ROOT/raw/managed_regression.junit.xml" > "$EVIDENCE_ROOT/raw/managed_regression.log"
+
+      - name: Run source intake regression
+        shell: bash
+        run: python3 -m pytest -q backend/tests/test_source_intake_service.py --junitxml="$EVIDENCE_ROOT/raw/source_intake_regression.junit.xml" > "$EVIDENCE_ROOT/raw/source_intake_regression.log"
+
+      - name: Run full backend regression
+        shell: bash
+        run: python3 -m pytest -q backend/tests --junitxml="$EVIDENCE_ROOT/raw/full_backend.junit.xml" > "$EVIDENCE_ROOT/raw/full_backend.log"
+
+      - name: Run compileall and secret scan
+        shell: bash
+        run: |
+          python3 -m compileall -q backend scripts/synology_preaccess
+          printf 'COMPILEALL_EXIT=%s\n' "$?" > "$EVIDENCE_ROOT/raw/compileall.log"
+          rg -n --hidden --glob '!*.pyc' --glob '!backend/tests/**' '(BEGIN (RSA|OPENSSH|PRIVATE KEY)|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{20,}|SMB_EXTERNAL_PASSWORD=|SYNOLOGY_SECRET_REF=)' backend scripts contracts > "$EVIDENCE_ROOT/raw/secret_scan.txt" || true
+
+      - name: Capture exit identity and generate evidence
+        shell: bash
+        run: |
+          raw="$EVIDENCE_ROOT/raw"
+          git status --porcelain=v1 > "$raw/postcommit_git.txt"
+          git show -s --format='HEAD=%H%nPARENT=%P%nTREE=%T%nSUBJECT=%s' HEAD >> "$raw/postcommit_git.txt"
+          git ls-remote origin 'refs/heads/phase5*' > "$raw/phase5_refs_exit.txt"
+          git ls-remote origin "refs/heads/$GITHUB_REF_NAME" > "$raw/remote_head.txt"
+          python3 scripts/synology_preaccess/generate_evidence.py --raw-dir="$raw" --output="$EVIDENCE_ROOT/evidence" --run-id="$RUN_ID"
+          python3 scripts/synology_preaccess/evidence_audit.py --evidence="$EVIDENCE_ROOT/evidence"
+
+      - name: Upload immutable evidence archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: synology-preaccess-validation-r2-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/syn-pre-v2.1-${{ github.run_id }}-${{ github.run_attempt }}/evidence.tar.gz
+            ${{ runner.temp }}/syn-pre-v2.1-${{ github.run_id }}-${{ github.run_attempt }}/evidence/
+          if-no-files-found: error
