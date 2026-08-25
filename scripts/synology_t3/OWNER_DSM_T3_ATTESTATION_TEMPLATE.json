@@ -1,0 +1,19 @@
+{
+  "owner": "",
+  "decision_date_utc": "",
+  "device_model": "",
+  "dsm_version": "",
+  "dsm_build": "",
+  "verified_nas_lan_ip": "",
+  "share_collision_checked": false,
+  "account_collision_checked": false,
+  "business_share_untouched": true,
+  "existing_proposalops_identities_untouched": true,
+  "pre_state_captured": false,
+  "post_state_captured": false,
+  "one_time_task_removed": false,
+  "test_identities_disabled": false,
+  "secret_files_deleted": false,
+  "evidence_downloaded": false,
+  "owner_notes": ""
+}

@@ -1,0 +1,112 @@
+name: Synology T3 synthetic DSM handoff build
+
+on:
+  push:
+    branches: [synology-t3-owner-dsm-synthetic-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ACCEPTED_V23_SHA: 4925518b35b58956aaa5870f226af5e57d14b610
+  ACCEPTED_V23_TREE: 9dafcf25ac59d4dc2940c03bb081206d7f2820fa
+  V22_SHA: 835bcc6208b274d5d95bd0cbd1d414a14e52e9e8
+  PHASE4_SHA: 707003fc16767fb28b9c968fbcf168ab03ebadc1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact T3 certification branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify accepted V2.3 ancestry and T3-only scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD~1)" = "$ACCEPTED_V23_SHA"
+          test "$(git rev-parse "$ACCEPTED_V23_SHA^{tree}")" = "$ACCEPTED_V23_TREE"
+          test "$(git rev-parse "$ACCEPTED_V23_SHA~1")" = "$V22_SHA"
+          git diff --name-only "$ACCEPTED_V23_SHA" HEAD > /tmp/t3-scope.txt
+          if rg -n '^(backend/app/|backend/requirements.txt|frontend/|contracts/amec/phase5/|scripts/phase5/|infra/|deploy/)' /tmp/t3-scope.txt; then exit 1; fi
+          while IFS= read -r path; do
+            case "$path" in
+              scripts/synology_t3/*|contracts/amec/synology_t3/*|backend/tests/test_synology_t3_*.py|.github/workflows/synology-t3-handoff-build.yml) ;;
+              *) echo "unexpected T3 path: $path"; exit 1 ;;
+            esac
+          done < /tmp/t3-scope.txt
+          test "$(git diff --name-only "$V22_SHA" "$ACCEPTED_V23_SHA" -- backend/app/storage backend/app/config/settings.py backend/requirements.txt | wc -l | tr -d ' ')" = "0"
+
+      - name: Fresh Phase5 overlap gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin 'refs/heads/phase5*:refs/remotes/origin/phase5*'
+          : > /tmp/t3-phase5-overlap.txt
+          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/phase5\*); do
+            git diff --name-only "$PHASE4_SHA" "$ref" -- backend/app/storage backend/app/config/settings.py backend/requirements.txt >> /tmp/t3-phase5-overlap.txt
+          done
+          test ! -s /tmp/t3-phase5-overlap.txt
+
+      - name: Install pinned T3 build dependency and run local harness tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check "smbprotocol==1.15.0"
+          python3 -m pytest -q backend/tests/test_synology_t3_harness.py
+          python3 -m compileall -q scripts/synology_t3
+
+      - name: Build immutable T3 handoff skeleton
+        shell: bash
+        run: |
+          set -euo pipefail
+          export T3_OUTPUT="$RUNNER_TEMP/t3-handoff"
+          python3 scripts/synology_t3/build_handoff.py --repo-root . --output "$T3_OUTPUT" --run-id "SYN-T3-${GITHUB_RUN_ID}"
+          echo "T3_OUTPUT=$T3_OUTPUT" >> "$GITHUB_ENV"
+          echo "T3_BUNDLE=$T3_OUTPUT/ProposalOps_SYN_T3_Handoff_SYN-T3-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
+
+      - name: Build exact Linux amd64 validation image
+        shell: bash
+        run: |
+          set -euo pipefail
+          export IMAGE_REF="proposalops/syn-t3:4925518"
+          docker build --platform linux/amd64 --file scripts/synology_t3/Dockerfile --build-arg ACCEPTED_V23_SHA="$ACCEPTED_V23_SHA" --tag "$IMAGE_REF" .
+          docker image inspect "$IMAGE_REF" --format '{{json .}}' > "$T3_BUNDLE/07_DOCKER_IMAGE_INSPECT.json"
+          docker run --rm --platform linux/amd64 "$IMAGE_REF" python3 --version > "$T3_BUNDLE/08_PYTHON_VERSION.txt"
+          docker run --rm --platform linux/amd64 "$IMAGE_REF" python3 -c 'import ssl; print(ssl.OPENSSL_VERSION)' > "$T3_BUNDLE/09_OPENSSL_VERSION.txt"
+          docker run --rm --platform linux/amd64 "$IMAGE_REF" python3 -m pip freeze > "$T3_BUNDLE/10_PIP_FREEZE.txt"
+          docker save --output "$T3_BUNDLE/proposalops-syn-t3-image.tar" "$IMAGE_REF"
+
+      - name: Finalize and validate immutable handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/synology_t3/build_handoff.py --finalize "$T3_BUNDLE"
+          python3 scripts/synology_t3/validate_t3_return.py --handoff-root "$T3_BUNDLE"
+          python3 - "$T3_BUNDLE" <<'PY'
+          import sys, tarfile
+          from pathlib import Path
+          root = Path(sys.argv[1])
+          archive = root.with_suffix('.tar.gz')
+          with tarfile.open(archive, 'r:gz') as tar:
+              names = [member.name for member in tar.getmembers()]
+              root_name = root.name
+              if not names or any(Path(name).is_absolute() or '..' in Path(name).parts for name in names):
+                  raise SystemExit('unsafe handoff archive')
+              if not all(name == root_name or name.startswith(root_name + '/') for name in names):
+                  raise SystemExit('handoff topology mismatch')
+          print('T3_HANDOFF_ARCHIVE_REOPEN=PASS')
+          PY
+
+      - name: Upload immutable T3 handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: synology-t3-owner-dsm-handoff-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/t3-handoff/ProposalOps_SYN_T3_Handoff_SYN-T3-${{ github.run_id }}/
+            ${{ runner.temp }}/t3-handoff/ProposalOps_SYN_T3_Handoff_SYN-T3-${{ github.run_id }}.tar.gz
+          if-no-files-found: error
