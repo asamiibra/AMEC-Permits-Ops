@@ -2,6 +2,8 @@ FROM python:3.12-slim-trixie@sha256:876416ecde9aca2bcc90e1fb0c7a9500bbf749f5788b
 
 ARG ACCEPTED_V23_SHA
 RUN test "$ACCEPTED_V23_SHA" = "4925518b35b58956aaa5870f226af5e57d14b610"
+ARG T3_HARNESS_SHA
+RUN test -n "$T3_HARNESS_SHA"
 
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/opt/proposalops
 WORKDIR /opt/proposalops
@@ -17,7 +19,8 @@ RUN groupadd --gid 10001 proposalops \
     && useradd --uid 10001 --gid 10001 --create-home --home-dir /home/proposalops --shell /usr/sbin/nologin proposalops \
     && chown -R 10001:10001 /opt/proposalops
 
-LABEL org.opencontainers.image.revision="4925518b35b58956aaa5870f226af5e57d14b610" \
+LABEL org.opencontainers.image.revision="$T3_HARNESS_SHA" \
+      org.opencontainers.image.proposalops-application-revision="4925518b35b58956aaa5870f226af5e57d14b610" \
       org.opencontainers.image.source="https://github.com/asamiibra/AMEC-Permits-Ops" \
       org.opencontainers.image.platform="linux/amd64" \
       org.opencontainers.image.synthetic-only="true"

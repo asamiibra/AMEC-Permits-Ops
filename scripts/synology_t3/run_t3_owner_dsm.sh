@@ -6,6 +6,8 @@ set -euo pipefail
 : "${T3_EVIDENCE_DIR:?Set the writable T3 evidence directory}"
 : "${T3_IMAGE_TAR:?Set the immutable image tar path}"
 : "${T3_IMAGE_REF:?Set the exact image reference}"
+: "${T3_HANDOFF_DIR:?Set the immutable downloaded handoff directory}"
+: "${T3_HARNESS_SHA:?Set the exact R1 harness SHA from the handoff policy}"
 
 share="ProposalOps-T3-Synthetic"
 root="cert/v1"
@@ -15,15 +17,16 @@ ro_secret="$T3_CONTROL_DIR/t3_ro.secret"
 denied_secret="$T3_CONTROL_DIR/t3_denied.secret"
 pre_state="$T3_CONTROL_DIR/10_DSM_PRE_STATE.json"
 fixture_manifest="$T3_CONTROL_DIR/13_FIXTURE_MANIFEST.json"
+handoff_preflight="$T3_HANDOFF_DIR/preflight_t3_handoff.py"
 
 cleanup() { rm -f -- "$ro_secret" "$denied_secret"; }
 trap cleanup EXIT HUP INT TERM
 
-test -f "$ro_secret" && test -f "$denied_secret" && test -f "$pre_state" && test -f "$fixture_manifest"
+test -f "$ro_secret" && test -f "$denied_secret" && test -f "$pre_state" && test -f "$fixture_manifest" && test -f "$handoff_preflight"
 test "$(stat -f '%Lp' "$ro_secret" 2>/dev/null || stat -c '%a' "$ro_secret")" = "600"
 test "$(stat -f '%Lp' "$denied_secret" 2>/dev/null || stat -c '%a' "$denied_secret")" = "600"
 mkdir -p "$T3_EVIDENCE_DIR"
-docker load --input "$T3_IMAGE_TAR" >/dev/null
+python3 "$handoff_preflight" --handoff-root "$T3_HANDOFF_DIR" --image-tar "$T3_IMAGE_TAR" --image-ref "$T3_IMAGE_REF"
 docker run --rm \
   --read-only \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
@@ -37,9 +40,9 @@ docker run --rm \
   --mount "type=bind,src=$denied_secret,dst=/run/secrets/t3_denied.secret,ro" \
   "$T3_IMAGE_REF" \
   python3 -m scripts.synology_t3.t3_runner \
-    --nas-ip "$T3_NAS_IP" --share "$share" --root "$root" --missing-share "$missing_share" \
+    --nas-ip "$T3_NAS_IP" --share "$share" --root "$root" --missing-share "$missing_share" --run-id "$run_id" \
     --pre-state /control/10_DSM_PRE_STATE.json --fixture-manifest /control/13_FIXTURE_MANIFEST.json \
-    --evidence-root /evidence --image-revision "$T3_IMAGE_REF"
+    --evidence-root /evidence --image-revision "$T3_HARNESS_SHA"
 
 echo "T3_CONTAINER_EXIT=0"
 echo "T3_SECRET_FILES_RETAINED=0"

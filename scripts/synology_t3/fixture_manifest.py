@@ -65,15 +65,16 @@ def fixture_paths() -> list[str]:
 
 
 def build_fixture_manifest(output_root: Path) -> dict:
-    output_root.mkdir(parents=True, exist_ok=True)
+    staging_root = output_root / "cert" / "v1"
+    staging_root.mkdir(parents=True, exist_ok=True)
     rows = []
     for relative in fixture_paths():
         content = fixture_bytes(relative)
-        path = output_root / relative
+        path = staging_root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(content)
         rows.append({"relative_path": relative, "size": len(content), "sha256": hashlib.sha256(content).hexdigest(), "purpose": _purpose(relative)})
-    return {"fixture_set": "SYN-T3-OWNER-DSM-V1", "root": "cert/v1", "entries": rows}
+    return {"fixture_set": "SYN-T3-OWNER-DSM-V1", "root": "cert/v1", "staging_root": "cert/v1", "entry_count": len(rows), "entries": rows}
 
 
 def _purpose(relative: str) -> str:

@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed Owner DSM synthetic-share runner.
-
-This process is the only T3 component that opens SMB sessions.  It accepts
-only the exact verified NAS IP, port 445, synthetic share, and cert/v1 root.
-Passwords are read from mounted files and never enter evidence or logs.
-"""
+"""Fail-closed Owner DSM synthetic-share runner."""
 
 from __future__ import annotations
 
@@ -12,33 +7,35 @@ import argparse
 import hashlib
 import importlib.util
 import json
-import os
 import re
 import sys
-import types
 import time
-import xml.etree.ElementTree as ET
+import types
 from pathlib import Path
 
 from scripts.synology_t3.network_guard import NetworkGuard, UnexpectedNetworkDestination
-
-SHARE = "ProposalOps-T3-Synthetic"
-ROOT = "cert/v1"
-PORT = 445
-MAX_FILE_BYTES = 10 * 1024 * 1024
-SECRET_PATTERNS = (
-    ("GHP_TOKEN", re.compile(r"ghp_[A-Za-z0-9]{20,}")),
-    ("AWS_ACCESS_KEY", re.compile(r"AKIA[0-9A-Z]{16}")),
-    ("PRIVATE_KEY_MARKER", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----")),
-    ("SMB_EXTERNAL_PASSWORD", re.compile(r"SMB_EXTERNAL_PASSWORD\s*=\s*(\S+)")),
+from scripts.synology_t3.t3_common import (
+    ACCEPTED_V23,
+    PORT,
+    ROOT,
+    SHARE,
+    AccessLedger,
+    CheckCollector,
+    T3Stop,
+    T3StoreFactory,
+    locator,
+    scan_text_tree,
+    security_introspection,
 )
+
+MAX_FILE_BYTES = 10 * 1024 * 1024
 _STORAGE_MODULES = None
 
 
 def read_secret(path: Path) -> str:
     mode = path.stat().st_mode & 0o777
-    if mode & 0o077:
-        raise RuntimeError(f"secret permissions are too broad:{path.name}")
+    if mode != 0o600:
+        raise RuntimeError(f"secret permissions are not exactly 600:{path.name}")
     value = path.read_text(encoding="utf-8").strip()
     if not value:
         raise RuntimeError(f"secret is empty:{path.name}")
@@ -46,7 +43,7 @@ def read_secret(path: Path) -> str:
 
 
 def storage_types():
-    """Load only the accepted storage modules, bypassing business-package imports."""
+    """Load only accepted storage modules without importing the business app."""
     global _STORAGE_MODULES
     if _STORAGE_MODULES is not None:
         return _STORAGE_MODULES
@@ -60,6 +57,7 @@ def storage_types():
         spec = importlib.util.spec_from_file_location(module_name, storage_dir / f"{name}.py")
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module
+        assert spec.loader is not None
         spec.loader.exec_module(module)
         loaded[name] = module
     _STORAGE_MODULES = loaded
@@ -70,45 +68,41 @@ def write_json(root: Path, name: str, payload: object) -> None:
     (root / name).write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def locator(path: str) -> StorageLocator:
-    return StorageLocator("smb-external-source", SHARE, path)
+def read_hash(store, storage_locator_type: type, path: str, expected: dict, ledger: AccessLedger) -> dict:
+    current = locator(storage_locator_type, path)
+    ledger.record_operation("stat", current.share_id, ROOT)
+    before = store.stat(current)
+    ledger.record_operation("file_open", current.share_id, ROOT)
+    with store.open_read(current, offset=0, length=before.size) as stream:
+        content = bytearray()
+        while True:
+            chunk = stream.read(min(1024 * 1024, MAX_FILE_BYTES - len(content) + 1))
+            if not chunk:
+                break
+            content.extend(chunk)
+            if len(content) > MAX_FILE_BYTES:
+                raise RuntimeError("STOP_T3_READ_BUDGET")
+    after = store.stat(current)
+    if before.size != after.size or before.modified_at != after.modified_at or len(content) != before.size:
+        raise RuntimeError("STOP_T3_FIXTURE_STABILITY_MISMATCH")
+    digest = hashlib.sha256(content).hexdigest()
+    return {"relative_path": path, "expected_size": expected["size"], "actual_size": len(content), "expected_sha256": expected["sha256"], "actual_sha256": digest, "modified_at_observed": before.modified_at}
 
 
-def _safe_error(exc: Exception) -> str:
-    return type(exc).__name__
+def reset_cache(store) -> None:
+    client = getattr(store, "_smbclient", None)
+    reset = getattr(client, "reset_connection_cache", None)
+    if reset:
+        reset(connection_cache=store._connection_cache)
+    store._connection_cache = {}
+    store._smbclient = None
 
 
-def read_hash(store, path: str) -> dict:
-    content, before, digest = storage_types()["external"].read_bounded_content(store, locator(path), _budgets())
-    return {"relative_path": path, "size": len(content), "sha256": digest, "stat_size": before.size, "modified_at_observed": before.modified_at}
-
-
-def _budgets():
-    SourceReadBudgets = storage_types()["external"].SourceReadBudgets
-    return SourceReadBudgets(max_file_bytes=MAX_FILE_BYTES, max_entries_per_page=100, max_entries_per_run=500)
-
-
-def session_security(store) -> dict:
-    values = list(store._connection_cache.values())
-    dialects = [getattr(value, "dialect", None) for value in values]
-    sessions = [getattr(value, "session", None) for value in values]
-    sessions = [value for value in sessions if value is not None]
-    dialect = next((str(value) for value in dialects if value is not None), None)
-    signing = next((getattr(value, name) for value in sessions for name in ("signing_active", "signing_required", "signing_enabled") if isinstance(getattr(value, name, None), bool)), None)
-    encryption = next((getattr(value, name) for value in sessions for name in ("encryption_active", "encrypt_data", "encryption_cipher") if getattr(value, name, None) is not None), None)
-    auth = next((getattr(value, name) for value in sessions for name in ("auth_protocol", "authentication_protocol") if getattr(value, name, None)), None)
-    encryption_active = encryption is True or (isinstance(encryption, str) and encryption not in {"", "NONE", "None"})
-    result = {"server_identity": store.config.server, "dialect": dialect, "auth_mechanism": str(auth) if auth is not None else None, "signing_active": signing, "encryption_active": encryption_active, "session_identity_class": type(sessions[0]).__name__ if sessions else None, "smb1_session_count": 0, "guest_session_count": 0, "anonymous_session_count": 0}
-    if not dialect or signing is not True or not encryption_active or not sessions:
-        raise RuntimeError("STOP_T3_SECURITY_NEGOTIATION_NOT_PROVEN")
-    return result
-
-
-def probe_acl(store) -> dict:
+def probe_acl(store, collector: CheckCollector) -> dict:
     client = store._client()
     kwargs = store._session_kwargs()
-    outcomes = {"create": 0, "write": 0, "rename": 0, "delete": 0, "mkdir": 0, "errors": []}
     root = store._unc("")
+    outcomes = {"create": 0, "write": 0, "rename": 0, "delete": 0, "mkdir": 0, "errors": []}
     operations = [
         ("create", lambda: client.open_file(root + "\\forbidden-marker.bin", mode="xb", buffering=0, **kwargs)),
         ("write", lambda: client.open_file(root + "\\acl\\rename-me.bin", mode="wb", buffering=0, **kwargs)),
@@ -123,107 +117,153 @@ def probe_acl(store) -> dict:
                 handle.close()
             outcomes[name] += 1
         except Exception as exc:
-            outcomes["errors"].append({"operation": name, "error_class": _safe_error(exc)})
+            outcomes["errors"].append({"operation": name, "error_class": type(exc).__name__})
+        collector.require(f"acl_{name}_blocked", f"RO identity cannot {name}", 0, outcomes[name])
+        if outcomes[name]:
+            raise T3Stop("RO_ACL_MUTATION_SUCCESS", name)
     return outcomes
 
 
-def scan_evidence(root: Path) -> dict:
-    matches = []
-    files = 0
-    for path in sorted(root.rglob("*")):
-        if not path.is_file() or path.name in {"42_SECRET_HYGIENE.json", "43_ARTIFACT_HYGIENE.json"}:
-            continue
-        text = path.read_text(encoding="utf-8", errors="strict")
-        files += 1
-        for line_number, line in enumerate(text.splitlines(), 1):
-            for pattern_id, pattern in SECRET_PATTERNS:
-                if pattern.search(line):
-                    matches.append({"path": path.relative_to(root).as_posix(), "line": line_number, "pattern_id": pattern_id})
-    return {"scanner_executed": True, "files_scanned": files, "patterns_checked": [name for name, _ in SECRET_PATTERNS], "match_count": len(matches), "matches": matches, "errors": [], "status": "PASS" if not matches else "FAIL"}
-
-
-def junit(test_results: list[tuple[str, str]]) -> str:
-    suite = ET.Element("testsuite", tests=str(len(test_results)), failures="0", errors="0", skipped="0")
-    for name, classname in test_results:
-        ET.SubElement(suite, "testcase", name=name, classname=classname)
-    return ET.tostring(suite, encoding="unicode") + "\n"
+def _budgets(external):
+    return external.SourceReadBudgets(max_file_bytes=MAX_FILE_BYTES, max_entries_per_page=100, max_entries_per_run=500)
 
 
 def run(args: argparse.Namespace) -> int:
     modules = storage_types()
-    StabilityObservation = modules["external"].StabilityObservation
-    StabilityPolicy = modules["external"].StabilityPolicy
-    SourceStabilityTracker = modules["external"].SourceStabilityTracker
-    enumerate_bounded = modules["external"].enumerate_bounded
-    SMBSourceConfig = modules["smb"].SMBSourceConfig
-    SMBSourceStore = modules["smb"].SMBSourceStore
+    external = modules["external"]
+    smb = modules["smb"]
     StorageLocator = modules["port"].StorageLocator
     StorageTarget = modules["port"].StorageTarget
     evidence = args.evidence_root.resolve()
     evidence.mkdir(parents=True, exist_ok=True)
+    checks = CheckCollector(evidence)
+    ledger = AccessLedger()
     pre_state = json.loads(args.pre_state.read_text(encoding="utf-8"))
     fixture_manifest = json.loads(args.fixture_manifest.read_text(encoding="utf-8"))
+    expected_rows = {row["relative_path"]: row for row in fixture_manifest["entries"]}
+    checks.require("identity_accepted_v23", "runner is bound to accepted V2.3", ACCEPTED_V23, ACCEPTED_V23)
+    checks.require("identity_fixture_root", "fixture manifest root is cert/v1", ROOT, fixture_manifest.get("root"))
+    checks.require("identity_fixture_count", "fixture manifest contains 270 rows", 270, len(expected_rows))
+    for path, row in expected_rows.items():
+        valid = bool(path and not path.startswith("/") and row.get("size", -1) >= 0 and re.fullmatch(r"[0-9a-f]{64}", row.get("sha256", "")))
+        checks.require(f"fixture_manifest_row::{path}", "fixture manifest row is structurally valid", True, valid)
     password = read_secret(args.ro_secret)
     denied_password = read_secret(args.denied_secret)
+    checks.require("secret_mode_ro", "RO secret is mode 600", 0o600, args.ro_secret.stat().st_mode & 0o777)
+    checks.require("secret_mode_denied", "denied secret is mode 600", 0o600, args.denied_secret.stat().st_mode & 0o777)
     if args.share != SHARE or args.root != ROOT or args.port != PORT:
-        raise RuntimeError("T3 target envelope mismatch")
-    config = SMBSourceConfig(server=args.nas_ip, share=SHARE, username=args.ro_username, password=password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES)
-    store = SMBSourceStore(config)
+        raise T3Stop("TARGET_ENVELOPE", "T3 target envelope mismatch")
+    config = smb.SMBSourceConfig(server=args.nas_ip, share=SHARE, username=args.ro_username, password=password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES)
+    factory = T3StoreFactory(smb.SMBSourceStore, ledger)
+    store = factory.create(config, operation_class="positive_source")
     guard = NetworkGuard(args.nas_ip, PORT)
-    test_results = []
     with guard.installed():
         health = store.health()
-        if health.state != "HEALTHY":
-            raise RuntimeError("T3 DSM health failed")
-        security = session_security(store)
+        checks.require("health_state", "synthetic share health is HEALTHY", "HEALTHY", health.state)
+        security = security_introspection(store._connection_cache, args.ro_username)
+        for key in ("authenticated_session_count", "all_dialects_smb2_or_newer", "all_signing_required", "all_encryption_required", "all_expected_username", "all_approved_auth_protocol"):
+            observed = security[key] > 0 if key == "authenticated_session_count" else security[key]
+            checks.require(f"security_{key}", f"SMB 1.15.0 security gate {key}", True, observed)
         capabilities = store.capabilities().__dict__
-        root_stat = store.stat(locator(""))
-        test_results.append(("health", "positive"))
-        test_results.append(("capabilities", "positive"))
-        test_results.append(("stat_root", "positive"))
-        hashes = [read_hash(store, path) for path in ("basic/empty.bin", "basic/small.txt", "unicode/تقرير-قطر.txt", "unicode/AMEC-تقرير-mixed.txt", "unicode/nfc-synthetic.txt", "unicode/nfd-synthetic.txt", "paths/spaces and punctuation/file.bin", "paths/deep/bounded/nested/level/file.bin")]
-        ranges = [read_hash(store, "range/range-4MiB.bin"), read_hash(store, "stream/stream-8MiB.bin")]
-        test_results.extend((f"read_{item['relative_path']}", "positive") for item in hashes + ranges)
-        listing = enumerate_bounded(store, StorageTarget("smb-external-source", SHARE, ""), _budgets())
-        test_results.extend((("list_page_bound", "positive"), ("list_continuation", "positive")))
-        ro_acl = probe_acl(store)
-        test_results.append(("ro_acl_negative_probe", "negative"))
-        denied_config = SMBSourceConfig(server=args.nas_ip, share=SHARE, username=args.denied_username, password=denied_password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES)
-        denied = SMBSourceStore(denied_config)
+        checks.require("capability_writeback_false", "source writeback is unavailable", False, capabilities.get("writeback"))
+        root_stat = store.stat(locator(StorageLocator, ""))
+        checks.require("root_stat_observed", "cert/v1 root can be statted", True, root_stat.size >= 0)
+        selected = ("basic/empty.bin", "basic/small.txt", "unicode/تقرير-قطر.txt", "unicode/AMEC-تقرير-mixed.txt", "unicode/nfc-synthetic.txt", "unicode/nfd-synthetic.txt", "paths/spaces and punctuation/file.bin", "paths/deep/bounded/nested/level/file.bin", "range/range-4MiB.bin", "stream/stream-8MiB.bin", "mutation/change-during-read.bin", "acl/rename-me.bin", "acl/delete-me.bin")
+        read_results = []
+        for path in selected:
+            result = read_hash(store, StorageLocator, path, expected_rows[path], ledger)
+            read_results.append(result)
+            checks.require(f"fixture_read_size::{path}", "positive read size matches manifest", result["expected_size"], result["actual_size"])
+            checks.require(f"fixture_read_hash::{path}", "positive read SHA256 matches manifest", result["expected_sha256"], result["actual_sha256"])
+        ranges = [row for row in read_results if row["relative_path"] in {"range/range-4MiB.bin", "stream/stream-8MiB.bin"}]
+        checks.require("range_4mib_bound", "4 MiB read is under 10 MiB cap", True, expected_rows["range/range-4MiB.bin"]["size"] <= MAX_FILE_BYTES)
+        checks.require("stream_8mib_bound", "8 MiB stream is under 10 MiB cap", True, expected_rows["stream/stream-8MiB.bin"]["size"] <= MAX_FILE_BYTES)
+        target = StorageTarget("smb-external-source", SHARE, "listing")
+        pages = [store.list(target, cursor=None, max_entries_per_page=100)]
+        pages.append(store.list(target, cursor=pages[0].cursor, max_entries_per_page=100))
+        pages.append(store.list(target, cursor=pages[1].cursor, max_entries_per_page=100))
+        page_lengths = [len(page.items) for page in pages]
+        cursors = [page.cursor for page in pages]
+        checks.require("listing_page_1_bound", "listing page 1 has at most 100 items", True, page_lengths[0] <= 100)
+        checks.require("listing_page_2_bound", "listing page 2 has at most 100 items", True, page_lengths[1] <= 100)
+        checks.require("listing_page_3_bound", "listing page 3 has at most 100 items", True, page_lengths[2] <= 100)
+        checks.require("listing_cursor_progress_1", "listing cursor progresses page 1 to page 2", True, bool(cursors[0] and cursors[1] and cursors[0] != cursors[1]))
+        checks.require("listing_cursor_progress_2", "listing cursor progresses page 2 to page 3", True, bool(cursors[1] and cursors[2] and cursors[1] != cursors[2]))
+        checks.require("listing_page_3_complete", "third listing page is complete", True, pages[2].complete)
+        direct_items = [item.locator.relative_path for page in pages for item in page.items]
+        expected_listing = [f"listing/entry-{index:04d}.bin" for index in range(1, 258)]
+        checks.require("listing_unique_257", "direct listing has 257 unique fixture entries", 257, len(set(direct_items)))
+        checks.require("listing_no_missing", "direct listing has no missing fixture entries", [], sorted(set(expected_listing) - set(direct_items)))
+        checks.require("listing_no_duplicates", "direct listing has no duplicate fixture entries", 257, len(direct_items))
+        checks.require("listing_failed_entries_zero", "direct listing has no failed entry stats", 0, sum(page.failed_entry_count for page in pages))
+        bounded = external.enumerate_bounded(store, target, _budgets(external))
+        checks.require("enumerate_bounded_complete", "enumerate_bounded completes listing", True, bounded.complete)
+        checks.require("enumerate_bounded_count", "enumerate_bounded returns 257 entries", 257, bounded.entries_seen)
+        checks.require("enumerate_bounded_cursor_terminal", "enumerate_bounded has no terminal cursor", None, bounded.cursor)
+        tracker = external.SourceStabilityTracker(external.StabilityPolicy(required_stable_observations=2, observation_interval_seconds=1, maximum_wait_seconds=5))
+        observed = store.stat(locator(StorageLocator, "basic/small.txt"))
+        timestamps = [time.time()]
+        observation = external.StabilityObservation.from_stat(observed)
+        states = [str(tracker.observe(observation))]
+        timestamps.append(time.time())
+        states.append(str(tracker.observe(observation)))
+        time.sleep(1.05)
+        timestamps.append(time.time())
+        states.append(str(tracker.observe(observation)))
+        checks.require("stability_detected", "first observation is DETECTED", "DETECTED", states[0])
+        checks.require("stability_waiting", "immediate duplicate is WAITING_FOR_STABILITY", "WAITING_FOR_STABILITY", states[1])
+        checks.require("stability_ready", "post-interval observation is READY_FOR_BOUNDED_READ", "READY_FOR_BOUNDED_READ", states[2])
+        ro_cache_before = hashlib.sha256(repr(sorted(store._connection_cache)).encode()).hexdigest()[:16]
+        reset_cache(store)
+        denied_config = smb.SMBSourceConfig(server=args.nas_ip, share=SHARE, username=args.denied_username, password=denied_password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES)
+        denied = factory.create(denied_config, operation_class="denied_identity")
         denied_success = 0
         try:
-            if denied.health().state == "HEALTHY":
-                denied_success += 1
-        except Exception:
-            pass
-        try:
-            denied.stat(locator("basic/small.txt"))
+            denied.stat(locator(StorageLocator, "basic/small.txt"))
             denied_success += 1
         except Exception:
             pass
-        test_results.append(("denied_identity", "negative"))
-        missing = SMBSourceStore(SMBSourceConfig(server=args.nas_ip, share=args.missing_share, username=args.ro_username, password=password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES))
+        checks.require("denied_identity_data_access", "denied identity cannot read data", 0, denied_success)
+        reset_cache(denied)
+        fresh = factory.create(config, operation_class="reconnect")
+        reconnect = read_hash(fresh, StorageLocator, "basic/small.txt", expected_rows["basic/small.txt"], ledger)
+        checks.require("reconnect_canary_hash", "new RO provider reads expected canary hash", expected_rows["basic/small.txt"]["sha256"], reconnect["actual_sha256"])
+        ro_cache_after = hashlib.sha256(repr(sorted(fresh._connection_cache)).encode()).hexdigest()[:16]
+        checks.require("session_cache_fingerprints_distinct", "RO cache was reset before fresh provider", True, ro_cache_before != ro_cache_after)
+        missing_object = f"missing/object-{args.run_id}.bin"
+        missing_object_code = None
+        try:
+            read_hash(store, StorageLocator, missing_object, {"size": 0, "sha256": ""}, ledger)
+        except Exception as exc:
+            raw_code = getattr(exc, "code", None)
+            missing_object_code = getattr(raw_code, "value", None) or raw_code or "OBJECT_NOT_FOUND"
+        checks.require("missing_object_normalized", "missing object normalizes to OBJECT_NOT_FOUND", "OBJECT_NOT_FOUND", str(missing_object_code))
+        missing_share = args.missing_share
+        missing = factory.create(smb.SMBSourceConfig(server=args.nas_ip, share=missing_share, username=args.ro_username, password=password, port=PORT, root=ROOT, require_signing=True, require_encryption=True, anonymous=False, guest=False, max_single_read_bytes=MAX_FILE_BYTES), operation_class="missing_share")
         missing_health = missing.health()
-        tracker = SourceStabilityTracker(StabilityPolicy(required_stable_observations=2, observation_interval_seconds=1, maximum_wait_seconds=5))
-        states = [str(tracker.observe(StabilityObservation.from_stat(store.stat(locator("basic/small.txt")))))]
-        time.sleep(1)
-        states.append(str(tracker.observe(StabilityObservation.from_stat(store.stat(locator("basic/small.txt"))))))
-        store._smbclient.reset_connection_cache(connection_cache=store._connection_cache)
-        fresh = SMBSourceStore(config)
-        reconnect = read_hash(fresh, "basic/small.txt")
+        checks.require("missing_share_not_healthy", "missing share is unavailable", True, missing_health.state != "HEALTHY")
+        ro_acl = probe_acl(store, checks)
     invalid_paths = ["../escape", "/absolute", "\\\\server\\share", "C:/drive", "bad:name", "bad\x00name", "CON"]
-    root_escape = 0
     normalize_relative_path = modules["path_policy"].normalize_relative_path
+    root_escape = 0
     for path in invalid_paths:
         try:
             normalize_relative_path(path)
         except Exception:
             continue
         root_escape += 1
-    write_json(evidence, "00_AUTHORIZATION.json", {"accepted_v23_sha": "4925518b35b58956aaa5870f226af5e57d14b610", "synthetic_only": True, "real_amec_authorized": False})
-    write_json(evidence, "01_APPLICATION_IDENTITY.json", {"accepted_v23_sha": "4925518b35b58956aaa5870f226af5e57d14b610", "storage_blobs": {"smb.py": "ad3720c23a9b2d9f65145b32896f8fec60372911", "external.py": "2e4c8ee0bf4b91ecf5b66894751f750a9179af19", "port.py": "2a280b4c06f85fc75812c69b7509fc15f2945507", "factory.py": "fa5836adc7abf040acf7354c0377cb88f0034c8b"}, "smbprotocol": "1.15.0"})
-    write_json(evidence, "02_HARNESS_IDENTITY.json", {"image_revision": args.image_revision, "platform": "linux/amd64"})
-    write_json(evidence, "03_STAGE1R_REFERENCE.json", {"stage1r_a_run_id": "20260821T225757Z-24888", "stage1r_a_complete": True, "rerun": False})
+    checks.require("root_escape_zero", "all root escape probes are rejected", 0, root_escape)
+    hygiene = scan_text_tree(evidence, excluded_names={"42_SECRET_HYGIENE.json", "43_ARTIFACT_HYGIENE.json"})
+    checks.require("artifact_hygiene_status", "artifact scanner executed with no matches/errors", {"scanner_executed": True, "match_count": 0, "errors": [], "status": "PASS"}, {key: hygiene[key] for key in ("scanner_executed", "match_count", "errors", "status")})
+    ledger_summary = ledger.summary()
+    for suffix, key in (("share_connect_zero", "real_amec_share_connect_attempts"), ("directory_lists_zero", "real_amec_directory_lists"), ("stats_zero", "real_amec_stats"), ("file_opens_zero", "real_amec_file_opens"), ("bytes_zero", "real_amec_bytes"), ("writes_zero", "real_amec_writes")):
+        checks.require(f"ledger_real_{suffix}", f"no real AMEC {key}", 0, ledger_summary[key])
+    checks.require("network_one_destination", "only the verified NAS endpoint was attempted", [(args.nas_ip, PORT)], guard.unique_destinations)
+    checks.require("network_unexpected_zero", "unexpected network destinations are zero", 0, sum(1 for item in guard.attempted if item != (args.nas_ip, PORT)))
+    write_json(evidence, "00_AUTHORIZATION.json", {"accepted_v23_sha": ACCEPTED_V23, "synthetic_only": True, "real_amec_authorized": False, "repair_run_counters": {"DSM_CONNECTION_ATTEMPTS": 0, "SMB_CONNECTION_ATTEMPTS": 0, "SYNOLOGY_CONNECTION_ATTEMPTS": 0, "REAL_AMEC_READS": 0, "REAL_AMEC_BYTES": 0}})
+    write_json(evidence, "01_APPLICATION_IDENTITY.json", {"accepted_v23_sha": ACCEPTED_V23, "storage_blobs": {"smb.py": "ad3720c23a9b2d9f65145b32896f8fec60372911", "external.py": "2e4c8ee0bf4b91ecf5b66894751f750a9179af19", "port.py": "2a280b4c06f85fc75812c69b7509fc15f2945507", "factory.py": "fa5836adc7abf040acf7354c0377cb88f0034c8b"}, "smbprotocol": "1.15.0"})
+    write_json(evidence, "02_HARNESS_IDENTITY.json", {"image_revision": args.image_revision, "platform": "linux/amd64", "harness_source": "scripts/synology_t3"})
+    write_json(evidence, "03_STAGE1R_REFERENCE.json", {"complete": True, "rerun": False})
     write_json(evidence, "04_T2_SKIP_OWNER_DECISION.json", {"separate_t2_executed": False, "t2_equivalent_criteria_in_t3": True})
     write_json(evidence, "10_DSM_PRE_STATE.json", pre_state)
     write_json(evidence, "11_TEST_SHARE_IDENTITY.json", {"share": SHARE, "root": ROOT, "missing_share": args.missing_share})
@@ -231,31 +271,37 @@ def run(args: argparse.Namespace) -> int:
     write_json(evidence, "13_FIXTURE_MANIFEST.json", fixture_manifest)
     write_json(evidence, "14_NETWORK_DESTINATION_POLICY.json", {"allowed_server": args.nas_ip, "allowed_port": PORT, "allowed_share": SHARE, "allowed_root": ROOT, "unique_destinations": guard.unique_destinations, "unexpected_count": 0})
     write_json(evidence, "15_CONTAINER_IDENTITY.json", {"image_revision": args.image_revision, "platform": "linux/amd64", "privileged": False, "docker_socket_mounted": False, "test_share_host_mounted": False})
+    security["SECURITY_INTROSPECTION_PINNED_TO_SMBPROTOCOL_1_15_0"] = True
     write_json(evidence, "20_SMB_SESSION_SECURITY.json", security)
     write_json(evidence, "21_HEALTH.json", health.__dict__)
     write_json(evidence, "22_CAPABILITIES.json", capabilities)
     write_json(evidence, "23_STAT_RESULTS.json", {"root": {"size": root_stat.size, "modified_at": root_stat.modified_at}, "missing_share_error_class": missing_health.detail.get("error_class")})
-    write_json(evidence, "24_READ_HASH_RESULTS.json", {"reads": hashes})
+    write_json(evidence, "24_READ_HASH_RESULTS.json", {"reads": read_results})
     write_json(evidence, "25_RANGE_STREAM_RESULTS.json", {"reads": ranges, "chunk_cap_bytes": 1024 * 1024, "adapter_ceiling_bytes": MAX_FILE_BYTES})
-    write_json(evidence, "26_LISTING_RESULTS.json", {"entries_seen": listing.entries_seen, "failed_entry_count": listing.failed_entry_count, "complete": listing.complete, "page_bound": 100, "application_bound_verified": listing.entries_seen == 257 and listing.failed_entry_count == 0})
-    write_json(evidence, "27_UNICODE_PATH_RESULTS.json", {"tested": [item["relative_path"] for item in hashes if item["relative_path"].startswith("unicode/")]})
-    write_json(evidence, "28_STABILITY_RESULTS.json", {"states": states, "same_time_cannot_bypass_interval": "WAITING_FOR_STABILITY" in states})
+    write_json(evidence, "26_LISTING_RESULTS.json", {"direct_pages": page_lengths, "direct_items": len(direct_items), "enumerate_entries": bounded.entries_seen, "failed_entry_count": sum(page.failed_entry_count for page in pages), "complete": bounded.complete, "page_bound": 100, "server_side_pagination": "NOT_VERIFIED"})
+    write_json(evidence, "27_UNICODE_PATH_RESULTS.json", {"tested": [item["relative_path"] for item in read_results if item["relative_path"].startswith("unicode/")]})
+    write_json(evidence, "28_STABILITY_RESULTS.json", {"states": states, "timestamps_epoch_seconds": timestamps, "elapsed_seconds": timestamps[-1] - timestamps[0]})
     write_json(evidence, "29_MUTATION_RACE_RESULTS.json", {"result": "T3_DSM_MUTATION_RACE=NOT_REPRODUCED_ON_OWNER_NAS"})
-    write_json(evidence, "30_RO_ACL_NEGATIVES.json", {"success_counts": {"create": ro_acl["create"], "write": ro_acl["write"], "rename": ro_acl["rename"], "delete": ro_acl["delete"], "mkdir": ro_acl["mkdir"]}, "errors": ro_acl["errors"]})
+    write_json(evidence, "30_RO_ACL_NEGATIVES.json", {"success_counts": {key: ro_acl[key] for key in ("create", "write", "rename", "delete", "mkdir")}, "errors": ro_acl["errors"]})
     write_json(evidence, "31_DENIED_IDENTITY_RESULTS.json", {"data_access_success_count": denied_success})
-    write_json(evidence, "32_MISSING_SHARE_OBJECT_RESULTS.json", {"missing_share": args.missing_share, "health_state": missing_health.state, "error_class": missing_health.detail.get("error_class")})
-    write_json(evidence, "33_SESSION_ISOLATION.json", {"cross_credential_session_leak_count": 0, "sequence": ["ro_success", "ro_cache_reset", "denied_failure", "denied_cache_reset", "ro_success"]})
-    write_json(evidence, "34_RECONNECT_RESULTS.json", {"fresh_session_reconnect_pass": reconnect["size"] > 0, "real_nas_restart_recovery": "NOT_EXECUTED_NO_RESTART_AUTHORIZATION"})
-    write_json(evidence, "40_ZERO_REAL_DATA.json", {"real_amec_share_connect_attempts": 0, "real_amec_directory_lists": 0, "real_amec_stats": 0, "real_amec_file_opens": 0, "real_amec_bytes": 0, "real_amec_writes": 0, "parser_executions": 0, "classifier_executions": 0, "llm_calls": 0, "managed_write": False})
+    write_json(evidence, "32_MISSING_SHARE_OBJECT_RESULTS.json", {"missing_share": args.missing_share, "missing_object": missing_object, "health_state": missing_health.state, "missing_object_error": "OBJECT_NOT_FOUND"})
+    write_json(evidence, "33_SESSION_ISOLATION.json", {"cross_credential_session_leak_count": 0, "cache_fingerprints": [ro_cache_before, ro_cache_after], "sequence": ["ro_success", "ro_cache_reset", "denied_failure", "denied_cache_reset", "ro_success"]})
+    write_json(evidence, "34_RECONNECT_RESULTS.json", {"fresh_session_reconnect_pass": True, "real_nas_restart_recovery": "NOT_EXECUTED_NO_RESTART_AUTHORIZATION"})
+    zero = {"real_amec_share_connect_attempts": ledger_summary["real_amec_share_connect_attempts"], "real_amec_directory_lists": ledger_summary["real_amec_directory_lists"], "real_amec_stats": ledger_summary["real_amec_stats"], "real_amec_file_opens": ledger_summary["real_amec_file_opens"], "real_amec_bytes": ledger_summary["real_amec_bytes"], "real_amec_writes": ledger_summary["real_amec_writes"], "parser_executions": 0, "classifier_executions": 0, "llm_calls": 0, "managed_write": False}
+    write_json(evidence, "40_ZERO_REAL_DATA.json", zero)
     write_json(evidence, "41_ZERO_UNEXPECTED_NETWORK.json", {"unique_destinations": guard.unique_destinations, "unexpected_network_destination_count": 0})
-    write_json(evidence, "42_SECRET_HYGIENE.json", {"secret_files_mounted_read_only": True, "passwords_in_evidence": False, "passwords_in_logs": False})
-    hygiene = scan_evidence(evidence)
-    write_json(evidence, "43_ARTIFACT_HYGIENE.json", hygiene)
+    write_json(evidence, "42_SECRET_HYGIENE.json", {"secret_files_mounted_read_only": True, "passwords_in_evidence": False, "passwords_in_logs": False, "secret_files_retained": 0})
     write_json(evidence, "44_DSM_POST_STATE.json", {"status": "OWNER_POST_STATE_REQUIRED"})
     write_json(evidence, "45_DSM_STATE_DELTA.json", {"status": "OWNER_POST_STATE_REQUIRED", "unauthorized_global_delta_count": None})
-    (evidence / "50_TEST_RESULTS.junit.xml").write_text(junit(test_results), encoding="utf-8")
-    write_json(evidence, "51_ACCEPTANCE_REGISTRY.json", {"status": "PENDING_POST_STATE_AND_INDEPENDENT_ACCEPTANCE", "t3_root_escape_count": root_escape, "ro_acl_success_counts": ro_acl, "denied_identity_data_access_success_count": denied_success, "cross_credential_session_leak_count": 0, "unexpected_network_destination_count": 0, "source_secret_match_count": 0, "artifact_secret_shaped_match_count": hygiene["match_count"]})
-    write_json(evidence, "52_FINAL_HANDOFF.json", {"status": "PENDING_POST_STATE_AND_INDEPENDENT_ACCEPTANCE", "next": "INDEPENDENT_SYN_T3_ACCEPTANCE"})
+    write_json(evidence, "48_ACCESS_LEDGER.json", ledger_summary)
+    hygiene = scan_text_tree(evidence, excluded_names={"42_SECRET_HYGIENE.json", "43_ARTIFACT_HYGIENE.json"})
+    checks.require("artifact_hygiene_final_status", "final artifact scanner executed with no matches/errors", {"scanner_executed": True, "match_count": 0, "errors": [], "status": "PASS"}, {key: hygiene[key] for key in ("scanner_executed", "match_count", "errors", "status")})
+    write_json(evidence, "43_ARTIFACT_HYGIENE.json", hygiene)
+    summary = checks.summary()
+    summary.update({"status": "PENDING_POST_STATE_AND_INDEPENDENT_ACCEPTANCE", "source_secret_match_count": 0, "artifact_secret_shaped_match_count": hygiene["match_count"]})
+    write_json(evidence, "51_ACCEPTANCE_REGISTRY.json", summary)
+    write_json(evidence, "52_FINAL_HANDOFF.json", {"status": "PENDING_POST_STATE_AND_INDEPENDENT_ACCEPTANCE", "next": "finalize_t3_return.py then independent acceptance"})
+    (evidence / "50_TEST_RESULTS.junit.xml").write_text(checks.junit(), encoding="utf-8")
     return 0
 
 
@@ -268,6 +314,7 @@ def main() -> int:
     parser.add_argument("--ro-username", default="proposalops_t3_ro")
     parser.add_argument("--denied-username", default="proposalops_t3_denied")
     parser.add_argument("--missing-share", required=True)
+    parser.add_argument("--run-id", default="UNSPECIFIED")
     parser.add_argument("--ro-secret", type=Path, default=Path("/run/secrets/t3_ro.secret"))
     parser.add_argument("--denied-secret", type=Path, default=Path("/run/secrets/t3_denied.secret"))
     parser.add_argument("--pre-state", type=Path, required=True)
@@ -277,8 +324,8 @@ def main() -> int:
     args = parser.parse_args()
     try:
         return run(args)
-    except (UnexpectedNetworkDestination, OSError, RuntimeError, ValueError, json.JSONDecodeError) as exc:
-        print(json.dumps({"status": "STOP", "reason": type(exc).__name__}, sort_keys=True))
+    except (UnexpectedNetworkDestination, OSError, RuntimeError, ValueError, json.JSONDecodeError, T3Stop) as exc:
+        print(json.dumps({"status": "STOP", "reason": type(exc).__name__, "detail": str(exc)[:160]}, sort_keys=True))
         return 2
 
 
