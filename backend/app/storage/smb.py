@@ -43,6 +43,7 @@ class SMBSourceConfig:
     anonymous: bool = False
     guest: bool = False
     operation_timeout_seconds: float = 60
+    max_single_read_bytes: int = 10 * 1024 * 1024
 
     def __post_init__(self) -> None:
         if not all((self.server, self.share, self.username, self.password)):
@@ -55,6 +56,8 @@ class SMBSourceConfig:
             raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source signing and encryption are required")
         if self.operation_timeout_seconds <= 0:
             raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source operation timeout must be positive")
+        if self.max_single_read_bytes <= 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source maximum single read must be positive")
 
 
 class BoundedReadHandle:
@@ -181,13 +184,17 @@ class SMBSourceStore(ReadOnlySourcePort):
         except Exception as exc:
             raise self._map_error(exc, "External source stat failed") from exc
 
-    def open_read(self, locator: StorageLocator, *, offset: int | None = None, length: int | None = None) -> BinaryIO:
-        if offset is not None and offset < 0:
+    def open_read(self, locator: StorageLocator, *, offset: int = 0, length: int | None = None) -> BinaryIO:
+        if offset < 0:
             raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read offset must be non-negative")
         if length is None:
-            length = self.stat(locator).size - (offset or 0)
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read requires an explicit total length")
         if length < 0:
             raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read length must be non-negative")
+        if length > self.config.max_single_read_bytes:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read exceeds maximum single read")
+        if length == 0:
+            return BoundedReadHandle(io.BytesIO(b""), 0)
         raw = None
         try:
             raw = self._client().open_file(self._unc(locator.relative_path), mode="rb", buffering=0, **self._session_kwargs())

@@ -105,6 +105,9 @@ def run(*, json_path: Path | None = None, junitxml: Path | None = None) -> int:
         "backend/tests/test_source_budget_synology_preaccess.py",
         "backend/tests/test_source_deadline_synology_preaccess.py",
         "backend/tests/test_external_source_readonly_listing.py",
+        "backend/tests/test_synology_preaccess_v2_2_bounded.py",
+        "backend/tests/test_synology_preaccess_v2_2_secret_scanner.py",
+        "backend/tests/test_synology_preaccess_v2_2_evidence.py",
     ]
     pytest_args = ["-q", *test_paths]
     if junitxml:
