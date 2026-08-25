@@ -86,13 +86,15 @@ def finalize(bundle: Path) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--run-id")
     parser.add_argument("--finalize", type=Path)
     args = parser.parse_args()
     if args.finalize:
         finalize(args.finalize.resolve())
     else:
+        if args.output is None or args.run_id is None:
+            parser.error("--output and --run-id are required when creating a bundle")
         print(json.dumps({"bundle": str(create_bundle(args.repo_root.resolve(), args.output.resolve(), args.run_id)), "status": "PASS"}, sort_keys=True))
     return 0
 
