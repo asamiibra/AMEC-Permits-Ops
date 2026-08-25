@@ -3,7 +3,9 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import re
 import stat
+import subprocess
 import types
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
@@ -544,14 +546,14 @@ def test_owner_instructions_use_exact_candidate_external_acceptance_only():
     text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
     assert text.count("R1.1 handoff acceptance") == 0
     assert text.count("R1.2 handoff acceptance") == 0
-    assert "independent acceptance has passed for this exact R1.4 handoff candidate" in text
+    assert "independent acceptance has passed for this exact R1.5 handoff candidate" in text
     assert "T3_OWNER_EXECUTION_READY=false" in text
 
 
-def test_handoff_image_ref_is_r1r4(tmp_path):
-    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R4", "7400a2c50d69a2b57c23239412b8275f129ab57c")
+def test_handoff_image_ref_is_r1r5(tmp_path):
+    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R5", "7400a2c50d69a2b57c23239412b8275f129ab57c")
     policy = json.loads((bundle / "06_IMAGE_BUILD_POLICY.json").read_text())
-    assert policy["image_ref"] == "proposalops/syn-t3:r1r4-7400a2c50d69"
+    assert policy["image_ref"] == "proposalops/syn-t3:r1r5-7400a2c50d69"
 
 
 def test_handoff_registry_cannot_self_authorize_owner_execution(tmp_path):
@@ -904,3 +906,67 @@ def test_r1r4_host_bootstrap_contract_has_no_secret_fields():
 def test_r1r4_wrapper_contains_bootstrap_only_stop_and_network_none():
     text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
     assert "T3_BOOTSTRAP_ONLY_RESULT=PASS" in text and "--network=none" in text and "T3_BOOTSTRAP_ONLY" in text
+
+
+def test_r1r5_verify_helper_is_no_bytecode_and_exact_schema_entrypoint():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/verify_t3_dsm_state.sh").read_text()
+    assert "export PYTHONDONTWRITEBYTECODE=1" in text
+    assert "python3 -B" in text
+    assert "dsm_state_schema.py" in text
+
+
+def test_r1r5_all_shipped_owner_shell_python_invocations_use_b():
+    root = Path(__file__).resolve().parents[2] / "scripts/synology_t3"
+    for name in ("verify_t3_dsm_state.sh", "seed_t3_synthetic_share.sh", "run_t3_owner_dsm.sh"):
+        text = (root / name).read_text()
+        if name != "seed_t3_synthetic_share.sh":
+            assert "PYTHONDONTWRITEBYTECODE=1" in text
+        for line in text.splitlines():
+            if re.search(r"\bpython3\b", line):
+                assert "-B" in line, (name, line)
+
+
+def test_r1r5_scope_accepts_only_r1r5_workflow():
+    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r5.yml"]) == []
+    assert validate_paths(["backend/app/storage/smb.py"]) != []
+
+
+def test_r1r5_handoff_copies_verify_helper(tmp_path):
+    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R5-COPY", "UNCOMMITTED")
+    assert (bundle / "verify_t3_dsm_state.sh").read_text() == (Path(__file__).resolve().parents[2] / "scripts/synology_t3/verify_t3_dsm_state.sh").read_text()
+
+
+def test_r1r5_owner_instructions_bind_one_run_id_everywhere():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
+    assert "RUN_ID=SYN-T3-<UTC_TIMESTAMP_OR_OWNER_RUN_ID>" in text
+    assert "$T3_CONTROL_ROOT/SYN-T3/$T3_RUN_ID" in text
+    assert "$T3_CONTROL_DIR/ProposalOps_SYN_T3_Return_$T3_RUN_ID" in text
+    assert "STOP_T3_RUN_ID_OR_CONTROL_DIR_COLLISION" in text
+
+
+def test_r1r5_owner_instructions_document_exact_secret_files_without_credential_transport():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
+    assert "$T3_CONTROL_DIR/t3_ro.secret" in text and "$T3_CONTROL_DIR/t3_denied.secret" in text
+    assert "environment variable or command-line argument" in text
+    assert "never printed/hashed/committed/uploaded" in text
+
+
+def test_r1r5_owner_instructions_require_pre_before_t3_objects_and_post_cleanup():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
+    assert "Only after PRE PASS may the Owner create the synthetic share and accounts" in text
+    assert "Validate POST before finalization" in text
+    assert "Remove the one-time Task Scheduler entry" in text
+    assert "Disable both T3 identities" in text
+
+
+def test_r1r5_bootstrap_only_is_explicitly_unset_before_live_run():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
+    assert "unset T3_BOOTSTRAP_ONLY" in text
+    assert 'test -z "${T3_BOOTSTRAP_ONLY+x}"' in text
+
+
+@pytest.mark.parametrize("api", ["removeprefix", "removesuffix", "is_relative_to", "tomllib", "ExceptionGroup"])
+def test_r1r5_host_facing_modules_reject_python39_plus_apis(api):
+    root = Path(__file__).resolve().parents[2] / "scripts/synology_t3"
+    modules = [root / name for name in ("verify_t3_dsm_state.sh", "seed_t3_synthetic_share.sh", "run_t3_owner_dsm.sh", "preflight_t3_handoff.py", "finalize_t3_return.py", "validate_t3_return.py", "host_bootstrap.py", "fixture_manifest.py")]
+    assert not any(api in path.read_text() for path in modules)
