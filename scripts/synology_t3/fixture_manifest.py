@@ -5,6 +5,7 @@ import json
 import argparse
 import unicodedata
 from pathlib import Path
+from typing import Any, Dict, List
 
 
 def _repeat(label: str, size: int) -> bytes:
@@ -40,7 +41,9 @@ def fixture_bytes(relative: str) -> bytes:
     if relative == "acl/delete-me.bin":
         return b"SYN-T3-ACL-DELETE-CANARY\n"
     if relative.startswith("listing/entry-") and relative.endswith(".bin"):
-        return (relative.removeprefix("listing/").removesuffix(".bin") + "\n").encode("ascii")
+        name = relative[len("listing/"):] if relative.startswith("listing/") else relative
+        name = name[:-len(".bin")] if name.endswith(".bin") else name
+        return (name + "\n").encode("ascii")
     raise KeyError(relative)
 
 
@@ -99,9 +102,59 @@ def write_manifest(output_root: Path, output_path: Path) -> dict:
     return manifest
 
 
+def verify_shipped_fixture_staging(manifest_path: Path, staging_root: Path) -> Dict[str, Any]:
+    """Verify the immutable shipped corpus without creating or changing files."""
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    errors: List[str] = []
+    if manifest.get("root") != "cert/v1":
+        errors.append("manifest root must be cert/v1")
+    entries = manifest.get("entries", [])
+    if len(entries) != 270:
+        errors.append("manifest must contain exactly 270 entries")
+    expected = {}
+    for row in entries:
+        relative = row.get("relative_path", "")
+        candidate = Path(relative)
+        if not relative or candidate.is_absolute() or ".." in candidate.parts or relative in expected:
+            errors.append("unsafe or duplicate manifest path:" + str(relative))
+            continue
+        expected[relative] = row
+    actual = {}
+    if not staging_root.is_dir() or staging_root.is_symlink():
+        errors.append("fixture staging root is not a regular directory")
+    else:
+        for path in staging_root.rglob("*"):
+            relative = path.relative_to(staging_root).as_posix()
+            if path.is_symlink():
+                errors.append("symlink in fixture staging:" + relative)
+            elif path.is_file():
+                actual[relative] = path
+            elif not path.is_dir():
+                errors.append("non-regular fixture staging entry:" + relative)
+    if set(expected) != set(actual):
+        errors.append("fixture staging file set differs from manifest")
+    for relative, row in expected.items():
+        path = actual.get(relative)
+        if path is None:
+            continue
+        content = path.read_bytes()
+        if len(content) != row.get("size"):
+            errors.append("fixture size mismatch:" + relative)
+        if hashlib.sha256(content).hexdigest() != row.get("sha256"):
+            errors.append("fixture SHA256 mismatch:" + relative)
+    return {"status": "PASS" if not errors else "FAIL", "errors": errors, "fixture_count": len(expected), "fixture_regeneration_executed": False}
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--output-root", type=Path)
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--verify-staged-root", type=Path)
     args = parser.parse_args()
+    if args.verify_staged_root:
+        result = verify_shipped_fixture_staging(args.manifest, args.verify_staged_root / "cert" / "v1")
+        print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        raise SystemExit(0 if result["status"] == "PASS" else 2)
+    if args.output_root is None:
+        parser.error("--output-root is required unless --verify-staged-root is used")
     print(json.dumps(write_manifest(args.output_root, args.manifest), ensure_ascii=False, sort_keys=True))

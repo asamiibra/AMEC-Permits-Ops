@@ -13,7 +13,8 @@ from types import SimpleNamespace
 import pytest
 
 from scripts.synology_t3.build_handoff import ACCEPTED_V23, create_bundle
-from scripts.synology_t3.fixture_manifest import build_fixture_manifest, fixture_bytes, fixture_paths
+from scripts.synology_t3.fixture_manifest import build_fixture_manifest, fixture_bytes, fixture_paths, verify_shipped_fixture_staging
+from scripts.synology_t3.host_bootstrap import bytecode_counts, classify_image_ref, collision_status, control_dir_is_valid, image_identity_errors, policy_matches, safe_child
 from scripts.synology_t3.network_guard import NetworkGuard, UnexpectedNetworkDestination
 from scripts.synology_t3.scope_validator import validate_paths
 from scripts.synology_t3.dsm_state_schema import SCHEMA_VERSION, compare_states, validate_state
@@ -333,6 +334,10 @@ def valid_post_state():
     return state
 
 
+def valid_host_bootstrap():
+    return {"host_python_38_compatibility_gate": "PASS", "python_dont_write_bytecode": True, "handoff_pyc_before": 0, "handoff_pyc_after": 0, "host_euid": 0, "uid_10001_collision": False, "gid_10001_collision": False, "control_dir_within_control_root": True, "control_dir_owner": "0:0", "control_dir_mode": "0700", "fixture_staging_verified": "PASS", "fixture_count": 270, "fixture_regeneration_executed": False, "image_id_verified": True, "bind_canary_network_mode": "none", "bind_canary_euid": 10001, "bind_canary_egid": 10001, "bind_canary_read": "PASS", "bind_canary_write": "PASS", "bind_canary_reread": "PASS", "secret_owner_uid": 10001, "secret_owner_gid": 10001, "secret_mode": "0600", "evidence_owner_uid": 10001, "evidence_owner_gid": 10001, "evidence_mode": "0700", "image_ref_preexisting": False, "image_ref_preexisting_exact": False, "docker_load_count": 1, "status": "PASS"}
+
+
 def test_exact_listing_protocol_passes():
     assert_listing_protocol([FakePage(100, "v1:100", False), FakePage(100, "v1:200", False), FakePage(57, None, True)])
 
@@ -387,6 +392,7 @@ def finalize_cleanup_errors(state):
 def test_clean_pre_post_finalizes_candidate_ready(tmp_path):
     (tmp_path / "10_DSM_PRE_STATE.json").write_text(json.dumps(valid_pre_state()))
     (tmp_path / "44_DSM_POST_STATE.json").write_text(json.dumps(valid_post_state()))
+    (tmp_path / "16_HOST_BOOTSTRAP.json").write_text(json.dumps(valid_host_bootstrap()))
     assert finalize(tmp_path, None) == 0
     registry = json.loads((tmp_path / "51_ACCEPTANCE_REGISTRY.json").read_text())
     assert registry["T3_RETURN_STATUS"] == "PASS"
@@ -457,7 +463,7 @@ def test_access_ledger_exposes_synthetic_acl_counters():
 
 
 def test_scope_validator_accepts_r1r2_workflow():
-    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r2.yml", ".github/workflows/synology-t3-handoff-build-r1r3.yml"]) == []
+    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r2.yml", ".github/workflows/synology-t3-handoff-build-r1r3.yml", ".github/workflows/synology-t3-handoff-build-r1r4.yml"]) == []
 
 
 def test_runner_source_has_no_stale_terminal_cursor_gate():
@@ -538,14 +544,14 @@ def test_owner_instructions_use_exact_candidate_external_acceptance_only():
     text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
     assert text.count("R1.1 handoff acceptance") == 0
     assert text.count("R1.2 handoff acceptance") == 0
-    assert "independent acceptance has passed for this exact handoff candidate" in text
+    assert "independent acceptance has passed for this exact R1.4 handoff candidate" in text
     assert "T3_OWNER_EXECUTION_READY=false" in text
 
 
-def test_handoff_image_ref_is_r1r3(tmp_path):
-    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R3", "7400a2c50d69a2b57c23239412b8275f129ab57c")
+def test_handoff_image_ref_is_r1r4(tmp_path):
+    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R4", "7400a2c50d69a2b57c23239412b8275f129ab57c")
     policy = json.loads((bundle / "06_IMAGE_BUILD_POLICY.json").read_text())
-    assert policy["image_ref"] == "proposalops/syn-t3:r1r3-7400a2c50d69"
+    assert policy["image_ref"] == "proposalops/syn-t3:r1r4-7400a2c50d69"
 
 
 def test_handoff_registry_cannot_self_authorize_owner_execution(tmp_path):
@@ -748,3 +754,153 @@ def test_negative_wrong_missing_share_fails_before_provider_construction(tmp_pat
     with pytest.raises(T3Stop):
         _run_synthetic_whole_run(tmp_path, monkeypatch, run_id="SYN-T3-E2E-NEG-001", missing_share=wrong, construction_log=constructions, expect_success=False)
     assert constructions.count(wrong) == 0
+
+
+def test_r1r4_shipped_fixture_verifier_passes_without_mutation(tmp_path):
+    root = tmp_path / "handoff"
+    manifest = build_fixture_manifest(root / "fixture_staging")
+    manifest_path = root / "13_FIXTURE_MANIFEST.json"
+    manifest_path.write_text(json.dumps(manifest))
+    before = {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in root.rglob("*") if path.is_file()}
+    result = verify_shipped_fixture_staging(manifest_path, root / "fixture_staging" / "cert" / "v1")
+    after = {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in root.rglob("*") if path.is_file()}
+    assert result["status"] == "PASS" and result["fixture_count"] == 270 and result["fixture_regeneration_executed"] is False and before == after
+
+
+@pytest.mark.parametrize("mutation", ["missing", "extra", "changed"])
+def test_r1r4_fixture_verifier_rejects_truth_mutations(tmp_path, mutation):
+    root = tmp_path / "handoff"
+    manifest = build_fixture_manifest(root / "fixture_staging")
+    manifest_path = root / "13_FIXTURE_MANIFEST.json"
+    manifest_path.write_text(json.dumps(manifest))
+    target = root / "fixture_staging" / "cert" / "v1" / "basic" / "small.txt"
+    if mutation == "missing":
+        target.unlink()
+    elif mutation == "changed":
+        target.write_bytes(b"changed")
+    else:
+        extra = target.parent / "extra.bin"
+        extra.write_bytes(b"extra")
+    assert verify_shipped_fixture_staging(manifest_path, root / "fixture_staging" / "cert" / "v1")["status"] == "FAIL"
+
+
+def test_r1r4_fixture_verifier_rejects_symlink(tmp_path):
+    root = tmp_path / "handoff"
+    manifest = build_fixture_manifest(root / "fixture_staging")
+    manifest_path = root / "13_DSM_PRE_STATE.json"
+    manifest_path.write_text(json.dumps(manifest))
+    target = root / "fixture_staging" / "cert" / "v1" / "basic" / "small.txt"
+    target.unlink()
+    target.symlink_to(root / "fixture_staging" / "cert" / "v1" / "basic" / "empty.bin")
+    assert verify_shipped_fixture_staging(manifest_path, root / "fixture_staging" / "cert" / "v1")["status"] == "FAIL"
+
+
+def test_r1r4_fixture_verifier_rejects_traversal_manifest(tmp_path):
+    root = tmp_path / "handoff"
+    manifest = build_fixture_manifest(root / "fixture_staging")
+    manifest["entries"][0]["relative_path"] = "../escape.bin"
+    manifest_path = root / "13_FIXTURE_MANIFEST.json"
+    manifest_path.write_text(json.dumps(manifest))
+    assert verify_shipped_fixture_staging(manifest_path, root / "fixture_staging" / "cert" / "v1")["status"] == "FAIL"
+
+
+def test_r1r4_fixture_generator_has_no_python39_prefix_api():
+    source = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/fixture_manifest.py").read_text()
+    assert "removeprefix" not in source and "removesuffix" not in source
+
+
+def test_r1r4_fresh_handoff_has_no_bytecode(tmp_path):
+    assert bytecode_counts(tmp_path) == {"pyc_count": 0, "pycache_dir_count": 0}
+
+
+@pytest.mark.parametrize("name", ["bad.pyc", "nested.pyc"])
+def test_r1r4_bytecode_file_is_detected(tmp_path, name):
+    path = tmp_path / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"synthetic")
+    assert bytecode_counts(tmp_path)["pyc_count"] == 1
+
+
+def test_r1r4_pycache_directory_is_detected(tmp_path):
+    (tmp_path / "__pycache__").mkdir()
+    assert bytecode_counts(tmp_path)["pycache_dir_count"] == 1
+
+
+@pytest.mark.parametrize("candidate,expected", [("child", True), ("nested/file", True), ("../escape", False), ("/tmp/escape", False)])
+def test_r1r4_control_root_child_gate(candidate, expected, tmp_path):
+    root = tmp_path / "root"
+    root.mkdir()
+    child = root / candidate
+    if expected:
+        child.parent.mkdir(parents=True, exist_ok=True)
+        child.mkdir()
+    assert safe_child(root, child) is expected
+
+
+def test_r1r4_policy_matches_numeric_owner_and_mode(tmp_path):
+    path = tmp_path / "secret"
+    path.write_text("synthetic")
+    path.chmod(0o600)
+    assert policy_matches(path, __import__("os").getuid(), __import__("os").getgid(), 0o600)
+    assert not policy_matches(path, 10001, 10001, 0o600)
+
+
+def test_r1r4_control_dir_rejects_wrong_mode(tmp_path):
+    root = tmp_path / "root"
+    child = root / "run"
+    child.mkdir(parents=True)
+    root.chmod(0o700); child.chmod(0o755)
+    assert control_dir_is_valid(root, child) is False
+
+
+def test_r1r4_uid_gid_collision_parser_passes_synthetic_files(tmp_path):
+    passwd = tmp_path / "passwd"; group = tmp_path / "group"
+    passwd.write_text("root:x:0:0:root:/root:/bin/sh\n")
+    group.write_text("root:x:0:\n")
+    assert collision_status(passwd_path=passwd, group_path=group) == {"uid_10001_collision": False, "gid_10001_collision": False}
+
+
+@pytest.mark.parametrize("line,field", [("synthetic:x:10001:10001:x:/x:/bin/sh\n", "uid_10001_collision"), ("synthetic:x:10001:\n", "gid_10001_collision")])
+def test_r1r4_uid_gid_collision_parser_detects_collision(tmp_path, line, field):
+    passwd = tmp_path / "passwd"; group = tmp_path / "group"
+    passwd.write_text(line if field.startswith("uid") else "root:x:0:0:x:/root:/bin/sh\n")
+    group.write_text(line if field.startswith("gid") else "root:x:0:\n")
+    assert collision_status(passwd_path=passwd, group_path=group)[field] is True
+
+
+def test_r1r4_image_tag_absent_classification():
+    policy = {"image_id": "sha256:x", "application_sha": "app", "harness_sha": "harness"}
+    assert classify_image_ref(None, policy) == "absent"
+
+
+def test_r1r4_image_tag_exact_reuse_classification():
+    policy = {"image_id": "sha256:x", "application_sha": "app", "harness_sha": "harness"}
+    inspect = {"Id": "sha256:x", "Os": "linux", "Architecture": "amd64", "Config": {"User": "10001:10001", "Labels": {"org.opencontainers.image.proposalops-application-revision": "app", "org.opencontainers.image.revision": "harness", "org.opencontainers.image.synthetic-only": "true"}}}
+    assert classify_image_ref(inspect, policy) == "exact"
+
+
+@pytest.mark.parametrize("field", ["Id", "Os", "Architecture", "Config"])
+def test_r1r4_image_tag_conflict_classification(field):
+    policy = {"image_id": "sha256:x", "application_sha": "app", "harness_sha": "harness"}
+    inspect = {"Id": "sha256:x", "Os": "linux", "Architecture": "amd64", "Config": {"User": "10001:10001", "Labels": {"org.opencontainers.image.proposalops-application-revision": "app", "org.opencontainers.image.revision": "harness", "org.opencontainers.image.synthetic-only": "true"}}}
+    if field == "Id": inspect["Id"] = "sha256:wrong"
+    elif field == "Os": inspect["Os"] = "windows"
+    elif field == "Architecture": inspect["Architecture"] = "arm64"
+    else: inspect["Config"]["Labels"]["org.opencontainers.image.synthetic-only"] = "false"
+    assert classify_image_ref(inspect, policy) == "conflict"
+
+
+def test_r1r4_return_validation_requires_host_bootstrap_file(tmp_path):
+    result = validate_return(tmp_path)
+    assert result["status"] == "FAIL" and any("16_HOST_BOOTSTRAP.json" in error for error in result["errors"])
+
+
+def test_r1r4_host_bootstrap_contract_has_no_secret_fields():
+    payload = valid_host_bootstrap()
+    assert not any("password" in str(value).lower() for value in payload.values())
+    assert "secret_owner_uid" in payload and "secret_mode" in payload
+
+
+def test_r1r4_wrapper_contains_bootstrap_only_stop_and_network_none():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
+    assert "T3_BOOTSTRAP_ONLY_RESULT=PASS" in text and "--network=none" in text and "T3_BOOTSTRAP_ONLY" in text

@@ -12,6 +12,8 @@ from pathlib import Path
 
 import sys
 
+sys.dont_write_bytecode = True
+
 try:
     from scripts.synology_t3.dsm_state_schema import compare_states, validate_state
     from scripts.synology_t3.t3_common import scan_text_tree
@@ -48,8 +50,12 @@ def fail_return(root: Path, reason: str, errors: list[str]) -> int:
 def finalize(root: Path, handoff_root: Path | None) -> int:
     pre_path = root / "10_DSM_PRE_STATE.json"
     post_path = root / "44_DSM_POST_STATE.json"
-    if not pre_path.is_file() or not post_path.is_file():
+    bootstrap_path = root / "16_HOST_BOOTSTRAP.json"
+    if not pre_path.is_file() or not post_path.is_file() or not bootstrap_path.is_file():
         return fail_return(root, "missing exact PRE or POST state file", ["10_DSM_PRE_STATE.json and 44_DSM_POST_STATE.json are required"])
+    bootstrap = json.loads(bootstrap_path.read_text(encoding="utf-8"))
+    if bootstrap.get("handoff_pyc_before") != 0 or bootstrap.get("handoff_pyc_after") != 0 or bootstrap.get("fixture_staging_verified") != "PASS" or bootstrap.get("fixture_count") != 270 or bootstrap.get("fixture_regeneration_executed") is not False:
+        return fail_return(root, "host bootstrap safety proof failed", ["16_HOST_BOOTSTRAP.json does not prove immutable bootstrap safety"])
     pre = json.loads(pre_path.read_text(encoding="utf-8"))
     post = json.loads(post_path.read_text(encoding="utf-8"))
     schema_errors = validate_state(pre, "PRE") + validate_state(post, "POST")

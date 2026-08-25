@@ -10,6 +10,8 @@ from pathlib import Path
 
 import sys
 
+sys.dont_write_bytecode = True
+
 try:
     from scripts.synology_t3.dsm_state_schema import compare_states, validate_state
     from scripts.synology_t3.t3_common import scan_text_tree
@@ -28,7 +30,7 @@ REQUIRED_RETURN_FILES = {
     "00_AUTHORIZATION.json", "01_APPLICATION_IDENTITY.json", "02_HARNESS_IDENTITY.json", "03_STAGE1R_REFERENCE.json", "04_T2_SKIP_OWNER_DECISION.json",
     "10_DSM_PRE_STATE.json", "11_TEST_SHARE_IDENTITY.json", "12_TEST_ACCOUNT_POLICY.json", "13_FIXTURE_MANIFEST.json", "14_NETWORK_DESTINATION_POLICY.json", "15_CONTAINER_IDENTITY.json",
     "20_SMB_SESSION_SECURITY.json", "21_HEALTH.json", "22_CAPABILITIES.json", "23_STAT_RESULTS.json", "24_READ_HASH_RESULTS.json", "25_RANGE_STREAM_RESULTS.json", "26_LISTING_RESULTS.json", "27_UNICODE_PATH_RESULTS.json", "28_STABILITY_RESULTS.json", "29_MUTATION_RACE_RESULTS.json",
-    "30_RO_ACL_NEGATIVES.json", "31_DENIED_IDENTITY_RESULTS.json", "32_MISSING_SHARE_OBJECT_RESULTS.json", "33_SESSION_ISOLATION.json", "34_RECONNECT_RESULTS.json",
+    "16_HOST_BOOTSTRAP.json", "30_RO_ACL_NEGATIVES.json", "31_DENIED_IDENTITY_RESULTS.json", "32_MISSING_SHARE_OBJECT_RESULTS.json", "33_SESSION_ISOLATION.json", "34_RECONNECT_RESULTS.json",
     "40_ZERO_REAL_DATA.json", "41_ZERO_UNEXPECTED_NETWORK.json", "42_SECRET_HYGIENE.json", "43_ARTIFACT_HYGIENE.json", "44_DSM_POST_STATE.json", "45_DSM_STATE_DELTA.json",
     "48_ACCESS_LEDGER.json", "49_CHECKS.json", "50_TEST_RESULTS.junit.xml", "51_ACCEPTANCE_REGISTRY.json", "52_FINAL_HANDOFF.json", "SOURCE_MANIFEST.json", "HARNESS_MANIFEST.json", "MANIFEST.sha256",
 }
@@ -99,6 +101,42 @@ def validate_return(root: Path) -> dict:
     network = json.loads((root / "41_ZERO_UNEXPECTED_NETWORK.json").read_text(encoding="utf-8"))
     if network.get("unexpected_network_destination_count") != 0 or len(network.get("unique_destinations", [])) != 1:
         errors.append("network destination guard failed")
+    bootstrap = json.loads((root / "16_HOST_BOOTSTRAP.json").read_text(encoding="utf-8"))
+    required_bootstrap = {
+        "host_python_38_compatibility_gate": "PASS",
+        "python_dont_write_bytecode": True,
+        "handoff_pyc_before": 0,
+        "handoff_pyc_after": 0,
+        "host_euid": 0,
+        "uid_10001_collision": False,
+        "gid_10001_collision": False,
+        "control_dir_within_control_root": True,
+        "control_dir_owner": "0:0",
+        "control_dir_mode": "0700",
+        "fixture_staging_verified": "PASS",
+        "fixture_count": 270,
+        "fixture_regeneration_executed": False,
+        "image_id_verified": True,
+        "bind_canary_network_mode": "none",
+        "bind_canary_euid": 10001,
+        "bind_canary_egid": 10001,
+        "bind_canary_read": "PASS",
+        "bind_canary_write": "PASS",
+        "bind_canary_reread": "PASS",
+        "secret_owner_uid": 10001,
+        "secret_owner_gid": 10001,
+        "secret_mode": "0600",
+        "evidence_owner_uid": 10001,
+        "evidence_owner_gid": 10001,
+        "evidence_mode": "0700",
+    }
+    for key, expected in required_bootstrap.items():
+        if bootstrap.get(key) != expected:
+            errors.append("host bootstrap safety field mismatch:" + key)
+    if bootstrap.get("docker_load_count") not in {0, 1} or bootstrap.get("image_ref_preexisting_exact") not in {True, False}:
+        errors.append("host bootstrap image collision fields are invalid")
+    if bootstrap.get("status") not in {"PASS", "READY_FOR_NETWORK_RUNTIME"}:
+        errors.append("host bootstrap status is not accepted")
     registry = json.loads((root / "51_ACCEPTANCE_REGISTRY.json").read_text(encoding="utf-8"))
     if registry.get("status") not in {"OWNER_DSM_SYNTHETIC_RETURN_READY_FOR_INDEPENDENT_ACCEPTANCE", "PASS"}:
         errors.append("return registry is not candidate-ready")
