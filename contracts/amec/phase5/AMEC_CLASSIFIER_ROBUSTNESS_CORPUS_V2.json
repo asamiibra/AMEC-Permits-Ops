@@ -140,5 +140,122 @@
   ],
   "content_mode": "METADATA_ONLY",
   "corpus_id": "AMEC_CLASSIFIER_ROBUSTNESS_CORPUS_V2",
+  "coverage_summary": {
+    "fabricated_adequate_count": 0,
+    "master_content_type_covered_count": 4,
+    "master_content_type_expected_count": 4,
+    "missing_count": 12,
+    "safe_disposition": "REVIEW_OR_ABSTAIN",
+    "thin_count": 2,
+    "truth_domain_covered_count": 10,
+    "truth_domain_expected_count": 10,
+    "unknown_or_unaccounted_count": 0
+  },
+  "master_content_type_coverage": [
+    {
+      "coverage_id": "FORM",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "REPORT",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "ENGINEERING_WORK",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "DEFINITION",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    }
+  ],
+  "truth_domain_coverage": [
+    {
+      "coverage_id": "M1",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M2",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M3",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M4",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M5",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M6",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M7",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "FINANCE",
+      "coverage_state": "THIN",
+      "evidence_case_ids": [
+        "P5-VAL-FINANCE-001"
+      ],
+      "reason": "Synthetic metadata-only coverage is intentionally bounded; no real source bytes are used.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "MASTER_CONTENT",
+      "coverage_state": "THIN",
+      "evidence_case_ids": [
+        "P5-HOLDOUT-UNTOUCHED-001"
+      ],
+      "reason": "Synthetic metadata-only coverage is intentionally bounded; no real source bytes are used.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "REPORTS",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    }
+  ],
   "version": 2
 }

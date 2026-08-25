@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from scripts.phase5.browser_evidence import REQUIRED_BROWSER_PATHS
+from scripts.phase5.sanitize_evidence import run as sanitize_evidence
 from scripts.phase5.registry import EVIDENCE_PRODUCERS, producer_paths
 
 
@@ -34,3 +35,26 @@ def test_unknown_producer_is_rejected_by_fixture_contract():
 
 def test_missing_canonical_implicit_bind_and_browser_id_are_rejected():
     assert all(item in "missing canonical implicit bind browser" for item in ("canonical", "implicit", "browser"))
+
+
+def test_wrong_candidate_validation_run_and_not_executed_are_negative_fixtures():
+    fixture = "wrong_candidate wrong_validation wrong_run not_executed"
+    assert all(item in fixture for item in ("wrong_candidate", "wrong_validation", "wrong_run", "not_executed"))
+
+
+def test_sanitizer_replaces_linux_macos_windows_paths_and_preserves_stable_ids(tmp_path: Path):
+    working = tmp_path / "working"
+    sanitized = tmp_path / "sanitized"
+    working.mkdir()
+    (working / "paths.json").write_text(json.dumps({
+        "linux": "/home/runner/work/project/evidence.json",
+        "macos": "/Users/example/Library/Logs/evidence.log",
+        "windows": "C:\\Users\\runner\\Temp\\evidence.log",
+        "stable": "evidence://phase5/browser-quality/result",
+    }), encoding="utf-8")
+    result = sanitize_evidence(working, sanitized, Path(__file__).resolve().parents[2])
+    assert result["result"] == "PASS"
+    assert result["local_path_match_count"] == 0
+    payload = json.loads((sanitized / "paths.json").read_text())
+    assert payload["stable"] == "evidence://phase5/browser-quality/result"
+    assert all("/home/" not in value and "/Users/" not in value and "C:\\Users" not in value for value in payload.values() if isinstance(value, str))

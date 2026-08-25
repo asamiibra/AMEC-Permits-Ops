@@ -5,10 +5,10 @@ from pathlib import Path
 
 try:
     from common import PHASE5_ARTIFACTS, write_json
-    from registry import EVIDENCE_PRODUCERS
+    from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, category_policy_audit
 except ModuleNotFoundError:
     from .common import PHASE5_ARTIFACTS, write_json
-    from .registry import EVIDENCE_PRODUCERS
+    from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, category_policy_audit
 
 
 REQUIREMENT_GROUPS = {
@@ -45,52 +45,33 @@ REQUIREMENT_GROUPS = {
 }
 
 
-_CATEGORY_PRODUCERS = {
-    "IDENTITY": ("entry-identity", "input-identity"),
-    "L0": ("classifier-calibration",), "L1": ("classifier-validation",),
-    "L2": ("classifier-calibration",), "L3": ("classifier-validation",),
-    "L4": ("classifier-holdout",), "L5": ("classifier-cross-context",),
-    "LINEAGE": ("input-identity",), "REVIEW": ("shadow-replay", "sqlserver-targeted"),
-    "PROMOTION": ("shadow-replay", "authority-denial"), "CORRECTION": ("shadow-replay",),
-    "BOUNDARY": ("shadow-replay", "security-hygiene"), "SQLSERVER": ("sqlserver-bootstrap", "sqlserver-targeted"),
-    "FRONTEND": ("browser-quality",), "PERSONA": ("authority-denial", "browser-quality"),
-    "BROWSER_NEW": ("browser-required-paths",), "BROWSER_AMBIGUOUS": ("browser-required-paths",),
-    "BROWSER_OOS": ("browser-required-paths",), "BROWSER_SECRET": ("browser-required-paths",),
-    "BROWSER_MODIFIED": ("browser-required-paths",), "BROWSER_MOVE": ("browser-required-paths",),
-    "BROWSER_MISSING": ("browser-required-paths",), "BROWSER_CORRECTION": ("browser-required-paths",),
-    "BROWSER_PROTECTED": ("browser-required-paths",), "DRIFT": ("classifier-validation",),
-    "FREEZE": ("freeze-reproducibility",), "FINALIZER": ("freeze-reproducibility",),
-    "EVIDENCE": ("input-identity",), "REGRESSION": ("backend-targeted", "backend-full", "frontend-full", "frontend-build"),
-    "HYGIENE": ("source-preflight", "security-hygiene"),
-}
-
-
 def _producer_state(evidence_dir: Path | None, producer_id: str, dry_run: bool) -> tuple[str, str]:
     if dry_run or evidence_dir is None:
-        return "NOT_EXECUTED", f"evidence://{producer_id}/not-executed"
+        return "NOT_EXECUTED", f"evidence://phase5/{producer_id}/not-executed"
     contract = EVIDENCE_PRODUCERS[producer_id]
     result_path = evidence_dir / contract["result_name"]
     meta_path = evidence_dir / contract["meta_name"]
     raw_path = evidence_dir / contract["raw_log_name"]
     if not result_path.is_file() or not meta_path.is_file() or not raw_path.is_file():
-        return "FAIL", f"evidence://{producer_id}/missing"
+        return "FAIL", f"evidence://phase5/{producer_id}/missing"
     try:
         payload = json.loads(result_path.read_text(encoding="utf-8"))
         metadata = json.loads(meta_path.read_text(encoding="utf-8"))
         state = str(payload.get("result", "FAIL"))
         if metadata.get("exit_code") != 0:
             state = "FAIL"
-        return state, result_path.as_posix()
+        return state, f"evidence://phase5/{producer_id}/result"
     except (OSError, json.JSONDecodeError):
-        return "FAIL", result_path.as_posix()
+        return "FAIL", f"evidence://phase5/{producer_id}/invalid"
 
 
 def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_run: bool | None = None) -> dict:
     dry_run = evidence_dir is None if dry_run is None else dry_run
+    policy_audit = category_policy_audit(set(REQUIREMENT_GROUPS))
     checks = []
     number = 1
     for category, assertions in REQUIREMENT_GROUPS.items():
-        producers = _CATEGORY_PRODUCERS[category]
+        producers = tuple(CATEGORY_EVIDENCE_POLICY[category]["required_producer_ids"])
         for assertion in assertions:
             states = [_producer_state(evidence_dir, producer, dry_run) for producer in producers]
             state = "PASS" if all(item[0] == "PASS" for item in states) else ("NOT_EXECUTED" if any(item[0] == "NOT_EXECUTED" for item in states) else "FAIL")
@@ -116,6 +97,8 @@ def run(output_path: Path | None = None, evidence_dir: Path | None = None, dry_r
         "unresolved_evidence_reference_count": 0, "checks": checks, "dry_run": dry_run,
         "false_accept": dry_run or failed > 0 or not_executed > 0, "synthetic_only": True,
         "real_data_used": False, "llm_external_call_count": 0,
+        "category_count": len(REQUIREMENT_GROUPS), "category_policy_audit": policy_audit,
+        "required_producer_policy_version": "phase5-category-policy-v1",
     }
     write_json(output_path or (PHASE5_ARTIFACTS / "acceptance-result.json"), result)
     return result

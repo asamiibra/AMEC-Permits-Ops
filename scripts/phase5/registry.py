@@ -37,6 +37,7 @@ _DETERMINISTIC = {
     "entry-identity", "input-identity", "source-preflight", "freeze-reproducibility",
     "classifier-calibration", "classifier-validation", "classifier-holdout",
     "classifier-cross-context", "classifier-path-counterfactual", "acceptance", "finalizer",
+    "corpus-coverage",
 }
 
 EVIDENCE_PRODUCERS = {
@@ -49,6 +50,65 @@ EVIDENCE_PRODUCERS = {
     }
     for producer in sorted(_RUNTIME | _DETERMINISTIC)
 }
+
+# This is the single normative category-to-evidence policy.  Acceptance only
+# emits these producer IDs and the validator independently enforces the same
+# policy, so a count-correct matrix cannot substitute unrelated evidence.
+CATEGORY_EVIDENCE_POLICY: dict[str, dict[str, Any]] = {
+    "IDENTITY": {"required_producer_ids": ("entry-identity", "input-identity"), "runtime_required": False},
+    "L0": {"required_producer_ids": ("classifier-calibration",), "runtime_required": False},
+    "L1": {"required_producer_ids": ("classifier-validation",), "runtime_required": False},
+    "L2": {"required_producer_ids": ("classifier-calibration",), "runtime_required": False},
+    "L3": {"required_producer_ids": ("classifier-validation",), "runtime_required": False},
+    "L4": {"required_producer_ids": ("classifier-holdout",), "runtime_required": False},
+    "L5": {"required_producer_ids": ("classifier-cross-context",), "runtime_required": False},
+    "LINEAGE": {"required_producer_ids": ("input-identity",), "runtime_required": False},
+    "REVIEW": {"required_producer_ids": ("shadow-replay", "sqlserver-targeted", "authority-denial"), "runtime_required": True},
+    "PROMOTION": {"required_producer_ids": ("shadow-replay", "sqlserver-targeted", "authority-denial"), "runtime_required": True},
+    "CORRECTION": {"required_producer_ids": ("shadow-replay", "sqlserver-targeted", "authority-denial"), "runtime_required": True},
+    "BOUNDARY": {"required_producer_ids": ("shadow-replay", "authority-denial", "security-hygiene"), "runtime_required": True},
+    "SQLSERVER": {"required_producer_ids": ("sqlserver-bootstrap", "sqlserver-targeted"), "runtime_required": True},
+    "FRONTEND": {"required_producer_ids": ("browser-quality",), "runtime_required": True},
+    "PERSONA": {"required_producer_ids": ("authority-denial", "browser-quality"), "runtime_required": True},
+    "BROWSER_NEW": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_AMBIGUOUS": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_OOS": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_SECRET": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_MODIFIED": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_MOVE": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_MISSING": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_CORRECTION": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "BROWSER_PROTECTED": {"required_producer_ids": ("browser-required-paths", "browser-quality"), "runtime_required": True},
+    "DRIFT": {"required_producer_ids": ("classifier-validation",), "runtime_required": False},
+    "FREEZE": {"required_producer_ids": ("input-identity", "freeze-reproducibility", "classifier-validation", "classifier-holdout", "classifier-cross-context", "classifier-path-counterfactual"), "runtime_required": False},
+    # Finalizer evidence is produced only after acceptance and validation; it
+    # must never be a prerequisite of the acceptance rows it finalizes.
+    "FINALIZER": {"required_producer_ids": ("freeze-reproducibility",), "runtime_required": False},
+    "EVIDENCE": {"required_producer_ids": ("input-identity",), "runtime_required": False},
+    "REGRESSION": {"required_producer_ids": ("backend-targeted", "phase4-integration-regression", "backend-full", "frontend-targeted", "frontend-full", "frontend-build"), "runtime_required": True},
+    "HYGIENE": {"required_producer_ids": ("source-preflight", "security-hygiene"), "runtime_required": True},
+}
+
+
+def category_policy_audit(categories: set[str] | None = None) -> dict[str, Any]:
+    expected = categories if categories is not None else set(CATEGORY_EVIDENCE_POLICY)
+    unknown = sorted(set(CATEGORY_EVIDENCE_POLICY) - expected)
+    missing = sorted(expected - set(CATEGORY_EVIDENCE_POLICY))
+    empty = sorted(category for category, policy in CATEGORY_EVIDENCE_POLICY.items() if not policy.get("required_producer_ids"))
+    unknown_producers = sorted({producer for policy in CATEGORY_EVIDENCE_POLICY.values() for producer in policy["required_producer_ids"] if producer not in EVIDENCE_PRODUCERS})
+    return {
+        "category_count": len(CATEGORY_EVIDENCE_POLICY),
+        "expected_category_count": len(expected),
+        "unknown_category_count": len(unknown),
+        "missing_category_count": len(missing),
+        "empty_required_producer_count": len(empty),
+        "unknown_producer_count": len(unknown_producers),
+        "unknown_categories": unknown,
+        "missing_categories": missing,
+        "empty_categories": empty,
+        "unknown_producers": unknown_producers,
+        "result": "PASS" if not unknown and not missing and not empty and not unknown_producers else "FAIL",
+    }
 
 
 def canonical_path(key: str, root: Path | None = None) -> Path:

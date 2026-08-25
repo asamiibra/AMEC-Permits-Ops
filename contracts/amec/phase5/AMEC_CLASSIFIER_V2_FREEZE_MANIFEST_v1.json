@@ -2,7 +2,7 @@
   "artifact_sha256": {
     "AMEC_CLASSIFIER_CALIBRATION_DEVELOPMENT_MANIFEST_v1.json": "5309a09ef4d4f4c322f2d90e3d0591eb37bf126735d2151f725a3547bfd79cbc",
     "AMEC_CLASSIFIER_HOLDOUT_ADVERSARIAL_MANIFEST_v1.json": "0c423a4abaed303f3024bd2a939c687d4cfef0bd0a134ef813f55b08a1786c6b",
-    "AMEC_CLASSIFIER_ROBUSTNESS_CORPUS_V2.json": "e9972f67d134cc907221628faa7d1bcd146df9bcf2afa6fcc8553e74f183dce9",
+    "AMEC_CLASSIFIER_ROBUSTNESS_CORPUS_V2.json": "a910de469e16c52ce32b8e16f794a1b3d81c907967f168eaf20221a61552322a",
     "AMEC_CLASSIFIER_V2_CALIBRATION_RESULTS_v1.json": "093dfbf1b6dce5ad15d6c7b76becd0628f395ed394ab477f2df8c6062a73d684",
     "AMEC_CLASSIFIER_V2_CROSS_CONTEXT_RESULTS_v1.json": "614971e9d93bce7619b7e2415394c9bd5a3a094d3be1d8ba50eb8b22de674724",
     "AMEC_CLASSIFIER_V2_ENVELOPE_v1.schema.json": "4273d87657efc18c44f6cfaa16bcdd83d359114f0c8ad9c7fa6004ea5283a8ab",
@@ -51,7 +51,7 @@
   "phase4_accepted_sha": "707003fc16767fb28b9c968fbcf168ab03ebadc1",
   "recursive_self_hash": false,
   "robustness_corpus_path": "AMEC_CLASSIFIER_ROBUSTNESS_CORPUS_V2.json",
-  "robustness_corpus_sha256": "e9972f67d134cc907221628faa7d1bcd146df9bcf2afa6fcc8553e74f183dce9",
+  "robustness_corpus_sha256": "a910de469e16c52ce32b8e16f794a1b3d81c907967f168eaf20221a61552322a",
   "rules_path": "AMEC_CLASSIFIER_V2_RULES_v1.json",
   "rules_sha256": "a5dbd73ca703ce061656c1ebf2ca01834ef2fde97318654e2920368eb6d3a8e7",
   "rules_version": "classifier-v2-rules-1.0.0",

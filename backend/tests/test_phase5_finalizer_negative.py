@@ -15,6 +15,8 @@ from scripts.phase5.registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, pro
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = ROOT / "contracts/amec/phase5"
 CANDIDATE = "ca60459f2103cbf30e52e05c59b8af6d7714be12"
+VALIDATION = "a5e6b9425ead924e35bb55cafc065251de0cb021"
+RUN_ID = "r3-test"
 
 
 def _fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
@@ -25,18 +27,18 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
     for producer in EVIDENCE_PRODUCERS:
         paths = producer_paths(producer, evidence)
         paths["raw"].write_text(f"producer={producer}\n", encoding="utf-8")
-        paths["meta"].write_text(json.dumps({"producer_id": producer, "candidate_sha": CANDIDATE, "validation_sha": CANDIDATE, "run_id": "r3-test", "exit_code": 0}), encoding="utf-8")
+        paths["meta"].write_text(json.dumps({"producer_id": producer, "candidate_sha": CANDIDATE, "validation_sha": VALIDATION, "run_id": RUN_ID, "exit_code": 0}), encoding="utf-8")
         paths["result"].write_text(json.dumps({"producer_id": producer, "result": "PASS"}), encoding="utf-8")
     acceptance = tmp_path / "acceptance.json"
     generate_acceptance(acceptance, evidence, False)
     validation = tmp_path / "evidence-validation.json"
-    validate_evidence(evidence, acceptance, validation)
+    validate_evidence(evidence, acceptance, validation, CANDIDATE, VALIDATION, RUN_ID)
     return contracts, evidence, acceptance, validation
 
 
 def _invoke(contracts: Path, evidence: Path, acceptance: Path, validation: Path, output: Path, expected: str = CANDIDATE) -> subprocess.CompletedProcess[str]:
     env = {**dict(), "PYTHONPATH": str(ROOT / "scripts/phase5")}
-    return subprocess.run([sys.executable, "scripts/phase5/phase5_finalize.py", "--evidence-dir", str(evidence), "--acceptance-result", str(acceptance), "--validation-result", str(validation), "--contracts-dir", str(contracts), "--output", str(output), "--expected-candidate-sha", expected], cwd=ROOT, env=env, capture_output=True, text=True)
+    return subprocess.run([sys.executable, "scripts/phase5/phase5_finalize.py", "--evidence-dir", str(evidence), "--acceptance-result", str(acceptance), "--validation-result", str(validation), "--contracts-dir", str(contracts), "--output", str(output), "--expected-candidate-sha", expected, "--expected-validation-sha", VALIDATION, "--expected-run-id", RUN_ID], cwd=ROOT, env=env, capture_output=True, text=True)
 
 
 def test_finalizer_positive_fixture_invokes_actual_cli(tmp_path):
