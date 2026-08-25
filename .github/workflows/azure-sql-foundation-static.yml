@@ -1,0 +1,62 @@
+name: Azure SQL foundation static validation
+
+on:
+  push:
+    branches:
+      - azure-sql-foundation-prephase5-r2r1-v1
+    paths:
+      - 'infra/azure_sql_foundation/**'
+      - 'scripts/azure_sql_foundation/validate_foundation.sh'
+      - '.github/workflows/azure-sql-foundation-static.yml'
+  pull_request:
+    branches:
+      - azure-sql-foundation-prephase5-r2r1-v1
+    paths:
+      - 'infra/azure_sql_foundation/**'
+      - 'scripts/azure_sql_foundation/validate_foundation.sh'
+      - '.github/workflows/azure-sql-foundation-static.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Fetch R1 provenance ref
+        shell: bash
+        run: git fetch --no-tags origin refs/heads/azure-sql-foundation-prephase5-v1:refs/remotes/origin/azure-sql-foundation-prephase5-v1
+      - name: Install Azure CLI Bicep extension
+        shell: bash
+        run: az bicep install
+      - name: Build foundation Bicep
+        shell: bash
+        run: az bicep build --file infra/azure_sql_foundation/main.bicep --stdout >/tmp/azure-sql-foundation.json
+      - name: Run static foundation validator
+        id: static-validator
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/azure_sql_foundation/validate_foundation.sh 2>&1 | tee /tmp/azure-sql-foundation-validator.log
+      - name: Preserve validator summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f /tmp/azure-sql-foundation-validator.log ]]; then
+            grep -E '^(R2_|LOCAL_FOUNDATION_|CATEGORY_)' /tmp/azure-sql-foundation-validator.log \
+              > /tmp/azure-sql-foundation-validator-summary.txt || true
+          else
+            printf '%s\n' 'R2_LOCAL_VALIDATION=NOT_RUN' > /tmp/azure-sql-foundation-validator-summary.txt
+          fi
+      - name: Upload static validation artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-sql-foundation-static
+          path: |
+            /tmp/azure-sql-foundation.json
+            /tmp/azure-sql-foundation-validator.log
+            /tmp/azure-sql-foundation-validator-summary.txt
