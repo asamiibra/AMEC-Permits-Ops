@@ -1,0 +1,176 @@
+name: Synology preaccess validation R4
+
+on:
+  push:
+    branches: [synology-preaccess-validation-r4-ci-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_CANDIDATE_SHA: 4925518b35b58956aaa5870f226af5e57d14b610
+  EXPECTED_V22_SHA: 835bcc6208b274d5d95bd0cbd1d414a14e52e9e8
+  EXPECTED_V21_SHA: 950bbc122fb26a1b28a57549094f69129097fb58
+  EXPECTED_V2_SHA: 004f949c258cdd419b65377ab9a94c8bb8b09d56
+  EXPECTED_BASE_SHA: 707003fc16767fb28b9c968fbcf168ab03ebadc1
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact validation child
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact ancestor chain, storage blobs, and workflow-only child
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD~1)" = "$EXPECTED_CANDIDATE_SHA"
+          test "$(git rev-parse HEAD~2)" = "$EXPECTED_V22_SHA"
+          test "$(git rev-parse HEAD~3)" = "$EXPECTED_V21_SHA"
+          test "$(git rev-parse HEAD~4)" = "$EXPECTED_V2_SHA"
+          test "$(git rev-parse HEAD~5)" = "$EXPECTED_BASE_SHA"
+          test "$(git diff --name-only HEAD~1 HEAD | wc -l | tr -d ' ')" = "1"
+          test "$(git diff --name-only HEAD~1 HEAD)" = ".github/workflows/synology-preaccess-validation-r4.yml"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE_SHA:backend/app/storage/smb.py")" = "ad3720c23a9b2d9f65145b32896f8fec60372911"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE_SHA:backend/app/storage/external.py")" = "2e4c8ee0bf4b91ecf5b66894751f750a9179af19"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE_SHA:backend/app/storage/port.py")" = "2a280b4c06f85fc75812c69b7509fc15f2945507"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE_SHA:backend/app/storage/factory.py")" = "fa5836adc7abf040acf7354c0377cb88f0034c8b"
+
+      - name: Fresh Phase5 storage overlap entry gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "RUN_ID=SYN-PRE-V2.3-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+          echo "EVIDENCE_ROOT=$RUNNER_TEMP/Synology_PreAccess_V2_3_SYN-PRE-V2.3-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/Synology_PreAccess_V2_3_SYN-PRE-V2.3-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/raw"
+          raw="$RUNNER_TEMP/Synology_PreAccess_V2_3_SYN-PRE-V2.3-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/raw"
+          git ls-remote origin 'refs/heads/phase5*' > "$raw/phase5_refs_entry.txt"
+          git fetch origin 'refs/heads/phase5*:refs/remotes/origin/phase5*'
+          : > "$raw/phase5_overlap_entry.txt"
+          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/phase5\*); do
+            git diff --name-only "$EXPECTED_BASE_SHA" "$ref" -- backend/app/storage backend/app/config/settings.py backend/requirements.txt >> "$raw/phase5_overlap_entry.txt"
+          done
+          test ! -s "$raw/phase5_overlap_entry.txt"
+          git show -s --format='HEAD=%H%nPARENT=%P%nTREE=%T%nSUBJECT=%s' "$EXPECTED_CANDIDATE_SHA" > "$raw/entry_git.txt"
+          git diff --name-only "$EXPECTED_V22_SHA" "$EXPECTED_CANDIDATE_SHA" > "$raw/diff_scope.txt"
+
+      - name: Install existing backend requirements
+        shell: bash
+        run: python3 -m pip install -r backend/requirements.txt
+
+      - name: Run synthetic network-guard runner with JUnit
+        shell: bash
+        env:
+          STORAGE_CONTRACT_PROVIDER: mock
+          SYNOLOGY_MODE: SYNTHETIC
+          REAL_DATA_ALLOWED: "false"
+        run: python3 scripts/synology_preaccess/validate_preaccess.py --json="$EVIDENCE_ROOT/raw/preaccess_runner.json" --junitxml="$EVIDENCE_ROOT/raw/targeted.junit.xml" > "$EVIDENCE_ROOT/raw/targeted.log"
+
+      - name: Run all targeted tests with JUnit
+        shell: bash
+        run: python3 -m pytest -q backend/tests/test_synology_preaccess_interface.py backend/tests/test_synology_preaccess_network_guard.py backend/tests/test_source_stability_synology_preaccess.py backend/tests/test_source_budget_synology_preaccess.py backend/tests/test_source_deadline_synology_preaccess.py backend/tests/test_external_source_readonly_listing.py backend/tests/test_evidence_synology_preaccess.py backend/tests/test_synology_preaccess_v2_2_bounded.py backend/tests/test_synology_preaccess_v2_2_secret_scanner.py backend/tests/test_synology_preaccess_v2_2_evidence.py backend/tests/test_synology_preaccess_v2_3_artifact_hygiene.py --junitxml="$EVIDENCE_ROOT/raw/targeted_all.junit.xml" > "$EVIDENCE_ROOT/raw/targeted_all.log"
+
+      - name: Run managed storage regression with JUnit
+        shell: bash
+        run: python3 -m pytest -q backend/tests/test_binary_store_contract.py backend/tests/test_document_storage_service.py backend/tests/test_synology_adapter_contract.py --junitxml="$EVIDENCE_ROOT/raw/managed_regression.junit.xml" > "$EVIDENCE_ROOT/raw/managed_regression.log"
+
+      - name: Run Source Intake regression with JUnit
+        shell: bash
+        run: python3 -m pytest -q backend/tests/test_source_intake_service.py --junitxml="$EVIDENCE_ROOT/raw/source_intake_regression.junit.xml" > "$EVIDENCE_ROOT/raw/source_intake_regression.log"
+
+      - name: Run full backend regression with JUnit
+        shell: bash
+        run: python3 -m pytest -q backend/tests --junitxml="$EVIDENCE_ROOT/raw/full_backend.junit.xml" > "$EVIDENCE_ROOT/raw/full_backend.log"
+
+      - name: Compileall and deterministic source secret scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q backend scripts/synology_preaccess
+          printf 'COMPILEALL_EXIT=%s\n' "$?" > "$EVIDENCE_ROOT/raw/compileall.log"
+          python3 scripts/synology_preaccess/secret_scan.py --repo-root . --base-sha "$EXPECTED_V22_SHA" --candidate-sha "$EXPECTED_CANDIDATE_SHA" --output "$EVIDENCE_ROOT/raw/secret_scan.json" --source-root backend/app/storage --source-root backend/tests --source-root scripts/synology_preaccess --source-root contracts/amec/synology_preaccess > "$EVIDENCE_ROOT/raw/secret_scan.log"
+
+      - name: Build exact source manifest
+        shell: bash
+        run: python3 scripts/synology_preaccess/build_source_manifest.py --repo-root . --candidate-sha "$EXPECTED_CANDIDATE_SHA" --output "$EVIDENCE_ROOT/source_manifest.json"
+
+      - name: Fresh Phase5 storage overlap exit gate and remote identity capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          raw="$EVIDENCE_ROOT/raw"
+          git status --porcelain=v1 > "$raw/postcommit_git.txt"
+          printf 'STATUS_CLEAN=%s\n' "$([ ! -s "$raw/postcommit_git.txt" ] && echo true || echo false)" >> "$raw/postcommit_git.txt"
+          git show -s --format='HEAD=%H%nPARENT=%P%nTREE=%T%nSUBJECT=%s' "$EXPECTED_CANDIDATE_SHA" >> "$raw/postcommit_git.txt"
+          git ls-remote origin 'refs/heads/phase5*' > "$raw/phase5_refs_exit.txt"
+          git fetch origin 'refs/heads/phase5*:refs/remotes/origin/phase5*'
+          : > "$raw/phase5_overlap_exit.txt"
+          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/phase5\*); do
+            git diff --name-only "$EXPECTED_BASE_SHA" "$ref" -- backend/app/storage backend/app/config/settings.py backend/requirements.txt >> "$raw/phase5_overlap_exit.txt"
+          done
+          test ! -s "$raw/phase5_overlap_exit.txt"
+          repair_sha="$(git ls-remote origin refs/heads/synology-preaccess-validation-r4-v1 | awk '{print $1}')"
+          validation_sha="$(git ls-remote origin refs/heads/synology-preaccess-validation-r4-ci-v1 | awk '{print $1}')"
+          validation_parent="$(git rev-parse HEAD~1)"
+          changed_count="$(git diff --name-only "$EXPECTED_CANDIDATE_SHA" "$GITHUB_SHA" | wc -l | tr -d ' ')"
+          workflow_only=false
+          if test "$changed_count" = "1" && test "$(git diff --name-only "$EXPECTED_CANDIDATE_SHA" "$GITHUB_SHA")" = ".github/workflows/synology-preaccess-validation-r4.yml"; then workflow_only=true; fi
+          printf 'repair_sha=%s\nvalidation_sha=%s\nvalidation_parent=%s\nvalidation_changed_paths=%s\nvalidation_workflow_only=%s\n' "$repair_sha" "$validation_sha" "$validation_parent" "$changed_count" "$workflow_only" > "$raw/remote_head.txt"
+
+      - name: Generate registry and handoff
+        shell: bash
+        run: python3 scripts/synology_preaccess/generate_evidence.py --raw-dir="$EVIDENCE_ROOT/raw" --artifact-root="$EVIDENCE_ROOT" --run-id="$RUN_ID"
+
+      - name: Run artifact-wide hygiene scanner and bind result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/synology_preaccess/artifact_hygiene_scan.py --artifact-root "$EVIDENCE_ROOT" --output "$RUNNER_TEMP/artifact_hygiene.json"
+          cp "$RUNNER_TEMP/artifact_hygiene.json" "$EVIDENCE_ROOT/evidence/52_ARTIFACT_HYGIENE.json"
+
+      - name: Audit evidence references and hygiene before root manifest
+        shell: bash
+        run: python3 scripts/synology_preaccess/evidence_audit.py --artifact-root="$EVIDENCE_ROOT" --repo-root . --allow-missing-root-manifest
+
+      - name: Build root manifest and inner archive
+        shell: bash
+        run: python3 scripts/synology_preaccess/build_root_manifest.py --root="$EVIDENCE_ROOT" --archive="$EVIDENCE_ROOT.tar.gz"
+
+      - name: Re-audit manifest-bound artifact and independently reopen archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/synology_preaccess/evidence_audit.py --artifact-root="$EVIDENCE_ROOT" --repo-root .
+          python3 - "$EVIDENCE_ROOT.tar.gz" "$EVIDENCE_ROOT" <<'PY'
+          import sys
+          import tarfile
+          from pathlib import Path
+
+          archive = Path(sys.argv[1])
+          root = Path(sys.argv[2]).name
+          with tarfile.open(archive, "r:gz") as tar:
+              names = [member.name for member in tar.getmembers()]
+              if not names or any(Path(name).is_absolute() or ".." in Path(name).parts for name in names):
+                  raise SystemExit("unsafe archive topology")
+              if not all(name == root or name.startswith(root + "/") for name in names):
+                  raise SystemExit("archive root topology mismatch")
+              required = {f"{root}/evidence/52_ARTIFACT_HYGIENE.json", f"{root}/ROOT_MANIFEST.sha256", f"{root}/source_manifest.json"}
+              if not required.issubset(names):
+                  raise SystemExit("required artifact member missing")
+          print("ARCHIVE_REOPEN_STATUS=PASS")
+          PY
+
+      - name: Upload complete unified artifact including raw evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: synology-preaccess-validation-r4-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/Synology_PreAccess_V2_3_SYN-PRE-V2.3-${{ github.run_id }}-${{ github.run_attempt }}/
+            ${{ runner.temp }}/Synology_PreAccess_V2_3_SYN-PRE-V2.3-${{ github.run_id }}-${{ github.run_attempt }}.tar.gz
+          if-no-files-found: error
