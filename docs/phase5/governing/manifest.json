@@ -1,0 +1,59 @@
+{
+  "bundle_sha256": "bc2ebe13f611d48bdd6f3116046130beb93ee856f47de5337cc9ca65cfb379fd",
+  "file_count": 4,
+  "files": [
+    {
+      "bundle_sha256": "bc2ebe13f611d48bdd6f3116046130beb93ee856f47de5337cc9ca65cfb379fd",
+      "byte_count": 10708,
+      "copied_verbatim": true,
+      "overlays": {
+        "CURRENT_ENGINE_OVERLAY": "AZURE_SQL_SQL_SERVER_ENGINE",
+        "CURRENT_SERVICE_VARIANT_OVERLAY": "AZURE_SQL_DATABASE",
+        "HISTORICAL_ENGINE_WORDING_MAY_BE_SUPERSEDED": true
+      },
+      "relative_path": "docs/phase5/governing/ProposalOps_Phase5_Classifier_Shadow_Validation_Master_Design.md",
+      "sha256": "761dd4e642ce8dc30589bab393808e965a4f931e9e2a9ddda94cff6f217fa81b",
+      "source_role": "MASTER_DESIGN"
+    },
+    {
+      "bundle_sha256": "bc2ebe13f611d48bdd6f3116046130beb93ee856f47de5337cc9ca65cfb379fd",
+      "byte_count": 16845,
+      "copied_verbatim": true,
+      "overlays": {
+        "CURRENT_ENGINE_OVERLAY": "AZURE_SQL_SQL_SERVER_ENGINE",
+        "CURRENT_SERVICE_VARIANT_OVERLAY": "AZURE_SQL_DATABASE",
+        "HISTORICAL_ENGINE_WORDING_MAY_BE_SUPERSEDED": true
+      },
+      "relative_path": "docs/phase5/governing/ProposalOps_Phase5_190_Check_Design_Validation_Report.md",
+      "sha256": "61e57216ca5b8671df7337420bb7d116c94be138da62cde851dcab6236ecbe0f",
+      "source_role": "DESIGN_VALIDATION"
+    },
+    {
+      "bundle_sha256": "bc2ebe13f611d48bdd6f3116046130beb93ee856f47de5337cc9ca65cfb379fd",
+      "byte_count": 801,
+      "copied_verbatim": true,
+      "overlays": {
+        "CURRENT_ENGINE_OVERLAY": "AZURE_SQL_SQL_SERVER_ENGINE",
+        "CURRENT_SERVICE_VARIANT_OVERLAY": "AZURE_SQL_DATABASE",
+        "HISTORICAL_ENGINE_WORDING_MAY_BE_SUPERSEDED": true
+      },
+      "relative_path": "docs/phase5/governing/ProposalOps_Phase5_Actions.md",
+      "sha256": "87a2376489a394806f9b11dadad5db710a0a0149ee895a449d1e4ea06823968e",
+      "source_role": "ACTIONS"
+    },
+    {
+      "bundle_sha256": "bc2ebe13f611d48bdd6f3116046130beb93ee856f47de5337cc9ca65cfb379fd",
+      "byte_count": 46742,
+      "copied_verbatim": true,
+      "overlays": {
+        "CURRENT_ENGINE_OVERLAY": "AZURE_SQL_SQL_SERVER_ENGINE",
+        "CURRENT_SERVICE_VARIANT_OVERLAY": "AZURE_SQL_DATABASE",
+        "HISTORICAL_ENGINE_WORDING_MAY_BE_SUPERSEDED": true
+      },
+      "relative_path": "docs/phase5/governing/ProposalOps_Phase5_FINAL_R3_OneShot_EvidenceTruth_SQLServer_Browser_Closure_2026-08-24.md",
+      "sha256": "0fcb3efe875dff8b8d0c5cd939666ddcf37ea4d3d256e501d8c1927b288d34c5",
+      "source_role": "R3_EXECUTION_AUTHORIZATION"
+    }
+  ],
+  "schema": "PROPOSALOPS_PHASE5_GOVERNING_SOURCE_BUNDLE_V1"
+}
