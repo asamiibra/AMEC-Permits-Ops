@@ -1,0 +1,68 @@
+=== ProposalOps Phase3B 0.4 Canary Integrity Verification ===
+Tue Aug 18 17:20:39 +03 2026
+
+------------------------------------------------------------
+SHARE=ADMIN WORKS
+FILE=admin_works-preflight-canary.bin
+PATH=<NAS_VOLUME>/ADMIN WORKS/ProposalOps_Certification/Phase3B_0_4/v1/preflight/admin_works-preflight-canary.bin
+SIZE=512
+EXPECTED_SIZE=512
+SHA256=de7c4f001137436b8d0aa122223500a41643481e57c25d2eae7d1ae9ce5e129b
+EXPECTED_SHA256=de7c4f001137436b8d0aa122223500a41643481e57c25d2eae7d1ae9ce5e129b
+RESULT=PASS
+------------------------------------------------------------
+SHARE=Correspondence
+FILE=correspondence-preflight-canary.bin
+PATH=<NAS_VOLUME>/Correspondence/ProposalOps_Certification/Phase3B_0_4/v1/preflight/correspondence-preflight-canary.bin
+SIZE=512
+EXPECTED_SIZE=512
+SHA256=8e074d46416565faee28cf09954ec38327916edee03cd184e92097382949d88a
+EXPECTED_SHA256=8e074d46416565faee28cf09954ec38327916edee03cd184e92097382949d88a
+RESULT=PASS
+------------------------------------------------------------
+SHARE=DESIGN
+FILE=design-preflight-canary.bin
+PATH=<NAS_VOLUME>/DESIGN/ProposalOps_Certification/Phase3B_0_4/v1/preflight/design-preflight-canary.bin
+SIZE=512
+EXPECTED_SIZE=512
+SHA256=0d561324481eac49260a7ef3d223c096bc3a9f546a6e00e49da4d467b24840c4
+EXPECTED_SHA256=0d561324481eac49260a7ef3d223c096bc3a9f546a6e00e49da4d467b24840c4
+RESULT=PASS
+------------------------------------------------------------
+SHARE=PRO
+FILE=pro-preflight-canary.bin
+PATH=<NAS_VOLUME>/PRO/ProposalOps_Certification/Phase3B_0_4/v1/preflight/pro-preflight-canary.bin
+SIZE=512
+EXPECTED_SIZE=512
+SHA256=2a1380dd426bb22231dc842dded0ef530b8318b0d1fa74f9f6c59572148a6492
+EXPECTED_SHA256=2a1380dd426bb22231dc842dded0ef530b8318b0d1fa74f9f6c59572148a6492
+RESULT=PASS
+------------------------------------------------------------
+SHARE=Services Provider
+FILE=services_provider-preflight-canary.bin
+PATH=<NAS_VOLUME>/Services Provider/ProposalOps_Certification/Phase3B_0_4/v1/preflight/services_provider-preflight-canary.bin
+SIZE=512
+EXPECTED_SIZE=512
+SHA256=0313e37ea9f2a03ce635243d1f37e55537eb5a8ed31601aa5ca935f88d0337f5
+EXPECTED_SHA256=0313e37ea9f2a03ce635243d1f37e55537eb5a8ed31601aa5ca935f88d0337f5
+RESULT=PASS
+------------------------------------------------------------
+SHARE=Supervision
+FILE=supervision-preflight-canary.bin
+PATH=<NAS_VOLUME>/Supervision/ProposalOps_Certification/Phase3B_0_4/v1/preflight/supervision-preflight-canary.bin
+SIZE=512
+EXPECTED_SIZE=512
+SHA256=2ccded4cb2afd877ecdd797e279a27edda705ead77c257545be7106d0e832039
+EXPECTED_SHA256=2ccded4cb2afd877ecdd797e279a27edda705ead77c257545be7106d0e832039
+RESULT=PASS
+------------------------------------------------------------
+SHARE=Tenders
+FILE=tenders-preflight-canary.bin
+PATH=<NAS_VOLUME>/Tenders/ProposalOps_Certification/Phase3B_0_4/v1/preflight/tenders-preflight-canary.bin
+SIZE=512
+EXPECTED_SIZE=512
+SHA256=f30339792731489bd1aeff79d2ee21490a1987a8502361c228ceb11af5d9b0bc
+EXPECTED_SHA256=f30339792731489bd1aeff79d2ee21490a1987a8502361c228ceb11af5d9b0bc
+RESULT=PASS
+
+=== END ===

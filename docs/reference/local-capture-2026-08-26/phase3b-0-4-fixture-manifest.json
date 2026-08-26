@@ -1,0 +1,17 @@
+{
+  "scope": "Frozen synthetic Phase 0.4 source-boundary fixtures; no business content.",
+  "preflight_canaries": [
+    {"fixture_id":"F_PRE_ADMIN_WORKS","share":"ADMIN WORKS","exact_share_relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/preflight/admin_works-preflight-canary.bin","expected_size_bytes":512,"expected_sha256":"de7c4f001137436b8d0aa122223500a41643481e57c25d2eae7d1ae9ce5e129b"},
+    {"fixture_id":"F_PRE_CORRESPONDENCE","share":"Correspondence","exact_share_relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/preflight/correspondence-preflight-canary.bin","expected_size_bytes":512,"expected_sha256":"8e074d46416565faee28cf09954ec38327916edee03cd184e92097382949d88a"},
+    {"fixture_id":"F_PRE_DESIGN","share":"DESIGN","exact_share_relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/preflight/design-preflight-canary.bin","expected_size_bytes":512,"expected_sha256":"0d561324481eac49260a7ef3d223c096bc3a9f546a6e00e49da4d467b24840c4"},
+    {"fixture_id":"F_PRE_PRO","share":"PRO","exact_share_relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/preflight/pro-preflight-canary.bin","expected_size_bytes":512,"expected_sha256":"2a1380dd426bb22231dc842dded0ef530b8318b0d1fa74f9f6c59572148a6492"},
+    {"fixture_id":"F_PRE_SERVICES_PROVIDER","share":"Services Provider","exact_share_relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/preflight/services_provider-preflight-canary.bin","expected_size_bytes":512,"expected_sha256":"0313e37ea9f2a03ce635243d1f37e55537eb5a8ed31601aa5ca935f88d0337f5"},
+    {"fixture_id":"F_PRE_SUPERVISION","share":"Supervision","exact_share_relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/preflight/supervision-preflight-canary.bin","expected_size_bytes":512,"expected_sha256":"2ccded4cb2afd877ecdd797e279a27edda705ead77c257545be7106d0e832039"},
+    {"fixture_id":"F_PRE_TENDERS","share":"Tenders","exact_share_relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/preflight/tenders-preflight-canary.bin","expected_size_bytes":512,"expected_sha256":"f30339792731489bd1aeff79d2ee21490a1987a8502361c228ceb11af5d9b0bc"}
+  ],
+  "stream_canary": {"fixture_id":"F_STREAM_16MIB","share":"DESIGN","relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/stream/stream-canary-16MiB.bin","expected_size_bytes":16777216,"expected_sha256":"84f139b647884348bcb9df6be1bd7028920436e7653f2868a1520b301c557c78"},
+  "negative_create": {"share":"DESIGN","relative_path":"ProposalOps_Certification/Phase3B_0_4/v1/negative/proposalops-write-denial"},
+  "non_approved_share": "ProposalOps-Inventory",
+  "canary_placement":"7 preflight canaries remain seven-share scope; one stream canary is placed in DESIGN only as transport representative detail.",
+  "real_amec_business_reads":0
+}

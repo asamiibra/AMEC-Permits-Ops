@@ -1,0 +1,645 @@
+{
+  "schema_version": "PROPOSALOPS_DSM_OPERATOR_PACKAGE_LOCAL_VALIDATION_V1",
+  "operator_package_sha256": "dd03b5e6a0e0ee13c94297e6b6c972b87b0784928fcc8ffd072c1fd5c23a26be",
+  "operator_package_size": 16257,
+  "operator_script_sha256": "d19e3708eeec9227384589e37c68b3eb74a7be1909de5261792790dba7e45f6e",
+  "ledger_sha256": "89230ba979c24101231aae8cb667cc2664551ec50f59cfd7ca5f721a3821128a",
+  "source_handoff_sha256": "203153beead97910785a4539924bb6b715373466dadec66414a03f68fa7e0172",
+  "checks_total": 100,
+  "checks_pass": 100,
+  "checks_fail": 0,
+  "nas_connection_attempts": 0,
+  "real_nas_accessed": false,
+  "real_amec_reads": 0,
+  "result": "PASS",
+  "failed_checks": [],
+  "checks": [
+    {
+      "id": 1,
+      "status": "PASS",
+      "name": "Exact handoff source SHA",
+      "evidence": "203153beead97910785a4539924bb6b715373466dadec66414a03f68fa7e0172"
+    },
+    {
+      "id": 2,
+      "status": "PASS",
+      "name": "Exact handoff source size",
+      "evidence": 92417319
+    },
+    {
+      "id": 3,
+      "status": "PASS",
+      "name": "Exact handoff source members",
+      "evidence": 156
+    },
+    {
+      "id": 4,
+      "status": "PASS",
+      "name": "Source handoff has no links",
+      "evidence": "0"
+    },
+    {
+      "id": 5,
+      "status": "PASS",
+      "name": "Operator package exists",
+      "evidence": "/mnt/data/ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL.tar.gz"
+    },
+    {
+      "id": 6,
+      "status": "PASS",
+      "name": "Operator package has four files",
+      "evidence": 4
+    },
+    {
+      "id": 7,
+      "status": "PASS",
+      "name": "Operator package single root",
+      "evidence": [
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL"
+      ]
+    },
+    {
+      "id": 8,
+      "status": "PASS",
+      "name": "Operator package no traversal",
+      "evidence": []
+    },
+    {
+      "id": 9,
+      "status": "PASS",
+      "name": "Operator package no links",
+      "evidence": []
+    },
+    {
+      "id": 10,
+      "status": "PASS",
+      "name": "Operator package no duplicate names",
+      "evidence": []
+    },
+    {
+      "id": 11,
+      "status": "PASS",
+      "name": "Package includes operator script",
+      "evidence": [
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/OPERATOR_RUN_INSTRUCTIONS.md",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/operator_package_manifest.json",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/proposalops_stage1r_a_production_operator.sh",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/stage1r_a_handoff_file_ledger.tsv"
+      ]
+    },
+    {
+      "id": 12,
+      "status": "PASS",
+      "name": "Package includes instructions",
+      "evidence": [
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/OPERATOR_RUN_INSTRUCTIONS.md",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/operator_package_manifest.json",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/proposalops_stage1r_a_production_operator.sh",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/stage1r_a_handoff_file_ledger.tsv"
+      ]
+    },
+    {
+      "id": 13,
+      "status": "PASS",
+      "name": "Package includes ledger",
+      "evidence": [
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/OPERATOR_RUN_INSTRUCTIONS.md",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/operator_package_manifest.json",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/proposalops_stage1r_a_production_operator.sh",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/stage1r_a_handoff_file_ledger.tsv"
+      ]
+    },
+    {
+      "id": 14,
+      "status": "PASS",
+      "name": "Package includes package manifest",
+      "evidence": [
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/OPERATOR_RUN_INSTRUCTIONS.md",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/operator_package_manifest.json",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/proposalops_stage1r_a_production_operator.sh",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/stage1r_a_handoff_file_ledger.tsv"
+      ]
+    },
+    {
+      "id": 15,
+      "status": "PASS",
+      "name": "Package excludes handoff/secret",
+      "evidence": [
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/OPERATOR_RUN_INSTRUCTIONS.md",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/operator_package_manifest.json",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/proposalops_stage1r_a_production_operator.sh",
+        "ProposalOps_Stage1R_A_DSM_Operator_Package_FINAL/stage1r_a_handoff_file_ledger.tsv"
+      ]
+    },
+    {
+      "id": 16,
+      "status": "PASS",
+      "name": "Ledger row count",
+      "evidence": 156
+    },
+    {
+      "id": 17,
+      "status": "PASS",
+      "name": "Ledger paths unique",
+      "evidence": 156
+    },
+    {
+      "id": 18,
+      "status": "PASS",
+      "name": "Ledger paths sorted",
+      "evidence": "sorted"
+    },
+    {
+      "id": 19,
+      "status": "PASS",
+      "name": "Ledger exact path set equals tar",
+      "evidence": 0
+    },
+    {
+      "id": 20,
+      "status": "PASS",
+      "name": "Ledger all SHA values exact",
+      "evidence": "156/156"
+    },
+    {
+      "id": 21,
+      "status": "PASS",
+      "name": "Ledger all mode values exact",
+      "evidence": "156/156"
+    },
+    {
+      "id": 22,
+      "status": "PASS",
+      "name": "Ledger all size values exact",
+      "evidence": "156/156"
+    },
+    {
+      "id": 23,
+      "status": "PASS",
+      "name": "Ledger no absolute path",
+      "evidence": "0"
+    },
+    {
+      "id": 24,
+      "status": "PASS",
+      "name": "Ledger no traversal",
+      "evidence": "0"
+    },
+    {
+      "id": 25,
+      "status": "PASS",
+      "name": "Ledger no @eaDir",
+      "evidence": "0"
+    },
+    {
+      "id": 26,
+      "status": "PASS",
+      "name": "Ledger SHA pinned in script",
+      "evidence": "89230ba979c24101231aae8cb667cc2664551ec50f59cfd7ca5f721a3821128a"
+    },
+    {
+      "id": 27,
+      "status": "PASS",
+      "name": "Ledger SHA recorded in manifest",
+      "evidence": "89230ba979c24101231aae8cb667cc2664551ec50f59cfd7ca5f721a3821128a"
+    },
+    {
+      "id": 28,
+      "status": "PASS",
+      "name": "Ledger size recorded in manifest",
+      "evidence": 21509
+    },
+    {
+      "id": 29,
+      "status": "PASS",
+      "name": "Ledger excludes secret",
+      "evidence": "0"
+    },
+    {
+      "id": 30,
+      "status": "PASS",
+      "name": "Ledger uses relative paths",
+      "evidence": "relative"
+    },
+    {
+      "id": 31,
+      "status": "PASS",
+      "name": "POSIX sh shebang",
+      "evidence": "#!/bin/sh"
+    },
+    {
+      "id": 32,
+      "status": "PASS",
+      "name": "dash syntax PASS",
+      "evidence": ""
+    },
+    {
+      "id": 33,
+      "status": "PASS",
+      "name": "BusyBox sh syntax PASS",
+      "evidence": ""
+    },
+    {
+      "id": 34,
+      "status": "PASS",
+      "name": "Script mode 0755",
+      "evidence": "0o755"
+    },
+    {
+      "id": 35,
+      "status": "PASS",
+      "name": "set -eu",
+      "evidence": "present"
+    },
+    {
+      "id": 36,
+      "status": "PASS",
+      "name": "umask 077",
+      "evidence": "present"
+    },
+    {
+      "id": 37,
+      "status": "PASS",
+      "name": "No bash shebang",
+      "evidence": "none"
+    },
+    {
+      "id": 38,
+      "status": "PASS",
+      "name": "No arrays/PIPESTATUS",
+      "evidence": "none"
+    },
+    {
+      "id": 39,
+      "status": "PASS",
+      "name": "No curl/wget",
+      "evidence": "none"
+    },
+    {
+      "id": 40,
+      "status": "PASS",
+      "name": "No package installation",
+      "evidence": "none"
+    },
+    {
+      "id": 41,
+      "status": "PASS",
+      "name": "Control root exact",
+      "evidence": "exact"
+    },
+    {
+      "id": 42,
+      "status": "PASS",
+      "name": "Canonical staged base exact",
+      "evidence": "exact"
+    },
+    {
+      "id": 43,
+      "status": "PASS",
+      "name": "Archive root exact",
+      "evidence": "exact"
+    },
+    {
+      "id": 44,
+      "status": "PASS",
+      "name": "Root user gate",
+      "evidence": "present"
+    },
+    {
+      "id": 45,
+      "status": "PASS",
+      "name": "Linux gate",
+      "evidence": "present"
+    },
+    {
+      "id": 46,
+      "status": "PASS",
+      "name": "AMEC hostname gate",
+      "evidence": "present"
+    },
+    {
+      "id": 47,
+      "status": "PASS",
+      "name": "DS220+ model gate",
+      "evidence": "present"
+    },
+    {
+      "id": 48,
+      "status": "PASS",
+      "name": "No SSH",
+      "evidence": "none"
+    },
+    {
+      "id": 49,
+      "status": "PASS",
+      "name": "No SCP",
+      "evidence": "none"
+    },
+    {
+      "id": 50,
+      "status": "PASS",
+      "name": "No DSM API/QuickConnect",
+      "evidence": "none"
+    },
+    {
+      "id": 51,
+      "status": "PASS",
+      "name": "No network scan utilities",
+      "evidence": "none"
+    },
+    {
+      "id": 52,
+      "status": "PASS",
+      "name": "Only control-root /volume1 paths",
+      "evidence": "control-only"
+    },
+    {
+      "id": 53,
+      "status": "PASS",
+      "name": "Handoff SHA pinned",
+      "evidence": "exact"
+    },
+    {
+      "id": 54,
+      "status": "PASS",
+      "name": "Handoff size pinned",
+      "evidence": "exact"
+    },
+    {
+      "id": 55,
+      "status": "PASS",
+      "name": "Handoff members pinned",
+      "evidence": "exact"
+    },
+    {
+      "id": 56,
+      "status": "PASS",
+      "name": "Handoff content root pinned",
+      "evidence": "exact"
+    },
+    {
+      "id": 57,
+      "status": "PASS",
+      "name": "Owner attestation SHA pinned",
+      "evidence": "exact"
+    },
+    {
+      "id": 58,
+      "status": "PASS",
+      "name": "Hash checked before extract",
+      "evidence": "present"
+    },
+    {
+      "id": 59,
+      "status": "PASS",
+      "name": "Member count checked before extract",
+      "evidence": "present"
+    },
+    {
+      "id": 60,
+      "status": "PASS",
+      "name": "Staged root symlink rejected",
+      "evidence": "present"
+    },
+    {
+      "id": 61,
+      "status": "PASS",
+      "name": "156 regular staged files required",
+      "evidence": "present"
+    },
+    {
+      "id": 62,
+      "status": "PASS",
+      "name": "0 staged symlinks required",
+      "evidence": "present"
+    },
+    {
+      "id": 63,
+      "status": "PASS",
+      "name": "Per-file SHA/mode/size checks",
+      "evidence": "present"
+    },
+    {
+      "id": 64,
+      "status": "PASS",
+      "name": "Existing differing BASE not overwritten",
+      "evidence": "present"
+    },
+    {
+      "id": 65,
+      "status": "PASS",
+      "name": "Python 3.8 exact gate",
+      "evidence": "present"
+    },
+    {
+      "id": 66,
+      "status": "PASS",
+      "name": "Docker gate",
+      "evidence": "present"
+    },
+    {
+      "id": 67,
+      "status": "PASS",
+      "name": "Frozen runtime path",
+      "evidence": "present"
+    },
+    {
+      "id": 68,
+      "status": "PASS",
+      "name": "Frozen document runtime",
+      "evidence": "present"
+    },
+    {
+      "id": 69,
+      "status": "PASS",
+      "name": "Frozen scope",
+      "evidence": "present"
+    },
+    {
+      "id": 70,
+      "status": "PASS",
+      "name": "Frozen validate_chain invoked",
+      "evidence": "present"
+    },
+    {
+      "id": 71,
+      "status": "PASS",
+      "name": "Live authority window invoked",
+      "evidence": "present"
+    },
+    {
+      "id": 72,
+      "status": "PASS",
+      "name": "Attestation/freeze passed to chain",
+      "evidence": "present"
+    },
+    {
+      "id": 73,
+      "status": "PASS",
+      "name": "Optional exact post_pack only if dependency exists",
+      "evidence": "present"
+    },
+    {
+      "id": 74,
+      "status": "PASS",
+      "name": "No jsonschema dependency bundled",
+      "evidence": "none"
+    },
+    {
+      "id": 75,
+      "status": "PASS",
+      "name": "No runtime bundle generated",
+      "evidence": "none"
+    },
+    {
+      "id": 76,
+      "status": "PASS",
+      "name": "No certification bundle generated",
+      "evidence": "none"
+    },
+    {
+      "id": 77,
+      "status": "PASS",
+      "name": "No V6.5",
+      "evidence": "none"
+    },
+    {
+      "id": 78,
+      "status": "PASS",
+      "name": "Secret path exact",
+      "evidence": "exact"
+    },
+    {
+      "id": 79,
+      "status": "PASS",
+      "name": "Secret regular/no-symlink gate",
+      "evidence": "present"
+    },
+    {
+      "id": 80,
+      "status": "PASS",
+      "name": "Secret mode 600 gate",
+      "evidence": "present"
+    },
+    {
+      "id": 81,
+      "status": "PASS",
+      "name": "Secret nonempty gate",
+      "evidence": "present"
+    },
+    {
+      "id": 82,
+      "status": "PASS",
+      "name": "Secret never hashed",
+      "evidence": "absent"
+    },
+    {
+      "id": 83,
+      "status": "PASS",
+      "name": "Secret never catted",
+      "evidence": "absent"
+    },
+    {
+      "id": 84,
+      "status": "PASS",
+      "name": "Secret never copied",
+      "evidence": "absent"
+    },
+    {
+      "id": 85,
+      "status": "PASS",
+      "name": "No business-share chmod/chown",
+      "evidence": "none"
+    },
+    {
+      "id": 86,
+      "status": "PASS",
+      "name": "Wrapper exact --new-run",
+      "evidence": "exact"
+    },
+    {
+      "id": 87,
+      "status": "PASS",
+      "name": "No direct run_owner command",
+      "evidence": "none"
+    },
+    {
+      "id": 88,
+      "status": "PASS",
+      "name": "No resume invocation",
+      "evidence": "none"
+    },
+    {
+      "id": 89,
+      "status": "PASS",
+      "name": "No direct SMB client command",
+      "evidence": "none"
+    },
+    {
+      "id": 90,
+      "status": "PASS",
+      "name": "No direct business filesystem paths",
+      "evidence": "none"
+    },
+    {
+      "id": 91,
+      "status": "PASS",
+      "name": "Terminal state exact",
+      "evidence": "exact"
+    },
+    {
+      "id": 92,
+      "status": "PASS",
+      "name": "all_273 false checked",
+      "evidence": "present"
+    },
+    {
+      "id": 93,
+      "status": "PASS",
+      "name": "7/7 preflight checked",
+      "evidence": "present"
+    },
+    {
+      "id": 94,
+      "status": "PASS",
+      "name": "273 open ceiling checked",
+      "evidence": "present"
+    },
+    {
+      "id": 95,
+      "status": "PASS",
+      "name": "940387450 byte ceiling checked",
+      "evidence": "present"
+    },
+    {
+      "id": 96,
+      "status": "PASS",
+      "name": "Return archive hygiene outputs",
+      "evidence": "present"
+    },
+    {
+      "id": 97,
+      "status": "PASS",
+      "name": "Human review required",
+      "evidence": "present"
+    },
+    {
+      "id": 98,
+      "status": "PASS",
+      "name": "Fallback unauthorized",
+      "evidence": "present"
+    },
+    {
+      "id": 99,
+      "status": "PASS",
+      "name": "Instructions exact Task Scheduler command",
+      "evidence": "exact"
+    },
+    {
+      "id": 100,
+      "status": "PASS",
+      "name": "Manifest hashes all three operator files",
+      "evidence": "3/3"
+    }
+  ]
+}
