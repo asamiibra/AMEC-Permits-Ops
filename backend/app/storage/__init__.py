@@ -21,11 +21,48 @@ from .mock import MockBinaryStore
 from .smb import SMBConfig, SMBBinaryStore
 from .service import DocumentStorageService, StoredVersion
 from .factory import create_binary_store
+from .port import ReadOnlySourcePort, SourceCapabilities, SourcePage
+from .smb import SMBSourceConfig, SMBSourceStore
+from .external import (
+    BoundedEnumeration,
+    ContentBudgetExceeded,
+    OperationDeadlineExceeded,
+    ReadBudgetState,
+    SourceChangedDuringImport,
+    SourceReadBudgets,
+    SourceStabilityTracker,
+    StabilityObservation,
+    StabilityPolicy,
+    StabilityState,
+    classify_path_change,
+    enumerate_bounded,
+    read_bounded_content,
+    run_with_deadline,
+)
 
 __all__ = [
     "BinaryStorePort",
     "DocumentStorageService",
     "create_binary_store",
+    "ReadOnlySourcePort",
+    "SourceCapabilities",
+    "SourcePage",
+    "SMBSourceConfig",
+    "SMBSourceStore",
+    "SourceReadBudgets",
+    "SourceStabilityTracker",
+    "StabilityObservation",
+    "StabilityPolicy",
+    "StabilityState",
+    "BoundedEnumeration",
+    "ContentBudgetExceeded",
+    "OperationDeadlineExceeded",
+    "ReadBudgetState",
+    "SourceChangedDuringImport",
+    "classify_path_change",
+    "enumerate_bounded",
+    "read_bounded_content",
+    "run_with_deadline",
     "MockBinaryStore",
     "SMBConfig",
     "SMBBinaryStore",

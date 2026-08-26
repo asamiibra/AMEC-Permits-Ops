@@ -8,7 +8,7 @@ from typing import BinaryIO
 
 from .errors import StorageError, StorageErrorCode
 from .path_policy import normalize_relative_path
-from .port import BinaryStorePort, StorageCapabilities, StorageHealth, StorageLocator, StoragePage, StorageStat, StorageTarget, TemporaryObject
+from .port import BinaryStorePort, ReadOnlySourcePort, SourceCapabilities, SourcePage, StorageCapabilities, StorageHealth, StorageLocator, StoragePage, StorageStat, StorageTarget, TemporaryObject
 
 
 @dataclass(frozen=True)
@@ -26,6 +26,225 @@ class SMBConfig:
     connect_timeout_seconds: float = 10
     operation_timeout_seconds: float = 60
     environment: str = "DEV"
+
+
+@dataclass(frozen=True)
+class SMBSourceConfig:
+    server: str
+    share: str
+    username: str
+    password: str
+    port: int = 445
+    provider_id: str = "smb-external-source"
+    root: str = ""
+    auth_mode: str = "ntlm"
+    require_signing: bool = True
+    require_encryption: bool = True
+    anonymous: bool = False
+    guest: bool = False
+    operation_timeout_seconds: float = 60
+    max_single_read_bytes: int = 10 * 1024 * 1024
+
+    def __post_init__(self) -> None:
+        if not all((self.server, self.share, self.username, self.password)):
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source credentials are required")
+        if self.auth_mode.lower() not in {"ntlm", "kerberos", "negotiate"}:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "Unsupported external source authentication mode")
+        if self.anonymous or self.guest:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "Anonymous and guest external source access are forbidden")
+        if not self.require_signing or not self.require_encryption:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source signing and encryption are required")
+        if self.operation_timeout_seconds <= 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source operation timeout must be positive")
+        if self.max_single_read_bytes <= 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External source maximum single read must be positive")
+
+
+class BoundedReadHandle:
+    """A chunk-limited view over an smbclient file handle.
+
+    Opening a source never reads data.  The caller must provide an explicit
+    positive chunk size, and each call is capped at the frozen adapter limit.
+    """
+
+    MAX_CHUNK_BYTES = 1024 * 1024
+
+    def __init__(self, raw: BinaryIO, length: int):
+        self._raw = raw
+        self._remaining = length
+        self._closed = False
+
+    def read(self, size: int = -1) -> bytes:
+        if size is None or size < 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "bounded source reads require an explicit chunk size")
+        if size > self.MAX_CHUNK_BYTES:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read chunk exceeds frozen maximum")
+        if self._remaining <= 0:
+            return b""
+        requested = min(size, self._remaining)
+        try:
+            data = self._raw.read(requested)
+        except StorageError:
+            self.close()
+            raise
+        except Exception as exc:
+            self.close()
+            text = str(exc).lower()
+            name = type(exc).__name__.lower()
+            if "timeout" in text or "timeout" in name:
+                raise StorageError(StorageErrorCode.TIMEOUT, "The external source operation timed out", retryable=True) from exc
+            raise StorageError(StorageErrorCode.UNAVAILABLE, "External source read failed", retryable=True, details={"exception": type(exc).__name__}) from exc
+        self._remaining -= len(data)
+        return data
+
+    def close(self) -> None:
+        if not self._closed:
+            self._closed = True
+            self._raw.close()
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        self.close()
+
+
+class SMBSourceStore(ReadOnlySourcePort):
+    """Read-only SMB source implementation; never a managed write provider."""
+
+    def __init__(self, config: SMBSourceConfig):
+        self.config = config
+        self._smbclient = None
+        self._connection_cache: dict = {}
+
+    def _client(self):
+        if self._smbclient is None:
+            try:
+                import smbclient  # type: ignore
+            except ImportError as exc:
+                raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "The pinned smbprotocol dependency is not installed") from exc
+            self._smbclient = smbclient
+            try:
+                smbclient.register_session(self.config.server, username=self.config.username, password=self.config.password, port=self.config.port, auth_protocol=self.config.auth_mode.lower(), connection_timeout=self.config.operation_timeout_seconds, require_signing=True, encrypt=True, connection_cache=self._connection_cache)
+            except Exception as exc:
+                raise self._map_error(exc, "External source authentication failed") from exc
+        return self._smbclient
+
+    def _session_kwargs(self) -> dict:
+        return {"username": self.config.username, "password": self.config.password, "port": self.config.port, "encrypt": True, "connection_timeout": self.config.operation_timeout_seconds, "connection_cache": self._connection_cache}
+
+    def _unc(self, relative_path: str) -> str:
+        raw = relative_path.strip("/\\") if relative_path else ""
+        safe = normalize_relative_path(raw) if raw and raw != "." else ""
+        configured_root = normalize_relative_path(self.config.root.strip("/\\")) if self.config.root else ""
+        if configured_root and safe != configured_root and not safe.startswith(configured_root + "/"):
+            safe = f"{configured_root}/{safe}" if safe else configured_root
+        windows_safe = safe.replace("/", chr(92))
+        suffix = f"{chr(92)}{windows_safe}" if safe else ""
+        return f"{chr(92) * 2}{self.config.server}{chr(92)}{self.config.share}{suffix}"
+
+    @staticmethod
+    def _map_error(exc: Exception, message: str = "External source operation failed") -> StorageError:
+        text = str(exc).lower()
+        name = type(exc).__name__.lower()
+        if "timeout" in text or "timeout" in name:
+            return StorageError(StorageErrorCode.TIMEOUT, "The external source operation timed out", retryable=True)
+        if any(token in text for token in ("logon_failure", "bad_password", "access_denied", "permission")):
+            return StorageError(StorageErrorCode.AUTH_FAILED if "logon" in text or "password" in text else StorageErrorCode.ACCESS_DENIED, "External source access was denied")
+        if any(token in text for token in ("bad_network_name", "not_found", "file_not_found", "object_name_not_found", "no such file")):
+            return StorageError(StorageErrorCode.OBJECT_NOT_FOUND, "The external source object was not found")
+        return StorageError(StorageErrorCode.UNAVAILABLE, message, retryable=True, details={"exception": type(exc).__name__})
+
+    def health(self) -> StorageHealth:
+        started = time.perf_counter()
+        try:
+            info = self._client().stat(self._unc(self.config.root or "."), **self._session_kwargs())
+            connection = next(iter(self._connection_cache.values()), None)
+            endpoint = f"{self.config.server}:{self.config.port}/{self.config.share}".encode()
+            return StorageHealth("HEALTHY", self.config.provider_id, (time.perf_counter() - started) * 1000, {"provider_id": self.config.provider_id, "endpoint_fingerprint": hashlib.sha256(endpoint).hexdigest()[:16], "security": {"auth_mode": self.config.auth_mode.lower(), "anonymous": False, "guest": False, "signing_required": True, "encryption_required": True}, "negotiated_dialect": str(getattr(connection, "dialect", None)) if connection else None})
+        except StorageError as exc:
+            return StorageHealth("UNAVAILABLE", self.config.provider_id, (time.perf_counter() - started) * 1000, {"error_class": exc.code.value})
+        except Exception as exc:
+            mapped = self._map_error(exc)
+            return StorageHealth("UNAVAILABLE", self.config.provider_id, (time.perf_counter() - started) * 1000, {"error_class": mapped.code.value})
+
+    def capabilities(self) -> SourceCapabilities:
+        return SourceCapabilities()
+
+    def stat(self, locator: StorageLocator) -> StorageStat:
+        try:
+            info = self._client().stat(self._unc(locator.relative_path), **self._session_kwargs())
+            return StorageStat(locator, int(info.st_size), modified_at=str(getattr(info, "st_mtime", "")))
+        except StorageError:
+            raise
+        except Exception as exc:
+            raise self._map_error(exc, "External source stat failed") from exc
+
+    def open_read(self, locator: StorageLocator, *, offset: int = 0, length: int | None = None) -> BinaryIO:
+        if offset < 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read offset must be non-negative")
+        if length is None:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read requires an explicit total length")
+        if length < 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read length must be non-negative")
+        if length > self.config.max_single_read_bytes:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "source read exceeds maximum single read")
+        if length == 0:
+            return BoundedReadHandle(io.BytesIO(b""), 0)
+        raw = None
+        try:
+            raw = self._client().open_file(self._unc(locator.relative_path), mode="rb", buffering=0, **self._session_kwargs())
+            if offset:
+                raw.seek(offset)
+            return BoundedReadHandle(raw, length)
+        except StorageError:
+            if raw is not None:
+                raw.close()
+            raise
+        except Exception as exc:
+            if raw is not None:
+                raw.close()
+            raise self._map_error(exc, "External source read failed") from exc
+
+    def list(self, prefix: StorageTarget, *, cursor: str | None = None, max_entries_per_page: int = 100) -> SourcePage:
+        if max_entries_per_page <= 0:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "max_entries_per_page must be positive")
+        if cursor is None:
+            start = 0
+        elif cursor.startswith("v1:") and cursor[3:].isdigit():
+            start = int(cursor[3:])
+        else:
+            raise StorageError(StorageErrorCode.PATH_INVALID, "Invalid source continuation cursor")
+
+        try:
+            names = sorted(self._client().listdir(self._unc(prefix.relative_path.rstrip("/")), **self._session_kwargs()))
+        except StorageError:
+            raise
+        except Exception as exc:
+            raise self._map_error(exc, "External source listing failed") from exc
+        names = names[start:start + max_entries_per_page + 1]
+        truncated = len(names) > max_entries_per_page
+        if truncated:
+            names = names[:max_entries_per_page]
+        items: list[StorageStat] = []
+        failures = 0
+        issues: list[str] = []
+        base = prefix.relative_path.rstrip("/")
+        for name in names:
+            try:
+                items.append(self.stat(StorageLocator(prefix.provider_id, prefix.share_id, f"{base}/{name}")))
+            except StorageError:
+                failures += 1
+                issues.append("ENTRY_STAT_FAILED")
+        complete = not truncated and failures == 0
+        # A failed page is terminal.  Returning a continuation cursor here
+        # would let a caller silently skip the failed entry on the next page.
+        next_cursor = f"v1:{start + len(names)}" if truncated and failures == 0 else None
+        return SourcePage(items, next_cursor, complete, failures, tuple(issues), len(names))
 
 
 class SMBBinaryStore(BinaryStorePort):

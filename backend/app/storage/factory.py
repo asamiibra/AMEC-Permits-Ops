@@ -5,8 +5,8 @@ from pathlib import Path
 from ..config.settings import get_settings, repo_root
 from .errors import StorageError, StorageErrorCode
 from .mock import MockBinaryStore
-from .port import BinaryStorePort
-from .smb import SMBConfig, SMBBinaryStore
+from .port import BinaryStorePort, ReadOnlySourcePort
+from .smb import SMBConfig, SMBSourceConfig, SMBSourceStore, SMBBinaryStore
 
 
 def create_binary_store() -> BinaryStorePort:
@@ -37,11 +37,11 @@ def create_binary_store() -> BinaryStorePort:
     raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "Unsupported STORAGE_PROVIDER")
 
 
-def create_external_source_store() -> BinaryStorePort:
+def create_external_source_store() -> ReadOnlySourcePort:
     settings = get_settings()
     if not all((settings.smb_external_server, settings.smb_external_share, settings.smb_external_username, settings.smb_external_password)):
         raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "External SMB source credentials are required")
-    return SMBBinaryStore(SMBConfig(
+    return SMBSourceStore(SMBSourceConfig(
         server=settings.smb_external_server,
         port=settings.smb_external_port,
         share=settings.smb_external_share,
@@ -51,8 +51,6 @@ def create_external_source_store() -> BinaryStorePort:
         auth_mode=settings.smb_external_auth_mode,
         require_signing=settings.smb_external_require_signing,
         require_encryption=settings.smb_external_require_encryption,
-        connect_timeout_seconds=settings.smb_connect_timeout_seconds,
         operation_timeout_seconds=settings.smb_operation_timeout_seconds,
         provider_id="smb-external",
-        environment=settings.app_env,
     ))

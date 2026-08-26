@@ -76,3 +76,40 @@ class BinaryStorePort(Protocol):
     def list(self, prefix: StorageTarget, *, cursor: str | None = None) -> StoragePage: ...
     def cleanup_temporary(self, temporary: TemporaryObject) -> None: ...
 
+
+@dataclass(frozen=True)
+class SourceCapabilities:
+    read: bool = True
+    stat: bool = True
+    list: bool = True
+    range_read: bool = True
+    write_new: bool = False
+    mkdir: bool = False
+    safe_finalize: bool = False
+    atomic_or_safe_rename_with_no_replace: bool = False
+    delete: bool = False
+    writeback: bool = False
+    anonymous: bool = False
+    guest: bool = False
+    signing_required: bool = True
+    encryption_required: bool = True
+
+
+@dataclass(frozen=True)
+class SourcePage:
+    items: list[StorageStat]
+    cursor: str | None = None
+    complete: bool = True
+    failed_entry_count: int = 0
+    issues: tuple[str, ...] = ()
+    entries_examined: int = 0
+
+
+class ReadOnlySourcePort(Protocol):
+    """Only source observation operations; no managed mutation surface."""
+
+    def health(self) -> StorageHealth: ...
+    def capabilities(self) -> SourceCapabilities: ...
+    def stat(self, locator: StorageLocator) -> StorageStat: ...
+    def list(self, prefix: StorageTarget, *, cursor: str | None = None, max_entries_per_page: int = 100) -> SourcePage: ...
+    def open_read(self, locator: StorageLocator, *, offset: int | None = None, length: int | None = None) -> BinaryIO: ...
