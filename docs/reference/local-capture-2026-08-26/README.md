@@ -28,15 +28,17 @@ runtime fixtures and must not be treated as current application authority.
 
 ## Runtime-impact evaluation set
 
-The current local branch `branch/owner-form-simple-dashboard` is six commits
-ahead of its GitHub remote. Those commits were not included in this reference
-push:
+At capture time, the local branch `branch/owner-form-simple-dashboard` was six
+commits ahead of its GitHub remote. The final contents of the first three
+documentation/evidence-only commits were preserved in the separate
+`docs(reference): preserve local release evidence` commit. The three later
+runtime-capable commits were deliberately excluded:
 
 | Local commit | Classification | Why it can affect execution |
 |---|---|---|
-| `b1b3cb9` | Documentation-only | Release evidence only. |
-| `13ab799` | Documentation/evidence-only | Release evidence and verification artifact only. |
-| `1699416` | Documentation/evidence-only | Release evidence updates only. |
+| `b1b3cb9` | Documentation-only; preserved | Release evidence only. |
+| `13ab799` | Documentation/evidence-only; preserved | Release evidence and verification artifact only. |
+| `1699416` | Documentation/evidence-only; preserved | Release evidence updates only. |
 | `45cadfd` | Runtime/deployment-impacting | Changes backend and frontend Vercel configuration. |
 | `89ac5d2` | Runtime/build/UI-impacting | Changes frontend dependencies, Vite configuration, UI code, and browser tests. |
 | `fde6eb9` | Runtime/database-impacting | Changes migrations and adds migration schema-fingerprint tests. |
