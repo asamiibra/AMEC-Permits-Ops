@@ -1,0 +1,12 @@
+using './main.bicep'
+
+// Supply these values from the Owner-approved environment at deployment time.
+param location = 'qatarcentral'
+param resourceGroupName = 'rg-proposalops-prod-qc'
+param budgetName = 'budget-proposalops-prod-qc'
+param budgetAmount = int(readEnvironmentVariable('OWNER_MONTHLY_BUDGET_ALERT_THRESHOLD_USD'))
+param budgetContactEmail = readEnvironmentVariable('BUDGET_CONTACT_EMAIL')
+param budgetStartDate = '2026-08-01'
+param budgetEndDate = '2036-08-01'
+param foundationSourceSha = '<FOUNDATION_SOURCE_SHA>'
+param deployAppServicePlan = false
