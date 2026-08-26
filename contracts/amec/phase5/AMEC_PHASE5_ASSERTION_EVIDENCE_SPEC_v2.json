@@ -303,8 +303,8 @@
       "proofs": [
         {
           "artifact_kind": "result",
-          "expected": true,
-          "expected_type": "boolean",
+          "expected": 1.0,
+          "expected_type": "number",
           "json_path": "thresholds.hard_gate",
           "operator": "exists",
           "producer_id": "classifier-calibration",
@@ -322,8 +322,8 @@
       "proofs": [
         {
           "artifact_kind": "result",
-          "expected": true,
-          "expected_type": "boolean",
+          "expected": 1.0,
+          "expected_type": "number",
           "json_path": "thresholds.review_required",
           "operator": "exists",
           "producer_id": "classifier-calibration",
@@ -683,8 +683,8 @@
       "proofs": [
         {
           "artifact_kind": "result",
-          "expected": true,
-          "expected_type": "boolean",
+          "expected": 1.0,
+          "expected_type": "number",
           "json_path": "thresholds.hard_gate",
           "operator": "exists",
           "producer_id": "classifier-calibration",
@@ -702,8 +702,8 @@
       "proofs": [
         {
           "artifact_kind": "result",
-          "expected": true,
-          "expected_type": "boolean",
+          "expected": 1.0,
+          "expected_type": "number",
           "json_path": "thresholds.review_required",
           "operator": "exists",
           "producer_id": "classifier-calibration",

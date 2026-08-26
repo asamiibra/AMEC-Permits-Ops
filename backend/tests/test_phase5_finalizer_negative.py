@@ -10,7 +10,7 @@ import pytest
 
 from scripts.phase5.acceptance import run as generate_acceptance
 from scripts.phase5.evidence_validate import run as validate_evidence
-from scripts.phase5.registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, producer_paths
+from scripts.phase5.registry import CANONICAL_ARTIFACTS, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, producer_paths, validate_producer_payload_contract
 from scripts.phase5.shadow_replay import _build_shadow_result
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,6 +24,7 @@ def _contract_value(spec: dict) -> object:
     if "const" in spec:
         return spec["const"]
     if spec["type"] == "integer": return spec.get("minimum", 0)
+    if spec["type"] == "number": return float(spec.get("minimum", 0))
     if spec["type"] == "boolean": return False
     if spec["type"] == "string": return "PASS"
     if spec["type"] == "array": return ["synthetic"] * spec.get("count_eq", 1)
@@ -71,6 +72,41 @@ def test_real_shadow_result_builder_emits_contract_shape():
     payload = _build_shadow_result(first=first, second=second, before={"envelopes": 0, "corrections": 0, "bridges": 0, "projections": 0}, after={"envelopes": 1, "corrections": 1, "bridges": 0, "projections": 0}, original_hash="h", envelope_after=Envelope(), envelope_metrics={"new_source_reads": 0, "new_source_bytes": 0, "llm_external_call_count": 0, "real_content": False}, database_probe=1)
     assert payload["shadow_state"] == "REVIEW_COMPARE_ONLY"
     assert all(key in payload for key in ("new_source_reads", "new_source_bytes", "llm_external_call_count", "real_content"))
+
+
+def test_finalizer_fixture_type_generator_handles_integer_and_number_without_bool_coercion():
+    integer = _contract_value({"type": "integer", "minimum": 2})
+    number = _contract_value({"type": "number", "minimum": 2})
+    default_number = _contract_value({"type": "number"})
+    assert integer == 2 and isinstance(integer, int) and not isinstance(integer, bool)
+    assert number >= 2 and isinstance(number, (int, float)) and not isinstance(number, bool)
+    assert isinstance(default_number, (int, float)) and not isinstance(default_number, bool)
+
+
+def test_finalizer_fixture_type_generator_rejects_unknown_types():
+    with pytest.raises(AssertionError):
+        _contract_value({"type": "unsupported"})
+
+
+def test_finalizer_fixture_vocabulary_covers_every_producer_contract_type():
+    expected = {"integer", "number", "string", "boolean", "array", "object"}
+    active = {
+        spec.get("type")
+        for contract in PRODUCER_RESULT_CONTRACTS.values()
+        for spec in contract["required_paths"].values()
+        if "type" in spec
+    }
+    assert active <= expected
+    assert active == expected
+    for producer in EVIDENCE_PRODUCERS:
+        assert validate_producer_payload_contract(producer, _contract_payload(producer))["result"] == "PASS"
+
+
+def test_finalizer_fixture_number_field_rejects_boolean_substitution():
+    producer = "classifier-calibration"
+    payload = _contract_payload(producer)
+    payload["thresholds"]["hard_gate"] = True
+    assert validate_producer_payload_contract(producer, payload)["result"] == "FAIL"
 
 
 def test_finalizer_positive_fixture_invokes_actual_cli(tmp_path):

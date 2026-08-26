@@ -176,3 +176,44 @@ def test_source_preflight_mutation_counters_are_execution_derived():
     source = Path("scripts/phase5/source_preflight.py").read_text(encoding="utf-8")
     assert "_run_semantic_mutation_matrix" in source
     assert '"assertion_semantic_mutation_case_count": mutation["case_count"]' in source
+
+
+def test_sqlserver_portability_probes_are_runtime_bound_and_fail_closed():
+    source = Path("scripts/phase5/sqlserver_targeted.py").read_text(encoding="utf-8")
+    assert "def _probe_boolean_predicate" in source
+    assert "def _probe_reflection" in source
+    assert "portability_probe_pass_count == 2" in source
+    assert "portability_probe_not_executed_count" in source
+
+
+def test_classifier_threshold_evidence_types_match_numeric_runtime_values():
+    spec = json.loads(Path("contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json").read_text(encoding="utf-8"))
+    proofs = [
+        proof
+        for entry in spec["entries"]
+        for proof in entry["proofs"]
+        if proof.get("producer_id") == "classifier-calibration"
+        and proof.get("json_path") in {"thresholds.hard_gate", "thresholds.review_required"}
+    ]
+    assert len(proofs) == 4
+    assert all(proof["expected_type"] == "number" and proof["expected"] == 1.0 for proof in proofs)
+
+
+def test_security_hygiene_contract_is_runtime_enriched_and_fail_closed():
+    source = Path("scripts/phase5/source_preflight.py").read_text(encoding="utf-8")
+    assert "def runtime_hygiene_facts" in source
+    assert '"secret_staged_count"' in source
+    assert '"git_diff_check_pass"' in source
+    assert "planned_workflow_security_hygiene_contract_pass" in source
+
+
+def test_preflight_covers_helper_scope_env_scope_and_required_triplet_transcripts():
+    source = Path("scripts/phase5/source_preflight.py").read_text(encoding="utf-8")
+    for marker in (
+        "planned_workflow_shell_helper_scope_pass",
+        "planned_workflow_same_step_env_scope_pass",
+        "planned_workflow_raw_run_zero_byte_fallback_count",
+        "planned_workflow_input_identity_raw_nonempty_check_count",
+        "evidence_validator_zero_byte_required_path_rejection_present",
+    ):
+        assert marker in source

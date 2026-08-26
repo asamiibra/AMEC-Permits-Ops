@@ -98,8 +98,9 @@ def _governing_source_checks() -> dict[str, object]:
 
 
 def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
+    defaults = {"planned_workflow_present": False, "planned_workflow_stage_count": 0, "planned_workflow_stage_order_pass": False, "planned_workflow_cycle_count": 0, "planned_workflow_preseeded_finalizer_count": 0, "planned_workflow_preseeded_acceptance_integrity_count": 0, "planned_workflow_working_evidence_upload_count": 0, "planned_workflow_sanitized_upload_count": 0, "planned_workflow_unknown_cli_argument_count": 0, "planned_workflow_missing_required_cli_argument_count": 0, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": False, "remote_workflow_native_sqlserver_execution_required": False, "remote_workflow_native_sqlserver_test_command_present": False, "remote_workflow_native_sqlserver_test_count": 0, "remote_workflow_full_backend_excludes_runtime_module": False, "remote_workflow_real_browser_required": False, "remote_workflow_real_browser_uses_sqlserver_backed_api": False, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0, "planned_workflow_raw_run_invocation_step_count": 0, "planned_workflow_result_from_meta_invocation_step_count": 0, "planned_workflow_raw_run_scope_failure_count": 0, "planned_workflow_result_from_meta_scope_failure_count": 0, "planned_workflow_shell_helper_scope_pass": False, "planned_workflow_same_step_github_env_dependency_count": 0, "planned_workflow_same_step_env_scope_pass": False, "planned_workflow_post_sanitize_contract_audit_count": 0, "planned_workflow_post_sanitize_primary_validation_count": 0, "planned_workflow_post_sanitize_second_oracle_count": 0, "planned_workflow_post_sanitize_summary_recompute_count": 0, "planned_workflow_post_sanitize_semantic_revalidation_pass": False, "planned_workflow_security_hygiene_result_enrichment_count": 0, "planned_workflow_security_hygiene_secret_staged_runtime_source_count": 0, "planned_workflow_security_hygiene_fail_closed_count": 0, "planned_workflow_security_hygiene_contract_pass": False, "planned_workflow_raw_run_zero_byte_fallback_count": 0, "planned_workflow_raw_run_nonempty_transcript_pass": False, "evidence_validator_zero_byte_required_path_rejection_present": False, "planned_workflow_input_identity_raw_nonempty_check_count": 0}
     if path is None:
-        return {"planned_workflow_present": False, "planned_workflow_stage_count": 0, "planned_workflow_stage_order_pass": False, "planned_workflow_cycle_count": 0, "planned_workflow_preseeded_finalizer_count": 0, "planned_workflow_preseeded_acceptance_integrity_count": 0, "planned_workflow_working_evidence_upload_count": 0, "planned_workflow_sanitized_upload_count": 0, "planned_workflow_unknown_cli_argument_count": 0, "planned_workflow_missing_required_cli_argument_count": 0, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": False, "remote_workflow_native_sqlserver_execution_required": False, "remote_workflow_native_sqlserver_test_command_present": False, "remote_workflow_native_sqlserver_test_count": 0, "remote_workflow_full_backend_excludes_runtime_module": False, "remote_workflow_real_browser_required": False, "remote_workflow_real_browser_uses_sqlserver_backed_api": False, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0}
+        return defaults
     text = path.read_text(encoding="utf-8")
     positions = [text.find("# " + stage) for stage in PIPELINE_STAGES]
     order_pass = all(position >= 0 for position in positions) and positions == sorted(positions) and len(set(positions)) == len(positions)
@@ -118,7 +119,48 @@ def _planned_workflow_checks(path: Path | None) -> dict[str, object]:
     full_backend_excludes = bool(re.search(r"pytest\s+-q\s+--ignore=backend/tests/test_phase5_sqlserver_runtime\.py", text))
     browser_required = "playwright test" in text and "phase5-classifier-shadow.spec.ts" in text
     sqlserver_api = "DATABASE_URL" in text and "mssql+pyodbc" in text and "127.0.0.1:8000" in text
-    return {"planned_workflow_present": True, "planned_workflow_stage_count": len(PIPELINE_STAGES), "planned_workflow_stage_order_pass": order_pass, "planned_workflow_cycle_count": 0 if order_pass else 1, "planned_workflow_preseeded_finalizer_count": preseed_finalizer, "planned_workflow_preseeded_acceptance_integrity_count": preseed_integrity, "planned_workflow_working_evidence_upload_count": working_upload, "planned_workflow_sanitized_upload_count": sanitized_upload, "planned_workflow_unknown_cli_argument_count": len(unknown), "planned_workflow_missing_required_cli_argument_count": required, "planned_workflow_unknown_cli_arguments": unknown, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": full_backend_excludes, "remote_workflow_native_sqlserver_execution_required": native_command_count == 1, "remote_workflow_native_sqlserver_test_command_present": native_command_count == 1, "remote_workflow_native_sqlserver_test_count": 16 if native_command_count == 1 else 0, "remote_workflow_full_backend_excludes_runtime_module": full_backend_excludes, "remote_workflow_real_browser_required": browser_required, "remote_workflow_real_browser_uses_sqlserver_backed_api": sqlserver_api, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0}
+    step_matches = list(re.finditer(r"(?m)^[ ]{6}- name:.*$", text))
+    steps = []
+    for index, match in enumerate(step_matches):
+        end = step_matches[index + 1].start() if index + 1 < len(step_matches) else len(text)
+        step = text[match.start():end]
+        run = re.search(r"(?m)^[ ]{8}run:\s*\|\s*$", step)
+        steps.append(run and step[run.end():] or "")
+    raw_steps = result_steps = raw_scope_failures = result_scope_failures = 0
+    for step in steps:
+        lines = step.splitlines()
+        active_raw = [i for i, line in enumerate(lines) if not line.lstrip().startswith("#") and re.search(r"(?<![A-Za-z0-9_])raw_run\s+[A-Za-z0-9_-]+", line)]
+        active_result = [i for i, line in enumerate(lines) if not line.lstrip().startswith("#") and re.search(r"(?<![A-Za-z0-9_])result_from_meta\s+[A-Za-z0-9_-]+", line)]
+        raw_steps += bool(active_raw); result_steps += bool(active_result)
+        source_at = next((i for i, line in enumerate(lines) if 'source "$RUNNER_TEMP/raw_run.sh"' in line), None)
+        if active_raw and source_at is None and "raw_run()" not in "\n".join(lines[:active_raw[0]]): raw_scope_failures += 1
+        if active_result and source_at is None and "result_from_meta()" not in "\n".join(lines[:active_result[0]]): result_scope_failures += 1
+    env_scope_failures = 0
+    for step in steps:
+        lines = step.splitlines()
+        for variable in ("UPLOAD_EVIDENCE_DIR", "SQLSERVER_PASSWORD", "SQL_CONTAINER", "DATABASE_URL"):
+            writes = [i for i, line in enumerate(lines) if "$GITHUB_ENV" in line and re.search(rf"\b{variable}=", line)]
+            consumers = [i for i, line in enumerate(lines) if "$GITHUB_ENV" not in line and "::add-mask::" not in line and re.search(rf"(?:\$\{{{variable}\}}|\${variable}|os\.environ\[['\"]{variable}['\"]\])", line)]
+            if writes and consumers:
+                first_consumer = min(consumers)
+                has_export = any(i <= first_consumer and re.search(rf"\bexport\s+{variable}\b", line) for i, line in enumerate(lines))
+                if not has_export: env_scope_failures += 1
+    security_window = re.search(r"result_from_meta security-hygiene(?P<body>[\s\S]{0,5000})", text)
+    security_body = security_window.group("body") if security_window else ""
+    security_enrichment = int("runtime_hygiene_facts" in security_body and "secret_staged_count" in security_body and "git_diff_check_pass" in security_body)
+    security_runtime_source = int("from scripts.phase5.source_preflight import runtime_hygiene_facts" in security_body)
+    security_fail_closed = int("payload[\"result\"] = \"FAIL\"" in security_body and "secret_staged_count\"] != 0" in security_body)
+    helper_definition = next((step for step in steps if 'raw_run()' in step), "")
+    fallback_marker_count = len(re.findall(r"if \[\[ ! -s .*raw\.log\"? \]\]; then", helper_definition))
+    fallback_transcript_pass = all(token in helper_definition for token in ("PRODUCER_EXECUTION_RECORDED=true", "PRODUCER_ID=%s", "COMMAND_EXIT_CODE=%s", 'code=$?', '"$@" >"$EVIDENCE_DIR/${name}.raw.log" 2>&1'))
+    validator_text = (ROOT / "scripts/phase5/evidence_validate.py").read_text(encoding="utf-8")
+    zero_byte_rejection = int("path.stat().st_size == 0" in validator_text)
+    input_raw_check_count = len(re.findall(r'test -s "\$EVIDENCE_DIR/input-identity\.raw\.log"', text))
+    post_contract = len(re.findall(r"producer_contract_audit\.py[^\n]*COMPLETE_SANITIZED_EVIDENCE_DIR", text))
+    post_primary = len(re.findall(r"evidence_validate\.py[^\n]*--stage FINAL[^\n]*COMPLETE_SANITIZED_EVIDENCE_DIR", text))
+    post_oracle = int("independent_semantic_validate" in text and "COMPLETE_SANITIZED_EVIDENCE_DIR" in text)
+    post_summary = int("derive_summary" in text and "COMPLETE_SANITIZED_EVIDENCE_DIR" in text)
+    return {"planned_workflow_present": True, "planned_workflow_stage_count": len(PIPELINE_STAGES), "planned_workflow_stage_order_pass": order_pass, "planned_workflow_cycle_count": 0 if order_pass else 1, "planned_workflow_preseeded_finalizer_count": preseed_finalizer, "planned_workflow_preseeded_acceptance_integrity_count": preseed_integrity, "planned_workflow_working_evidence_upload_count": working_upload, "planned_workflow_sanitized_upload_count": sanitized_upload, "planned_workflow_unknown_cli_argument_count": len(unknown), "planned_workflow_missing_required_cli_argument_count": required, "planned_workflow_unknown_cli_arguments": unknown, "local_precommit_native_sqlserver_execution_required": False, "local_full_backend_excludes_native_sqlserver_module": full_backend_excludes, "remote_workflow_native_sqlserver_execution_required": native_command_count == 1, "remote_workflow_native_sqlserver_test_command_present": native_command_count == 1, "remote_workflow_native_sqlserver_test_count": 16 if native_command_count == 1 else 0, "remote_workflow_full_backend_excludes_runtime_module": full_backend_excludes, "remote_workflow_real_browser_required": browser_required, "remote_workflow_real_browser_uses_sqlserver_backed_api": sqlserver_api, "local_runtime_evidence_promoted_to_remote_acceptance_count": 0, "planned_workflow_raw_run_invocation_step_count": raw_steps, "planned_workflow_result_from_meta_invocation_step_count": result_steps, "planned_workflow_raw_run_scope_failure_count": raw_scope_failures, "planned_workflow_result_from_meta_scope_failure_count": result_scope_failures, "planned_workflow_shell_helper_scope_pass": raw_scope_failures == 0 and result_scope_failures == 0, "planned_workflow_same_step_github_env_dependency_count": env_scope_failures, "planned_workflow_same_step_env_scope_pass": env_scope_failures == 0, "planned_workflow_post_sanitize_contract_audit_count": post_contract, "planned_workflow_post_sanitize_primary_validation_count": post_primary, "planned_workflow_post_sanitize_second_oracle_count": post_oracle, "planned_workflow_post_sanitize_summary_recompute_count": post_summary, "planned_workflow_post_sanitize_semantic_revalidation_pass": post_contract == 1 and post_primary == 1 and post_oracle == 1 and post_summary == 1, "planned_workflow_security_hygiene_result_enrichment_count": security_enrichment, "planned_workflow_security_hygiene_secret_staged_runtime_source_count": security_runtime_source, "planned_workflow_security_hygiene_fail_closed_count": security_fail_closed, "planned_workflow_security_hygiene_contract_pass": security_enrichment == 1 and security_runtime_source == 1 and security_fail_closed == 1, "planned_workflow_raw_run_zero_byte_fallback_count": fallback_marker_count, "planned_workflow_raw_run_nonempty_transcript_pass": fallback_transcript_pass, "evidence_validator_zero_byte_required_path_rejection_present": bool(zero_byte_rejection), "planned_workflow_input_identity_raw_nonempty_check_count": input_raw_check_count}
 
 
 def _hygiene_facts() -> dict[str, object]:
@@ -146,6 +188,11 @@ def _hygiene_facts() -> dict[str, object]:
     bound_branch = os.environ.get("VALIDATION_BRANCH") or os.environ.get("GITHUB_REF_NAME")
     authorized_ref = not bound_branch or bound_branch.startswith("phase5-classifier-shadow-validation-ci-r3r1") or bound_branch.startswith("phase5-classifier-shadow-validation-r3r1")
     return {"dependency_delta_count": dependency_delta, "schema_delta_count": schema_delta, "migration_delta_count": migration_delta, "git_diff_check_pass": diff_check, "tracked_raw_artifact_count": len(tracked_artifacts), "secret_staged_count": secret_staged, "protected_path_change_count": len(protected), "workflow_scope_pass": workflow_scope, "authorized_ref_binding_pass": authorized_ref, "deployment_started": False}
+
+
+def runtime_hygiene_facts() -> dict[str, object]:
+    """Expose the executable repository hygiene facts to workflow producers."""
+    return _hygiene_facts()
 
 
 def _mutated_value(proof: dict) -> object:
@@ -194,6 +241,41 @@ def _fixture_value(spec: dict[str, object]) -> object:
     if kind == "array": return ["synthetic"] * int(spec.get("count_eq", 1))
     if kind == "object": return {}
     raise ValueError(f"unsupported fixture contract type: {kind}")
+
+
+PRODUCER_CONTRACT_CLOSED_TYPE_VOCABULARY = {"integer", "number", "string", "boolean", "array", "object"}
+
+
+def _fixture_type_vocabulary_audit() -> dict[str, object]:
+    """Ensure test fixture generators handle every active producer contract type."""
+    test_text = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "backend/tests").glob("test_phase5*.py"))
+    producer_types = {
+        spec.get("type")
+        for contract in PRODUCER_RESULT_CONTRACTS.values()
+        for spec in contract.get("required_paths", {}).values()
+        if spec.get("type")
+    }
+    spec_types = {
+        proof.get("expected_type")
+        for entry in json.loads((ROOT / "contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json").read_text(encoding="utf-8")).get("entries", [])
+        for proof in entry.get("proofs", [])
+        if proof.get("expected_type")
+    }
+    fixture_branches = {
+        kind for kind in PRODUCER_CONTRACT_CLOSED_TYPE_VOCABULARY
+        if re.search(rf'spec(?:\.get\(\"type\"\)|\[\"type\"\])\s*==\s*[\"\']{kind}[\"\']', test_text)
+    }
+    unsupported_active = sorted((producer_types | spec_types) - fixture_branches)
+    generator_count = len(re.findall(r"def\s+_contract_value\s*\(", test_text))
+    return {
+        "ASSERTION_EVIDENCE_EXPECTED_TYPE_SET": sorted(spec_types),
+        "PRODUCER_CONTRACT_CLOSED_TYPE_VOCABULARY": sorted(PRODUCER_CONTRACT_CLOSED_TYPE_VOCABULARY),
+        "FINALIZER_FIXTURE_SUPPORTED_TYPE_SET": sorted(fixture_branches),
+        "PHASE5_FIXTURE_TYPE_GENERATOR_COUNT": generator_count,
+        "PHASE5_FIXTURE_UNSUPPORTED_ACTIVE_TYPE_COUNT": len(unsupported_active),
+        "PHASE5_FIXTURE_UNSUPPORTED_ACTIVE_TYPES": unsupported_active,
+        "PHASE5_FIXTURE_CONTRACT_VOCABULARY_PASS": generator_count >= 1 and not unsupported_active and producer_types <= PRODUCER_CONTRACT_CLOSED_TYPE_VOCABULARY and spec_types <= PRODUCER_CONTRACT_CLOSED_TYPE_VOCABULARY,
+    }
 
 
 def _set_json_path(payload: dict[str, object], path: str, value: object) -> None:
@@ -323,10 +405,14 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
         **critical,
     }
     planned = _planned_workflow_checks(planned_workflow)
+    fixture_audit = _fixture_type_vocabulary_audit()
+    planned_gate = (not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] >= 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0 and planned["local_precommit_native_sqlserver_execution_required"] is False and planned["local_full_backend_excludes_native_sqlserver_module"] and planned["remote_workflow_native_sqlserver_execution_required"] and planned["remote_workflow_native_sqlserver_test_command_present"] and planned["remote_workflow_native_sqlserver_test_count"] == 16 and planned["remote_workflow_full_backend_excludes_runtime_module"] and planned["remote_workflow_real_browser_required"] and planned["remote_workflow_real_browser_uses_sqlserver_backed_api"] and planned["local_runtime_evidence_promoted_to_remote_acceptance_count"] == 0 and planned["planned_workflow_shell_helper_scope_pass"] and planned["planned_workflow_same_step_env_scope_pass"] and planned["planned_workflow_security_hygiene_contract_pass"] and planned["planned_workflow_post_sanitize_semantic_revalidation_pass"] and planned["planned_workflow_raw_run_zero_byte_fallback_count"] == 1 and planned["planned_workflow_raw_run_nonempty_transcript_pass"] and planned["evidence_validator_zero_byte_required_path_rejection_present"] and planned["planned_workflow_input_identity_raw_nonempty_check_count"] == 1))
     source_semantic_fact_count = sum(1 for path in REQUIRED_PATHS if (ROOT / path).is_file()) + len(assertion)
     source_semantic_literal_expected_assignment_count = len(re.findall(r"(?:observed|value)\s*=\s*expected\b", all_text))
     source_semantic_unresolved_derivation_count = sum(1 for item in assertion.values() for proof in item["proof_specs"] if not proof.get("json_path") or not proof.get("producer_id"))
     checks.update({"assertion_policy": len(assertion) == 300, "assertion_spec_substantive": assertion_audit.get("substantive_field_proof_count") == 300 and assertion_audit.get("generic_result_only_count") == 0, "mutation_matrix": mutation["case_count"] == 300 and mutation["pass_count"] == 300 and mutation["false_accept_count"] == 0, "source_fact_derivation": source_semantic_literal_expected_assignment_count == 0 and source_semantic_unresolved_derivation_count == 0, "predicate_registry": not predicate_missing, "pipeline_dag": dag["topological_order_pass"] and dag["cycle_count"] == 0, "summary_source_map": len(SUMMARY_FIELD_SOURCE_MAP) == 17 and all(item.get("producer_ids") and item.get("json_paths") and item.get("expected_type") for item in SUMMARY_FIELD_SOURCE_MAP.values()), "producer_contracts": not contract_missing and not contract_unknown and len(PRODUCER_RESULT_CONTRACTS) == len(EVIDENCE_PRODUCERS), "summary_contracts": not summary_contract_missing and not summary_type_mismatch, "assertion_contracts": not assertion_path_missing and not assertion_type_mismatch and not assertion_operator_incompatible and not semantic_relevance_fail, "final_summary_schema": (ROOT / "contracts/amec/phase5/AMEC_PHASE5_FINAL_SUMMARY_v1.schema.json").is_file(), "sanitizer_reconciliation": "SANITIZED_POST_MANIFEST_RECONCILIATION" in (ROOT / "scripts/phase5/sanitize_evidence.py").read_text(encoding="utf-8"), "planned_workflow": not planned_workflow or (planned["planned_workflow_stage_order_pass"] and planned["planned_workflow_cycle_count"] == 0 and planned["planned_workflow_preseeded_finalizer_count"] == 0 and planned["planned_workflow_working_evidence_upload_count"] == 0 and planned["planned_workflow_sanitized_upload_count"] >= 1 and planned["planned_workflow_unknown_cli_argument_count"] == 0 and planned["planned_workflow_missing_required_cli_argument_count"] == 0 and planned["local_precommit_native_sqlserver_execution_required"] is False and planned["local_full_backend_excludes_native_sqlserver_module"] and planned["remote_workflow_native_sqlserver_execution_required"] and planned["remote_workflow_native_sqlserver_test_command_present"] and planned["remote_workflow_native_sqlserver_test_count"] == 16 and planned["remote_workflow_full_backend_excludes_runtime_module"] and planned["remote_workflow_real_browser_required"] and planned["remote_workflow_real_browser_uses_sqlserver_backed_api"] and planned["local_runtime_evidence_promoted_to_remote_acceptance_count"] == 0)})
+    checks["planned_workflow"] = planned_gate
+    checks["fixture_contract_vocabulary"] = fixture_audit["PHASE5_FIXTURE_CONTRACT_VOCABULARY_PASS"]
     checks["mutation_matrix"] = checks["mutation_matrix"] and artifact_mutation["case_count"] == 300 and artifact_mutation["primary_reject_count"] == 300 and artifact_mutation["independent_reject_count"] == 300 and artifact_mutation["disagreement_count"] == 0
     result = {
         "version": 6, "result": "PASS" if all(checks.values()) else "FAIL",
@@ -340,6 +426,7 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
         "C19C": critical["C19C_finalizer_meta_triple_binding"], "C07": critical["C07_corpus_coverage"], "C20": critical["C20_sanitized_paths"],
         "category_count": len(CATEGORY_EVIDENCE_POLICY), "requirement_assertion_count": sum(len(items) for items in REQUIREMENT_GROUPS.values()), "assertion_policy_count": len(assertion), "assertion_evidence_spec_count": len(assertion), "assertion_evidence_spec_missing_count": assertion_audit.get("missing_count", 0), "assertion_evidence_spec_unknown_count": assertion_audit.get("unknown_assertion_count", 0), "assertion_evidence_spec_duplicate_key_count": assertion_audit.get("duplicate_key_count", 0), "assertion_evidence_spec_default_fallback_count": assertion_audit.get("default_fallback_count", 0), "assertion_evidence_spec_keyword_heuristic_count": assertion_audit.get("keyword_heuristic_count", 0), "assertion_evidence_spec_empty_proof_count": assertion_audit.get("empty_proof_count", 0), "assertion_with_substantive_field_proof_count": assertion_audit.get("substantive_field_proof_count", 0), "assertion_with_only_top_level_result_proof_count": assertion_audit.get("generic_result_only_count", 0), "assertion_semantic_mutation_case_count": mutation["case_count"], "assertion_semantic_mutation_pass": mutation["pass_count"], "assertion_semantic_mutation_false_accept_count": mutation["false_accept_count"], "assertion_mutation_only_top_level_result_count": mutation["only_top_level_result_count"], "assertion_mutation_tautology_count": mutation["tautology_count"], "assertion_mutation_missing_path_count": mutation["missing_path_count"], "assertion_mutation_wrong_assertion_failure_count": mutation["wrong_assertion_failure_count"], "source_semantic_fact_count": source_semantic_fact_count, "source_semantic_fact_literal_expected_assignment_count": source_semantic_literal_expected_assignment_count, "source_semantic_fact_unresolved_derivation_count": source_semantic_unresolved_derivation_count, "producer_result_contract_count": len(PRODUCER_RESULT_CONTRACTS), "producer_result_contract_missing_count": len(contract_missing), "producer_result_contract_unknown_count": len(contract_unknown), "summary_consumed_path_count": 17, "summary_consumed_path_undeclared_count": len(summary_contract_missing), "assertion_consumed_path_undeclared_count": len(assertion_path_missing), "producer_result_contract_type_gap_count": len(summary_type_mismatch), "finalizer_summary_source_contract_audit_count": 17, "finalizer_summary_source_contract_audit_pass": 17 - len(summary_contract_missing) - len(summary_type_mismatch), "finalizer_summary_source_unprovable_path_count": len(summary_contract_missing), "finalizer_summary_source_type_mismatch_count": len(summary_type_mismatch), "finalizer_summary_derived_field_count": len(SUMMARY_FIELD_SOURCE_MAP), "final_summary_schema_conformance_static": "PASS" if checks["final_summary_schema"] else "FAIL", "sanitizer_post_manifest_independent_reconciliation_present": checks["sanitizer_reconciliation"], "sanitizer_negative_case_count": 6, "sanitizer_negative_false_accept_count": 0, "pipeline_stage_count": len(PIPELINE_STAGES), "pipeline_cycle_count": dag["cycle_count"], "pipeline_topological_order_pass": dag["topological_order_pass"], "finalizer_summary_source_map_count": len(SUMMARY_FIELD_SOURCE_MAP), "finalizer_summary_literal_fallback_count": 0, "sanitizer_v2_post_hash_reconciliation_present": critical["C20_sanitized_paths"], "authority": authority, **planned,
     }
+    result.update(fixture_audit)
     result.update(hygiene)
     result.update({"assertion_semantic_audit_count": len(spec_raw.get("entries", [])), "assertion_semantic_relevance_pass": len(spec_raw.get("entries", [])) - len(semantic_relevance_fail), "assertion_semantic_relevance_fail": len(semantic_relevance_fail), "assertion_proof_type_mismatch_count": len(assertion_type_mismatch), "assertion_proof_operator_type_incompatible_count": len(assertion_operator_incompatible), "semantic_mutation_case_count": artifact_mutation["case_count"], "primary_mutation_reject_count": artifact_mutation["primary_reject_count"], "primary_mutation_false_accept_count": artifact_mutation["primary_false_accept_count"], "independent_mutation_reject_count": artifact_mutation["independent_reject_count"], "independent_mutation_false_accept_count": artifact_mutation["independent_false_accept_count"], "primary_independent_mutation_disagreement_count": artifact_mutation["disagreement_count"]})
     output = output_path or (PHASE5_ARTIFACTS.parent / "phase5-r3r1-source-preflight-v4.json")
