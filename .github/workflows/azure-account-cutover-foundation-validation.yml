@@ -1,0 +1,60 @@
+name: Azure foundation account cutover validation
+
+on:
+  push:
+    branches:
+      - azure-account-cutover-foundation-r2r2-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-foundation-cutover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact cutover head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Prove branch and R2R2 ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "azure-account-cutover-foundation-r2r2-v1"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git merge-base --is-ancestor ce8a887703ec8c15c8c781e1589e169ce395845a HEAD
+          echo FOUNDATION_R2R2_ANCESTRY=PASS
+
+      - name: Run account-neutral foundation cutover gate
+        shell: bash
+        run: bash scripts/azure_sql_foundation/validate_account_cutover.sh
+
+      - name: Compile current Azure SQL foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          az bicep install
+          az bicep build --file infra/azure_sql_foundation/main.bicep --stdout >/tmp/proposalops-foundation.json
+          test -s /tmp/proposalops-foundation.json
+          echo BICEP_BUILD=PASS
+
+      - name: Preserve accepted R2R2 source topology
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse ce8a887703ec8c15c8c781e1589e169ce395845a:infra/azure_sql_foundation/main.bicep)" = "$(git rev-parse HEAD:infra/azure_sql_foundation/main.bicep)"
+          test "$(git rev-parse ce8a887703ec8c15c8c781e1589e169ce395845a:infra/azure_sql_foundation/modules/network.bicep)" = "$(git rev-parse HEAD:infra/azure_sql_foundation/modules/network.bicep)"
+          test "$(git rev-parse ce8a887703ec8c15c8c781e1589e169ce395845a:infra/azure_sql_foundation/modules/core.bicep)" = "$(git rev-parse HEAD:infra/azure_sql_foundation/modules/core.bicep)"
+          test "$(git rev-parse ce8a887703ec8c15c8c781e1589e169ce395845a:infra/azure_sql_foundation/modules/private_dns.bicep)" = "$(git rev-parse HEAD:infra/azure_sql_foundation/modules/private_dns.bicep)"
+          test "$(git rev-parse ce8a887703ec8c15c8c781e1589e169ce395845a:infra/azure_sql_foundation/modules/budget.bicep)" = "$(git rev-parse HEAD:infra/azure_sql_foundation/modules/budget.bicep)"
+          echo R2R2_FOUNDATION_BYTES_PRESERVED=PASS
+
+      - name: Final no-mutation boundary
+        run: |
+          echo AZURE_LOGIN_EXECUTED=false
+          echo AZURE_RESOURCE_MUTATION_COUNT=0
+          echo ENTRA_MUTATION_COUNT=0
+          echo REAL_AMEC_DATA_USED=false
+          echo FOUNDATION_ACCOUNT_CUTOVER_VALIDATION=PASS
