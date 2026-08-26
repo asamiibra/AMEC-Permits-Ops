@@ -79,11 +79,11 @@ grep -Fq "serviceName: 'Microsoft.Web/serverFarms'" infra/azure_sql_foundation/m
 grep -Fq "registrationEnabled: false" infra/azure_sql_foundation/modules/private_dns.bicep
 grep -Fq "location: 'global'" infra/azure_sql_foundation/modules/private_dns.bicep
 
-# The account cutover itself is read-only with respect to Azure/Entra.
-if grep -RInE 'azure/login|az[[:space:]]+login|az[[:space:]]+account[[:space:]]+set|az[[:space:]]+deployment.+create|az[[:space:]]+group[[:space:]]+create|az[[:space:]]+provider[[:space:]]+register' \
-  .github/workflows/azure-account-cutover-foundation-validation.yml \
-  scripts/azure_sql_foundation/validate_account_cutover.sh; then
-  echo 'FAIL mutation/login command found in cutover validation lane' >&2
+# The workflow itself must remain read-only with respect to Azure/Entra. The audit
+# script contains these command names as deny patterns, so do not self-scan it.
+if grep -InE 'azure/login|az[[:space:]]+login|az[[:space:]]+account[[:space:]]+set|az[[:space:]]+deployment.+create|az[[:space:]]+group[[:space:]]+create|az[[:space:]]+provider[[:space:]]+register' \
+  .github/workflows/azure-account-cutover-foundation-validation.yml; then
+  echo 'FAIL mutation/login command found in cutover workflow' >&2
   failures=$((failures + 1))
 fi
 
