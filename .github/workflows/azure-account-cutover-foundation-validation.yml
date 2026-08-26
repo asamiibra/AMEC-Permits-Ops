@@ -16,7 +16,7 @@ jobs:
       - name: Checkout exact cutover head
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Prove branch and R2R2 ancestry
         shell: bash
