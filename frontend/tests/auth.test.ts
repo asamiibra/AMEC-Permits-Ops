@@ -8,7 +8,7 @@ import {
 } from "vitest";
 
 const TENANT_ID =
-  "b27ffe53-8d31-4735-a07a-faa50c336d97";
+  "11111111-1111-4111-8111-111111111111";
 const WEB_CLIENT_ID =
   "11111111-2222-4333-8444-555555555555";
 const API_CLIENT_ID =

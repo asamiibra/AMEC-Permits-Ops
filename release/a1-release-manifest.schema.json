@@ -36,7 +36,7 @@
       "type": "object",
       "required": ["subscription_id", "region"],
       "properties": {
-        "subscription_id": {"const": "61080f8b-16cb-4abc-bb8c-5d8e59ab15bf"},
+        "subscription_id": {"const": "2bea2887-9255-4273-a73f-43ae33813455"},
         "region": {"const": "qatarcentral"},
         "resource_group": {"type": ["string", "null"], "minLength": 1},
         "frontend_site": {"type": ["string", "null"], "minLength": 1},

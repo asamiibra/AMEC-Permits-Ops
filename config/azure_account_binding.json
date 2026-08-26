@@ -1,0 +1,7 @@
+{
+  "schema_version": "PROPOSALOPS_AZURE_ACCOUNT_BINDING_V1",
+  "subscription_id": "2bea2887-9255-4273-a73f-43ae33813455",
+  "subscription_display_name": "AMEC Subscription",
+  "tenant_id": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+  "region": "qatarcentral"
+}
