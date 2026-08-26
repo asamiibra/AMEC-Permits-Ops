@@ -15,6 +15,9 @@ GUID = re.compile(
 SHA1 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 IMMUTABLE_IMAGE = re.compile(r"^.+@sha256:([0-9a-f]{64})$")
+ROOT = Path(__file__).resolve().parents[2]
+ACCOUNT_BINDING_PATH = ROOT / "config" / "azure_account_binding.json"
+RELEASE_SCHEMA_PATH = ROOT / "release" / "a1-release-manifest.schema.json"
 
 
 def _required(mapping: dict[str, Any], key: str, label: str) -> Any:
@@ -22,6 +25,45 @@ def _required(mapping: dict[str, Any], key: str, label: str) -> Any:
     if value is None or value == "":
         raise ValueError(f"missing {label}")
     return value
+
+
+def _load_account_binding() -> dict[str, str]:
+    try:
+        binding = json.loads(ACCOUNT_BINDING_PATH.read_text(encoding="utf-8"))
+        schema = json.loads(RELEASE_SCHEMA_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError("Azure account binding is unreadable") from exc
+
+    if not isinstance(binding, dict):
+        raise ValueError("Azure account binding must be an object")
+    if binding.get("schema_version") != "PROPOSALOPS_AZURE_ACCOUNT_BINDING_V1":
+        raise ValueError("unsupported Azure account binding schema")
+
+    expected = {}
+    for key in ("subscription_id", "tenant_id", "subscription_display_name", "region"):
+        value = _required(binding, key, f"account_binding.{key}")
+        if not isinstance(value, str):
+            raise ValueError(f"account_binding.{key} must be a string")
+        expected[key] = value
+
+    if not GUID.fullmatch(expected["subscription_id"]):
+        raise ValueError("account binding subscription_id is invalid")
+    if not GUID.fullmatch(expected["tenant_id"]):
+        raise ValueError("account binding tenant_id is invalid")
+    if expected["region"] != "qatarcentral":
+        raise ValueError("account binding region is not qatarcentral")
+
+    try:
+        schema_subscription = schema["properties"]["azure"]["properties"]["subscription_id"]["const"]
+        schema_region = schema["properties"]["azure"]["properties"]["region"]["const"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("release schema Azure account gate is missing") from exc
+    if schema_subscription != expected["subscription_id"]:
+        raise ValueError("release schema subscription binding drift")
+    if schema_region != expected["region"]:
+        raise ValueError("release schema region binding drift")
+
+    return expected
 
 
 def _verify_image(name: str, image: Any, source_sha: str) -> None:
@@ -44,7 +86,7 @@ def _verify_image(name: str, image: Any, source_sha: str) -> None:
         raise ValueError(f"{name}.base_image_digest is invalid")
 
 
-def _verify_entra(entra: dict[str, Any], deployed: bool) -> None:
+def _verify_entra(entra: dict[str, Any], deployed: bool, expected_tenant_id: str) -> None:
     if entra.get("required_scope") != "access_as_user":
         raise ValueError("invalid Entra token scope")
     if entra.get("requested_access_token_version") != 2:
@@ -56,6 +98,8 @@ def _verify_entra(entra: dict[str, Any], deployed: bool) -> None:
             raise ValueError("invalid or incomplete Entra identifiers")
         if len({value.lower() for value in values}) != len(values):
             raise ValueError("Entra identifiers must be distinct")
+        if entra.get("tenant_id", "").lower() != expected_tenant_id.lower():
+            raise ValueError("wrong Entra tenant")
 
 
 def _verify_evidence(evidence: Any) -> None:
@@ -72,6 +116,7 @@ def _verify_evidence(evidence: Any) -> None:
 
 
 def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> None:
+    account = _load_account_binding()
     if not isinstance(document, dict):
         raise ValueError("manifest must be an object")
     if document.get("repository") != "asamiibra/AMEC-Permits-Ops":
@@ -88,9 +133,9 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
     azure = document.get("azure")
     if not isinstance(azure, dict):
         raise ValueError("azure section is required")
-    if azure.get("subscription_id") != "61080f8b-16cb-4abc-bb8c-5d8e59ab15bf":
+    if azure.get("subscription_id") != account["subscription_id"]:
         raise ValueError("wrong subscription")
-    if azure.get("region") != "qatarcentral":
+    if azure.get("region") != account["region"]:
         raise ValueError("wrong region")
 
     database = document.get("database")
@@ -104,7 +149,7 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
     entra = document.get("entra")
     if not isinstance(entra, dict):
         raise ValueError("entra section is required")
-    _verify_entra(entra, stage == "DEPLOYED")
+    _verify_entra(entra, stage == "DEPLOYED", account["tenant_id"])
 
     safety = document.get("safety")
     if not isinstance(safety, dict):
