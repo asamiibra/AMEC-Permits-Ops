@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from scripts.phase5.browser_evidence import REQUIRED_BROWSER_PATHS
@@ -217,3 +219,51 @@ def test_preflight_covers_helper_scope_env_scope_and_required_triplet_transcript
         "evidence_validator_zero_byte_required_path_rejection_present",
     ):
         assert marker in source
+
+
+def test_source_preflight_cli_emits_final_mutation_matrix_to_caller_path(tmp_path: Path):
+    result_path = tmp_path / "source-preflight.result.json"
+    matrix_path = tmp_path / "caller-controlled" / "semantic-mutation-matrix.json"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/phase5/source_preflight.py",
+            "--output",
+            str(result_path),
+            "--semantic-mutation-output",
+            str(matrix_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+    assert result_path.stat().st_size > 0
+    assert matrix_path.stat().st_size > 0
+    matrix = json.loads(matrix_path.read_text(encoding="utf-8"))
+    assert matrix["version"] == 2
+    assert matrix["result"] == "PASS"
+    assert matrix["case_count"] == 300
+    assert matrix["primary_reject_count"] == 300
+    assert matrix["primary_false_accept_count"] == 0
+    assert matrix["independent_reject_count"] == 300
+    assert matrix["independent_false_accept_count"] == 0
+    assert matrix["disagreement_count"] == 0
+    keys = [(case["category"], case["assertion"]) for case in matrix["cases"]]
+    assert len(keys) == 300
+    assert len(set(keys)) == 300
+    assert "phase5-r3r1r5-semantic-mutation-matrix.json" not in matrix_path.name
+
+
+def test_source_preflight_matrix_output_is_not_release_qualified():
+    source = Path("scripts/phase5/source_preflight.py").read_text(encoding="utf-8")
+    assert "semantic_mutation_output" in source
+    assert "output_path or (ROOT / \"artifacts\" / \"phase5-r3r1r5-semantic-mutation-matrix.json\")" in source
+
+
+def test_no_consumer_depends_on_historical_r5_semantic_matrix_name():
+    source = Path("scripts/phase5/source_preflight.py").read_text(encoding="utf-8")
+    assert not any(
+        "phase5-r3r1r5-semantic-mutation-matrix.json" in line and "read_text" in line
+        for line in source.splitlines()
+    )

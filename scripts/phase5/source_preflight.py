@@ -290,7 +290,7 @@ def _set_json_path(payload: dict[str, object], path: str, value: object) -> None
     node[parts[-1]] = value
 
 
-def _run_artifact_semantic_mutation_matrix(assertion: dict[tuple[str, str], dict]) -> dict[str, object]:
+def _run_artifact_semantic_mutation_matrix(assertion: dict[tuple[str, str], dict], output_path: Path | None = None) -> dict[str, object]:
     """Rewrite evidence bytes and run both validators for every assertion row."""
     candidate = "a" * 40
     validation = "b" * 40
@@ -329,13 +329,13 @@ def _run_artifact_semantic_mutation_matrix(assertion: dict[tuple[str, str], dict
     primary_reject_count = sum(bool(row["primary_rejected"]) for row in rows)
     independent_reject_count = sum(bool(row["independent_rejected"]) for row in rows)
     result = {"version": 2, "result": "PASS" if len(rows) == 300 and primary_reject_count == 300 and independent_reject_count == 300 else "FAIL", "case_count": len(rows), "primary_reject_count": primary_reject_count, "primary_false_accept_count": len(rows) - primary_reject_count, "independent_reject_count": independent_reject_count, "independent_false_accept_count": len(rows) - independent_reject_count, "disagreement_count": sum(row["primary_rejected"] != row["independent_rejected"] for row in rows), "cases": rows}
-    output = ROOT / "artifacts" / "phase5-r3r1r5-semantic-mutation-matrix.json"
+    output = output_path or (ROOT / "artifacts" / "phase5-r3r1r5-semantic-mutation-matrix.json")
     output.parent.mkdir(parents=True, exist_ok=True)
     write_json(output, result)
     return result
 
 
-def run(output_path: Path | None = None, planned_workflow: Path | None = None) -> dict:
+def run(output_path: Path | None = None, planned_workflow: Path | None = None, semantic_mutation_output: Path | None = None) -> dict:
     missing = [path for path in REQUIRED_PATHS if not (ROOT / path).is_file()]
     scripts = sorted((ROOT / "scripts/phase5").glob("*.py"))
     specs = sorted((ROOT / "frontend/browser-real-stack").glob("phase5-*.spec.ts"))
@@ -351,7 +351,7 @@ def run(output_path: Path | None = None, planned_workflow: Path | None = None) -
     assertion = assertion_policy(REQUIREMENT_GROUPS)
     assertion_audit = assertion_policy_audit(REQUIREMENT_GROUPS)
     mutation = _run_semantic_mutation_matrix(assertion)
-    artifact_mutation = _run_artifact_semantic_mutation_matrix(assertion)
+    artifact_mutation = _run_artifact_semantic_mutation_matrix(assertion, semantic_mutation_output)
     contract_missing = sorted(set(EVIDENCE_PRODUCERS) - set(PRODUCER_RESULT_CONTRACTS))
     contract_unknown = sorted(set(PRODUCER_RESULT_CONTRACTS) - set(EVIDENCE_PRODUCERS))
     summary_contract_missing = []
@@ -440,5 +440,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path)
     parser.add_argument("--planned-workflow", type=Path)
+    parser.add_argument("--semantic-mutation-output", type=Path)
     args = parser.parse_args()
-    raise SystemExit(0 if run(args.output, args.planned_workflow)["result"] == "PASS" else 1)
+    raise SystemExit(0 if run(args.output, args.planned_workflow, args.semantic_mutation_output)["result"] == "PASS" else 1)
