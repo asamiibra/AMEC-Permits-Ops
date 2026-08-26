@@ -546,14 +546,14 @@ def test_owner_instructions_use_exact_candidate_external_acceptance_only():
     text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
     assert text.count("R1.1 handoff acceptance") == 0
     assert text.count("R1.2 handoff acceptance") == 0
-    assert "independent acceptance has passed for this exact R1.5 handoff candidate" in text
+    assert "independent acceptance has passed for this exact R1.6 handoff candidate" in text
     assert "T3_OWNER_EXECUTION_READY=false" in text
 
 
-def test_handoff_image_ref_is_r1r5(tmp_path):
-    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R5", "7400a2c50d69a2b57c23239412b8275f129ab57c")
+def test_handoff_image_ref_is_r1r6(tmp_path):
+    bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R6", "7400a2c50d69a2b57c23239412b8275f129ab57c")
     policy = json.loads((bundle / "06_IMAGE_BUILD_POLICY.json").read_text())
-    assert policy["image_ref"] == "proposalops/syn-t3:r1r5-7400a2c50d69"
+    assert policy["image_ref"] == "proposalops/syn-t3:r1r6-7400a2c50d69"
 
 
 def test_handoff_registry_cannot_self_authorize_owner_execution(tmp_path):
@@ -926,9 +926,12 @@ def test_r1r5_all_shipped_owner_shell_python_invocations_use_b():
                 assert "-B" in line, (name, line)
 
 
-def test_r1r5_scope_accepts_only_r1r5_workflow():
-    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r5.yml"]) == []
+def test_r1r6_scope_accepts_r1r6_workflow_and_rejects_frozen_paths():
+    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r6.yml"]) == []
     assert validate_paths(["backend/app/storage/smb.py"]) != []
+    assert validate_paths(["backend/app/config/settings.py"]) != []
+    assert validate_paths(["backend/requirements.txt"]) != []
+    assert validate_paths(["frontend/src/App.tsx", "infra/docker.yml", "deploy/app.yml", "migrations/001.sql", "scripts/phase5/x.py", "contracts/amec/phase5/x.json"])
 
 
 def test_r1r5_handoff_copies_verify_helper(tmp_path):
@@ -963,6 +966,63 @@ def test_r1r5_bootstrap_only_is_explicitly_unset_before_live_run():
     text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
     assert "unset T3_BOOTSTRAP_ONLY" in text
     assert 'test -z "${T3_BOOTSTRAP_ONLY+x}"' in text
+
+
+def test_r1r6_wrapper_preserves_root_controlled_canonical_pre():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
+    assert 'test "$pre_state"' not in text
+    assert 'test "$(stat -c \'%u:%g\' "$pre_state"' in text
+    assert 'test "$(stat -c \'%a\' "$pre_state"' in text
+    assert 'chown 10001:10001 "$pre_state"' not in text
+    assert 'chmod 600 "$pre_state"' not in text
+
+
+def test_r1r6_runtime_pre_is_run_scoped_and_collision_safe():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
+    assert 'runtime_pre_dir="$T3_CONTROL_DIR/.runtime-pre-$run_id"' in text
+    assert 'runtime_pre="$runtime_pre_dir/10_DSM_PRE_STATE.json"' in text
+    assert 'test ! -e "$runtime_pre_dir" || stop STOP_T3_RUNTIME_PRE_COLLISION' in text
+    assert 'runtime_pre_created=0' in text and 'runtime_pre_created=1' in text
+    assert 'if test "$runtime_pre_created" = 1;' in text
+
+
+def test_r1r6_runtime_pre_identity_and_digest_equality_are_enforced():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
+    assert 'chown 10001:10001 "$runtime_pre"; chmod 400 "$runtime_pre"' in text
+    assert 'canonical_pre_sha_before' in text and 'runtime_pre_sha' in text and 'canonical_pre_sha_after' in text
+    assert 'STOP_T3_RUNTIME_PRE_DIGEST_MISMATCH' in text
+
+
+def test_r1r6_runtime_pre_canary_reads_json_without_network():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
+    assert '--network=none' in text
+    assert '--mount "type=bind,src=$runtime_pre,dst=/control/10_DSM_PRE_STATE.json,readonly"' in text
+    assert 'json.loads(pre)' in text and 'pre_sha256' in text and 'pre_phase' in text
+    assert 'STOP_T3_RUNTIME_PRE_BIND_CANARY' in text
+
+
+def test_r1r6_final_runner_binds_runtime_pre_only():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
+    mount = 'src=$runtime_pre,dst=/control/10_DSM_PRE_STATE.json,readonly'
+    canonical_mount = 'src=$pre_state,dst=/control/10_DSM_PRE_STATE.json,readonly'
+    assert text.count(mount) >= 2
+    assert canonical_mount not in text
+
+
+def test_r1r6_bootstrap_evidence_contains_sanitized_pre_bind_fields():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/run_t3_owner_dsm.sh").read_text()
+    for field in ("canonical_pre_owner", "canonical_pre_mode", "runtime_pre_owner", "runtime_pre_mode", "canonical_pre_sha_before", "runtime_pre_sha", "canonical_pre_sha_after", "runtime_pre_digest_match", "runtime_pre_bind_canary_network_mode", "runtime_pre_bind_canary_euid", "runtime_pre_bind_canary_egid", "runtime_pre_bind_canary_read", "runtime_pre_cleanup_registered"):
+        assert field in text
+
+
+def test_r1r6_owner_instructions_freeze_failed_r1r5_and_require_acceptance():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
+    assert "R1.6" in text
+    assert "SYN-T3-20260825T214812Z" in text
+    assert "frozen historical failed evidence" in text
+    assert "Canonical PRE" in text and "root:root" in text and "0600" in text
+    assert "byte-identical" in text and "10001:10001" in text and "0400" in text
+    assert "T3_OWNER_EXECUTION_READY=false" in text
 
 
 @pytest.mark.parametrize("api", ["removeprefix", "removesuffix", "is_relative_to", "tomllib", "ExceptionGroup"])
