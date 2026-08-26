@@ -1,0 +1,555 @@
+name: ProposalOps production integration acceptance R1 validation
+
+on:
+  push:
+    branches:
+      - proposalops-production-integration-acceptance-r1-v1
+
+permissions:
+  contents: read
+
+env:
+  APPLICATION_BRANCH_PREFIX: proposalops-production-integration
+  APPLICATION_BRANCH_SUFFIX: v1
+  WORKFLOW_PATH: .github/workflows/production-integration-acceptance-r1.yml
+  APPLICATION_SHA: eec00021a308046998d9d1df1929628f319a96d4
+  APPLICATION_PARENT_SHA: 1a17b395fdaa2309a2832609486783fd1f1d8eca
+  VALIDATION_BRANCH: proposalops-production-integration-acceptance-r1-v1
+  PHASE5_SHA: c42e6c449483b0951de0f366d700dbaf7b9e5525
+  PHASE5_TREE: a497c6951064119453d175d1b93d4e59c9029fd0
+  HISTORICAL_MAIN_SHA: 3474b35a13d27f0010ec5d03dd4a2f361ac6774d
+  ACCOUNT_REBIND_SHA: 4a017b465300fc6c39b7807b24e08868479ec884
+  FOUNDATION_SHA: ce8a887703ec8c15c8c781e1589e169ce395845a
+  SQLSERVER_IMAGE_TAG: mcr.microsoft.com/mssql/server:2022-latest
+
+jobs:
+  validate:
+    name: Production integration acceptance validation
+    runs-on: ubuntu-22.04
+    timeout-minutes: 240
+    steps:
+      - name: Checkout immutable integration validation child
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Initialize deterministic evidence directories and helper generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          INTERNAL_EVIDENCE_DIR="$RUNNER_TEMP/production-integration-r1-internal"
+          BROWSER_EXPORT_DIR="$RUNNER_TEMP/production-integration-r1-browser-export"
+          FINAL_EXPORT_DIR="$RUNNER_TEMP/production-integration-r1-final-export"
+          rm -rf "$INTERNAL_EVIDENCE_DIR" "$BROWSER_EXPORT_DIR" "$FINAL_EXPORT_DIR"
+          mkdir -p "$INTERNAL_EVIDENCE_DIR" "$BROWSER_EXPORT_DIR" "$FINAL_EXPORT_DIR"
+          export INTERNAL_EVIDENCE_DIR BROWSER_EXPORT_DIR FINAL_EXPORT_DIR
+          echo "APPLICATION_BRANCH=${APPLICATION_BRANCH_PREFIX}-${APPLICATION_BRANCH_SUFFIX}" >> "$GITHUB_ENV"
+          echo "INTERNAL_EVIDENCE_DIR=$INTERNAL_EVIDENCE_DIR" >> "$GITHUB_ENV"
+          echo "BROWSER_EXPORT_DIR=$BROWSER_EXPORT_DIR" >> "$GITHUB_ENV"
+          echo "FINAL_EXPORT_DIR=$FINAL_EXPORT_DIR" >> "$GITHUB_ENV"
+          echo "INTERNAL_EVIDENCE_UPLOADED=false" >> "$GITHUB_ENV"
+          echo "EXPORT_EVIDENCE_ONLY_UPLOAD=true" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path(os.environ["INTERNAL_EVIDENCE_DIR"], "evidence-directory.result.json").write_text(json.dumps({"result":"PASS","internal_evidence_directory_created":True,"browser_export_directory_created":True,"final_export_directory_deferred":True,"internal_evidence_uploaded":False,"export_evidence_only_upload":True},indent=2,sort_keys=True)+"\n")
+          PY
+          cat > "$RUNNER_TEMP/production_integration_browser_exporter.py" <<'PY'
+          import hashlib, json, os, re, shutil, subprocess, sys
+          from pathlib import Path
+          internal, export, workspace, runner_temp, runner_home = map(Path, sys.argv[1:6])
+          secret_re=re.compile(r"SQLSERVER_PASSWORD|DATABASE_URL|access[_-]?token|bearer\\s+[A-Za-z0-9._-]+|client_secret|password=|pwd=",re.I)
+          local_re=re.compile(r"/home/runner|/Users/|/private/tmp|\\Users\\")
+          expected_paths={"browser-report.json","browser-quality.result.json"}; expected={"browser-report.sanitized.json","browser-quality.result.json","browser-export-lineage.json"}
+          def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+          def write(p,v): p.write_text(json.dumps(v,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+          path_files=[]; secret_files=[]
+          for p in sorted(internal.iterdir()):
+              if p.is_file():
+                  value=p.read_text(encoding="utf-8",errors="strict")
+                  if local_re.search(value): path_files.append(p.name)
+                  if secret_re.search(value): secret_files.append(p.name)
+          unexpected=sorted(set(path_files)-expected_paths)
+          hygiene={"result":"PASS" if not unexpected and not secret_files else "FAIL","internal_expected_path_bearing_files":sorted(expected_paths),"internal_local_path_files":sorted(path_files),"internal_unexpected_local_path_file_count":len(unexpected),"internal_secret_pattern_match_count":len(secret_files)}
+          write(internal/"internal-evidence-hygiene.json",hygiene)
+          if unexpected or secret_files: raise SystemExit("internal evidence hygiene failure")
+          raw=internal/"browser-report.json"; quality=internal/"browser-quality.result.json"
+          if not raw.is_file() or not quality.is_file(): raise SystemExit("browser-stage producer missing")
+          if export.exists(): shutil.rmtree(export)
+          export.mkdir(parents=True)
+          replacements=0
+          def norm(v):
+              global replacements
+              if not isinstance(v,str): return v
+              for actual,logical in sorted(((str(workspace),"$GITHUB_WORKSPACE"),(str(runner_temp),"$RUNNER_TEMP"),(str(runner_home),"$RUNNER_HOME")),key=lambda x:len(x[0]),reverse=True):
+                  if actual and actual in v: replacements += v.count(actual); v=v.replace(actual,logical)
+              return v
+          def tree(v):
+              if isinstance(v,dict): return {k:tree(x) for k,x in v.items()}
+              if isinstance(v,list): return [tree(x) for x in v]
+              return norm(v)
+          sanitized=export/"browser-report.sanitized.json"; write(sanitized,tree(json.loads(raw.read_text())))
+          oracle=runner_temp/"browser-quality-sanitized.json"
+          subprocess.run([sys.executable,str(workspace/"scripts/phase5/browser_evidence.py"),"--playwright-json",str(sanitized),"--spec",str(workspace/"frontend/browser-real-stack/phase5-classifier-shadow.spec.ts"),"--output",str(oracle)],check=True)
+          original=json.loads(quality.read_text()); observed=json.loads(oracle.read_text()); a=dict(original); b=dict(observed); a.pop("report_path",None); b.pop("report_path",None)
+          if a!=b: raise SystemExit("browser semantic equivalence failure")
+          exported=dict(original); exported["report_path"]="browser-report.sanitized.json"
+          write(export/"browser-quality.result.json",exported)
+          write(export/"browser-export-lineage.json",{"source_browser_report":"browser-report.json","source_browser_report_sha256":digest(raw),"export_browser_report":"browser-report.sanitized.json","export_browser_report_sha256":digest(sanitized),"path_replacement_count":replacements,"semantic_equivalence":"PASS","non_path_field_mismatch_count":0})
+          actual={p.name for p in export.iterdir() if p.is_file()}
+          if actual!=expected: raise SystemExit("browser export exact member mismatch")
+          if any(secret_re.search(p.read_text(errors="strict")) or local_re.search(p.read_text(errors="strict")) for p in export.iterdir() if p.is_file()): raise SystemExit("browser export portability failure")
+          print("BROWSER_EXPORT_MEMBER_COUNT=3"); print("BROWSER_SANITIZED_SEMANTIC_EQUIVALENCE=PASS"); print("BROWSER_QUALITY_NON_PATH_FIELD_MISMATCH_COUNT=0")
+          PY
+          chmod 700 "$RUNNER_TEMP/production_integration_browser_exporter.py"
+      - name: Identity, ancestry, and one-workflow binding gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'
+          cat > "$RUNNER_TEMP/production_integration_identity_gate.py" <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          def git(*a): return subprocess.check_output(["git",*a],text=True).strip()
+          repo=os.environ["GITHUB_REPOSITORY"]; ref=os.environ["GITHUB_WORKFLOW_REF"]; prefix=repo+"/"
+          assert ref.startswith(prefix); self_path=ref[len(prefix):].split("@",1)[0]; assert self_path==os.environ["WORKFLOW_PATH"]
+          app=os.environ["APPLICATION_SHA"]; assert os.environ["GITHUB_REF_NAME"]==os.environ["VALIDATION_BRANCH"]
+          assert git("rev-parse","HEAD^1")==app; assert git("rev-parse","HEAD^1^1")==os.environ["APPLICATION_PARENT_SHA"]
+          assert git("rev-parse",f"refs/remotes/origin/{os.environ['APPLICATION_BRANCH']}")==app
+          assert git("rev-parse",f"{app}^{{tree}}")=="495ad6e642076c36f65118f10a2b0fe37709fa2f"
+          assert git("rev-parse","refs/remotes/origin/main")==os.environ["HISTORICAL_MAIN_SHA"]
+          assert git("diff","--name-only",app,"HEAD").splitlines()==[os.environ["WORKFLOW_PATH"]]
+          phase5=os.environ["PHASE5_SHA"]; main=os.environ["HISTORICAL_MAIN_SHA"]
+          assert git("rev-parse",f"{phase5}^{{tree}}") == os.environ["PHASE5_TREE"]
+          subprocess.check_call(["git","merge-base","--is-ancestor",phase5,app]); subprocess.check_call(["git","merge-base","--is-ancestor",main,app])
+          matches=[]
+          for merge in git("rev-list","--merges",f"{phase5}..{app}").splitlines():
+              parents=git("rev-list","--parents","-n","1",merge).split()[1:]
+              if parents==[phase5,main] and git("rev-parse",f"{merge}^{{tree}}")==os.environ["PHASE5_TREE"]: matches.append(merge)
+          assert len(matches)==1
+          root=Path(os.environ["INTERNAL_EVIDENCE_DIR"]); merge=matches[0]
+          (root/"identity.json").write_text(json.dumps({"result":"PASS","application_sha":app,"application_parent_sha":os.environ["APPLICATION_PARENT_SHA"],"validation_parent_is_application":True,"validation_workflow_path":self_path,"validation_workflow_only_diff":True,"accepted_phase5_is_ancestor":True,"historical_main_is_ancestor":True,"accepted_phase5_tree":os.environ["PHASE5_TREE"],"main_reconciliation_merge_sha":merge,"main_reconciliation_merge_tree":os.environ["PHASE5_TREE"]},indent=2,sort_keys=True)+"\n")
+          (root/"main-reconciliation.json").write_text(json.dumps({"result":"PASS","merge_sha":merge,"merge_tree":os.environ["PHASE5_TREE"],"parent_one_phase5":True,"parent_two_historical_main":True,"accepted_phase5_tree_preserved":True},indent=2,sort_keys=True)+"\n")
+          PY
+          chmod 700 "$RUNNER_TEMP/production_integration_identity_gate.py"
+          python "$RUNNER_TEMP/production_integration_identity_gate.py"
+          echo "MAIN_MODIFIED=false" >> "$GITHUB_ENV"; echo "FORCE_PUSH_USED=false" >> "$GITHUB_ENV"; echo "APPLICATION_BRANCH_MOVED=false" >> "$GITHUB_ENV"
+      - name: Python, Node, ODBC Driver 18, and locked dependencies
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Pin Node 22 for frontend validation
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install validation dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev
+          odbcinst -q -d | grep -F "ODBC Driver 18 for SQL Server"
+          python -m pip install -r backend/requirements.txt
+          python -m pip check
+          (cd frontend && npm ci --silent)
+          python - <<'PY'
+          import json, platform
+          from pathlib import Path
+          Path(__import__("os").environ["INTERNAL_EVIDENCE_DIR"] + "/runner-platform.result.json").write_text(json.dumps({
+              "result": "PASS", "runner_platform": platform.platform(),
+              "architecture": platform.machine(), "native_x64": platform.machine() == "x86_64",
+              "odbc_driver_18_ready": True, "python_3_12_ready": True,
+              "npm_ci_ready": True
+          }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Explicit Playwright Chromium installation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          (cd frontend && npx playwright install --with-deps chromium)
+          printf 'PASS\n' > "$INTERNAL_EVIDENCE_DIR/playwright-install.result.txt"
+
+      - name: Account, release, foundation, and Phase5 source gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          python scripts/azure/audit_account_cutover.py > "$RUNNER_TEMP/account-audit.log"
+          python -m json.tool release/a1-release-manifest.schema.json > "$RUNNER_TEMP/release-schema.json"
+          APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false python -m pytest -q backend/tests/test_db_rebaseline.py > "$RUNNER_TEMP/account-test.log"
+          az bicep install
+          az bicep build --file infra/azure_sql_foundation/main.bicep --stdout > "$RUNNER_TEMP/foundation.bicep.json"
+          python -m json.tool "$RUNNER_TEMP/foundation.bicep.json" >/dev/null
+          test -s "$RUNNER_TEMP/foundation.bicep.json"
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          account = [
+              "backend/tests/test_db_rebaseline.py", "config/azure_account_binding.json",
+              "frontend/tests/auth.test.ts", "release/a1-release-manifest.schema.json",
+              "scripts/azure/audit_account_cutover.py", "scripts/release/verify_a1_release_manifest.py",
+          ]
+          foundation = [
+              "infra/azure_sql_foundation/foundation.bicepparam.example", "infra/azure_sql_foundation/main.bicep",
+              "infra/azure_sql_foundation/modules/budget.bicep", "infra/azure_sql_foundation/modules/core.bicep",
+              "infra/azure_sql_foundation/modules/network.bicep", "infra/azure_sql_foundation/modules/private_dns.bicep",
+          ]
+          def blob(commit, path):
+              return subprocess.check_output(["git", "rev-parse", f"{commit}:{path}"], text=True).strip()
+          def work(path):
+              return subprocess.check_output(["git", "hash-object", path], text=True).strip()
+          assert all(blob(os.environ["ACCOUNT_REBIND_SHA"], path) == work(path) for path in account)
+          assert all(blob(os.environ["FOUNDATION_SHA"], path) == work(path) for path in foundation)
+          frozen = []
+          for prefix in ("contracts/amec/phase5", "scripts/phase5"):
+              frozen.extend(subprocess.check_output(["git", "ls-tree", "-r", "--name-only", os.environ["PHASE5_SHA"], "--", prefix], text=True).splitlines())
+          frozen += ["backend/app/api/phase5.py", "backend/app/schemas/classifier_v2.py", "backend/app/services/classifier_v2.py"]
+          frozen += subprocess.check_output(["git", "ls-tree", "-r", "--name-only", os.environ["PHASE5_SHA"], "--", "backend/tests/test_phase5_*", "frontend/browser-real-stack/phase5-classifier-shadow.spec.ts"], text=True).splitlines()
+          frozen = sorted(set(frozen))
+          assert all(blob(os.environ["PHASE5_SHA"], path) == work(path) for path in frozen)
+          try:
+              subprocess.check_call(["git", "cat-file", "-e", os.environ["PHASE5_SHA"] + ":infra/azure_sql_foundation"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          except subprocess.CalledProcessError:
+              foundation_absent = True
+          else:
+              foundation_absent = False
+          assert foundation_absent
+          root = Path(os.environ["INTERNAL_EVIDENCE_DIR"])
+          (root / "source-parity.json").write_text(json.dumps({
+              "result": "PASS", "account_path_count": 6, "account_source_byte_parity_count": 6,
+              "account_source_byte_mismatch_count": 0, "foundation_path_count": 6,
+              "foundation_source_byte_parity_count": 6, "foundation_source_byte_mismatch_count": 0,
+              "phase5_frozen_path_mismatch_count": 0
+          }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          (root / "phase5-freeze.json").write_text(json.dumps({
+              "result": "PASS", "frozen_path_count": len(frozen),
+              "mismatch_count": 0, "accepted_source_mutated": False
+          }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          (root / "account-audit.result.txt").write_text("ACCOUNT_BINDING_AUDIT=PASS\n", encoding="utf-8")
+          (root / "release-validation.result.txt").write_text("RELEASE_MANIFEST_VALIDATION=PASS\n", encoding="utf-8")
+          (root / "foundation-bicep.result.json").write_text(json.dumps({
+              "result": "PASS", "compiled_json_nonempty": True, "azure_login_executed": False
+          }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+          git diff --check
+
+      - name: Start disposable native SQL Server 2022 x64
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          SQLSERVER_PASSWORD="$(openssl rand -hex 24)Aa!"
+          echo "::add-mask::$SQLSERVER_PASSWORD"
+          export SQLSERVER_PASSWORD
+          echo "SQLSERVER_PASSWORD=$SQLSERVER_PASSWORD" >> "$GITHUB_ENV"
+          SQL_CONTAINER="production-integration-sql-${GITHUB_RUN_ID}"
+          export SQL_CONTAINER
+          echo "SQL_CONTAINER=$SQL_CONTAINER" >> "$GITHUB_ENV"
+          docker pull --platform linux/amd64 "$SQLSERVER_IMAGE_TAG"
+          SQLSERVER_IMAGE_REPODIGEST="$(docker image inspect "$SQLSERVER_IMAGE_TAG" --format '{{index .RepoDigests 0}}')"
+          export SQLSERVER_IMAGE_REPODIGEST
+          echo "$SQLSERVER_IMAGE_REPODIGEST" | grep -Eq '^mcr\.microsoft\.com/mssql/server@sha256:[0-9a-f]{64}$'
+          echo "SQLSERVER_IMAGE_REPODIGEST=$SQLSERVER_IMAGE_REPODIGEST" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import os
+          value = os.environ.get("SQLSERVER_PASSWORD")
+          assert value and len(value) >= 20
+          print("SQLSERVER_PASSWORD_CURRENT_STEP_EXPORT=PASS")
+          PY
+          write_sql_diagnostic() {
+            local exists=false running=false container_status=absent exit_code=none oom_killed=false
+            if docker inspect "$SQL_CONTAINER" >/dev/null 2>&1; then
+              exists=true
+              running="$(docker inspect --format '{{.State.Running}}' "$SQL_CONTAINER" 2>/dev/null || echo false)"
+              container_status="$(docker inspect --format '{{.State.Status}}' "$SQL_CONTAINER" 2>/dev/null || echo unknown)"
+              exit_code="$(docker inspect --format '{{.State.ExitCode}}' "$SQL_CONTAINER" 2>/dev/null || echo unknown)"
+              oom_killed="$(docker inspect --format '{{.State.OOMKilled}}' "$SQL_CONTAINER" 2>/dev/null || echo false)"
+            fi
+            python - "$exists" "$running" "$container_status" "$exit_code" "$oom_killed" <<'PY'
+          import json, os, sys
+          payload = {
+              "container_exists": sys.argv[1] == "true", "container_running": sys.argv[2] == "true",
+              "container_status": sys.argv[3], "container_exit_code": sys.argv[4],
+              "container_oom_killed": sys.argv[5] == "true",
+              "image_repo_digest": os.environ.get("SQLSERVER_IMAGE_REPODIGEST", ""),
+              "attempt_limit": 60, "result": "FAIL"
+          }
+          with open(os.path.join(os.environ["INTERNAL_EVIDENCE_DIR"], "sqlserver-bootstrap-diagnostic.json"), "w", encoding="utf-8") as handle:
+              json.dump(payload, handle, indent=2, sort_keys=True); handle.write("\n")
+          PY
+          }
+          if ! docker run -d --platform linux/amd64 --name "$SQL_CONTAINER" -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$SQLSERVER_PASSWORD" -p 1433:1433 "$SQLSERVER_IMAGE_REPODIGEST" >/dev/null; then
+            write_sql_diagnostic
+            exit 1
+          fi
+          if ! python - <<'PY'
+          import os, time, pyodbc
+          password = os.environ["SQLSERVER_PASSWORD"]
+          master = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + password + ";Encrypt=no;TrustServerCertificate=yes"
+          for attempt in range(60):
+              try:
+                  connection = pyodbc.connect(master, autocommit=True)
+                  break
+              except pyodbc.Error:
+                  if attempt == 59:
+                      raise
+                  time.sleep(2)
+          cursor = connection.cursor()
+          cursor.execute("SELECT CONVERT(int, SERVERPROPERTY(?))", ("ProductMajorVersion",))
+          major = int(cursor.fetchone()[0])
+          assert major == 16
+          import json
+          with open(os.path.join(os.environ["INTERNAL_EVIDENCE_DIR"], "sqlserver-bootstrap.result.json"), "w", encoding="utf-8") as handle:
+              json.dump({"result":"PASS", "engine":"MICROSOFT_SQL_SERVER_2022_X64", "sqlserver_major":major, "image_platform":"linux/amd64", "image_repo_digest":os.environ["SQLSERVER_IMAGE_REPODIGEST"], "connection_probe":"PASS"}, handle, indent=2, sort_keys=True); handle.write("\n")
+          print("NATIVE_SQLSERVER_BOOTSTRAP=PASS")
+          PY
+          then
+            write_sql_diagnostic
+            exit 1
+          fi
+
+      - name: Native SQL Server migration and compatibility gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          make_url() { python -c 'from urllib.parse import quote; import os,sys; print("mssql+pyodbc://sa:%s@127.0.0.1:1433/%s?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no&TrustServerCertificate=yes" % (quote(os.environ["SQLSERVER_PASSWORD"], safe=""), sys.argv[1]))' "$1"; }
+          DB_NAME=phase5gates python - <<'PY'
+          import os, pyodbc
+          name = os.environ["DB_NAME"]
+          connection = pyodbc.connect("DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";Encrypt=no;TrustServerCertificate=yes", autocommit=True)
+          cursor = connection.cursor(); cursor.execute("SELECT DB_ID(?)", (name,))
+          if cursor.fetchone()[0] is None: cursor.execute("CREATE DATABASE [" + name + "]")
+          PY
+          gates_url="$(make_url phase5gates)"
+          DATABASE_URL="$gates_url" python -m alembic -c alembic.ini upgrade head
+          DATABASE_URL="$gates_url" python - <<'PY'
+          from backend.app.db import database_migration_heads
+          assert database_migration_heads() == ("baseline_phase4_v36_azure_sql",)
+          PY
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          bootstrap = json.loads((Path(os.environ["INTERNAL_EVIDENCE_DIR"]) / "sqlserver-bootstrap.result.json").read_text(encoding="utf-8"))
+          native = {"result":"PASS", "engine":bootstrap["engine"], "sqlserver_major":bootstrap["sqlserver_major"], "migration_pass":True, "migration_head":"baseline_phase4_v36_azure_sql", "database_schema_delta":0, "image_platform":bootstrap["image_platform"], "image_repo_digest":bootstrap["image_repo_digest"]}
+          (Path(os.environ["INTERNAL_EVIDENCE_DIR"]) / "native-sqlserver.result.json").write_text(json.dumps(native, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+          cat > "$RUNNER_TEMP/sqlserver-probes.py" <<'PY'
+          import os
+          from scripts.phase5.sqlserver_targeted import _probe_boolean_predicate, _probe_reflection
+          def test_native_sql_server_boolean_predicates_portable():
+              assert _probe_boolean_predicate(os.environ["DATABASE_URL"])
+          def test_native_sql_server_reflection_compatibility():
+              assert _probe_reflection(os.environ["DATABASE_URL"])
+          PY
+          DATABASE_URL="$gates_url" python -m pytest -q backend/tests/test_phase5_sqlserver_runtime.py "$RUNNER_TEMP/sqlserver-probes.py" --junitxml="$RUNNER_TEMP/sqlserver-targeted.junit.xml"
+          DATABASE_URL="$gates_url" python scripts/phase5/sqlserver_targeted.py --junitxml "$RUNNER_TEMP/sqlserver-targeted.junit.xml" --bootstrap-result "$INTERNAL_EVIDENCE_DIR/native-sqlserver.result.json" --output "$RUNNER_TEMP/sqlserver-targeted.json"
+          cp "$RUNNER_TEMP/sqlserver-targeted.json" "$INTERNAL_EVIDENCE_DIR/sqlserver-targeted.result.json"
+          python - <<'PY'
+          import json, os
+          result = json.load(open(os.path.join(os.environ["INTERNAL_EVIDENCE_DIR"], "sqlserver-targeted.result.json"), encoding="utf-8"))
+          assert result["result"] == "PASS"
+          assert result["sqlserver_major"] == 16
+          assert result["migration_head"] == "baseline_phase4_v36_azure_sql"
+          assert result["gate_count"] == 16 and result["failed_count"] == 0 and result["skipped_count"] == 0
+          assert result["portability_probe_count"] == 2 and result["portability_probe_pass_count"] == 2
+          assert result["portability_probe_fail_count"] == 0 and result["portability_probe_not_executed_count"] == 0
+          assert result["native_x64"] is True and result["pyodbc_driver"] is True
+          PY
+
+      - name: Phase5 targeted, Phase4 integration, authority, backend, and observability regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          make_url() { python -c 'from urllib.parse import quote; import os,sys; print("mssql+pyodbc://sa:%s@127.0.0.1:1433/%s?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no&TrustServerCertificate=yes" % (quote(os.environ["SQLSERVER_PASSWORD"], safe=""), sys.argv[1]))' "$1"; }
+          create_db() { DB_NAME="$1" python - <<'PY'
+          import os, pyodbc
+          name = os.environ["DB_NAME"]
+          connection = pyodbc.connect("DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";Encrypt=no;TrustServerCertificate=yes", autocommit=True)
+          cursor = connection.cursor(); cursor.execute("SELECT DB_ID(?)", (name,))
+          if cursor.fetchone()[0] is None: cursor.execute("CREATE DATABASE [" + name + "]")
+          PY
+          }
+          phase5_targeted_url="$(make_url phase5backendtargeted)"; create_db phase5backendtargeted
+          DATABASE_URL="$phase5_targeted_url" python -m alembic -c alembic.ini upgrade head
+          DATABASE_URL="$phase5_targeted_url" python - <<'PY'
+          import os
+          from sqlalchemy.engine import make_url
+          from backend.app.db import database_migration_heads
+          assert make_url(os.environ["DATABASE_URL"]).get_backend_name() == "mssql"
+          assert database_migration_heads() == ("baseline_phase4_v36_azure_sql",)
+          PY
+          DATABASE_URL="$phase5_targeted_url" python -m pytest -q backend/tests/test_phase5_contracts.py backend/tests/test_phase5_evidence_integrity.py backend/tests/test_phase5_finalizer_negative.py
+          printf '{"result":"PASS","database_dialect":"mssql","migration_head":"baseline_phase4_v36_azure_sql"}\n' > "$INTERNAL_EVIDENCE_DIR/phase5-regression.result.json"
+          phase4_url="$(make_url phase4integration)"; create_db phase4integration
+          DATABASE_URL="$phase4_url" python -m alembic -c alembic.ini upgrade head
+          DATABASE_URL="$phase4_url" python -m pytest -q backend/tests/test_phase4_corpus_app_integration.py
+          printf '{"result":"PASS","database":"phase4integration"}\n' > "$INTERNAL_EVIDENCE_DIR/phase4-regression.result.json"
+          authority_url="$(make_url phase5authority)"; create_db phase5authority
+          DATABASE_URL="$authority_url" python -m alembic -c alembic.ini upgrade head
+          DATABASE_URL="$authority_url" python -m pytest -q backend/tests/test_phase4_corpus_app_integration.py -k 'rd_019 or rd_023 or v35_038 or v35_039'
+          printf '{"result":"PASS","protected_action_denial":true,"database":"phase5authority"}\n' > "$INTERNAL_EVIDENCE_DIR/protected-action-denial.result.json"
+          sqlite_backend="sqlite:///$RUNNER_TEMP/production-integration-backend.db"
+          DATABASE_URL="$sqlite_backend" python -m pytest -q --ignore=backend/tests/test_phase5_sqlserver_runtime.py
+          printf '{"result":"PASS","database":"sqlite"}\n' > "$INTERNAL_EVIDENCE_DIR/backend-regression.result.json"
+          sqlite_observability="sqlite:///$RUNNER_TEMP/production-integration-observability.db"
+          DATABASE_URL="$sqlite_observability" python -m pytest -q backend/tests/test_observability.py
+          printf '{"result":"PASS","database":"sqlite"}\n' > "$INTERNAL_EVIDENCE_DIR/observability-regression.result.json"
+
+      - name: Real SQL-backed API and browser/frontend gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          make_url() { python -c 'from urllib.parse import quote; import os,sys; print("mssql+pyodbc://sa:%s@127.0.0.1:1433/%s?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no&TrustServerCertificate=yes" % (quote(os.environ["SQLSERVER_PASSWORD"], safe=""), sys.argv[1]))' "$1"; }
+          DB_NAME=phase5realstack python - <<'PY'
+          import os, pyodbc
+          name = os.environ["DB_NAME"]
+          connection = pyodbc.connect("DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";Encrypt=no;TrustServerCertificate=yes", autocommit=True)
+          cursor = connection.cursor(); cursor.execute("SELECT DB_ID(?)", (name,))
+          if cursor.fetchone()[0] is None: cursor.execute("CREATE DATABASE [" + name + "]")
+          PY
+          real_url="$(make_url phase5realstack)"
+          DATABASE_URL="$real_url" python -m alembic -c alembic.ini upgrade head
+          export DATABASE_URL="$real_url"
+          nohup env APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL="$DATABASE_URL" FRONTEND_ORIGINS=http://127.0.0.1:5173 AUTH_MODE=DEV_HEADER uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/api.log" 2>&1 & echo $! > "$RUNNER_TEMP/api.pid"
+          for attempt in $(seq 1 60); do curl -fsS -H 'X-Dev-Role: SYSTEM_ADMIN' http://127.0.0.1:8000/api/phase5/health >/dev/null && break; test "$attempt" -lt 60 || exit 1; sleep 2; done
+          nohup env BASE_URL=http://127.0.0.1:5173 npm --prefix frontend run dev -- --host 127.0.0.1 > "$RUNNER_TEMP/frontend.log" 2>&1 & echo $! > "$RUNNER_TEMP/frontend.pid"
+          for attempt in $(seq 1 60); do curl -fsS http://127.0.0.1:5173/ >/dev/null && break; test "$attempt" -lt 60 || exit 1; sleep 2; done
+          (cd frontend && PLAYWRIGHT_JSON_OUTPUT_FILE="$INTERNAL_EVIDENCE_DIR/browser-report.json" BASE_URL=http://127.0.0.1:5173 npx playwright test browser-real-stack/phase5-classifier-shadow.spec.ts --config=playwright.real-stack.config.ts --reporter=json)
+          python scripts/phase5/browser_evidence.py --playwright-json "$INTERNAL_EVIDENCE_DIR/browser-report.json" --spec frontend/browser-real-stack/phase5-classifier-shadow.spec.ts --output "$INTERNAL_EVIDENCE_DIR/browser-quality.result.json"
+          printf 'PASS\n' > "$INTERNAL_EVIDENCE_DIR/browser.result.txt"
+          (cd frontend && npm test -- --run)
+          printf 'PASS\n' > "$INTERNAL_EVIDENCE_DIR/frontend-regression.result.txt"
+          (cd frontend && npx tsc -b && npx vite build --outDir "$RUNNER_TEMP/production-integration-dist")
+          printf 'PASS\n' > "$INTERNAL_EVIDENCE_DIR/frontend-production-build.result.txt"
+
+      - name: Portable browser evidence export and semantic equivalence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python "$RUNNER_TEMP/production_integration_browser_exporter.py" "$INTERNAL_EVIDENCE_DIR" "$BROWSER_EXPORT_DIR" "$GITHUB_WORKSPACE" "$RUNNER_TEMP" "$HOME"
+          test "$(find "$BROWSER_EXPORT_DIR" -maxdepth 1 -type f | wc -l | tr -d ' ')" = 3
+      - name: Local production container builds and release labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$INTERNAL_EVIDENCE_DIR"
+          backend_image="proposalops-production-integration-backend:${GITHUB_RUN_ID}"
+          frontend_image="proposalops-production-integration-frontend:${GITHUB_RUN_ID}"
+          docker build --platform linux/amd64 --build-arg RELEASE_SHA="$APPLICATION_SHA" -t "$backend_image" -f backend/Dockerfile .
+          docker build --platform linux/amd64 --build-arg RELEASE_SHA="$APPLICATION_SHA" --build-arg BUILD_ID="integration-${GITHUB_RUN_ID}" --build-arg VITE_ENTRA_TENANT_ID=00000000-0000-4000-8000-000000000001 --build-arg VITE_ENTRA_WEB_CLIENT_ID=00000000-0000-4000-8000-000000000002 --build-arg VITE_ENTRA_API_CLIENT_ID=00000000-0000-4000-8000-000000000003 --build-arg VITE_API_URL=http://127.0.0.1:8000 -t "$frontend_image" -f frontend/Dockerfile frontend
+          test "$(docker image inspect "$backend_image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')" = "$APPLICATION_SHA"
+          test "$(docker image inspect "$frontend_image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')" = "$APPLICATION_SHA"
+          printf '{"result":"PASS","backend_revision_label_match":true,"frontend_revision_label_match":true,"image_push_count":0}\n' > "$INTERNAL_EVIDENCE_DIR/container-build.result.json"
+
+      - name: Final safety, derived summary, and evidence gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${MAIN_MODIFIED:-false}" = false; test "${FORCE_PUSH_USED:-false}" = false; test "${AZURE_LOGIN_EXECUTED:-false}" = false; test "${AZURE_RESOURCE_MUTATION_COUNT:-0}" = 0; test "${ENTRA_MUTATION_COUNT:-0}" = 0; test "${DEPLOYMENTS:-0}" = 0; test "${IMAGE_PUSH_COUNT:-0}" = 0
+          test -d "$INTERNAL_EVIDENCE_DIR"; test -d "$BROWSER_EXPORT_DIR"; git diff --check; test -z "$(git status --porcelain)"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["INTERNAL_EVIDENCE_DIR"]); missing=[]; failed=[]; records={}
+          required=["evidence-directory.result.json","runner-platform.result.json","identity.json","main-reconciliation.json","source-parity.json","phase5-freeze.json","foundation-bicep.result.json","sqlserver-bootstrap.result.json","native-sqlserver.result.json","sqlserver-targeted.result.json","phase4-regression.result.json","protected-action-denial.result.json","phase5-regression.result.json","backend-regression.result.json","observability-regression.result.json","browser-quality.result.json","container-build.result.json","internal-evidence-hygiene.json"]
+          texts=["playwright-install.result.txt","account-audit.result.txt","release-validation.result.txt","browser.result.txt","frontend-regression.result.txt","frontend-production-build.result.txt"]
+          for name in required:
+              p=root/name
+              if not p.is_file(): missing.append(name); continue
+              try: records[name]=json.loads(p.read_text())
+              except Exception: failed.append(name); continue
+              if records[name].get("result")!="PASS": failed.append(name)
+          for name in texts:
+              p=root/name
+              if not p.is_file(): missing.append(name)
+              elif p.read_text().strip()!="PASS": failed.append(name)
+          lp=Path(os.environ["BROWSER_EXPORT_DIR"])/"browser-export-lineage.json"
+          if not lp.is_file(): missing.append("browser-export-lineage.json"); lineage={}
+          else: lineage=json.loads(lp.read_text()); failed += ["browser-export-lineage.json"] if lineage.get("semantic_equivalence")!="PASS" or lineage.get("non_path_field_mismatch_count")!=0 else []
+          source=(Path(os.environ["GITHUB_WORKSPACE"])/os.environ["WORKFLOW_PATH"]).read_text()
+          markers=("or "+'"'+'PASS'+'"',"or "+"'"+'PASS'+"'","else "+'"'+'PASS'+'"',"else "+"'"+'PASS'+"'")
+          fallback=sum(source.count(x) for x in markers)
+          if missing or failed or fallback: raise SystemExit(json.dumps({"missing":missing,"failed":failed,"fallback":fallback}))
+          sql=records["sqlserver-targeted.result.json"]; browser=records["browser-quality.result.json"]; hygiene=records["internal-evidence-hygiene.json"]
+          assert sql["gate_count"]==16 and sql["failed_count"]==0 and sql["skipped_count"]==0 and sql["portability_probe_count"]==2 and sql["portability_probe_pass_count"]==2 and sql["portability_probe_fail_count"]==0
+          assert hygiene["internal_secret_pattern_match_count"]==0 and hygiene["internal_unexpected_local_path_file_count"]==0
+          assert hygiene["internal_local_path_files"]==["browser-quality.result.json","browser-report.json"]
+          summary={"result":"PASS","production_integration_runtime_validation":"PASS","application_sha":os.environ["APPLICATION_SHA"],"application_branch_moved":False,"accepted_phase5_is_ancestor":records["identity.json"]["accepted_phase5_is_ancestor"],"historical_main_is_ancestor":records["identity.json"]["historical_main_is_ancestor"],"accepted_phase5_tree_preserved_during_main_reconciliation":records["main-reconciliation.json"]["accepted_phase5_tree_preserved"],"account_source_byte_parity_count":records["source-parity.json"]["account_source_byte_parity_count"],"account_source_byte_mismatch_count":records["source-parity.json"]["account_source_byte_mismatch_count"],"foundation_source_byte_parity_count":records["source-parity.json"]["foundation_source_byte_parity_count"],"foundation_source_byte_mismatch_count":records["source-parity.json"]["foundation_source_byte_mismatch_count"],"phase5_frozen_path_mismatch_count":records["source-parity.json"]["phase5_frozen_path_mismatch_count"],"native_sqlserver":records["native-sqlserver.result.json"]["result"],"sqlserver_major":records["native-sqlserver.result.json"]["sqlserver_major"],"sqlserver_migration_head":records["native-sqlserver.result.json"]["migration_head"],"sqlserver_gate_count":sql["gate_count"],"sqlserver_gate_failed_count":sql["failed_count"],"sqlserver_gate_skipped_count":sql["skipped_count"],"sqlserver_portability_probe_count":sql["portability_probe_count"],"sqlserver_portability_probe_pass_count":sql["portability_probe_pass_count"],"sqlserver_portability_probe_fail_count":sql["portability_probe_fail_count"],"phase5_regression":records["phase5-regression.result.json"]["result"],"phase4_integration_regression":records["phase4-regression.result.json"]["result"],"protected_action_denial":records["protected-action-denial.result.json"]["result"],"full_backend_regression":records["backend-regression.result.json"]["result"],"observability_regression":records["observability-regression.result.json"]["result"],"real_sql_backed_browser":(root/"browser.result.txt").read_text().strip(),"browser_required_paths":browser["required_path_pass"],"browser_quality_checks":browser["quality_pass_count"],"browser_sanitized_semantic_equivalence":lineage["semantic_equivalence"],"browser_quality_non_path_field_mismatch_count":lineage["non_path_field_mismatch_count"],"frontend_regression":(root/"frontend-regression.result.txt").read_text().strip(),"frontend_production_build":(root/"frontend-production-build.result.txt").read_text().strip(),"backend_production_image_build":records["container-build.result.json"]["result"],"frontend_production_image_build":records["container-build.result.json"]["result"],"backend_revision_label_match":records["container-build.result.json"]["backend_revision_label_match"],"frontend_revision_label_match":records["container-build.result.json"]["frontend_revision_label_match"],"image_push_count":records["container-build.result.json"]["image_push_count"],"internal_secret_pattern_match_count":hygiene["internal_secret_pattern_match_count"],"internal_unexpected_local_path_file_count":hygiene["internal_unexpected_local_path_file_count"],"summary_literal_pass_fallback_count":fallback,"summary_input_missing_count":len(missing),"summary_input_fail_count":len(failed),"summary_derivation":"PASS","production_integration_self_accepted":False}
+          (root/"safety-boundary.json").write_text(json.dumps({"result":"PASS","azure_login_executed":False,"azure_resource_mutation_count":0,"entra_mutation_count":0,"synology_accessed":False,"smb_accessed":False,"real_amec_data_used":False,"deployments":0,"image_push_count":records["container-build.result.json"]["image_push_count"],"main_modified":False,"force_push_used":False,"internal_evidence_uploaded":False,"export_evidence_only_upload":True},indent=2,sort_keys=True)+"\n")
+          (root/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True)+"\n")
+          print("SUMMARY_LITERAL_PASS_FALLBACK_COUNT=0"); print("SUMMARY_INPUT_MISSING_COUNT=0"); print("SUMMARY_INPUT_FAIL_COUNT=0"); print("SUMMARY_DERIVATION=PASS")
+          PY
+
+      - name: Construct final acceptance package
+        id: final_package
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$FINAL_EXPORT_DIR"; mkdir "$FINAL_EXPORT_DIR"
+          cat > "$RUNNER_TEMP/production_integration_final_packager.py" <<'PY'
+          import hashlib, json, os, shutil, subprocess, sys, re
+          from pathlib import Path
+          internal,browser,final,workspace,runner_temp=map(Path,sys.argv[1:6])
+          ordinary=["evidence-directory.result.json","runner-platform.result.json","playwright-install.result.txt","identity.json","main-reconciliation.json","source-parity.json","phase5-freeze.json","account-audit.result.txt","release-validation.result.txt","foundation-bicep.result.json","sqlserver-bootstrap.result.json","native-sqlserver.result.json","sqlserver-targeted.result.json","phase4-regression.result.json","protected-action-denial.result.json","phase5-regression.result.json","backend-regression.result.json","observability-regression.result.json","browser.result.txt","frontend-regression.result.txt","frontend-production-build.result.txt","container-build.result.json","internal-evidence-hygiene.json","safety-boundary.json","summary.json"]
+          browser_files=["browser-report.sanitized.json","browser-quality.result.json","browser-export-lineage.json"]; required=set(ordinary+browser_files+["export-map.json","package-status.json","MANIFEST.sha256"])
+          for n in ordinary: assert (internal/n).is_file(), n
+          for n in browser_files: assert (browser/n).is_file(), n
+          for n in ordinary: shutil.copyfile(internal/n,final/n)
+          for n in browser_files: shutil.copyfile(browser/n,final/n)
+          lineage=json.loads((final/"browser-export-lineage.json").read_text()); assert lineage["semantic_equivalence"]=="PASS" and lineage["non_path_field_mismatch_count"]==0
+          oracle=runner_temp/"final-browser-quality.json"; subprocess.run([sys.executable,str(workspace/"scripts/phase5/browser_evidence.py"),"--playwright-json",str(final/"browser-report.sanitized.json"),"--spec",str(workspace/"frontend/browser-real-stack/phase5-classifier-shadow.spec.ts"),"--output",str(oracle)],check=True)
+          expected=json.loads((final/"browser-quality.result.json").read_text()); observed=json.loads(oracle.read_text()); path=expected.get("report_path"); expected.pop("report_path",None); observed.pop("report_path",None); assert path=="browser-report.sanitized.json" and expected==observed
+          def h(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+          em={n:{"source_sha256":h(internal/n) if (internal/n).is_file() else h(browser/n),"export_sha256":h(final/n),"transformation_type":"byte-for-byte"} for n in ordinary+browser_files}; (final/"export-map.json").write_text(json.dumps(em,indent=2,sort_keys=True)+"\n")
+          (final/"package-status.json").write_text(json.dumps({"result":"PASS","package_member_count_before_manifest":30},indent=2,sort_keys=True)+"\n")
+          pre={p.name for p in final.iterdir() if p.is_file()}; assert len(pre)==30 and pre==required-{"MANIFEST.sha256"}
+          (final/"MANIFEST.sha256").write_text("".join(h(final/n)+"  "+n+"\n" for n in sorted(pre)))
+          actual={p.name for p in final.iterdir() if p.is_file()}; rows=[x.split("  ",1) for x in (final/"MANIFEST.sha256").read_text().splitlines() if x.strip()]; mismatches=sum(1 for d,n in rows if not (final/n).is_file() or h(final/n)!=d); secrets=sum(1 for p in final.iterdir() if p.is_file() and re.search(r"SQLSERVER_PASSWORD|DATABASE_URL|access[_-]?token|bearer\\s+[A-Za-z0-9._-]+|client_secret|password=|pwd=",p.read_text(errors="strict"),re.I)); locals_=sum(1 for p in final.iterdir() if p.is_file() and re.search(r"/home/runner|/Users/|/private/tmp|\\Users\\",p.read_text(errors="strict")))
+          assert len(actual)==31 and actual==required and mismatches==0 and secrets==0 and locals_==0
+          print("FINAL_BROWSER_SEMANTIC_REVALIDATION=PASS"); print("FINAL_BROWSER_NON_PATH_MISMATCH_COUNT=0"); print("FINAL_PACKAGE_MEMBER_COUNT=31"); print("PACKAGE_STATUS=PASS"); print("MANIFEST_MISMATCH_COUNT=0"); print("SECRET_MATCH_COUNT=0"); print("LOCAL_ABSOLUTE_PATH_MATCH_COUNT=0")
+          PY
+          python "$RUNNER_TEMP/production_integration_final_packager.py" "$INTERNAL_EVIDENCE_DIR" "$BROWSER_EXPORT_DIR" "$FINAL_EXPORT_DIR" "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
+
+      - name: Upload green acceptance evidence only
+        if: success() && steps.final_package.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProposalOps_Production_Integration_Acceptance_R1_Evidence
+          path: ${{ env.FINAL_EXPORT_DIR }}
+          if-no-files-found: error
+          retention-days: 14
+      - name: Prepare failure diagnostic package
+        id: diagnostic
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          diagnostic_dir="$RUNNER_TEMP/production-integration-r1-diagnostic"; rm -rf "$diagnostic_dir"; mkdir -p "$diagnostic_dir"
+          python - "$diagnostic_dir" <<'PY'
+          import hashlib,json,os,sys
+          from pathlib import Path
+          d=Path(sys.argv[1]); i=Path(os.environ.get("INTERNAL_EVIDENCE_DIR","")); names=["evidence-directory.result.json","identity.json","main-reconciliation.json","runner-platform.result.json","browser-report.json","browser-quality.result.json","internal-evidence-hygiene.json","container-build.result.json","safety-boundary.json","summary.json"]
+          (d/"diagnostic.json").write_text(json.dumps({"run_id":os.environ.get("GITHUB_RUN_ID",""),"head_sha":os.environ.get("GITHUB_SHA",""),"validation_branch":os.environ.get("GITHUB_REF_NAME",""),"application_sha":os.environ.get("APPLICATION_SHA",""),"evidence_exists":{n:(i/n).is_file() for n in names}},indent=2,sort_keys=True)+"\n")
+          (d/"safe-stage-inventory.json").write_text(json.dumps({"logical_filenames":names,"exists":{n:(i/n).is_file() for n in names}},indent=2,sort_keys=True)+"\n")
+          h=lambda p: hashlib.sha256(p.read_bytes()).hexdigest(); (d/"MANIFEST.sha256").write_text("".join(h(d/n)+"  "+n+"\n" for n in ["diagnostic.json","safe-stage-inventory.json"]))
+          PY
+      - name: Upload failure diagnostic only
+        if: failure() && steps.diagnostic.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProposalOps_Production_Integration_Acceptance_R1_Diagnostic
+          path: ${{ runner.temp }}/production-integration-r1-diagnostic
+          if-no-files-found: error
+          retention-days: 14
