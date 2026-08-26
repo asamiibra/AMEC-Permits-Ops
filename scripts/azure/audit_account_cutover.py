@@ -4,6 +4,8 @@
 This intentionally distinguishes current account binding from preserved historical
 provenance. Retired identifiers may remain only in explicitly allowlisted historical
 PostgreSQL/A1 evidence, security deny-lists, or negative tests that prove rejection.
+The scan also normalizes backslash-escaped text so regex/shell escaping cannot hide
+an email or identifier from the cutover audit.
 """
 from __future__ import annotations
 
@@ -25,9 +27,6 @@ OLD_TENANT_ID = "b27ffe53-8d31-4735-a07a-faa50c336d97"
 OLD_SUBSCRIPTION_NAME = "ProposalOps Preprod QC"
 OLD_OWNER_EMAIL = "a.sami.ibra@outlook.com"
 
-# Historical evidence/validation lanes. They are not current Azure account
-# configuration and must not be rebound to make obsolete PostgreSQL-era execution
-# target the new account.
 HISTORICAL_ALLOWLIST = {
     "scripts/azure/step3a4_whatif.sh",
     "infra/azure/README.md",
@@ -35,14 +34,10 @@ HISTORICAL_ALLOWLIST = {
     ".github/workflows/db-rebaseline-validation.yml",
 }
 
-# Foundation validators may intentionally retain retired identifiers/emails as
-# deny-list fingerprints. Keeping them is a security control, not stale binding.
 DENYLIST_ALLOWLIST = {
     "scripts/azure_sql_foundation/validate_foundation.sh",
 }
 
-# Negative tests deliberately carry retired subscription IDs so release validation
-# proves those accounts remain rejected after cutover.
 NEGATIVE_TEST_ALLOWLIST = {
     "backend/tests/test_db_rebaseline.py",
 }
@@ -65,6 +60,12 @@ RETIRED_IDENTIFIERS = {
     OLD_SUBSCRIPTION_NAME,
     OLD_OWNER_EMAIL,
 }
+CURRENT_ACCOUNT_IDENTIFIERS = {
+    NEW_SUBSCRIPTION_ID,
+    NEW_TENANT_ID,
+    NEW_SUBSCRIPTION_NAME,
+    NEW_OWNER_EMAIL,
+}
 
 
 def tracked_files() -> list[Path]:
@@ -81,6 +82,13 @@ def text_of(path: Path) -> str | None:
 
 def relative(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
+
+
+def identifier_haystack(text: str) -> str:
+    # Catches plain, single-escaped and double-escaped forms such as
+    # a.sami..., a\.sami..., and a\\.sami.... Identifiers themselves contain
+    # no meaningful backslashes, so removing them is safe for this focused scan.
+    return text.replace("\\", "")
 
 
 def main() -> int:
@@ -105,16 +113,12 @@ def main() -> int:
         if text is None:
             continue
         rel = relative(path)
+        normalized = identifier_haystack(text)
         for value in RETIRED_IDENTIFIERS:
-            if value in text:
+            if value in normalized:
                 retired_hits.setdefault(rel, []).append(value)
-        for value in (
-            NEW_SUBSCRIPTION_ID,
-            NEW_TENANT_ID,
-            NEW_SUBSCRIPTION_NAME,
-            NEW_OWNER_EMAIL,
-        ):
-            if value in text:
+        for value in CURRENT_ACCOUNT_IDENTIFIERS:
+            if value in normalized:
                 new_hits.setdefault(rel, []).append(value)
 
     allowed_retired_paths = (
@@ -155,7 +159,7 @@ def main() -> int:
             failures.append(f"missing required current-account binding in {rel}")
 
     committed_non_audit_text = "\n".join(
-        text_of(path) or ""
+        identifier_haystack(text_of(path) or "")
         for path in tracked
         if relative(path) != "scripts/azure/audit_account_cutover.py"
     )
@@ -164,7 +168,9 @@ def main() -> int:
             "owner Gmail address must remain deployment-time input, not committed source"
         )
 
-    frontend_text = (ROOT / "frontend/tests/auth.test.ts").read_text(encoding="utf-8")
+    frontend_text = identifier_haystack(
+        (ROOT / "frontend/tests/auth.test.ts").read_text(encoding="utf-8")
+    )
     if OLD_TENANT_ID in frontend_text or NEW_TENANT_ID in frontend_text:
         failures.append("frontend auth tests must use synthetic tenant identifiers only")
 
@@ -177,8 +183,10 @@ def main() -> int:
     if schema_subscription != NEW_SUBSCRIPTION_ID:
         failures.append("release schema is not rebound to the new subscription")
 
-    verifier = (ROOT / "scripts/release/verify_a1_release_manifest.py").read_text(
-        encoding="utf-8"
+    verifier = identifier_haystack(
+        (ROOT / "scripts/release/verify_a1_release_manifest.py").read_text(
+            encoding="utf-8"
+        )
     )
     if OLD_SUBSCRIPTION_ID in verifier or HISTORICAL_TEST_SUBSCRIPTION_ID in verifier:
         failures.append("release verifier still hardcodes a retired subscription")
@@ -187,6 +195,7 @@ def main() -> int:
 
     print(f"TRACKED_TEXT_RETIRED_REFERENCE_FILES={len(retired_hits)}")
     print(f"TRACKED_TEXT_NEW_ACCOUNT_REFERENCE_FILES={len(new_hits)}")
+    print("ESCAPED_IDENTIFIER_NORMALIZATION=ENABLED")
     print(
         "HISTORICAL_RETENTION_PATHS="
         + ",".join(sorted(set(retired_hits) & HISTORICAL_ALLOWLIST))
