@@ -6,7 +6,7 @@ import json
 import re
 import shutil
 import xml.etree.ElementTree as ET
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 
@@ -22,6 +22,12 @@ GOVERNING_FILES = (
     "ProposalOps_Phase5_FINAL_R3_OneShot_EvidenceTruth_SQLServer_Browser_Closure_2026-08-24.md",
 )
 MANIFEST_NAME = "sanitized-manifest.json"
+ACCEPTANCE_DOCUMENT_NAMES = (
+    "pre-finalizer-acceptance.json",
+    "draft-final-acceptance.json",
+    "acceptance-result.json",
+    "acceptance.result.json",
+)
 
 
 def _sanitize_string(value: str, repo_root: Path) -> str:
@@ -40,6 +46,125 @@ def _sanitize_value(value: Any, repo_root: Path) -> Any:
 
 def _path_matches(value: str) -> bool:
     return any(pattern.search(value) for pattern in LOCAL_PATH_PATTERNS)
+
+
+def _resolve_evidence_artifact(root: Path, artifact_name: Any) -> Path | None:
+    """Resolve an acceptance proof reference strictly inside the evidence root."""
+    if not isinstance(artifact_name, str) or not artifact_name.strip():
+        return None
+    normalized = artifact_name.replace("\\", "/")
+    candidate = Path(normalized)
+    if (
+        candidate.is_absolute()
+        or PureWindowsPath(artifact_name).is_absolute()
+        or normalized.startswith("/")
+        or any(part == ".." for part in candidate.parts)
+        or any(part == ".." for part in normalized.split("/"))
+    ):
+        return None
+    root_resolved = root.resolve()
+    resolved = (root / candidate).resolve()
+    try:
+        resolved.relative_to(root_resolved)
+    except ValueError:
+        return None
+    return resolved if resolved != root_resolved else None
+
+
+def _rebind_semantic_proof_hashes(root: Path, *, require_complete: bool) -> tuple[dict[str, int], list[dict[str, str]]]:
+    """Bind semantic proof hashes to the exact post-sanitization evidence bytes."""
+    errors: list[dict[str, str]] = []
+    document_rebound_total = 0
+    hash_rebind_total = 0
+    missing_artifact_count = 0
+    unsafe_artifact_name_count = 0
+    invalid_structure_count = 0
+    documents = [root / name for name in ACCEPTANCE_DOCUMENT_NAMES]
+
+    for document in documents:
+        if not document.is_file():
+            if require_complete:
+                invalid_structure_count += 1
+                errors.append({"path": document.relative_to(root).as_posix(), "error": "required_acceptance_document_missing"})
+            continue
+        try:
+            payload = json.loads(document.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            invalid_structure_count += 1
+            errors.append({"path": document.relative_to(root).as_posix(), "error": f"acceptance_document_invalid:{exc}"})
+            continue
+        checks = payload.get("checks") if isinstance(payload, dict) else None
+        if not isinstance(checks, list):
+            invalid_structure_count += 1
+            errors.append({"path": document.relative_to(root).as_posix(), "error": "acceptance_checks_invalid"})
+            continue
+        document_changed = False
+        for check in checks:
+            if not isinstance(check, dict):
+                invalid_structure_count += 1
+                errors.append({"path": document.relative_to(root).as_posix(), "error": "acceptance_check_invalid"})
+                continue
+            proofs = check.get("semantic_proofs", [])
+            if not isinstance(proofs, list):
+                invalid_structure_count += 1
+                errors.append({"path": document.relative_to(root).as_posix(), "error": "semantic_proofs_invalid"})
+                continue
+            for proof in proofs:
+                if not isinstance(proof, dict):
+                    invalid_structure_count += 1
+                    errors.append({"path": document.relative_to(root).as_posix(), "error": "semantic_proof_invalid"})
+                    continue
+                has_name = "artifact_name" in proof
+                has_hash = "artifact_sha256" in proof
+                if not has_name and not has_hash:
+                    continue
+                if not has_name or not has_hash or not isinstance(proof.get("artifact_sha256"), str):
+                    invalid_structure_count += 1
+                    errors.append({"path": document.relative_to(root).as_posix(), "error": "semantic_proof_hash_structure_invalid"})
+                    continue
+                artifact = _resolve_evidence_artifact(root, proof.get("artifact_name"))
+                if artifact is None:
+                    unsafe_artifact_name_count += 1
+                    errors.append({"path": document.relative_to(root).as_posix(), "error": "semantic_proof_artifact_name_unsafe"})
+                    continue
+                if not artifact.is_file() or artifact.stat().st_size == 0:
+                    missing_artifact_count += 1
+                    errors.append({"path": document.relative_to(root).as_posix(), "error": "semantic_proof_artifact_missing"})
+                    continue
+                digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+                if proof["artifact_sha256"] != digest:
+                    proof["artifact_sha256"] = digest
+                    hash_rebind_total += 1
+                    document_changed = True
+        if document_changed:
+            document.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            document_rebound_total += 1
+
+    stale_after_rebind_count = 0
+    for document in documents:
+        if not document.is_file():
+            continue
+        try:
+            payload = json.loads(document.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            continue
+        for check in payload.get("checks", []) if isinstance(payload, dict) and isinstance(payload.get("checks"), list) else []:
+            for proof in check.get("semantic_proofs", []) if isinstance(check, dict) and isinstance(check.get("semantic_proofs"), list) else []:
+                if not isinstance(proof, dict):
+                    continue
+                artifact = _resolve_evidence_artifact(root, proof.get("artifact_name"))
+                if artifact is not None and artifact.is_file() and artifact.stat().st_size > 0:
+                    if proof.get("artifact_sha256") != hashlib.sha256(artifact.read_bytes()).hexdigest():
+                        stale_after_rebind_count += 1
+
+    return {
+        "SANITIZED_ACCEPTANCE_DOC_REBOUND_TOTAL": document_rebound_total,
+        "SANITIZED_SEMANTIC_PROOF_HASH_REBIND_TOTAL": hash_rebind_total,
+        "SANITIZED_SEMANTIC_PROOF_HASH_STALE_AFTER_REBIND_COUNT": stale_after_rebind_count,
+        "SANITIZED_SEMANTIC_PROOF_MISSING_ARTIFACT_COUNT": missing_artifact_count,
+        "SANITIZED_SEMANTIC_PROOF_UNSAFE_ARTIFACT_NAME_COUNT": unsafe_artifact_name_count,
+        "SANITIZED_SEMANTIC_PROOF_INVALID_STRUCTURE_COUNT": invalid_structure_count,
+    }, errors
 
 
 def _copy_sanitized(source: Path, target: Path, repo_root: Path) -> tuple[bool, dict[str, str] | None]:
@@ -154,6 +279,8 @@ def run(working_dir: Path, sanitized_dir: Path, repo_root: Path, *, governing_so
             complete = False
         if not complete: invalid.append({"path": "phase5-final-summary.json", "error": "complete-finalizer-required"})
 
+    rebind_metrics, rebind_errors = _rebind_semantic_proof_hashes(sanitized_dir, require_complete=require_complete)
+    invalid.extend(rebind_errors)
     json_parse_fail = 0; xml_parse_fail = 0; local_matches = 0; secret_matches = 0
     for path in sorted(sanitized_dir.rglob("*")):
         if not path.is_file() or path.name == MANIFEST_NAME: continue
@@ -183,7 +310,7 @@ def run(working_dir: Path, sanitized_dir: Path, repo_root: Path, *, governing_so
     for row in governing_rows:
         target = sanitized_dir / row["relative_path"]
         if not target.is_file() or target.stat().st_size != row["byte_count"] or hashlib.sha256(target.read_bytes()).hexdigest() != row["sha256"] or target.read_bytes() != (source_governing / Path(row["relative_path"]).name).read_bytes(): governing_mismatch += 1
-    metrics = {"SANITIZED_JSON_PARSE_FAIL_COUNT": json_parse_fail, "SANITIZED_XML_PARSE_FAIL_COUNT": xml_parse_fail, "SANITIZED_INVALID_FILE_COUNT": len(invalid), "SANITIZED_ARTIFACT_MANIFEST_HASH_MISMATCH_COUNT": hash_mismatch, "SANITIZED_UNMANIFESTED_FILE_COUNT": unmanifested_count, "SANITIZED_MISSING_MANIFEST_FILE_COUNT": missing_count, "SANITIZED_BYTE_COUNT_MISMATCH_COUNT": byte_mismatch, "SANITIZED_MANIFEST_SELF_EXCLUDED": True, "SANITIZED_MANIFEST_SELF_RECURSION": False, "SANITIZED_LOCAL_ABSOLUTE_PATH_MATCH_COUNT": local_matches, "SANITIZED_OBVIOUS_SECRET_PATTERN_MATCH_COUNT": secret_matches, "SANITIZED_GOVERNING_SOURCE_HASH_MISMATCH_COUNT": governing_mismatch}
+    metrics = {"SANITIZED_JSON_PARSE_FAIL_COUNT": json_parse_fail, "SANITIZED_XML_PARSE_FAIL_COUNT": xml_parse_fail, "SANITIZED_INVALID_FILE_COUNT": len(invalid), "SANITIZED_ARTIFACT_MANIFEST_HASH_MISMATCH_COUNT": hash_mismatch, "SANITIZED_UNMANIFESTED_FILE_COUNT": unmanifested_count, "SANITIZED_MISSING_MANIFEST_FILE_COUNT": missing_count, "SANITIZED_BYTE_COUNT_MISMATCH_COUNT": byte_mismatch, "SANITIZED_MANIFEST_SELF_EXCLUDED": True, "SANITIZED_MANIFEST_SELF_RECURSION": False, "SANITIZED_LOCAL_ABSOLUTE_PATH_MATCH_COUNT": local_matches, "SANITIZED_OBVIOUS_SECRET_PATTERN_MATCH_COUNT": secret_matches, "SANITIZED_GOVERNING_SOURCE_HASH_MISMATCH_COUNT": governing_mismatch, **rebind_metrics}
     result = "PASS" if not invalid and complete and all(value == 0 for key, value in metrics.items() if key.endswith("COUNT")) and local_matches == 0 and secret_matches == 0 else "FAIL"
     manifest = {"schema": "PHASE5_SANITIZED_EVIDENCE_V2", "candidate_sha": expected_candidate_sha, "validation_sha": expected_validation_sha, "run_id": expected_run_id, "files": rows, "manifested_file_count": len(rows), "working_file_count": copied, "governing": governing_rows, "errors": invalid, "result": result, "RUN_EVIDENCE_STATE": "PARTIAL_FAILED" if allow_partial else ("COMPLETE_PASS" if result == "PASS" else "FAILED"), "local_path_match_count": local_matches, "LOCAL_ABSOLUTE_PATH_MATCH_COUNT": local_matches, **metrics}
     manifest_path = sanitized_dir / MANIFEST_NAME
