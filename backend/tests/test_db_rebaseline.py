@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import json
 import subprocess
 from pathlib import Path
 
@@ -15,7 +16,12 @@ ROOT = Path(__file__).resolve().parents[2]
 BASELINE = ROOT / "backend/migrations/versions/baseline_phase4_v36_azure_sql.py"
 PHASE4 = ROOT / "backend/migrations/history/postgresql_accepted_v5_phase4_v35r1/phase4_corpus_app_integration.py"
 ARCHIVE = ROOT / "backend/migrations/history/postgresql_r13_0001_0059"
+ACCOUNT_BINDING = json.loads((ROOT / "config/azure_account_binding.json").read_text(encoding="utf-8"))
 SOURCE_SHA = "96c4b90968754efd8e5998cd1b1793b67c23d2bc"
+OLD_SUBSCRIPTION_IDS = {
+    "61080f8b-16cb-4abc-bb8c-5d8e59ab15bf",
+    "0e0f1028-a1f1-4b87-8cd3-449b7bdc3bc7",
+}
 
 
 def test_active_graph_and_legacy_archive_are_exact():
@@ -72,7 +78,7 @@ def _predeploy_manifest(head: str) -> dict:
         "repository": "asamiibra/AMEC-Permits-Ops",
         "source_sha": SOURCE_SHA,
         "stage": "PREDEPLOY",
-        "azure": {"subscription_id": "61080f8b-16cb-4abc-bb8c-5d8e59ab15bf", "region": "qatarcentral"},
+        "azure": {"subscription_id": ACCOUNT_BINDING["subscription_id"], "region": ACCOUNT_BINDING["region"]},
         "database": {"engine": "azure_sql", "major": 16, "migration_head": head},
         "entra": {"required_scope": "access_as_user", "requested_access_token_version": 2},
         "safety": {
@@ -90,6 +96,15 @@ def test_release_contract_accepts_new_head_and_rejects_old_head():
     verify_release_manifest(_predeploy_manifest("baseline_phase4_v36_azure_sql"), SOURCE_SHA)
     with pytest.raises(ValueError, match="migration head"):
         verify_release_manifest(_predeploy_manifest("0059_entra_user_identity"), SOURCE_SHA)
+
+
+def test_release_contract_rejects_retired_azure_subscriptions():
+    for old_subscription_id in OLD_SUBSCRIPTION_IDS:
+        manifest = _predeploy_manifest("baseline_phase4_v36_azure_sql")
+        manifest["azure"] = dict(manifest["azure"])
+        manifest["azure"]["subscription_id"] = old_subscription_id
+        with pytest.raises(ValueError, match="wrong subscription"):
+            verify_release_manifest(manifest, SOURCE_SHA)
 
 
 def test_old_0059_database_head_fails_closed(monkeypatch):
