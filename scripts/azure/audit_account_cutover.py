@@ -3,7 +3,7 @@
 
 This intentionally distinguishes current account binding from preserved historical
 provenance. Retired identifiers may remain only in explicitly allowlisted historical
-PostgreSQL/A1 evidence or in deny-list code whose purpose is to reject them.
+PostgreSQL/A1 evidence, security deny-lists, or negative tests that prove rejection.
 """
 from __future__ import annotations
 
@@ -25,9 +25,9 @@ OLD_TENANT_ID = "b27ffe53-8d31-4735-a07a-faa50c336d97"
 OLD_SUBSCRIPTION_NAME = "ProposalOps Preprod QC"
 OLD_OWNER_EMAIL = "a.sami.ibra@outlook.com"
 
-# These paths are historical evidence/validation lanes. They are not current Azure
-# account configuration and must not be rebound to make obsolete PostgreSQL-era
-# execution target the new account.
+# Historical evidence/validation lanes. They are not current Azure account
+# configuration and must not be rebound to make obsolete PostgreSQL-era execution
+# target the new account.
 HISTORICAL_ALLOWLIST = {
     "scripts/azure/step3a4_whatif.sh",
     "infra/azure/README.md",
@@ -35,10 +35,16 @@ HISTORICAL_ALLOWLIST = {
     ".github/workflows/db-rebaseline-validation.yml",
 }
 
-# The foundation validator intentionally contains retired identifiers/emails as
+# Foundation validators may intentionally retain retired identifiers/emails as
 # deny-list fingerprints. Keeping them is a security control, not stale binding.
 DENYLIST_ALLOWLIST = {
     "scripts/azure_sql_foundation/validate_foundation.sh",
+}
+
+# Negative tests deliberately carry retired subscription IDs so release validation
+# proves those accounts remain rejected after cutover.
+NEGATIVE_TEST_ALLOWLIST = {
+    "backend/tests/test_db_rebaseline.py",
 }
 
 NEW_BINDING_ALLOWED = {
@@ -52,7 +58,7 @@ NEW_BINDING_ALLOWED = {
     },
 }
 
-RETired = {
+RETIRED_IDENTIFIERS = {
     OLD_SUBSCRIPTION_ID,
     HISTORICAL_TEST_SUBSCRIPTION_ID,
     OLD_TENANT_ID,
@@ -62,9 +68,7 @@ RETired = {
 
 
 def tracked_files() -> list[Path]:
-    output = subprocess.check_output(
-        ["git", "ls-files", "-z"], cwd=ROOT
-    )
+    output = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT)
     return [ROOT / item.decode() for item in output.split(b"\0") if item]
 
 
@@ -94,26 +98,35 @@ def main() -> int:
 
     retired_hits: dict[str, list[str]] = {}
     new_hits: dict[str, list[str]] = {}
+    tracked = tracked_files()
 
-    for path in tracked_files():
+    for path in tracked:
         text = text_of(path)
         if text is None:
             continue
         rel = relative(path)
-        for value in RETired:
+        for value in RETIRED_IDENTIFIERS:
             if value in text:
                 retired_hits.setdefault(rel, []).append(value)
-        for value in (NEW_SUBSCRIPTION_ID, NEW_TENANT_ID, NEW_SUBSCRIPTION_NAME, NEW_OWNER_EMAIL):
+        for value in (
+            NEW_SUBSCRIPTION_ID,
+            NEW_TENANT_ID,
+            NEW_SUBSCRIPTION_NAME,
+            NEW_OWNER_EMAIL,
+        ):
             if value in text:
                 new_hits.setdefault(rel, []).append(value)
 
-    allowed_retired_paths = HISTORICAL_ALLOWLIST | DENYLIST_ALLOWLIST | {
-        "scripts/azure/audit_account_cutover.py"
-    }
+    allowed_retired_paths = (
+        HISTORICAL_ALLOWLIST
+        | DENYLIST_ALLOWLIST
+        | NEGATIVE_TEST_ALLOWLIST
+        | {"scripts/azure/audit_account_cutover.py"}
+    )
     unexpected_retired = sorted(set(retired_hits) - allowed_retired_paths)
     if unexpected_retired:
         failures.append(
-            "retired Azure identifiers remain outside historical/deny-list allowlist: "
+            "retired Azure identifiers remain outside classified allowlists: "
             + ", ".join(unexpected_retired)
         )
 
@@ -141,31 +154,51 @@ def main() -> int:
         if not required <= observed:
             failures.append(f"missing required current-account binding in {rel}")
 
-    if NEW_OWNER_EMAIL in "\n".join(
-        text_of(path) or "" for path in tracked_files() if relative(path) != "scripts/azure/audit_account_cutover.py"
-    ):
-        failures.append("owner Gmail address must remain deployment-time input, not committed source")
+    committed_non_audit_text = "\n".join(
+        text_of(path) or ""
+        for path in tracked
+        if relative(path) != "scripts/azure/audit_account_cutover.py"
+    )
+    if NEW_OWNER_EMAIL in committed_non_audit_text:
+        failures.append(
+            "owner Gmail address must remain deployment-time input, not committed source"
+        )
 
-    frontend_auth_test = ROOT / "frontend/tests/auth.test.ts"
-    frontend_text = frontend_auth_test.read_text(encoding="utf-8")
+    frontend_text = (ROOT / "frontend/tests/auth.test.ts").read_text(encoding="utf-8")
     if OLD_TENANT_ID in frontend_text or NEW_TENANT_ID in frontend_text:
         failures.append("frontend auth tests must use synthetic tenant identifiers only")
 
-    schema = json.loads((ROOT / "release/a1-release-manifest.schema.json").read_text(encoding="utf-8"))
-    schema_subscription = schema["properties"]["azure"]["properties"]["subscription_id"]["const"]
+    schema = json.loads(
+        (ROOT / "release/a1-release-manifest.schema.json").read_text(encoding="utf-8")
+    )
+    schema_subscription = schema["properties"]["azure"]["properties"][
+        "subscription_id"
+    ]["const"]
     if schema_subscription != NEW_SUBSCRIPTION_ID:
         failures.append("release schema is not rebound to the new subscription")
 
-    verifier = (ROOT / "scripts/release/verify_a1_release_manifest.py").read_text(encoding="utf-8")
+    verifier = (ROOT / "scripts/release/verify_a1_release_manifest.py").read_text(
+        encoding="utf-8"
+    )
     if OLD_SUBSCRIPTION_ID in verifier or HISTORICAL_TEST_SUBSCRIPTION_ID in verifier:
         failures.append("release verifier still hardcodes a retired subscription")
     if "azure_account_binding.json" not in verifier:
         failures.append("release verifier does not load canonical account binding")
 
-    print(f"TRACKED_TEXT_RETired_REFERENCE_FILES={len(retired_hits)}")
+    print(f"TRACKED_TEXT_RETIRED_REFERENCE_FILES={len(retired_hits)}")
     print(f"TRACKED_TEXT_NEW_ACCOUNT_REFERENCE_FILES={len(new_hits)}")
-    print("HISTORICAL_RETENTION_PATHS=" + ",".join(sorted(set(retired_hits) & HISTORICAL_ALLOWLIST)))
-    print("DENYLIST_RETENTION_PATHS=" + ",".join(sorted(set(retired_hits) & DENYLIST_ALLOWLIST)))
+    print(
+        "HISTORICAL_RETENTION_PATHS="
+        + ",".join(sorted(set(retired_hits) & HISTORICAL_ALLOWLIST))
+    )
+    print(
+        "DENYLIST_RETENTION_PATHS="
+        + ",".join(sorted(set(retired_hits) & DENYLIST_ALLOWLIST))
+    )
+    print(
+        "NEGATIVE_TEST_RETENTION_PATHS="
+        + ",".join(sorted(set(retired_hits) & NEGATIVE_TEST_ALLOWLIST))
+    )
     print(f"ACCOUNT_CUTOVER_FAILURE_COUNT={len(failures)}")
     for failure in failures:
         print(f"FAIL {failure}")
