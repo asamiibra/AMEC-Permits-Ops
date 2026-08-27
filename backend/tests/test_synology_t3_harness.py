@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import io
+import inspect
 import json
 import re
 import stat
@@ -130,6 +132,113 @@ def test_security_introspection_uses_session_table():
     assert result["authenticated_session_count"] == 1
     assert result["all_dialects_smb2_or_newer"] is True
     assert result["all_encryption_required"] is True
+    assert result["all_connection_signing_required"] is True
+    assert result["all_session_integrity_protected"] is True
+
+
+def test_pinned_smbprotocol_1150_encrypted_session_semantics_pass():
+    from smbprotocol.session import Session
+
+    assert importlib.metadata.version("smbprotocol") == "1.15.0"
+    source = inspect.getsource(Session.connect)
+    assert "self.encrypt_data = True" in source
+    assert "self.signing_required = False" in source
+    assert "encryption covers signing" in source
+
+    session = SimpleNamespace(
+        username="proposalops_t3_ro",
+        auth_protocol="ntlm",
+        signing_required=False,
+        require_encryption=True,
+        encrypt_data=True,
+    )
+    connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+    result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+    assert result["all_connection_signing_required"] is True
+    assert result["all_session_integrity_protected"] is True
+    assert result["all_encryption_required"] is True
+    assert result["sessions"][0]["integrity_mode"] == "encrypted"
+
+
+def test_security_introspection_requires_connection_signing_policy_even_when_encrypted():
+    session = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="ntlm", signing_required=False, require_encryption=True, encrypt_data=True)
+    connection = SimpleNamespace(dialect=785, require_signing=False, session_table={"session": session})
+    result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+    assert result["all_connection_signing_required"] is False
+    assert result["all_session_integrity_protected"] is True
+    assert result["all_signing_required"] is False
+
+
+def test_security_introspection_requires_active_encryption_even_when_signed():
+    session = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="ntlm", signing_required=True, require_encryption=True, encrypt_data=False)
+    connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+    result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+    assert result["all_session_integrity_protected"] is True
+    assert result["all_encryption_required"] is False
+
+
+def test_security_introspection_rejects_no_message_integrity():
+    session = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="ntlm", signing_required=False, require_encryption=True, encrypt_data=False)
+    connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+    result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+    assert result["all_session_integrity_protected"] is False
+
+
+def test_security_introspection_all_rows_must_be_compliant():
+    secure = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="ntlm", signing_required=False, require_encryption=True, encrypt_data=True)
+    insecure = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="ntlm", signing_required=False, require_encryption=True, encrypt_data=False)
+    connections = {
+        "secure": SimpleNamespace(dialect=785, require_signing=True, session_table={"one": secure}),
+        "insecure": SimpleNamespace(dialect=785, require_signing=True, session_table={"two": insecure}),
+    }
+    result = security_introspection(connections, "proposalops_t3_ro")
+    assert result["authenticated_session_count"] == 2
+    assert result["all_session_integrity_protected"] is False
+    assert result["all_encryption_required"] is False
+
+
+@pytest.mark.parametrize("field,value", [("signing_required", None), ("require_encryption", None), ("encrypt_data", None)])
+def test_security_introspection_missing_security_attribute_fails_closed(field, value):
+    values = {"username": "proposalops_t3_ro", "auth_protocol": "ntlm", "signing_required": False, "require_encryption": True, "encrypt_data": True}
+    values[field] = value
+    session = SimpleNamespace(**values)
+    connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+    result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+    assert result["all_session_integrity_protected"] is False or result["all_encryption_required"] is False
+
+
+@pytest.mark.parametrize("field,value", [("require_signing", "true"), ("require_signing", 1)])
+def test_security_introspection_requires_strict_connection_signing_boolean(field, value):
+    session = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="ntlm", signing_required=False, require_encryption=True, encrypt_data=True)
+    connection = SimpleNamespace(dialect=785, require_signing=value, session_table={"session": session})
+    assert security_introspection({"connection": connection}, "proposalops_t3_ro")["all_connection_signing_required"] is False
+
+
+@pytest.mark.parametrize("field,value", [("require_encryption", 1), ("encrypt_data", "true")])
+def test_security_introspection_requires_strict_encryption_booleans(field, value):
+    values = {"username": "proposalops_t3_ro", "auth_protocol": "ntlm", "signing_required": False, "require_encryption": True, "encrypt_data": True}
+    values[field] = value
+    session = SimpleNamespace(**values)
+    connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+    result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+    assert result["all_encryption_required"] is False
+
+
+def test_security_introspection_rejects_guest_or_null_sessions():
+    for marker in ("is_guest", "is_null"):
+        session = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="ntlm", signing_required=False, require_encryption=True, encrypt_data=True, **{marker: True})
+        connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+        result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+        assert result["authenticated_session_count"] == 0
+        assert result["all_authenticated_sessions"] is False
+
+
+def test_security_introspection_rejects_unsupported_authentication_protocol():
+    session = SimpleNamespace(username="proposalops_t3_ro", auth_protocol="basic", signing_required=False, require_encryption=True, encrypt_data=True)
+    connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+    result = security_introspection({"connection": connection}, "proposalops_t3_ro")
+    assert result["authenticated_session_count"] == 0
+    assert result["all_approved_auth_protocol"] is False
 
 
 def test_security_introspection_rejects_smb1():
@@ -465,7 +574,7 @@ def test_access_ledger_exposes_synthetic_acl_counters():
 
 
 def test_scope_validator_accepts_r1r2_workflow():
-    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r2.yml", ".github/workflows/synology-t3-handoff-build-r1r3.yml", ".github/workflows/synology-t3-handoff-build-r1r4.yml"]) == []
+    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r2.yml", ".github/workflows/synology-t3-handoff-build-r1r3.yml", ".github/workflows/synology-t3-handoff-build-r1r4.yml", ".github/workflows/synology-t3-handoff-build-r1r6r2.yml", ".github/workflows/synology-t3-handoff-build-r1r6r2r1.yml"]) == []
 
 
 def test_runner_source_has_no_stale_terminal_cursor_gate():
@@ -546,14 +655,16 @@ def test_owner_instructions_use_exact_candidate_external_acceptance_only():
     text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
     assert text.count("R1.1 handoff acceptance") == 0
     assert text.count("R1.2 handoff acceptance") == 0
-    assert "independent acceptance has passed for this exact R1.6R1 handoff candidate" in text
+    assert "independent acceptance has passed for this exact R1.6R2R1 handoff candidate" in text
     assert "T3_OWNER_EXECUTION_READY=false" in text
+    assert "SYN-T3-20260827T002911Z" in text
+    assert "security_all_signing_required" in text
 
 
-def test_handoff_image_ref_is_r1r6r1(tmp_path):
+def test_handoff_image_ref_is_r1r6r2r1(tmp_path):
     bundle = create_bundle(Path(__file__).resolve().parents[2], tmp_path, "SYN-T3-R1R6R1", "7400a2c50d69a2b57c23239412b8275f129ab57c")
     policy = json.loads((bundle / "06_IMAGE_BUILD_POLICY.json").read_text())
-    assert policy["image_ref"] == "proposalops/syn-t3:r1r6r1-7400a2c50d69"
+    assert policy["image_ref"] == "proposalops/syn-t3:r1r6r2r1-7400a2c50d69"
 
 
 def test_handoff_registry_cannot_self_authorize_owner_execution(tmp_path):
@@ -566,7 +677,42 @@ def test_runner_e2e_is_pure_synthetic_and_emits_typed_evidence(tmp_path, monkeyp
     _run_synthetic_whole_run(tmp_path, monkeypatch)
 
 
-def _run_synthetic_whole_run(tmp_path, monkeypatch, *, run_id="SYN-T3-E2E-001", denied_health_error="STORAGE_ACCESS_DENIED", missing_share=None, construction_log=None, expect_success=True):
+def test_runner_accepts_encrypted_smbprotocol_session_without_session_signing_flag(tmp_path, monkeypatch):
+    _run_synthetic_whole_run(tmp_path, monkeypatch, session_signing_required=False)
+    security = json.loads((tmp_path / "evidence/20_SMB_SESSION_SECURITY.json").read_text())
+    assert security["all_connection_signing_required"] is True
+    assert security["all_session_integrity_protected"] is True
+    assert security["all_encryption_required"] is True
+    assert security["sessions"][0]["session_signing_required"] is False
+    assert security["sessions"][0]["integrity_mode"] == "encrypted"
+
+
+def test_runner_writes_security_evidence_before_connection_signing_gate(tmp_path, monkeypatch):
+    with pytest.raises(T3Stop):
+        _run_synthetic_whole_run(tmp_path, monkeypatch, connection_require_signing=False, session_signing_required=False, expect_success=False)
+    evidence = tmp_path / "evidence/20_SMB_SESSION_SECURITY.json"
+    assert evidence.is_file()
+    security = json.loads(evidence.read_text())
+    assert security["all_connection_signing_required"] is False
+    assert security["all_session_integrity_protected"] is True
+    assert security["all_encryption_required"] is True
+    assert security["sessions"][0]["connection_require_signing"] is False
+    text = evidence.read_text()
+    assert "synthetic-ro" not in text
+    assert "synthetic-denied" not in text
+    assert '"password"' not in text
+    assert '"session_key"' not in text
+
+
+def test_runner_encryption_gate_remains_hard_when_encryption_is_not_active(tmp_path, monkeypatch):
+    with pytest.raises(T3Stop):
+        _run_synthetic_whole_run(tmp_path, monkeypatch, session_encrypt_data=False, expect_success=False)
+    security = json.loads((tmp_path / "evidence/20_SMB_SESSION_SECURITY.json").read_text())
+    assert security["all_encryption_required"] is False
+    assert security["all_session_integrity_protected"] is True
+
+
+def _run_synthetic_whole_run(tmp_path, monkeypatch, *, run_id="SYN-T3-E2E-001", denied_health_error="STORAGE_ACCESS_DENIED", missing_share=None, construction_log=None, expect_success=True, connection_require_signing=True, session_signing_required=True, session_require_encryption=True, session_encrypt_data=True):
     """Execute t3_runner.run through a fake provider; no socket or DSM path exists."""
     actual = t3_runner.storage_types()
     errors = actual["errors"]
@@ -630,8 +776,8 @@ def _run_synthetic_whole_run(tmp_path, monkeypatch, *, run_id="SYN-T3-E2E-001", 
         def _connect(self):
             if self.denied or self.missing or self._connection_cache:
                 return
-            session = SimpleNamespace(username=self.config.username, auth_protocol="ntlm", signing_required=True, require_encryption=True, encrypt_data=True)
-            connection = SimpleNamespace(dialect=785, require_signing=True, session_table={"session": session})
+            session = SimpleNamespace(username=self.config.username, auth_protocol="ntlm", signing_required=session_signing_required, require_encryption=session_require_encryption, encrypt_data=session_encrypt_data)
+            connection = SimpleNamespace(dialect=785, require_signing=connection_require_signing, session_table={"session": session})
             self._connection_cache["synthetic"] = connection
 
         def _access_denied(self):
@@ -1060,3 +1206,52 @@ def test_r1r5_host_facing_modules_reject_python39_plus_apis(api):
     root = Path(__file__).resolve().parents[2] / "scripts/synology_t3"
     modules = [root / name for name in ("verify_t3_dsm_state.sh", "seed_t3_synthetic_share.sh", "run_t3_owner_dsm.sh", "preflight_t3_handoff.py", "finalize_t3_return.py", "validate_t3_return.py", "host_bootstrap.py", "fixture_manifest.py")]
     assert not any(api in path.read_text() for path in modules)
+
+
+def test_r1r6r2r1_preserves_r1r6r2_security_repair_blobs():
+    root = Path(__file__).resolve().parents[2]
+    for name, expected in (
+        ("t3_common.py", "afe84785ab1684d91c018d7c795c7d0b3182a4cb"),
+        ("t3_runner.py", "2aaded8f8f7626e018dbe6914e423831d970aa87"),
+    ):
+        actual = subprocess.check_output(["git", "hash-object", str(root / "scripts/synology_t3" / name)], text=True).strip()
+        assert actual == expected
+
+
+def test_r1r6r2r1_active_owner_commands_use_separate_current_ids():
+    text = (Path(__file__).resolve().parents[2] / "scripts/synology_t3/OWNER_DSM_T3_OPERATOR_INSTRUCTIONS.md").read_text()
+    blocks = re.findall(r"```(?:sh|bash|shell)\n(.*?)```", text, flags=re.DOTALL)
+    active = next(block for block in blocks if "T3_HANDOFF_BUILD_ID" in block)
+    assert "R1R6R2R1" in active
+    assert "T3_HANDOFF_DIR" in active and "T3_RUN_ID" in active
+    assert "R1R6R1_Handoff" not in active and "r1r6r1-" not in active
+    assert "R1R6R2_Handoff" not in active and "r1r6r2-" not in active
+    assert "T3_HANDOFF_BUILD_ID" != "T3_RUN_ID"
+
+
+def test_r1r6r2r1_workflow_removes_mutable_phase5_contract_and_adds_immutable_lineage():
+    root = Path(__file__).resolve().parents[2]
+    text = (root / ".github/workflows/synology-t3-handoff-build-r1r6r2r1.yml").read_text()
+    for forbidden in (
+        "refs/heads/phase5*", "refs/remotes/origin/phase5*",
+        "PHASE5_REMOTE_BRANCH_COUNT_ENTRY", "PHASE5_BRANCH_COUNT_ENTRY",
+        "PHASE5_STORAGE_OVERLAP_ENTRY", "PHASE5_REMOTE_BRANCH_COUNT_EXIT",
+        "PHASE5_BRANCH_COUNT_EXIT", "PHASE5_STORAGE_OVERLAP_EXIT",
+    ):
+        assert forbidden not in text
+    for required in (
+        "IMMUTABLE_ACCEPTED_STORAGE_LINEAGE_ENTRY=PASS",
+        "IMMUTABLE_ACCEPTED_STORAGE_LINEAGE_EXIT=PASS",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+        "4a017b465300fc6c39b7807b24e08868479ec884",
+        "d4f5a9354881f568845386be2c70a50ff16262fd",
+        "bd93eb5048531448091ffa86ccd9d161b90b91fb",
+        "HANDOFF_MANIFEST_MODE=0644", "HANDOFF_TAR_MANIFEST_MODE=0644",
+        "NONROOT_MANIFEST_READ_CANARY=PASS", "--network=none", "10001:10001",
+    ):
+        assert required in text
+
+
+def test_r1r6r2r1_scope_validator_self_test_is_fail_closed():
+    assert validate_paths([".github/workflows/synology-t3-handoff-build-r1r6r2r1.yml"]) == []
+    assert validate_paths(["backend/app/storage/smb.py", "backend/requirements.txt", "scripts/phase5/x.py"])
