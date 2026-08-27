@@ -1,0 +1,191 @@
+name: Azure App Service R2R3 independent source validation
+
+on:
+  push:
+    branches:
+      - azure-sql-foundation-appservice-b2b3-r2r3-validation-r1-v1
+
+permissions:
+  contents: read
+
+env:
+  BASE_R2R2_SHA: ce8a887703ec8c15c8c781e1589e169ce395845a
+  CANDIDATE_SHA: 098695fd8f0b1958f949371c75388a8a2e86e5ac
+  CANDIDATE_TREE: ee184e4d68b034b4900a8cdc2d003765acddb113
+  CANDIDATE_PARENT: ce8a887703ec8c15c8c781e1589e169ce395845a
+  APPLICATION_SHA: 4925518b35b58956aaa5870f226af5e57d14b610
+  APPLICATION_TREE: 9dafcf25ac59d4dc2940c03bb081206d7f2820fa
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout validation child
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify child scope and checkout exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/azure-appservice-validation"
+          mkdir -p "$evidence"
+          test "$(git rev-parse HEAD^)" = "$CANDIDATE_SHA"
+          test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = ".github/workflows/azure-sql-foundation-appservice-b2b3-r2r3-validation.yml"
+          test -z "$(git diff --name-only "$CANDIDATE_SHA" HEAD -- backend frontend infra deploy migrations scripts contracts)"
+          echo "$CANDIDATE_SHA" > "$evidence/candidate_sha.txt"
+          echo "$CANDIDATE_TREE" > "$evidence/candidate_tree.txt"
+          echo "$CANDIDATE_PARENT" > "$evidence/candidate_parent.txt"
+          git rev-parse HEAD > "$evidence/validation_sha.txt"
+          git rev-parse HEAD^{tree} > "$evidence/validation_tree.txt"
+          git rev-parse HEAD^ > "$evidence/validation_parent.txt"
+          git diff --name-status "$CANDIDATE_SHA" HEAD > "$evidence/validation_child_diff_name_status.txt"
+          echo VALIDATION_CHILD_SCOPE=PASS
+          echo VALIDATION_CHILD_APPLICATION_DELTA=0
+          git checkout --detach "$CANDIDATE_SHA"
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$CANDIDATE_TREE"
+          test "$(git rev-parse HEAD^)" = "$CANDIDATE_PARENT"
+          test "$(git rev-list --count "$CANDIDATE_PARENT..HEAD")" = 1
+          echo EXACT_CANDIDATE_CHECKOUT=PASS
+          echo "APP_SERVICE_VALIDATION_EVIDENCE=$evidence" >> "$GITHUB_ENV"
+
+      - name: Install Bicep and record versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          az version --output json > "$APP_SERVICE_VALIDATION_EVIDENCE/azure_cli_version.json"
+          az bicep install
+          az bicep version | tee "$APP_SERVICE_VALIDATION_EVIDENCE/bicep_version.txt"
+
+      - name: Build exact candidate Bicep sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          az bicep build --file infra/azure_sql_foundation/main.bicep --stdout > "$APP_SERVICE_VALIDATION_EVIDENCE/compiled_main.json"
+          az bicep build --file infra/azure_sql_foundation/modules/app_service_plan.bicep --stdout > "$APP_SERVICE_VALIDATION_EVIDENCE/compiled_app_service_plan.json"
+          echo BICEP_BUILD=PASS
+
+      - name: Run primary candidate semantic validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/azure_sql_foundation/validate_appservice_activation.py --repo-root . --base-sha "$BASE_R2R2_SHA" --candidate-sha "$CANDIDATE_SHA" --json-out "$APP_SERVICE_VALIDATION_EVIDENCE/validator_primary.json" --compiled-out-dir "$APP_SERVICE_VALIDATION_EVIDENCE/primary_compiled" 2>&1 | tee "$APP_SERVICE_VALIDATION_EVIDENCE/validator_primary.log"
+
+      - name: Run independent semantic verifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python3 -B - "$APP_SERVICE_VALIDATION_EVIDENCE" <<'PY' | tee "$APP_SERVICE_VALIDATION_EVIDENCE/validator_independent.log"
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          root = Path.cwd()
+          evidence = Path(sys.argv[1])
+          base = "ce8a887703ec8c15c8c781e1589e169ce395845a"
+          candidate = "098695fd8f0b1958f949371c75388a8a2e86e5ac"
+          expected = {
+              "infra/azure_sql_foundation/main.bicep",
+              "infra/azure_sql_foundation/modules/core.bicep",
+              "infra/azure_sql_foundation/modules/app_service_plan.bicep",
+              "infra/azure_sql_foundation/foundation.bicepparam.example",
+              "scripts/azure_sql_foundation/validate_appservice_activation.py",
+          }
+          preserved = {
+              "infra/azure_sql_foundation/modules/network.bicep": "ade5b3bd32692bcace520fb5eba072a19ed363ce",
+              "infra/azure_sql_foundation/modules/private_dns.bicep": "01db763d8827359b98ab80ba7e5f42717f16079e",
+              "infra/azure_sql_foundation/modules/budget.bicep": "94a15b2bee1b0838e5453eca7eca1941eb2a5ac5",
+              "scripts/azure_sql_foundation/validate_foundation.sh": "302984d249229858b593226c8ea6b785c653ad8d",
+              ".github/workflows/azure-sql-foundation-static.yml": "a741f1fb106cbff3b4f6694de40b11a3d4b43c33",
+          }
+          checks = 0
+          def check(name, condition):
+              global checks
+              checks += 1
+              assert condition, name
+          check("candidate_head", subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip() == candidate)
+          check("candidate_tree", subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], text=True).strip() == "ee184e4d68b034b4900a8cdc2d003765acddb113")
+          check("candidate_parent", subprocess.check_output(["git", "rev-parse", "HEAD^"], text=True).strip() == base)
+          check("candidate_count", subprocess.check_output(["git", "rev-list", "--count", base + ".." + candidate], text=True).strip() == "1")
+          check("exact_scope", set(subprocess.check_output(["git", "diff", "--name-only", base, candidate], text=True).splitlines()) == expected)
+          for path, blob in preserved.items():
+              check("preserved_" + Path(path).name, subprocess.check_output(["git", "hash-object", path], text=True).strip() == blob)
+          check("application_tree", subprocess.check_output(["git", "rev-parse", "4925518b35b58956aaa5870f226af5e57d14b610^{tree}"], text=True).strip() == "9dafcf25ac59d4dc2940c03bb081206d7f2820fa")
+          main = (root / "infra/azure_sql_foundation/main.bicep").read_text()
+          core = (root / "infra/azure_sql_foundation/modules/core.bicep").read_text()
+          plan = (root / "infra/azure_sql_foundation/modules/app_service_plan.bicep").read_text()
+          params = (root / "infra/azure_sql_foundation/foundation.bicepparam.example").read_text()
+          successor = main + core + plan + params
+          check("no_B1", "B1" not in successor)
+          check("B2_B3_allowlist", "@allowed([" in main and "'B2'" in main and "'B3'" in main and "@allowed([" in plan and "'B2'" in plan and "'B3'" in plan)
+          check("no_forbidden_sku", all(value not in successor for value in ("B4", "Standard", "Premium")))
+          check("safe_default", "param deployAppServicePlan bool = false" in main)
+          check("core_plan_removed", "Microsoft.Web/serverfarms" not in core and "appServiceActivationSourceSha" not in core)
+          check("one_plan_resource", plan.count("resource plan 'Microsoft.Web/serverfarms@2024-04-01'") == 1)
+          for value in ("targetScope = 'resourceGroup'", "kind: 'linux'", "tier: 'Basic'", "size: skuName", "family: 'B'", "capacity: 1", "reserved: true"):
+              check("plan_contract_" + value, value in plan)
+          check("provenance_separation", "foundationSourceSha: foundationSourceSha" in plan and "appServiceActivationSourceSha: appServiceActivationSourceSha" in plan)
+          check("activation_revision", "appServiceActivationRevision: 'R2R3-B2B3-v1'" in plan)
+          check("forbidden_types_absent", all(value not in plan for value in ("Microsoft.Web/sites", "Microsoft.Network/privateEndpoints", "Microsoft.Network/privateDnsZones", "Microsoft.Sql/", "Microsoft.KeyVault/")))
+          network = (root / "infra/azure_sql_foundation/modules/network.bicep").read_text()
+          dns = (root / "infra/azure_sql_foundation/modules/private_dns.bicep").read_text()
+          check("network_preserved", all(value in network for value in ("10.42.0.0/16", "10.42.0.0/26", "10.42.1.0/28", "Microsoft.Web/serverFarms")))
+          check("dns_preserved", "location: 'global'" in dns and "registrationEnabled: false" in dns)
+          arm = json.loads((evidence / "compiled_app_service_plan.json").read_text())
+          direct = [item for item in arm.get("resources", []) if item.get("type") == "Microsoft.Web/serverfarms"]
+          check("compiled_one_plan", len(direct) == 1)
+          resource = direct[0]
+          check("compiled_contract", resource.get("apiVersion") == "2024-04-01" and resource.get("kind") == "linux" and resource.get("sku", {}).get("tier") == "Basic" and resource.get("sku", {}).get("family") == "B" and resource.get("sku", {}).get("capacity") == 1 and resource.get("properties", {}).get("reserved") is True)
+          main_arm = json.loads((evidence / "compiled_main.json").read_text())
+          check("compiled_default", main_arm.get("parameters", {}).get("deployAppServicePlan", {}).get("defaultValue") is False)
+          check("compiled_allowlist", main_arm.get("parameters", {}).get("appServicePlanSku", {}).get("allowedValues") == ["B2", "B3"])
+          check("compiled_activation_parameter", "appServiceActivationSourceSha" in main_arm.get("parameters", {}))
+          result = {"status": "PASS", "checks": checks, "failures": 0, "candidate_sha": candidate}
+          (evidence / "validator_independent.json").write_text(json.dumps(result, indent=2, sort_keys=True))
+          print("INDEPENDENT_VALIDATION=PASS")
+          print("CHECKS=" + str(checks))
+          print("FAILURES=0")
+          PY
+
+      - name: Assemble evidence and manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - "$APP_SERVICE_VALIDATION_EVIDENCE" <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+          evidence = Path(sys.argv[1])
+          candidate = "098695fd8f0b1958f949371c75388a8a2e86e5ac"
+          paths = [
+              "infra/azure_sql_foundation/main.bicep",
+              "infra/azure_sql_foundation/modules/core.bicep",
+              "infra/azure_sql_foundation/modules/app_service_plan.bicep",
+              "infra/azure_sql_foundation/foundation.bicepparam.example",
+              "scripts/azure_sql_foundation/validate_appservice_activation.py",
+          ]
+          blobs = {path: subprocess.check_output(["git", "rev-parse", candidate + ":" + path], text=True).strip() for path in paths}
+          (evidence / "candidate_blob_manifest.json").write_text(json.dumps(blobs, indent=2, sort_keys=True))
+          primary = json.loads((evidence / "validator_primary.json").read_text())
+          independent = json.loads((evidence / "validator_independent.json").read_text())
+          summary = {"status": "PASS", "candidate_sha": candidate, "validation_sha": (evidence / "validation_sha.txt").read_text().strip(), "primary": primary, "independent": independent, "application_delta": 0, "storage_provider_delta": 0, "requirements_delta": 0}
+          (evidence / "validation_summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+          (
+            cd "$APP_SERVICE_VALIDATION_EVIDENCE"
+            find . -type f ! -name MANIFEST.sha256 -print0 | sort -z | xargs -0 shasum -a 256 > MANIFEST.sha256
+            shasum -a 256 -c MANIFEST.sha256
+          )
+          echo EVIDENCE_MANIFEST=PASS
+
+      - name: Upload exact candidate validation evidence last
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-sql-foundation-appservice-b2b3-r2r3-validation-098695fd8f0b1958-${{ github.run_id }}
+          path: ${{ runner.temp }}/azure-appservice-validation/
+          if-no-files-found: error
