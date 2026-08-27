@@ -17,8 +17,18 @@ param budgetStartDate string
 param budgetEndDate string
 @description('Exact committed foundation source SHA used for provenance tags.')
 param foundationSourceSha string
-@description('Whether to deploy the deferred Linux B1 App Service Plan. Must remain false for R2.')
+@description('Whether to deploy the deferred Linux Basic App Service Plan. Must remain false unless explicitly activated.')
 param deployAppServicePlan bool = false
+@allowed([
+  'B2'
+  'B3'
+])
+@description('Explicit Basic Linux App Service Plan SKU for activation.')
+param appServicePlanSku string
+@minLength(40)
+@maxLength(40)
+@description('Exact source SHA for this App Service activation candidate.')
+param appServiceActivationSourceSha string
 
 var resourceTags = {
   application: 'ProposalOps'
@@ -96,11 +106,22 @@ module core './modules/core.bicep' = {
     acrName: acrName
     lawName: lawName
     appInsightsName: appInsightsName
-    planName: planName
     bootstrapIdentityName: bootstrapIdentityName
     migrationIdentityName: migrationIdentityName
-    deployAppServicePlan: deployAppServicePlan
     tags: resourceTags
+  }
+}
+
+module appServicePlan './modules/app_service_plan.bicep' = if (deployAppServicePlan) {
+  name: 'app-service-plan-proposalops-prod-qc'
+  scope: resourceGroup
+  dependsOn: [budget]
+  params: {
+    location: location
+    planName: planName
+    skuName: appServicePlanSku
+    foundationSourceSha: foundationSourceSha
+    appServiceActivationSourceSha: appServiceActivationSourceSha
   }
 }
 
@@ -113,6 +134,6 @@ output plannedPrivateDnsZoneName string = privateDns.outputs.privateDnsZoneName
 output plannedAcrName string = core.outputs.acrName
 output plannedLogAnalyticsName string = core.outputs.lawName
 output plannedApplicationInsightsName string = core.outputs.appInsightsName
-output plannedAppServicePlanName string = core.outputs.planName
+output plannedAppServicePlanName string = deployAppServicePlan ? appServicePlan.outputs.planName : ''
 output plannedBootstrapIdentityName string = core.outputs.bootstrapIdentityName
 output plannedMigrationIdentityName string = core.outputs.migrationIdentityName

@@ -2,11 +2,8 @@ param location string
 param acrName string
 param lawName string
 param appInsightsName string
-param planName string
 param bootstrapIdentityName string
 param migrationIdentityName string
-@description('R2 must set this false to defer the B1 plan.')
-param deployAppServicePlan bool = false
 param tags object
 
 resource acr 'Microsoft.ContainerRegistry/registries@2025-04-01' = {
@@ -42,21 +39,6 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-resource plan 'Microsoft.Web/serverfarms@2024-04-01' = if (deployAppServicePlan) {
-  name: planName
-  location: location
-  kind: 'linux'
-  tags: tags
-  sku: {
-    name: 'B1'
-    tier: 'Basic'
-    size: 'B1'
-    family: 'B'
-    capacity: 1
-  }
-  properties: { reserved: true }
-}
-
 resource bootstrapIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: bootstrapIdentityName
   location: location
@@ -75,8 +57,6 @@ output lawName string = law.name
 output lawId string = law.id
 output appInsightsName string = appInsights.name
 output appInsightsId string = appInsights.id
-output planName string = deployAppServicePlan ? plan.name : ''
-output planId string = deployAppServicePlan ? plan.id : ''
 output bootstrapIdentityName string = bootstrapIdentity.name
 output bootstrapIdentityId string = bootstrapIdentity.id
 output migrationIdentityName string = migrationIdentity.name
