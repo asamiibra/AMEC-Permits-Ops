@@ -66,6 +66,9 @@ def assertion_catalog(manifest: dict) -> dict:
     assertions.extend([
         {"assertion_id": "identity::accepted_v23", "category": "identity/scope", "expected": ACCEPTED_V23},
         {"assertion_id": "security::session_table", "category": "security negotiation", "expected": "smbprotocol 1.15.0 Connection.session_table"},
+        {"assertion_id": "security::connection_signing_policy", "category": "security negotiation", "expected": "connection.require_signing is True"},
+        {"assertion_id": "security::encrypted_integrity", "category": "security negotiation", "expected": "session.require_encryption and session.encrypt_data are True; signing_required may be False"},
+        {"assertion_id": "security::evidence_before_gate", "category": "security evidence durability", "expected": "20_SMB_SESSION_SECURITY.json is written before hard security checks"},
         {"assertion_id": "listing::three_direct_pages", "category": "listing", "expected": "100,100,57"},
         {"assertion_id": "stability::three_state_sequence", "category": "stability", "expected": "DETECTED,WAITING_FOR_STABILITY,READY_FOR_BOUNDED_READ"},
         {"assertion_id": "acl::all_mutations_blocked", "category": "ACL negatives", "expected": 0},
@@ -84,9 +87,9 @@ def create_bundle(repo: Path, output: Path, run_id: str, harness_sha: str | None
     write_json(bundle / "03_STAGE1R_REFERENCE.json", {"complete": True, "rerun_authority": False})
     write_json(bundle / "04_T2_SKIP_OWNER_DECISION.json", {"separate_syn_t2_executed": False, "decision": "T2-equivalent protocol criteria are absorbed into T3 against the isolated synthetic DSM share"})
     write_json(bundle / "05_T3_TEST_SPEC.json", {"target_share": "ProposalOps-T3-Synthetic", "target_root": ROOT, "positive_identity": "proposalops_t3_ro", "negative_identity": "proposalops_t3_denied", "port": 445, "require_signing": True, "require_encryption": True, "real_amec_access": False, "parser_classifier_llm": False, "managed_write_lane": False, "residual_deferrals": ["REAL_SMB_SERVER_SIDE_PAGINATION", "REAL_SMB_HARD_OPERATION_ABORT", "REAL_DSM_REPARSE_REFERRAL"]})
-    write_json(bundle / "D1_D2_REPAIR_EVIDENCE.json", {"STORAGE_LOCATOR_NAMEERROR_REPRODUCIBLE_BEFORE_FIX": True, "STORAGE_LOCATOR_NAMEERROR_AFTER_FIX": 0, "SECURITY_INTROSPECTION_PINNED_TO_SMBPROTOCOL_1_15_0": True, "connection_object": "smbprotocol.connection.Connection", "session_source": "Connection.session_table"})
+    write_json(bundle / "D1_D2_REPAIR_EVIDENCE.json", {"STORAGE_LOCATOR_NAMEERROR_REPRODUCIBLE_BEFORE_FIX": True, "STORAGE_LOCATOR_NAMEERROR_AFTER_FIX": 0, "SECURITY_INTROSPECTION_PINNED_TO_SMBPROTOCOL_1_15_0": True, "connection_object": "smbprotocol.connection.Connection", "session_source": "Connection.session_table", "connection_signing_policy_required": True, "encrypted_session_integrity_allowed_when_signing_required_false": True, "mandatory_encryption_required": True, "security_evidence_written_before_hard_gate": True})
     manifest = write_manifest(bundle / "fixture_staging", bundle / "13_FIXTURE_MANIFEST.json")
-    write_json(bundle / "06_IMAGE_BUILD_POLICY.json", {"platform": "linux/amd64", "base_image": BASE_IMAGE, "credentials_in_image": False, "business_content_in_image": False, "application_sha": ACCEPTED_V23, "harness_sha": harness_sha, "image_ref": f"proposalops/syn-t3:r1r6r1-{harness_sha[:12]}", "image_id": None, "image_tar_sha256": None, "labels": {HARNESS_LABEL: harness_sha, APP_LABEL: ACCEPTED_V23, "org.opencontainers.image.synthetic-only": "true"}})
+    write_json(bundle / "06_IMAGE_BUILD_POLICY.json", {"platform": "linux/amd64", "base_image": BASE_IMAGE, "credentials_in_image": False, "business_content_in_image": False, "application_sha": ACCEPTED_V23, "harness_sha": harness_sha, "image_ref": f"proposalops/syn-t3:r1r6r2-{harness_sha[:12]}", "image_id": None, "image_tar_sha256": None, "labels": {HARNESS_LABEL: harness_sha, APP_LABEL: ACCEPTED_V23, "org.opencontainers.image.synthetic-only": "true"}})
     write_json(bundle / "SOURCE_MANIFEST.json", application_manifest(repo))
     write_json(bundle / "HARNESS_MANIFEST.json", harness_manifest(repo, harness_sha))
     write_json(bundle / "T3_ASSERTION_CATALOG.json", assertion_catalog(manifest))

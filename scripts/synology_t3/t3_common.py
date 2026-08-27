@@ -190,8 +190,15 @@ def locator(storage_locator_type: type, path: str, *, share: str = SHARE) -> Any
 
 
 def security_introspection(connection_cache: dict, expected_username: str) -> dict[str, Any]:
-    """Inspect smbprotocol 1.15.0 Connection.session_table, never Connection.session."""
-    sessions: list[tuple[Any, Any]] = []
+    """Return sanitized, fail-closed SMB security evidence.
+
+    ``smbprotocol==1.15.0`` clears ``Session.signing_required`` when an
+    encrypted session is active because encryption supplies message
+    integrity.  T3 still requires the client connection signing policy and
+    mandatory session encryption; the compatibility ``all_signing_required``
+    field therefore means configured connection signing plus effective
+    message integrity, not the session flag alone.
+    """
     connection_rows = []
     for key, connection in connection_cache.items():
         dialect = getattr(connection, "dialect", None)
@@ -200,7 +207,28 @@ def security_introspection(connection_cache: dict, expected_username: str) -> di
         if not isinstance(table, dict):
             continue
         for session_key, session in table.items():
-            sessions.append((connection, session))
+            session_signing_required = getattr(session, "signing_required", None)
+            session_require_encryption = getattr(session, "require_encryption", None)
+            session_encrypt_data = getattr(session, "encrypt_data", None)
+            session_is_guest = getattr(session, "is_guest", False) is True or getattr(session, "guest", False) is True
+            session_is_null = getattr(session, "is_null", False) is True or getattr(session, "null", False) is True
+            security_attributes_complete = all(
+                value is True or value is False
+                for value in (session_signing_required, session_require_encryption, session_encrypt_data)
+            )
+            integrity_protected = (
+                security_attributes_complete
+                and (
+                    session_signing_required is True
+                    or (session_require_encryption is True and session_encrypt_data is True)
+                )
+            )
+            if session_signing_required is True:
+                integrity_mode = "signed"
+            elif session_require_encryption is True and session_encrypt_data is True:
+                integrity_mode = "encrypted"
+            else:
+                integrity_mode = "none"
             connection_rows.append({
                 "cache_key_fingerprint": hashlib.sha256(repr(key).encode()).hexdigest()[:16],
                 "session_key_fingerprint": hashlib.sha256(repr(session_key).encode()).hexdigest()[:16],
@@ -208,18 +236,37 @@ def security_introspection(connection_cache: dict, expected_username: str) -> di
                 "connection_require_signing": require_signing,
                 "username": getattr(session, "username", None),
                 "auth_protocol": str(getattr(session, "auth_protocol", "")).lower().split(".")[-1],
-                "session_signing_required": getattr(session, "signing_required", None),
-                "session_require_encryption": getattr(session, "require_encryption", None),
-                "session_encrypt_data": getattr(session, "encrypt_data", None),
+                "session_signing_required": session_signing_required,
+                "session_require_encryption": session_require_encryption,
+                "session_encrypt_data": session_encrypt_data,
+                "session_is_guest": session_is_guest,
+                "session_is_null": session_is_null,
+                "security_attributes_complete": security_attributes_complete,
+                "session_integrity_protected": integrity_protected,
+                "integrity_mode": integrity_mode,
             })
     approved = {"ntlm", "kerberos", "negotiate", "ntlmssp", "krb5"}
-    authenticated = [row for row in connection_rows if row["username"] and row["auth_protocol"] in approved]
+    authenticated = [
+        row for row in connection_rows
+        if row["username"] and row["auth_protocol"] in approved and not row["session_is_guest"] and not row["session_is_null"]
+    ]
+    all_connection_signing_required = bool(connection_rows) and all(
+        row["connection_require_signing"] is True for row in connection_rows
+    )
+    all_session_integrity_protected = bool(connection_rows) and all(
+        row["session_integrity_protected"] is True for row in connection_rows
+    )
     return {
         "connection_count": len(connection_cache),
         "authenticated_session_count": len(authenticated),
+        "all_authenticated_sessions": bool(connection_rows) and len(authenticated) == len(connection_rows),
         "sessions": connection_rows,
         "all_dialects_smb2_or_newer": bool(connection_rows) and all(is_smb2_or_newer(row["dialect"]) for row in connection_rows),
-        "all_signing_required": bool(connection_rows) and all(row["connection_require_signing"] is True and row["session_signing_required"] is True for row in connection_rows),
+        "all_connection_signing_required": all_connection_signing_required,
+        "all_session_integrity_protected": all_session_integrity_protected,
+        # Compatibility alias retained for older evidence consumers.  It has
+        # the corrected meaning and is not the hard runner key.
+        "all_signing_required": all_connection_signing_required and all_session_integrity_protected,
         "all_encryption_required": bool(connection_rows) and all(row["session_require_encryption"] is True and row["session_encrypt_data"] is True for row in connection_rows),
         "all_expected_username": bool(authenticated) and all(row["username"] == expected_username for row in authenticated),
         "all_approved_auth_protocol": bool(authenticated) and all(row["auth_protocol"] in approved for row in authenticated),

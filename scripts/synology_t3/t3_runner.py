@@ -191,7 +191,11 @@ def run(args: argparse.Namespace) -> int:
         health = store.health()
         checks.require("health_state", "synthetic share health is HEALTHY", "HEALTHY", health.state)
         security = security_introspection(store._connection_cache, args.ro_username)
-        for key in ("authenticated_session_count", "all_dialects_smb2_or_newer", "all_signing_required", "all_encryption_required", "all_expected_username", "all_approved_auth_protocol"):
+        security["SECURITY_INTROSPECTION_PINNED_TO_SMBPROTOCOL_1_15_0"] = True
+        # Persist sanitized session evidence before any hard security gate can
+        # terminate the run, including a signing/encryption mismatch.
+        write_json(evidence, "20_SMB_SESSION_SECURITY.json", security)
+        for key in ("authenticated_session_count", "all_authenticated_sessions", "all_dialects_smb2_or_newer", "all_connection_signing_required", "all_session_integrity_protected", "all_encryption_required", "all_expected_username", "all_approved_auth_protocol"):
             observed = security[key] > 0 if key == "authenticated_session_count" else security[key]
             checks.require(f"security_{key}", f"SMB 1.15.0 security gate {key}", True, observed)
         capabilities = store.capabilities().__dict__
@@ -338,8 +342,6 @@ def run(args: argparse.Namespace) -> int:
     write_json(evidence, "13_FIXTURE_MANIFEST.json", fixture_manifest)
     write_json(evidence, "14_NETWORK_DESTINATION_POLICY.json", {"allowed_server": args.nas_ip, "allowed_port": PORT, "allowed_share": SHARE, "allowed_root": ROOT, "unique_destinations": guard.unique_destinations, "unexpected_count": 0})
     write_json(evidence, "15_CONTAINER_IDENTITY.json", {"image_revision": args.image_revision, "platform": "linux/amd64", "privileged": False, "docker_socket_mounted": False, "test_share_host_mounted": False})
-    security["SECURITY_INTROSPECTION_PINNED_TO_SMBPROTOCOL_1_15_0"] = True
-    write_json(evidence, "20_SMB_SESSION_SECURITY.json", security)
     write_json(evidence, "21_HEALTH.json", health.__dict__)
     write_json(evidence, "22_CAPABILITIES.json", capabilities)
     write_json(evidence, "23_STAT_RESULTS.json", {"root": {"size": root_stat.size, "modified_at": root_stat.modified_at}, "missing_share_error_class": missing_health.detail.get("error_class")})
