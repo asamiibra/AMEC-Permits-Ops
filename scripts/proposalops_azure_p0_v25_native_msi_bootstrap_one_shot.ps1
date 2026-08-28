@@ -1,10 +1,10 @@
 [CmdletBinding()]
-param([switch]$Execute)
+param([switch]$Execute, [switch]$PreflightOnly)
 
 $ErrorActionPreference = 'Stop'
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $RunId = Get-Date -AsUTC -Format 'yyyyMMdd-HHmmss'
-$EvidenceRoot = Join-Path ([IO.Path]::GetTempPath()) "ProposalOps_Azure_P0_V2_5_R2_$RunId"
+$EvidenceRoot = Join-Path ([IO.Path]::GetTempPath()) "ProposalOps_Azure_P0_V2_5_R3_$RunId"
 New-Item -ItemType Directory -Path $EvidenceRoot -Force | Out-Null
 
 $ExpectedAppSha = 'c42e6c449483b0951de0f366d700dbaf7b9e5525'
@@ -18,6 +18,8 @@ $V1Branch = 'azure-p0-v25-native-msi-bootstrap-one-shot-v1'
 $V1Commit = 'fa227c1d3276b2c8cf3f312c2814144e05aeddd5'
 $V1Tree = '2fd49ceceb7daf828112c22372a06278fef451f8'
 $R2Branch = 'azure-p0-v25-native-msi-bootstrap-one-shot-r2-v1'
+$R2Commit = '378b4acee87b5ca85f94a7605f36f86b49ccb102'
+$R3Branch = 'azure-p0-v25-native-msi-bootstrap-one-shot-r3-v1'
 $ExpectedMain = '3474b35a13d27f0010ec5d03dd4a2f361ac6774d'
 $SubscriptionName = 'AMEC Subscription'
 $RG = 'rg-proposalops-prod-uae'
@@ -35,7 +37,10 @@ $AzureAttemptConsumed = $false
 $JobCreateAttempted = $false
 $JobCreated = $false
 $ExecutionStartAttempted = $false
+$ExecutionRequestAccepted = $false
 $ExecutionStarted = $false
+$ExecutionObserved = $false
+$ExecutionTerminalStatus = 'NOT_STARTED'
 $AdminSwitchAttempted = $false
 $AdminSwitchVerified = $false
 $AdminRestoreAttempted = $false
@@ -43,6 +48,9 @@ $AdminRestoreVerified = $false
 $OriginalHumanAdmin = $null
 $V24Evidence = $null
 $V24ManifestSha = $null
+$Mode = if ($PreflightOnly) { 'PREFLIGHT_ONLY' } else { 'EXECUTE' }
+$PreflightOnlyPass = $false
+$PreflightSeal = $null
 $Checks = [System.Collections.Generic.List[object]]::new()
 $MutationCounts = [ordered]@{
   REPOSITORY_COMMITS_CREATED = 1
@@ -93,6 +101,12 @@ function Git-Text([string[]]$Arguments) {
   if ($LASTEXITCODE -ne 0) { throw "GIT_COMMAND_FAILURE $($Arguments -join ' ')" }
   ($output | ForEach-Object ToString) -join [Environment]::NewLine
 }
+function Git-Lines([string[]]$Arguments) {
+  $text = Git-Text $Arguments
+  if ([string]::IsNullOrWhiteSpace($text)) { return @() }
+  @($text -split '\r?\n' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+}
+function Save-ExternalJson([string]$Path, $Value) { $Value | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $Path -Encoding utf8 }
 function Check([string]$Id, [bool]$Pass, $Actual = '') {
   $Checks.Add([ordered]@{ id = $Id; operation = $CurrentOperation; result = if ($Pass) { 'PASS' } else { 'FAIL' }; actual = [string]$Actual })
   if (-not $Pass) { throw "VALIDATION_FAILURE [$Id] $Actual" }
@@ -157,6 +171,24 @@ function Verify-V24([string]$Root, [string]$ManifestSha) {
   $m = Read-Manifest $Root
   if ($null -eq $m -or -not $m.pass -or $m.manifestSha -ne $ManifestSha) { throw 'V24_EVIDENCE_INTEGRITY_FAIL' }
   [ordered]@{ result = 'PASS'; root = $Root; manifestSha = $m.manifestSha; expectedMembers = $m.expectedMembers; foundMembers = $m.foundMembers; matchedMembers = $m.matchedMembers; failedMembers = $m.failedMembers }
+}
+function Find-PreflightSeal([string]$CurrentHead, [string]$CurrentHarnessSha, [string]$RemoteHead) {
+  $candidates = @()
+  foreach ($root in @('/tmp', [IO.Path]::GetTempPath()) | Select-Object -Unique) {
+    if (Test-Path -LiteralPath $root) { $candidates += @(Get-ChildItem -LiteralPath $root -File -Filter 'ProposalOps_Azure_P0_V2_5_R3_*.SEAL.json' -ErrorAction SilentlyContinue) }
+  }
+  foreach ($sealFile in ($candidates | Sort-Object LastWriteTime -Descending)) {
+    try {
+      $seal = Get-Content -LiteralPath $sealFile.FullName -Raw | ConvertFrom-Json
+      if ($seal.result -eq 'PASS' -and $seal.finalResult -eq 'V2_5_R3_PREFLIGHT_ONLY_PASS' -and $seal.manifestRecomputation -eq 'PASS' -and [int]$seal.azureMutations -eq 0 -and $seal.r3Head -eq $CurrentHead -and $seal.r3Head -eq $RemoteHead -and $seal.harnessSha256 -eq $CurrentHarnessSha) {
+        $root = [string]$seal.evidenceRoot
+        $manifestPath = Join-Path $root 'MANIFEST.sha256'
+        $manifest = if (Test-Path -LiteralPath $manifestPath) { Read-Manifest $root 20 } else { $null }
+        if ($null -ne $manifest -and $manifest.pass -and $manifest.manifestSha -eq $seal.manifestSha256 -and [int]$seal.manifestMemberCount -eq 20) { return $seal }
+      }
+    } catch {}
+  }
+  throw 'R3_PREFLIGHT_SEAL_NOT_FOUND_OR_MISMATCHED'
 }
 function Set-UnknownSqlState {
   $script:MutationState.SQL_MUTATION_STATE = 'UNKNOWN_REQUIRES_READ_ONLY_ADJUDICATION'
@@ -253,14 +285,16 @@ function Start-OneExecution([string]$Name) {
   $beforeNames = @($before | ForEach-Object { $_.name })
   $script:ExecutionStartAttempted = $true
   $script:MutationState.BOOTSTRAP_JOB_EXECUTION_START_ATTEMPTED = $true
+  $script:AzureAttemptConsumed = $true
   Invoke-AzMutation @('containerapp','job','start','--subscription',$SubscriptionName,'--resource-group',$RG,'--name',$Name,'--output','json') 'Start exactly one R2 bootstrap execution' 'BOOTSTRAP_JOB_EXECUTIONS'
+  $script:ExecutionRequestAccepted = $true
   for ($i=0; $i -lt 60; $i++) {
     Start-Sleep -Seconds 5
     $all = @(Invoke-AzJson @('containerapp','job','execution','list','--subscription',$SubscriptionName,'--resource-group',$RG,'--name',$Name,'--output','json') 'Poll R2 execution')
     $new = @($all | Where-Object { $beforeNames -notcontains $_.name } | Sort-Object name -Descending)
     if ($new.Count -gt 0) {
-      $execution = $new[0];$script:ExecutionStarted = $true;$script:AzureAttemptConsumed = $true;$script:MutationState.BOOTSTRAP_JOB_EXECUTION_STARTED = $true
-      $status = [string]($execution.properties.status ?? $execution.status);$log=''
+      $execution = $new[0];$script:ExecutionStarted = $true;$script:ExecutionObserved = $true;$script:ExecutionTerminalStatus = [string]($execution.properties.status ?? $execution.status);$script:MutationState.BOOTSTRAP_JOB_EXECUTION_STARTED = $true
+      $status = $ExecutionTerminalStatus;$log=''
       try { $log=Invoke-Az @('containerapp','job','logs','show','--subscription',$SubscriptionName,'--resource-group',$RG,'--name',$Name,'--execution',$execution.name,'--container','main','--tail','300','--format','text') 'Read R2 bootstrap logs' } catch { $log="LOG_READ_FAILURE=$($_.Exception.Message)" }
       if ($status -in @('Succeeded','Failed','Stopped','Degraded')) { return [pscustomobject]@{execution=$execution;status=$status;log=$log} }
     }
@@ -269,7 +303,7 @@ function Start-OneExecution([string]$Name) {
 }
 
 try {
-  if (-not $Execute) { throw 'EXECUTION_SWITCH_REQUIRED' }
+  if ($Execute -eq $PreflightOnly) { throw 'EXACTLY_ONE_MODE_REQUIRED' }
   $v24=Find-V24Evidence;$V24Evidence=$v24.root;$V24ManifestSha=$v24.manifest.manifestSha
   Check 'V24 evidence gate' $true $V24Evidence
   Check 'V24 manifest 15/15' ($v24.manifest.pass) '15/15'
@@ -278,18 +312,29 @@ try {
   Check 'V24 real-data reads zero' ([int]$v24.final.REAL_AMEC_DATA_READS -eq 0) '0'
   Check 'V24 real-data writes zero' ([int]$v24.final.REAL_AMEC_DATA_WRITES -eq 0) '0'
 
-  $branch=(Git-Text @('branch','--show-current')).Trim();$head=(Git-Text @('rev-parse','HEAD')).Trim();$parent=(Git-Text @('rev-parse','HEAD^')).Trim();$grandparent=(Git-Text @('rev-parse','HEAD^^')).Trim()
-  $remoteR2=((Git-Text @('ls-remote','origin',"refs/heads/$R2Branch")).Trim().Split([char]9)[0]);$remoteV1=((Git-Text @('ls-remote','origin',"refs/heads/$V1Branch")).Trim().Split([char]9)[0]);$remoteScalar=((Git-Text @('ls-remote','origin',"refs/heads/$ScalarRepairBranch")).Trim().Split([char]9)[0]);$remoteMain=((Git-Text @('ls-remote','origin','refs/heads/main')).Trim().Split([char]9)[0])
-  Check 'R2 branch exact' ($branch -eq $R2Branch) $branch;Check 'R2 remote head exact' ($head -eq $remoteR2) $remoteR2;Check 'R2 parent V1' ($parent -eq $V1Commit) $parent;Check 'R2 grandparent scalar' ($grandparent -eq $ScalarRepairCommit) $grandparent;Check 'V1 remote exact' ($remoteV1 -eq $V1Commit) $remoteV1;Check 'scalar remote exact' ($remoteScalar -eq $ScalarRepairCommit) $remoteScalar;Check 'main unchanged' ($remoteMain -eq $ExpectedMain) $remoteMain;Check 'scalar tree exact' ((Git-Text @('show','-s','--format=%T',$ScalarRepairCommit)).Trim() -eq $ScalarRepairTree) 'exact';Check 'scalar script exact' ((Sha (Join-Path $RepoRoot 'scripts/proposalops_azure_p0_master_finalize_v2.ps1')) -eq $ScalarRepairScriptSha) 'exact';Check 'accepted app tree exact' ((Git-Text @('rev-parse',"$ExpectedAppSha^{tree}")).Trim() -eq $ExpectedAppTree) 'exact'
-  $changed=@(Git-Text @('diff-tree','--no-commit-id','--name-only','-r',$head) -split "\r?\n" | Where-Object { $_ });Check 'R2 changed path only' ($changed.Count -eq 1 -and $changed[0] -eq 'scripts/proposalops_azure_p0_v25_native_msi_bootstrap_one_shot.ps1') ($changed -join ',');Check 'accepted app unchanged' (@(Git-Text @('diff','--name-only',$ExpectedAppSha,$head,'--','backend','frontend','mock-systems')).Count -eq 0) 'zero'
+  $branch=(Git-Text @('branch','--show-current')).Trim();$head=(Git-Text @('rev-parse','HEAD')).Trim();$parent=(Git-Text @('rev-parse','HEAD^')).Trim();$grandparent=(Git-Text @('rev-parse','HEAD^^')).Trim();$greatgrandparent=(Git-Text @('rev-parse','HEAD^^^')).Trim()
+  $remoteR3=((Git-Text @('ls-remote','origin',"refs/heads/$R3Branch")).Trim().Split([char]9)[0]);$remoteR2=((Git-Text @('ls-remote','origin',"refs/heads/$R2Branch")).Trim().Split([char]9)[0]);$remoteV1=((Git-Text @('ls-remote','origin',"refs/heads/$V1Branch")).Trim().Split([char]9)[0]);$remoteScalar=((Git-Text @('ls-remote','origin',"refs/heads/$ScalarRepairBranch")).Trim().Split([char]9)[0]);$remoteMain=((Git-Text @('ls-remote','origin','refs/heads/main')).Trim().Split([char]9)[0])
+  Check 'R3 branch exact' ($branch -eq $R3Branch) $branch;Check 'R3 remote head exact' ($head -eq $remoteR3) $remoteR3;Check 'R3 parent R2' ($parent -eq $R2Commit) $parent;Check 'R3 grandparent V1' ($grandparent -eq $V1Commit) $grandparent;Check 'R3 great-grandparent scalar' ($greatgrandparent -eq $ScalarRepairCommit) $greatgrandparent;Check 'R2 remote exact' ($remoteR2 -eq $R2Commit) $remoteR2;Check 'V1 remote exact' ($remoteV1 -eq $V1Commit) $remoteV1;Check 'scalar remote exact' ($remoteScalar -eq $ScalarRepairCommit) $remoteScalar;Check 'main unchanged' ($remoteMain -eq $ExpectedMain) $remoteMain;Check 'scalar tree exact' ((Git-Text @('show','-s','--format=%T',$ScalarRepairCommit)).Trim() -eq $ScalarRepairTree) 'exact';Check 'scalar script exact' ((Sha (Join-Path $RepoRoot 'scripts/proposalops_azure_p0_master_finalize_v2.ps1')) -eq $ScalarRepairScriptSha) 'exact';Check 'accepted app tree exact' ((Git-Text @('rev-parse',"$ExpectedAppSha^{tree}")).Trim() -eq $ExpectedAppTree) 'exact'
+  $changed=Git-Lines @('diff-tree','--no-commit-id','--name-only','-r',$head);Check 'R3 changed path only' ($changed.Count -eq 1 -and $changed[0] -eq 'scripts/proposalops_azure_p0_v25_native_msi_bootstrap_one_shot.ps1') ($changed -join ',')
+  $appChanged=Git-Lines @('diff','--name-only',$ExpectedAppSha,$head,'--','backend','frontend','mock-systems');Check 'accepted app unchanged' ($appChanged.Count -eq 0) ($appChanged -join ',');Check 'Git-Lines empty regression' ((Git-Lines @('diff','--name-only','HEAD','HEAD')).Count -eq 0) '0'
+  $workingTree=Git-Lines @('status','--porcelain');Check 'working tree clean' ($workingTree.Count -eq 0) ($workingTree -join ';')
   $source=Get-Content -LiteralPath $PSCommandPath -Raw;$t=$null;$e=$null;[System.Management.Automation.Language.Parser]::ParseInput($source,[ref]$t,[ref]$e)|Out-Null;Check 'R2 harness parse' ($e.Count -eq 0) 'PASS';Check 'one pyodbc connect call' (([regex]::Matches($source,'pyodbc\.connect\(')).Count -eq 1) '1'
 
-  Save-Json '00_RUN_CONTEXT.json' @{result='PASS';runId=$RunId;acceptedApplicationSha=$ExpectedAppSha;acceptedApplicationTree=$ExpectedAppTree;acceptedImage=$ExpectedImage;resourceGroup=$RG;sqlServer=$SqlServer;database=$Database;r2Branch=$branch;r2Head=$head}
+  if($Execute){
+    $preSeal=Find-PreflightSeal $head (Sha $PSCommandPath) $remoteR3
+    Check 'previous preflight result' ($preSeal.finalResult -eq 'V2_5_R3_PREFLIGHT_ONLY_PASS') $preSeal.finalResult
+    Check 'previous preflight manifest sealed' ($preSeal.manifestRecomputation -eq 'PASS' -and $preSeal.result -eq 'PASS') 'PASS'
+    Check 'previous preflight Azure mutations zero' ([int]$preSeal.azureMutations -eq 0) $preSeal.azureMutations
+    Check 'preflight SHA equals current remote R3' ($preSeal.r3Head -eq $head -and $preSeal.r3Head -eq $remoteR3) 'PASS'
+    Check 'preflight harness SHA unchanged' ($preSeal.harnessSha256 -eq (Sha $PSCommandPath)) 'PASS'
+  }
+
+  Save-Json '00_RUN_CONTEXT.json' @{result='PASS';mode=$Mode;runId=$RunId;acceptedApplicationSha=$ExpectedAppSha;acceptedApplicationTree=$ExpectedAppTree;acceptedImage=$ExpectedImage;resourceGroup=$RG;sqlServer=$SqlServer;database=$Database;r3Branch=$branch;r3Head=$head}
   Save-Json '01_PRIOR_V25_STOPPED_STATE.json' @{result='PASS';priorResult='V2_5_STOPPED_PRE_AZURE';priorAzureAttemptConsumed=$false;priorMutationCounts=@{BOOTSTRAP_JOB_CREATES=0;BOOTSTRAP_JOB_EXECUTIONS=0;SQL_ADMIN_SWITCH_MUTATIONS=0;SQL_ADMIN_RESTORE_MUTATIONS=0;SQL_CONNECTION_ATTEMPTS=0;SQL_CREATE_USER_MUTATIONS=0;SQL_ROLE_MUTATIONS=0;SQL_PERMISSION_GRANTS=0;SQL_DDL_MUTATIONS=0;SQL_DML_MUTATIONS=0};failureClass='PRE_AZURE_HARNESS_LOGIC_DEFECT'}
   Save-Json '02_V24_PRE_RUN_REVALIDATION.json' @{result='PASS';root=$V24Evidence;manifestSha=$V24ManifestSha;expectedMembers=15;foundMembers=$v24.manifest.foundMembers;matchedMembers=$v24.manifest.matchedMembers;failedMembers=$v24.manifest.failedMembers;finalResult=$v24.final.FINAL_RESULT;sdkCorroboration=$v24.final.AZURE_IDENTITY_CORROBORATION}
   Save-Json '03_SCALAR_REPAIR_REMOTE_PIN.json' @{result='PASS';branch=$ScalarRepairBranch;head=$remoteScalar;tree=$ScalarRepairTree;parent=(Git-Text @('show','-s','--format=%P',$ScalarRepairCommit)).Trim();repairedScriptSha256=$ScalarRepairScriptSha}
   Save-Json '04_V25_V1_HARNESS_PIN.json' @{result='PASS';branch=$V1Branch;head=$remoteV1;tree=$V1Tree;changedPaths=@('scripts/proposalops_azure_p0_v25_native_msi_bootstrap_one_shot.ps1');immutable=$true}
-  Save-Json '05_V25_R2_HARNESS_REMOTE_PIN.json' @{result='PASS';branch=$R2Branch;head=$head;tree=(Git-Text @('rev-parse','HEAD^{tree}')).Trim();parent=$parent;grandparent=$grandparent;changedPaths=$changed;harnessSha256=(Sha $PSCommandPath)}
+  Save-Json '05_V25_R2_HARNESS_REMOTE_PIN.json' @{result='PASS';r2Branch=$R2Branch;r2Head=$remoteR2;r2Tree=(Git-Text @('show','-s','--format=%T',$R2Commit)).Trim();r2Parent=(Git-Text @('show','-s','--format=%P',$R2Commit)).Trim();r3Branch=$R3Branch;r3Head=$head;r3Tree=(Git-Text @('rev-parse','HEAD^{tree}')).Trim();r3Parent=$parent;r3Grandparent=$grandparent;r3GreatGrandparent=$greatgrandparent;changedPaths=$changed;harnessSha256=(Sha $PSCommandPath)}
 
   $subscription=(Invoke-Az @('account','list','--query',"[?name=='$SubscriptionName' && state=='Enabled'].name | [0]",'--output','tsv') 'Resolve enabled subscription').Trim();Check 'enabled subscription' ($subscription -eq $SubscriptionName) $subscription
   $group=Invoke-AzJson @('group','show','--subscription',$subscription,'--name',$RG,'--output','json') 'Read resource group';$sql=Invoke-AzJson @('sql','server','show','--subscription',$subscription,'--resource-group',$RG,'--name',$SqlServer,'--output','json') 'Read SQL server';$db=Invoke-AzJson @('sql','db','show','--subscription',$subscription,'--resource-group',$RG,'--server',$SqlServer,'--name',$Database,'--output','json') 'Read SQL database';$aca=Invoke-AzJson @('containerapp','env','show','--subscription',$subscription,'--resource-group',$RG,'--name',$AcaEnvironmentName,'--output','json') 'Read ACA environment';$acr=Invoke-AzJson @('acr','show','--subscription',$subscription,'--resource-group',$RG,'--name',$AcrName,'--output','json') 'Read ACR';$dns=Invoke-AzJson @('network','private-dns','record-set','a','show','--subscription',$subscription,'--resource-group',$RG,'--zone-name','privatelink.database.windows.net','--name',$SqlServer,'--output','json') 'Read private DNS'
@@ -299,10 +344,13 @@ try {
   $bootstrapPrincipal=[string]$bootstrap.principalId;$bootstrapClient=[string]$bootstrap.clientId;$bootstrapResource=[string]$bootstrap.id;$migrationClient=[string]$migration.clientId;$apiClient=[string]$api.clientId;$g1=[guid]::Empty;$g2=[guid]::Empty;$g3=[guid]::Empty;$g4=[guid]::Empty
   Check 'bootstrap resource present' (-not [string]::IsNullOrWhiteSpace($bootstrapResource)) 'present';Check 'bootstrap principal GUID' ([guid]::TryParse($bootstrapPrincipal,[ref]$g1)) 'guid';Check 'bootstrap client GUID' ([guid]::TryParse($bootstrapClient,[ref]$g2)) 'guid';Check 'bootstrap IDs distinct' ($bootstrapPrincipal -ne $bootstrapClient) 'distinct';Check 'migration client GUID' ([guid]::TryParse($migrationClient,[ref]$g3)) 'guid';Check 'API client GUID' ([guid]::TryParse($apiClient,[ref]$g4)) 'guid'
   $OriginalHumanAdmin=@(Get-Admin $subscription);Check 'exact human SQL admin' ($OriginalHumanAdmin.Count -eq 1 -and $OriginalHumanAdmin[0].administratorType -eq 'ActiveDirectory' -and $OriginalHumanAdmin[0].login -eq 'Ahmed Sami') 'expected';$TenantId=[string]$OriginalHumanAdmin[0].tenantId
-  Save-Json '06_AZURE_PREFLIGHT.json' @{result='PASS';subscription=$SubscriptionName;resourceGroup=$RG;sqlServer=$SqlServer;database=$Database;databaseStatus=$db.status;sqlState=$sql.state;sqlPublicNetworkAccess=$sql.publicNetworkAccess;sqlEntraOnly=[bool]$sql.administrators.azureAdOnlyAuthentication;minimalTlsVersion=$sql.minimalTlsVersion;privateEndpointCount=$pe.Count;privateDnsIp=$dns.aRecords[0].ipv4Address;acaEnvironment=$AcaEnvironmentName;acaState=$aca.properties.provisioningState;acrAdminEnabled=[bool]$acr.adminUserEnabled;acceptedImage=$ExpectedImage}
+  $jobName="p0-sql-bootstrap-v2-5-r3-$RunId";$existingJobs=@(Invoke-AzJson @('containerapp','job','list','--subscription',$subscription,'--resource-group',$RG,'--output','json') 'Read existing Jobs')
+  Save-Json '06_AZURE_PREFLIGHT.json' @{result='PASS';subscription=$SubscriptionName;resourceGroup=$RG;sqlServer=$SqlServer;database=$Database;databaseStatus=$db.status;sqlState=$sql.state;sqlPublicNetworkAccess=$sql.publicNetworkAccess;sqlEntraOnly=[bool]$sql.administrators.azureAdOnlyAuthentication;minimalTlsVersion=$sql.minimalTlsVersion;privateEndpointCount=$pe.Count;privateDnsIp=$dns.aRecords[0].ipv4Address;acaEnvironment=$AcaEnvironmentName;acaState=$aca.properties.provisioningState;acrAdminEnabled=[bool]$acr.adminUserEnabled;acceptedImage=$ExpectedImage;historicalJobCount=$existingJobs.Count;targetJobNameAbsent=(@($existingJobs|Where-Object{$_.name -eq $jobName}).Count -eq 0)}
   Save-Json '07_UAMI_IDENTITY_MATRIX.json' @(@{name='bootstrap';resourceId=$bootstrapResource;principalId=$bootstrapPrincipal;clientId=$bootstrapClient;principalClientDistinct=$true},@{name='migration';clientId=$migrationClient},@{name='api';clientId=$apiClient});Save-Json '08_HUMAN_SQL_ADMIN_SNAPSHOT.json' @{result='PASS';login=$OriginalHumanAdmin[0].login;sid=$OriginalHumanAdmin[0].sid;tenantId=$OriginalHumanAdmin[0].tenantId;administratorType=$OriginalHumanAdmin[0].administratorType}
 
-  $jobName="p0-sql-bootstrap-v2-5-r2-$RunId";$jobs=@(Invoke-AzJson @('containerapp','job','list','--subscription',$subscription,'--resource-group',$RG,'--output','json') 'Read existing Jobs');Check 'R2 Job name absent' (@($jobs|Where-Object{$_.name -eq $jobName}).Count -eq 0) 'absent';New-BootstrapJob $jobName $bootstrapResource ([string]$aca.id) ([string]$acr.loginServer) $TenantId ([string]$sql.fullyQualifiedDomainName) $bootstrapPrincipal $apiClient $migrationClient
+  Check 'R3 Job name absent' (@($existingJobs|Where-Object{$_.name -eq $jobName}).Count -eq 0) 'absent'
+  if($PreflightOnly){$PreflightOnlyPass=$true}else{
+  New-BootstrapJob $jobName $bootstrapResource ([string]$aca.id) ([string]$acr.loginServer) $TenantId ([string]$sql.fullyQualifiedDomainName) $bootstrapPrincipal $apiClient $migrationClient
   $job=Invoke-AzJson @('containerapp','job','show','--subscription',$subscription,'--resource-group',$RG,'--name',$jobName,'--output','json') 'Read R2 Job prestart';$c=$job.properties.template.containers[0];$ids=@($job.identity.userAssignedIdentities.PSObject.Properties.Name);$reg=@($job.properties.configuration.registries|Where-Object{$_.server -eq $acr.loginServer});$uid=@($c.env|Where-Object{$_.name -eq 'SQL_ODBC_UID'});$ug=[guid]::Empty
   Check 'Job image exact' ($c.image -eq $ExpectedImage) 'exact';Check 'Job identity exact' ($ids.Count -eq 1 -and $ids[0] -eq $bootstrapResource) 'exact';Check 'Job registry identity exact' ($reg.Count -eq 1 -and $reg[0].identity -eq $bootstrapResource) 'exact';Check 'Job python -c' (@($c.command).Count -eq 1 -and $c.command[0] -eq 'python' -and @($c.args).Count -eq 2 -and $c.args[0] -eq '-c') 'python -c';Check 'Job UID principal ID' ($uid.Count -eq 1 -and $uid[0].value -eq $bootstrapPrincipal -and $uid[0].value -ne $bootstrapClient -and [guid]::TryParse([string]$uid[0].value,[ref]$ug)) 'principalId/objectId';Check 'Job singleton no retries' ([int]$job.properties.configuration.replicaRetryLimit -eq 0 -and [int]$job.properties.configuration.manualTriggerConfig.parallelism -eq 1 -and [int]$job.properties.configuration.manualTriggerConfig.replicaCompletionCount -eq 1) 'PASS'
   Save-Json '09_R2_JOB_PRESTART_READBACK.json' @{result='PASS';jobName=$jobName;imageExact=$true;identityExact=$true;registryIdentityExact=$true;command=@('python','-c');uidEqualsBootstrapPrincipalId=$true;uidEqualsBootstrapClientId=$false;replicaRetryLimit=0;parallelism=1;completionCount=1;triggerType='Manual'}
@@ -313,6 +361,7 @@ try {
   $run=Start-OneExecution $jobName;$markers=@([regex]::Matches([string]$run.log,'(?m)PROPOSALOPS_V25_RESULT=(\{.*\})')|ForEach-Object{$_.Groups[1].Value});if($markers.Count -ne 1){Set-UnknownSqlState;Save-Json '11_BOOTSTRAP_EXECUTION_RESULT.json' @{result='FAIL';jobName=$jobName;execution=$run.execution;status=$run.status;finalMarkerCount=$markers.Count;sqlMutationState=$MutationState.SQL_MUTATION_STATE};throw 'SQL_RESULT_MARKER_NOT_RECOVERED'}
   $sqlResult=$markers[0]|ConvertFrom-Json;$MutationState.SQL_MUTATION_STATE=[string]$sqlResult.sql_mutation_state;$MutationCounts.SQL_CONNECTION_ATTEMPTS=[int]$sqlResult.sql_connection_attempts;$MutationCounts.SQL_CREATE_USER_MUTATIONS=[int]$sqlResult.api_mutations+[int]$sqlResult.migration_mutations;$MutationCounts.SQL_ROLE_MUTATIONS=[int]$sqlResult.role_mutations;$MutationCounts.SQL_PERMISSION_GRANTS=[int]$sqlResult.permission_grants;$MutationCounts.SQL_DDL_MUTATIONS=$MutationCounts.SQL_CREATE_USER_MUTATIONS+$MutationCounts.SQL_ROLE_MUTATIONS+$MutationCounts.SQL_PERMISSION_GRANTS;$MutationCounts.SQL_DML_MUTATIONS=if([bool]$sqlResult.sql_dml_executed){'UNKNOWN'}else{0}
   Check 'one SQL connection attempt' ($MutationCounts.SQL_CONNECTION_ATTEMPTS -eq 1) '1';Check 'SQL login target permission' ($sqlResult.sql_login -eq 'PASS' -and $sqlResult.sql_target_db -eq 'PASS' -and $sqlResult.sql_required_permission -eq 'PASS') 'PASS';Check 'contained principals verified' ([bool]$sqlResult.post_verification) 'PASS';Check 'SQL DML zero' (-not [bool]$sqlResult.sql_dml_executed) 'false';Check 'R2 Job succeeded' ($run.status -eq 'Succeeded') $run.status;Save-Json '11_BOOTSTRAP_EXECUTION_RESULT.json' @{result='PASS';jobName=$jobName;execution=$run.execution;status=$run.status;finalMarkerCount=1;sqlResult=$sqlResult;automaticRetries=0}
+  }
 } catch {
   if($null -eq $Failure){$Failure=$_.Exception.Message}
   if($Failure -match 'V24_EVIDENCE_NOT_FOUND'){$FailureCode='V24_EVIDENCE_NOT_FOUND'}elseif($Failure -match 'V24_EVIDENCE_AMBIGUOUS'){$FailureCode='V24_EVIDENCE_AMBIGUOUS'}elseif($Failure -match 'SQL_RESULT_MARKER_NOT_RECOVERED'){$FailureCode='SQL_RESULT_MARKER_NOT_RECOVERED'}elseif($Failure -match 'PRE_AZURE|V24|GIT|R2|scalar|application|subscription|resource group|SQL server|database|private|ACA|ACR|UAMI|human SQL admin|Job'){$FailureCode='PRE_AZURE_GATE_FAILURE'}else{$FailureCode='EXECUTION_FAILURE'}
@@ -333,15 +382,16 @@ finally {
   Save-Json '14_POSTCONDITIONS.json' @{sqlPublicNetworkAccess=$publicAfter;sqlPublicNetworkDisabled=($publicAfter -eq 'Disabled');humanSqlAdminRestored=$restoreValue;jobExecutionStarted=$ExecutionStarted;forbiddenStagesExecuted=$false}
   Save-Json '15_V24_POST_RUN_REHASH.json' $v24Post
   Save-Json '16_SAFETY_CEILINGS.json' @{AUTOMATIC_RETRIES=0;BOOTSTRAP_JOB_UPDATES=0;BOOTSTRAP_JOB_DELETES=0;ENTRA_MUTATIONS=0;RBAC_MUTATIONS=0;FIREWALL_MUTATIONS=0;SQL_PUBLIC_NETWORK_MUTATIONS=0;MIGRATION_EXECUTIONS=0;SEED_EXECUTIONS=0;API_DEPLOYMENTS=0;FRONTEND_DEPLOYMENTS=0;SYNLOGY_READS=0;REAL_AMEC_DATA_READS=0;REAL_AMEC_DATA_WRITES=0;PHASE6_MUTATIONS=0;SQL_DML_MUTATIONS=$MutationCounts.SQL_DML_MUTATIONS}
-  $final=if($Failure -and $FailureCode -eq 'HUMAN_SQL_ADMIN_RESTORE_FAILURE'){'V2_5_CRITICAL_HUMAN_SQL_ADMIN_RESTORE_FAILURE'}elseif($Failure){if($AzureMutationOccurred){'V2_5_NATIVE_MSI_BOOTSTRAP_FAIL'}else{'V2_5_STOPPED_PRE_AZURE'}}else{'V2_5_NATIVE_MSI_BOOTSTRAP_PASS'}
-  Save-Json '17_FINAL_RESULT.json' @{FINAL_RESULT=$final;FAILURE_CODE=$FailureCode;FAILURE=$Failure;PRIOR_V25_RESULT='STOPPED_PRE_AZURE';AZURE_ATTEMPT_CONSUMED=[bool]$AzureAttemptConsumed;BOOTSTRAP_JOB_CREATED=[bool]$JobCreated;BOOTSTRAP_JOB_EXECUTION_STARTED=[bool]$ExecutionStarted;SQL_ADMIN_SWITCH_VERIFIED=[bool]$AdminSwitchVerified;SQL_CONNECTION_ATTEMPTS=$MutationCounts.SQL_CONNECTION_ATTEMPTS;AZURE_SQL_LOGIN_PROVEN=($null -ne $sqlResult -and $sqlResult.sql_login -eq 'PASS');SQL_CONTAINED_PRINCIPALS_PROVEN=($null -ne $sqlResult -and [bool]$sqlResult.post_verification);HUMAN_SQL_ADMIN_RESTORED=$restoreValue;MALFORMED_UID_CONFIRMED_BLOCKER=$true;MALFORMED_UID_SOLE_ROOT_CAUSE='NOT_CLAIMED';V24_SDK_CORROBORATION='FAIL_UNRESOLVED';SCHEMA_MIGRATION_PROVEN=$false;SYNTHETIC_SEED_PROVEN=$false;API_DEPLOYMENT_PROVEN=$false;AUTHENTICATED_BROWSER_RUNTIME_PROVEN=$false;FULL_DOCUMENT_STORAGE_CONTINUITY_PROVEN=$false;REAL_AMEC_DATA_ALLOWED=$false;CROSS_TRACK_CONVERGENCE_AUTHORIZED=$false;PHASE6_AUTHORIZED=$false;STAGE1R_A_RERUN=$false;T3_RERUN=$false;T5_AUTHORIZED=$false;NEXT='OWNER_REVIEW';FINAL_MANIFEST_RECOMPUTATION='PASS'}
+  $final=if($Failure -and $FailureCode -eq 'HUMAN_SQL_ADMIN_RESTORE_FAILURE'){'V2_5_CRITICAL_HUMAN_SQL_ADMIN_RESTORE_FAILURE'}elseif($Failure){if($AzureMutationOccurred){'V2_5_NATIVE_MSI_BOOTSTRAP_FAIL'}else{'V2_5_STOPPED_PRE_AZURE'}}elseif($PreflightOnlyPass){'V2_5_R3_PREFLIGHT_ONLY_PASS'}else{'V2_5_NATIVE_MSI_BOOTSTRAP_PASS'}
+  Save-Json '17_FINAL_RESULT.json' @{FINAL_RESULT=$final;MODE=$Mode;FAILURE_CODE=$FailureCode;FAILURE=$Failure;PRIOR_V25_RESULT='STOPPED_PRE_AZURE';AZURE_ATTEMPT_CONSUMED=[bool]$AzureAttemptConsumed;BOOTSTRAP_JOB_CREATED=[bool]$JobCreated;BOOTSTRAP_JOB_EXECUTION_STARTED=[bool]$ExecutionStarted;BOOTSTRAP_JOB_EXECUTION_START_ATTEMPTED=[bool]$ExecutionStartAttempted;BOOTSTRAP_JOB_EXECUTION_REQUEST_ACCEPTED=[bool]$ExecutionRequestAccepted;BOOTSTRAP_JOB_EXECUTION_OBSERVED=[bool]$ExecutionObserved;EXECUTION_ACTUAL_STATE=$ExecutionTerminalStatus;SQL_ADMIN_SWITCH_VERIFIED=[bool]$AdminSwitchVerified;SQL_CONNECTION_ATTEMPTS=$MutationCounts.SQL_CONNECTION_ATTEMPTS;AZURE_SQL_LOGIN_PROVEN=($null -ne $sqlResult -and $sqlResult.sql_login -eq 'PASS');SQL_CONTAINED_PRINCIPALS_PROVEN=($null -ne $sqlResult -and [bool]$sqlResult.post_verification);HUMAN_SQL_ADMIN_RESTORED=$restoreValue;MALFORMED_UID_CONFIRMED_BLOCKER=$true;MALFORMED_UID_SOLE_ROOT_CAUSE='NOT_CLAIMED';V24_SDK_CORROBORATION='FAIL_UNRESOLVED';SCHEMA_MIGRATION_PROVEN=$false;SYNTHETIC_SEED_PROVEN=$false;API_DEPLOYMENT_PROVEN=$false;FRONTEND_DEPLOYMENT_PROVEN=$false;AUTHENTICATED_BROWSER_RUNTIME_PROVEN=$false;FULL_DOCUMENT_STORAGE_CONTINUITY_PROVEN=$false;REAL_AMEC_DATA_ALLOWED=$false;CROSS_TRACK_CONVERGENCE_AUTHORIZED=$false;PHASE6_AUTHORIZED=$false;STAGE1R_A_RERUN=$false;T3_RERUN=$false;T5_AUTHORIZED=$false;NEXT='OWNER_REVIEW';EVIDENCE_SEAL_REQUIRED=$true;MANIFEST_BUILT_LAST=$true;EVIDENCE_MUTATIONS_AFTER_MANIFEST_REQUIRED=0}
   $required=@('00_RUN_CONTEXT.json','01_PRIOR_V25_STOPPED_STATE.json','02_V24_PRE_RUN_REVALIDATION.json','03_SCALAR_REPAIR_REMOTE_PIN.json','04_V25_V1_HARNESS_PIN.json','05_V25_R2_HARNESS_REMOTE_PIN.json','06_AZURE_PREFLIGHT.json','07_UAMI_IDENTITY_MATRIX.json','08_HUMAN_SQL_ADMIN_SNAPSHOT.json','09_R2_JOB_PRESTART_READBACK.json','10_SQL_ADMIN_SWITCH_RESULT.json','11_BOOTSTRAP_EXECUTION_RESULT.json','12_SQL_MUTATION_LEDGER.json','13_HUMAN_ADMIN_RESTORE_RESULT.json','14_POSTCONDITIONS.json','15_V24_POST_RUN_REHASH.json','16_SAFETY_CEILINGS.json','17_FINAL_RESULT.json')
   foreach($name in $required){if(-not(Test-Path -LiteralPath(Join-Path $EvidenceRoot $name))){Save-Json $name @{result='NOT_EXECUTED';reason=$FailureCode}}}
   Save-Json '18_INDEPENDENT_CHECKS.json' $Checks
-  $transcript=@("FINAL_RESULT=$final","FAILURE_CODE=$FailureCode","AZURE_ATTEMPT_CONSUMED=$([bool]$AzureAttemptConsumed)","BOOTSTRAP_JOB_CREATED=$JobCreated","BOOTSTRAP_JOB_EXECUTION_STARTED=$ExecutionStarted","SQL_ADMIN_SWITCH_VERIFIED=$AdminSwitchVerified","HUMAN_SQL_ADMIN_RESTORED=$restoreValue","SQL_CONNECTION_ATTEMPTS=$($MutationCounts.SQL_CONNECTION_ATTEMPTS)","SQL_DDL_MUTATIONS=$($MutationCounts.SQL_DDL_MUTATIONS)","SQL_DML_MUTATIONS=$($MutationCounts.SQL_DML_MUTATIONS)","ENTRA_MUTATIONS=0","RBAC_MUTATIONS=0","MIGRATION_EXECUTIONS=0","SEED_EXECUTIONS=0","API_DEPLOYMENTS=0","FRONTEND_DEPLOYMENTS=0","SYNLOGY_READS=0","REAL_AMEC_DATA_READS=0","REAL_AMEC_DATA_WRITES=0","PHASE6_MUTATIONS=0","MALFORMED_UID_CONFIRMED_BLOCKER=true","MALFORMED_UID_SOLE_ROOT_CAUSE=NOT_CLAIMED","V24_SDK_CORROBORATION=FAIL_UNRESOLVED","NEXT=OWNER_REVIEW","EVIDENCE_ROOT=$EvidenceRoot")
+  $transcript=@("MODE=$Mode","FINAL_RESULT=$final","FAILURE_CODE=$FailureCode","AZURE_ATTEMPT_CONSUMED=$([bool]$AzureAttemptConsumed)","BOOTSTRAP_JOB_CREATED=$JobCreated","BOOTSTRAP_JOB_EXECUTION_START_ATTEMPTED=$ExecutionStartAttempted","BOOTSTRAP_JOB_EXECUTION_REQUEST_ACCEPTED=$ExecutionRequestAccepted","BOOTSTRAP_JOB_EXECUTION_STARTED=$ExecutionStarted","BOOTSTRAP_JOB_EXECUTION_OBSERVED=$ExecutionObserved","EXECUTION_ACTUAL_STATE=$ExecutionTerminalStatus","SQL_ADMIN_SWITCH_VERIFIED=$AdminSwitchVerified","HUMAN_SQL_ADMIN_RESTORED=$restoreValue","SQL_CONNECTION_ATTEMPTS=$($MutationCounts.SQL_CONNECTION_ATTEMPTS)","SQL_DDL_MUTATIONS=$($MutationCounts.SQL_DDL_MUTATIONS)","SQL_DML_MUTATIONS=$($MutationCounts.SQL_DML_MUTATIONS)","ENTRA_MUTATIONS=0","RBAC_MUTATIONS=0","MIGRATION_EXECUTIONS=0","SEED_EXECUTIONS=0","API_DEPLOYMENTS=0","FRONTEND_DEPLOYMENTS=0","SYNLOGY_READS=0","REAL_AMEC_DATA_READS=0","REAL_AMEC_DATA_WRITES=0","PHASE6_MUTATIONS=0","MALFORMED_UID_CONFIRMED_BLOCKER=true","MALFORMED_UID_SOLE_ROOT_CAUSE=NOT_CLAIMED","V24_SDK_CORROBORATION=FAIL_UNRESOLVED","NEXT=OWNER_REVIEW","EVIDENCE_ROOT=$EvidenceRoot")
   $transcript|Set-Content -LiteralPath(Join-Path $EvidenceRoot 'transcript.txt') -Encoding utf8
   $manifestPath=Join-Path $EvidenceRoot 'MANIFEST.sha256';$manifestRows=@();foreach($file in @(Get-ChildItem -LiteralPath $EvidenceRoot -File|Where-Object{$_.Name -ne 'MANIFEST.sha256'}|Sort-Object Name)){$manifestRows+="$(Sha $file.FullName)  $($file.Name)"};$manifestRows|Set-Content -LiteralPath $manifestPath -Encoding utf8
   $sealed=Read-Manifest $EvidenceRoot 20;if(-not $sealed.pass){throw 'FINAL_MANIFEST_RECOMPUTATION_FAIL'}
-  Write-Output "EVIDENCE_ROOT=$EvidenceRoot";Write-Output "MANIFEST_SHA256=$(Sha $manifestPath)";Write-Output "FINAL_RESULT=$final"
+  $sealPath="$EvidenceRoot.SEAL.json";Save-ExternalJson $sealPath @{result='PASS';evidenceRoot=$EvidenceRoot;manifestSha256=(Sha $manifestPath);manifestMemberCount=$sealed.foundMembers;manifestRecomputation='PASS';evidenceMutationsAfterManifest=0;finalResult=$final;r3Head=$head;harnessSha256=(Sha $PSCommandPath);azureMutations=([int]$MutationCounts.BOOTSTRAP_JOB_CREATES+[int]$MutationCounts.BOOTSTRAP_JOB_EXECUTIONS+[int]$MutationCounts.SQL_ADMIN_SWITCH_MUTATIONS+[int]$MutationCounts.SQL_ADMIN_RESTORE_MUTATIONS)}
+  Write-Output "EVIDENCE_ROOT=$EvidenceRoot";Write-Output "MANIFEST_SHA256=$(Sha $manifestPath)";Write-Output "FINAL_MANIFEST_RECOMPUTATION=PASS";Write-Output "SEAL_PATH=$sealPath";Write-Output "FINAL_RESULT=$final"
 }
 if($Failure){exit 1}
