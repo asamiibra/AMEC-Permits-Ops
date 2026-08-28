@@ -1,11 +1,14 @@
 import base64
+import binascii
 import json
 from pathlib import Path
 import os
+import re
 import struct
 import urllib.parse
 import urllib.request
 from urllib.parse import parse_qs, urlsplit
+from uuid import UUID
 
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
@@ -92,13 +95,89 @@ def _token_claims(token: str) -> dict[str, str | None]:
         claims = json.loads(
             base64.urlsafe_b64decode(encoded_body.encode("ascii")).decode("utf-8")
         )
-    except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+    except (ValueError, UnicodeDecodeError, json.JSONDecodeError, binascii.Error):
+        return {"aud": None, "oid": None, "tid": None}
+    if not isinstance(claims, dict):
         return {"aud": None, "oid": None, "tid": None}
     return {
         "aud": claims.get("aud"),
         "oid": claims.get("oid"),
         "tid": claims.get("tid"),
     }
+
+
+def _is_azure_sql_audience(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    try:
+        parsed = urlsplit(value)
+        port = parsed.port
+    except ValueError:
+        return False
+    return (
+        parsed.scheme.lower() == "https"
+        and parsed.hostname is not None
+        and parsed.hostname.lower() == "database.windows.net"
+        and port is None
+        and parsed.username is None
+        and parsed.password is None
+        and parsed.path in {"", "/"}
+        and not parsed.query
+        and not parsed.fragment
+    )
+
+
+def _guid_equal(left: object, right: object) -> bool:
+    try:
+        return UUID(str(left)) == UUID(str(right))
+    except (ValueError, AttributeError, TypeError):
+        return False
+
+
+def _validate_azure_sql_token_claims(
+    claims: dict[str, object],
+    *,
+    principal_id: str,
+    tenant_id: str,
+) -> None:
+    if (
+        not _is_azure_sql_audience(claims.get("aud"))
+        or not _guid_equal(claims.get("oid"), principal_id)
+        or not _guid_equal(claims.get("tid"), tenant_id)
+    ):
+        raise RuntimeError("ACA managed-identity token claims mismatch")
+
+
+def _remove_sqlalchemy_trusted_connection(connection_args: object) -> str:
+    if not isinstance(connection_args, list) or len(connection_args) != 1:
+        raise RuntimeError(
+            "Azure SQL token authentication requires exactly one ODBC connection string"
+        )
+    connection_string = connection_args[0]
+    if not isinstance(connection_string, str):
+        raise RuntimeError(
+            "Azure SQL token authentication requires an ODBC connection string"
+        )
+
+    # SQLAlchemy's mssql+pyodbc dialect adds this credential when no URL
+    # username/password is present. Remove that generated setting only; all
+    # other connection-string settings remain byte-for-byte untouched.
+    cleaned = ";".join(
+        segment
+        for segment in connection_string.split(";")
+        if not re.fullmatch(
+            r"\s*trusted_connection\s*=\s*yes\s*",
+            segment,
+            flags=re.IGNORECASE,
+        )
+    )
+    forbidden = ("uid=", "pwd=", "authentication=", "trusted_connection=")
+    if any(item in cleaned.lower() for item in forbidden):
+        raise RuntimeError(
+            "Azure SQL token authentication forbids credential-bearing ODBC settings"
+        )
+    connection_args[0] = cleaned
+    return cleaned
 
 
 def _azure_sql_access_token() -> str:
@@ -132,24 +211,29 @@ def _azure_sql_access_token() -> str:
 
     token = body.get("access_token")
     claims = _token_claims(token) if isinstance(token, str) else {}
-    if (
-        not isinstance(token, str)
-        or body.get("client_id") != client_id
-        or claims.get("aud") != AZURE_SQL_RESOURCE
-        or claims.get("oid") != principal_id
-        or claims.get("tid") != tenant_id
-    ):
+    if not isinstance(token, str) or not _guid_equal(body.get("client_id"), client_id):
         raise RuntimeError("ACA managed-identity token claims mismatch")
+    _validate_azure_sql_token_claims(
+        claims,
+        principal_id=principal_id,
+        tenant_id=tenant_id,
+    )
     return token
 
 
 def _inject_azure_sql_access_token(dialect, connection_record, connection_args, connection_kwargs):
-    del dialect, connection_record, connection_args
+    del dialect, connection_record
+    _remove_sqlalchemy_trusted_connection(connection_args)
     token_bytes = _azure_sql_access_token().encode("utf-16-le")
     packed_token = struct.pack("<I", len(token_bytes)) + token_bytes
-    connection_kwargs["attrs_before"] = {
-        SQL_COPT_SS_ACCESS_TOKEN: packed_token,
-    }
+    existing_attrs = connection_kwargs.get("attrs_before")
+    if existing_attrs is None:
+        existing_attrs = {}
+    if not isinstance(existing_attrs, dict):
+        raise RuntimeError("Azure SQL token authentication requires attrs_before mapping")
+    attrs_before = dict(existing_attrs)
+    attrs_before[SQL_COPT_SS_ACCESS_TOKEN] = packed_token
+    connection_kwargs["attrs_before"] = attrs_before
 
 def _migration_script_location() -> Path:
     return (
