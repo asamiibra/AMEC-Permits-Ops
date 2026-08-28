@@ -148,6 +148,73 @@ def _validate_azure_sql_token_claims(
         raise RuntimeError("ACA managed-identity token claims mismatch")
 
 
+def _parse_odbc_attribute(segment: str) -> tuple[str, str] | None:
+    stripped = segment.strip()
+    if not stripped:
+        return None
+    separator = segment.find("=")
+    if separator < 0:
+        raise RuntimeError("Azure SQL token authentication received malformed ODBC attributes")
+    key = segment[:separator].strip()
+    raw_value = segment[separator + 1 :].strip()
+    if not key or ";" in key or "{" in key or "}" in key:
+        raise RuntimeError("Azure SQL token authentication received malformed ODBC attributes")
+    if raw_value.startswith("{"):
+        value_chars: list[str] = []
+        index = 1
+        closed = False
+        while index < len(raw_value):
+            char = raw_value[index]
+            if char == "}":
+                if index + 1 < len(raw_value) and raw_value[index + 1] == "}":
+                    value_chars.append("}")
+                    index += 2
+                    continue
+                index += 1
+                closed = True
+                break
+            value_chars.append(char)
+            index += 1
+        if not closed or raw_value[index:].strip():
+            raise RuntimeError("Azure SQL token authentication received malformed ODBC attributes")
+        return key.casefold(), "".join(value_chars)
+    if "{" in raw_value or "}" in raw_value:
+        raise RuntimeError("Azure SQL token authentication received malformed ODBC attributes")
+    return key.casefold(), raw_value
+
+
+def _parse_odbc_attributes(connection_string: str) -> list[tuple[str, str, str]]:
+    segments: list[str] = []
+    start = 0
+    index = 0
+    in_braced_value = False
+    while index < len(connection_string):
+        char = connection_string[index]
+        if in_braced_value:
+            if char == "}":
+                if index + 1 < len(connection_string) and connection_string[index + 1] == "}":
+                    index += 2
+                    continue
+                in_braced_value = False
+            index += 1
+            continue
+        if char == "{":
+            in_braced_value = True
+        elif char == ";":
+            segments.append(connection_string[start:index])
+            start = index + 1
+        index += 1
+    if in_braced_value:
+        raise RuntimeError("Azure SQL token authentication received malformed ODBC attributes")
+    segments.append(connection_string[start:])
+    parsed: list[tuple[str, str, str]] = []
+    for segment in segments:
+        attribute = _parse_odbc_attribute(segment)
+        if attribute is not None:
+            parsed.append((segment, attribute[0], attribute[1]))
+    return parsed
+
+
 def _remove_sqlalchemy_trusted_connection(connection_args: object) -> str:
     if not isinstance(connection_args, list) or len(connection_args) != 1:
         raise RuntimeError(
@@ -159,23 +226,22 @@ def _remove_sqlalchemy_trusted_connection(connection_args: object) -> str:
             "Azure SQL token authentication requires an ODBC connection string"
         )
 
-    # SQLAlchemy's mssql+pyodbc dialect adds this credential when no URL
-    # username/password is present. Remove that generated setting only; all
-    # other connection-string settings remain byte-for-byte untouched.
-    cleaned = ";".join(
-        segment
-        for segment in connection_string.split(";")
-        if not re.fullmatch(
-            r"\s*trusted_connection\s*=\s*yes\s*",
-            segment,
-            flags=re.IGNORECASE,
-        )
-    )
-    forbidden = ("uid=", "pwd=", "authentication=", "trusted_connection=")
-    if any(item in cleaned.lower() for item in forbidden):
+    parsed = _parse_odbc_attributes(connection_string)
+    trusted = [(index, value) for index, (_, key, value) in enumerate(parsed) if key == "trusted_connection"]
+    if len(trusted) > 1:
+        raise RuntimeError("Azure SQL token authentication forbids duplicate Trusted_Connection attributes")
+    if trusted and trusted[0][1].casefold() != "yes":
+        raise RuntimeError("Azure SQL token authentication forbids unexpected Trusted_Connection attributes")
+    if any(key in {"uid", "pwd", "authentication"} for _, key, _ in parsed):
         raise RuntimeError(
             "Azure SQL token authentication forbids credential-bearing ODBC settings"
         )
+    trusted_index = trusted[0][0] if trusted else None
+    cleaned = ";".join(
+        segment
+        for index, (segment, _, _) in enumerate(parsed)
+        if index != trusted_index
+    )
     connection_args[0] = cleaned
     return cleaned
 
@@ -224,13 +290,17 @@ def _azure_sql_access_token() -> str:
 def _inject_azure_sql_access_token(dialect, connection_record, connection_args, connection_kwargs):
     del dialect, connection_record
     _remove_sqlalchemy_trusted_connection(connection_args)
-    token_bytes = _azure_sql_access_token().encode("utf-16-le")
-    packed_token = struct.pack("<I", len(token_bytes)) + token_bytes
+    if not isinstance(connection_kwargs, dict):
+        raise RuntimeError("Azure SQL token authentication requires connection keyword mapping")
     existing_attrs = connection_kwargs.get("attrs_before")
     if existing_attrs is None:
         existing_attrs = {}
     if not isinstance(existing_attrs, dict):
         raise RuntimeError("Azure SQL token authentication requires attrs_before mapping")
+    if SQL_COPT_SS_ACCESS_TOKEN in existing_attrs:
+        raise RuntimeError("Azure SQL token authentication received a competing access token")
+    token_bytes = _azure_sql_access_token().encode("utf-16-le")
+    packed_token = struct.pack("<I", len(token_bytes)) + token_bytes
     attrs_before = dict(existing_attrs)
     attrs_before[SQL_COPT_SS_ACCESS_TOKEN] = packed_token
     connection_kwargs["attrs_before"] = attrs_before

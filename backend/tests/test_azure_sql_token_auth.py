@@ -4,6 +4,8 @@ import struct
 from types import SimpleNamespace
 
 import pytest
+from sqlalchemy.engine import make_url
+from sqlalchemy.dialects.mssql.pyodbc import MSDialect_pyodbc
 
 from backend.app import db
 
@@ -55,6 +57,84 @@ def test_azure_sql_token_event_packs_utf16le_access_token(monkeypatch):
         "TrustServerCertificate=no",
     ):
         assert retained in connection_args[0]
+
+
+def test_sqlalchemy_dialect_generates_the_pre_hook_trusted_connection():
+    url = make_url(
+        "mssql+pyodbc://sql.example:1433/app?driver=ODBC+Driver+18+for+SQL+Server"
+        "&Encrypt=yes&TrustServerCertificate=no"
+    )
+    connection_args, _ = MSDialect_pyodbc().create_connect_args(url)
+    assert len(connection_args) == 1
+    assert "Trusted_Connection=Yes" in connection_args[0]
+
+
+@pytest.mark.parametrize(
+    "connection_string",
+    [
+        "DRIVER={ODBC Driver 18 for SQL Server};UID = bad",
+        "DRIVER={ODBC Driver 18 for SQL Server};Pwd = {bad;value}",
+        "DRIVER={ODBC Driver 18 for SQL Server};Authentication = ActiveDirectoryMsi",
+        "DRIVER={ODBC Driver 18 for SQL Server};Trusted_Connection = No",
+        "DRIVER={ODBC Driver 18 for SQL Server};Trusted_Connection=Yes;Trusted_Connection=Yes",
+        "DRIVER={ODBC Driver 18 for SQL Server};Trusted_Connection=Yes;Trusted_Connection=No",
+    ],
+)
+def test_azure_sql_token_event_rejects_semantic_credential_attributes(monkeypatch, connection_string):
+    monkeypatch.setattr(db, "_azure_sql_access_token", lambda: "unused")
+    with pytest.raises(RuntimeError, match="forbids"):
+        db._inject_azure_sql_access_token(None, None, [connection_string], {})
+
+
+@pytest.mark.parametrize(
+    "connection_string",
+    [
+        "DRIVER={ODBC Driver 18 for SQL Server;SERVER=sql.example",
+        "DRIVER={ODBC Driver 18 for SQL Server};MalformedAttribute",
+        "DRIVER={ODBC Driver 18 for SQL Server};SERVER={sql.example}trailing",
+    ],
+)
+def test_azure_sql_token_event_rejects_malformed_odbc_attributes(monkeypatch, connection_string):
+    monkeypatch.setattr(db, "_azure_sql_access_token", lambda: "unused")
+    with pytest.raises(RuntimeError, match="malformed"):
+        db._inject_azure_sql_access_token(None, None, [connection_string], {})
+
+
+def test_azure_sql_token_event_rejects_preexisting_access_token(monkeypatch):
+    monkeypatch.setattr(db, "_azure_sql_access_token", lambda: "unused")
+    with pytest.raises(RuntimeError, match="competing"):
+        db._inject_azure_sql_access_token(
+            None,
+            None,
+            ["DRIVER={ODBC Driver 18 for SQL Server};Trusted_Connection=Yes"],
+            {"attrs_before": {db.SQL_COPT_SS_ACCESS_TOKEN: b"sentinel"}},
+        )
+
+
+def test_azure_sql_token_event_preserves_braced_non_authentication_values(monkeypatch):
+    monkeypatch.setattr(db, "_azure_sql_access_token", lambda: "unused")
+    connection_args = [
+        "Driver={ODBC Driver 18 for SQL Server};"
+        "Server={sql;example};Database={app};Connection Timeout=8;"
+        "Trusted_Connection=Yes"
+    ]
+    db._inject_azure_sql_access_token(None, None, connection_args, {})
+    assert connection_args[0] == (
+        "Driver={ODBC Driver 18 for SQL Server};"
+        "Server={sql;example};Database={app};Connection Timeout=8"
+    )
+
+
+def test_azure_sql_token_event_acquires_a_fresh_token_per_connection(monkeypatch):
+    tokens = iter(("token-one", "token-two"))
+    monkeypatch.setattr(db, "_azure_sql_access_token", lambda: next(tokens))
+    first_args = ["DRIVER={ODBC Driver 18 for SQL Server};Trusted_Connection=Yes"]
+    second_args = ["DRIVER={ODBC Driver 18 for SQL Server};Trusted_Connection=Yes"]
+    first_kwargs = {}
+    second_kwargs = {}
+    db._inject_azure_sql_access_token(None, None, first_args, first_kwargs)
+    db._inject_azure_sql_access_token(None, None, second_args, second_kwargs)
+    assert first_kwargs["attrs_before"][db.SQL_COPT_SS_ACCESS_TOKEN] != second_kwargs["attrs_before"][db.SQL_COPT_SS_ACCESS_TOKEN]
 
 
 @pytest.mark.parametrize(
