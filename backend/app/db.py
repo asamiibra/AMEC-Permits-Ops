@@ -1,11 +1,16 @@
+import base64
+import json
 from pathlib import Path
 import os
+import struct
+import urllib.parse
+import urllib.request
 from urllib.parse import parse_qs, urlsplit
 
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from .config.settings import get_settings
@@ -17,6 +22,9 @@ settings = get_settings()
 MSSQL_SQLALCHEMY_SCHEME = "mssql+pyodbc"
 POSTGRES_CONNECT_TIMEOUT_SECONDS = 10
 POSTGRES_POOL_RECYCLE_SECONDS = 1_800
+SQL_COPT_SS_ACCESS_TOKEN = 1256
+AZURE_SQL_RESOURCE = "https://database.windows.net/"
+AZURE_IDENTITY_API_VERSION = "2019-08-01"
 
 
 def validate_postgres_tls_url(database_url: str, *, environ: dict[str, str] | None = None) -> None:
@@ -65,17 +73,83 @@ def _engine_options(database_url: str) -> dict[str, object]:
 
 
 def create_database_engine(database_url: str):
-    return create_engine(database_url, future=True, **_engine_options(database_url))
+    active_engine = create_engine(database_url, future=True, **_engine_options(database_url))
+    if (
+        database_url.lower().startswith(MSSQL_SQLALCHEMY_SCHEME)
+        and get_settings().azure_sql_auth_mode.upper()
+        == "MANAGED_IDENTITY_ACCESS_TOKEN"
+    ):
+        event.listen(active_engine, "do_connect", _inject_azure_sql_access_token)
+    return active_engine
 
-engine = create_database_engine(settings.database_url)
 
-SessionLocal = sessionmaker(
-    bind=engine,
-    autoflush=False,
-    autocommit=False,
-    expire_on_commit=False,
-)
+def _token_claims(token: str) -> dict[str, str | None]:
+    parts = token.split(".")
+    if len(parts) != 3:
+        return {"aud": None, "oid": None, "tid": None}
+    encoded_body = parts[1] + ("=" * (-len(parts[1]) % 4))
+    try:
+        claims = json.loads(
+            base64.urlsafe_b64decode(encoded_body.encode("ascii")).decode("utf-8")
+        )
+    except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+        return {"aud": None, "oid": None, "tid": None}
+    return {
+        "aud": claims.get("aud"),
+        "oid": claims.get("oid"),
+        "tid": claims.get("tid"),
+    }
 
+
+def _azure_sql_access_token() -> str:
+    endpoint = os.getenv("IDENTITY_ENDPOINT")
+    identity_header = os.getenv("IDENTITY_HEADER")
+    client_id = get_settings().azure_sql_uami_client_id
+    principal_id = get_settings().azure_sql_uami_principal_id
+    tenant_id = get_settings().entra_tenant_id
+    if not endpoint or not identity_header:
+        raise RuntimeError(
+            "AZURE-PREPROD requires IDENTITY_ENDPOINT and IDENTITY_HEADER"
+        )
+
+    query = urllib.parse.urlencode(
+        {
+            "resource": AZURE_SQL_RESOURCE,
+            "api-version": AZURE_IDENTITY_API_VERSION,
+            "client_id": client_id,
+        }
+    )
+    request = urllib.request.Request(
+        endpoint + "?" + query,
+        headers={"X-IDENTITY-HEADER": identity_header},
+    )
+    with urllib.request.urlopen(request, timeout=POSTGRES_CONNECT_TIMEOUT_SECONDS) as response:
+        if response.status != 200:
+            raise RuntimeError(
+                f"ACA managed-identity token endpoint returned HTTP {response.status}"
+            )
+        body = json.loads(response.read().decode("utf-8"))
+
+    token = body.get("access_token")
+    claims = _token_claims(token) if isinstance(token, str) else {}
+    if (
+        not isinstance(token, str)
+        or body.get("client_id") != client_id
+        or claims.get("aud") != AZURE_SQL_RESOURCE
+        or claims.get("oid") != principal_id
+        or claims.get("tid") != tenant_id
+    ):
+        raise RuntimeError("ACA managed-identity token claims mismatch")
+    return token
+
+
+def _inject_azure_sql_access_token(dialect, connection_record, connection_args, connection_kwargs):
+    del dialect, connection_record, connection_args
+    token_bytes = _azure_sql_access_token().encode("utf-16-le")
+    packed_token = struct.pack("<I", len(token_bytes)) + token_bytes
+    connection_kwargs["attrs_before"] = {
+        SQL_COPT_SS_ACCESS_TOKEN: packed_token,
+    }
 
 def _migration_script_location() -> Path:
     return (
@@ -270,3 +344,13 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+engine = create_database_engine(settings.database_url)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False,
+    expire_on_commit=False,
+)

@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     app_env: str = "DEV"
     database_url: str = "sqlite:///./permitops.db"
     database_migration_url: str = ""
+    azure_sql_auth_mode: str = "DIRECT_ODBC_MSI"
+    azure_sql_uami_client_id: str = ""
+    azure_sql_uami_principal_id: str = ""
     frontend_origins: str = "http://localhost:5173"
     mock_systems_root: str = "./mock-systems"
     synthetic_only: bool = True
@@ -216,6 +219,35 @@ class Settings(BaseSettings):
                     "AZURE-PREPROD requires mssql+pyodbc:// for Azure SQL"
                 )
             self._validate_mssql_url(self.database_url)
+
+            if self.azure_sql_auth_mode.upper() != "MANAGED_IDENTITY_ACCESS_TOKEN":
+                raise ValueError(
+                    "AZURE-PREPROD requires "
+                    "AZURE_SQL_AUTH_MODE=MANAGED_IDENTITY_ACCESS_TOKEN"
+                )
+            for setting_name, value in (
+                ("AZURE_SQL_UAMI_CLIENT_ID", self.azure_sql_uami_client_id),
+                ("AZURE_SQL_UAMI_PRINCIPAL_ID", self.azure_sql_uami_principal_id),
+            ):
+                if not value:
+                    raise ValueError(f"AZURE-PREPROD requires {setting_name}")
+                self._require_guid(value, setting_name)
+            forbidden_auth_keywords = (
+                "uid=",
+                "pwd=",
+                "authentication=",
+                "trusted_connection=",
+            )
+            parsed_database_url = urlsplit(self.database_url)
+            if (
+                parsed_database_url.username
+                or parsed_database_url.password
+                or any(keyword in self.database_url.lower() for keyword in forbidden_auth_keywords)
+            ):
+                raise ValueError(
+                    "AZURE-PREPROD token authentication forbids URL credentials, "
+                    "UID, PWD, Authentication, and Trusted_Connection"
+                )
 
             if self.monitoring_mode.upper() not in {"DISABLED", "APPLICATION_INSIGHTS"}:
                 raise ValueError("MONITORING_MODE must be DISABLED or APPLICATION_INSIGHTS")

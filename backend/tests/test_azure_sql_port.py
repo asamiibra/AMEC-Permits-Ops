@@ -34,7 +34,7 @@ from scripts.db_azure_sql.nullable_unique_audit import audit as nullable_unique_
 
 
 MSSQL_TARGET = (
-    "mssql+pyodbc://runtime:secret@proposalops.database.windows.net:1433/"
+    "mssql+pyodbc://proposalops.database.windows.net:1433/"
     "proposalops?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no"
 )
 
@@ -69,6 +69,9 @@ def test_settings_accepts_only_secure_mssql_target_for_azure_preprod(monkeypatch
         entra_web_client_id="33333333-3333-4333-8333-333333333333",
         storage_provider="mock",
         synology_mode="SYNTHETIC",
+        azure_sql_auth_mode="MANAGED_IDENTITY_ACCESS_TOKEN",
+        azure_sql_uami_client_id="44444444-4444-4444-8444-444444444444",
+        azure_sql_uami_principal_id="55555555-5555-4555-8555-555555555555",
     )
     settings.validate_environment()
 
@@ -86,6 +89,9 @@ def _azure_preprod_settings(database_url: str) -> Settings:
         entra_web_client_id="33333333-3333-4333-8333-333333333333",
         storage_provider="mock",
         synology_mode="SYNTHETIC",
+        azure_sql_auth_mode="MANAGED_IDENTITY_ACCESS_TOKEN",
+        azure_sql_uami_client_id="44444444-4444-4444-8444-444444444444",
+        azure_sql_uami_principal_id="55555555-5555-4555-8555-555555555555",
     )
 
 
