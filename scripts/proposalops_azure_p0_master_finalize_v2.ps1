@@ -265,10 +265,27 @@ try {
   $bootstrap = Get-AzJson @('identity','show','--subscription',$SubscriptionId,'--resource-group',$RG,'--name',$BootstrapName,'--output','json') 'Read bootstrap UAMI'
   $migration = Get-AzJson @('identity','show','--subscription',$SubscriptionId,'--resource-group',$RG,'--name',$MigrationName,'--output','json') 'Read migration UAMI'
   $api = Get-AzJson @('identity','show','--subscription',$SubscriptionId,'--resource-group',$RG,'--name',$ApiName,'--output','json') 'Read API UAMI'
+  $BootstrapResourceId=[string]$bootstrap.id
+  $BootstrapPrincipalId=[string]$bootstrap.principalId
+  $BootstrapClientId=[string]$bootstrap.clientId
+  $MigrationResourceId=[string]$migration.id
+  $MigrationPrincipalId=[string]$migration.principalId
+  $MigrationClientId=[string]$migration.clientId
+  $ApiResourceId=[string]$api.id
+  $ApiPrincipalId=[string]$api.principalId
+  $ApiClientIdScalar=[string]$api.clientId
+  foreach ($scalar in @($BootstrapResourceId,$BootstrapPrincipalId,$BootstrapClientId,$MigrationResourceId,$MigrationPrincipalId,$MigrationClientId,$ApiResourceId,$ApiPrincipalId,$ApiClientIdScalar)) {
+    Check 'UAMI scalar extraction' ((-not [string]::IsNullOrWhiteSpace($scalar)) -and $scalar -notmatch '^@\{' -and $scalar -notmatch '\}\.') 'scalar'
+  }
+  $parsedBootstrapPrincipal=[guid]::Empty
+  $parsedBootstrapClient=[guid]::Empty
+  Check 'bootstrap principal GUID valid' ([guid]::TryParse($BootstrapPrincipalId,[ref]$parsedBootstrapPrincipal)) 'guid'
+  Check 'bootstrap client GUID valid' ([guid]::TryParse($BootstrapClientId,[ref]$parsedBootstrapClient)) 'guid'
+  Check 'bootstrap principal/client distinct' ($BootstrapPrincipalId -ne $BootstrapClientId) 'distinct'
   foreach ($identity in @(@{n='bootstrap';o=$bootstrap},@{n='migration';o=$migration},@{n='api';o=$api})) {
     Check "$($identity.n) UAMI forms" ($identity.o.clientId -and $identity.o.principalId -and $identity.o.id) 'clientId/principalId/resourceId present'
   }
-  Check 'three UAMIs distinct' (@($bootstrap.clientId,$migration.clientId,$api.clientId) | Select-Object -Unique).Count -eq 3 'distinct'
+  Check 'three UAMIs distinct' (@($BootstrapClientId,$MigrationClientId,$ApiClientIdScalar) | Select-Object -Unique).Count -eq 3 'distinct'
   $manifests = @(Get-AzJson @('acr','manifest','list-metadata','--subscription',$SubscriptionId,'--registry',$AcrResourceName,'--name','proposalops-api','--orderby','time_desc','--output','json') 'Read immutable image manifests')
   Check 'immutable accepted image exactly once' (@($manifests | Where-Object digest -eq ($Image -replace '^.*@','')).Count -eq 1) $Image
   Save-Json '04_REPO_IDENTITY.json' @{acceptedApplicationSha=$ExpectedSha;acceptedApplicationTree=$ExpectedTree;repositoryHead=$sha;repositoryTree=$tree;branch=(git -C $RepoRoot branch --show-current);changedPaths=$changedPaths;acceptedApplicationUnchanged=$true}
@@ -294,9 +311,9 @@ try {
   Check 'target jobs absent' (@($existingJobs | Where-Object name -in $jobsToCreate).Count -eq 0) 'zero'
   Check 'target API app absent' (@($existingApps | Where-Object name -eq $ApiContainerName).Count -eq 0) 'zero'
   Check 'frontend redirect source present' (Test-Path (Join-Path $RepoRoot 'frontend/redirect.html')) 'present'
-  $bootstrapAcrPull = AcrPullCount $AcrId $bootstrap.principalId
-  $migrationAcrPull = AcrPullCount $AcrId $migration.principalId
-  $apiAcrPull = AcrPullCount $AcrId $api.principalId
+  $bootstrapAcrPull = AcrPullCount $AcrId $BootstrapPrincipalId
+  $migrationAcrPull = AcrPullCount $AcrId $MigrationPrincipalId
+  $apiAcrPull = AcrPullCount $AcrId $ApiPrincipalId
   Check 'bootstrap AcrPull cardinality' ($bootstrapAcrPull -eq 1) ([string]$bootstrapAcrPull)
   Check 'migration AcrPull prestate cardinality' ($migrationAcrPull -le 1) ([string]$migrationAcrPull)
   Check 'API AcrPull prestate cardinality' ($apiAcrPull -le 1) ([string]$apiAcrPull)
@@ -345,7 +362,7 @@ try {
   Check 'no admin consent' $true 'not invoked'
   Save-Json '09_ENTRA_RECONCILIATION.json' @{exactApiAppCount=$apiList.Count;exactWebAppCount=$webList.Count;apiClientId=$ApiClientId;webClientId=$WebClientId;apiIdentifierUris=$apiVerify.identifierUris;accessAsUser=@($apiVerify.api.oauth2PermissionScopes | Where-Object value -eq 'access_as_user');webDelegatedPermission=@($webVerify.requiredResourceAccess | Where-Object resourceAppId -eq $ApiClientId);entraMutationRequiredOnResume=$false}
 
-  Ensure-AcrPull $BootstrapName $bootstrap.principalId $AcrId 'GATE_A_PRIVATE_NETWORK'
+  Ensure-AcrPull $BootstrapName $BootstrapPrincipalId $AcrId 'GATE_A_PRIVATE_NETWORK'
   $probe=@'
 import json,os,socket,sys
 r={"python_runtime":True,"pyodbc_import":False,"odbc_drivers":[],"odbc_driver_18_present":False,"sqlalchemy_import":False,"sql_fqdn":os.environ["SQL_HOST"],"resolved_ipv4":[],"expected_private_ipv4":"10.43.2.4","expected_private_ipv4_present":False,"unexpected_public_ipv4_present":False,"tcp_1433_connect":False,"tcp_error_class":None}
@@ -408,10 +425,10 @@ sys.exit(0 if r["pyodbc_import"] and r["odbc_driver_18_present"] and r["sqlalche
   $windowFailure=$null
   try {
     $FailingGate='GATE_C_TEMPORARY_SQL_ADMIN'
-    Invoke-Mutation @('sql','server','ad-admin','update','--subscription',$SubscriptionId,'--resource-group',$RG,'--server',$SqlServerResourceName,'--display-name',$BootstrapName,'--object-id',$bootstrap.principalId,'--output','json') 'Set temporary SQL Entra admin' 'temporary SQL admin' | Out-Null
+    Invoke-Mutation @('sql','server','ad-admin','update','--subscription',$SubscriptionId,'--resource-group',$RG,'--server',$SqlServerResourceName,'--display-name',$BootstrapName,'--object-id',$BootstrapPrincipalId,'--output','json') 'Set temporary SQL Entra admin' 'temporary SQL admin' | Out-Null
     $AdminChanged=$true
     $rb=@(Get-AzJson @('sql','server','ad-admin','list','--subscription',$SubscriptionId,'--resource-group',$RG,'--server',$SqlServerResourceName,'--output','json') 'Verify temporary SQL admin')
-    Check 'temporary SQL admin readback' ($rb.Count -eq 1 -and $rb[0].sid -eq $bootstrap.principalId) 'bootstrap UAMI'
+    Check 'temporary SQL admin readback' ($rb.Count -eq 1 -and $rb[0].sid -eq $BootstrapPrincipalId) 'bootstrap UAMI'
     $sqlBootstrap=@'
 import json,os,pyodbc
 cs=f"Server=tcp:{os.environ['SQL_HOST']},1433;Database={os.environ['SQL_DATABASE']};Authentication=ActiveDirectoryMsi;UID={os.environ['SQL_ODBC_UID']};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
@@ -433,7 +450,7 @@ def ensure(n,cid,roles,view=False):
 print(json.dumps({"directory_lookup_used":False,"from_external_provider_used":False,"sid_type_e_used":True,"principals":[ensure("proposalops_api_uami",os.environ["API_CLIENT_ID"],["db_datareader","db_datawriter"]),ensure("proposalops_migration_uami",os.environ["MIGRATION_CLIENT_ID"],["db_datareader","db_datawriter","db_ddladmin"],True)]},sort_keys=True))
 cn.close()
 '@
-    New-Job $Jobs[1] $bootstrap.id $sqlBootstrap @("SQL_HOST=$SqlFqdn","SQL_DATABASE=$DatabaseResourceName","SQL_ODBC_UID=$bootstrap.principalId","API_CLIENT_ID=$api.clientId","MIGRATION_CLIENT_ID=$migration.clientId","AZURE_CLIENT_ID=$bootstrap.clientId","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','FROM_EXTERNAL_PROVIDER_USED=false','SID_TYPE_E_USED=true') 'GATE_D_SQL_CONTAINED_PRINCIPALS'
+    New-Job $Jobs[1] $BootstrapResourceId $sqlBootstrap @("SQL_HOST=$SqlFqdn","SQL_DATABASE=$DatabaseResourceName","SQL_ODBC_UID=$BootstrapPrincipalId","API_CLIENT_ID=$ApiClientIdScalar","MIGRATION_CLIENT_ID=$MigrationClientId","AZURE_CLIENT_ID=$BootstrapClientId","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','FROM_EXTERNAL_PROVIDER_USED=false','SID_TYPE_E_USED=true') 'GATE_D_SQL_CONTAINED_PRINCIPALS'
     $b=Run-Job $Jobs[1] 'GATE_D_SQL_CONTAINED_PRINCIPALS'
     Check 'SQL bootstrap SID TYPE E' ($b.log -match '"sid_type_e_used": true') 'true'
     Check 'SQL bootstrap no directory lookup' ($b.log -match '"directory_lookup_used": false') 'false'
@@ -455,22 +472,22 @@ cn.close()
   $sqlState=Get-AzJson @('sql','server','show','--subscription',$SubscriptionId,'--resource-group',$RG,'--name',$SqlServerResourceName,'--output','json') 'Re-read SQL after admin restoration'
     Check 'SQL public access still disabled' ($sqlState.publicNetworkAccess -eq 'Disabled') 'Disabled'
 
-  Ensure-AcrPull $MigrationName $migration.principalId $AcrId 'GATE_F_MIGRATION_ACRPULL'
-  $murl=SqlUrl $migration.principalId
-  New-Job $Jobs[2] $migration.id 'import runpy; runpy.run_module("backend.app.migrate",run_name="__main__")' @("DATABASE_URL=$murl","DATABASE_MIGRATION_URL=$murl","AZURE_CLIENT_ID=$migration.clientId","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','STORAGE_PROVIDER=mock','SYNOLOGY_MODE=SYNTHETIC') 'GATE_G_MIGRATION'
+  Ensure-AcrPull $MigrationName $MigrationPrincipalId $AcrId 'GATE_F_MIGRATION_ACRPULL'
+  $murl=SqlUrl $MigrationPrincipalId
+  New-Job $Jobs[2] $MigrationResourceId 'import runpy; runpy.run_module("backend.app.migrate",run_name="__main__")' @("DATABASE_URL=$murl","DATABASE_MIGRATION_URL=$murl","AZURE_CLIENT_ID=$MigrationClientId","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','STORAGE_PROVIDER=mock','SYNOLOGY_MODE=SYNTHETIC') 'GATE_G_MIGRATION'
   $m=Run-Job $Jobs[2] 'GATE_G_MIGRATION'
   Check 'Alembic head exact' ($m.log -match $ExpectedHead) $ExpectedHead
   $mexec=@(Get-AzJson @('containerapp','job','execution','list','--subscription',$SubscriptionId,'--resource-group',$RG,'--name',$Jobs[2],'--output','json') 'Count migration executions')
   Check 'migration execution count one' ($mexec.Count -eq 1) '1'
 
-  $aurl=SqlUrl $api.principalId
-  New-Job $Jobs[3] $api.id 'import runpy; runpy.run_module("backend.app.bootstrap_preprod",run_name="__main__")' @("DATABASE_URL=$aurl","AZURE_CLIENT_ID=$api.clientId","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','STORAGE_PROVIDER=mock','SYNOLOGY_MODE=SYNTHETIC') 'GATE_H_SYNTHETIC_BOOTSTRAP'
+  $aurl=SqlUrl $ApiPrincipalId
+  New-Job $Jobs[3] $ApiResourceId 'import runpy; runpy.run_module("backend.app.bootstrap_preprod",run_name="__main__")' @("DATABASE_URL=$aurl","AZURE_CLIENT_ID=$ApiClientIdScalar","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','STORAGE_PROVIDER=mock','SYNOLOGY_MODE=SYNTHETIC') 'GATE_H_SYNTHETIC_BOOTSTRAP'
   $s=Run-Job $Jobs[3] 'GATE_H_SYNTHETIC_BOOTSTRAP'
   Check 'synthetic bootstrap succeeded' ($s.log -match 'BOOTSTRAPPED|ALREADY_BOOTSTRAPPED') 'synthetic'
 
-  Ensure-AcrPull $ApiName $api.principalId $AcrId 'GATE_I_API_ACRPULL'
-  $envs=@("DATABASE_URL=$aurl","AZURE_CLIENT_ID=$api.clientId","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','AUTH_MODE=ENTRA',"ENTRA_TENANT_ID=$TenantId","ENTRA_API_CLIENT_ID=$ApiClientId","ENTRA_WEB_CLIENT_ID=$WebClientId",'ENTRA_REQUIRED_SCOPE=access_as_user','STORAGE_PROVIDER=mock','SYNOLOGY_MODE=SYNTHETIC','MONITORING_MODE=DISABLED','FRONTEND_ORIGINS=https://proposalops-web.synthetic.invalid')
-  $create=@('containerapp','create','--subscription',$SubscriptionId,'--resource-group',$RG,'--name',$ApiContainerName,'--environment',$AcaId,'--image',$Image,'--user-assigned',$api.id,'--registry-server',$AcrLogin,'--registry-identity',$api.id,'--ingress','external','--target-port','8000','--transport','http','--allow-insecure','false','--revisions-mode','single','--min-replicas','1','--max-replicas','1','--cpu','0.5','--memory','1Gi','--container-name','main','--env-vars')
+  Ensure-AcrPull $ApiName $ApiPrincipalId $AcrId 'GATE_I_API_ACRPULL'
+  $envs=@("DATABASE_URL=$aurl","AZURE_CLIENT_ID=$ApiClientIdScalar","AZURE_TENANT_ID=$TenantId",'APP_ENV=AZURE-PREPROD','SYNTHETIC_ONLY=true','REAL_DATA_ALLOWED=false','AUTH_MODE=ENTRA',"ENTRA_TENANT_ID=$TenantId","ENTRA_API_CLIENT_ID=$ApiClientId","ENTRA_WEB_CLIENT_ID=$WebClientId",'ENTRA_REQUIRED_SCOPE=access_as_user','STORAGE_PROVIDER=mock','SYNOLOGY_MODE=SYNTHETIC','MONITORING_MODE=DISABLED','FRONTEND_ORIGINS=https://proposalops-web.synthetic.invalid')
+  $create=@('containerapp','create','--subscription',$SubscriptionId,'--resource-group',$RG,'--name',$ApiContainerName,'--environment',$AcaId,'--image',$Image,'--user-assigned',$ApiResourceId,'--registry-server',$AcrLogin,'--registry-identity',$ApiResourceId,'--ingress','external','--target-port','8000','--transport','http','--allow-insecure','false','--revisions-mode','single','--min-replicas','1','--max-replicas','1','--cpu','0.5','--memory','1Gi','--container-name','main','--env-vars')
   $create+=$envs
   $create+=@('--tags','application=ProposalOps','environment=AZURE-PREPROD','synthetic-only=true','real-data-allowed=false','foundationSourceSha=c42e6c449483b0951de0f366d700dbaf7b9e5525')
   Invoke-Mutation $create 'Create API Container App by immutable digest' 'API container app' | Out-Null
