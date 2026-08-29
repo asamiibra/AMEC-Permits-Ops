@@ -82,6 +82,14 @@ class WorkbookWriteError(RuntimeError):
     pass
 
 
+def _fsync_candidate(path: Path) -> None:
+    file_descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(file_descriptor)
+    finally:
+        os.close(file_descriptor)
+
+
 def _human_sheet_snapshot(workbook) -> dict[str, tuple[tuple[Any, ...], ...]]:
     return {
         sheet: tuple(
@@ -167,6 +175,7 @@ def write_system_projection(path: str | Path, project_number: str, values: dict[
             if wb is not None:
                 wb.close()
 
+        _fsync_candidate(temporary_path)
         _validate_workbook_candidate(temporary_path, project_number, values, human_snapshot)
         candidate_sha256 = hashlib.sha256(temporary_path.read_bytes()).hexdigest()
         try:

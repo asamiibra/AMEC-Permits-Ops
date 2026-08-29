@@ -125,6 +125,61 @@ def test_replace_is_same_directory_and_attempted_once(monkeypatch, tmp_path):
     assert calls[0][1] == path
 
 
+def test_candidate_fsync_is_once_after_close_before_validation_and_replace(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    events = []
+    trackers = []
+    original_fsync_candidate = module._fsync_candidate
+    original_validate = module._validate_workbook_candidate
+    original_replace = module.os.replace
+
+    def tracked_fsync_candidate(candidate):
+        events.append(("fsync_candidate", Path(candidate), trackers[0].closed))
+        return original_fsync_candidate(candidate)
+
+    def tracked_validate(candidate, *args):
+        events.append(("validate", Path(candidate)))
+        return original_validate(candidate, *args)
+
+    def tracked_replace(candidate, destination):
+        events.append(("replace", Path(candidate), Path(destination)))
+        return original_replace(candidate, destination)
+
+    monkeypatch.setattr(module, "load_workbook", _tracked_loader(trackers))
+    monkeypatch.setattr(module, "_fsync_candidate", tracked_fsync_candidate)
+    monkeypatch.setattr(module, "_validate_workbook_candidate", tracked_validate)
+    monkeypatch.setattr(module.os, "replace", tracked_replace)
+    _write(path)
+
+    fsync_events = [event for event in events if event[0] == "fsync_candidate"]
+    validate_events = [event for event in events if event[0] == "validate"]
+    replace_events = [event for event in events if event[0] == "replace"]
+    assert len(fsync_events) == 1
+    assert len(validate_events) == 2
+    assert len(replace_events) == 1
+    assert fsync_events[0][1] != path
+    assert fsync_events[0][1].parent == path.parent
+    assert fsync_events[0][2] is True
+    assert events.index(fsync_events[0]) < events.index(validate_events[0]) < events.index(replace_events[0])
+
+
+def test_candidate_fsync_failure_is_fail_closed_and_preserves_original(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    before = path.read_bytes()
+    replace_calls = []
+    fsync_error = OSError("synthetic candidate fsync failure")
+
+    monkeypatch.setattr(module.os, "fsync", lambda _descriptor: (_ for _ in ()).throw(fsync_error))
+    monkeypatch.setattr(module.os, "replace", lambda *args: replace_calls.append(args))
+    with pytest.raises(OSError, match="synthetic candidate fsync failure") as raised:
+        _write(path)
+
+    assert raised.value is fsync_error
+    assert path.read_bytes() == before
+    assert replace_calls == []
+    assert not list(path.parent.glob("permitops-excel-*.xlsx"))
+
+
 def test_permission_error_is_fail_closed_and_preserves_original(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
     before = path.read_bytes()
