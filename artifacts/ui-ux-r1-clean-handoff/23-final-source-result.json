@@ -1,0 +1,22 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "source_tree": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+  "source_parent": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
+  "frontend_tree": "0d32e10e1882a1061ca86926347365ec866279fc",
+  "branch": "ui-product-r1-clean-handoff-v1",
+  "premutation_100_valid": true,
+  "post_fix_100_valid": true,
+  "original_28_gates": "PASS",
+  "mobile_25": "PASS",
+  "responsive_matrix": "PASS",
+  "product_surface_census": "EXHAUSTIVE_PASS",
+  "api_family_unresolved": 0,
+  "value_binding_unresolved": 0,
+  "action_binding_unresolved": 0,
+  "capability_unresolved": 0,
+  "persona_unresolved": 0,
+  "build": "PASS",
+  "unit_tests": "19 files / 110 tests PASS",
+  "ui_conformance": "312/312 PASS",
+  "technical_result": "PASS"
+}

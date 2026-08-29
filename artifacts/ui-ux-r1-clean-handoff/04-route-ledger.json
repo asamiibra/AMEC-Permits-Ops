@@ -1,0 +1,904 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "source_tree": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+  "routes": [
+    {
+      "ROUTE": "/work",
+      "OWNER_COMPONENT": "AMECWorkPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": true,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/proposals-contracts",
+      "OWNER_COMPONENT": "ProposalsContractsPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": true,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/proposals/new",
+      "OWNER_COMPONENT": "BDProposalOwnerSessionPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/proposals/:proposalId",
+      "OWNER_COMPONENT": "BDProposalOwnerSessionPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/proposals/:proposalId/preparation",
+      "OWNER_COMPONENT": "BDProposalOwnerSessionPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/contracts/:contractId",
+      "OWNER_COMPONENT": "ContractMobilizationPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/reviews",
+      "OWNER_COMPONENT": "ReviewsPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/issues",
+      "OWNER_COMPONENT": "PersonaIssuesPage",
+      "SURFACE_CLASS": "CONTEXTUAL_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/issues/:issueId",
+      "OWNER_COMPONENT": "PersonaIssueDetailPage",
+      "SURFACE_CLASS": "CONTEXTUAL_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/notifications",
+      "OWNER_COMPONENT": "PersonaNotificationsPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/operating-guide",
+      "OWNER_COMPONENT": "AboutPermitOpsPage",
+      "SURFACE_CLASS": "READ_ONLY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": true,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": false,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/project-and-sources",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/verify-data",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/prepare-package",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/municipality-preparation",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/final-review",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/authority-review",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/comments-and-corrections",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/permits/:projectId/history",
+      "OWNER_COMPONENT": "PermitWorkspacePage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin",
+      "OWNER_COMPONENT": "AdministrationPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": true,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/go-live-readiness",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/people-access",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/data-connections",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/project-folder-setup",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/proposal-setup",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/contract-setup",
+      "OWNER_COMPONENT": "ContractMobilizationPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/permit-setup",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/templates",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/notifications",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/security",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/integration-health",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/audit",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/advanced-diagnostics",
+      "OWNER_COMPONENT": "AdministrationOwnerPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/discovery",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/config",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/tier1",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/delivery",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/attachments-grids",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/municipality",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/corpus",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/thresholds",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/control-diagnostics",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/opportunities",
+      "OWNER_COMPONENT": "OpportunitiesPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": true,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Business Development"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/engineering-closeout",
+      "OWNER_COMPONENT": "EngineeringCloseoutPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": true,
+      "PERSONA_VISIBILITY": [
+        "Owner",
+        "Engineering"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/expansion-foundation",
+      "OWNER_COMPONENT": "ExpansionFoundation",
+      "SURFACE_CLASS": "ADMIN_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/dashboard",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/projects",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/documents",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/conflicts",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/package",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/findings",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/lineage",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/spike",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/adjudication",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/analysis",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/tier2",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/close",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/baseline",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/signoff",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/confirmation",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/business",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/business-baseline",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/privacy",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/volume",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/inquiries",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    },
+    {
+      "ROUTE": "/admin/raid",
+      "OWNER_COMPONENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
+      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
+      "PRIMARY_NAV_VISIBLE": false,
+      "PERSONA_VISIBILITY": [
+        "Owner"
+      ],
+      "DEEP_LINK_SUPPORTED": true,
+      "BACKEND_DATA_REQUIRED": true,
+      "STATUS": "PASS"
+    }
+  ],
+  "total": 66,
+  "ROUTES_UNCLASSIFIED": 0
+}

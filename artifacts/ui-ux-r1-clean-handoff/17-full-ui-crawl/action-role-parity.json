@@ -1,0 +1,6 @@
+{
+  "gate": "UI_ROLE_ACTION_PARITY_PASS",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Each visible action must be classified and compared with backend authority.",
+  "classifications": []
+}

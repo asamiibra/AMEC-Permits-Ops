@@ -1,0 +1,6 @@
+{
+  "gate": "CROSS_PAGE_UI_TRUTH_PASS",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Register, detail, work, issues, notifications, and administration need shared-record comparison.",
+  "findings": []
+}

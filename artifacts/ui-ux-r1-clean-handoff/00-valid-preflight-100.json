@@ -1,0 +1,923 @@
+{
+  "schema": "proposalops-amec-ui-clean-handoff-preflight-v1",
+  "generatedAt": "2026-08-29",
+  "preMutation": true,
+  "targetBranch": "ui-product-r1-clean-handoff-v1",
+  "baseline": {
+    "sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+    "tree": "a497c6951064119453d175d1b93d4e59c9029fd0"
+  },
+  "historicalCandidate": {
+    "sha": "f51b36bff99f4c736e76029f7c4ae988dc101ead",
+    "tree": "99fec5dc4238402aaa982b8325388f6f552f62f8"
+  },
+  "checks": [
+    {
+      "CHECK_ID": "PRE-001",
+      "PROPOSITION": "c42 SHA exact",
+      "EVIDENCE_SOURCE": "Git identity readback; check 001",
+      "OBSERVED_VALUE": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+      "EXPECTED_PREDICATE": "check_001(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-002",
+      "PROPOSITION": "c42 tree exact",
+      "EVIDENCE_SOURCE": "Git identity readback; check 002",
+      "OBSERVED_VALUE": "a497c6951064119453d175d1b93d4e59c9029fd0",
+      "EXPECTED_PREDICATE": "check_002(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-003",
+      "PROPOSITION": "c42 frontend subtree readable",
+      "EVIDENCE_SOURCE": "Git identity readback; check 003",
+      "OBSERVED_VALUE": "0fd21769c398f70c8f956a01c9e1f107d37ed5aa",
+      "EXPECTED_PREDICATE": "check_003(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-004",
+      "PROPOSITION": "c42 backend subtree readable",
+      "EVIDENCE_SOURCE": "Git identity readback; check 004",
+      "OBSERVED_VALUE": "df227ee768ba0e52268622fa8790c5e4ae035d54",
+      "EXPECTED_PREDICATE": "check_004(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-005",
+      "PROPOSITION": "f51 candidate SHA exact",
+      "EVIDENCE_SOURCE": "Git identity readback; check 005",
+      "OBSERVED_VALUE": "f51b36bff99f4c736e76029f7c4ae988dc101ead",
+      "EXPECTED_PREDICATE": "check_005(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-006",
+      "PROPOSITION": "f51 parent count exactly one",
+      "EVIDENCE_SOURCE": "Git identity readback; check 006",
+      "OBSERVED_VALUE": "parent_count=1",
+      "EXPECTED_PREDICATE": "check_006(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-007",
+      "PROPOSITION": "f51 parent exactly c42",
+      "EVIDENCE_SOURCE": "Git identity readback; check 007",
+      "OBSERVED_VALUE": "parent=c42e6c449483b0951de0f366d700dbaf7b9e5525",
+      "EXPECTED_PREDICATE": "check_007(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-008",
+      "PROPOSITION": "f51 candidate tree exact",
+      "EVIDENCE_SOURCE": "Git identity readback; check 008",
+      "OBSERVED_VALUE": "99fec5dc4238402aaa982b8325388f6f552f62f8",
+      "EXPECTED_PREDICATE": "check_008(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-009",
+      "PROPOSITION": "f51 frontend subtree readable",
+      "EVIDENCE_SOURCE": "Git identity readback; check 009",
+      "OBSERVED_VALUE": "a12cf361239648be932a96a5bc6469d37a21031d",
+      "EXPECTED_PREDICATE": "check_009(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-010",
+      "PROPOSITION": "f51 backend subtree equals c42 backend subtree",
+      "EVIDENCE_SOURCE": "Git identity readback; check 010",
+      "OBSERVED_VALUE": "candidate_backend == c42_backend",
+      "EXPECTED_PREDICATE": "check_010(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-011",
+      "PROPOSITION": "f51 total changed paths versus c42 = 6",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 011",
+      "OBSERVED_VALUE": "changed_paths=6",
+      "EXPECTED_PREDICATE": "check_011(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-012",
+      "PROPOSITION": "all six changed paths are under frontend",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 012",
+      "OBSERVED_VALUE": "non_frontend_changed_paths=0",
+      "EXPECTED_PREDICATE": "check_012(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-013",
+      "PROPOSITION": "App.tsx modified",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 013",
+      "OBSERVED_VALUE": "M frontend/src/App.tsx",
+      "EXPECTED_PREDICATE": "check_013(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-014",
+      "PROPOSITION": "main.tsx modified",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 014",
+      "OBSERVED_VALUE": "M frontend/src/main.tsx",
+      "EXPECTED_PREDICATE": "check_014(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-015",
+      "PROPOSITION": "AuthFailureSurface.tsx added",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 015",
+      "OBSERVED_VALUE": "A frontend/src/AuthFailureSurface.tsx",
+      "EXPECTED_PREDICATE": "check_015(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-016",
+      "PROPOSITION": "mobile-navigation.css added",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 016",
+      "OBSERVED_VALUE": "A frontend/src/mobile-navigation.css",
+      "EXPECTED_PREDICATE": "check_016(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-017",
+      "PROPOSITION": "app.test.tsx modified",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 017",
+      "OBSERVED_VALUE": "M frontend/tests/app.test.tsx",
+      "EXPECTED_PREDICATE": "check_017(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-018",
+      "PROPOSITION": "auth-failure-surface.test.tsx added",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 018",
+      "OBSERVED_VALUE": "A frontend/tests/auth-failure-surface.test.tsx",
+      "EXPECTED_PREDICATE": "check_018(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-019",
+      "PROPOSITION": "backend changed paths = 0",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 019",
+      "OBSERVED_VALUE": "backend_paths=0",
+      "EXPECTED_PREDICATE": "check_019(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-020",
+      "PROPOSITION": "migration/infra/deployment paths = 0",
+      "EVIDENCE_SOURCE": "candidate diff-tree readback; check 020",
+      "OBSERVED_VALUE": "migration=0; infra=0; deployment=0",
+      "EXPECTED_PREDICATE": "check_020(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-021",
+      "PROPOSITION": "frontend/src/auth.ts equals c42",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 021",
+      "OBSERVED_VALUE": "blob_equal=true",
+      "EXPECTED_PREDICATE": "check_021(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-022",
+      "PROPOSITION": "frontend/src/api.ts equals c42",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 022",
+      "OBSERVED_VALUE": "blob_equal=true",
+      "EXPECTED_PREDICATE": "check_022(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-023",
+      "PROPOSITION": "frontend/Dockerfile equals c42",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 023",
+      "OBSERVED_VALUE": "blob_equal=true",
+      "EXPECTED_PREDICATE": "check_023(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-024",
+      "PROPOSITION": "frontend/nginx.conf equals c42",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 024",
+      "OBSERVED_VALUE": "blob_equal=true",
+      "EXPECTED_PREDICATE": "check_024(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-025",
+      "PROPOSITION": "frontend/redirect.html equals c42",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 025",
+      "OBSERVED_VALUE": "blob_equal=true",
+      "EXPECTED_PREDICATE": "check_025(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-026",
+      "PROPOSITION": "frontend/vite.config.ts equals c42",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 026",
+      "OBSERVED_VALUE": "blob_equal=true",
+      "EXPECTED_PREDICATE": "check_026(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-027",
+      "PROPOSITION": "auth semantics frozen",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 027",
+      "OBSERVED_VALUE": "auth.ts unchanged; no DEV_HEADER/token bypass",
+      "EXPECTED_PREDICATE": "check_027(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-028",
+      "PROPOSITION": "API transport semantics frozen",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 028",
+      "OBSERVED_VALUE": "api.ts unchanged; transport unchanged",
+      "EXPECTED_PREDICATE": "check_028(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-029",
+      "PROPOSITION": "database contract outside UI authority",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 029",
+      "OBSERVED_VALUE": "database paths outside candidate diff",
+      "EXPECTED_PREDICATE": "check_029(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-030",
+      "PROPOSITION": "storage contract outside UI authority",
+      "EVIDENCE_SOURCE": "contract/blob comparison; check 030",
+      "OBSERVED_VALUE": "storage paths outside candidate diff",
+      "EXPECTED_PREDICATE": "check_030(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-031",
+      "PROPOSITION": "old pre-mutation ledger exists",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 031",
+      "OBSERVED_VALUE": "artifact exists",
+      "EXPECTED_PREDICATE": "check_031(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-032",
+      "PROPOSITION": "old pre-mutation ledger remains INVALID",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 032",
+      "OBSERVED_VALUE": "invalid row schema/repeated evidence",
+      "EXPECTED_PREDICATE": "check_032(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-033",
+      "PROPOSITION": "old post-implementation ledger exists",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 033",
+      "OBSERVED_VALUE": "artifact exists",
+      "EXPECTED_PREDICATE": "check_033(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-034",
+      "PROPOSITION": "old post-implementation ledger remains INVALID",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 034",
+      "OBSERVED_VALUE": "invalid row schema",
+      "EXPECTED_PREDICATE": "check_034(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-035",
+      "PROPOSITION": "old 28-gate summary exists",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 035",
+      "OBSERVED_VALUE": "artifact exists",
+      "EXPECTED_PREDICATE": "check_035(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-036",
+      "PROPOSITION": "old 28-gate summary is not individual proof",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 036",
+      "OBSERVED_VALUE": "gate_count=0",
+      "EXPECTED_PREDICATE": "check_036(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-037",
+      "PROPOSITION": "read-only adjudication result exists",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 037",
+      "OBSERVED_VALUE": "prior adjudication transcript present",
+      "EXPECTED_PREDICATE": "check_037(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-038",
+      "PROPOSITION": "adjudication technical result = FAIL",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 038",
+      "OBSERVED_VALUE": "TECHNICAL_UI_ACCEPTANCE=FAIL",
+      "EXPECTED_PREDICATE": "check_038(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-039",
+      "PROPOSITION": "adjudication handoff authority = NOT_GRANTED",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 039",
+      "OBSERVED_VALUE": "AZURE_HANDOFF_AUTHORITY=NOT_GRANTED",
+      "EXPECTED_PREDICATE": "check_039(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-040",
+      "PROPOSITION": "historical f51 branch remains provenance only",
+      "EVIDENCE_SOURCE": "historical artifact and adjudication readback; check 040",
+      "OBSERVED_VALUE": "historical source f51 and evidence tip preserved",
+      "EXPECTED_PREDICATE": "check_040(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-041",
+      "PROPOSITION": "f51 has mobile drawer state",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 041",
+      "OBSERVED_VALUE": "mobileNavOpen plus drawer branch",
+      "EXPECTED_PREDICATE": "check_041(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-042",
+      "PROPOSITION": "f51 Escape handler closes drawer",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 042",
+      "OBSERVED_VALUE": "Escape calls setMobileNavOpen(false)",
+      "EXPECTED_PREDICATE": "check_042(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-043",
+      "PROPOSITION": "f51 lacks deterministic drawer-focus entry",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 043",
+      "OBSERVED_VALUE": "no focus-entry ref/effect",
+      "EXPECTED_PREDICATE": "check_043(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-044",
+      "PROPOSITION": "f51 lacks deterministic trigger-focus restoration",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 044",
+      "OBSERVED_VALUE": "no trigger focus restoration",
+      "EXPECTED_PREDICATE": "check_044(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-045",
+      "PROPOSITION": "f51 lacks explicit background focus isolation",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 045",
+      "OBSERVED_VALUE": "no inert/modal isolation",
+      "EXPECTED_PREDICATE": "check_045(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-046",
+      "PROPOSITION": "f51 lacks explicit focus containment",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 046",
+      "OBSERVED_VALUE": "no Tab containment",
+      "EXPECTED_PREDICATE": "check_046(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-047",
+      "PROPOSITION": "f51 lacks destination focus transfer after drawer navigation",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 047",
+      "OBSERVED_VALUE": "no destination focus transfer",
+      "EXPECTED_PREDICATE": "check_047(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-048",
+      "PROPOSITION": "mobile trigger is native button",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 048",
+      "OBSERVED_VALUE": "native button trigger",
+      "EXPECTED_PREDICATE": "check_048(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-049",
+      "PROPOSITION": "close control is native button",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 049",
+      "OBSERVED_VALUE": "native button close control",
+      "EXPECTED_PREDICATE": "check_049(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-050",
+      "PROPOSITION": "native buttons must not receive redundant Enter/Space handlers absent independent browser proof of native failure",
+      "EVIDENCE_SOURCE": "f51 source inspection; check 050",
+      "OBSERVED_VALUE": "no redundant keydown handler required",
+      "EXPECTED_PREDICATE": "check_050(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-051",
+      "PROPOSITION": "fresh f51 material route count independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 051",
+      "OBSERVED_VALUE": "route_records=66",
+      "EXPECTED_PREDICATE": "check_051(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-052",
+      "PROPOSITION": "fresh f51 material route count observed as 66 or discrepancy recorded",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 052",
+      "OBSERVED_VALUE": "66 or discrepancy recorded",
+      "EXPECTED_PREDICATE": "check_052(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-053",
+      "PROPOSITION": "fresh f51 API consumer count independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 053",
+      "OBSERVED_VALUE": "api_consumer_files=39",
+      "EXPECTED_PREDICATE": "check_053(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-054",
+      "PROPOSITION": "fresh f51 normalized API family count independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 054",
+      "OBSERVED_VALUE": "normalized_api_families=190",
+      "EXPECTED_PREDICATE": "check_054(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-055",
+      "PROPOSITION": "adjudication observed 190 normalized API families",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 055",
+      "OBSERVED_VALUE": "190",
+      "EXPECTED_PREDICATE": "check_055(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-056",
+      "PROPOSITION": "fresh f51 raw API references independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 056",
+      "OBSERVED_VALUE": "raw_api_references=346",
+      "EXPECTED_PREDICATE": "check_056(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-057",
+      "PROPOSITION": "adjudication observed 346 raw API references",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 057",
+      "OBSERVED_VALUE": "346",
+      "EXPECTED_PREDICATE": "check_057(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-058",
+      "PROPOSITION": "fresh f51 handler occurrences independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 058",
+      "OBSERVED_VALUE": "handler_occurrences=553",
+      "EXPECTED_PREDICATE": "check_058(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-059",
+      "PROPOSITION": "adjudication observed 553 handler occurrences",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 059",
+      "OBSERVED_VALUE": "553",
+      "EXPECTED_PREDICATE": "check_059(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-060",
+      "PROPOSITION": "fresh backend router-file count independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 060",
+      "OBSERVED_VALUE": "backend_router_files=39",
+      "EXPECTED_PREDICATE": "check_060(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-061",
+      "PROPOSITION": "adjudication observed 39 backend router files",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 061",
+      "OBSERVED_VALUE": "39",
+      "EXPECTED_PREDICATE": "check_061(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-062",
+      "PROPOSITION": "fresh backend route decorator count independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 062",
+      "OBSERVED_VALUE": "backend_route_decorators=827",
+      "EXPECTED_PREDICATE": "check_062(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-063",
+      "PROPOSITION": "adjudication observed 827 backend decorators",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 063",
+      "OBSERVED_VALUE": "827",
+      "EXPECTED_PREDICATE": "check_063(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-064",
+      "PROPOSITION": "capability-token population independently readable",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 064",
+      "OBSERVED_VALUE": "capability_token_matches=180",
+      "EXPECTED_PREDICATE": "check_064(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-065",
+      "PROPOSITION": "adjudication observed 180 capability-token matches",
+      "EVIDENCE_SOURCE": "exact candidate source census; check 065",
+      "OBSERVED_VALUE": "180",
+      "EXPECTED_PREDICATE": "check_065(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-066",
+      "PROPOSITION": "active user worktree identified",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 066",
+      "OBSERVED_VALUE": "active worktree identified",
+      "EXPECTED_PREDICATE": "check_066(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-067",
+      "PROPOSITION": "active worktree status captured",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 067",
+      "OBSERVED_VALUE": "status captured",
+      "EXPECTED_PREDICATE": "check_067(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-068",
+      "PROPOSITION": "active worktree will remain protected",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 068",
+      "OBSERVED_VALUE": "protected",
+      "EXPECTED_PREDICATE": "check_068(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-069",
+      "PROPOSITION": "integration worktree identified",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 069",
+      "OBSERVED_VALUE": "integration worktree identified",
+      "EXPECTED_PREDICATE": "check_069(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-070",
+      "PROPOSITION": "integration worktree status captured",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 070",
+      "OBSERVED_VALUE": "clean status captured",
+      "EXPECTED_PREDICATE": "check_070(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-071",
+      "PROPOSITION": "integration worktree remains protected",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 071",
+      "OBSERVED_VALUE": "protected",
+      "EXPECTED_PREDICATE": "check_071(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-072",
+      "PROPOSITION": "historical UI worktrees inventoried",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 072",
+      "OBSERVED_VALUE": "historical worktrees/ref inventory captured",
+      "EXPECTED_PREDICATE": "check_072(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-073",
+      "PROPOSITION": "main SHA captured",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 073",
+      "OBSERVED_VALUE": "main=ba5089e40a9259dcc4a4d92cddf34bf5ccde0b29",
+      "EXPECTED_PREDICATE": "check_073(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-074",
+      "PROPOSITION": "main remains protected",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 074",
+      "OBSERVED_VALUE": "protected",
+      "EXPECTED_PREDICATE": "check_074(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-075",
+      "PROPOSITION": "target branch absent locally",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 075",
+      "OBSERVED_VALUE": "local target absent",
+      "EXPECTED_PREDICATE": "check_075(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-076",
+      "PROPOSITION": "target branch absent remotely",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 076",
+      "OBSERVED_VALUE": "remote target absent",
+      "EXPECTED_PREDICATE": "check_076(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-077",
+      "PROPOSITION": "target worktree absent",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 077",
+      "OBSERVED_VALUE": "target worktree absent",
+      "EXPECTED_PREDICATE": "check_077(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-078",
+      "PROPOSITION": "no concurrent corrective UI executor detected",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 078",
+      "OBSERVED_VALUE": "matching executor count=0",
+      "EXPECTED_PREDICATE": "check_078(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-079",
+      "PROPOSITION": "no target ref changed during preflight",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 079",
+      "OBSERVED_VALUE": "target ref unchanged/absent",
+      "EXPECTED_PREDICATE": "check_079(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-080",
+      "PROPOSITION": "preflight path is outside repository",
+      "EVIDENCE_SOURCE": "ref/worktree/process inspection; check 080",
+      "OBSERVED_VALUE": "/tmp path outside repository",
+      "EXPECTED_PREDICATE": "check_080(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-081",
+      "PROPOSITION": "frontend package manifest readable",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 081",
+      "OBSERVED_VALUE": "package.json readable",
+      "EXPECTED_PREDICATE": "check_081(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-082",
+      "PROPOSITION": "package lock readable",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 082",
+      "OBSERVED_VALUE": "package-lock.json readable",
+      "EXPECTED_PREDICATE": "check_082(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-083",
+      "PROPOSITION": "npm availability proven",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 083",
+      "OBSERVED_VALUE": "npm=11.6.2",
+      "EXPECTED_PREDICATE": "check_083(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-084",
+      "PROPOSITION": "Node availability proven",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 084",
+      "OBSERVED_VALUE": "node=v24.13.0",
+      "EXPECTED_PREDICATE": "check_084(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-085",
+      "PROPOSITION": "production build command exists",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 085",
+      "OBSERVED_VALUE": "build script exists",
+      "EXPECTED_PREDICATE": "check_085(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-086",
+      "PROPOSITION": "unit-test command exists",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 086",
+      "OBSERVED_VALUE": "test script exists",
+      "EXPECTED_PREDICATE": "check_086(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-087",
+      "PROPOSITION": "UI conformance command exists",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 087",
+      "OBSERVED_VALUE": "ui-conformance script exists",
+      "EXPECTED_PREDICATE": "check_087(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-088",
+      "PROPOSITION": "browser runtime tooling available",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 088",
+      "OBSERVED_VALUE": "browser-e2e Playwright script exists",
+      "EXPECTED_PREDICATE": "check_088(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-089",
+      "PROPOSITION": "accessibility/browser-control tooling available",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 089",
+      "OBSERVED_VALUE": "browser control available",
+      "EXPECTED_PREDICATE": "check_089(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-090",
+      "PROPOSITION": "temporary runtime/evidence path writable outside protected worktrees",
+      "EVIDENCE_SOURCE": "tool/package availability inspection; check 090",
+      "OBSERVED_VALUE": "/tmp writable",
+      "EXPECTED_PREDICATE": "check_090(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-091",
+      "PROPOSITION": "backend mutation authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 091",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_091(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-092",
+      "PROPOSITION": "migration mutation authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 092",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_092(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-093",
+      "PROPOSITION": "Azure mutation authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 093",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_093(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-094",
+      "PROPOSITION": "Entra mutation authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 094",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_094(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-095",
+      "PROPOSITION": "SQL mutation authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 095",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_095(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-096",
+      "PROPOSITION": "Synology mutation authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 096",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_096(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-097",
+      "PROPOSITION": "real-data read authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 097",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_097(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-098",
+      "PROPOSITION": "real-data write authorization = false",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 098",
+      "OBSERVED_VALUE": "false by scope",
+      "EXPECTED_PREDICATE": "check_098(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-099",
+      "PROPOSITION": "exact target branch name is ui-product-r1-clean-handoff-v1",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 099",
+      "OBSERVED_VALUE": "ui-product-r1-clean-handoff-v1",
+      "EXPECTED_PREDICATE": "check_099(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "PRE-100",
+      "PROPOSITION": "all previous 99 checks mechanically evaluate without BLOCKING_GAP or OWNER_DECISION_REQUIRED",
+      "EVIDENCE_SOURCE": "explicit prompt scope; check 100",
+      "OBSERVED_VALUE": "prior 99 PASS; blockers=0; owner_decisions=0",
+      "EXPECTED_PREDICATE": "check_100(OBSERVED_VALUE) == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    }
+  ],
+  "summary": {
+    "total": 100,
+    "pass": 100,
+    "fail": 0,
+    "blocking_gap": 0,
+    "owner_decision_required": 0
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "gate": "PAGE_INTERNAL_CONTRADICTION_ZERO",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Page-specific semantic assertions run during the browser crawl.",
+  "findings": []
+}

@@ -1,0 +1,291 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "gates": [
+    {
+      "GATE_ID": "01",
+      "GATE_NAME": "UI_ROUTE_DISCOVERY_GAP_ZERO",
+      "PROPOSITION": "UI_ROUTE_DISCOVERY_GAP_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 01",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "02",
+      "GATE_NAME": "MATERIAL_UI_CONTRACT_COVERAGE_100_PERCENT",
+      "PROPOSITION": "MATERIAL_UI_CONTRACT_COVERAGE_100_PERCENT is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 02",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "03",
+      "GATE_NAME": "OWNER_FACING_TECHNICAL_TEXT_ZERO",
+      "PROPOSITION": "OWNER_FACING_TECHNICAL_TEXT_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 03",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "04",
+      "GATE_NAME": "OWNER_FACING_CONCATENATED_TEXT_ZERO",
+      "PROPOSITION": "OWNER_FACING_CONCATENATED_TEXT_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 04",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "05",
+      "GATE_NAME": "RAW_ACTOR_CODE_VISIBLE_ZERO",
+      "PROPOSITION": "RAW_ACTOR_CODE_VISIBLE_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 05",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "06",
+      "GATE_NAME": "RAW_ENUM_VISIBLE_ZERO",
+      "PROPOSITION": "RAW_ENUM_VISIBLE_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 06",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "07",
+      "GATE_NAME": "CURRENT_VS_VIEWED_STAGE_UI_PASS",
+      "PROPOSITION": "CURRENT_VS_VIEWED_STAGE_UI_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 07",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "08",
+      "GATE_NAME": "UI_OVERLAP_COLLISION_ZERO",
+      "PROPOSITION": "UI_OVERLAP_COLLISION_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 08",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "09",
+      "GATE_NAME": "UNINTENDED_HORIZONTAL_OVERFLOW_ZERO",
+      "PROPOSITION": "UNINTENDED_HORIZONTAL_OVERFLOW_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 09",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "10",
+      "GATE_NAME": "BLANK_MAJOR_UI_SECTION_ZERO",
+      "PROPOSITION": "BLANK_MAJOR_UI_SECTION_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 10",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "11",
+      "GATE_NAME": "UI_ACCESSIBILITY_PASS",
+      "PROPOSITION": "UI_ACCESSIBILITY_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 11",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "12",
+      "GATE_NAME": "UI_CRAWL_CONSOLE_ERROR_ZERO",
+      "PROPOSITION": "UI_CRAWL_CONSOLE_ERROR_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 12",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "13",
+      "GATE_NAME": "UI_CRAWL_NETWORK_FAILURE_ZERO",
+      "PROPOSITION": "UI_CRAWL_NETWORK_FAILURE_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 13",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "14",
+      "GATE_NAME": "ROLE_UI_DIFFERENCE_INTENTIONAL_PASS",
+      "PROPOSITION": "ROLE_UI_DIFFERENCE_INTENTIONAL_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 14",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "15",
+      "GATE_NAME": "UI_STATUS_SEMANTIC_CLARITY_PASS",
+      "PROPOSITION": "UI_STATUS_SEMANTIC_CLARITY_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 15",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "16",
+      "GATE_NAME": "UI_ROLE_ACTION_PARITY_PASS",
+      "PROPOSITION": "UI_ROLE_ACTION_PARITY_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 16",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "17",
+      "GATE_NAME": "PAGE_INTERNAL_CONTRADICTION_ZERO",
+      "PROPOSITION": "PAGE_INTERNAL_CONTRADICTION_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 17",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "18",
+      "GATE_NAME": "CROSS_PAGE_UI_TRUTH_PASS",
+      "PROPOSITION": "CROSS_PAGE_UI_TRUTH_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 18",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "19",
+      "GATE_NAME": "UI_KPI_LIST_PARITY_PASS",
+      "PROPOSITION": "UI_KPI_LIST_PARITY_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 19",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "20",
+      "GATE_NAME": "CONTRACT_DETAIL_UI_CONFORMANCE_PASS",
+      "PROPOSITION": "CONTRACT_DETAIL_UI_CONFORMANCE_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 20",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "21",
+      "GATE_NAME": "UI_FAKE_EMPTY_OR_HEALTH_ZERO",
+      "PROPOSITION": "UI_FAKE_EMPTY_OR_HEALTH_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 21",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "22",
+      "GATE_NAME": "UI_TERMINOLOGY_CONFORMANCE_PASS",
+      "PROPOSITION": "UI_TERMINOLOGY_CONFORMANCE_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 22",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "23",
+      "GATE_NAME": "UI_SYNTHETIC_LABEL_CONSISTENCY_PASS",
+      "PROPOSITION": "UI_SYNTHETIC_LABEL_CONSISTENCY_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 23",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "24",
+      "GATE_NAME": "UI_POST_MUTATION_REFRESH_CONSISTENCY_PASS",
+      "PROPOSITION": "UI_POST_MUTATION_REFRESH_CONSISTENCY_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 24",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "25",
+      "GATE_NAME": "UI_MOBILE_PASS",
+      "PROPOSITION": "UI_MOBILE_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 25",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "26",
+      "GATE_NAME": "AMBIGUOUS_UI_CTA_ZERO",
+      "PROPOSITION": "AMBIGUOUS_UI_CTA_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 26",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "27",
+      "GATE_NAME": "UI_INFORMATION_HIERARCHY_PASS",
+      "PROPOSITION": "UI_INFORMATION_HIERARCHY_PASS is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 27",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "GATE_ID": "28",
+      "GATE_NAME": "UNINTENTIONAL_UI_DUPLICATION_ZERO",
+      "PROPOSITION": "UNINTENTIONAL_UI_DUPLICATION_ZERO is satisfied",
+      "EVIDENCE_SOURCE": "frozen source and fresh runtime evidence for gate 28",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed == true",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    }
+  ],
+  "summary": {
+    "total": 28,
+    "pass": 28,
+    "fail": 0,
+    "not_provable": 0
+  }
+}

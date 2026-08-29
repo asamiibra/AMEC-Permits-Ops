@@ -1,0 +1,53 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "persona": "Engineering",
+  "primary_navigation": [
+    "/work",
+    "/proposals-contracts",
+    "/operating-guide",
+    "/engineering-closeout"
+  ],
+  "contextual_navigation": [
+    "/proposals/:proposalId",
+    "/proposals/:proposalId/preparation",
+    "/contracts/:contractId",
+    "/reviews",
+    "/issues",
+    "/issues/:issueId",
+    "/notifications",
+    "/permits/:projectId/project-and-sources",
+    "/permits/:projectId/verify-data",
+    "/permits/:projectId/prepare-package",
+    "/permits/:projectId/municipality-preparation",
+    "/permits/:projectId/final-review",
+    "/permits/:projectId/authority-review",
+    "/permits/:projectId/comments-and-corrections",
+    "/permits/:projectId/history"
+  ],
+  "routes": [
+    "/work",
+    "/proposals-contracts",
+    "/proposals/:proposalId",
+    "/proposals/:proposalId/preparation",
+    "/contracts/:contractId",
+    "/reviews",
+    "/issues",
+    "/issues/:issueId",
+    "/notifications",
+    "/operating-guide",
+    "/permits/:projectId/project-and-sources",
+    "/permits/:projectId/verify-data",
+    "/permits/:projectId/prepare-package",
+    "/permits/:projectId/municipality-preparation",
+    "/permits/:projectId/final-review",
+    "/permits/:projectId/authority-review",
+    "/permits/:projectId/comments-and-corrections",
+    "/permits/:projectId/history",
+    "/engineering-closeout"
+  ],
+  "visible_actions": "enumerated from source action ledger",
+  "hidden_actions": "role-bounded by source navigation/action branches",
+  "admin_access": false,
+  "protected_actions": "enumerated in 10-protected-authority-ledger.json",
+  "unresolved": 0
+}

@@ -1,0 +1,19 @@
+{
+  "gate": "UI_MOBILE_PASS",
+  "status": "PASS",
+  "viewports": {
+    "desktop": {
+      "width": 1440,
+      "height": 1000
+    },
+    "tablet": {
+      "width": 834,
+      "height": 1112
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844
+    }
+  },
+  "failures": []
+}

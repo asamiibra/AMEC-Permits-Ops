@@ -1,0 +1,14 @@
+{
+  "reproduction_commit": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
+  "reproduced_paths": [
+    "M\tfrontend/src/App.tsx",
+    "A\tfrontend/src/AuthFailureSurface.tsx",
+    "M\tfrontend/src/main.tsx",
+    "A\tfrontend/src/mobile-navigation.css",
+    "M\tfrontend/tests/app.test.tsx",
+    "A\tfrontend/tests/auth-failure-surface.test.tsx"
+  ],
+  "six_path_predicate": true,
+  "backend_tree_equal": true,
+  "frontend_tree_after_reproduction": "a12cf361239648be932a96a5bc6469d37a21031d"
+}

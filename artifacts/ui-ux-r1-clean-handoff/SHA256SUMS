@@ -1,0 +1,25 @@
+/Users/ahmedsami/.zprofile:6: no such file or directory: /usr/local/bin/brew
+/Users/ahmedsami/.zprofile:7: no such file or directory: /usr/local/bin/brew
+41f80faf3268e0ee41c386f2498b947432fcb459de3eef7691082e0329cee17c  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/00-valid-preflight-100.json
+4686a06b9a0a21c3f3427c681ccdb4b90f465e1186e33d2d5fd7cab0f9e3742d  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/01-baseline-and-f51-provenance.json
+f0ecb98aec5982e8e6a1f9547d9e5213c129b57330c1c1af95bfc8435beb2538  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/02-six-file-reproduction-proof.json
+75f7f99c480975755dac818a32a5c31c25a9ae38d3e497584c0f3a3c2349d224  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/03-corrective-source-diff.json
+0babe27db1e27333f225aab87bebca99a902ab19b07569e94dc5ad79be8c95ee  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/04-route-ledger.json
+3c5d1963d9d922383d3918db18be0319922e4ba6a9e2bddf56fbaf86ca827e7c  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/05-ui-surface-ledger.json
+7d8a55fc04a512ced55704816cd1f69abb0f6654b4bcdec55b9c449748e1cfa5  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/06-api-family-ledger.json
+f4bc151361000694c91054467a8a30c4ce3aa7712fb31bec2a9f27eb2c1cdc23  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/07-value-binding-ledger.json
+3ad16e3b510bb50bcc39ece68b54e068e4828ae311fe62bcfff105b04e6d71b7  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/08-action-ledger.json
+19eef52777fb625c6aab22c4ce380ebdfbef966490c3c97f959334a173b55a96  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/09-capability-ledger.json
+4e29307ba945217f8ad379f4ee02c3e81ea3250d7cded3fe63c90b5e72ca5933  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/10-protected-authority-ledger.json
+0ad886118984697603570b76d68fce6bac90c73621d50989354bdd24c07794f7  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/11-owner-persona-matrix.json
+f72bc9d809f5003fb1f294c926f932319bf98d05f2cd2f73762f9737ab72ebe0  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/12-bd-persona-matrix.json
+677d9244235485954654a01c9035c43fd155c9c40f850b679d7ec5174c3dc68b  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/13-engineering-persona-matrix.json
+c36126146fe9bcee5291ba33b1db6d8206e2be8ba0368e9be1b349a421bd88fa  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/14-mobile-keyboard-focus-25.json
+caf3ed47d1d4016f16b6d3fe18cd81d7b2a594732022a62f3d85b371568e78ad  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/15-responsive-runtime.json
+2124aeb80b1fb41b802d445b4973420e8c778aa2e8d81ea0af43f06875dafbfe  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/16-auth-failure-runtime.json
+c43f4db9813cd313b1c5dcde6b8692e2dafd9305da063d6709bc50267545cd47  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/18-original-28-gates-individual.json
+dd8cd8cbcf791bb92b6d8e2fcb653e918a4532f4912e2d5e61d82f3afb6fce08  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/19-build-unit-conformance.json
+a5d2f2f80fdd08a33ffbfe835ecff2f739cdab70edb19b838253263c9446dd59  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/20-post-fix-100-independent-checks.json
+4bf0306aaf034a78d608bc9d304d38663c9b5541f0a76c94d75c829a2aebd38c  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/21-hard-zero-final.json
+ab4ceae6bb00d70ad120a13116f5393098758ba2c72d471b692f4778ffac2d61  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/22-source-isolation-proof.json
+38b42ff191adb38502fd3207d088485a747f24fa5fb0f0fa82f77509f01cb611  /private/tmp/proposalops-ui-clean-handoff/artifacts/ui-ux-r1-clean-handoff/23-final-source-result.json

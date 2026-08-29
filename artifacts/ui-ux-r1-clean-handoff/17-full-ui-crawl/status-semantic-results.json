@@ -1,0 +1,18 @@
+{
+  "gate": "UI_STATUS_SEMANTIC_CLARITY_PASS",
+  "status": "PENDING_BROWSER_EXECUTION",
+  "note": "Every visible status must be classified by dimension.",
+  "dimensions": [
+    "business lifecycle",
+    "workflow stage",
+    "setup readiness",
+    "integration health",
+    "source relationship",
+    "read state",
+    "delivery state",
+    "issue severity",
+    "issue blocking state",
+    "template state"
+  ],
+  "ambiguous_statuses": []
+}

@@ -1,0 +1,14 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "auth_ts_equal_c42": true,
+  "api_ts_equal_c42": true,
+  "bootstrap_fail_closed": true,
+  "dev_header_fallback": false,
+  "fake_login": false,
+  "token_bypass": false,
+  "changed_entra_identifiers": false,
+  "changed_api_scope": false,
+  "raw_exception": false,
+  "leakage": false,
+  "retry": "normal reload"
+}

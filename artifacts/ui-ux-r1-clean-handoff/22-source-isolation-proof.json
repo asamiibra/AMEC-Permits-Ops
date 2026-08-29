@@ -1,0 +1,17 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "source_tree": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+  "active_user_worktree_mutations": 0,
+  "integration_worktree_mutations": 0,
+  "historical_ui_worktree_mutations": 0,
+  "main_mutations": 0,
+  "backend_source_mutations": 0,
+  "migration_source_mutations": 0,
+  "infra_source_mutations": 0,
+  "azure_mutations": 0,
+  "entra_mutations": 0,
+  "sql_mutations": 0,
+  "synology_mutations": 0,
+  "real_data_reads": 0,
+  "real_data_writes": 0
+}

@@ -1,0 +1,16 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "changed_paths": [
+    "A\tfrontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts",
+    "M\tfrontend/src/App.tsx",
+    "M\tfrontend/tests/app.test.tsx"
+  ],
+  "allowed_prefixes": [
+    "frontend/src/",
+    "frontend/tests/",
+    "frontend/browser-e2e/"
+  ],
+  "backend_changed_paths": 0,
+  "migration_changed_paths": 0,
+  "infra_changed_paths": 0
+}

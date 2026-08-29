@@ -1,0 +1,76 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "viewports": [
+    {
+      "viewport": 390,
+      "overflow": false,
+      "collision": false,
+      "primary_navigation": "available or desktop navigation present",
+      "primary_action_visibility": true,
+      "dialog_usability": true,
+      "table_behavior": "no unintended overflow",
+      "focus_usability": true,
+      "result": "PASS"
+    },
+    {
+      "viewport": 834,
+      "overflow": false,
+      "collision": false,
+      "primary_navigation": "available or desktop navigation present",
+      "primary_action_visibility": true,
+      "dialog_usability": true,
+      "table_behavior": "no unintended overflow",
+      "focus_usability": true,
+      "result": "PASS"
+    },
+    {
+      "viewport": 1024,
+      "overflow": false,
+      "collision": false,
+      "primary_navigation": "available or desktop navigation present",
+      "primary_action_visibility": true,
+      "dialog_usability": true,
+      "table_behavior": "no unintended overflow",
+      "focus_usability": true,
+      "result": "PASS"
+    },
+    {
+      "viewport": 1280,
+      "overflow": false,
+      "collision": false,
+      "primary_navigation": "available or desktop navigation present",
+      "primary_action_visibility": true,
+      "dialog_usability": true,
+      "table_behavior": "no unintended overflow",
+      "focus_usability": true,
+      "result": "PASS"
+    },
+    {
+      "viewport": 1440,
+      "overflow": false,
+      "collision": false,
+      "primary_navigation": "available or desktop navigation present",
+      "primary_action_visibility": true,
+      "dialog_usability": true,
+      "table_behavior": "no unintended overflow",
+      "focus_usability": true,
+      "result": "PASS"
+    },
+    {
+      "viewport": 1920,
+      "overflow": false,
+      "collision": false,
+      "primary_navigation": "available or desktop navigation present",
+      "primary_action_visibility": true,
+      "dialog_usability": true,
+      "table_behavior": "no unintended overflow",
+      "focus_usability": true,
+      "result": "PASS"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "pass": 6,
+    "fail": 0
+  }
+}

@@ -1,0 +1,710 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "surfaces": [
+    {
+      "SOURCE_COMPONENT": "AMECWorkPage",
+      "SOURCE_FILE": "frontend/src/AMECWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "OPERATING_GUIDE_LOCALE_STORAGE_KEY",
+      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "LtrTerm",
+      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AboutPermitOpsPage",
+      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AdministrationOwnerPage",
+      "SOURCE_FILE": "frontend/src/AdministrationOwner.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ContractMobilizationPage",
+      "SOURCE_FILE": "frontend/src/AdministrationOwner.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AmecLogo",
+      "SOURCE_FILE": "frontend/src/AmecLogo.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "SYSTEM_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AuthFailureSurface",
+      "SOURCE_FILE": "frontend/src/AuthFailureSurface.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "SYSTEM_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AuthorityCaseWorkspacePage",
+      "SOURCE_FILE": "frontend/src/AuthorityCaseWorkspace.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "SOURCE_FILE": "frontend/src/BDProposalOwnerSession.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "BillingInvoicePage",
+      "SOURCE_FILE": "frontend/src/BillingInvoice.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CompletionPage",
+      "SOURCE_FILE": "frontend/src/Completion.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ConstructionPage",
+      "SOURCE_FILE": "frontend/src/Construction.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CurrentDashboard",
+      "SOURCE_FILE": "frontend/src/Dashboard.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "DashboardInputsLauncher",
+      "SOURCE_FILE": "frontend/src/DashboardInputs.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "DashboardInputsPage",
+      "SOURCE_FILE": "frontend/src/DashboardInputs.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "EngineeringCloseoutPage",
+      "SOURCE_FILE": "frontend/src/EngineeringCloseout.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "EngineeringDrawingReviewPage",
+      "SOURCE_FILE": "frontend/src/EngineeringDrawingReview.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ExpansionFoundation",
+      "SOURCE_FILE": "frontend/src/ExpansionFoundation.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "HandoverPage",
+      "SOURCE_FILE": "frontend/src/Handover.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "HomePage",
+      "SOURCE_FILE": "frontend/src/Home.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "HomeCommandCenter",
+      "SOURCE_FILE": "frontend/src/HomeCommandCenter.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Icon",
+      "SOURCE_FILE": "frontend/src/Icon.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "SYSTEM_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CanonicalFormsLibrary",
+      "SOURCE_FILE": "frontend/src/MasterContentForms.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "NotificationBell",
+      "SOURCE_FILE": "frontend/src/NotificationBell.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "SYSTEM_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "OpportunitiesPage",
+      "SOURCE_FILE": "frontend/src/Opportunities.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "OwnerDecisionCenterPage",
+      "SOURCE_FILE": "frontend/src/OwnerDecisionCenter.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PermitPortfolioPage",
+      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "NewPermitPage",
+      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PermitCasePage",
+      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PersonaIssuesPage",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PersonaIssueDetailPage",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PersonaNotificationsPage",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "IssueFocusBanner",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PHASE4_DECISIONS",
+      "SOURCE_FILE": "frontend/src/Phase4Review.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Phase4ReviewPage",
+      "SOURCE_FILE": "frontend/src/Phase4Review.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Phase5ReviewPage",
+      "SOURCE_FILE": "frontend/src/Phase5Review.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "customerProductionRequirements",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "screenReadinessRegistry",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "SCREEN_ROUTE_INVENTORY",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "statusLabel",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "categoryLabel",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "getScreenDefinition",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "getScreenUnresolvedCount",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ReadinessDrawer",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ReadinessOverviewPage",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ProjectEngineeringPage",
+      "SOURCE_FILE": "frontend/src/ProjectEngineering.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ProposalWorkspaceStageAware",
+      "SOURCE_FILE": "frontend/src/ProposalWorkspaceStageAware.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "validateProposalsMainPayload",
+      "SOURCE_FILE": "frontend/src/ProposalsContracts.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ProposalsContractsPage",
+      "SOURCE_FILE": "frontend/src/ProposalsContracts.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ReconciliationControls",
+      "SOURCE_FILE": "frontend/src/ReconciliationControls.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ArtifactStatusBadge",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "TemplateVersionBadge",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "HumanAuthorityBadge",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "SafeDefaultBanner",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PrototypeOnlyBanner",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "EvidenceSourcePanel",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CommunicationStatusBadge",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CapabilityStatusBadge",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ArtifactPreview",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "StaleArtifactWarning",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CommunicationDraftPanel",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "UnifiedMyWorkPanel",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Week10Page",
+      "SOURCE_FILE": "frontend/src/Week10.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Week11Page",
+      "SOURCE_FILE": "frontend/src/Week11.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Week12Page",
+      "SOURCE_FILE": "frontend/src/Week12.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Week13Page",
+      "SOURCE_FILE": "frontend/src/Week13.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Week14Page",
+      "SOURCE_FILE": "frontend/src/Week14.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "DocumentsPage",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ConflictsPage",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ConfigurationPage",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "SpikePage",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "SubmissionConfirmationPage",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Phase0Page",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AdjudicationPage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AnalysisPage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ThresholdsPage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CorpusPage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Tier1Page",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Tier2Page",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "BusinessBaselinePage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "DeliveryPage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CloseDecisionPage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "BaselinePage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "SignoffPage",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PackageReadinessPage",
+      "SOURCE_FILE": "frontend/src/Week45.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "MunicipalityPreparationPage",
+      "SOURCE_FILE": "frontend/src/Week45.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "FindingsConsolePage",
+      "SOURCE_FILE": "frontend/src/Week7.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "LineageValidityPage",
+      "SOURCE_FILE": "frontend/src/Week8.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AttachmentGridPage",
+      "SOURCE_FILE": "frontend/src/Week9.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "WORKFLOW_STAGES",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "projectWorkflowStage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "projectNextAction",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PermitStageStepper",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "MyWorkPage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PermitsPage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "ReviewsPage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "IssuesPage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "NotificationsPage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "PermitWorkspacePage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AdministrationPage",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "ADMIN_SURFACE"
+    },
+    {
+      "SOURCE_COMPONENT": "WorkflowStageLabel",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "browserAuthMode",
+      "SOURCE_FILE": "frontend/src/auth.ts",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "canonicalDomainRoute",
+      "SOURCE_FILE": "frontend/src/domainOwnershipRoutes.ts",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "CONTENT_LABELS",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "MODULE_LABELS",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "MODULE_OPTIONS",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "moduleLabel",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "friendlyStatus",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "versionLabel",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "UsedInPicker",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "AIAssistCompact",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "Drawer",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "DEMO_PERSONAS",
+      "SOURCE_FILE": "frontend/src/rebrand.ts",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "readDemoRole",
+      "SOURCE_FILE": "frontend/src/rebrand.ts",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "visibleRebrandText",
+      "SOURCE_FILE": "frontend/src/rebrand.ts",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    },
+    {
+      "SOURCE_COMPONENT": "RebrandSurface",
+      "SOURCE_FILE": "frontend/src/rebrand.ts",
+      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
+      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+    }
+  ],
+  "total": 117,
+  "UI_SURFACES_UNCLASSIFIED": 0,
+  "dead_or_unreachable": []
+}

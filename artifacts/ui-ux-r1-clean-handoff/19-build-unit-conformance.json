@@ -1,0 +1,23 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "build": "PASS",
+  "unit_tests": {
+    "files": 19,
+    "tests": 110,
+    "result": "PASS"
+  },
+  "ui_conformance": {
+    "scenarios": 312,
+    "result": "PASS"
+  },
+  "mobile_browser_test": {
+    "tests": 1,
+    "result": "PASS"
+  },
+  "full_route_crawl": {
+    "routes": 66,
+    "persona_combinations": 104,
+    "viewport_scenarios": 312,
+    "result": "PASS"
+  }
+}

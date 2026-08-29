@@ -1,0 +1,1442 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "capabilities": [
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/admin_owner_ready.py",
+      "DISPOSITION": "BACKGROUND_FUNCTION",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/admin_owner_ready.py",
+      "DISPOSITION": "BACKGROUND_FUNCTION",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/admin_owner_ready.py",
+      "DISPOSITION": "BACKGROUND_FUNCTION",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/admin_owner_ready.py",
+      "DISPOSITION": "BACKGROUND_FUNCTION",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/admin_owner_ready.py",
+      "DISPOSITION": "BACKGROUND_FUNCTION",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/admin_owner_ready.py",
+      "DISPOSITION": "BACKGROUND_FUNCTION",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/bd_proposal_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/billing_invoice_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/billing_invoice_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/completion_asbuilt_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/completion_asbuilt_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/contract_workspace_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/expansion_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "str",
+      "BACKEND_FILE": "backend/app/api/handover_closeout_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/handover_closeout_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/handover_closeout_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/handover_closeout_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/master_content_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/permit_ux_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/permit_ux_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/permit_ux_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/permit_ux_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/phase4_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/phase4_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/phase4_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/phase5.py",
+      "DISPOSITION": "BACKGROUND_FUNCTION",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/preparation_submission_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "action",
+      "BACKEND_FILE": "backend/app/api/preparation_submission_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/preparation_submission_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "action",
+      "BACKEND_FILE": "backend/app/api/preparation_submission_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "str",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "str",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "str",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "str",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/project_engineering_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "EDIT_TECHNICAL",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "UNDECIDED_STAGE2",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/proposals_main_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "str",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "str",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "db.scalar",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "raise",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability.capability_id",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "UNDECIDED_STAGE2",
+      "BACKEND_FILE": "backend/app/api/recovery_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/regulatory_context_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/regulatory_context_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/regulatory_context_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/regulatory_context_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/week3_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    },
+    {
+      "CAPABILITY": "capability-reference",
+      "BACKEND_FILE": "backend/app/api/week3_routers.py",
+      "DISPOSITION": "MAPPED_PRIMARY_UI",
+      "UI_BINDING": "source API/action census reviewed",
+      "AUTHORITY": "backend-enforced"
+    }
+  ],
+  "total": 205,
+  "CAPABILITIES_UNCLASSIFIED": 0
+}

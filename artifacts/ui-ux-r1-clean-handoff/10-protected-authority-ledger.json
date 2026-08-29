@@ -1,0 +1,76 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "protected_actions": [
+    {
+      "action": "Proposal Proceed",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "Contract Accept",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "Project Activation",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "professional engineering approval",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "Invoice Accept",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "Invoice Issue",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "payment verification/allocation",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "Construction Start",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "submission authorization",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "final government submission",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "As-Built professional approval",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "Handover acceptance",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "Closeout",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    },
+    {
+      "action": "financial settlement",
+      "disposition": "explicit human-controlled semantic preserved",
+      "ai_authority": "assistive only"
+    }
+  ],
+  "semantic_collapse": 0
+}
