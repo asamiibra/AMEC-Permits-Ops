@@ -23,7 +23,7 @@ describe("ProposalOps shell", () => {
     fireEvent.click(trigger);
     await waitFor(() => {
       expect(screen.getByRole("navigation", { name: "Mobile primary navigation" })).toBeTruthy();
-      expect(screen.getAllByRole("button", { name: "Close navigation" })).toHaveLength(2);
+      expect(screen.getByRole("button", { name: "Close navigation" })).toBeTruthy();
     });
   });
 });
