@@ -250,6 +250,7 @@ function App() {
   const [role, setRole] = useState<string>(() => readDemoRole());
   const [searchOpen, setSearchOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   useEffect(() => {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -339,7 +340,16 @@ function App() {
       window.history.replaceState({}, "", "/home");
     }
   }, [role]);
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileNavOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [mobileNavOpen]);
   const navigate = (next: string) => {
+    setMobileNavOpen(false);
     const navItem = businessNav.find((item) => item.id === next);
     const nextPage = navItem?.page || next;
     setPage(nextPage);
@@ -462,6 +472,56 @@ function App() {
     : undefined;
   return (
     <div className="app-shell">
+      {mobileNavOpen && (
+        <div
+          className="mobile-nav-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setMobileNavOpen(false);
+          }}
+        >
+          <aside className="mobile-nav-drawer" aria-label="Mobile navigation">
+            <div className="mobile-nav-drawer-head">
+              <div>
+                <b>AMEC Works</b>
+                <small>PROPOSALOPS WORKSPACE</small>
+              </div>
+              <button
+                className="mobile-nav-close"
+                type="button"
+                aria-label="Close navigation"
+                onClick={() => setMobileNavOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+            <nav id="mobile-primary-navigation" aria-label="Mobile primary navigation">
+              <div className="nav-section-label">HOME</div>
+              {visibleBusinessNav.filter((item) => item.group === "HOME").map((item) => (
+                <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
+                  <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
+                </button>
+              ))}
+              <div className="nav-section-label">BUSINESS FLOW</div>
+              {visibleBusinessNav.filter((item) => item.group === "BUSINESS FLOW").map((item) => (
+                <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
+                  <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
+                </button>
+              ))}
+              {adminRoles.has(role) && (
+                <>
+                  <div className="nav-section-label">SYSTEM</div>
+                  <button type="button" aria-label="Admin" data-nav-id="administration" className={page === "administration" ? "nav-item active" : "nav-item"} onClick={() => navigate("administration")}>
+                    <span className="nav-icon"><Icon name="settings" size={18} /></span><span>Admin</span>
+                  </button>
+                </>
+              )}
+              <button type="button" aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}>
+                <span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span>
+              </button>
+            </nav>
+          </aside>
+        </div>
+      )}
       <aside className="sidebar">
         <div className="brand">
           <AmecLogo size="sm" className="sidebar-amec-logo" />
@@ -519,6 +579,16 @@ function App() {
         {page === "engineering-drawing-review" && <EngineeringDrawingReviewPage />}
         <header className="topbar">
           <div className="topbar-heading">
+            <button
+              className="mobile-nav-trigger"
+              type="button"
+              aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={mobileNavOpen}
+              aria-controls="mobile-primary-navigation"
+              onClick={() => setMobileNavOpen((value) => !value)}
+            >
+              Menu
+            </button>
             <AmecLogo size="sm" className="mobile-topbar-amec-logo" />
             <div>
               <span className="eyebrow">AMEC WORKSPACE</span>
