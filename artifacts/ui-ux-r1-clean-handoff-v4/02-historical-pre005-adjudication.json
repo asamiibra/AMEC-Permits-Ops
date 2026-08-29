@@ -1,0 +1,24 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "frozen_source_parent": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
+  "historical_E2": "dc0f95b836b12b0ee1686e26a38841ef77328495",
+  "historical_E2_parent": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+  "historical_pre005": {
+    "CHECK_ID": "PRE-005",
+    "historical_observed_value": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+    "historical_expected_value": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+    "historical_proposition": "E2 parent is frozen source parent",
+    "wording_defect": "The proposition labels the historical E2 parent as the frozen source parent; the frozen source parent is parent(S).",
+    "retroactive_rewrite": false
+  },
+  "independent_resolution": {
+    "parent_E2": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+    "parent_S": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
+    "parents_differ": true,
+    "frontend_backend_delta_between_E2_and_H3": ""
+  },
+  "OWNER_PROCEDURAL_EXCEPTION_PRE005": "APPLIED",
+  "HISTORICAL_PRE005_WORDING_DEFECT": "ACKNOWLEDGED",
+  "HISTORICAL_PRE005_RETROACTIVE_REWRITE": false,
+  "interpretation": "Historical evidence is preserved byte-for-byte; only this adjudication records the wording defect. S remains the certified source and H3 remains evidence ancestry."
+}

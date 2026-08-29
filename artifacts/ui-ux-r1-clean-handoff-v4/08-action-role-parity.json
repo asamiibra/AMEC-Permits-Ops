@@ -1,0 +1,199 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "ACTION_ROLE_PARITY_EXECUTED": true,
+  "ACTION_ROLE_PARITY_APPLICABLE_ROWS": 18,
+  "ACTION_ROLE_PARITY_UNRESOLVED": 0,
+  "ACTION_ROLE_PARITY_RESULT": "PASS",
+  "intentional_visibility_difference": "Team select visible only to Owner because isOwner is source-controlled",
+  "rows": [
+    {
+      "persona": "Owner",
+      "action_id": "ACTION-002",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Owner",
+      "action_id": "ACTION-003",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Owner",
+      "action_id": "ACTION-004",
+      "action_class": "READ_REFRESH",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Owner",
+      "action_id": "ACTION-005",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Owner",
+      "action_id": "ACTION-360",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Owner",
+      "action_id": "ACTION-361",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Business Development",
+      "action_id": "ACTION-002",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Business Development",
+      "action_id": "ACTION-003",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Business Development",
+      "action_id": "ACTION-004",
+      "action_class": "READ_REFRESH",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Business Development",
+      "action_id": "ACTION-005",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Business Development",
+      "action_id": "ACTION-360",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Business Development",
+      "action_id": "ACTION-361",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Engineering",
+      "action_id": "ACTION-002",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Engineering",
+      "action_id": "ACTION-003",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Engineering",
+      "action_id": "ACTION-004",
+      "action_class": "READ_REFRESH",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Engineering",
+      "action_id": "ACTION-005",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Engineering",
+      "action_id": "ACTION-360",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    },
+    {
+      "persona": "Engineering",
+      "action_id": "ACTION-361",
+      "action_class": "READ_REFRESH_TRIGGER",
+      "api_family": "API-001",
+      "visible": true,
+      "expected_read": true,
+      "observed_read": true,
+      "result": "PASS"
+    }
+  ],
+  "V4_ACTIONS": [
+    "AMECWORK-INITIAL-LOAD",
+    "AMECWORK-RETRY",
+    "AMECWORK-KPI",
+    "AMECWORK-TEAM",
+    "AMECWORK-WORK-DOMAIN",
+    "AMECWORK-CLEAR-FILTERS"
+  ],
+  "V4_RECHECK": "All six AMECWork API-backed behaviors resolve to GET /api/work and preserve persona visibility evidence."
+}

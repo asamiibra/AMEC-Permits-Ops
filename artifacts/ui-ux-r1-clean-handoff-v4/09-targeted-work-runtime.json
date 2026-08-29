@@ -1,0 +1,241 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "environment": "LOCAL_SYNTHETIC_PROXY_ONLY",
+  "real_data_reads": 0,
+  "real_data_writes": 0,
+  "personas": [
+    {
+      "persona": "Owner",
+      "team_visible": true,
+      "empty": true,
+      "error_absent": true
+    },
+    {
+      "persona": "Business Development",
+      "team_visible": false,
+      "empty": true,
+      "error_absent": true
+    },
+    {
+      "persona": "Engineering",
+      "team_visible": false,
+      "empty": true,
+      "error_absent": true
+    }
+  ],
+  "viewport_matrix": [
+    1024,
+    390
+  ],
+  "checks": [
+    {
+      "CHECK_ID": "WORK-01",
+      "starting_state": "/work loaded",
+      "interaction": "initial render",
+      "network_observation": true,
+      "ending_state": "synthetic empty state after successful read",
+      "predicate": "initial GET /api/work is observed",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-02",
+      "starting_state": "error alert with Retry",
+      "interaction": "click Retry",
+      "network_observation": true,
+      "ending_state": "error alert remains distinct after synthetic 503",
+      "predicate": "Retry produces a fresh GET",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-03",
+      "starting_state": "loaded empty state",
+      "interaction": "click Needs Action KPI",
+      "network_observation": true,
+      "ending_state": "filtered empty state",
+      "predicate": "KPI state change produces a fresh read",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-04",
+      "starting_state": "active filters",
+      "interaction": "click Clear filters",
+      "network_observation": true,
+      "ending_state": "all-work empty state",
+      "predicate": "clear filters dependency change produces a read",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-05",
+      "starting_state": "Owner with Team visible",
+      "interaction": "select Engineering team",
+      "network_observation": true,
+      "ending_state": "team-filtered empty state",
+      "predicate": "Team change produces a fresh read",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-06",
+      "starting_state": "work filter visible",
+      "interaction": "select Permits",
+      "network_observation": true,
+      "ending_state": "domain-filtered empty state",
+      "predicate": "Work/domain change produces a fresh read",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-07",
+      "starting_state": "synthetic 503",
+      "interaction": "await failure",
+      "network_observation": true,
+      "ending_state": "role=alert; empty state absent",
+      "predicate": "failure is not empty/caught-up",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-08",
+      "starting_state": "synthetic delayed response",
+      "interaction": "await 120ms",
+      "network_observation": true,
+      "ending_state": "role=status loading; error and empty absent",
+      "predicate": "loading is distinct",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-09",
+      "starting_state": "synthetic 200 empty payload",
+      "interaction": "await response",
+      "network_observation": true,
+      "ending_state": "valid empty state; error absent",
+      "predicate": "valid empty is distinct",
+      "result": "PASS"
+    },
+    {
+      "CHECK_ID": "WORK-10",
+      "starting_state": "local proxy",
+      "interaction": "all interactions",
+      "network_observation": true,
+      "ending_state": "local synthetic harness only",
+      "predicate": "no real-data or external request",
+      "result": "PASS"
+    }
+  ],
+  "network_log": [
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?kpi=needs_action"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?team=engineering&kpi=needs_action"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?team=engineering&domain=permit&kpi=needs_action"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?team=engineering&domain=permit"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?kpi=needs_action"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?domain=permit&kpi=needs_action"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?kpi=needs_action"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work?domain=permit&kpi=needs_action"
+    },
+    {
+      "mode": "success",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "error",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "error",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "loading",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "loading",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "error",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "error",
+      "method": "GET",
+      "url": "/api/work"
+    },
+    {
+      "mode": "error",
+      "method": "GET",
+      "url": "/api/work"
+    }
+  ],
+  "V4_REUSE_PROOF": {
+    "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+    "raw_reference": "artifacts/ui-ux-r1-clean-handoff-v3/09-targeted-work-runtime.json",
+    "no_rerun": true,
+    "work_api_family": "API-001",
+    "backend_route_status": "EXACT_BACKEND_ROUTE"
+  }
+}

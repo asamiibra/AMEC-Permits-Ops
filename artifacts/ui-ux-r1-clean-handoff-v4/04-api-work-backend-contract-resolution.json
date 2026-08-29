@@ -1,0 +1,17 @@
+{
+  "SOURCE_SHA": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "FRONTEND_FILE": "frontend/src/AMECWork.tsx",
+  "FRONTEND_REQUEST_EXPRESSION": "`/api/work${query.toString() ? `?${query}` : \"\"}`",
+  "FRONTEND_LOCATOR": "frontend/src/AMECWork.tsx:57",
+  "METHOD": "GET",
+  "ROUTER_PREFIX": "/api/work",
+  "DECORATOR_PATH": "",
+  "EFFECTIVE_PATH": "/api/work",
+  "BACKEND_ROUTE_FILE": "backend/app/api/work_routers.py",
+  "BACKEND_ROUTE_FUNCTION": "work",
+  "EXACT_BACKEND_ROUTE_FOUND": true,
+  "AUTH_DEPENDENCY": "API_AUTH_DEPENDENCIES -> current_user_role",
+  "ROUTE_REGISTRATION": "backend/app/main.py: work_router with API_AUTH_DEPENDENCIES",
+  "RESOLUTION_RESULT": "EXACT_BACKEND_ROUTE",
+  "BACKEND_CONTRACT_GAP_COUNT": 0
+}

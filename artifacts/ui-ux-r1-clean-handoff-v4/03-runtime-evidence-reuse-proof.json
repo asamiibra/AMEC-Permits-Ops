@@ -1,0 +1,32 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "reuse_policy": "IMMUTABLE_REFERENCE_NO_RERUN",
+  "raw_evidence_commit": "8ba42bfe6c32339df45527007bdbf089087e919f",
+  "raw_evidence_path": "artifacts/ui-ux-r1-clean-handoff-v3/17-full-ui-crawl",
+  "runtime_results_path": "artifacts/ui-ux-r1-clean-handoff-v3/17-full-ui-crawl/runtime-results.json",
+  "runtime_results_sha256": "83514128b8d8de3611e91bafda77a647eb5446c090f83597c288208afa94a44f",
+  "screenshot_directory": "artifacts/ui-ux-r1-clean-handoff-v3/17-full-ui-crawl/screenshots",
+  "screenshot_count": 624,
+  "route_count": 66,
+  "applicable_route_persona_combinations": 104,
+  "viewport_count": 6,
+  "scenario_count": 624,
+  "passed_scenarios": 624,
+  "failed_scenarios": 0,
+  "personas": [
+    "Owner",
+    "Business Development",
+    "Engineering"
+  ],
+  "viewports": [
+    390,
+    834,
+    1024,
+    1280,
+    1440,
+    1920
+  ],
+  "mobile_reference": "artifacts/ui-ux-r1-clean-handoff-v3/14-mobile-keyboard-focus-25.json",
+  "auth_reference": "artifacts/ui-ux-r1-clean-handoff-v3/16-auth-failure-runtime.json",
+  "statement": "Raw screenshots and runtime evidence are preserved by reference and digest; no six-viewport crawl was rerun for V4."
+}
