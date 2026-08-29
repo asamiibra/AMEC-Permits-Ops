@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import os
+from pathlib import Path
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Any
 
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -25,7 +26,7 @@ from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensu
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
 from ..services.proposal_final_hardening import hardening_projection, impacted_sections_for_source, material_fingerprint, now as hardening_now
 from ..services.proposal_reference import allocate_proposal_reference
-from ..services.proposals_sor import ingest_provisional_intake_artifact
+from ..services.proposals_sor import _safe_filename, ingest_provisional_intake_artifact, read_proposal_source_bytes
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
 from ..services.owner_decisions import applied_runtime_decision_value, runtime_decision_value
 
@@ -676,6 +677,60 @@ async def add_source(proposal_id: str, request: Request, source_type: str = Form
     result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role, actor), idempotency_key=idempotency_key, source_metadata=None, db=db, role=role)
     db.commit()
     return {**result, "proposal": proposal_projection(db, proposal)}
+
+
+@router.get("/{proposal_id}/sources/{source_id}/content")
+def read_source_content(proposal_id: str, source_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_READ")
+    proposal = db.get(Opportunity, proposal_id)
+    if not proposal:
+        raise HTTPException(404, "PROPOSAL_NOT_FOUND")
+    evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal_id, ProposalSourceEvidence.id == source_id))
+    if not evidence:
+        raise HTTPException(404, "SOURCE_NOT_FOUND")
+    links = db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal_id, ProposalSourceLink.source_evidence_id == evidence.id)).all()
+    if len(links) != 1:
+        raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_LINKAGE_MISMATCH")
+    link = links[0]
+    version = db.get(DocumentVersion, link.document_version_id)
+    document = db.get(Document, link.document_id)
+    source_artifact_id = (evidence.provenance or {}).get("source_artifact_id")
+    artifact = db.get(ProposalIntakeArtifact, source_artifact_id) if source_artifact_id else None
+    if (
+        not version
+        or not document
+        or version.document_id != document.id
+        or not artifact
+        or artifact.opportunity_id != proposal_id
+        or evidence.proposal_id != proposal_id
+        or link.proposal_id != proposal_id
+        or link.source_evidence_id != evidence.id
+        or link.document_version_id != version.id
+        or evidence.content_hash != version.sha256
+        or version.source_path_or_reference != artifact.sor_path
+        or version.file_size != artifact.file_size
+        or artifact.content_hash != version.sha256
+    ):
+        raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_LINKAGE_MISMATCH")
+    content = read_proposal_source_bytes(
+        opportunity_reference=proposal.opportunity_reference,
+        sor_path=artifact.sor_path,
+        expected_sha256=version.sha256,
+        expected_file_size=version.file_size,
+    )
+    filename = Path(artifact.source_filename or evidence.source_filename or "source.bin").name
+    return Response(
+        content=content,
+        media_type=artifact.content_type or evidence.content_type or "application/octet-stream",
+        headers={
+            "Content-Disposition": f'attachment; filename="{_safe_filename(filename)}"',
+            "X-Proposal-Source-Evidence-Id": evidence.id,
+            "X-Proposal-Source-Link-Id": link.id,
+            "X-Document-Version-Id": version.id,
+            "X-Proposal-Intake-Artifact-Id": artifact.id,
+            "X-Content-SHA256": hashlib.sha256(content).hexdigest(),
+        },
+    )
 
 
 @router.get("/{proposal_id}/validation")
