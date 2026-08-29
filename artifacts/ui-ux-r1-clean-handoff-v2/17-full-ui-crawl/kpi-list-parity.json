@@ -1,0 +1,52 @@
+{
+  "gate": "KPI_LIST_PARITY",
+  "executed": true,
+  "applicable_pair_count": 6,
+  "mismatches": 0,
+  "result": "PASS",
+  "evidence": "fresh synthetic proposals/contracts KPI and list fixture comparison",
+  "pairs": [
+    {
+      "name": "OPEN_PROPOSALS",
+      "kpi_count": 1,
+      "list_count": 1,
+      "filter_result": "PASS",
+      "error_empty_result": "PASS"
+    },
+    {
+      "name": "OPEN_CONTRACTS",
+      "kpi_count": 1,
+      "list_count": 1,
+      "filter_result": "PASS",
+      "error_empty_result": "PASS"
+    },
+    {
+      "name": "PROPOSALS_IN_PROCESS",
+      "kpi_count": 1,
+      "list_count": 1,
+      "filter_result": "PASS",
+      "error_empty_result": "PASS"
+    },
+    {
+      "name": "CONTRACTS_IN_PROCESS",
+      "kpi_count": 1,
+      "list_count": 1,
+      "filter_result": "PASS",
+      "error_empty_result": "PASS"
+    },
+    {
+      "name": "NEEDS_ACTION",
+      "kpi_count": 1,
+      "list_count": 1,
+      "filter_result": "PASS",
+      "error_empty_result": "PASS"
+    },
+    {
+      "name": "WAITING_REVIEW",
+      "kpi_count": 1,
+      "list_count": 1,
+      "filter_result": "PASS",
+      "error_empty_result": "PASS"
+    }
+  ]
+}

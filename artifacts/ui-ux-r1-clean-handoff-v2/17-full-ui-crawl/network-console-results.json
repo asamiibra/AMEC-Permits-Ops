@@ -1,0 +1,9 @@
+{
+  "gates": {
+    "UI_CRAWL_CONSOLE_ERROR_ZERO": true,
+    "UI_CRAWL_NETWORK_FAILURE_ZERO": true
+  },
+  "console_errors": [],
+  "request_failures": [],
+  "bad_responses": []
+}

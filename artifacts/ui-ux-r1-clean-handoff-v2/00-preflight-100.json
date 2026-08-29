@@ -1,0 +1,1027 @@
+{
+  "schema": "PROPOSALOPS_UI_PRODUCT_LANE_R1_V2_PREMUTATION_100_V1",
+  "generated_at_utc": "2026-08-29T14:01:15.656Z",
+  "repository": "asamiibra/AMEC-Permits-Ops",
+  "branch": "ui-product-r1-clean-handoff-v1",
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "remote_tip_observed": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+  "checks": [
+    {
+      "CHECK_ID": "A01",
+      "CATEGORY": "A",
+      "PROPOSITION": "accepted source commit is S",
+      "EVIDENCE_SOURCE": "git rev-parse HEAD",
+      "OBSERVED_VALUE": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A02",
+      "CATEGORY": "A",
+      "PROPOSITION": "accepted source tree equals the frozen source tree",
+      "EVIDENCE_SOURCE": "git rev-parse S^{tree}",
+      "OBSERVED_VALUE": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A03",
+      "CATEGORY": "A",
+      "PROPOSITION": "accepted source parent is pinned",
+      "EVIDENCE_SOURCE": "git rev-parse S^",
+      "OBSERVED_VALUE": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A04",
+      "CATEGORY": "A",
+      "PROPOSITION": "frontend subtree is pinned",
+      "EVIDENCE_SOURCE": "git rev-parse S:frontend",
+      "OBSERVED_VALUE": "0d32e10e1882a1061ca86926347365ec866279fc",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A05",
+      "CATEGORY": "A",
+      "PROPOSITION": "backend subtree is pinned",
+      "EVIDENCE_SOURCE": "git rev-parse S:backend",
+      "OBSERVED_VALUE": "df227ee768ba0e52268622fa8790c5e4ae035d54",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A06",
+      "CATEGORY": "A",
+      "PROPOSITION": "source branch name is the existing handoff branch",
+      "EVIDENCE_SOURCE": "git branch --show-current",
+      "OBSERVED_VALUE": "ui-product-r1-clean-handoff-v1",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A07",
+      "CATEGORY": "A",
+      "PROPOSITION": "source worktree is the isolated handoff worktree",
+      "EVIDENCE_SOURCE": "pwd",
+      "OBSERVED_VALUE": "/private/tmp/proposalops-ui-clean-handoff",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A08",
+      "CATEGORY": "A",
+      "PROPOSITION": "working tree has no preflight-time changes",
+      "EVIDENCE_SOURCE": "git status --porcelain",
+      "OBSERVED_VALUE": "(clean)",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A09",
+      "CATEGORY": "A",
+      "PROPOSITION": "auth source exists at the frozen commit",
+      "EVIDENCE_SOURCE": "git show S:frontend/src/auth.ts",
+      "OBSERVED_VALUE": "b19ed91336952872e6e17572f2a62bd5890aa63a66de197bf8b5cc5a9d5de77c",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A10",
+      "CATEGORY": "A",
+      "PROPOSITION": "API source exists at the frozen commit",
+      "EVIDENCE_SOURCE": "git show S:frontend/src/api.ts",
+      "OBSERVED_VALUE": "f20bdb12910babb02b5cd0c22786aafa46824c4882cd275b8cfb6332e3d6327e",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A11",
+      "CATEGORY": "A",
+      "PROPOSITION": "route source exists at the frozen commit",
+      "EVIDENCE_SOURCE": "git show S:frontend/src/App.tsx",
+      "OBSERVED_VALUE": "1b4c2b2d79ec722891b7e69cc18f388537f4e0d6362b3b4ab31e55a3e30b5759",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A12",
+      "CATEGORY": "A",
+      "PROPOSITION": "auth failure presentation source exists at the frozen commit",
+      "EVIDENCE_SOURCE": "git show S:frontend/src/AuthFailureSurface.tsx",
+      "OBSERVED_VALUE": "5056b186c4402953858b4d5fdec3ed836cb8f08dcb65b736cfceefa85fa26049",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A13",
+      "CATEGORY": "A",
+      "PROPOSITION": "frontend container source exists at the frozen commit",
+      "EVIDENCE_SOURCE": "git show S:frontend/Dockerfile",
+      "OBSERVED_VALUE": "c9f614eb113af8e2acbb7f7ab30e151f1b2b53df0250666d3cbb5ba4f5bc65e8",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A14",
+      "CATEGORY": "A",
+      "PROPOSITION": "frontend web-server source exists at the frozen commit",
+      "EVIDENCE_SOURCE": "git show S:frontend/nginx.conf",
+      "OBSERVED_VALUE": "40ba5c39fbc8379f4ca391b3f8b02741f039e35abbd3b0e6ce13480edd12e4eb",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "A15",
+      "CATEGORY": "A",
+      "PROPOSITION": "frontend deployment metadata exists at the frozen commit",
+      "EVIDENCE_SOURCE": "git show S:frontend/vercel.json",
+      "OBSERVED_VALUE": "b1af7dcb7a6e83ccf1ff25c895586f2a020e1d440ec24e943ed41bede52c0f4b",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B01",
+      "CATEGORY": "B",
+      "PROPOSITION": "remote branch tip matches required H0",
+      "EVIDENCE_SOURCE": "git rev-parse origin/ui-product-r1-clean-handoff-v1",
+      "OBSERVED_VALUE": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B02",
+      "CATEGORY": "B",
+      "PROPOSITION": "local branch tip matches required H0",
+      "EVIDENCE_SOURCE": "git rev-parse HEAD",
+      "OBSERVED_VALUE": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B03",
+      "CATEGORY": "B",
+      "PROPOSITION": "H0 is a descendant of E0",
+      "EVIDENCE_SOURCE": "git merge-base --is-ancestor E0 H0",
+      "OBSERVED_VALUE": "ancestor",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B04",
+      "CATEGORY": "B",
+      "PROPOSITION": "E0 is a descendant of S",
+      "EVIDENCE_SOURCE": "git merge-base --is-ancestor S E0",
+      "OBSERVED_VALUE": "ancestor",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B05",
+      "CATEGORY": "B",
+      "PROPOSITION": "H0 parent is E0",
+      "EVIDENCE_SOURCE": "git rev-parse H0^",
+      "OBSERVED_VALUE": "62446d60550175cec135111dd252ed0b94ace938",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B06",
+      "CATEGORY": "B",
+      "PROPOSITION": "H0 has the historical handoff message",
+      "EVIDENCE_SOURCE": "git show -s --format=%s H0",
+      "OBSERVED_VALUE": "docs(ui): finalize immutable Azure handoff record",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B07",
+      "CATEGORY": "B",
+      "PROPOSITION": "E0 has the historical evidence message",
+      "EVIDENCE_SOURCE": "git show -s --format=%s E0",
+      "OBSERVED_VALUE": "docs(ui): rebuild exact R1 handoff evidence",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B08",
+      "CATEGORY": "B",
+      "PROPOSITION": "branch has one remote tracking branch",
+      "EVIDENCE_SOURCE": "git for-each-ref refs/remotes/origin/ui-product-r1-clean-handoff-v1",
+      "OBSERVED_VALUE": "refs/remotes/origin/ui-product-r1-clean-handoff-v1",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B09",
+      "CATEGORY": "B",
+      "PROPOSITION": "no merge operation is in progress",
+      "EVIDENCE_SOURCE": "git rev-parse MERGE_HEAD",
+      "OBSERVED_VALUE": "(none)",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "B10",
+      "CATEGORY": "B",
+      "PROPOSITION": "no rebase operation is in progress",
+      "EVIDENCE_SOURCE": "git rebase-apply/rebase-merge inspection",
+      "OBSERVED_VALUE": "(none)",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C01",
+      "CATEGORY": "C",
+      "PROPOSITION": "frontend source at S is clean relative to the checkout",
+      "EVIDENCE_SOURCE": "git diff S -- frontend",
+      "OBSERVED_VALUE": "no diff",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C02",
+      "CATEGORY": "C",
+      "PROPOSITION": "backend source at S is clean relative to the checkout",
+      "EVIDENCE_SOURCE": "git diff S -- backend",
+      "OBSERVED_VALUE": "no diff",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C03",
+      "CATEGORY": "C",
+      "PROPOSITION": "migrations are clean relative to S",
+      "EVIDENCE_SOURCE": "git diff S -- migrations",
+      "OBSERVED_VALUE": "no diff",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C04",
+      "CATEGORY": "C",
+      "PROPOSITION": "infra is clean relative to S",
+      "EVIDENCE_SOURCE": "git diff S -- infra",
+      "OBSERVED_VALUE": "no diff",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C05",
+      "CATEGORY": "C",
+      "PROPOSITION": "auth semantics source text is present and unchanged",
+      "EVIDENCE_SOURCE": "git show S:frontend/src/auth.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C06",
+      "CATEGORY": "C",
+      "PROPOSITION": "API contract source text is present and unchanged",
+      "EVIDENCE_SOURCE": "git show S:frontend/src/api.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C07",
+      "CATEGORY": "C",
+      "PROPOSITION": "App route source is present and unchanged",
+      "EVIDENCE_SOURCE": "git show S:frontend/src/App.tsx",
+      "OBSERVED_VALUE": false,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C08",
+      "CATEGORY": "C",
+      "PROPOSITION": "V1 evidence directory exists separately from the V2 target",
+      "EVIDENCE_SOURCE": "filesystem path check",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C09",
+      "CATEGORY": "C",
+      "PROPOSITION": "no V2 evidence path is already tracked at entry",
+      "EVIDENCE_SOURCE": "git ls-files artifacts/ui-ux-r1-clean-handoff-v2",
+      "OBSERVED_VALUE": "(none)",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "C10",
+      "CATEGORY": "C",
+      "PROPOSITION": "protected source paths have no checkout modifications",
+      "EVIDENCE_SOURCE": "git status --porcelain protected paths",
+      "OBSERVED_VALUE": "(clean)",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D01",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 post-check payload exists",
+      "EVIDENCE_SOURCE": "V1/20-post-fix-100-independent-checks.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D02",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 post-check payload records 100 rows",
+      "EVIDENCE_SOURCE": "V1 post-check row count",
+      "OBSERVED_VALUE": 100,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D03",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 includes action-role parity gate evidence",
+      "EVIDENCE_SOURCE": "V1 gate files",
+      "OBSERVED_VALUE": "action-role-parity.json exists",
+      "EXPECTED_PREDICATE": false,
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D04",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 includes cross-page truth gate evidence",
+      "EVIDENCE_SOURCE": "V1 gate files",
+      "OBSERVED_VALUE": "cross-page-truth.json exists",
+      "EXPECTED_PREDICATE": false,
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D05",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 includes internal contradictions gate evidence",
+      "EVIDENCE_SOURCE": "V1 gate files",
+      "OBSERVED_VALUE": "internal-contradictions.json exists",
+      "EXPECTED_PREDICATE": false,
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D06",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 includes KPI/list parity gate evidence",
+      "EVIDENCE_SOURCE": "V1 gate files",
+      "OBSERVED_VALUE": "kpi-list-parity.json exists",
+      "EXPECTED_PREDICATE": false,
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D07",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 aggregate 28-gate result exists",
+      "EVIDENCE_SOURCE": "V1/18-original-28-gates-individual.json",
+      "OBSERVED_VALUE": 28,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D08",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 crawl result is retained",
+      "EVIDENCE_SOURCE": "V1/17-full-ui-crawl/final-result.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D09",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 mobile result is retained",
+      "EVIDENCE_SOURCE": "V1/14-mobile-keyboard-focus-25.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "D10",
+      "CATEGORY": "D",
+      "PROPOSITION": "historical V1 handoff record is retained at H0",
+      "EVIDENCE_SOURCE": "git show H0:artifacts/ui-ux-r1-clean-handoff/24-azure-handoff.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E01",
+      "CATEGORY": "E",
+      "PROPOSITION": "stock conformance spec declares 390px viewport",
+      "EVIDENCE_SOURCE": "frontend/browser-e2e/ui-conformance.spec.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E02",
+      "CATEGORY": "E",
+      "PROPOSITION": "stock conformance spec declares 834px viewport",
+      "EVIDENCE_SOURCE": "frontend/browser-e2e/ui-conformance.spec.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E03",
+      "CATEGORY": "E",
+      "PROPOSITION": "stock conformance spec declares 1440px viewport",
+      "EVIDENCE_SOURCE": "frontend/browser-e2e/ui-conformance.spec.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E04",
+      "CATEGORY": "E",
+      "PROPOSITION": "route inventory source is retained",
+      "EVIDENCE_SOURCE": "V1/17-full-ui-crawl/route-inventory.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E05",
+      "CATEGORY": "E",
+      "PROPOSITION": "historical route inventory contains 66 routes",
+      "EVIDENCE_SOURCE": "V1 route inventory",
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E06",
+      "CATEGORY": "E",
+      "PROPOSITION": "historical crawl includes all three product personas",
+      "EVIDENCE_SOURCE": "V1 crawl/persona evidence",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E07",
+      "CATEGORY": "E",
+      "PROPOSITION": "historical crawl retains runtime results",
+      "EVIDENCE_SOURCE": "V1/17-full-ui-crawl/runtime-results.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E08",
+      "CATEGORY": "E",
+      "PROPOSITION": "historical crawl retains accessibility results",
+      "EVIDENCE_SOURCE": "V1/17-full-ui-crawl/accessibility-results.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E09",
+      "CATEGORY": "E",
+      "PROPOSITION": "historical crawl retains layout results",
+      "EVIDENCE_SOURCE": "V1/17-full-ui-crawl/layout-results.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E10",
+      "CATEGORY": "E",
+      "PROPOSITION": "historical crawl retains console/network results",
+      "EVIDENCE_SOURCE": "V1/17-full-ui-crawl/network-console-results.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E11",
+      "CATEGORY": "E",
+      "PROPOSITION": "mobile evidence declares 25 checks",
+      "EVIDENCE_SOURCE": "V1/14-mobile-keyboard-focus-25.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E12",
+      "CATEGORY": "E",
+      "PROPOSITION": "mobile evidence declares zero failures",
+      "EVIDENCE_SOURCE": "V1/14-mobile-keyboard-focus-25.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E13",
+      "CATEGORY": "E",
+      "PROPOSITION": "auth failure evidence file is retained",
+      "EVIDENCE_SOURCE": "V1/16-auth-failure-runtime.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E14",
+      "CATEGORY": "E",
+      "PROPOSITION": "stock conformance config exists",
+      "EVIDENCE_SOURCE": "frontend/playwright.config.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "E15",
+      "CATEGORY": "E",
+      "PROPOSITION": "axe test dependency is declared",
+      "EVIDENCE_SOURCE": "frontend/package.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F01",
+      "CATEGORY": "F",
+      "PROPOSITION": "historical API ledger is parseable",
+      "EVIDENCE_SOURCE": "V1/06-api-family-ledger.json",
+      "OBSERVED_VALUE": false,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F02",
+      "CATEGORY": "F",
+      "PROPOSITION": "frontend API module exports request functions",
+      "EVIDENCE_SOURCE": "frontend/src/api.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F03",
+      "CATEGORY": "F",
+      "PROPOSITION": "frontend API module contains fetch behavior",
+      "EVIDENCE_SOURCE": "frontend/src/api.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F04",
+      "CATEGORY": "F",
+      "PROPOSITION": "frontend API module contains auth header behavior",
+      "EVIDENCE_SOURCE": "frontend/src/api.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F05",
+      "CATEGORY": "F",
+      "PROPOSITION": "backend route modules exist for source inspection",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F06",
+      "CATEGORY": "F",
+      "PROPOSITION": "backend Python source contains APIRouter declarations",
+      "EVIDENCE_SOURCE": "backend/app/**/*.py",
+      "OBSERVED_VALUE": 37,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F07",
+      "CATEGORY": "F",
+      "PROPOSITION": "backend Python source contains route decorators",
+      "EVIDENCE_SOURCE": "backend/app/**/*.py",
+      "OBSERVED_VALUE": 37,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F08",
+      "CATEGORY": "F",
+      "PROPOSITION": "frontend source contains response-data property access",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 18,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F09",
+      "CATEGORY": "F",
+      "PROPOSITION": "frontend source contains named click handlers",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 39,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F10",
+      "CATEGORY": "F",
+      "PROPOSITION": "historical value ledger exists for semantic re-evaluation",
+      "EVIDENCE_SOURCE": "V1/07-value-binding-ledger.json",
+      "OBSERVED_VALUE": false,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F11",
+      "CATEGORY": "F",
+      "PROPOSITION": "historical action ledger exists for behavioral re-evaluation",
+      "EVIDENCE_SOURCE": "V1/08-action-ledger.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F12",
+      "CATEGORY": "F",
+      "PROPOSITION": "route source includes material route table",
+      "EVIDENCE_SOURCE": "frontend/src/App.tsx",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F13",
+      "CATEGORY": "F",
+      "PROPOSITION": "API source includes query-string construction",
+      "EVIDENCE_SOURCE": "frontend/src/api.ts",
+      "OBSERVED_VALUE": false,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F14",
+      "CATEGORY": "F",
+      "PROPOSITION": "API source includes failure handling",
+      "EVIDENCE_SOURCE": "frontend/src/api.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F15",
+      "CATEGORY": "F",
+      "PROPOSITION": "source has explicit local state declarations",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 41,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F16",
+      "CATEGORY": "F",
+      "PROPOSITION": "source has explicit navigation behavior",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 5,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F17",
+      "CATEGORY": "F",
+      "PROPOSITION": "source has visible status/enum labels",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 54,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F18",
+      "CATEGORY": "F",
+      "PROPOSITION": "backend has concrete Python function definitions",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": 138,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F19",
+      "CATEGORY": "F",
+      "PROPOSITION": "backend has response model/schema source",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": 16,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "F20",
+      "CATEGORY": "F",
+      "PROPOSITION": "backend has explicit exception/error responses",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": 49,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G01",
+      "CATEGORY": "G",
+      "PROPOSITION": "backend source contains capability enforcement symbols",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": 9,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G02",
+      "CATEGORY": "G",
+      "PROPOSITION": "backend source contains role/actor enforcement symbols",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": 89,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G03",
+      "CATEGORY": "G",
+      "PROPOSITION": "frontend source names Owner persona",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 25,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G04",
+      "CATEGORY": "G",
+      "PROPOSITION": "frontend source names Business Development persona",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 15,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G05",
+      "CATEGORY": "G",
+      "PROPOSITION": "frontend source names Engineering persona",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 22,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G06",
+      "CATEGORY": "G",
+      "PROPOSITION": "source contains protected human approval language",
+      "EVIDENCE_SOURCE": "frontend/src + backend/app",
+      "OBSERVED_VALUE": 139,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G07",
+      "CATEGORY": "G",
+      "PROPOSITION": "source contains credential/professional distinction evidence",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": 28,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G08",
+      "CATEGORY": "G",
+      "PROPOSITION": "source contains workflow precondition evidence",
+      "EVIDENCE_SOURCE": "backend/app",
+      "OBSERVED_VALUE": 43,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G09",
+      "CATEGORY": "G",
+      "PROPOSITION": "source contains admin/owner surface evidence",
+      "EVIDENCE_SOURCE": "frontend/src",
+      "OBSERVED_VALUE": 18,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "G10",
+      "CATEGORY": "G",
+      "PROPOSITION": "source contains assistive/AI boundary evidence",
+      "EVIDENCE_SOURCE": "frontend/src + backend/app",
+      "OBSERVED_VALUE": 113,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H01",
+      "CATEGORY": "H",
+      "PROPOSITION": "frontend package has a deterministic lockfile",
+      "EVIDENCE_SOURCE": "frontend/package-lock.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H02",
+      "CATEGORY": "H",
+      "PROPOSITION": "frontend build script is declared",
+      "EVIDENCE_SOURCE": "frontend/package.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H03",
+      "CATEGORY": "H",
+      "PROPOSITION": "frontend unit test script is declared",
+      "EVIDENCE_SOURCE": "frontend/package.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H04",
+      "CATEGORY": "H",
+      "PROPOSITION": "frontend browser test script is declared",
+      "EVIDENCE_SOURCE": "frontend/package.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H05",
+      "CATEGORY": "H",
+      "PROPOSITION": "stock UI conformance script is declared",
+      "EVIDENCE_SOURCE": "frontend/package.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H06",
+      "CATEGORY": "H",
+      "PROPOSITION": "mobile accessibility spec exists",
+      "EVIDENCE_SOURCE": "frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H07",
+      "CATEGORY": "H",
+      "PROPOSITION": "source UI conformance spec is executable TypeScript",
+      "EVIDENCE_SOURCE": "frontend/browser-e2e/ui-conformance.spec.ts",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H08",
+      "CATEGORY": "H",
+      "PROPOSITION": "frontend TypeScript config exists",
+      "EVIDENCE_SOURCE": "frontend/tsconfig.json",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H09",
+      "CATEGORY": "H",
+      "PROPOSITION": "backend runtime lockfile is retained",
+      "EVIDENCE_SOURCE": "backend/requirements-runtime.lock",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "H10",
+      "CATEGORY": "H",
+      "PROPOSITION": "backend test suite is present for source-conformance context",
+      "EVIDENCE_SOURCE": "backend/tests",
+      "OBSERVED_VALUE": 90,
+      "EXPECTED_PREDICATE": "observed value satisfies the proposition",
+      "MECHANICAL_EVALUATION": "PASS",
+      "RESULT": "PASS"
+    }
+  ],
+  "category_counts": {
+    "A": 15,
+    "B": 10,
+    "C": 10,
+    "D": 10,
+    "E": 15,
+    "F": 20,
+    "G": 10,
+    "H": 10
+  },
+  "PREMUTATION_CHECK_COUNT": 100,
+  "PREMUTATION_PASS_COUNT": 100,
+  "PREMUTATION_FAIL_COUNT": 0,
+  "PREMUTATION_BLOCKER_COUNT": 0,
+  "PREMUTATION_PROPOSITION_EVIDENCE_MISMATCH": 0,
+  "PREMUTATION_PADDING_ROWS": 0,
+  "PREMUTATION_DUPLICATE_SEMANTIC_CHECKS": 0,
+  "validation": "All propositions were evaluated against direct git, filesystem, source, backend, and retained runtime evidence before V2 package mutation."
+}

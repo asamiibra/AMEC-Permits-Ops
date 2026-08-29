@@ -1,0 +1,161 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "semantic_separations": [
+    "persona ≠ Party role",
+    "Party role ≠ professional assignment",
+    "assignment ≠ credential validity",
+    "credential validity ≠ backend capability",
+    "RBAC ≠ workflow precondition",
+    "workflow precondition ≠ execution policy",
+    "execution policy ≠ protected human authority"
+  ],
+  "protected_actions": [
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-01",
+      "SEMANTIC": "proposal acceptance",
+      "SOURCE_EVIDENCE": "frontend/src/ProposalWorkspaceStageAware.tsx:176",
+      "OBSERVED_SEMANTIC": "Commercial Proposal authority is separate from government authority.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-02",
+      "SEMANTIC": "contract execution",
+      "SOURCE_EVIDENCE": "frontend/src/AdministrationOwner.tsx:198",
+      "OBSERVED_SEMANTIC": "Contract existence does not activate a Project; explicit human activation is separate.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-03",
+      "SEMANTIC": "project activation",
+      "SOURCE_EVIDENCE": "frontend/src/AdministrationOwner.tsx:198",
+      "OBSERVED_SEMANTIC": "Project Activation remains an explicit human action.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-04",
+      "SEMANTIC": "professional approval",
+      "SOURCE_EVIDENCE": "frontend/src/Phase4Review.tsx:228",
+      "OBSERVED_SEMANTIC": "Review does not approve professional work.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-05",
+      "SEMANTIC": "external authority approval",
+      "SOURCE_EVIDENCE": "frontend/src/EngineeringDrawingReview.tsx:37",
+      "OBSERVED_SEMANTIC": "Internal engineering review is not authority approval.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-06",
+      "SEMANTIC": "submit authorization",
+      "SOURCE_EVIDENCE": "frontend/src/PermitAuthorityUX.tsx:45",
+      "OBSERVED_SEMANTIC": "Human submission is required and automation is deferred.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-07",
+      "SEMANTIC": "human submission",
+      "SOURCE_EVIDENCE": "frontend/src/PermitAuthorityUX.tsx:45",
+      "OBSERVED_SEMANTIC": "Human submission is explicitly required.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-08",
+      "SEMANTIC": "submission confirmation",
+      "SOURCE_EVIDENCE": "frontend/src/WorkflowFirst.tsx:223",
+      "OBSERVED_SEMANTIC": "Submission confirmation is separate evidence, not submission itself.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-09",
+      "SEMANTIC": "invoice acceptance",
+      "SOURCE_EVIDENCE": "frontend/src/BillingInvoice.tsx:1",
+      "OBSERVED_SEMANTIC": "Invoice acceptance is a finance workflow state.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-10",
+      "SEMANTIC": "invoice issuance",
+      "SOURCE_EVIDENCE": "frontend/src/BillingInvoice.tsx:1",
+      "OBSERVED_SEMANTIC": "Invoice issuance is distinct from acceptance and payment.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-11",
+      "SEMANTIC": "payment verification",
+      "SOURCE_EVIDENCE": "frontend/src/BillingInvoice.tsx:1",
+      "OBSERVED_SEMANTIC": "Payment verification remains an operational finance state.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-12",
+      "SEMANTIC": "construction start",
+      "SOURCE_EVIDENCE": "frontend/src/Construction.tsx:37",
+      "OBSERVED_SEMANTIC": "Readiness evaluation is separate from authorization to start.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-13",
+      "SEMANTIC": "handover acceptance",
+      "SOURCE_EVIDENCE": "frontend/src/Handover.tsx:1",
+      "OBSERVED_SEMANTIC": "Handover remains separate from completion and settlement.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-14",
+      "SEMANTIC": "settlement",
+      "SOURCE_EVIDENCE": "frontend/src/Handover.tsx:1",
+      "OBSERVED_SEMANTIC": "Financial settlement remains a distinct action.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-15",
+      "SEMANTIC": "service-scope closure",
+      "SOURCE_EVIDENCE": "frontend/src/Handover.tsx:1",
+      "OBSERVED_SEMANTIC": "Service scope closure remains distinct from handover.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-16",
+      "SEMANTIC": "archive closure",
+      "SOURCE_EVIDENCE": "frontend/src/Handover.tsx:1",
+      "OBSERVED_SEMANTIC": "Archive closure remains distinct from service and financial closure.",
+      "UI_DISPOSITION": "human authority remains separately represented",
+      "AI_AUTHORITY": "assistive only",
+      "HUMAN_AUTHORITY_REQUIRED": true
+    }
+  ],
+  "PROTECTED_AUTHORITY_SEMANTIC_COLLAPSE": 0,
+  "AI_PROTECTED_ACTION_AUTHORITY": 0,
+  "HUMAN_AUTHORITY_AMBIGUITY": 0
+}

@@ -1,0 +1,24 @@
+{
+  "phase": "PRE_EVIDENCE",
+  "repository": "asamiibra/AMEC-Permits-Ops",
+  "branch": "ui-product-r1-clean-handoff-v1",
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "protected_paths": [
+    "frontend/**",
+    "backend/**",
+    "migrations/**",
+    "alembic/**",
+    "infra/**",
+    "auth runtime configuration",
+    "deployment configuration"
+  ],
+  "checkout_diff_from_S": "?? artifacts/ui-ux-r1-clean-handoff-v2/",
+  "source_changes_required": 0,
+  "azure_mutations": 0,
+  "entra_mutations": 0,
+  "sql_mutations": 0,
+  "synology_mutations": 0,
+  "real_data_reads": 0,
+  "real_data_writes": 0,
+  "result": "PASS"
+}

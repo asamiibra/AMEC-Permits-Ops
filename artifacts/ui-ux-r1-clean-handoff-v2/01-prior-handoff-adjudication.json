@@ -1,0 +1,16 @@
+{
+  "previous_evidence_payload_commit": "62446d60550175cec135111dd252ed0b94ace938",
+  "previous_handoff_record_commit": "f939daf47ee6223a72ccbcc3d0226373a8742162",
+  "previous_handoff_status": "SUPERSEDED_BY_LATER_INDEPENDENT_EVIDENCE_REVIEW",
+  "historical_acceptance_claim_preserved": true,
+  "historical_acceptance_current_authority": false,
+  "discovered_defects": [
+    "post-evidence 100-check proposition/evidence mismatches",
+    "dedicated gate files still marked PENDING_BROWSER_EXECUTION while aggregate result claimed PASS",
+    "malformed/truncated API normalized path evidence",
+    "incomplete semantic value bindings",
+    "API-backed action(s) incorrectly classified as LOCAL_PRESENTATION_ONLY",
+    "therefore V1 handoff acceptance was not independently earned"
+  ],
+  "classification": "V1 execution and historical claims are preserved; V2 independently re-proves the governing result."
+}

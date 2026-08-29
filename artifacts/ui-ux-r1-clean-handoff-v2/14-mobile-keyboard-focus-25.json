@@ -1,0 +1,241 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "checks": [
+    {
+      "CHECK_ID": "MOB-01",
+      "PROPOSITION": "Tab reaches trigger",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-02",
+      "PROPOSITION": "Accessible name",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-03",
+      "PROPOSITION": "Initial aria-expanded=false",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-04",
+      "PROPOSITION": "Enter opens drawer",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-05",
+      "PROPOSITION": "Space opens drawer",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-06",
+      "PROPOSITION": "aria-expanded=true",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-07",
+      "PROPOSITION": "aria-controls resolves",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-08",
+      "PROPOSITION": "Focus enters drawer",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-09",
+      "PROPOSITION": "Close focusable",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-10",
+      "PROPOSITION": "Navigation controls reachable",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-11",
+      "PROPOSITION": "Background inert",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-12",
+      "PROPOSITION": "Forward Tab containment",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-13",
+      "PROPOSITION": "Reverse Shift+Tab containment",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-14",
+      "PROPOSITION": "Escape closes",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-15",
+      "PROPOSITION": "Escape restores focus",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-16",
+      "PROPOSITION": "Close Enter",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-17",
+      "PROPOSITION": "Close Space",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-18",
+      "PROPOSITION": "Close pointer",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-19",
+      "PROPOSITION": "All close paths restore focus",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-20",
+      "PROPOSITION": "Route selection closes",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-21",
+      "PROPOSITION": "Destination context focus",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-22",
+      "PROPOSITION": "No BODY focus",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-23",
+      "PROPOSITION": "Dialog semantics",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-24",
+      "PROPOSITION": "Visible focus indicator",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "MOB-25",
+      "PROPOSITION": "No horizontal overflow",
+      "EVIDENCE_SOURCE": "fresh V2 Playwright run frontend/browser-e2e/mobile-accessibility-clean-handoff.spec.ts at 390px",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_PREDICATE": "direct browser assertion passes",
+      "MECHANICAL_EVALUATION": "direct browser assertion passed in fresh V2 run",
+      "RESULT": "PASS"
+    }
+  ],
+  "summary": {
+    "total": 25,
+    "pass": 25,
+    "fail": 0,
+    "not_provable": 0
+  },
+  "runner": "validators/mobile-accessibility-runner.mjs"
+}

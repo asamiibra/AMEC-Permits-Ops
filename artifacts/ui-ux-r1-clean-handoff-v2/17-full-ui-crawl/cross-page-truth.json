@@ -1,0 +1,28 @@
+{
+  "gate": "CROSS_PAGE_TRUTH",
+  "executed": true,
+  "comparison_count": 6,
+  "contradictions": 0,
+  "result": "PASS",
+  "evidence": "fresh synthetic fixture crawl comparisons across work, proposal register, proposal detail, contract detail, issues, notifications",
+  "comparisons": [
+    {
+      "record": "SYN-OPP-0001",
+      "fields": [
+        "reference",
+        "project_reference",
+        "status"
+      ],
+      "result": "PASS"
+    },
+    {
+      "record": "SYN-CON-0001",
+      "fields": [
+        "reference",
+        "project_reference",
+        "status"
+      ],
+      "result": "PASS"
+    }
+  ]
+}

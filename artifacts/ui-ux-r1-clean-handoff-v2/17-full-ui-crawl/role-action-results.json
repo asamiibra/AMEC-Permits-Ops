@@ -1,0 +1,8 @@
+{
+  "gate": "UI_ROLE_ACTION_PARITY_PASS",
+  "executed": true,
+  "applicable_rows": 359,
+  "unresolved": 0,
+  "result": "PASS",
+  "evidence": "08-action-ledger.json + fresh scenario personas"
+}

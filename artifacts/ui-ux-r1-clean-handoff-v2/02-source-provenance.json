@@ -1,0 +1,45 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "source_tree": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+  "source_parent": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
+  "frontend_tree": "0d32e10e1882a1061ca86926347365ec866279fc",
+  "backend_tree": "df227ee768ba0e52268622fa8790c5e4ae035d54",
+  "source_commit": {
+    "sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+    "tree": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+    "parent": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
+    "message": "frozen accepted UI source"
+  },
+  "frozen_source_blobs": [
+    {
+      "file": "frontend/src/auth.ts",
+      "sha256": "b19ed91336952872e6e17572f2a62bd5890aa63a66de197bf8b5cc5a9d5de77c"
+    },
+    {
+      "file": "frontend/src/api.ts",
+      "sha256": "f20bdb12910babb02b5cd0c22786aafa46824c4882cd275b8cfb6332e3d6327e"
+    },
+    {
+      "file": "frontend/src/App.tsx",
+      "sha256": "1b4c2b2d79ec722891b7e69cc18f388537f4e0d6362b3b4ab31e55a3e30b5759"
+    },
+    {
+      "file": "frontend/src/main.tsx",
+      "sha256": "67c1d61ffe9ad16f5c444ece4d876c30530ca3007bb5879cafe167867ca33d70"
+    },
+    {
+      "file": "frontend/Dockerfile",
+      "sha256": "c9f614eb113af8e2acbb7f7ab30e151f1b2b53df0250666d3cbb5ba4f5bc65e8"
+    },
+    {
+      "file": "frontend/nginx.conf",
+      "sha256": "40ba5c39fbc8379f4ca391b3f8b02741f039e35abbd3b0e6ce13480edd12e4eb"
+    },
+    {
+      "file": "frontend/vercel.json",
+      "sha256": "b1af7dcb7a6e83ccf1ff25c895586f2a020e1d440ec24e943ed41bede52c0f4b"
+    }
+  ],
+  "worktree": "/private/tmp/proposalops-ui-clean-handoff",
+  "source_authority": "Only exact S is eligible for Azure UI build."
+}

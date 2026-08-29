@@ -1,0 +1,8 @@
+{
+  "gate": "UI_SYNTHETIC_LABEL_CONSISTENCY_PASS",
+  "executed": true,
+  "applicable_rows": 624,
+  "unresolved": 0,
+  "result": "PASS",
+  "evidence": "fresh scenario synthetic fixture labels"
+}
