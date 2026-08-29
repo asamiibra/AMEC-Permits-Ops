@@ -2,74 +2,116 @@
   "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
   "protected_actions": [
     {
-      "action": "Proposal Proceed",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-01",
+      "SEMANTIC": "proposal acceptance",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "Contract Accept",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-02",
+      "SEMANTIC": "contract execution",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "Project Activation",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-03",
+      "SEMANTIC": "project activation",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "professional engineering approval",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-04",
+      "SEMANTIC": "professional approval",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "Invoice Accept",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-05",
+      "SEMANTIC": "external authority approval",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "Invoice Issue",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-06",
+      "SEMANTIC": "submit authorization",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "payment verification/allocation",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-07",
+      "SEMANTIC": "human submission",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "Construction Start",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-08",
+      "SEMANTIC": "submission confirmation",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "submission authorization",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-09",
+      "SEMANTIC": "invoice acceptance",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "final government submission",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-10",
+      "SEMANTIC": "invoice issuance",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "As-Built professional approval",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-11",
+      "SEMANTIC": "payment verification",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "Handover acceptance",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-12",
+      "SEMANTIC": "construction start",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "Closeout",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-13",
+      "SEMANTIC": "handover acceptance",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     },
     {
-      "action": "financial settlement",
-      "disposition": "explicit human-controlled semantic preserved",
-      "ai_authority": "assistive only"
+      "PROTECTED_ACTION_ID": "PROTECTED-14",
+      "SEMANTIC": "settlement",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-15",
+      "SEMANTIC": "service-scope closure",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
+    },
+    {
+      "PROTECTED_ACTION_ID": "PROTECTED-16",
+      "SEMANTIC": "archive closure",
+      "UI_DISPOSITION": "human authority preserved",
+      "AI_AUTHORITY": "assistive only",
+      "SOURCE_EVIDENCE": "frozen source and backend capability review"
     }
   ],
   "semantic_collapse": 0

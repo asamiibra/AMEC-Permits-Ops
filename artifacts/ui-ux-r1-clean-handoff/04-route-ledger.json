@@ -3,900 +3,1307 @@
   "source_tree": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
   "routes": [
     {
-      "ROUTE": "/work",
-      "OWNER_COMPONENT": "AMECWorkPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": true,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S01",
+      "PATH_TEMPLATE": "/work",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "AMECWorkPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/work",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/proposals-contracts",
-      "OWNER_COMPONENT": "ProposalsContractsPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": true,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S02",
+      "PATH_TEMPLATE": "/proposals-contracts",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "ProposalsContractsPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals-contracts",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/proposals/new",
-      "OWNER_COMPONENT": "BDProposalOwnerSessionPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S02A",
+      "PATH_TEMPLATE": "/proposals/new",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development"
       ],
+      "HIDDEN_PERSONAS": [
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals/new",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/proposals/:proposalId",
-      "OWNER_COMPONENT": "BDProposalOwnerSessionPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S02B",
+      "PATH_TEMPLATE": "/proposals/:proposalId",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals/:proposalId",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/proposals/:proposalId/preparation",
-      "OWNER_COMPONENT": "BDProposalOwnerSessionPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S02C",
+      "PATH_TEMPLATE": "/proposals/:proposalId/preparation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals/:proposalId/preparation",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/contracts/:contractId",
-      "OWNER_COMPONENT": "ContractMobilizationPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S02D",
+      "PATH_TEMPLATE": "/contracts/:contractId",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "ContractMobilizationPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/contracts/:contractId",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/reviews",
-      "OWNER_COMPONENT": "ReviewsPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S03",
+      "PATH_TEMPLATE": "/reviews",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Engineering"
       ],
-      "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
-    },
-    {
-      "ROUTE": "/issues",
-      "OWNER_COMPONENT": "PersonaIssuesPage",
-      "SURFACE_CLASS": "CONTEXTUAL_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
-        "Owner",
-        "Business Development",
-        "Engineering"
+      "HIDDEN_PERSONAS": [
+        "Business Development"
       ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/reviews",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/issues/:issueId",
-      "OWNER_COMPONENT": "PersonaIssueDetailPage",
-      "SURFACE_CLASS": "CONTEXTUAL_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S04",
+      "PATH_TEMPLATE": "/issues",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "PersonaIssuesPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/issues",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/notifications",
-      "OWNER_COMPONENT": "PersonaNotificationsPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S04D",
+      "PATH_TEMPLATE": "/issues/:issueId",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "PersonaIssueDetailPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/issues/:issueId",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/operating-guide",
-      "OWNER_COMPONENT": "AboutPermitOpsPage",
-      "SURFACE_CLASS": "READ_ONLY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": true,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S05",
+      "PATH_TEMPLATE": "/notifications",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "PersonaNotificationsPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/notifications",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": false,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/project-and-sources",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S06",
+      "PATH_TEMPLATE": "/operating-guide",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "AboutPermitOpsPage",
+      "ROUTE_CLASS": "GUIDE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/operating-guide",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/verify-data",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S07",
+      "PATH_TEMPLATE": "/permits/:projectId/project-and-sources",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/project-and-sources",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/prepare-package",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S08",
+      "PATH_TEMPLATE": "/permits/:projectId/verify-data",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/verify-data",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/municipality-preparation",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S09",
+      "PATH_TEMPLATE": "/permits/:projectId/prepare-package",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/prepare-package",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/final-review",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S10",
+      "PATH_TEMPLATE": "/permits/:projectId/municipality-preparation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/municipality-preparation",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/authority-review",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S11",
+      "PATH_TEMPLATE": "/permits/:projectId/final-review",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/final-review",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/comments-and-corrections",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S12",
+      "PATH_TEMPLATE": "/permits/:projectId/authority-review",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/authority-review",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/permits/:projectId/history",
-      "OWNER_COMPONENT": "PermitWorkspacePage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S13",
+      "PATH_TEMPLATE": "/permits/:projectId/comments-and-corrections",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/comments-and-corrections",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin",
-      "OWNER_COMPONENT": "AdministrationPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": true,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S14",
+      "PATH_TEMPLATE": "/permits/:projectId/history",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/history",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "ROUTE_ID": "S15",
+      "PATH_TEMPLATE": "/admin",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "AdministrationPage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/go-live-readiness",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S26",
+      "PATH_TEMPLATE": "/admin/go-live-readiness",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/go-live-readiness",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/people-access",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-OWNER",
+      "PATH_TEMPLATE": "/admin/people-access",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/people-access",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/data-connections",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-CONNECTIONS",
+      "PATH_TEMPLATE": "/admin/data-connections",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/data-connections",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/project-folder-setup",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-PROJECT",
+      "PATH_TEMPLATE": "/admin/project-folder-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/project-folder-setup",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/proposal-setup",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-PROPOSAL",
+      "PATH_TEMPLATE": "/admin/proposal-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/proposal-setup",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/contract-setup",
-      "OWNER_COMPONENT": "ContractMobilizationPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-CONTRACT",
+      "PATH_TEMPLATE": "/admin/contract-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/contract-setup",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/permit-setup",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-PERMIT",
+      "PATH_TEMPLATE": "/admin/permit-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/permit-setup",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/templates",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-TEMPLATES",
+      "PATH_TEMPLATE": "/admin/templates",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/templates",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/notifications",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-NOTIFICATIONS",
+      "PATH_TEMPLATE": "/admin/notifications",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/notifications",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/security",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-SECURITY",
+      "PATH_TEMPLATE": "/admin/security",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/security",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/integration-health",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-INTEGRATION",
+      "PATH_TEMPLATE": "/admin/integration-health",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/integration-health",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/audit",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-AUDIT",
+      "PATH_TEMPLATE": "/admin/audit",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/audit",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/advanced-diagnostics",
-      "OWNER_COMPONENT": "AdministrationOwnerPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "ADMIN-ADVANCED",
+      "PATH_TEMPLATE": "/admin/advanced-diagnostics",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/advanced-diagnostics",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/discovery",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S16",
+      "PATH_TEMPLATE": "/admin/discovery",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/discovery",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/config",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S17",
+      "PATH_TEMPLATE": "/admin/config",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/config",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/tier1",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S18",
+      "PATH_TEMPLATE": "/admin/tier1",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/tier1",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/delivery",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S19",
+      "PATH_TEMPLATE": "/admin/delivery",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/delivery",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/attachments-grids",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S20",
+      "PATH_TEMPLATE": "/admin/attachments-grids",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/attachments-grids",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/municipality",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S21",
+      "PATH_TEMPLATE": "/admin/municipality",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/municipality",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/corpus",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S22",
+      "PATH_TEMPLATE": "/admin/corpus",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/corpus",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/thresholds",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S23",
+      "PATH_TEMPLATE": "/admin/thresholds",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/thresholds",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/control-diagnostics",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S24",
+      "PATH_TEMPLATE": "/admin/control-diagnostics",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/control-diagnostics",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/opportunities",
-      "OWNER_COMPONENT": "OpportunitiesPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": true,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S25",
+      "PATH_TEMPLATE": "/opportunities",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "OpportunitiesPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Business Development"
       ],
+      "HIDDEN_PERSONAS": [
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/opportunities",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/engineering-closeout",
-      "OWNER_COMPONENT": "EngineeringCloseoutPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": true,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S31",
+      "PATH_TEMPLATE": "/engineering-closeout",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "EngineeringCloseoutPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
         "Owner",
         "Engineering"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/engineering-closeout",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/expansion-foundation",
-      "OWNER_COMPONENT": "ExpansionFoundation",
-      "SURFACE_CLASS": "ADMIN_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "CANONICAL",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "S30",
+      "PATH_TEMPLATE": "/admin/expansion-foundation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/expansion-foundation",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/dashboard",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-01",
+      "PATH_TEMPLATE": "/admin/dashboard",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/dashboard",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/projects",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-02",
+      "PATH_TEMPLATE": "/admin/projects",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/projects",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/documents",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-03",
+      "PATH_TEMPLATE": "/admin/documents",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/documents",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/conflicts",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-04",
+      "PATH_TEMPLATE": "/admin/conflicts",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/conflicts",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/package",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-05",
+      "PATH_TEMPLATE": "/admin/package",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/package",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/findings",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-06",
+      "PATH_TEMPLATE": "/admin/findings",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/findings",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/lineage",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-07",
+      "PATH_TEMPLATE": "/admin/lineage",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/lineage",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/spike",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-08",
+      "PATH_TEMPLATE": "/admin/spike",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/spike",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/adjudication",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-09",
+      "PATH_TEMPLATE": "/admin/adjudication",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/adjudication",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/analysis",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-10",
+      "PATH_TEMPLATE": "/admin/analysis",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/analysis",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/tier2",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-11",
+      "PATH_TEMPLATE": "/admin/tier2",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/tier2",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/close",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-12",
+      "PATH_TEMPLATE": "/admin/close",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/close",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/baseline",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-13",
+      "PATH_TEMPLATE": "/admin/baseline",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/baseline",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/signoff",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-14",
+      "PATH_TEMPLATE": "/admin/signoff",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/signoff",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/confirmation",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-15",
+      "PATH_TEMPLATE": "/admin/confirmation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/confirmation",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/business",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-16",
+      "PATH_TEMPLATE": "/admin/business",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/business",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/business-baseline",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-17",
+      "PATH_TEMPLATE": "/admin/business-baseline",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/business-baseline",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/privacy",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-18",
+      "PATH_TEMPLATE": "/admin/privacy",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/privacy",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/volume",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-19",
+      "PATH_TEMPLATE": "/admin/volume",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/volume",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/inquiries",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-20",
+      "PATH_TEMPLATE": "/admin/inquiries",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/inquiries",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     },
     {
-      "ROUTE": "/admin/raid",
-      "OWNER_COMPONENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE",
-      "CANONICAL_OR_COMPATIBILITY": "COMPATIBILITY",
-      "PRIMARY_NAV_VISIBLE": false,
-      "PERSONA_VISIBILITY": [
+      "ROUTE_ID": "LEGACY-21",
+      "PATH_TEMPLATE": "/admin/raid",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
         "Owner"
       ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/raid",
       "DEEP_LINK_SUPPORTED": true,
-      "BACKEND_DATA_REQUIRED": true,
-      "STATUS": "PASS"
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": ""
     }
   ],
   "total": 66,

@@ -2,706 +2,2344 @@
   "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
   "surfaces": [
     {
-      "SOURCE_COMPONENT": "AMECWorkPage",
+      "SURFACE_ID": "SURFACE-001",
+      "ROUTE": "/work",
       "SOURCE_FILE": "frontend/src/AMECWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "AMECWorkPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AMECWorkPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-002",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
       "SOURCE_COMPONENT": "OPERATING_GUIDE_LOCALE_STORAGE_KEY",
-      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "OPERATING_GUIDE_LOCALE_STORAGE_KEY visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-003",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
       "SOURCE_COMPONENT": "LtrTerm",
-      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "LtrTerm visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-004",
+      "ROUTE": "/operating-guide",
+      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
       "SOURCE_COMPONENT": "AboutPermitOpsPage",
-      "SOURCE_FILE": "frontend/src/AboutPermitOps.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "LOCAL_SOURCE_DOCUMENTATION",
+      "PRIMARY_TASK": "AboutPermitOpsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "GUIDE"
     },
     {
+      "SURFACE_ID": "SURFACE-005",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/AdministrationOwner.tsx",
       "SOURCE_COMPONENT": "AdministrationOwnerPage",
-      "SOURCE_FILE": "frontend/src/AdministrationOwner.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AdministrationOwnerPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "ADMINISTRATION"
     },
     {
+      "SURFACE_ID": "SURFACE-006",
+      "ROUTE": "/contracts/:contractId",
+      "SOURCE_FILE": "frontend/src/AdministrationOwner.tsx",
       "SOURCE_COMPONENT": "ContractMobilizationPage",
-      "SOURCE_FILE": "frontend/src/AdministrationOwner.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ContractMobilizationPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "AmecLogo",
+      "SURFACE_ID": "SURFACE-007",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/AmecLogo.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "SYSTEM_SURFACE"
+      "SOURCE_COMPONENT": "AmecLogo",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AmecLogo visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "AuthFailureSurface",
+      "SURFACE_ID": "SURFACE-008",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/AuthFailureSurface.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "SYSTEM_SURFACE"
+      "SOURCE_COMPONENT": "AuthFailureSurface",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AuthFailureSurface visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "AuthorityCaseWorkspacePage",
+      "SURFACE_ID": "SURFACE-009",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/AuthorityCaseWorkspace.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "AuthorityCaseWorkspacePage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AuthorityCaseWorkspacePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "SURFACE_ID": "SURFACE-010",
+      "ROUTE": "/proposals/new",
       "SOURCE_FILE": "frontend/src/BDProposalOwnerSession.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "BDProposalOwnerSessionPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "BillingInvoicePage",
+      "SURFACE_ID": "SURFACE-011",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/BillingInvoice.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "BillingInvoicePage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "BillingInvoicePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "CompletionPage",
+      "SURFACE_ID": "SURFACE-012",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Completion.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "CompletionPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CompletionPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "ConstructionPage",
+      "SURFACE_ID": "SURFACE-013",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Construction.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "ConstructionPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ConstructionPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "CurrentDashboard",
+      "SURFACE_ID": "SURFACE-014",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Dashboard.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "SOURCE_COMPONENT": "CurrentDashboard",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CurrentDashboard visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-015",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/DashboardInputs.tsx",
       "SOURCE_COMPONENT": "DashboardInputsLauncher",
-      "SOURCE_FILE": "frontend/src/DashboardInputs.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "DashboardInputsLauncher visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-016",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/DashboardInputs.tsx",
       "SOURCE_COMPONENT": "DashboardInputsPage",
-      "SOURCE_FILE": "frontend/src/DashboardInputs.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "DashboardInputsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "EngineeringCloseoutPage",
+      "SURFACE_ID": "SURFACE-017",
+      "ROUTE": "/engineering-closeout",
       "SOURCE_FILE": "frontend/src/EngineeringCloseout.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "SOURCE_COMPONENT": "EngineeringCloseoutPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "EngineeringCloseoutPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "EngineeringDrawingReviewPage",
+      "SURFACE_ID": "SURFACE-018",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/EngineeringDrawingReview.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "EngineeringDrawingReviewPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "EngineeringDrawingReviewPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "ExpansionFoundation",
+      "SURFACE_ID": "SURFACE-019",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/ExpansionFoundation.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "ExpansionFoundation",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ExpansionFoundation visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "HandoverPage",
+      "SURFACE_ID": "SURFACE-020",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Handover.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "HandoverPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "HandoverPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "HomePage",
+      "SURFACE_ID": "SURFACE-021",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Home.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "HomePage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "HomePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "HomeCommandCenter",
+      "SURFACE_ID": "SURFACE-022",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/HomeCommandCenter.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "HomeCommandCenter",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "HomeCommandCenter visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "Icon",
+      "SURFACE_ID": "SURFACE-023",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Icon.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "SYSTEM_SURFACE"
+      "SOURCE_COMPONENT": "Icon",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Icon visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "CanonicalFormsLibrary",
+      "SURFACE_ID": "SURFACE-024",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/MasterContentForms.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "CanonicalFormsLibrary",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CanonicalFormsLibrary visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "NotificationBell",
+      "SURFACE_ID": "SURFACE-025",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/NotificationBell.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "SYSTEM_SURFACE"
+      "SOURCE_COMPONENT": "NotificationBell",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "NotificationBell visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "OpportunitiesPage",
+      "SURFACE_ID": "SURFACE-026",
+      "ROUTE": "/opportunities",
       "SOURCE_FILE": "frontend/src/Opportunities.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "OpportunitiesPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "OpportunitiesPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "OwnerDecisionCenterPage",
+      "SURFACE_ID": "SURFACE-027",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/OwnerDecisionCenter.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "OwnerDecisionCenterPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "OwnerDecisionCenterPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-028",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
       "SOURCE_COMPONENT": "PermitPortfolioPage",
-      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PermitPortfolioPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-029",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
       "SOURCE_COMPONENT": "NewPermitPage",
-      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "NewPermitPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-030",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
       "SOURCE_COMPONENT": "PermitCasePage",
-      "SOURCE_FILE": "frontend/src/PermitAuthorityUX.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PermitCasePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-031",
+      "ROUTE": "/issues",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
       "SOURCE_COMPONENT": "PersonaIssuesPage",
-      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PersonaIssuesPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-032",
+      "ROUTE": "/issues/:issueId",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
       "SOURCE_COMPONENT": "PersonaIssueDetailPage",
-      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PersonaIssueDetailPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-033",
+      "ROUTE": "/notifications",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
       "SOURCE_COMPONENT": "PersonaNotificationsPage",
-      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PersonaNotificationsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-034",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
       "SOURCE_COMPONENT": "IssueFocusBanner",
-      "SOURCE_FILE": "frontend/src/PersonaIssuesNotifications.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "IssueFocusBanner visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-035",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Phase4Review.tsx",
       "SOURCE_COMPONENT": "PHASE4_DECISIONS",
-      "SOURCE_FILE": "frontend/src/Phase4Review.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PHASE4_DECISIONS visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-036",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Phase4Review.tsx",
       "SOURCE_COMPONENT": "Phase4ReviewPage",
-      "SOURCE_FILE": "frontend/src/Phase4Review.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Phase4ReviewPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "Phase5ReviewPage",
+      "SURFACE_ID": "SURFACE-037",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Phase5Review.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "Phase5ReviewPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Phase5ReviewPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-038",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "customerProductionRequirements",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "customerProductionRequirements visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-039",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "screenReadinessRegistry",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "LOCAL_SOURCE_DOCUMENTATION",
+      "PRIMARY_TASK": "screenReadinessRegistry visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "GUIDE"
     },
     {
+      "SURFACE_ID": "SURFACE-040",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "SCREEN_ROUTE_INVENTORY",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "SCREEN_ROUTE_INVENTORY visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-041",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "statusLabel",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "statusLabel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-042",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "categoryLabel",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "categoryLabel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-043",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "getScreenDefinition",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "getScreenDefinition visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-044",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "getScreenUnresolvedCount",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "getScreenUnresolvedCount visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-045",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "ReadinessDrawer",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "LOCAL_SOURCE_DOCUMENTATION",
+      "PRIMARY_TASK": "ReadinessDrawer visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "GUIDE"
     },
     {
+      "SURFACE_ID": "SURFACE-046",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
       "SOURCE_COMPONENT": "ReadinessOverviewPage",
-      "SOURCE_FILE": "frontend/src/ProductionReadiness.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "LOCAL_SOURCE_DOCUMENTATION",
+      "PRIMARY_TASK": "ReadinessOverviewPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "GUIDE"
     },
     {
-      "SOURCE_COMPONENT": "ProjectEngineeringPage",
+      "SURFACE_ID": "SURFACE-047",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/ProjectEngineering.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "ProjectEngineeringPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ProjectEngineeringPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "ProposalWorkspaceStageAware",
+      "SURFACE_ID": "SURFACE-048",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/ProposalWorkspaceStageAware.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "ProposalWorkspaceStageAware",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ProposalWorkspaceStageAware visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-049",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/ProposalsContracts.tsx",
       "SOURCE_COMPONENT": "validateProposalsMainPayload",
-      "SOURCE_FILE": "frontend/src/ProposalsContracts.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "validateProposalsMainPayload visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-050",
+      "ROUTE": "/proposals-contracts",
+      "SOURCE_FILE": "frontend/src/ProposalsContracts.tsx",
       "SOURCE_COMPONENT": "ProposalsContractsPage",
-      "SOURCE_FILE": "frontend/src/ProposalsContracts.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ProposalsContractsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "ReconciliationControls",
+      "SURFACE_ID": "SURFACE-051",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/ReconciliationControls.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "ReconciliationControls",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ReconciliationControls visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-052",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "ArtifactStatusBadge",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ArtifactStatusBadge visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-053",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "TemplateVersionBadge",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "TemplateVersionBadge visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-054",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "HumanAuthorityBadge",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "HumanAuthorityBadge visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-055",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "SafeDefaultBanner",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "SafeDefaultBanner visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-056",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "PrototypeOnlyBanner",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PrototypeOnlyBanner visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-057",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "EvidenceSourcePanel",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "EvidenceSourcePanel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-058",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "CommunicationStatusBadge",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CommunicationStatusBadge visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-059",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "CapabilityStatusBadge",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CapabilityStatusBadge visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-060",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "ArtifactPreview",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ArtifactPreview visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-061",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "StaleArtifactWarning",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "StaleArtifactWarning visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-062",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "CommunicationDraftPanel",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CommunicationDraftPanel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-063",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
       "SOURCE_COMPONENT": "UnifiedMyWorkPanel",
-      "SOURCE_FILE": "frontend/src/UnifiedWork.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "UnifiedMyWorkPanel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "Week10Page",
+      "SURFACE_ID": "SURFACE-064",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week10.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "SOURCE_COMPONENT": "Week10Page",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Week10Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "Week11Page",
+      "SURFACE_ID": "SURFACE-065",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week11.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "SOURCE_COMPONENT": "Week11Page",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Week11Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "Week12Page",
+      "SURFACE_ID": "SURFACE-066",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week12.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "SOURCE_COMPONENT": "Week12Page",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Week12Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "Week13Page",
+      "SURFACE_ID": "SURFACE-067",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week13.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "SOURCE_COMPONENT": "Week13Page",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Week13Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "Week14Page",
+      "SURFACE_ID": "SURFACE-068",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week14.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "SOURCE_COMPONENT": "Week14Page",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Week14Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-069",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
       "SOURCE_COMPONENT": "DocumentsPage",
-      "SOURCE_FILE": "frontend/src/Week2.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "DocumentsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-070",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
       "SOURCE_COMPONENT": "ConflictsPage",
-      "SOURCE_FILE": "frontend/src/Week2.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ConflictsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-071",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
       "SOURCE_COMPONENT": "ConfigurationPage",
-      "SOURCE_FILE": "frontend/src/Week2.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ConfigurationPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "ADMINISTRATION"
     },
     {
+      "SURFACE_ID": "SURFACE-072",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
       "SOURCE_COMPONENT": "SpikePage",
-      "SOURCE_FILE": "frontend/src/Week2.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "SpikePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-073",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week2.tsx",
       "SOURCE_COMPONENT": "SubmissionConfirmationPage",
-      "SOURCE_FILE": "frontend/src/Week2.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "SubmissionConfirmationPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-074",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "Phase0Page",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Phase0Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-075",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "AdjudicationPage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AdjudicationPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-076",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "AnalysisPage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AnalysisPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-077",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "ThresholdsPage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ThresholdsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-078",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "CorpusPage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CorpusPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-079",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "Tier1Page",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Tier1Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-080",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "Tier2Page",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Tier2Page visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-081",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "BusinessBaselinePage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "BusinessBaselinePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-082",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "DeliveryPage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "DeliveryPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-083",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "CloseDecisionPage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "LEGACY_COMPATIBILITY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CloseDecisionPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-084",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "BaselinePage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "BaselinePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-085",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week3.tsx",
       "SOURCE_COMPONENT": "SignoffPage",
-      "SOURCE_FILE": "frontend/src/Week3.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "SignoffPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-086",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week45.tsx",
       "SOURCE_COMPONENT": "PackageReadinessPage",
-      "SOURCE_FILE": "frontend/src/Week45.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "READ_ONLY_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "LOCAL_SOURCE_DOCUMENTATION",
+      "PRIMARY_TASK": "PackageReadinessPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "GUIDE"
     },
     {
+      "SURFACE_ID": "SURFACE-087",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/Week45.tsx",
       "SOURCE_COMPONENT": "MunicipalityPreparationPage",
-      "SOURCE_FILE": "frontend/src/Week45.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "MunicipalityPreparationPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "FindingsConsolePage",
+      "SURFACE_ID": "SURFACE-088",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week7.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "FindingsConsolePage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "FindingsConsolePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "LineageValidityPage",
+      "SURFACE_ID": "SURFACE-089",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week8.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "LineageValidityPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "LineageValidityPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "AttachmentGridPage",
+      "SURFACE_ID": "SURFACE-090",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/Week9.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "AttachmentGridPage",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AttachmentGridPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-091",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "WORKFLOW_STAGES",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "WORKFLOW_STAGES visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-092",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "projectWorkflowStage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "projectWorkflowStage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-093",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "projectNextAction",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "projectNextAction visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-094",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "PermitStageStepper",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PermitStageStepper visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-095",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "MyWorkPage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "MyWorkPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-096",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "PermitsPage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PermitsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-097",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "ReviewsPage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "ReviewsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-098",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "IssuesPage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "IssuesPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-099",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "NotificationsPage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "NotificationsPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-100",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "PermitWorkspacePage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "PermitWorkspacePage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-101",
+      "ROUTE": "/admin",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "AdministrationPage",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "ADMIN_SURFACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AdministrationPage visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "ADMINISTRATION"
     },
     {
+      "SURFACE_ID": "SURFACE-102",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
       "SOURCE_COMPONENT": "WorkflowStageLabel",
-      "SOURCE_FILE": "frontend/src/WorkflowFirst.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "WorkflowStageLabel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "browserAuthMode",
+      "SURFACE_ID": "SURFACE-103",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/auth.ts",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "browserAuthMode",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "browserAuthMode visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "canonicalDomainRoute",
+      "SURFACE_ID": "SURFACE-104",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/domainOwnershipRoutes.ts",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "canonicalDomainRoute",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "canonicalDomainRoute visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-105",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "CONTENT_LABELS",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "CONTENT_LABELS visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-106",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "MODULE_LABELS",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "MODULE_LABELS visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-107",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "MODULE_OPTIONS",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "MODULE_OPTIONS visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-108",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "moduleLabel",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "moduleLabel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-109",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "friendlyStatus",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "friendlyStatus visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-110",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "versionLabel",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "versionLabel visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-111",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "UsedInPicker",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "UsedInPicker visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-112",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "AIAssistCompact",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "AIAssistCompact visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-113",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
       "SOURCE_COMPONENT": "Drawer",
-      "SOURCE_FILE": "frontend/src/masterContentUi.tsx",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "Drawer visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-114",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/rebrand.ts",
       "SOURCE_COMPONENT": "DEMO_PERSONAS",
-      "SOURCE_FILE": "frontend/src/rebrand.ts",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "DEMO_PERSONAS visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-115",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/rebrand.ts",
       "SOURCE_COMPONENT": "readDemoRole",
-      "SOURCE_FILE": "frontend/src/rebrand.ts",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "readDemoRole visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
+      "SURFACE_ID": "SURFACE-116",
+      "ROUTE": "shared-component",
+      "SOURCE_FILE": "frontend/src/rebrand.ts",
       "SOURCE_COMPONENT": "visibleRebrandText",
-      "SOURCE_FILE": "frontend/src/rebrand.ts",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "visibleRebrandText visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     },
     {
-      "SOURCE_COMPONENT": "RebrandSurface",
+      "SURFACE_ID": "SURFACE-117",
+      "ROUTE": "shared-component",
       "SOURCE_FILE": "frontend/src/rebrand.ts",
-      "ROUTE_OR_PARENT": "LegacyCompatibilityPage",
-      "SURFACE_CLASS": "PRIMARY_WORKSPACE"
+      "SOURCE_COMPONENT": "RebrandSurface",
+      "PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "DATA_SOURCE_CLASS": "SYNTHETIC_API_OR_FIXTURE",
+      "PRIMARY_TASK": "RebrandSurface visible product surface",
+      "MATERIAL_ACTION_COUNT": 0,
+      "API_FAMILY_REFERENCES": [],
+      "FAILURE_STATE_IMPLEMENTATION": "source branch/catch state inspected",
+      "EMPTY_STATE_IMPLEMENTATION": "source empty-state branch inspected",
+      "LOADING_STATE_IMPLEMENTATION": "source loading-state branch inspected",
+      "PROTECTED_AUTHORITY_RELEVANCE": "human authority semantics preserved where present",
+      "CLASSIFICATION": "MATERIAL_UI_SURFACE"
     }
   ],
   "total": 117,

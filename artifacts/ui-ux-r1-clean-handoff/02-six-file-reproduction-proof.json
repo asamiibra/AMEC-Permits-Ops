@@ -1,4 +1,5 @@
 {
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
   "reproduction_commit": "a1ed3628bd104b5c5b9580c977fcdf33bbf8cae2",
   "reproduced_paths": [
     "M\tfrontend/src/App.tsx",
@@ -9,6 +10,5 @@
     "A\tfrontend/tests/auth-failure-surface.test.tsx"
   ],
   "six_path_predicate": true,
-  "backend_tree_equal": true,
-  "frontend_tree_after_reproduction": "a12cf361239648be932a96a5bc6469d37a21031d"
+  "backend_tree_equal": true
 }

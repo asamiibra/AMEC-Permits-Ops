@@ -1,13 +1,43 @@
 {
   "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
-  "build": "PASS",
+  "commands": [
+    {
+      "command": "npm ci",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm run ui-conformance:prepare",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "temporary six-viewport Playwright crawl",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "build": {
+    "modules": 2016,
+    "result": "PASS"
+  },
   "unit_tests": {
     "files": 19,
     "tests": 110,
     "result": "PASS"
   },
   "ui_conformance": {
-    "scenarios": 312,
+    "scenarios": 624,
     "result": "PASS"
   },
   "mobile_browser_test": {
@@ -17,7 +47,8 @@
   "full_route_crawl": {
     "routes": 66,
     "persona_combinations": 104,
-    "viewport_scenarios": 312,
+    "viewports": 6,
+    "viewport_scenarios": 624,
     "result": "PASS"
   }
 }
