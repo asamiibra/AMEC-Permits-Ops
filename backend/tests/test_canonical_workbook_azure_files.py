@@ -1,22 +1,16 @@
-from types import SimpleNamespace
+from pathlib import Path
 
 import pytest
-from openpyxl import load_workbook
+from openpyxl import Workbook as OpenpyxlWorkbook
+from openpyxl import load_workbook as real_load_workbook
 
-from backend.app.fixtures.canonical import CANONICAL_PROJECTION_SHEET, CANONICAL_PROJECT_IDS, canonical_workbook_path
+from backend.app.adapters.excel import adapter as adapter_module
+from backend.app.fixtures.canonical import (
+    CANONICAL_PROJECTION_SHEET,
+    CANONICAL_PROJECT_IDS,
+    canonical_workbook_path,
+)
 from backend.app.services import canonical_workbook as module
-
-
-def _settings(**overrides):
-    values = {
-        "app_env": "AZURE-PREPROD",
-        "synthetic_only": True,
-        "real_data_allowed": False,
-        "storage_provider": "mock",
-        "synology_mode": "SYNTHETIC",
-    }
-    values.update(overrides)
-    return SimpleNamespace(**values)
 
 
 def _prepare(monkeypatch, tmp_path):
@@ -29,87 +23,84 @@ def _prepare(monkeypatch, tmp_path):
 
 
 def _human_values(path):
-    workbook = load_workbook(path, data_only=False)
+    workbook = real_load_workbook(path, data_only=False)
     try:
         return {sheet: tuple(tuple(cell.value for cell in row) for row in workbook[sheet].iter_rows()) for sheet in module.HUMAN_HEADERS}
     finally:
         workbook.close()
 
 
-def _force_permission_error(monkeypatch):
-    monkeypatch.setattr(module.os, "replace", lambda *_args: (_ for _ in ()).throw(PermissionError("simulated Azure Files replace denial")))
-
-
 def _write(path, project=CANONICAL_PROJECT_IDS[0], status="SEEDED"):
-    return module.write_system_projection(path, project, {"Canonical Plot Number": "001234", "Canonical PIN": "PIN-000123", "Rendering Version": "R1.0", "Municipality Request": "GHCE-APP-0142", "Projection Status": status})
+    return module.write_system_projection(path, project, {
+        "Canonical Plot Number": "001234",
+        "Canonical PIN": "PIN-000123",
+        "Rendering Version": "R1.0",
+        "Municipality Request": "GHCE-APP-0142",
+        "Projection Status": status,
+    })
 
 
-def test_t1_normal_atomic_path(monkeypatch, tmp_path):
+class TrackingWorkbook:
+    def __init__(self, workbook, *, fail_sheetnames=False, fail_getitem=False, fail_save=False):
+        self._workbook = workbook
+        self.closed = False
+        self.fail_sheetnames = fail_sheetnames
+        self.fail_getitem = fail_getitem
+        self.fail_save = fail_save
+
+    @property
+    def sheetnames(self):
+        if self.fail_sheetnames:
+            raise RuntimeError("synthetic workbook inspection failure")
+        return self._workbook.sheetnames
+
+    def __getitem__(self, key):
+        if self.fail_getitem:
+            raise RuntimeError("synthetic workbook sheet failure")
+        return self._workbook[key]
+
+    def save(self, *args, **kwargs):
+        if self.fail_save:
+            raise OSError("synthetic workbook save failure")
+        return self._workbook.save(*args, **kwargs)
+
+    def close(self):
+        self.closed = True
+        return self._workbook.close()
+
+    def __getattr__(self, name):
+        return getattr(self._workbook, name)
+
+
+def _tracked_loader(trackers, *, fail_sheetnames=False, fail_getitem=False):
+    def loader(path, *args, **kwargs):
+        tracked = TrackingWorkbook(real_load_workbook(path, *args, **kwargs), fail_sheetnames=fail_sheetnames, fail_getitem=fail_getitem)
+        trackers.append(tracked)
+        return tracked
+    return loader
+
+
+def test_atomic_write_preserves_human_sheets_and_reports_hashes(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
+    before = _human_values(path)
     result = _write(path)
     assert result["write_mode"] == "ATOMIC_REPLACE"
-
-
-def test_t2_permission_error_uses_bounded_preprod_fallback(monkeypatch, tmp_path):
-    path = _prepare(monkeypatch, tmp_path)
-    monkeypatch.setattr(module, "get_settings", lambda: _settings())
-    _force_permission_error(monkeypatch)
-    result = _write(path)
-    assert result["write_mode"] == "SYNTHETIC_AZURE_FILES_BOUNDED_OVERWRITE"
-
-
-@pytest.mark.parametrize("settings", [{"app_env": "TEST"}, {"real_data_allowed": True}, {"storage_provider": "smb"}, {"synology_mode": "REAL"}])
-def test_t3_to_t6_permission_error_is_not_fallback_outside_exact_contract(monkeypatch, tmp_path, settings):
-    path = _prepare(monkeypatch, tmp_path)
-    before = path.read_bytes()
-    monkeypatch.setattr(module, "get_settings", lambda: _settings(**settings))
-    _force_permission_error(monkeypatch)
-    with pytest.raises(PermissionError):
-        _write(path)
-    assert path.read_bytes() == before
-
-
-def test_t7_wrong_workbook_path_forbids_fallback(monkeypatch, tmp_path):
-    path = _prepare(monkeypatch, tmp_path)
-    wrong = tmp_path / "other.xlsx"
-    module.ensure_canonical_workbook(wrong)
-    before = wrong.read_bytes()
-    monkeypatch.setattr(module, "get_settings", lambda: _settings())
-    _force_permission_error(monkeypatch)
-    with pytest.raises(PermissionError):
-        _write(wrong)
-    assert wrong.read_bytes() == before
-
-
-def test_t8_human_sheets_are_preserved(monkeypatch, tmp_path):
-    path = _prepare(monkeypatch, tmp_path)
-    before = _human_values(path)
-    _write(path)
+    assert result["candidate_sha256"] == result["destination_sha256"]
     assert _human_values(path) == before
 
 
-def test_t9_projection_isolation(monkeypatch, tmp_path):
+def test_four_canonical_projects_write_sequentially(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
-    before = _human_values(path)
-    _write(path)
-    workbook = load_workbook(path, data_only=True)
-    try:
-        sheet = workbook[CANONICAL_PROJECTION_SHEET]
-        assert sheet["B2"].value == "001234"
-        assert sheet["F2"].value == "SEEDED"
-    finally:
-        workbook.close()
-    assert _human_values(path) == before
-
-
-def test_t10_four_sequential_canonical_projects_under_fallback(monkeypatch, tmp_path):
-    path = _prepare(monkeypatch, tmp_path)
-    monkeypatch.setattr(module, "get_settings", lambda: _settings())
-    _force_permission_error(monkeypatch)
     for index, project in enumerate(CANONICAL_PROJECT_IDS):
-        result = module.write_system_projection(path, project, {"Canonical Plot Number": f"00{index + 1234}", "Canonical PIN": f"PIN-{index:06d}", "Rendering Version": "R1.0", "Municipality Request": f"GHCE-APP-{index + 142:04d}", "Projection Status": "SEEDED"})
-        assert result["write_mode"] == "SYNTHETIC_AZURE_FILES_BOUNDED_OVERWRITE"
-    workbook = load_workbook(path, data_only=True)
+        result = module.write_system_projection(path, project, {
+            "Canonical Plot Number": f"00{index + 1234}",
+            "Canonical PIN": f"PIN-{index:06d}",
+            "Rendering Version": "R1.0",
+            "Municipality Request": f"GHCE-APP-{index + 142:04d}",
+            "Projection Status": "SEEDED",
+        })
+        assert result["write_mode"] == "ATOMIC_REPLACE"
+    workbook = real_load_workbook(path, data_only=True)
     try:
         sheet = workbook[CANONICAL_PROJECTION_SHEET]
         assert [sheet.cell(row, 1).value for row in range(2, 6)] == CANONICAL_PROJECT_IDS
@@ -118,47 +109,76 @@ def test_t10_four_sequential_canonical_projects_under_fallback(monkeypatch, tmp_
         workbook.close()
 
 
-def test_t11_invalid_temporary_candidate_leaves_destination_unchanged(monkeypatch, tmp_path):
+def test_replace_is_same_directory_and_attempted_once(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    calls = []
+    original_replace = module.os.replace
+
+    def replace(source, destination):
+        calls.append((Path(source), Path(destination)))
+        return original_replace(source, destination)
+
+    monkeypatch.setattr(module.os, "replace", replace)
+    _write(path)
+    assert len(calls) == 1
+    assert calls[0][0].parent == path.parent
+    assert calls[0][1] == path
+
+
+def test_permission_error_is_fail_closed_and_preserves_original(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
     before = path.read_bytes()
-    original = module._validate_workbook_candidate
-    monkeypatch.setattr(module, "_validate_workbook_candidate", lambda candidate, *args: (_ for _ in ()).throw(module.WorkbookWriteError("TEMP_WORKBOOK_VALIDATION=FAIL")) if candidate != path else original(candidate, *args))
+    monkeypatch.setattr(module.os, "replace", lambda *_args: (_ for _ in ()).throw(PermissionError(13, "Permission denied")))
+    with pytest.raises(module.WorkbookWriteError, match="ATOMIC_WORKBOOK_REPLACE=FAIL") as raised:
+        _write(path)
+    assert isinstance(raised.value.__cause__, PermissionError)
+    assert path.read_bytes() == before
+    assert not list(path.parent.glob("permitops-excel-*.xlsx"))
+
+
+def test_invalid_candidate_leaves_destination_unchanged_and_does_not_replace(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    before = path.read_bytes()
+    replace_calls = []
+    monkeypatch.setattr(module.os, "replace", lambda *args: replace_calls.append(args))
+    monkeypatch.setattr(module, "_validate_workbook_candidate", lambda *args: (_ for _ in ()).throw(module.WorkbookWriteError("TEMP_WORKBOOK_VALIDATION=FAIL")))
     with pytest.raises(module.WorkbookWriteError, match="TEMP_WORKBOOK_VALIDATION=FAIL"):
         _write(path)
     assert path.read_bytes() == before
+    assert replace_calls == []
+    assert not list(path.parent.glob("permitops-excel-*.xlsx"))
 
 
-def test_t12_bounded_overwrite_failure_restores_original(monkeypatch, tmp_path):
+def test_cleanup_failure_never_masks_primary_failure(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
-    before = path.read_bytes()
-    monkeypatch.setattr(module, "get_settings", lambda: _settings())
-    _force_permission_error(monkeypatch)
-    original_write = module._write_full_file
-    calls = {"count": 0}
-    def fail_once(destination, content):
-        calls["count"] += 1
-        if calls["count"] == 1:
-            raise PermissionError("simulated bounded overwrite failure")
-        return original_write(destination, content)
-    monkeypatch.setattr(module, "_write_full_file", fail_once)
-    with pytest.raises(module.WorkbookWriteError):
+    monkeypatch.setattr(module, "_validate_workbook_candidate", lambda *args: (_ for _ in ()).throw(module.WorkbookWriteError("TEMP_WORKBOOK_VALIDATION=FAIL")))
+    original_unlink = Path.unlink
+
+    def unlink(self, *args, **kwargs):
+        if self.name.startswith("permitops-excel-"):
+            raise OSError("synthetic cleanup failure")
+        return original_unlink(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", unlink)
+    with pytest.raises(module.WorkbookWriteError, match="TEMP_WORKBOOK_VALIDATION=FAIL"):
         _write(path)
-    assert path.read_bytes() == before
 
 
-def test_t13_postwrite_validation_failure_restores_original(monkeypatch, tmp_path):
+def test_temporary_candidate_is_removed_after_success(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
-    before = path.read_bytes()
-    monkeypatch.setattr(module, "get_settings", lambda: _settings())
-    _force_permission_error(monkeypatch)
-    original = module._validate_workbook_candidate
-    monkeypatch.setattr(module, "_validate_workbook_candidate", lambda candidate, *args: (_ for _ in ()).throw(module.WorkbookWriteError("POSTWRITE_READBACK=FAIL")) if candidate == path else original(candidate, *args))
-    with pytest.raises(module.WorkbookWriteError, match="SYNTHETIC_AZURE_FILES_BOUNDED_OVERWRITE=FAIL"):
+    _write(path)
+    assert not list(path.parent.glob("permitops-excel-*.xlsx"))
+
+
+def test_temporary_candidate_is_removed_after_replace_failure(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    monkeypatch.setattr(module.os, "replace", lambda *_args: (_ for _ in ()).throw(OSError("synthetic replace failure")))
+    with pytest.raises(OSError, match="synthetic replace failure"):
         _write(path)
-    assert path.read_bytes() == before
+    assert not list(path.parent.glob("permitops-excel-*.xlsx"))
 
 
-def test_t14_lock_behavior_is_unchanged(monkeypatch, tmp_path):
+def test_lock_behavior_is_unchanged(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
     lock = path.with_suffix(path.suffix + ".lock")
     lock.write_text("synthetic lock", encoding="utf-8")
@@ -169,15 +189,142 @@ def test_t14_lock_behavior_is_unchanged(monkeypatch, tmp_path):
         lock.unlink()
 
 
-def test_t15_temporary_file_removed_after_success(monkeypatch, tmp_path):
+def test_contract_closes_read_only_workbook_on_success(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(module, "load_workbook", _tracked_loader(trackers))
+    contract = module.canonical_workbook_contract(path)
+    assert CANONICAL_PROJECTION_SHEET in contract["sheets"]
+    assert trackers and all(item.closed for item in trackers)
+
+
+def test_contract_closes_read_only_workbook_on_exception(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(module, "load_workbook", _tracked_loader(trackers, fail_sheetnames=True))
+    with pytest.raises(RuntimeError, match="inspection failure"):
+        module.canonical_workbook_contract(path)
+    assert trackers and all(item.closed for item in trackers)
+
+
+def test_candidate_validation_closes_workbook_on_success(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
     _write(path)
-    assert not list(path.parent.glob("permitops-excel-*.xlsx"))
+    human_snapshot = _human_values(path)
+    trackers = []
+    monkeypatch.setattr(module, "load_workbook", _tracked_loader(trackers))
+    module._validate_workbook_candidate(
+        path,
+        CANONICAL_PROJECT_IDS[0],
+        {"Projection Status": "SEEDED"},
+        human_snapshot,
+    )
+    assert trackers and all(item.closed for item in trackers)
 
 
-def test_t16_temporary_file_removed_after_terminal_failure(monkeypatch, tmp_path):
+def test_candidate_validation_closes_workbook_on_exception(monkeypatch, tmp_path):
     path = _prepare(monkeypatch, tmp_path)
-    monkeypatch.setattr(module.os, "replace", lambda *_args: (_ for _ in ()).throw(OSError("simulated non-permission failure")))
-    with pytest.raises(OSError):
+    trackers = []
+    monkeypatch.setattr(module, "load_workbook", _tracked_loader(trackers, fail_getitem=True))
+    with pytest.raises(module.WorkbookWriteError, match="TEMP_WORKBOOK_VALIDATION=FAIL"):
+        module._validate_workbook_candidate(path, CANONICAL_PROJECT_IDS[0], {}, _human_values(path))
+    assert trackers and all(item.closed for item in trackers)
+
+
+def test_adapter_read_rows_closes_on_success(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(adapter_module, "load_workbook", _tracked_loader(trackers))
+    rows = adapter_module.MockExcelAdapter(str(path)).read_rows()
+    assert rows and trackers and all(item.closed for item in trackers)
+
+
+def test_adapter_read_rows_closes_on_exception(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(adapter_module, "load_workbook", _tracked_loader(trackers, fail_getitem=True))
+    with pytest.raises(RuntimeError, match="sheet failure"):
+        adapter_module.MockExcelAdapter(str(path)).read_rows()
+    assert trackers and all(item.closed for item in trackers)
+
+
+def test_adapter_resolve_row_identity_closes_on_matching_return(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(adapter_module, "load_workbook", _tracked_loader(trackers))
+    result = adapter_module.MockExcelAdapter(str(path)).resolve_row_identity(CANONICAL_PROJECT_IDS[0])
+    assert result["row_number"] == 2
+    assert trackers and all(item.closed for item in trackers)
+
+
+def test_adapter_resolve_row_identity_closes_on_not_found(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(adapter_module, "load_workbook", _tracked_loader(trackers))
+    assert adapter_module.MockExcelAdapter(str(path)).resolve_row_identity("NOT-FOUND") is None
+    assert trackers and all(item.closed for item in trackers)
+
+
+def test_adapter_resolve_row_identity_closes_on_exception(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(adapter_module, "load_workbook", _tracked_loader(trackers, fail_getitem=True))
+    with pytest.raises(RuntimeError, match="sheet failure"):
+        adapter_module.MockExcelAdapter(str(path)).resolve_row_identity(CANONICAL_PROJECT_IDS[0])
+    assert trackers and all(item.closed for item in trackers)
+
+
+def test_ensure_workbook_closes_when_save_succeeds(monkeypatch, tmp_path):
+    tracked = TrackingWorkbook(OpenpyxlWorkbook())
+    monkeypatch.setattr(module, "Workbook", lambda: tracked)
+    module.ensure_canonical_workbook(tmp_path / "created.xlsx")
+    assert tracked.closed
+
+
+def test_ensure_workbook_closes_when_save_raises(monkeypatch, tmp_path):
+    tracked = TrackingWorkbook(OpenpyxlWorkbook(), fail_save=True)
+    monkeypatch.setattr(module, "Workbook", lambda: tracked)
+    with pytest.raises(OSError, match="save failure"):
+        module.ensure_canonical_workbook(tmp_path / "created.xlsx")
+    assert tracked.closed
+
+
+def test_writable_workbook_closes_when_save_raises(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+
+    def loader(path_value, *args, **kwargs):
+        tracked = TrackingWorkbook(real_load_workbook(path_value, *args, **kwargs), fail_save=True)
+        trackers.append(tracked)
+        return tracked
+
+    monkeypatch.setattr(module, "load_workbook", loader)
+    with pytest.raises(OSError, match="save failure"):
         _write(path)
-    assert not list(path.parent.glob("permitops-excel-*.xlsx"))
+    assert trackers and trackers[0].closed
+
+
+def test_post_replace_validation_workbooks_close(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    trackers = []
+    monkeypatch.setattr(module, "load_workbook", _tracked_loader(trackers))
+    result = _write(path)
+    assert result["destination_sha256"] == result["candidate_sha256"]
+    assert len(trackers) >= 3
+    assert all(item.closed for item in trackers)
+
+
+def test_permission_error_has_no_environment_fallback(monkeypatch, tmp_path):
+    path = _prepare(monkeypatch, tmp_path)
+    monkeypatch.setattr(module.os, "replace", lambda *_args: (_ for _ in ()).throw(PermissionError("replace denied")))
+    with pytest.raises(module.WorkbookWriteError, match="ATOMIC_WORKBOOK_REPLACE=FAIL"):
+        _write(path)
+
+
+def test_removed_recovery_path_and_exception_are_not_reachable():
+    source = Path(module.__file__).read_text(encoding="utf-8")
+    assert "_bounded_azure_files_overwrite" not in source
+    assert "_restore_original_workbook" not in source
+    assert "_write_full_file" not in source
+    assert "WorkbookWriteRecoveryError" not in source
+    assert "SYNTHETIC_AZURE_FILES_BOUNDED_OVERWRITE" not in source

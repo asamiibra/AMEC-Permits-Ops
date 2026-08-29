@@ -17,23 +17,29 @@ class MockExcelAdapter:
 
     def read_rows(self) -> list[dict]:
         wb = load_workbook(self.path, read_only=True, data_only=True)
-        ws = wb["GENERAL FOLLOW UP"]
-        rows = list(ws.iter_rows(values_only=True))
-        headers = [str(v) for v in rows[0]]
-        return [dict(zip(headers, row)) for row in rows[1:] if any(row)]
+        try:
+            ws = wb["GENERAL FOLLOW UP"]
+            rows = list(ws.iter_rows(values_only=True))
+            headers = [str(v) for v in rows[0]]
+            return [dict(zip(headers, row)) for row in rows[1:] if any(row)]
+        finally:
+            wb.close()
 
     def get_project_row(self, project_number: str) -> dict | None:
         return next((row for row in self.read_rows() if row.get("Project Number") == project_number), None)
 
     def resolve_row_identity(self, project_number: str) -> dict | None:
         wb = load_workbook(self.path, read_only=True, data_only=True)
-        ws = wb["GENERAL FOLLOW UP"]
-        headers = [cell.value for cell in ws[1]]
-        project_index = headers.index("Project Number") + 1
-        for row_number in range(2, ws.max_row + 1):
-            if ws.cell(row_number, project_index).value == project_number:
-                return {"workbook_identity": str(self.path), "sheet_name": "GENERAL FOLLOW UP", "row_number": row_number, "row_key": project_number}
-        return None
+        try:
+            ws = wb["GENERAL FOLLOW UP"]
+            headers = [cell.value for cell in ws[1]]
+            project_index = headers.index("Project Number") + 1
+            for row_number in range(2, ws.max_row + 1):
+                if ws.cell(row_number, project_index).value == project_number:
+                    return {"workbook_identity": str(self.path), "sheet_name": "GENERAL FOLLOW UP", "row_number": row_number, "row_key": project_number}
+            return None
+        finally:
+            wb.close()
 
     def write_system_projection(self, project_number: str, values: dict) -> dict:
         return write_system_projection(self.path, project_number, values)
