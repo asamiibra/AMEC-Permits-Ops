@@ -1,0 +1,18 @@
+{
+  "evidence_version": "ui-product-r1-r2",
+  "generated_at": "2026-08-29T12:04:45.212Z",
+  "decision": "UI_LANE_AMBIGUOUS_REJECTED_BY_OWNER_CORRECTION",
+  "baseline": {
+    "sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+    "tree": "a497c6951064119453d175d1b93d4e59c9029fd0"
+  },
+  "historical_ui_branches": [
+    "branch/home-navigation-reorganization",
+    "branch/ui-conformance-closure-20260816",
+    "branch/ui-productionization"
+  ],
+  "historical_branches_are_ancestors_of_baseline": true,
+  "active_worktree_is_historical_superseded_divergence": true,
+  "protected_integration_worktree": "/private/tmp/azure-ui-preview-groundwork-r2.9ZAV3K",
+  "protected_integration_is_evidence_only": true
+}

@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "human_decision_surfaces": [
+    "review decisions",
+    "proposal acceptance",
+    "commercial outcome",
+    "authority submission checkpoints",
+    "construction/completion/handover transitions"
+  ],
+  "automation_boundary": "no new automation or backend state transition introduced",
+  "auth_bootstrap_semantics_changed": false
+}

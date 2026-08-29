@@ -1,0 +1,47 @@
+{
+  "result": "CLOSED",
+  "dispositions": [
+    {
+      "capability": "canonical lifecycle navigation",
+      "disposition": "IMPLEMENTED",
+      "evidence": [
+        "App.tsx",
+        "03-product-surface-census-closure.json"
+      ]
+    },
+    {
+      "capability": "mobile primary navigation",
+      "disposition": "IMPLEMENTED",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend/src/mobile-navigation.css",
+        "12-responsive-runtime.json",
+        "13-mobile-navigation-runtime.json"
+      ]
+    },
+    {
+      "capability": "auth startup failure presentation",
+      "disposition": "IMPLEMENTED",
+      "evidence": [
+        "frontend/src/AuthFailureSurface.tsx",
+        "16-auth-failure-presentation.json"
+      ]
+    },
+    {
+      "capability": "backend truth and actions",
+      "disposition": "PRESERVED_AND_BOUND",
+      "evidence": [
+        "08-ui-backend-value-bindings.json",
+        "09-ui-backend-action-bindings.json"
+      ]
+    },
+    {
+      "capability": "historical/retired routes",
+      "disposition": "RETAINED_AS_CATALOGUED_COMPATIBILITY_SURFACE",
+      "evidence": [
+        "17-legacy-leakage.json"
+      ]
+    }
+  ],
+  "unresolved_material_capabilities": 0
+}

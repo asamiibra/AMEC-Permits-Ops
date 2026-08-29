@@ -1,0 +1,61 @@
+{
+  "result": "PASS",
+  "method": "local browser runtime",
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844,
+      "scroll_width": 375,
+      "body_width": 375,
+      "mobile_trigger": "flex",
+      "sidebar": "none",
+      "horizontal_overflow": false
+    },
+    {
+      "width": 834,
+      "height": 844,
+      "scroll_width": 819,
+      "body_width": 819,
+      "mobile_trigger": "none",
+      "sidebar": "flex",
+      "horizontal_overflow": false
+    },
+    {
+      "width": 1024,
+      "height": 844,
+      "scroll_width": 1009,
+      "body_width": 1009,
+      "mobile_trigger": "none",
+      "sidebar": "flex",
+      "horizontal_overflow": false
+    },
+    {
+      "width": 1280,
+      "height": 844,
+      "scroll_width": 1265,
+      "body_width": 1265,
+      "mobile_trigger": "none",
+      "sidebar": "flex",
+      "horizontal_overflow": false
+    },
+    {
+      "width": 1440,
+      "height": 844,
+      "scroll_width": 1425,
+      "body_width": 1425,
+      "mobile_trigger": "none",
+      "sidebar": "flex",
+      "horizontal_overflow": false
+    },
+    {
+      "width": 1920,
+      "height": 844,
+      "scroll_width": 1905,
+      "body_width": 1905,
+      "mobile_trigger": "none",
+      "sidebar": "flex",
+      "horizontal_overflow": false
+    }
+  ],
+  "result_notes": "document viewport scrollbar accounts for 15px difference; no horizontal overflow observed"
+}

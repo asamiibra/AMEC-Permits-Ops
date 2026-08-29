@@ -1,0 +1,36 @@
+{
+  "result": "PRODUCT_SURFACE_CENSUS_CLOSED",
+  "source_commit": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "routes": {
+    "material_route_count": 66,
+    "route_inventory_source": [
+      "frontend/src/App.tsx",
+      "frontend/src/ProductionReadiness.tsx",
+      "frontend/src/AdministrationOwner.tsx",
+      "frontend/src/ProposalsContracts.tsx"
+    ],
+    "role_personas": [
+      "Owner",
+      "Business Development",
+      "Engineering"
+    ]
+  },
+  "frontend": {
+    "tsx_files": 48,
+    "css_files": 30,
+    "unit_test_files": 20,
+    "browser_spec_files": 24,
+    "unique_api_path_references": 194
+  },
+  "backend_truth": {
+    "backend_python_files": 362,
+    "backend_api_router_files": 39,
+    "route_decorator_count": "not recomputed; backend source unchanged and outside UI scope"
+  },
+  "closure": {
+    "mobile_navigation": "IMPLEMENTED_AND_BROWSER_VERIFIED",
+    "auth_failure_presentation": "IMPLEMENTED_AND_UNIT_VERIFIED",
+    "auth_semantics": "UNCHANGED",
+    "api_contracts": "UNCHANGED"
+  }
+}

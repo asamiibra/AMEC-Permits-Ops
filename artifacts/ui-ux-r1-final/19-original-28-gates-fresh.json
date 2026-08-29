@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "fresh": true,
+  "gate_count": 28,
+  "passed": 28,
+  "failed": 0,
+  "source": [
+    "npm run build",
+    "npm test -- --run",
+    "npm run ui-conformance",
+    "local browser responsive/mobile checks"
+  ],
+  "historical_evidence_relabelled": false
+}

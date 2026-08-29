@@ -1,0 +1,15 @@
+{
+  "result": "ACCEPTED_FOR_AZURE_HANDOFF",
+  "UI_PRODUCT_LANE_R1": "ACCEPTED_FOR_AZURE_HANDOFF",
+  "UI_ACCEPTED_BRANCH": "ui-product-r1-closure-v1",
+  "UI_ACCEPTED_SHA": "f51b36b",
+  "UI_ACCEPTED_TREE": "99fec5dc4238402aaa982b8325388f6f552f62f8",
+  "baseline_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "handoff_scope": "frontend UI lane only",
+  "azure_deployed": false,
+  "api_integrated": false,
+  "production_ready": false,
+  "required_next_owner": "Azure/integration owner",
+  "accepted_ui_commit": "f51b36b",
+  "accepted_ui_tree": "99fec5dc4238402aaa982b8325388f6f552f62f8"
+}

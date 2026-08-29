@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "action_model": "frontend action handlers and api() contract paths unchanged except navigation presentation",
+  "mutation_actions_are_explicit": true,
+  "synthetic_or_local_only": true,
+  "representative_actions": [
+    "mobile navigation selection",
+    "retry auth startup via browser reload",
+    "review decision submission",
+    "permit workspace actions"
+  ],
+  "backend_action_semantics_changed": false
+}

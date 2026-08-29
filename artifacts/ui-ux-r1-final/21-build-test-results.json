@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "commands": [
+    {
+      "command": "npm ci",
+      "result": "PASS",
+      "notes": "120 packages added; 0 vulnerabilities"
+    },
+    {
+      "command": "npm run build",
+      "result": "PASS",
+      "notes": "tsc and Vite build completed; chunk-size warning only"
+    },
+    {
+      "command": "npm test -- --run",
+      "result": "PASS",
+      "notes": "19 files, 110 tests passed"
+    },
+    {
+      "command": "npm run ui-conformance",
+      "result": "PASS",
+      "notes": "312/312 scenarios; 2 Playwright tests passed"
+    }
+  ]
+}

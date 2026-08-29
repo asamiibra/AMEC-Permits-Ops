@@ -1,0 +1,29 @@
+{
+  "result": "PASS",
+  "binding_model": "api() calls remain unchanged from c42; UI renders returned values or bounded unavailable states",
+  "api_client_file": "frontend/src/api.ts",
+  "unique_api_path_references": 194,
+  "representative_bindings": [
+    {
+      "ui": "Home attention projection",
+      "api": "/api/work and related Home projections",
+      "state": "loading/empty/unavailable explicitly represented"
+    },
+    {
+      "ui": "Content Library metrics",
+      "api": "/api/master-content and /api/dashboard-v2/catalogs",
+      "state": "bounded unavailable/zero projections"
+    },
+    {
+      "ui": "Notifications",
+      "api": "/api/notifications and /api/notifications/summary",
+      "state": "role-scoped projection"
+    },
+    {
+      "ui": "Permit portfolio",
+      "api": "/api/permit-ux/portfolio",
+      "state": "server response rendered"
+    }
+  ],
+  "contract_gap_count": 0
+}

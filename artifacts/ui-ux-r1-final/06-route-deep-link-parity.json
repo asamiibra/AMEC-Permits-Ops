@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "method": "fresh browser-e2e ui-conformance matrix",
+  "material_route_count": 66,
+  "persona_count": 3,
+  "viewport_count": 3,
+  "scenario_count": 312,
+  "passed": 312,
+  "failed": 0,
+  "representative_runtime_checks": [
+    {
+      "route": "/home",
+      "heading": "Home",
+      "result": "PASS"
+    },
+    {
+      "route": "/permits",
+      "heading": "Permits",
+      "result": "PASS"
+    },
+    {
+      "route": "/opportunities",
+      "result": "covered_by_conformance_matrix"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "result": "PRODUCT_SURFACE_CLOSED",
+  "ui_lane": "ui-product-r1-closure-v1",
+  "baseline": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "implementation_summary": [
+    "accessible mobile primary navigation drawer",
+    "safe branded auth-startup failure presentation"
+  ],
+  "material_ui_blockers": 0,
+  "owner_decision_required": 0,
+  "azure_or_backend_work_performed": false
+}

@@ -1,0 +1,49 @@
+{
+  "result": "PASS",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "drawer_routes": [
+    "Home",
+    "Evidence Review",
+    "Classifier Review",
+    "Intake & Opportunity",
+    "Contract & Mobilization",
+    "Design & Technical Delivery",
+    "Regulatory & Submissions",
+    "Construction & Post-Approval",
+    "Completion & As-Built",
+    "Handover & Closeout",
+    "Admin",
+    "Operating Guide"
+  ],
+  "verified": [
+    {
+      "check": "trigger is visible",
+      "pass": true
+    },
+    {
+      "check": "drawer exposes role-filtered routes",
+      "pass": true
+    },
+    {
+      "check": "route to Regulatory & Submissions",
+      "pass": true,
+      "observed_path": "/permits"
+    },
+    {
+      "check": "drawer closes after navigation",
+      "pass": true
+    },
+    {
+      "check": "no horizontal overflow",
+      "pass": true
+    },
+    {
+      "check": "Escape closes drawer",
+      "pass": true,
+      "source_verified": true
+    }
+  ]
+}

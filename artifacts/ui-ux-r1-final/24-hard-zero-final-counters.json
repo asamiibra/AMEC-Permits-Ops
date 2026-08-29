@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "counters": {
+    "blocking_gaps": 0,
+    "owner_decision_required": 0,
+    "unresolved_material_capabilities": 0,
+    "frontend_backend_binding_gaps": 0,
+    "auth_semantics_changes": 0,
+    "backend_files_changed": 0,
+    "migration_files_changed": 0,
+    "infra_files_changed": 0,
+    "azure_mutations": 0,
+    "synology_mutations": 0,
+    "unverified_route_owners": 0,
+    "unverified_deep_links": 0,
+    "unbounded_errors": 0,
+    "raw_exception_leakage": 0,
+    "synthetic_truth_violations": 0
+  },
+  "all_required_hard_zero_counters_zero": true
+}

@@ -1,0 +1,615 @@
+{
+  "result": "PASS",
+  "generated_at": "2026-08-29T12:04:45.212Z",
+  "checks": [
+    {
+      "id": "POST-001",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-002",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-003",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-004",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-005",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-006",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-007",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-008",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-009",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-010",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-011",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-012",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-013",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-014",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-015",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-016",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-017",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-018",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-019",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-020",
+      "class": "PASS",
+      "independent": true,
+      "scope": "provenance/baseline"
+    },
+    {
+      "id": "POST-021",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-022",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-023",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-024",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-025",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-026",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-027",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-028",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-029",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-030",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-031",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-032",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-033",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-034",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-035",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-036",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-037",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-038",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-039",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-040",
+      "class": "PASS",
+      "independent": true,
+      "scope": "source/diff boundary"
+    },
+    {
+      "id": "POST-041",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-042",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-043",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-044",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-045",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-046",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-047",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-048",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-049",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-050",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-051",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-052",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-053",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-054",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-055",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-056",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-057",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-058",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-059",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-060",
+      "class": "PASS",
+      "independent": true,
+      "scope": "route/product surface"
+    },
+    {
+      "id": "POST-061",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-062",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-063",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-064",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-065",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-066",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-067",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-068",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-069",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-070",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-071",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-072",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-073",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-074",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-075",
+      "class": "PASS",
+      "independent": true,
+      "scope": "bindings/truth"
+    },
+    {
+      "id": "POST-076",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-077",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-078",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-079",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-080",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-081",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-082",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-083",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-084",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-085",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-086",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-087",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-088",
+      "class": "PASS",
+      "independent": true,
+      "scope": "runtime/responsive/accessibility"
+    },
+    {
+      "id": "POST-089",
+      "class": "PASS",
+      "independent": true,
+      "scope": "auth/error presentation"
+    },
+    {
+      "id": "POST-090",
+      "class": "PASS",
+      "independent": true,
+      "scope": "auth/error presentation"
+    },
+    {
+      "id": "POST-091",
+      "class": "PASS",
+      "independent": true,
+      "scope": "auth/error presentation"
+    },
+    {
+      "id": "POST-092",
+      "class": "PASS",
+      "independent": true,
+      "scope": "auth/error presentation"
+    },
+    {
+      "id": "POST-093",
+      "class": "PASS",
+      "independent": true,
+      "scope": "auth/error presentation"
+    },
+    {
+      "id": "POST-094",
+      "class": "PASS",
+      "independent": true,
+      "scope": "auth/error presentation"
+    },
+    {
+      "id": "POST-095",
+      "class": "PASS",
+      "independent": true,
+      "scope": "evidence/integrity"
+    },
+    {
+      "id": "POST-096",
+      "class": "PASS",
+      "independent": true,
+      "scope": "evidence/integrity"
+    },
+    {
+      "id": "POST-097",
+      "class": "PASS",
+      "independent": true,
+      "scope": "evidence/integrity"
+    },
+    {
+      "id": "POST-098",
+      "class": "PASS",
+      "independent": true,
+      "scope": "evidence/integrity"
+    },
+    {
+      "id": "POST-099",
+      "class": "PASS",
+      "independent": true,
+      "scope": "evidence/integrity"
+    },
+    {
+      "id": "POST-100",
+      "class": "PASS",
+      "independent": true,
+      "scope": "evidence/integrity"
+    }
+  ],
+  "summary": {
+    "total": 100,
+    "pass": 100,
+    "partial": 0,
+    "blocking_gap": 0,
+    "owner_decision_required": 0,
+    "external_blocked": 0,
+    "not_applicable_with_reason": 0
+  }
+}

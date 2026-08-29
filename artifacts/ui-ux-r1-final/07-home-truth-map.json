@@ -1,0 +1,46 @@
+{
+  "result": "PASS",
+  "home_path": "/home",
+  "canonical_workspaces": [
+    {
+      "label": "Intake & Opportunity",
+      "path": "/opportunities",
+      "state_owner": "opportunities"
+    },
+    {
+      "label": "Contract & Mobilization",
+      "path": "/contract-mobilization",
+      "state_owner": "contract-mobilization"
+    },
+    {
+      "label": "Design & Technical Delivery",
+      "path": "/engineering",
+      "state_owner": "engineering"
+    },
+    {
+      "label": "Regulatory & Submissions",
+      "path": "/permits",
+      "state_owner": "permit-portfolio"
+    },
+    {
+      "label": "Construction & Post-Approval",
+      "path": "/construction",
+      "state_owner": "construction"
+    },
+    {
+      "label": "Completion & As-Built",
+      "path": "/completion",
+      "state_owner": "completion"
+    },
+    {
+      "label": "Handover & Closeout",
+      "path": "/handover",
+      "state_owner": "handover"
+    }
+  ],
+  "truth_rules": [
+    "Home discoverability links route to canonical workspaces",
+    "bounded loading/error/empty states are explicit",
+    "no simulated API values are presented as persisted backend facts"
+  ]
+}

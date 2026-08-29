@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "observed": [
+    "Home loading status",
+    "Home bounded unavailable status",
+    "Home empty state",
+    "existing route-specific error alerts and Retry actions",
+    "render-boundary recovery surface"
+  ],
+  "no_raw_exception_or_stack_trace_exposed": true
+}

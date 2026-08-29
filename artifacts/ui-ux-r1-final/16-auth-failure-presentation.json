@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "component": "frontend/src/AuthFailureSurface.tsx",
+  "unit_test": "tests/auth-failure-surface.test.tsx",
+  "verified": [
+    "safe human-readable startup message",
+    "Retry sign-in calls window.location.reload",
+    "alert/live region semantics",
+    "no token/tenant/stack/exception details exposed"
+  ],
+  "auth_bootstrap_decision_path_changed": false,
+  "initializeBrowserAuthentication_unchanged": true
+}

@@ -1,0 +1,22 @@
+{
+  "result": "PASS",
+  "fresh": true,
+  "gates": {
+    "preflight_100": true,
+    "provenance_corrected": true,
+    "c42_baseline_exact": true,
+    "frontend_only_boundary": true,
+    "build": true,
+    "unit_tests": true,
+    "ui_conformance": true,
+    "responsive_runtime": true,
+    "mobile_navigation": true,
+    "accessibility_runtime": true,
+    "error_loading_empty": true,
+    "auth_failure_presentation": true,
+    "synthetic_truth": true,
+    "hard_zero_counters": true
+  },
+  "blocking_gap_count": 0,
+  "owner_decision_required_count": 0
+}

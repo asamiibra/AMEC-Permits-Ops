@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "personas": [
+    "Owner",
+    "Business Development",
+    "Engineering"
+  ],
+  "conformance_scenarios": 312,
+  "all_personas_passed": true,
+  "mobile_drawer_uses_existing_role_filter": true
+}

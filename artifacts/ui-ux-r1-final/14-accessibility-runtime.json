@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "method": "browser DOM/accessibility inspection plus unit tests",
+  "checks": [
+    "mobile trigger has accessible name and aria-expanded/aria-controls",
+    "drawer has labeled navigation and close button",
+    "auth failure uses alert/live region and labeled heading",
+    "interactive buttons have type=button in new surface",
+    "no horizontal overflow at mobile breakpoint",
+    "existing 312 conformance scenarios passed"
+  ],
+  "axe_external_run": "NOT_RUN",
+  "reason": "local DOM assertions and project conformance suite used"
+}

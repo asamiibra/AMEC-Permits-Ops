@@ -1,0 +1,30 @@
+{
+  "result": "PASS",
+  "evidence_map": [
+    {
+      "claim": "all material route/persona/viewport combinations",
+      "evidence": "06-route-deep-link-parity.json + fresh ui-conformance execution"
+    },
+    {
+      "claim": "mobile drawer routing",
+      "evidence": "13-mobile-navigation-runtime.json"
+    },
+    {
+      "claim": "responsive shell",
+      "evidence": "12-responsive-runtime.json"
+    },
+    {
+      "claim": "accessibility semantics",
+      "evidence": "14-accessibility-runtime.json + unit tests"
+    },
+    {
+      "claim": "auth startup failure presentation",
+      "evidence": "16-auth-failure-presentation.json"
+    },
+    {
+      "claim": "build/test",
+      "evidence": "21-build-test-results.json"
+    }
+  ],
+  "historical_artifacts_used_as_current_pass": false
+}

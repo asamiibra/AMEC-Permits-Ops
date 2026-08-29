@@ -1,0 +1,11 @@
+{
+  "result": "UI_PRODUCT_LANE_R1=ACCEPTED_FOR_AZURE_HANDOFF",
+  "branch": "ui-product-r1-closure-v1",
+  "baseline_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "hard_zero_blockers": 0,
+  "owner_decision_required": 0,
+  "scope": "frontend UI only",
+  "notes": [
+    "Azure deployment/API integration/production readiness remain separate follow-up work"
+  ]
+}

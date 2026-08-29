@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "baseline_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "baseline_tree": "a497c6951064119453d175d1b93d4e59c9029fd0",
+  "allowed_frontend_source_changes": [
+    "frontend/src/App.tsx",
+    "frontend/src/main.tsx",
+    "frontend/src/AuthFailureSurface.tsx",
+    "frontend/src/mobile-navigation.css",
+    "frontend/tests/app.test.tsx",
+    "frontend/tests/auth-failure-surface.test.tsx"
+  ],
+  "frontend_changed": [
+    "frontend/src/App.tsx",
+    "frontend/src/AuthFailureSurface.tsx",
+    "frontend/src/main.tsx",
+    "frontend/src/mobile-navigation.css",
+    "frontend/tests/app.test.tsx",
+    "frontend/tests/auth-failure-surface.test.tsx"
+  ],
+  "forbidden_changed": [],
+  "backend_changed": 0,
+  "migrations_changed": 0,
+  "infra_changed": 0,
+  "auth_contract_files_unchanged": true,
+  "boundary_passed": true
+}

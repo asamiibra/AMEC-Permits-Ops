@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "legacy_surface_status": "catalogued_compatibility_surface",
+  "legacy_nav_is_not_exposed_as_primary_mobile_navigation": true,
+  "primary_business_nav_count": 10,
+  "legacy_nav_count": 29,
+  "unsupported_route_fallback": "Home",
+  "no_new_legacy_leakage_introduced": true
+}

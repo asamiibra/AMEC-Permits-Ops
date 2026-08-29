@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "environment": "local synthetic DEV_HEADER",
+  "synthetic_truth_labels_preserved": true,
+  "claims_not_made": [
+    "Azure deployed",
+    "Entra production-ready",
+    "API integration complete",
+    "Synology connected"
+  ],
+  "no_new_backend_or_external_mutation": true
+}

@@ -1,0 +1,13 @@
+{
+  "baseline_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "baseline_tree": "a497c6951064119453d175d1b93d4e59c9029fd0",
+  "working_branch": "ui-product-r1-closure-v1",
+  "working_head": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "source_frontend_delta_before_implementation": 0,
+  "frontend_source_files_after": 83,
+  "source_files_changed_after": [
+    "frontend/src/App.tsx",
+    "frontend/src/main.tsx"
+  ],
+  "active_user_worktree_preserved": true
+}
