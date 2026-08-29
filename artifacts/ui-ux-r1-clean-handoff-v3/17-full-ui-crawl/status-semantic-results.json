@@ -1,0 +1,8 @@
+{
+  "gate": "UI_STATUS_SEMANTIC_CLARITY_PASS",
+  "executed": true,
+  "applicable_rows": 624,
+  "unresolved": 0,
+  "result": "PASS",
+  "evidence": "fresh scenario raw enum/status scan"
+}

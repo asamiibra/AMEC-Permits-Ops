@@ -1,0 +1,42 @@
+{
+  "harness": "controlled Vite preview with required Entra environment unset; auth startup exception rendered by frozen main.tsx catch",
+  "AUTH_BOOTSTRAP_SEMANTICS_CHANGED": false,
+  "AUTH_FAILURE_PRESENTATION_PASS": true,
+  "AUTH_ERROR_CAUSE_OVERSTATEMENT": 0,
+  "viewports": [
+    {
+      "width": 390,
+      "branded_failure_visible": true,
+      "neutral_wording": true,
+      "raw_exception_or_token_exposed": false,
+      "retry_available": true,
+      "keyboard_focus_sensible": true,
+      "horizontal_overflow": false,
+      "aria_live": "assertive",
+      "retry_reproduced_failure_surface": true
+    },
+    {
+      "width": 834,
+      "branded_failure_visible": true,
+      "neutral_wording": true,
+      "raw_exception_or_token_exposed": false,
+      "retry_available": true,
+      "keyboard_focus_sensible": true,
+      "horizontal_overflow": false,
+      "aria_live": "assertive",
+      "retry_reproduced_failure_surface": true
+    },
+    {
+      "width": 1440,
+      "branded_failure_visible": true,
+      "neutral_wording": true,
+      "raw_exception_or_token_exposed": false,
+      "retry_available": true,
+      "keyboard_focus_sensible": true,
+      "horizontal_overflow": false,
+      "aria_live": "assertive",
+      "retry_reproduced_failure_surface": true
+    }
+  ],
+  "result_count": 3
+}

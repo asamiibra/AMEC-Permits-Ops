@@ -1,0 +1,12 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "base_evidence_commit": "dc0f95b836b12b0ee1686e26a38841ef77328495",
+  "entry_handoff_commit": "05105b136063135ace7f3223a9716676ab5d76b7",
+  "prior_v2_status": "BLOCKED",
+  "closed_defects": [
+    "missing final-source required fields",
+    "AMECWork indirect API actions misclassified local",
+    "/api/work backend/value semantic contradiction"
+  ],
+  "v3_resolution_scope": "semantic evidence only; accepted source and backend remain immutable"
+}

@@ -1,0 +1,15 @@
+{
+  "SOURCE_SHA": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "EXACT_BACKEND_ROUTE_FOUND": true,
+  "METHOD": "GET",
+  "EFFECTIVE_PATH": "/api/work",
+  "BACKEND_ROUTE_FILE": "backend/app/api/work_routers.py",
+  "BACKEND_ROUTE_FUNCTION": "work",
+  "ROUTER_PREFIX": "/api/work",
+  "DECORATOR_PATH": "",
+  "AUTH_DEPENDENCY": "API_AUTH_DEPENDENCIES -> current_user_role",
+  "CAPABILITY": "NONE_FOR_READ",
+  "RESPONSE_MODEL": "project_work projection returned as an untyped JSON object",
+  "ROUTE_REGISTRATION": "backend/app/main.py:974 work_router with API_AUTH_DEPENDENCIES",
+  "RESOLUTION_RESULT": "EXACT_BACKEND_ROUTE"
+}

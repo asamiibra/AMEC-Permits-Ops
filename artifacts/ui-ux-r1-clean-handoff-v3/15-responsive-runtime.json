@@ -1,0 +1,25 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "widths": [
+    390,
+    834,
+    1024,
+    1280,
+    1440,
+    1920
+  ],
+  "viewport_counts": {
+    "v390": 104,
+    "v834": 104,
+    "v1024": 104,
+    "v1280": 104,
+    "v1440": 104,
+    "v1920": 104
+  },
+  "expected_scenarios": 624,
+  "actual_scenarios": 624,
+  "passed_scenarios": 624,
+  "failed_scenarios": 0,
+  "source": "fresh six-viewport Playwright crawl in exact-source copy",
+  "result": "PASS"
+}

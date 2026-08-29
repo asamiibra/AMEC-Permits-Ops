@@ -1,0 +1,1 @@
+import fs from 'node:fs'; const p='backend/app/api/work_routers.py'; const t=fs.readFileSync(p,'utf8'); const result={method:'GET',effective_path:'/api/work',route_file:p,function_name:'work',router_prefix:'/api/work',decorator_path:'',exact_route_found:/@router\.get\(""\)/.test(t)}; console.log(JSON.stringify(result)); if(!result.exact_route_found) process.exit(1);

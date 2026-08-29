@@ -1,0 +1,8 @@
+{
+  "gate": "OWNER_FACING_TECHNICAL_TEXT_ZERO",
+  "executed": true,
+  "applicable_rows": 624,
+  "unresolved": 0,
+  "result": "PASS",
+  "evidence": "fresh scenario text scan"
+}

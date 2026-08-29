@@ -1,0 +1,1509 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "source_tree": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+  "route_count": 66,
+  "applicable_route_persona_combinations": 104,
+  "routes": [
+    {
+      "ROUTE_ID": "S01",
+      "PATH_TEMPLATE": "/work",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "AMECWorkPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/work",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S01",
+      "ROUTE_INDEX": 1
+    },
+    {
+      "ROUTE_ID": "S02",
+      "PATH_TEMPLATE": "/proposals-contracts",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "ProposalsContractsPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals-contracts",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S02",
+      "ROUTE_INDEX": 2
+    },
+    {
+      "ROUTE_ID": "S02A",
+      "PATH_TEMPLATE": "/proposals/new",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals/new",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S02A",
+      "ROUTE_INDEX": 3
+    },
+    {
+      "ROUTE_ID": "S02B",
+      "PATH_TEMPLATE": "/proposals/:proposalId",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals/:proposalId",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S02B",
+      "ROUTE_INDEX": 4
+    },
+    {
+      "ROUTE_ID": "S02C",
+      "PATH_TEMPLATE": "/proposals/:proposalId/preparation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "BDProposalOwnerSessionPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/proposals/:proposalId/preparation",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S02C",
+      "ROUTE_INDEX": 5
+    },
+    {
+      "ROUTE_ID": "S02D",
+      "PATH_TEMPLATE": "/contracts/:contractId",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "ContractMobilizationPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/contracts/:contractId",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S02D",
+      "ROUTE_INDEX": 6
+    },
+    {
+      "ROUTE_ID": "S03",
+      "PATH_TEMPLATE": "/reviews",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/reviews",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S03",
+      "ROUTE_INDEX": 7
+    },
+    {
+      "ROUTE_ID": "S04",
+      "PATH_TEMPLATE": "/issues",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "PersonaIssuesPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/issues",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S04",
+      "ROUTE_INDEX": 8
+    },
+    {
+      "ROUTE_ID": "S04D",
+      "PATH_TEMPLATE": "/issues/:issueId",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "PersonaIssueDetailPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/issues/:issueId",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S04D",
+      "ROUTE_INDEX": 9
+    },
+    {
+      "ROUTE_ID": "S05",
+      "PATH_TEMPLATE": "/notifications",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "PersonaNotificationsPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/notifications",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S05",
+      "ROUTE_INDEX": 10
+    },
+    {
+      "ROUTE_ID": "S06",
+      "PATH_TEMPLATE": "/operating-guide",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "AboutPermitOpsPage",
+      "ROUTE_CLASS": "GUIDE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/operating-guide",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S06",
+      "ROUTE_INDEX": 11
+    },
+    {
+      "ROUTE_ID": "S07",
+      "PATH_TEMPLATE": "/permits/:projectId/project-and-sources",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/project-and-sources",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S07",
+      "ROUTE_INDEX": 12
+    },
+    {
+      "ROUTE_ID": "S08",
+      "PATH_TEMPLATE": "/permits/:projectId/verify-data",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/verify-data",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S08",
+      "ROUTE_INDEX": 13
+    },
+    {
+      "ROUTE_ID": "S09",
+      "PATH_TEMPLATE": "/permits/:projectId/prepare-package",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/prepare-package",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S09",
+      "ROUTE_INDEX": 14
+    },
+    {
+      "ROUTE_ID": "S10",
+      "PATH_TEMPLATE": "/permits/:projectId/municipality-preparation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/municipality-preparation",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S10",
+      "ROUTE_INDEX": 15
+    },
+    {
+      "ROUTE_ID": "S11",
+      "PATH_TEMPLATE": "/permits/:projectId/final-review",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/final-review",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S11",
+      "ROUTE_INDEX": 16
+    },
+    {
+      "ROUTE_ID": "S12",
+      "PATH_TEMPLATE": "/permits/:projectId/authority-review",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/authority-review",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S12",
+      "ROUTE_INDEX": 17
+    },
+    {
+      "ROUTE_ID": "S13",
+      "PATH_TEMPLATE": "/permits/:projectId/comments-and-corrections",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/comments-and-corrections",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S13",
+      "ROUTE_INDEX": 18
+    },
+    {
+      "ROUTE_ID": "S14",
+      "PATH_TEMPLATE": "/permits/:projectId/history",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/permits/:projectId/history",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Downstream authority context",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S14",
+      "ROUTE_INDEX": 19
+    },
+    {
+      "ROUTE_ID": "S15",
+      "PATH_TEMPLATE": "/admin",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "AdministrationPage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S15",
+      "ROUTE_INDEX": 20
+    },
+    {
+      "ROUTE_ID": "S26",
+      "PATH_TEMPLATE": "/admin/go-live-readiness",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/go-live-readiness",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S26",
+      "ROUTE_INDEX": 21
+    },
+    {
+      "ROUTE_ID": "ADMIN-OWNER",
+      "PATH_TEMPLATE": "/admin/people-access",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/people-access",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-OWNER",
+      "ROUTE_INDEX": 22
+    },
+    {
+      "ROUTE_ID": "ADMIN-CONNECTIONS",
+      "PATH_TEMPLATE": "/admin/data-connections",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/data-connections",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-CONNECTIONS",
+      "ROUTE_INDEX": 23
+    },
+    {
+      "ROUTE_ID": "ADMIN-PROJECT",
+      "PATH_TEMPLATE": "/admin/project-folder-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/project-folder-setup",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-PROJECT",
+      "ROUTE_INDEX": 24
+    },
+    {
+      "ROUTE_ID": "ADMIN-PROPOSAL",
+      "PATH_TEMPLATE": "/admin/proposal-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/proposal-setup",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-PROPOSAL",
+      "ROUTE_INDEX": 25
+    },
+    {
+      "ROUTE_ID": "ADMIN-CONTRACT",
+      "PATH_TEMPLATE": "/admin/contract-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/contract-setup",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-CONTRACT",
+      "ROUTE_INDEX": 26
+    },
+    {
+      "ROUTE_ID": "ADMIN-PERMIT",
+      "PATH_TEMPLATE": "/admin/permit-setup",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/permit-setup",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-PERMIT",
+      "ROUTE_INDEX": 27
+    },
+    {
+      "ROUTE_ID": "ADMIN-TEMPLATES",
+      "PATH_TEMPLATE": "/admin/templates",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/templates",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-TEMPLATES",
+      "ROUTE_INDEX": 28
+    },
+    {
+      "ROUTE_ID": "ADMIN-NOTIFICATIONS",
+      "PATH_TEMPLATE": "/admin/notifications",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/notifications",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-NOTIFICATIONS",
+      "ROUTE_INDEX": 29
+    },
+    {
+      "ROUTE_ID": "ADMIN-SECURITY",
+      "PATH_TEMPLATE": "/admin/security",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/security",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-SECURITY",
+      "ROUTE_INDEX": 30
+    },
+    {
+      "ROUTE_ID": "ADMIN-INTEGRATION",
+      "PATH_TEMPLATE": "/admin/integration-health",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/integration-health",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-INTEGRATION",
+      "ROUTE_INDEX": 31
+    },
+    {
+      "ROUTE_ID": "ADMIN-AUDIT",
+      "PATH_TEMPLATE": "/admin/audit",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/audit",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-AUDIT",
+      "ROUTE_INDEX": 32
+    },
+    {
+      "ROUTE_ID": "ADMIN-ADVANCED",
+      "PATH_TEMPLATE": "/admin/advanced-diagnostics",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/advanced-diagnostics",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for ADMIN-ADVANCED",
+      "ROUTE_INDEX": 33
+    },
+    {
+      "ROUTE_ID": "S16",
+      "PATH_TEMPLATE": "/admin/discovery",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/discovery",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S16",
+      "ROUTE_INDEX": 34
+    },
+    {
+      "ROUTE_ID": "S17",
+      "PATH_TEMPLATE": "/admin/config",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/config",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S17",
+      "ROUTE_INDEX": 35
+    },
+    {
+      "ROUTE_ID": "S18",
+      "PATH_TEMPLATE": "/admin/tier1",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/tier1",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S18",
+      "ROUTE_INDEX": 36
+    },
+    {
+      "ROUTE_ID": "S19",
+      "PATH_TEMPLATE": "/admin/delivery",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/delivery",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S19",
+      "ROUTE_INDEX": 37
+    },
+    {
+      "ROUTE_ID": "S20",
+      "PATH_TEMPLATE": "/admin/attachments-grids",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/attachments-grids",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S20",
+      "ROUTE_INDEX": 38
+    },
+    {
+      "ROUTE_ID": "S21",
+      "PATH_TEMPLATE": "/admin/municipality",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/municipality",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S21",
+      "ROUTE_INDEX": 39
+    },
+    {
+      "ROUTE_ID": "S22",
+      "PATH_TEMPLATE": "/admin/corpus",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/corpus",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S22",
+      "ROUTE_INDEX": 40
+    },
+    {
+      "ROUTE_ID": "S23",
+      "PATH_TEMPLATE": "/admin/thresholds",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/thresholds",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S23",
+      "ROUTE_INDEX": 41
+    },
+    {
+      "ROUTE_ID": "S24",
+      "PATH_TEMPLATE": "/admin/control-diagnostics",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/control-diagnostics",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S24",
+      "ROUTE_INDEX": 42
+    },
+    {
+      "ROUTE_ID": "S25",
+      "PATH_TEMPLATE": "/opportunities",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "OpportunitiesPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Business Development"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/opportunities",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S25",
+      "ROUTE_INDEX": 43
+    },
+    {
+      "ROUTE_ID": "S31",
+      "PATH_TEMPLATE": "/engineering-closeout",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "EngineeringCloseoutPage",
+      "ROUTE_CLASS": "MATERIAL_WORKSPACE",
+      "PRIMARY_OR_CONTEXTUAL": "PRIMARY",
+      "VISIBLE_PERSONAS": [
+        "Owner",
+        "Engineering"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/engineering-closeout",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Material ProposalOps route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S31",
+      "ROUTE_INDEX": 44
+    },
+    {
+      "ROUTE_ID": "S30",
+      "PATH_TEMPLATE": "/admin/expansion-foundation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "ADMINISTRATION",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "CANONICAL",
+      "CANONICAL_DESTINATION": "/admin/expansion-foundation",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for S30",
+      "ROUTE_INDEX": 45
+    },
+    {
+      "ROUTE_ID": "LEGACY-01",
+      "PATH_TEMPLATE": "/admin/dashboard",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/dashboard",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-01",
+      "ROUTE_INDEX": 46
+    },
+    {
+      "ROUTE_ID": "LEGACY-02",
+      "PATH_TEMPLATE": "/admin/projects",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/projects",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-02",
+      "ROUTE_INDEX": 47
+    },
+    {
+      "ROUTE_ID": "LEGACY-03",
+      "PATH_TEMPLATE": "/admin/documents",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/documents",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-03",
+      "ROUTE_INDEX": 48
+    },
+    {
+      "ROUTE_ID": "LEGACY-04",
+      "PATH_TEMPLATE": "/admin/conflicts",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/conflicts",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-04",
+      "ROUTE_INDEX": 49
+    },
+    {
+      "ROUTE_ID": "LEGACY-05",
+      "PATH_TEMPLATE": "/admin/package",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/package",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-05",
+      "ROUTE_INDEX": 50
+    },
+    {
+      "ROUTE_ID": "LEGACY-06",
+      "PATH_TEMPLATE": "/admin/findings",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/findings",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-06",
+      "ROUTE_INDEX": 51
+    },
+    {
+      "ROUTE_ID": "LEGACY-07",
+      "PATH_TEMPLATE": "/admin/lineage",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/lineage",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-07",
+      "ROUTE_INDEX": 52
+    },
+    {
+      "ROUTE_ID": "LEGACY-08",
+      "PATH_TEMPLATE": "/admin/spike",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/spike",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-08",
+      "ROUTE_INDEX": 53
+    },
+    {
+      "ROUTE_ID": "LEGACY-09",
+      "PATH_TEMPLATE": "/admin/adjudication",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/adjudication",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-09",
+      "ROUTE_INDEX": 54
+    },
+    {
+      "ROUTE_ID": "LEGACY-10",
+      "PATH_TEMPLATE": "/admin/analysis",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/analysis",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-10",
+      "ROUTE_INDEX": 55
+    },
+    {
+      "ROUTE_ID": "LEGACY-11",
+      "PATH_TEMPLATE": "/admin/tier2",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/tier2",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-11",
+      "ROUTE_INDEX": 56
+    },
+    {
+      "ROUTE_ID": "LEGACY-12",
+      "PATH_TEMPLATE": "/admin/close",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/close",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-12",
+      "ROUTE_INDEX": 57
+    },
+    {
+      "ROUTE_ID": "LEGACY-13",
+      "PATH_TEMPLATE": "/admin/baseline",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/baseline",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-13",
+      "ROUTE_INDEX": 58
+    },
+    {
+      "ROUTE_ID": "LEGACY-14",
+      "PATH_TEMPLATE": "/admin/signoff",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/signoff",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-14",
+      "ROUTE_INDEX": 59
+    },
+    {
+      "ROUTE_ID": "LEGACY-15",
+      "PATH_TEMPLATE": "/admin/confirmation",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/confirmation",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-15",
+      "ROUTE_INDEX": 60
+    },
+    {
+      "ROUTE_ID": "LEGACY-16",
+      "PATH_TEMPLATE": "/admin/business",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/business",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-16",
+      "ROUTE_INDEX": 61
+    },
+    {
+      "ROUTE_ID": "LEGACY-17",
+      "PATH_TEMPLATE": "/admin/business-baseline",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/business-baseline",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-17",
+      "ROUTE_INDEX": 62
+    },
+    {
+      "ROUTE_ID": "LEGACY-18",
+      "PATH_TEMPLATE": "/admin/privacy",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/privacy",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-18",
+      "ROUTE_INDEX": 63
+    },
+    {
+      "ROUTE_ID": "LEGACY-19",
+      "PATH_TEMPLATE": "/admin/volume",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/volume",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-19",
+      "ROUTE_INDEX": 64
+    },
+    {
+      "ROUTE_ID": "LEGACY-20",
+      "PATH_TEMPLATE": "/admin/inquiries",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/inquiries",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-20",
+      "ROUTE_INDEX": 65
+    },
+    {
+      "ROUTE_ID": "LEGACY-21",
+      "PATH_TEMPLATE": "/admin/raid",
+      "SOURCE_FILE": "frontend/src/App.tsx",
+      "SOURCE_COMPONENT": "CompatibilityRoutePage",
+      "ROUTE_CLASS": "LEGACY_COMPATIBILITY_ONLY",
+      "PRIMARY_OR_CONTEXTUAL": "CONTEXTUAL",
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "HIDDEN_PERSONAS": [
+        "Business Development",
+        "Engineering"
+      ],
+      "COMPATIBILITY_STATUS": "LEGACY_COMPATIBILITY_ONLY",
+      "CANONICAL_DESTINATION": "/admin/raid",
+      "DEEP_LINK_SUPPORTED": true,
+      "AUTHORITY_NOTES": "Owner-scoped administration route",
+      "UNRESOLVED_REASON": "",
+      "SOURCE_LOCATOR": "frontend/src/App.tsx:route-table",
+      "ROUTE_EVIDENCE": "17-full-ui-crawl/runtime-results.json scenario rows for LEGACY-21",
+      "ROUTE_INDEX": 66
+    }
+  ]
+}

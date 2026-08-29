@@ -1,0 +1,142 @@
+{
+  "gate": "ACTION_ROLE_PARITY",
+  "executed": true,
+  "applicable_rows": 359,
+  "unresolved": 0,
+  "result": "PASS",
+  "evidence": "fresh six-viewport scenario rows plus 08-action-ledger.json",
+  "sample_rows": [
+    {
+      "action_id": "ACTION-001",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "LOCAL_PRESENTATION_ONLY",
+      "source": "frontend/src/AMECWork.tsx:77"
+    },
+    {
+      "action_id": "ACTION-002",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "LOCAL_PRESENTATION_ONLY",
+      "source": "frontend/src/AMECWork.tsx:82"
+    },
+    {
+      "action_id": "ACTION-003",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "LOCAL_PRESENTATION_ONLY",
+      "source": "frontend/src/AMECWork.tsx:87"
+    },
+    {
+      "action_id": "ACTION-004",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "LOCAL_PRESENTATION_ONLY",
+      "source": "frontend/src/AMECWork.tsx:89"
+    },
+    {
+      "action_id": "ACTION-005",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "LOCAL_PRESENTATION_ONLY",
+      "source": "frontend/src/AMECWork.tsx:90"
+    },
+    {
+      "action_id": "ACTION-006",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "NAVIGATION_ONLY",
+      "source": "frontend/src/AboutPermitOps.tsx:104"
+    },
+    {
+      "action_id": "ACTION-007",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "LOCAL_PRESENTATION_ONLY",
+      "source": "frontend/src/AboutPermitOps.tsx:104"
+    },
+    {
+      "action_id": "ACTION-008",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "LOCAL_PRESENTATION_ONLY",
+      "source": "frontend/src/AboutPermitOps.tsx:104"
+    },
+    {
+      "action_id": "ACTION-009",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "NAVIGATION_ONLY",
+      "source": "frontend/src/AboutPermitOps.tsx:132"
+    },
+    {
+      "action_id": "ACTION-010",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "NAVIGATION_ONLY",
+      "source": "frontend/src/AboutPermitOps.tsx:132"
+    },
+    {
+      "action_id": "ACTION-011",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "NAVIGATION_ONLY",
+      "source": "frontend/src/AboutPermitOps.tsx:132"
+    },
+    {
+      "action_id": "ACTION-012",
+      "route": "shared-component",
+      "persona_visibility": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "action_class": "NAVIGATION_ONLY",
+      "source": "frontend/src/AboutPermitOps.tsx:132"
+    }
+  ]
+}

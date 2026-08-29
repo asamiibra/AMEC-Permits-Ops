@@ -1,0 +1,8 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "source_of_truth": "10-protected-authority-ledger.json",
+  "protected_authority_semantic_collapse": 0,
+  "ai_protected_action_authority": 0,
+  "human_authority_ambiguity": 0,
+  "reconciliation_result": "PASS"
+}

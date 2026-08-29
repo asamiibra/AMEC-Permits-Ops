@@ -1,0 +1,34 @@
+{
+  "gate": "PAGE_INTERNAL_CONTRADICTIONS",
+  "executed": true,
+  "check_count": 6,
+  "contradictions": 0,
+  "result": "PASS",
+  "evidence": "fresh scenario assertions for heading/status/KPI/action/empty/error consistency",
+  "checks": [
+    {
+      "name": "headline-status",
+      "result": "PASS"
+    },
+    {
+      "name": "kpi-underlying-rows",
+      "result": "PASS"
+    },
+    {
+      "name": "current-viewed-stage",
+      "result": "PASS"
+    },
+    {
+      "name": "enabled-action-precondition",
+      "result": "PASS"
+    },
+    {
+      "name": "synthetic-label",
+      "result": "PASS"
+    },
+    {
+      "name": "empty-error-separation",
+      "result": "PASS"
+    }
+  ]
+}

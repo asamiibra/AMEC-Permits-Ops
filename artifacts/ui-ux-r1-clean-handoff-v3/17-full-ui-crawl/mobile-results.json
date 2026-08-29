@@ -1,0 +1,31 @@
+{
+  "gate": "UI_MOBILE_PASS",
+  "status": "PASS",
+  "viewports": {
+    "v390": {
+      "width": 390,
+      "height": 844
+    },
+    "v834": {
+      "width": 834,
+      "height": 1112
+    },
+    "v1024": {
+      "width": 1024,
+      "height": 900
+    },
+    "v1280": {
+      "width": 1280,
+      "height": 900
+    },
+    "v1440": {
+      "width": 1440,
+      "height": 1000
+    },
+    "v1920": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "failures": []
+}

@@ -1,0 +1,2837 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "CAPABILITY_UNRESOLVED": 0,
+  "CAPABILITY_WITHOUT_DISPOSITION": 0,
+  "CAPABILITY_PERSONA_INFERRED_WITHOUT_SOURCE": 0,
+  "CAPABILITY_UI_BINDING_AMBIGUITY": 0,
+  "capabilities": [
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_OWNER_SETTINGS",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "cleanup_test_proposals",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:155",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-040"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "list_proposals",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:213",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:222",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "proposal_master_content",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:230",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "proposal_configuration_view",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:237",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:244",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "put_contact",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:260",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "put_site_context",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:270",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "link_client_party",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:280",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_stakeholder",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:296",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "link_source_version",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:310",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_scope_item",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:320",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_regulatory_scope",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:334",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "confirm_regulatory_scope",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:350",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_assumption",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:367",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_ACCEPT",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "acknowledge_assumption",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:381",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-052",
+        "API-053"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_unknown",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:396",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_conflict",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:411",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_ACCEPT",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "acknowledge_material_item",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:426",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-052",
+        "API-053"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "review_proposal_staleness",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:454",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_external_cost",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:468",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "EDIT_TECHNICAL",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_engineering_contribution",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:480",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-043"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "refresh_expected_client_inputs",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:494",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "proposal_readiness",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:503",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "proposal_intake_readiness",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:510",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "EDIT_TECHNICAL",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:519",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-043"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:521",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_note",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:548",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_site_photo",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:563",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PROCEED",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "proceed_to_engineering",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:581",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-051"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_proposal_intake",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:648",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_source",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:671",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "validation",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:683",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_ACCEPT",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "accept",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:692",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-052",
+        "API-053"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_proposal_revision",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:732",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_client_response",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:755",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_WRITE",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_commercial_outcome",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:780",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-013",
+        "API-042",
+        "API-044",
+        "API-047",
+        "API-048",
+        "API-049",
+        "API-050",
+        "API-054",
+        "API-055",
+        "API-056",
+        "API-057"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "outputs",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:809",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "download_output",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:815",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "contract_handoff_preview",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:828",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_HANDOFF",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "contract_handoff",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:837",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_READ",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_settings",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:862",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-009",
+        "API-039",
+        "API-041",
+        "API-045",
+        "API-058",
+        "API-059",
+        "API-060"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BD_PROPOSAL_OWNER_SETTINGS",
+      "SOURCE_FILE": "backend/app/api/bd_proposal_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "put_settings",
+      "ENFORCEMENT_LOCATION": "backend/app/api/bd_proposal_routers.py:870",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-040"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_VIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "billing_summary",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:363",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-061",
+        "API-062",
+        "API-110",
+        "API-111"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_PLAN_MANAGE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_billing_plan",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:369",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_VIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_billing_plan",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:389",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-061",
+        "API-062",
+        "API-110",
+        "API-111"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_PLAN_MANAGE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "revise_billing_plan",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:400",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_PLAN_APPROVE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "activate_billing_plan",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:417",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_MILESTONE_REVIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_billing_milestone",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:442",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_MILESTONE_REVIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "evaluate_milestone",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:462",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_CREATE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_invoice",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:489",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_VIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "list_invoices",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:544",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-061",
+        "API-062",
+        "API-110",
+        "API-111"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_VIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_invoice",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:568",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-061",
+        "API-062",
+        "API-110",
+        "API-111"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_EDIT_DRAFT",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_invoice_revision",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:581",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_EDIT_DRAFT",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "calculate_invoice",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:601",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_REFERENCE_MANAGE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_invoice_reference",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:627",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_APPROVAL_VERIFY",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_invoice_approval",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:640",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_DELIVERY_RECORD",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_invoice_delivery",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:654",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_VIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "invoice_communications",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:691",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-061",
+        "API-062",
+        "API-110",
+        "API-111"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_ACKNOWLEDGMENT_RECORD",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_invoice_acknowledgment",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:700",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_ACCEPT",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "accept_invoice",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:732",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "FINANCIAL_ACCOUNT_MANAGE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_financial_account",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:751",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "FINANCIAL_ACCOUNT_MANAGE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_financial_account_version",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:759",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "FINANCIAL_ACCOUNT_APPROVE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "approve_financial_account_version",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:770",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_ISSUE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "issue_invoice",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:780",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BILLING_VIEW",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "invoice_receivable",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:829",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-061",
+        "API-062",
+        "API-110",
+        "API-111"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PAYMENT_RECORD",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_payment",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:836",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PAYMENT_VERIFY",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "verify_payment",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:860",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PAYMENT_ALLOCATE",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "allocate_payment",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:870",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "RECEIVABLE_FOLLOW_UP",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_follow_up",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:888",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INVOICE_EXPORT",
+      "SOURCE_FILE": "backend/app/api/billing_invoice_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "download_invoice",
+      "ENFORCEMENT_LOCATION": "backend/app/api/billing_invoice_routers.py:898",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "list_contracts",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:195",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_CREATE",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_contract",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:223",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-010",
+        "API-014"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_CREATE",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_from_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:240",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-010",
+        "API-014"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "contract_inputs_go_live",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:255",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_contract",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:269",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_billing_context",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:280",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_EDIT",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_contract",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:288",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_AUTHORITY_ACTION",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "stage_contract",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:333",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_EDIT",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_client_fields",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:351",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_AUTHORITY_ACTION",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "decide_contract_authority",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:364",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_AUTHORITY_ACTION",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "accept_contract",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:399",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_readiness",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:426",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_history",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:432",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_inputs",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:438",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_ADMIN_INPUT_WRITE",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "put_input",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:444",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_EDIT",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_evidence",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:461",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_EDIT",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_contract_document",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:477",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "download_contract_document",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:530",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_EDIT",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_payment_term",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:551",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_EDIT",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_deliverable",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:571",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_EDIT",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_client_input",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:590",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "get_activation",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:609",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PROJECT_ACTIVATE",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "activate_project",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:615",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_READ",
+      "SOURCE_FILE": "backend/app/api/contract_workspace_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "project_context",
+      "ENFORCEMENT_LOCATION": "backend/app/api/contract_workspace_routers.py:633",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-007",
+        "API-008",
+        "API-012"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "AUTHORIZED_ENGINEER_REQUIRED_FOR_APPLICABILITY",
+      "SOURCE_FILE": "backend/app/api/e5_e6_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "review_regulation_applicability",
+      "ENFORCEMENT_LOCATION": "backend/app/api/e5_e6_routers.py:216",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "AUTHORIZED_ENGINEER_REQUIRED",
+      "SOURCE_FILE": "backend/app/api/e5_e6_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "engineer_disposition",
+      "ENFORCEMENT_LOCATION": "backend/app/api/e5_e6_routers.py:333",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "AUTHORIZED_ENGINEER_REQUIRED",
+      "SOURCE_FILE": "backend/app/api/e5_e6_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "engineer_no_comment",
+      "ENFORCEMENT_LOCATION": "backend/app/api/e5_e6_routers.py:383",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "FINANCE_AUTHORITY_REQUIRED",
+      "SOURCE_FILE": "backend/app/api/e5_e6_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "decide_invoice_requirement",
+      "ENFORCEMENT_LOCATION": "backend/app/api/e5_e6_routers.py:511",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "FINANCE_ACCOUNTANT_REQUIRED",
+      "SOURCE_FILE": "backend/app/api/e5_e6_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "finance_decision",
+      "ENFORCEMENT_LOCATION": "backend/app/api/e5_e6_routers.py:649",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "HUMAN_HANDOVER_APPROVER_REQUIRED",
+      "SOURCE_FILE": "backend/app/api/e5_e6_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "approve_handover",
+      "ENFORCEMENT_LOCATION": "backend/app/api/e5_e6_routers.py:801",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CONTENT_BINDING_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "owner_test_cleanup",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:68",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CATEGORY_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_category",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:264",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-077"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CATEGORY_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_category",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:280",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-077"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CATEGORY_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "put_reference_policy",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:308",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-077"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "BUSINESS_DEVELOPMENT",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "purpose_resolver",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:324",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "ENGINEERING",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "purpose_resolver",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:326",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CONTENT_GOVERNANCE_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_governance",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:463",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-083"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_SOURCE_VERIFY_CURRENTNESS",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "currentness",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:469",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CONTENT_GOVERNANCE_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "provenance",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:475",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-083"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_SOURCE_MANAGE_QUALITY",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_quality_flag",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:484",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_SOURCE_MANAGE_QUALITY",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_quality_flag",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:490",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_SOURCE_SECTION_MANAGE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_source_section",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:499",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_SOURCE_SECTION_MANAGE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "patch_source_section",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:505",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_READINESS_EVALUATE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "evaluate_content_readiness",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:515",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CONTENT_BINDING_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "put_module_bindings",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:606",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_RESTRICTED_SAMPLE_DOWNLOAD",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "download_current",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:673",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-085",
+        "API-086"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_RESTRICTED_SAMPLE_DOWNLOAD",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "download_version",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:684",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-085",
+        "API-086"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_RESTRICTED_SAMPLE_VIEW",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "download_rendition",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:697",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "MASTER_CONTENT_ARCHIVE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "archive_content",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:711",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "DEFINITION_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_definition",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:743",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-076",
+        "API-081",
+        "API-082",
+        "API-084",
+        "API-112"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "DEFINITION_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "put_definition_module_bindings",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:791",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-076",
+        "API-081",
+        "API-082",
+        "API-084",
+        "API-112"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "DEFINITION_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "revise_definition",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:819",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-076",
+        "API-081",
+        "API-082",
+        "API-084",
+        "API-112"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "DEFINITION_WRITE",
+      "SOURCE_FILE": "backend/app/api/master_content_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "archive_definition",
+      "ENFORCEMENT_LOCATION": "backend/app/api/master_content_routers.py:849",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-076",
+        "API-081",
+        "API-082",
+        "API-084",
+        "API-112"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PHASE4_TYPED_PROJECTION",
+      "SOURCE_FILE": "backend/app/api/phase4_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "projection_receipt",
+      "ENFORCEMENT_LOCATION": "backend/app/api/phase4_routers.py:112",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-132"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CASE_READ",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "list_authority_cases",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:151",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-033",
+        "API-034"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CASE_CREATE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_authority_case",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:158",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-038"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CASE_READ",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "authority_case_workspace",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:201",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-033",
+        "API-034"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "REQUIREMENT_REVIEW",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "initialize_requirements",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:215",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CASE_READ",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "list_requirements",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:247",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-033",
+        "API-034"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "REQUIREMENT_REVIEW",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "requirement_decision",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:255",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "EVIDENCE_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "select_requirement_evidence",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:279",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "EVIDENCE_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_physical_evidence",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:316",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PREPARATION_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_preparation",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:338",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PREPARATION_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "lock_preparation",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:356",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PACKAGE_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_package",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:368",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PACKAGE_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "add_package_item",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:379",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PACKAGE_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "lock_package",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:401",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PRECHECK_RUN",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "run_precheck",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:459",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "SUBMIT_AUTHORIZE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "authorize_submission",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:470",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "EXTERNAL_CONFIRM",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "confirm_external_submission",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:486",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "FINDING_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "capture_finding",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:510",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "FINDING_MANAGE",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "respond_to_finding",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:521",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "OUTCOME_RECORD",
+      "SOURCE_FILE": "backend/app/api/preparation_submission_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_outcome",
+      "ENFORCEMENT_LOCATION": "backend/app/api/preparation_submission_routers.py:532",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "ENGINEERING_PROJECT_READ",
+      "SOURCE_FILE": "backend/app/api/project_engineering_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "list_review_categories",
+      "ENFORCEMENT_LOCATION": "backend/app/api/project_engineering_routers.py:170",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-136"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "ENGINEERING_CATEGORY_ASSIGNMENT_MANAGE",
+      "SOURCE_FILE": "backend/app/api/project_engineering_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_review_category",
+      "ENFORCEMENT_LOCATION": "backend/app/api/project_engineering_routers.py:176",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-092"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "ENGINEERING_CATEGORY_ASSIGNMENT_MANAGE",
+      "SOURCE_FILE": "backend/app/api/project_engineering_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "assign_review_category",
+      "ENFORCEMENT_LOCATION": "backend/app/api/project_engineering_routers.py:198",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-092"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PROMOTE_SOR",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "promote_proposal_sources",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:403",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-144"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PROCEED",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "proceed_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:417",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-051"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CREATE_CONTRACT",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_contract_from_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:458",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-145"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "ENGINEERING_READY",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "engineering_ready",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:506",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-139"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INITIATE_PERMIT",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "initiate_permit_from_contract",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:523",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PROCEED",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "canonical_proceed",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:653",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-051"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CREATE_CONTRACT",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "canonical_create_contract",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:659",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-145"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "INITIATE_PERMIT",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "canonical_initiate_permit",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:665",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "PROMOTE_SOR",
+      "SOURCE_FILE": "backend/app/api/proposals_main_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "canonicalize_proposal",
+      "ENFORCEMENT_LOCATION": "backend/app/api/proposals_main_routers.py:671",
+      "DISPOSITION": "MAPPED_CONTEXTUAL_UI",
+      "UI_BINDING": [
+        "API-144"
+      ],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "SYSTEM_ADMIN",
+      "SOURCE_FILE": "backend/app/api/recovery_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "create_template_version",
+      "ENFORCEMENT_LOCATION": "backend/app/api/recovery_routers.py:97",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "SYSTEM_ADMIN",
+      "SOURCE_FILE": "backend/app/api/recovery_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "supersede_template_version",
+      "ENFORCEMENT_LOCATION": "backend/app/api/recovery_routers.py:127",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "DATA_VERIFIER",
+      "SOURCE_FILE": "backend/app/api/recovery_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "verify_quotation_field",
+      "ENFORCEMENT_LOCATION": "backend/app/api/recovery_routers.py:473",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "COMMERCIAL_APPROVER",
+      "SOURCE_FILE": "backend/app/api/recovery_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "commercial_approval",
+      "ENFORCEMENT_LOCATION": "backend/app/api/recovery_routers.py:505",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_APPROVER",
+      "SOURCE_FILE": "backend/app/api/recovery_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "approve_contract_revision",
+      "ENFORCEMENT_LOCATION": "backend/app/api/recovery_routers.py:683",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "CONTRACT_APPROVER",
+      "SOURCE_FILE": "backend/app/api/recovery_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "record_contract_execution_evidence",
+      "ENFORCEMENT_LOCATION": "backend/app/api/recovery_routers.py:702",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "protected human authority token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "REQUIREMENT_POLICY_APPROVAL_REQUIRED",
+      "SOURCE_FILE": "backend/app/api/shared_domain_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "activate_requirement_policy",
+      "ENFORCEMENT_LOCATION": "backend/app/api/shared_domain_routers.py:354",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    },
+    {
+      "CAPABILITY_IDENTITY": "TECHNICAL_RULE_APPROVAL_REQUIRED",
+      "SOURCE_FILE": "backend/app/api/shared_domain_routers.py",
+      "SOURCE_FUNCTION_OR_SYMBOL": "activate_rule_set",
+      "ENFORCEMENT_LOCATION": "backend/app/api/shared_domain_routers.py:441",
+      "DISPOSITION": "HEADLESS_SYSTEM_FUNCTION",
+      "UI_BINDING": [],
+      "VISIBLE_PERSONAS": [
+        "Owner"
+      ],
+      "VISIBLE_PERSONAS_SOURCE": "backend capability is headless; Owner is the only administration surface with direct access evidence",
+      "PROTECTED_HUMAN_RELATION": "non-protected capability token",
+      "UNRESOLVED_REASON": ""
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "source_sha": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "commands": [
+    {
+      "command": "npm ci",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm run ui-conformance",
+      "exit_code": 0,
+      "result": "PASS",
+      "scenarios": 312
+    },
+    {
+      "command": "fresh six-viewport Playwright crawl",
+      "exit_code": 0,
+      "result": "PASS",
+      "scenarios": 624
+    },
+    {
+      "command": "fresh mobile accessibility Playwright run",
+      "exit_code": 0,
+      "result": "PASS",
+      "checks": 25
+    },
+    {
+      "command": "controlled auth failure preview harness",
+      "exit_code": 0,
+      "result": "PASS",
+      "viewports": 3
+    }
+  ],
+  "build": {
+    "modules": 2016,
+    "result": "PASS"
+  },
+  "unit_tests": {
+    "files": 19,
+    "tests": 110,
+    "pass": 110,
+    "fail": 0,
+    "result": "PASS"
+  },
+  "stock_ui_conformance": {
+    "scenarios": 312,
+    "result": "PASS"
+  },
+  "full_route_crawl": {
+    "routes": 66,
+    "persona_combinations": 104,
+    "viewports": 6,
+    "viewport_scenarios": 624,
+    "result": "PASS"
+  },
+  "mobile_browser_test": {
+    "checks": 25,
+    "result": "PASS"
+  },
+  "auth_failure_presentation": {
+    "viewports": [
+      390,
+      834,
+      1440
+    ],
+    "result": "PASS"
+  }
+}
