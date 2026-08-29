@@ -1,0 +1,11 @@
+{
+  "status": "EXECUTED_ONCE",
+  "reason": "Existing image binds canonical Web client; dedicated preview SPA requires a controlled c42 rebuild.",
+  "source_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "build_authority": "Azure ACR cloud build",
+  "local_docker_release_authority": false,
+  "image_tag": "groundwork-c42e6c449483-20260829T035656Z",
+  "image_digest": "sha256:6c611e38d1a63cbf0affba8fd2d6d9d769ac31375937a09e1753f50fe299d9c0",
+  "build_invocations": 1,
+  "retry_count": 0
+}

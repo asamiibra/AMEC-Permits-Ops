@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "origin": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "revision_origin": "https://proposalops-ui-preview--c42-integration-r1.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "root": 200,
+  "redirect_html": 200,
+  "release_json": 200,
+  "representative_spa_refresh_routes": {
+    "/home": 200,
+    "/opportunities": 200,
+    "/contract-mobilization": 200,
+    "/engineering": 200,
+    "/permits": 200,
+    "/construction": 200,
+    "/completion": 200,
+    "/handover": 200,
+    "/billing": 200
+  },
+  "release_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "build_id": "20260829T035656Z",
+  "security_headers": "PASS",
+  "asset_caching": "PASS; immutable one-year cache on hashed JS asset",
+  "bundle_binding": {
+    "web_client": "a3e6d6aa-aa81-4d72-aa10-6791969767fa",
+    "api_client": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+    "tenant": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+    "api_url": "https://proposalops-api-preprod.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io"
+  }
+}

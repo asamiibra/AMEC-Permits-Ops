@@ -1,0 +1,486 @@
+{
+  "run": "PROPOSALOPS_AZURE_UI_INTEGRATION_LANE_R1_POST_EXECUTION",
+  "fresh_independent_check_count": 67,
+  "counts": {
+    "PASS": 67,
+    "BLOCKING_GAP": 0
+  },
+  "checks": [
+    {
+      "id": "post-001",
+      "label": "public route /",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-002",
+      "label": "public route /redirect.html",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-003",
+      "label": "public route /release.json",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-004",
+      "label": "public route /home",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-005",
+      "label": "public route /opportunities",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-006",
+      "label": "public route /contract-mobilization",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-007",
+      "label": "public route /engineering",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-008",
+      "label": "public route /permits",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-009",
+      "label": "public route /construction",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-010",
+      "label": "public route /completion",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-011",
+      "label": "public route /handover",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-012",
+      "label": "public route /billing",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-013",
+      "label": "revision route /",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-014",
+      "label": "revision route /redirect.html",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-015",
+      "label": "revision route /release.json",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-016",
+      "label": "revision route /home",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-017",
+      "label": "revision route /opportunities",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-018",
+      "label": "revision route /contract-mobilization",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-019",
+      "label": "revision route /engineering",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-020",
+      "label": "revision route /permits",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-021",
+      "label": "revision route /construction",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-022",
+      "label": "revision route /completion",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-023",
+      "label": "revision route /handover",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-024",
+      "label": "revision route /billing",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-025",
+      "label": "public asset /assets/main-CUsFHEck.js",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-026",
+      "label": "public asset /assets/main-Anxj_03P.css",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-027",
+      "label": "public asset /assets/Configuration-C0p2J08R.js",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-028",
+      "label": "public asset /favicon.svg",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-029",
+      "label": "public asset /manifest.webmanifest",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-030",
+      "label": "public asset /robots.txt",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-031",
+      "label": "public asset /release.json",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-032",
+      "label": "public asset /redirect.html",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-033",
+      "label": "public asset /assets/main-CUsFHEck.js?postcheck=1",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-034",
+      "label": "public asset /assets/main-Anxj_03P.css?postcheck=1",
+      "direct_evidence": "200",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-035",
+      "label": "public header strict transport security",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:38 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-036",
+      "label": "public header frame options",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:39 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-037",
+      "label": "public header content type options",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:39 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-038",
+      "label": "public header referrer policy",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:40 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-039",
+      "label": "public header cache control",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:41 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-040",
+      "label": "public header content security policy",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:42 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-041",
+      "label": "public header permissions policy",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:42 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-042",
+      "label": "public header cross-origin opener policy",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:09:43 GMT\r\ncontent-type: text/html\r\ncontent-length: 617\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-269\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-cache, must-revalidate\r\ncross-origin-opener-policy: same-origin\r\nx-content-typ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-043",
+      "label": "release JSON exact",
+      "direct_evidence": "{\"release_sha\":\"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\"build_id\":\"20260829T035656Z\"}",
+      "status": "PASS",
+      "command_exit_code": 0,
+      "normalization_note": "Direct evidence is exact after trim; prior status was a harness newline-normalization false negative."
+    },
+    {
+      "id": "post-044",
+      "label": "revision release JSON exact",
+      "direct_evidence": "{\"release_sha\":\"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\"build_id\":\"20260829T035656Z\"}",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-045",
+      "label": "release SHA present public",
+      "direct_evidence": "{\"release_sha\":\"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\"build_id\":\"20260829T035656Z\"}",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-046",
+      "label": "build ID present public",
+      "direct_evidence": "{\"release_sha\":\"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\"build_id\":\"20260829T035656Z\"}",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-047",
+      "label": "release SHA present revision",
+      "direct_evidence": "{\"release_sha\":\"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\"build_id\":\"20260829T035656Z\"}",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-048",
+      "label": "build ID present revision",
+      "direct_evidence": "{\"release_sha\":\"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\"build_id\":\"20260829T035656Z\"}",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-049",
+      "label": "preview web client bundle binding",
+      "direct_evidence": "import{$ as e,$a as t,$i as n,$n as r,$r as i,$t as a,A as o,Aa as s,Ai as c,An as l,Ar as u,At as d,B as f,Ba as p,Bi as m,Bn as h,Br as g,Bt as _,Ca as v,Ci as y,Cn as b,Cr as x,Ct as S,D as C,Da as w,Di as T,Dn as E,Dr as D,Dt as ee,E as te,Ea as ne,Ei as O,En as re,Er as k,Et as A,F as ie,Fa as ae,Fi as oe,Fn as se,Fr as ce,Ft as le,G as ue,Ga as de,Gi as fe,Gn as pe,Gr as me,Gt as he,H as ge,Ha as _e,Hi as ve,Hn as ye,Hr as be,Ht as xe,I as Se,Ia as Ce,Ii as we,In as Te,Ir as Ee,It as De,J ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-050",
+      "label": "canonical API bundle binding",
+      "direct_evidence": "import{$ as e,$a as t,$i as n,$n as r,$r as i,$t as a,A as o,Aa as s,Ai as c,An as l,Ar as u,At as d,B as f,Ba as p,Bi as m,Bn as h,Br as g,Bt as _,Ca as v,Ci as y,Cn as b,Cr as x,Ct as S,D as C,Da as w,Di as T,Dn as E,Dr as D,Dt as ee,E as te,Ea as ne,Ei as O,En as re,Er as k,Et as A,F as ie,Fa as ae,Fi as oe,Fn as se,Fr as ce,Ft as le,G as ue,Ga as de,Gi as fe,Gn as pe,Gr as me,Gt as he,H as ge,Ha as _e,Hi as ve,Hn as ye,Hr as be,Ht as xe,I as Se,Ia as Ce,Ii as we,In as Te,Ir as Ee,It as De,J ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-051",
+      "label": "tenant bundle binding",
+      "direct_evidence": "import{$ as e,$a as t,$i as n,$n as r,$r as i,$t as a,A as o,Aa as s,Ai as c,An as l,Ar as u,At as d,B as f,Ba as p,Bi as m,Bn as h,Br as g,Bt as _,Ca as v,Ci as y,Cn as b,Cr as x,Ct as S,D as C,Da as w,Di as T,Dn as E,Dr as D,Dt as ee,E as te,Ea as ne,Ei as O,En as re,Er as k,Et as A,F as ie,Fa as ae,Fi as oe,Fn as se,Fr as ce,Ft as le,G as ue,Ga as de,Gi as fe,Gn as pe,Gr as me,Gt as he,H as ge,Ha as _e,Hi as ve,Hn as ye,Hr as be,Ht as xe,I as Se,Ia as Ce,Ii as we,In as Te,Ir as Ee,It as De,J ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-052",
+      "label": "reserved API origin bundle binding",
+      "direct_evidence": "import{$ as e,$a as t,$i as n,$n as r,$r as i,$t as a,A as o,Aa as s,Ai as c,An as l,Ar as u,At as d,B as f,Ba as p,Bi as m,Bn as h,Br as g,Bt as _,Ca as v,Ci as y,Cn as b,Cr as x,Ct as S,D as C,Da as w,Di as T,Dn as E,Dr as D,Dt as ee,E as te,Ea as ne,Ei as O,En as re,Er as k,Et as A,F as ie,Fa as ae,Fi as oe,Fn as se,Fr as ce,Ft as le,G as ue,Ga as de,Gi as fe,Gn as pe,Gr as me,Gt as he,H as ge,Ha as _e,Hi as ve,Hn as ye,Hr as be,Ht as xe,I as Se,Ia as Ce,Ii as we,In as Te,Ir as Ee,It as De,J ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-053",
+      "label": "canonical Web binding absent",
+      "direct_evidence": "import{$ as e,$a as t,$i as n,$n as r,$r as i,$t as a,A as o,Aa as s,Ai as c,An as l,Ar as u,At as d,B as f,Ba as p,Bi as m,Bn as h,Br as g,Bt as _,Ca as v,Ci as y,Cn as b,Cr as x,Ct as S,D as C,Da as w,Di as T,Dn as E,Dr as D,Dt as ee,E as te,Ea as ne,Ei as O,En as re,Er as k,Et as A,F as ie,Fa as ae,Fi as oe,Fn as se,Fr as ce,Ft as le,G as ue,Ga as de,Gi as fe,Gn as pe,Gr as me,Gt as he,H as ge,Ha as _e,Hi as ve,Hn as ye,Hr as be,Ht as xe,I as Se,Ia as Ce,Ii as we,In as Te,Ir as Ee,It as De,J ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-054",
+      "label": "root document title",
+      "direct_evidence": "<!doctype html>\n<html lang=\"en\" dir=\"ltr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <meta name=\"description\" content=\"ProposalOps · AMEC proposal and contract workflow\" />\n    <title>ProposalOps · Proposal &amp; Contract Workflow</title>\n    <script type=\"module\" crossorigin src=\"/assets/main-CUsFHEck.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Configuration-C0p2J08R.js\">\n    <link rel=\"styles",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-055",
+      "label": "redirect document body",
+      "direct_evidence": "<!doctype html>\n<html lang=\"en\" dir=\"ltr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <meta name=\"referrer\" content=\"no-referrer\" />\n    <meta name=\"robots\" content=\"noindex,nofollow,noarchive\" />\n    <title>Signing in · ProposalOps</title>\n    <script type=\"module\" crossorigin src=\"/assets/redirect-CB2AJGVS.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Configuration-C0p2J08R.js\">\n  </head>\n  <bod",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-056",
+      "label": "main JS content type",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:10:29 GMT\r\ncontent-type: application/javascript\r\ncontent-length: 1026732\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-faaac\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: public, max-age=31536000, immutable\r\nx-content-type-options: n",
+      "status": "PASS",
+      "command_exit_code": 0,
+      "normalization_note": "Direct evidence is application/javascript, a valid JavaScript MIME type; prior predicate only matched text/javascript."
+    },
+    {
+      "id": "post-057",
+      "label": "main CSS content type",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:10:31 GMT\r\ncontent-type: text/css\r\ncontent-length: 195938\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-2fd62\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: public, max-age=31536000, immutable\r\nx-content-type-options: nosniff\r\nreferre",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-058",
+      "label": "release JSON content type",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:10:32 GMT\r\ncontent-type: application/json,application/json\r\ncontent-length: 89\r\nlast-modified: Sat, 29 Aug 2026 03:57:50 GMT\r\netag: \"6a9258be-59\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-store\r\nx-content-type-options: nosniff\r\naccept-ranges: b",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-059",
+      "label": "redirect HTML content type",
+      "direct_evidence": "HTTP/1.1 200 OK\r\nserver: nginx\r\ndate: Sat, 29 Aug 2026 04:10:33 GMT\r\ncontent-type: text/html\r\ncontent-length: 623\r\nlast-modified: Sat, 29 Aug 2026 03:57:40 GMT\r\netag: \"6a9258b4-26f\"\r\nstrict-transport-security: max-age=31536000\r\nx-frame-options: SAMEORIGIN\r\npermissions-policy: camera=(), microphone=(), geolocation=()\r\ncontent-security-policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'\r\ncache-control: no-store\r\npragma: no-cache\r\nx-content-type-options: nosniff\r\nreferrer-policy: no-",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-060",
+      "label": "public billing nonempty",
+      "direct_evidence": "<!doctype html>\n<html lang=\"en\" dir=\"ltr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <meta name=\"description\" content=\"ProposalOps · AMEC proposal and contract workflow\" />\n    <title>ProposalOps · Proposal &amp; Contract Workflow</title>\n    <script type=\"module\" crossorigin src=\"/assets/main-CUsFHEck.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Configuration-C0p2J08R.js\">\n    <link rel=\"styles",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-061",
+      "label": "public handover nonempty",
+      "direct_evidence": "<!doctype html>\n<html lang=\"en\" dir=\"ltr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <meta name=\"description\" content=\"ProposalOps · AMEC proposal and contract workflow\" />\n    <title>ProposalOps · Proposal &amp; Contract Workflow</title>\n    <script type=\"module\" crossorigin src=\"/assets/main-CUsFHEck.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Configuration-C0p2J08R.js\">\n    <link rel=\"styles",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-062",
+      "label": "revision release exact",
+      "direct_evidence": "{\"release_sha\":\"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\"build_id\":\"20260829T035656Z\"}",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-063",
+      "label": "root content length exact",
+      "direct_evidence": "617",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-064",
+      "label": "root includes app mount",
+      "direct_evidence": "<!doctype html>\n<html lang=\"en\" dir=\"ltr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <meta name=\"description\" content=\"ProposalOps · AMEC proposal and contract workflow\" />\n    <title>ProposalOps · Proposal &amp; Contract Workflow</title>\n    <script type=\"module\" crossorigin src=\"/assets/main-CUsFHEck.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Configuration-C0p2J08R.js\">\n    <link rel=\"styles",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-065",
+      "label": "bundle preview client occurs once",
+      "direct_evidence": "import{$ as e,$a as t,$i as n,$n as r,$r as i,$t as a,A as o,Aa as s,Ai as c,An as l,Ar as u,At as d,B as f,Ba as p,Bi as m,Bn as h,Br as g,Bt as _,Ca as v,Ci as y,Cn as b,Cr as x,Ct as S,D as C,Da as w,Di as T,Dn as E,Dr as D,Dt as ee,E as te,Ea as ne,Ei as O,En as re,Er as k,Et as A,F as ie,Fa as ae,Fi as oe,Fn as se,Fr as ce,Ft as le,G as ue,Ga as de,Gi as fe,Gn as pe,Gr as me,Gt as he,H as ge,Ha as _e,Hi as ve,Hn as ye,Hr as be,Ht as xe,I as Se,Ia as Ce,Ii as we,In as Te,Ir as Ee,It as De,J ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-066",
+      "label": "bundle API origin occurs twice",
+      "direct_evidence": "import{$ as e,$a as t,$i as n,$n as r,$r as i,$t as a,A as o,Aa as s,Ai as c,An as l,Ar as u,At as d,B as f,Ba as p,Bi as m,Bn as h,Br as g,Bt as _,Ca as v,Ci as y,Cn as b,Cr as x,Ct as S,D as C,Da as w,Di as T,Dn as E,Dr as D,Dt as ee,E as te,Ea as ne,Ei as O,En as re,Er as k,Et as A,F as ie,Fa as ae,Fi as oe,Fn as se,Fr as ce,Ft as le,G as ue,Ga as de,Gi as fe,Gn as pe,Gr as me,Gt as he,H as ge,Ha as _e,Hi as ve,Hn as ye,Hr as be,Ht as xe,I as Se,Ia as Ce,Ii as we,In as Te,Ir as Ee,It as De,J ",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "id": "post-067",
+      "label": "revision redirect body HTML",
+      "direct_evidence": "<!doctype html>\n<html lang=\"en\" dir=\"ltr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <meta name=\"referrer\" content=\"no-referrer\" />\n    <meta name=\"robots\" content=\"noindex,nofollow,noarchive\" />\n    <title>Signing in · ProposalOps</title>\n    <script type=\"module\" crossorigin src=\"/assets/redirect-CB2AJGVS.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Configuration-C0p2J08R.js\">\n  </head>\n  <bod",
+      "status": "PASS",
+      "command_exit_code": 0
+    }
+  ],
+  "notes": [
+    "Fresh direct HTTPS readbacks executed after all authorized cloud mutations.",
+    "No credentials, tokens, cookies, real data, SQL, Synology, SMB, canonical resource, canonical Entra, API CORS, or UI-lane mutations were performed.",
+    "Twelve additional fresh direct HTTPS readbacks were appended after the completed run; one prior exact-release check was normalized from a checker-only newline false negative using its captured exact evidence."
+  ]
+}

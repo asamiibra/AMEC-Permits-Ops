@@ -1,0 +1,7 @@
+{
+  "canonical_web": {"app_id": "0c6ed940-01ca-416c-832f-406ca00212cd", "object_id": "53345530-9182-4433-9e44-ab7cbca613ed", "display_name": "ProposalOps P0 Web V2", "sign_in_audience": "AzureADMyOrg", "spa_redirects": ["https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/redirect.html"], "web_redirects": [], "password_credentials": 0, "key_credentials": 0},
+  "canonical_api": {"app_id": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e", "object_id": "b91e7ef3-2845-45d8-9cae-cef0a03af712", "display_name": "ProposalOps P0 API V2", "sign_in_audience": "AzureADMyOrg", "identifier_uri": "api://a4c5f430-90ce-43ee-9e4e-1a07722bdf8e", "scope": "access_as_user", "scope_id": "195ff067-c63b-4adf-9d36-f35888b6897f", "requested_access_token_version": 2, "password_credentials": 0, "key_credentials": 0},
+  "canonical_web_entra_mutations": 0,
+  "canonical_api_entra_mutations": 0,
+  "note": "Canonical Web SPA redirect is pre-existing R2 legacy state and is not modified by this integration run."
+}

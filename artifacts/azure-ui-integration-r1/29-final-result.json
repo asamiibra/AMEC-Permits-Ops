@@ -1,0 +1,23 @@
+{
+  "status": "AZURE_UI_INTEGRATION_LANE=HOST_READY_API_INTEGRATION_DEFERRED",
+  "pre_execution_100_independent_checks": "PASS_GATE; 100 fresh checks; 99 PASS, 1 documented PARTIAL, 0 blockers",
+  "post_execution_independent_checks": "PASS; 67 fresh direct HTTPS checks; 67 PASS, 0 blockers",
+  "existing_preview_state_reconciled": true,
+  "preview_aca": "EXACT_ADOPTABLE",
+  "preview_acr_image_provenance": "EXACT",
+  "preview_pull_identity": "EXACT",
+  "preview_acr_pull_authority": "EXACT",
+  "preview_entra_app": "EXACT",
+  "preview_spa_redirect": "EXACT",
+  "preview_image_browser_client_binding": "PREVIEW_ENTRA_CLIENT_ID",
+  "preview_static_hosting": "PASS",
+  "canonical_resources_unchanged": true,
+  "canonical_entra_unchanged": true,
+  "api_integration": "DEFERRED",
+  "api_browser_identity_decision_required": true,
+  "ui_lane_unchanged": true,
+  "real_data_reads": 0,
+  "real_data_writes": 0,
+  "admin_consent_gate": "Canonical API service principal absent; browser acceptance returned AADSTS650052. No canonical Entra mutation or consent grant was performed.",
+  "stop_boundary": "No API auth/CORS change, canonical promotion, custom domain, production deployment, SQL, Synology, SMB, or real-data operation."
+}

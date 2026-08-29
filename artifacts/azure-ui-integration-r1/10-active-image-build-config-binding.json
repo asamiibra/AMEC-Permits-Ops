@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "source_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "web_client_binding": "CANONICAL_WEB",
+  "web_client_id": "0c6ed940-01ca-416c-832f-406ca00212cd",
+  "api_client_id": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+  "tenant_id": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+  "api_url": "https://proposalops-api-preprod.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "build_id": "20260829T032656Z",
+  "correction_required": true,
+  "binding_source": "pre-existing R2 Azure ACR build evidence"
+}

@@ -1,0 +1,8 @@
+{
+  "acr": "acrproposalopsproduae2bea2887",
+  "role_assignment_mode": "LegacyRegistryPermissions",
+  "authentication_as_arm": "enabled",
+  "effective_role": "AcrPull",
+  "scope": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ContainerRegistry/registries/acrproposalopsproduae2bea2887",
+  "preview_acr_policy_mutations": 0
+}

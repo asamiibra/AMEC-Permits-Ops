@@ -1,0 +1,11 @@
+{
+  "status": "EXACT_BUT_INCOMPLETE",
+  "worktree": "/private/tmp/azure-ui-preview-groundwork-r2.9ZAV3K",
+  "branch": "azure-ui-preview-groundwork-v1",
+  "head": "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e",
+  "tree": "95810dae6955a1847b972926a131cdb342eda5d9",
+  "baseline_parent": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "tracked_source_changes_vs_c42": 0,
+  "untracked_files": 0,
+  "note": "Later evidence commit contains only Azure preview groundwork artifacts; active frontend/backend/migrations source remains c42-equivalent."
+}

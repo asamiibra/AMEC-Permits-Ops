@@ -1,0 +1,8 @@
+{
+  "display_name": "ProposalOps UI Preview",
+  "classification": "ABSENT",
+  "app_registration": null,
+  "service_principal": null,
+  "planned_scope": "api://a4c5f430-90ce-43ee-9e4e-1a07722bdf8e/access_as_user",
+  "planned_redirect": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/redirect.html"
+}

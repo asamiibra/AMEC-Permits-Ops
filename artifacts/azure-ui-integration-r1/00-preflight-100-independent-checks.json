@@ -1,0 +1,1778 @@
+{
+  "run": "PROPOSALOPS_AZURE_UI_INTEGRATION_LANE_R1",
+  "fresh_independent_check_count": 100,
+  "counts": {
+    "PASS": 99,
+    "PARTIAL": 1,
+    "BLOCKING_GAP": 0,
+    "CONDITIONAL_GATE": 0,
+    "HISTORICAL_PROOF_ONLY": 0,
+    "NOT_APPLICABLE_WITH_REASON": 0
+  },
+  "metadata": {
+    "active_worktree_path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev",
+    "active_branch": "azure-p0-v25-preauthorization-repair-v1",
+    "active_head": "0dd403fbf3f3100f283cd1ee1274465ded81998c",
+    "active_tree": "a250658597d47354b196698cfcc905c672e9c21b",
+    "active_status": "M mock-systems/excel/permit_tracker.xlsx\n?? artifacts/ui-ux-r1/\n?? proposalops_azure_p0_master_finalize_v2.ps1\n?? proposalops_azure_p0_master_finalize_v2_1.ps1",
+    "active_changed_paths": [
+      "M mock-systems/excel/permit_tracker.xlsx",
+      "?? artifacts/ui-ux-r1/",
+      "?? proposalops_azure_p0_master_finalize_v2.ps1",
+      "?? proposalops_azure_p0_master_finalize_v2_1.ps1"
+    ],
+    "integration_worktree": "/private/tmp/azure-ui-preview-groundwork-r2.9ZAV3K",
+    "integration_branch_commit": "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e",
+    "ui_lane_branch": "branch/ui-productionization"
+  },
+  "checks": [
+    {
+      "category": "A",
+      "proposition": "c42 commit type",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "cat-file",
+        "-t",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525"
+      ],
+      "detail": "commit"
+    },
+    {
+      "category": "A",
+      "proposition": "c42 source tree",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=%T",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525"
+      ],
+      "detail": "a497c6951064119453d175d1b93d4e59c9029fd0"
+    },
+    {
+      "category": "A",
+      "proposition": "c42 source SHA",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525"
+      ],
+      "detail": "c42e6c449483b0951de0f366d700dbaf7b9e5525"
+    },
+    {
+      "category": "A",
+      "proposition": "frontend Dockerfile exists at c42",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "cat-file",
+        "-e",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525:frontend/Dockerfile"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "A",
+      "proposition": "active worktree path",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "detail": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev"
+    },
+    {
+      "category": "A",
+      "proposition": "active user branch",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "detail": "azure-p0-v25-preauthorization-repair-v1"
+    },
+    {
+      "category": "A",
+      "proposition": "active HEAD readable",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "detail": "0dd403fbf3f3100f283cd1ee1274465ded81998c"
+    },
+    {
+      "category": "A",
+      "proposition": "active status readable",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "detail": "M mock-systems/excel/permit_tracker.xlsx\n?? artifacts/ui-ux-r1/\n?? proposalops_azure_p0_master_finalize_v2.ps1\n?? proposalops_azure_p0_master_finalize_v2_1.ps1"
+    },
+    {
+      "category": "A",
+      "proposition": "integration branch commit",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H",
+        "azure-ui-preview-groundwork-v1"
+      ],
+      "detail": "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e"
+    },
+    {
+      "category": "A",
+      "proposition": "integration branch parent c42",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=%P",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e"
+      ],
+      "detail": "c42e6c449483b0951de0f366d700dbaf7b9e5525"
+    },
+    {
+      "category": "B",
+      "proposition": "Azure CLI available",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "version",
+        "--only-show-errors"
+      ],
+      "detail": "{\n  \"azure-cli\": \"2.89.1\",\n  \"azure-cli-core\": \"2.89.1\",\n  \"azure-cli-telemetry\": \"1.1.0\",\n  \"extensions\": {\n    \"application-insights\": \"1.2.3\",\n    \"containerapp\": \"1.3.0b4\",\n    \"quota\": \"1.0.0\"\n  }\n}"
+    },
+    {
+      "category": "B",
+      "proposition": "subscription ID",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "account",
+        "show",
+        "--query",
+        "id",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "2bea2887-9255-4273-a73f-43ae33813455"
+    },
+    {
+      "category": "B",
+      "proposition": "tenant ID",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "account",
+        "show",
+        "--query",
+        "tenantId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "2a82f16d-87fa-4036-97a9-17d94060eddd"
+    },
+    {
+      "category": "B",
+      "proposition": "subscription enabled",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "account",
+        "show",
+        "--query",
+        "state",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Enabled"
+    },
+    {
+      "category": "B",
+      "proposition": "subscription name",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "account",
+        "show",
+        "--query",
+        "name",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "AMEC Subscription"
+    },
+    {
+      "category": "B",
+      "proposition": "cloud name",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "cloud",
+        "show",
+        "--query",
+        "name",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "AzureCloud"
+    },
+    {
+      "category": "B",
+      "proposition": "principal type",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "account",
+        "show",
+        "--query",
+        "user.type",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "user"
+    },
+    {
+      "category": "B",
+      "proposition": "ACA extension version",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "extension",
+        "show",
+        "-n",
+        "containerapp",
+        "--query",
+        "version",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "1.3.0b4"
+    },
+    {
+      "category": "C",
+      "proposition": "resource group name",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "group",
+        "show",
+        "-n",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "name",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "rg-proposalops-prod-uae"
+    },
+    {
+      "category": "C",
+      "proposition": "resource group location",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "group",
+        "show",
+        "-n",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "location",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "uaenorth"
+    },
+    {
+      "category": "C",
+      "proposition": "environment ID",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "id",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae"
+    },
+    {
+      "category": "C",
+      "proposition": "environment location",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "location",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "UAE North"
+    },
+    {
+      "category": "C",
+      "proposition": "environment state",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.provisioningState",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Succeeded"
+    },
+    {
+      "category": "C",
+      "proposition": "environment defaultDomain",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.defaultDomain",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io"
+    },
+    {
+      "category": "C",
+      "proposition": "environment internal flag",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.vnetConfiguration.internal",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "false"
+    },
+    {
+      "category": "C",
+      "proposition": "environment public access",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.publicNetworkAccess",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Enabled"
+    },
+    {
+      "category": "C",
+      "proposition": "Consumption profile",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.workloadProfiles[?name=='Consumption'].workloadProfileType | [0]",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Consumption"
+    },
+    {
+      "category": "C",
+      "proposition": "environment subnet",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.vnetConfiguration.infrastructureSubnetId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Network/virtualNetworks/vnet-proposalops-prod-uae/subnets/snet-containerapps-infrastructure"
+    },
+    {
+      "category": "C",
+      "proposition": "resource locks absent",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "lock",
+        "list",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0"
+    },
+    {
+      "category": "C",
+      "proposition": "deny policies absent",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "policy",
+        "assignment",
+        "list",
+        "--scope",
+        "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae",
+        "--query",
+        "[?policyDefinitionAction=='deny'] | length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0"
+    },
+    {
+      "category": "D",
+      "proposition": "Microsoft.App provider registered",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "provider",
+        "show",
+        "-n",
+        "Microsoft.App",
+        "--query",
+        "registrationState",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Registered"
+    },
+    {
+      "category": "D",
+      "proposition": "ManagedIdentity provider registered",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "provider",
+        "show",
+        "-n",
+        "Microsoft.ManagedIdentity",
+        "--query",
+        "registrationState",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Registered"
+    },
+    {
+      "category": "D",
+      "proposition": "ContainerRegistry provider registered",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "provider",
+        "show",
+        "-n",
+        "Microsoft.ContainerRegistry",
+        "--query",
+        "registrationState",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Registered"
+    },
+    {
+      "category": "E",
+      "proposition": "ACA inventory readable",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "list",
+        "--subscription",
+        "2bea2887-9255-4273-a73f-43ae33813455",
+        "--query",
+        "length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "1"
+    },
+    {
+      "category": "E",
+      "proposition": "canonical API resource absent allowed",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-api-preprod",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--subscription",
+        "2bea2887-9255-4273-a73f-43ae33813455",
+        "--only-show-errors"
+      ],
+      "detail": "ERROR: (ResourceNotFound) The Resource 'Microsoft.App/containerApps/proposalops-api-preprod' under resource group 'rg-proposalops-prod-uae' was not found. For more details please go to https://aka.ms/ARMResourceNotFoundFix\n"
+    },
+    {
+      "category": "E",
+      "proposition": "canonical web resource absent allowed",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-web-preprod",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--subscription",
+        "2bea2887-9255-4273-a73f-43ae33813455",
+        "--only-show-errors"
+      ],
+      "detail": "ERROR: (ResourceNotFound) The Resource 'Microsoft.App/containerApps/proposalops-web-preprod' under resource group 'rg-proposalops-prod-uae' was not found. For more details please go to https://aka.ms/ARMResourceNotFoundFix\n"
+    },
+    {
+      "category": "E",
+      "proposition": "preview ACA exact name",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "name",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "proposalops-ui-preview"
+    },
+    {
+      "category": "E",
+      "proposition": "preview ACA ARM exact name",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "resource",
+        "show",
+        "--ids",
+        "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/containerapps/proposalops-ui-preview",
+        "--query",
+        "name",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "proposalops-ui-preview"
+    },
+    {
+      "category": "E",
+      "proposition": "canonical API source diff absent",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e",
+        "--",
+        "backend"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "E",
+      "proposition": "canonical web source diff absent",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e",
+        "--",
+        "frontend"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "E",
+      "proposition": "jobs inventory readable",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "resource",
+        "list",
+        "--resource-type",
+        "Microsoft.App/jobs",
+        "--subscription",
+        "2bea2887-9255-4273-a73f-43ae33813455",
+        "--query",
+        "length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "35"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA environment exact",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.environmentId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA state succeeded",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.provisioningState",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Succeeded"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA revision mode single",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.configuration.activeRevisionsMode",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Single"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA latest revision",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.latestRevisionName",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "proposalops-ui-preview--cff959k"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA external ingress",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.configuration.ingress.external",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "true"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA allow insecure false",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.configuration.ingress.allowInsecure",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "false"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA target port",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.configuration.ingress.targetPort",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "8080"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA transport Auto",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.configuration.ingress.transport",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "Auto"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA min replicas zero",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.template.scale.minReplicas",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA max replicas two",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.template.scale.maxReplicas",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "2"
+    },
+    {
+      "category": "F",
+      "proposition": "preview ACA no volumes",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.template.volumes",
+        "-o",
+        "json",
+        "--only-show-errors"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "G",
+      "proposition": "active image tag exact",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.template.containers[0].image",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T032656Z"
+    },
+    {
+      "category": "G",
+      "proposition": "active revision image exact",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "revision",
+        "list",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "[?name=='proposalops-ui-preview--cff959k'].properties.template.containers[0].image | [0]",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T032656Z"
+    },
+    {
+      "category": "G",
+      "proposition": "active tag manifest digest",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "acr",
+        "manifest",
+        "list-metadata",
+        "-r",
+        "acrproposalopsproduae2bea2887",
+        "-n",
+        "proposalops/ui-preview",
+        "--query",
+        "[?contains(tags, 'groundwork-c42e6c449483-20260829T032656Z')].digest | [0]",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "sha256:56bfb19d3e2c1b3d0367cc4925809ccb6bf26e864b8f40148bf13cfbb4123d6b"
+    },
+    {
+      "category": "G",
+      "proposition": "active tag has one manifest",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "acr",
+        "manifest",
+        "list-metadata",
+        "-r",
+        "acrproposalopsproduae2bea2887",
+        "-n",
+        "proposalops/ui-preview",
+        "--query",
+        "[?contains(tags, 'groundwork-c42e6c449483-20260829T032656Z')] | length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "1"
+    },
+    {
+      "category": "G",
+      "proposition": "repository exact",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "acr",
+        "repository",
+        "show",
+        "-n",
+        "acrproposalopsproduae2bea2887",
+        "--repository",
+        "proposalops/ui-preview",
+        "--query",
+        "imageName",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "proposalops/ui-preview"
+    },
+    {
+      "category": "G",
+      "proposition": "active image not latest",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.template.containers[0].image",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T032656Z"
+    },
+    {
+      "category": "H",
+      "proposition": "pull identity exact",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "identity",
+        "show",
+        "-n",
+        "id-proposalops-ui-prev",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "name",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "id-proposalops-ui-prev"
+    },
+    {
+      "category": "H",
+      "proposition": "pull identity tenant",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "identity",
+        "show",
+        "-n",
+        "id-proposalops-ui-prev",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "tenantId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "2a82f16d-87fa-4036-97a9-17d94060eddd"
+    },
+    {
+      "category": "H",
+      "proposition": "pull identity principal",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "identity",
+        "show",
+        "-n",
+        "id-proposalops-ui-prev",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "principalId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "2f0a0760-98ab-4e67-bf42-993f63fab4f1"
+    },
+    {
+      "category": "H",
+      "proposition": "pull identity synthetic tag",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "identity",
+        "show",
+        "-n",
+        "id-proposalops-ui-prev",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "tags.DataMode",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "synthetic_only"
+    },
+    {
+      "category": "H",
+      "proposition": "pull identity AcrPull role",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "role",
+        "assignment",
+        "list",
+        "--assignee-object-id",
+        "2f0a0760-98ab-4e67-bf42-993f63fab4f1",
+        "--scope",
+        "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ContainerRegistry/registries/acrproposalopsproduae2bea2887",
+        "--query",
+        "[?roleDefinitionName=='AcrPull'] | length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "1"
+    },
+    {
+      "category": "H",
+      "proposition": "ACA registry identity exact",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-ui-preview",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.configuration.registries[0].identity",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-ui-prev"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web app ID",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "appId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0c6ed940-01ca-416c-832f-406ca00212cd"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web display",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "displayName",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "ProposalOps P0 Web V2"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web object",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "id",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "53345530-9182-4433-9e44-ab7cbca613ed"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web audience",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "signInAudience",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "AzureADMyOrg"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web SPA array readable",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "spa.redirectUris",
+        "-o",
+        "json",
+        "--only-show-errors"
+      ],
+      "detail": "[\n  \"https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/redirect.html\"\n]"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web web redirects empty",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "length(web.redirectUris)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web API resource",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "requiredResourceAccess[0].resourceAppId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical Web scope ID",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "requiredResourceAccess[0].resourceAccess[0].id",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "195ff067-c63b-4adf-9d36-f35888b6897f"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API app ID",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "appId",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API display",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "displayName",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "ProposalOps P0 API V2"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API object",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "id",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "b91e7ef3-2845-45d8-9cae-cef0a03af712"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API audience",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "signInAudience",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "AzureADMyOrg"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API identifier URI",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "identifierUris[0]",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "api://a4c5f430-90ce-43ee-9e4e-1a07722bdf8e"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API scope enabled",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "api.oauth2PermissionScopes[?value=='access_as_user'].isEnabled | [0]",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "true"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API token version",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "api.requestedAccessTokenVersion",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "2"
+    },
+    {
+      "category": "I",
+      "proposition": "canonical API password credentials empty",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+        "--query",
+        "length(passwordCredentials)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0"
+    },
+    {
+      "category": "J",
+      "proposition": "preview Entra app absent allowed",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "list",
+        "--all",
+        "--query",
+        "[?displayName=='ProposalOps UI Preview'] | length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0"
+    },
+    {
+      "category": "J",
+      "proposition": "preview Entra SP absent allowed",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "ad",
+        "sp",
+        "list",
+        "--all",
+        "--query",
+        "[?displayName=='ProposalOps UI Preview'] | length(@)",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "0"
+    },
+    {
+      "category": "J",
+      "proposition": "reserved API origin derived exact",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.defaultDomain",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io"
+    },
+    {
+      "category": "J",
+      "proposition": "reserved origin defaultDomain present",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.defaultDomain",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io"
+    },
+    {
+      "category": "J",
+      "proposition": "reserved origin is canonical API host",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "env",
+        "show",
+        "-n",
+        "cae-proposalops-prod-uae",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--query",
+        "properties.defaultDomain",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io"
+    },
+    {
+      "category": "J",
+      "proposition": "canonical API resource absent allowed",
+      "classification": "PASS",
+      "command": [
+        "az",
+        "containerapp",
+        "show",
+        "-n",
+        "proposalops-api-preprod",
+        "-g",
+        "rg-proposalops-prod-uae",
+        "--subscription",
+        "2bea2887-9255-4273-a73f-43ae33813455",
+        "--only-show-errors"
+      ],
+      "detail": "ERROR: (ResourceNotFound) The Resource 'Microsoft.App/containerApps/proposalops-api-preprod' under resource group 'rg-proposalops-prod-uae' was not found. For more details please go to https://aka.ms/ARMResourceNotFoundFix\n"
+    },
+    {
+      "category": "J",
+      "proposition": "canonical Web preview redirect prestate is captured as R2 legacy state",
+      "classification": "PARTIAL",
+      "command": [
+        "az",
+        "ad",
+        "app",
+        "show",
+        "--id",
+        "0c6ed940-01ca-416c-832f-406ca00212cd",
+        "--query",
+        "contains(join(',', spa.redirectUris), 'proposalops-ui-preview')",
+        "-o",
+        "tsv",
+        "--only-show-errors"
+      ],
+      "detail": "true; pre-existing R2 redirect preserved; no canonical Web mutation authorized in this run"
+    },
+    {
+      "category": "J",
+      "proposition": "redirect path source exists",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "cat-file",
+        "-e",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525:frontend/redirect.html"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "K",
+      "proposition": "active build evidence canonical Web binding",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e:artifacts/azure-ui-preview-groundwork-r2/11-acr-build-invocation.json"
+      ],
+      "detail": "{\n  \"authority\": \"ACR cloud build only\",\n  \"runId\": \"dg6\",\n  \"status\": \"successful\",\n  \"registry\": \"acrproposalopsproduae2bea2887\",\n  \"repository\": \"proposalops/ui-preview\",\n  \"tag\": \"groundwork-c42e6c449483-20260829T032656Z\",\n  \"buildId\": \"20260829T032656Z\",\n  \"sourceCommit\": \"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\n  \"context\": \"frontend\",\n  \"dockerfile\": \"frontend/Dockerfile\",\n  \"buildArgs\": {\n    \"VITE_ENTRA_TENANT_ID\": \"2a82f16d-87fa-4036-97a9-17d94060eddd\",\n    \"VITE_ENTRA_WEB_CLIENT_ID"
+    },
+    {
+      "category": "K",
+      "proposition": "active build evidence canonical API binding",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e:artifacts/azure-ui-preview-groundwork-r2/11-acr-build-invocation.json"
+      ],
+      "detail": "{\n  \"authority\": \"ACR cloud build only\",\n  \"runId\": \"dg6\",\n  \"status\": \"successful\",\n  \"registry\": \"acrproposalopsproduae2bea2887\",\n  \"repository\": \"proposalops/ui-preview\",\n  \"tag\": \"groundwork-c42e6c449483-20260829T032656Z\",\n  \"buildId\": \"20260829T032656Z\",\n  \"sourceCommit\": \"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\n  \"context\": \"frontend\",\n  \"dockerfile\": \"frontend/Dockerfile\",\n  \"buildArgs\": {\n    \"VITE_ENTRA_TENANT_ID\": \"2a82f16d-87fa-4036-97a9-17d94060eddd\",\n    \"VITE_ENTRA_WEB_CLIENT_ID"
+    },
+    {
+      "category": "K",
+      "proposition": "active build evidence reserved API URL",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e:artifacts/azure-ui-preview-groundwork-r2/11-acr-build-invocation.json"
+      ],
+      "detail": "{\n  \"authority\": \"ACR cloud build only\",\n  \"runId\": \"dg6\",\n  \"status\": \"successful\",\n  \"registry\": \"acrproposalopsproduae2bea2887\",\n  \"repository\": \"proposalops/ui-preview\",\n  \"tag\": \"groundwork-c42e6c449483-20260829T032656Z\",\n  \"buildId\": \"20260829T032656Z\",\n  \"sourceCommit\": \"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\n  \"context\": \"frontend\",\n  \"dockerfile\": \"frontend/Dockerfile\",\n  \"buildArgs\": {\n    \"VITE_ENTRA_TENANT_ID\": \"2a82f16d-87fa-4036-97a9-17d94060eddd\",\n    \"VITE_ENTRA_WEB_CLIENT_ID"
+    },
+    {
+      "category": "K",
+      "proposition": "active build evidence c42 SHA",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e:artifacts/azure-ui-preview-groundwork-r2/11-acr-build-invocation.json"
+      ],
+      "detail": "{\n  \"authority\": \"ACR cloud build only\",\n  \"runId\": \"dg6\",\n  \"status\": \"successful\",\n  \"registry\": \"acrproposalopsproduae2bea2887\",\n  \"repository\": \"proposalops/ui-preview\",\n  \"tag\": \"groundwork-c42e6c449483-20260829T032656Z\",\n  \"buildId\": \"20260829T032656Z\",\n  \"sourceCommit\": \"c42e6c449483b0951de0f366d700dbaf7b9e5525\",\n  \"context\": \"frontend\",\n  \"dockerfile\": \"frontend/Dockerfile\",\n  \"buildArgs\": {\n    \"VITE_ENTRA_TENANT_ID\": \"2a82f16d-87fa-4036-97a9-17d94060eddd\",\n    \"VITE_ENTRA_WEB_CLIENT_ID"
+    },
+    {
+      "category": "K",
+      "proposition": "auth callback uses origin",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525:frontend/src/auth.ts"
+      ],
+      "detail": "import {\n  BrowserCacheLocation,\n  InteractionRequiredAuthError,\n  PublicClientApplication,\n  type AccountInfo,\n  type Configuration,\n} from \"@azure/msal-browser\";\n\nexport type BrowserAuthMode =\n  | \"DEV_HEADER\"\n  | \"ENTRA\";\n\nexport type BrowserAuthStartupState =\n  | \"READY\"\n  | \"REDIRECTING\";\n\n// Backward-compatible alias for the name used by the first Batch 2B draft.\nexport type BrowserAuthenticationState = BrowserAuthStartupState;\n\nconst GUID_PATTERN =\n  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-"
+    },
+    {
+      "category": "K",
+      "proposition": "API source uses VITE_API_URL",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525:frontend/src/api.ts"
+      ],
+      "detail": "import {\n  browserAuthMode,\n  getApiAccessToken,\n} from \"./auth\";\n\n// Development uses the Vite same-origin proxy so a browser opened on any local\n// port cannot fail the API preflight just because the backend allow-list names\n// a different frontend origin. Non-DEV builds use the explicitly configured API.\nconst API = (\n  import.meta.env.DEV\n    ? \"\"\n    : import.meta.env.VITE_API_URL || \"\"\n).replace(/\\/+$/, \"\");\n\nexport async function api<T>(\n  path: string,\n  init?: RequestInit,\n): Promise<T>"
+    },
+    {
+      "category": "L",
+      "proposition": "pre-existing R2 artifacts are hashable",
+      "classification": "PASS",
+      "command": [
+        "python3",
+        "-c",
+        "import os,hashlib; p='/private/tmp/azure-ui-preview-groundwork-r2.9ZAV3K/artifacts/azure-ui-preview-groundwork-r2'; fs=[]\nfor r,ds,fn in os.walk(p):\n for x in fn: fs.append(os.path.join(r,x))\nprint(len(fs)); [print(hashlib.sha256(open(x,'rb').read()).hexdigest()) for x in sorted(fs)]"
+      ],
+      "detail": "27\nd78ccc9e0720a24ec9bad72167d34390208be5d52ddad40448fdab74322f35ed\ne0bf71d5ba39f941ed803ce8ab7f3ad8c5b8de8c03e44c5d6f55b0e03efe9311\ncf82eb33fea315bc6e6a5557bab7a29e74f7fe1b3aaed4cd8f2f45b21c246599\n052bb9891bf3b2333012e57f0a39a82565bb9440b809c94a3562e0c379df89a2\nba306868169d73f802e0ea2362bfeb2a0e86e84f3da072ec4729f1e2da816ba2\nd456d151109b6cf2d068734418fec77d256b6e68792686ac6068b6c22e34b5d1\naf74a355ba1aef8ed17185ce69891ab8dfef52546373e5480e0d65ba4687da3b\n5c536a6af1606fdb38f07d3cb3f2a063e5020925cc"
+    },
+    {
+      "category": "L",
+      "proposition": "c42 to integration commit only evidence changes",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+        "c007f8d48a68e373ee08f5e0cb9d9b78eac58b7e",
+        "--",
+        "frontend",
+        "backend",
+        "migrations",
+        "infra",
+        ".github"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "L",
+      "proposition": "no SQL/Synology credentials in frontend",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "grep",
+        "-n",
+        "-I",
+        "-E",
+        "SQL_PASSWORD|SYNOLOGY_PASSWORD|SMB_PASSWORD",
+        "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+        "--",
+        "frontend"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "L",
+      "proposition": "preflight destination outside worktree",
+      "classification": "PASS",
+      "command": [
+        "python3",
+        "-c",
+        "import os,sys; sys.exit(0 if not os.path.realpath('/tmp/proposalops-azure-ui-integration-r1-preflight.json').startswith(os.path.realpath('/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev')+os.sep) else 1)"
+      ],
+      "detail": ""
+    },
+    {
+      "category": "M",
+      "proposition": "UI lane branch exists",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show-ref",
+        "--verify",
+        "refs/heads/branch/ui-productionization"
+      ],
+      "detail": "d29fafd4c73a94d570039f885f536c590e0a36e0 refs/heads/branch/ui-productionization"
+    },
+    {
+      "category": "M",
+      "proposition": "UI lane HEAD and tree are readable",
+      "classification": "PASS",
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H%n%T",
+        "branch/ui-productionization"
+      ],
+      "detail": "d29fafd4c73a94d570039f885f536c590e0a36e0\naeedf7abe4e15bb2f342873b4414356e897e1d5f"
+    }
+  ]
+}

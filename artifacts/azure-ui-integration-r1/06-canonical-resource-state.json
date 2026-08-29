@@ -1,0 +1,6 @@
+{
+  "proposalops-api-preprod": {"state": "ABSENT", "mutations": 0},
+  "proposalops-web-preprod": {"state": "ABSENT", "mutations": 0},
+  "canonical_api_resource_mutations": 0,
+  "canonical_web_resource_mutations": 0
+}

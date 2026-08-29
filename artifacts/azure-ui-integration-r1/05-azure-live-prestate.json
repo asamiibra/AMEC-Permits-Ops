@@ -1,0 +1,13 @@
+{
+  "subscription": "AMEC Subscription",
+  "subscription_id": "2bea2887-9255-4273-a73f-43ae33813455",
+  "tenant_id": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+  "resource_group": "rg-proposalops-prod-uae",
+  "aca_environment": "cae-proposalops-prod-uae",
+  "aca_default_domain": "agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "acr": "acrproposalopsproduae2bea2887",
+  "acr_login_server": "acrproposalopsproduae2bea2887.azurecr.io",
+  "canonical_api_resource_state": "ABSENT",
+  "canonical_web_resource_state": "ABSENT",
+  "api_origin_state": "RESERVED_NOT_DEPLOYED"
+}

@@ -1,0 +1,20 @@
+{
+  "status": "EXECUTED_ONCE_AND_VERIFIED",
+  "target_app": "proposalops-ui-preview",
+  "revision_suffix": "c42-integration-r1",
+  "revision": "proposalops-ui-preview--c42-integration-r1",
+  "image": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T035656Z",
+  "image_digest": "sha256:6c611e38d1a63cbf0affba8fd2d6d9d769ac31375937a09e1753f50fe299d9c0",
+  "health_state": "Healthy",
+  "provisioning_state": "Provisioned",
+  "running_state": "Running",
+  "traffic_weight": 100,
+  "target_port": 8080,
+  "external_https": true,
+  "allow_insecure": false,
+  "preview_identity": "id-proposalops-ui-prev",
+  "registry_identity": "id-proposalops-ui-prev",
+  "canonical_api_mutations": 0,
+  "canonical_web_mutations": 0,
+  "aca_app_mutations": 1
+}

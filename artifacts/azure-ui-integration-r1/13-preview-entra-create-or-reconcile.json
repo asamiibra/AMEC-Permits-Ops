@@ -1,0 +1,15 @@
+{
+  "status": "PRESENT_EXACT",
+  "display_name": "ProposalOps UI Preview",
+  "app_id": "a3e6d6aa-aa81-4d72-aa10-6791969767fa",
+  "object_id": "b1f987ff-7b71-4662-9d58-67c57b997a71",
+  "sign_in_audience": "AzureADMyOrg",
+  "service_principal_id": "d35df896-7e84-4985-8244-f2d904dec2a8",
+  "required_api_resource": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+  "required_scope_id": "195ff067-c63b-4adf-9d36-f35888b6897f",
+  "password_credentials": 0,
+  "key_credentials": 0,
+  "preview_entra_app_mutations": 2,
+  "service_principal_mutations": 1,
+  "note": "Created once because the exact display name was absent, then added the exact generated preview SPA redirect. No tenant-wide admin consent was granted."
+}

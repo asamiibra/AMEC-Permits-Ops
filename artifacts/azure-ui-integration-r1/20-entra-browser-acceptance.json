@@ -1,0 +1,6 @@
+{
+  "status": "ADMIN_CONSENT_REQUIRED",
+  "reason": "Bounded browser load reached the preview host, but MSAL initialization returned AADSTS650052 because the tenant lacks a service principal for canonical API resource a4c5f430-90ce-43ee-9e4e-1a07722bdf8e. No credentials, MFA, tokens, or cookies were entered or captured.",
+  "credentials_captured": false,
+  "interactive_login_completed": false
+}

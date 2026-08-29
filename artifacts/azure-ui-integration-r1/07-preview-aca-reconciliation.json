@@ -1,0 +1,19 @@
+{
+  "classification": "EXACT_ADOPTABLE",
+  "name": "proposalops-ui-preview",
+  "resource_id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/containerapps/proposalops-ui-preview",
+  "environment_id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae",
+  "provisioning_state": "Succeeded",
+  "revision_mode": "Single",
+  "latest_revision": "proposalops-ui-preview--c42-integration-r1",
+  "image": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T035656Z",
+  "ingress": {"external": true, "allowInsecure": false, "targetPort": 8080, "transport": "Auto"},
+  "scale": {"minReplicas": 0, "maxReplicas": 2},
+  "resources": {"cpu": 0.25, "memory": "0.5Gi"},
+  "identity": "id-proposalops-ui-prev",
+  "volumes": null,
+  "secrets": null,
+  "dapr": null,
+  "custom_domains": null,
+  "tags": null
+}

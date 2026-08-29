@@ -1,0 +1,8 @@
+{
+  "api_resource_state": "ABSENT",
+  "api_origin_state": "RESERVED_NOT_DEPLOYED",
+  "api_integration": "DEFERRED",
+  "data_backed_preview": false,
+  "real_data_allowed": false,
+  "api_cors_mutations": 0
+}

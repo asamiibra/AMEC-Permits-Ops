@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "preview_origin": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "preview_fqdn": "proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "root_http_status": 200,
+  "release_http_status": 200,
+  "release_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "build_id": "20260829T032656Z",
+  "static_runtime": "HOSTED_C42_SMOKE"
+}

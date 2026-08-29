@@ -1,0 +1,9 @@
+{
+  "classification": "EXACT_ADOPTABLE",
+  "name": "id-proposalops-ui-prev",
+  "client_id": "0faf9ad6-de76-4c2b-b61c-99ec724f2666",
+  "principal_id": "2f0a0760-98ab-4e67-bf42-993f63fab4f1",
+  "tenant_id": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+  "purpose": "acr-pull",
+  "data_mode": "synthetic_only"
+}

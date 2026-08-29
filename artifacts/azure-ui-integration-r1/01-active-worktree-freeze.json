@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "active_worktree_path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev",
+  "active_branch": "azure-p0-v25-preauthorization-repair-v1",
+  "active_head": "0dd403fbf3f3100f283cd1ee1274465ded81998c",
+  "active_tree": "a250658597d47354b196698cfcc905c672e9c21b",
+  "changed_paths_preserved": ["mock-systems/excel/permit_tracker.xlsx", "artifacts/ui-ux-r1/", "proposalops_azure_p0_master_finalize_v2.ps1", "proposalops_azure_p0_master_finalize_v2_1.ps1"],
+  "active_user_worktree_mutations": 0
+}

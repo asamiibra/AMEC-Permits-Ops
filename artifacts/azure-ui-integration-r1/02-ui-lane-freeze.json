@@ -1,0 +1,8 @@
+{
+  "status": "OBSERVED_READ_ONLY",
+  "ui_lane_branch": "branch/ui-productionization",
+  "ui_lane_head": "d29fafd4c73a94d570039f885f536c590e0a36e0",
+  "ui_lane_tree": "aeedf7abe4e15bb2f342873b4414356e897e1d5f",
+  "ui_lane_mutations": 0,
+  "ui_handoff_status": "NOT_PROVED_FOR_THIS_HOST_RECONCILIATION"
+}

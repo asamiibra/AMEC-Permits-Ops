@@ -1,0 +1,8 @@
+{
+  "default_path": "promote accepted exact image to proposalops-web-preprod, then bind permanent domain to canonical web app",
+  "custom_domain_mutations": 0,
+  "dns": "DEFERRED",
+  "tls": "DEFERRED",
+  "entra": "DEFERRED",
+  "cors_cutover": "DEFERRED"
+}

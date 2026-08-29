@@ -1,0 +1,6 @@
+{
+  "status": "NOT_READY_FOR_UI_RELEASE_DEPLOYMENT",
+  "ui_lane_branch": "branch/ui-productionization",
+  "exact_accepted_sha_known": false,
+  "integration_may_consume_only_exact_accepted_sha": true
+}

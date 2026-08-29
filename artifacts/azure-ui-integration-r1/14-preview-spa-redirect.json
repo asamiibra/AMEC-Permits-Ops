@@ -1,0 +1,12 @@
+{
+  "status": "EXACT",
+  "app_id": "a3e6d6aa-aa81-4d72-aa10-6791969767fa",
+  "redirect_uri": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/redirect.html",
+  "prestate": "ABSENT",
+  "poststate": "EXACT",
+  "preview_spa_redirect_added": 1,
+  "preview_spa_redirect_removed": 0,
+  "preview_web_redirect_delta": 0,
+  "preview_credential_delta": 0,
+  "preview_other_material_delta": 0
+}

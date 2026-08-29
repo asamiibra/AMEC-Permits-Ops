@@ -1,0 +1,6 @@
+{
+  "API_BROWSER_IDENTITY_DECISION_REQUIRED": true,
+  "status": "DEFERRED",
+  "options": ["preview_client_backend_trust_change", "canonical_web_client_rebuild_at_handoff", "canonical_web_resource_cutover"],
+  "decision_executed": false
+}

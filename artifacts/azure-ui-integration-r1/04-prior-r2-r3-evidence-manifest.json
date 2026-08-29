@@ -1,0 +1,9 @@
+{
+  "status": "PREEXISTING_VALID_EVIDENCE",
+  "r2_directory": "artifacts/azure-ui-preview-groundwork-r2",
+  "r2_file_count": 27,
+  "r2_sha256sums_file": "artifacts/azure-ui-preview-groundwork-r2/SHA256SUMS",
+  "r2_sha256sums_verified": true,
+  "r3_evidence": "NOT_PRESENT",
+  "preserved_without_rewrite": true
+}
