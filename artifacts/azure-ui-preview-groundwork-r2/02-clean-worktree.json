@@ -1,0 +1,16 @@
+{
+  "isolatedWorktree": "/tmp/azure-ui-preview-groundwork-r2.9ZAV3K",
+  "branch": "azure-ui-preview-groundwork-v1",
+  "head": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "tree": "a497c6951064119453d175d1b93d4e59c9029fd0",
+  "status": [
+    "?? artifacts/azure-ui-preview-groundwork-r2/"
+  ],
+  "frontendDiffFromC42": true,
+  "activeWorktreeStatus": [
+    "M mock-systems/excel/permit_tracker.xlsx",
+    "?? artifacts/ui-ux-r1/",
+    "?? proposalops_azure_p0_master_finalize_v2.ps1",
+    "?? proposalops_azure_p0_master_finalize_v2_1.ps1"
+  ]
+}

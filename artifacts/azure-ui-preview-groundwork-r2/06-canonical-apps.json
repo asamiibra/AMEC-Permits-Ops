@@ -1,0 +1,12 @@
+{
+  "preMutation": {
+    "proposalopsApiPreprod": "ResourceNotFound",
+    "proposalopsWebPreprod": "ResourceNotFound"
+  },
+  "postMutation": {
+    "containerApps": [
+      "proposalops-ui-preview"
+    ]
+  },
+  "canonicalAppsMutated": false
+}

@@ -1,0 +1,22 @@
+{
+  "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/redirect.html",
+  "status": 200,
+  "headers": {
+    "server": "nginx",
+    "date": "Sat, 29 Aug 2026 03:31:20 GMT",
+    "content-type": "text/html",
+    "content-length": "623",
+    "last-modified": "Sat, 29 Aug 2026 03:28:47 GMT",
+    "etag": "\"6a9251ef-26f\"",
+    "strict-transport-security": "max-age=31536000",
+    "x-frame-options": "SAMEORIGIN",
+    "permissions-policy": "camera=(), microphone=(), geolocation=()",
+    "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+    "cache-control": "no-store",
+    "pragma": "no-cache",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "no-referrer",
+    "accept-ranges": "bytes"
+  },
+  "body": "<!doctype html>\n<html lang=\"en\" dir=\"ltr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <meta name=\"referrer\" content=\"no-referrer\" />\n    <meta name=\"robots\" content=\"noindex,nofollow,noarchive\" />\n    <title>Signing in · ProposalOps</title>\n    <script type=\"module\" crossorigin src=\"/assets/redirect-CB2AJGVS.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Configuration-C0p2J08R.js\">\n  </head>\n  <body>\n    <main aria-live=\"polite\">\n      <p id=\"auth-status\">Processing authentication…</p>\n    </main>\n  </body>\n</html>\n"
+}

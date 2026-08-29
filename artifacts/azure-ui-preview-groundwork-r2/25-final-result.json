@@ -1,0 +1,465 @@
+{
+  "result": "AZURE_UI_PREVIEW_HOST_GROUNDWORK=PASS_WITH_API_INTEGRATION_DEFERRED",
+  "STATIC_AZURE_HOSTING": "PASS",
+  "ENTRA_REDIRECT_CONFIGURATION": "PASS",
+  "ENTRA_INTERACTIVE_LOGIN": "NOT_EXECUTED_OWNER_INTERACTION_REQUIRED",
+  "DATA_BACKED_PREVIEW": false,
+  "API_INTEGRATION": "NOT_AUTHORIZED",
+  "UI_R1_ACCEPTANCE": "NOT_INFERRED",
+  "AZURE_PREPROD_TECHNICAL_COMMISSIONING": "NOT_INFERRED",
+  "PRODUCTION_READY": false,
+  "previewUrl": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/",
+  "sourceCommit": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "image": {
+    "tag": "groundwork-c42e6c449483-20260829T032656Z",
+    "digest": "sha256:56bfb19d3e2c1b3d0367cc4925809ccb6bf26e864b8f40148bf13cfbb4123d6b"
+  },
+  "postExecutionChecks": {
+    "total": 87,
+    "summary": {
+      "PASS": 79,
+      "PARTIAL": 0,
+      "BLOCKING_GAP": 0,
+      "LIVE_DISCOVERY_REQUIRED": 0,
+      "HISTORICAL_PROOF_ONLY": 0,
+      "NOT_APPLICABLE_WITH_REASON": 8
+    },
+    "checks": [
+      {
+        "id": "P01",
+        "result": "PASS",
+        "evidence": "isolated branch exact"
+      },
+      {
+        "id": "P02",
+        "result": "PASS",
+        "evidence": "HEAD=c42e6c449483b0951de0f366d700dbaf7b9e5525"
+      },
+      {
+        "id": "P03",
+        "result": "PASS",
+        "evidence": "tree=a497c6951064119453d175d1b93d4e59c9029fd0"
+      },
+      {
+        "id": "P04",
+        "result": "PASS",
+        "evidence": "clean except evidence"
+      },
+      {
+        "id": "P05",
+        "result": "PASS",
+        "evidence": "frontend diff zero"
+      },
+      {
+        "id": "P06",
+        "result": "PASS",
+        "evidence": "active worktree unchanged"
+      },
+      {
+        "id": "P07",
+        "result": "PASS",
+        "evidence": "exact c42 source"
+      },
+      {
+        "id": "P08",
+        "result": "PASS",
+        "evidence": "isolated sparse checkout disabled"
+      },
+      {
+        "id": "P09",
+        "result": "PASS",
+        "evidence": "100 preflight records"
+      },
+      {
+        "id": "P10",
+        "result": "PASS",
+        "evidence": "zero preflight blocking/discovery gaps"
+      },
+      {
+        "id": "P11",
+        "result": "PASS",
+        "evidence": "subscription/tenant readback"
+      },
+      {
+        "id": "P12",
+        "result": "PASS",
+        "evidence": "resource group Succeeded"
+      },
+      {
+        "id": "P13",
+        "result": "PASS",
+        "evidence": "ACA environment Succeeded"
+      },
+      {
+        "id": "P14",
+        "result": "PASS",
+        "evidence": "default domain readback"
+      },
+      {
+        "id": "P15",
+        "result": "PASS",
+        "evidence": "public network enabled"
+      },
+      {
+        "id": "P16",
+        "result": "PASS",
+        "evidence": "environment external"
+      },
+      {
+        "id": "P17",
+        "result": "PASS",
+        "evidence": "Consumption profile"
+      },
+      {
+        "id": "P18",
+        "result": "PASS",
+        "evidence": "preview app exists"
+      },
+      {
+        "id": "P19",
+        "result": "PASS",
+        "evidence": "app provisioning Succeeded"
+      },
+      {
+        "id": "P20",
+        "result": "PASS",
+        "evidence": "fqdn=proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io"
+      },
+      {
+        "id": "P21",
+        "result": "PASS",
+        "evidence": "external ingress"
+      },
+      {
+        "id": "P22",
+        "result": "PASS",
+        "evidence": "allowInsecure false"
+      },
+      {
+        "id": "P23",
+        "result": "PASS",
+        "evidence": "target port 8080"
+      },
+      {
+        "id": "P24",
+        "result": "PASS",
+        "evidence": "min replicas 0"
+      },
+      {
+        "id": "P25",
+        "result": "PASS",
+        "evidence": "max replicas 2"
+      },
+      {
+        "id": "P26",
+        "result": "PASS",
+        "evidence": "Consumption workload"
+      },
+      {
+        "id": "P27",
+        "result": "PASS",
+        "evidence": "only UserAssigned identity"
+      },
+      {
+        "id": "P28",
+        "result": "PASS",
+        "evidence": "registry identity equals app identity"
+      },
+      {
+        "id": "P29",
+        "result": "PASS",
+        "evidence": "no env vars"
+      },
+      {
+        "id": "P30",
+        "result": "PASS",
+        "evidence": "no secrets"
+      },
+      {
+        "id": "P31",
+        "result": "PASS",
+        "evidence": "no volumes"
+      },
+      {
+        "id": "P32",
+        "result": "PASS",
+        "evidence": "Dapr null"
+      },
+      {
+        "id": "P33",
+        "result": "PASS",
+        "evidence": "one revision"
+      },
+      {
+        "id": "P34",
+        "result": "PASS",
+        "evidence": "latest ready"
+      },
+      {
+        "id": "P35",
+        "result": "PASS",
+        "evidence": "Healthy"
+      },
+      {
+        "id": "P36",
+        "result": "PASS",
+        "evidence": "Running"
+      },
+      {
+        "id": "P37",
+        "result": "PASS",
+        "evidence": "traffic 100"
+      },
+      {
+        "id": "P38",
+        "result": "PASS",
+        "evidence": "image tag=groundwork-c42e6c449483-20260829T032656Z"
+      },
+      {
+        "id": "P39",
+        "result": "PASS",
+        "evidence": "digest=sha256:56bfb19d3e2c1b3d0367cc4925809ccb6bf26e864b8f40148bf13cfbb4123d6b"
+      },
+      {
+        "id": "P40",
+        "result": "PASS",
+        "evidence": "repository exists"
+      },
+      {
+        "id": "P41",
+        "result": "PASS",
+        "evidence": "exact tag exists"
+      },
+      {
+        "id": "P42",
+        "result": "PASS",
+        "evidence": "no latest tag"
+      },
+      {
+        "id": "P43",
+        "result": "PASS",
+        "evidence": "ACR Premium"
+      },
+      {
+        "id": "P44",
+        "result": "PASS",
+        "evidence": "LegacyRegistryPermissions"
+      },
+      {
+        "id": "P45",
+        "result": "PASS",
+        "evidence": "admin disabled"
+      },
+      {
+        "id": "P46",
+        "result": "PASS",
+        "evidence": "sole AcrPull assignment"
+      },
+      {
+        "id": "P47",
+        "result": "PASS",
+        "evidence": "no alternate role/identity"
+      },
+      {
+        "id": "P48",
+        "result": "PASS",
+        "evidence": "root 200"
+      },
+      {
+        "id": "P49",
+        "result": "PASS",
+        "evidence": "redirect 200"
+      },
+      {
+        "id": "P50",
+        "result": "PASS",
+        "evidence": "release 200"
+      },
+      {
+        "id": "P51",
+        "result": "PASS",
+        "evidence": "asset 200"
+      },
+      {
+        "id": "P52",
+        "result": "PASS",
+        "evidence": "root references asset"
+      },
+      {
+        "id": "P53",
+        "result": "PASS",
+        "evidence": "release SHA=c42e6c449483b0951de0f366d700dbaf7b9e5525"
+      },
+      {
+        "id": "P54",
+        "result": "PASS",
+        "evidence": "release build ID=20260829T032656Z"
+      },
+      {
+        "id": "P55",
+        "result": "PASS",
+        "evidence": "home 200 and exact fallback"
+      },
+      {
+        "id": "P56",
+        "result": "PASS",
+        "evidence": "opportunities 200 and exact fallback"
+      },
+      {
+        "id": "P57",
+        "result": "PASS",
+        "evidence": "contract-mobilization 200 and exact fallback"
+      },
+      {
+        "id": "P58",
+        "result": "PASS",
+        "evidence": "engineering 200 and exact fallback"
+      },
+      {
+        "id": "P59",
+        "result": "PASS",
+        "evidence": "permits 200 and exact fallback"
+      },
+      {
+        "id": "P60",
+        "result": "PASS",
+        "evidence": "construction 200 and exact fallback"
+      },
+      {
+        "id": "P61",
+        "result": "PASS",
+        "evidence": "completion 200 and exact fallback"
+      },
+      {
+        "id": "P62",
+        "result": "PASS",
+        "evidence": "handover 200 and exact fallback"
+      },
+      {
+        "id": "P63",
+        "result": "PASS",
+        "evidence": "billing 200 and exact fallback"
+      },
+      {
+        "id": "P64",
+        "result": "PASS",
+        "evidence": "root security headers"
+      },
+      {
+        "id": "P65",
+        "result": "PASS",
+        "evidence": "redirect headers/cache"
+      },
+      {
+        "id": "P66",
+        "result": "PASS",
+        "evidence": "release headers/cache"
+      },
+      {
+        "id": "P67",
+        "result": "PASS",
+        "evidence": "asset headers/cache"
+      },
+      {
+        "id": "P68",
+        "result": "PASS",
+        "evidence": "redirect no-store/no-cache"
+      },
+      {
+        "id": "P69",
+        "result": "PASS",
+        "evidence": "release no-store"
+      },
+      {
+        "id": "P70",
+        "result": "PASS",
+        "evidence": "asset immutable"
+      },
+      {
+        "id": "P71",
+        "result": "PASS",
+        "evidence": "all deep links exact fallback"
+      },
+      {
+        "id": "P72",
+        "result": "PASS",
+        "evidence": "prestate SPA redirects empty"
+      },
+      {
+        "id": "P73",
+        "result": "PASS",
+        "evidence": "poststate exactly preview redirect"
+      },
+      {
+        "id": "P74",
+        "result": "PASS",
+        "evidence": "web redirects remain empty"
+      },
+      {
+        "id": "P75",
+        "result": "PASS",
+        "evidence": "API scope preserved"
+      },
+      {
+        "id": "P76",
+        "result": "PASS",
+        "evidence": "credentials remain zero"
+      },
+      {
+        "id": "P77",
+        "result": "PASS",
+        "evidence": "API app coordinates preserved"
+      },
+      {
+        "id": "P78",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "API integration explicitly NOT_AUTHORIZED"
+      },
+      {
+        "id": "P79",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "interactive login requires owner interaction"
+      },
+      {
+        "id": "P80",
+        "result": "PASS",
+        "evidence": "data-backed preview false"
+      },
+      {
+        "id": "P81",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "no CORS mutation authorized"
+      },
+      {
+        "id": "P82",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "custom domain not configured"
+      },
+      {
+        "id": "P83",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "SQL/data out of scope"
+      },
+      {
+        "id": "P84",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "Synology/storage out of scope"
+      },
+      {
+        "id": "P85",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "UI R1 not inferred"
+      },
+      {
+        "id": "P86",
+        "result": "NOT_APPLICABLE_WITH_REASON",
+        "evidence": "preprod commissioning not inferred"
+      },
+      {
+        "id": "P87",
+        "result": "PASS",
+        "evidence": "synthetic_only/production=false"
+      }
+    ]
+  }
+}

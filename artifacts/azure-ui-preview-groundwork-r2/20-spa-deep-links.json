@@ -1,0 +1,60 @@
+{
+  "routes": [
+    {
+      "route": "home",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/home",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "opportunities",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/opportunities",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "contract-mobilization",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/contract-mobilization",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "engineering",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/engineering",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "permits",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/permits",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "construction",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/construction",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "completion",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/completion",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "handover",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/handover",
+      "status": 200,
+      "indexFallback": true
+    },
+    {
+      "route": "billing",
+      "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/billing",
+      "status": 200,
+      "indexFallback": true
+    }
+  ],
+  "all200": true,
+  "allFallback": true
+}

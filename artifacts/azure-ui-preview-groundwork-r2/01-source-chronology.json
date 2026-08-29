@@ -1,0 +1,32 @@
+{
+  "sourceCommit": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "sourceTree": "a497c6951064119453d175d1b93d4e59c9029fd0",
+  "chronology": {
+    "acceptedSource": "exact c42",
+    "frontendSource": "exact c42",
+    "cloudLane": "UI preview only",
+    "apiIntegration": "deferred"
+  },
+  "contractFiles": [
+    "frontend/Dockerfile",
+    "frontend/nginx.conf",
+    "frontend/src/auth.ts",
+    "frontend/src/api.ts",
+    "frontend/src/main.tsx",
+    "frontend/vite.config.ts",
+    "frontend/package.json",
+    "frontend/package-lock.json"
+  ],
+  "contractMarkers": {
+    "nginx_port_8080": true,
+    "spa_fallback": true,
+    "redirect_html": true,
+    "release_json": true,
+    "release_sha": true,
+    "build_id": true,
+    "origin_redirect": true,
+    "entra": true,
+    "api_url": true,
+    "separate_app_ids": true
+  }
+}

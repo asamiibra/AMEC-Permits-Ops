@@ -1,0 +1,16 @@
+{
+  "preMutation": {
+    "previewApp": "ResourceNotFound",
+    "previewIdentity": "ResourceNotFound",
+    "previewRepository": "not found",
+    "previewTag": "groundwork-c42e6c449483-20260829T032656Z"
+  },
+  "postMutation": {
+    "app": "proposalops-ui-preview",
+    "identity": "id-proposalops-ui-prev",
+    "repository": "proposalops/ui-preview",
+    "tags": [
+      "groundwork-c42e6c449483-20260829T032656Z"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "adminUserEnabled": false,
+  "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ContainerRegistry/registries/acrproposalopsproduae2bea2887",
+  "loginServer": "acrproposalopsproduae2bea2887.azurecr.io",
+  "name": "acrproposalopsproduae2bea2887",
+  "provisioningState": "Succeeded",
+  "publicNetworkAccess": "Enabled",
+  "roleAssignmentMode": "LegacyRegistryPermissions",
+  "sku": "Premium"
+}

@@ -1,0 +1,24 @@
+{
+  "registry": "acrproposalopsproduae2bea2887",
+  "repository": "proposalops/ui-preview",
+  "tag": "groundwork-c42e6c449483-20260829T032656Z",
+  "digest": "sha256:56bfb19d3e2c1b3d0367cc4925809ccb6bf26e864b8f40148bf13cfbb4123d6b",
+  "manifest": {
+    "changeableAttributes": {
+      "deleteEnabled": true,
+      "listEnabled": true,
+      "readEnabled": true,
+      "writeEnabled": true
+    },
+    "createdTime": "2026-08-29T03:29:10.6058626Z",
+    "digest": "sha256:56bfb19d3e2c1b3d0367cc4925809ccb6bf26e864b8f40148bf13cfbb4123d6b",
+    "lastUpdateTime": "2026-08-29T03:29:10.6058626Z",
+    "name": "groundwork-c42e6c449483-20260829T032656Z",
+    "signed": false
+  },
+  "releaseProvenance": {
+    "releaseSha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+    "buildId": "20260829T032656Z"
+  },
+  "digestMatchesExpected": true
+}

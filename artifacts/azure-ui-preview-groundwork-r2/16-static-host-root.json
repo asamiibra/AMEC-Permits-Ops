@@ -1,0 +1,23 @@
+{
+  "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/",
+  "status": 200,
+  "asset": "assets/main-BPELHWWT.js",
+  "bodyContainsAsset": true,
+  "headers": {
+    "server": "nginx",
+    "date": "Sat, 29 Aug 2026 03:31:19 GMT",
+    "content-type": "text/html",
+    "content-length": "617",
+    "last-modified": "Sat, 29 Aug 2026 03:28:47 GMT",
+    "etag": "\"6a9251ef-269\"",
+    "strict-transport-security": "max-age=31536000",
+    "x-frame-options": "SAMEORIGIN",
+    "permissions-policy": "camera=(), microphone=(), geolocation=()",
+    "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+    "cache-control": "no-cache, must-revalidate",
+    "cross-origin-opener-policy": "same-origin",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "accept-ranges": "bytes"
+  }
+}

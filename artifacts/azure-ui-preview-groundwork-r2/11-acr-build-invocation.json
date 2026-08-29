@@ -1,0 +1,23 @@
+{
+  "authority": "ACR cloud build only",
+  "runId": "dg6",
+  "status": "successful",
+  "registry": "acrproposalopsproduae2bea2887",
+  "repository": "proposalops/ui-preview",
+  "tag": "groundwork-c42e6c449483-20260829T032656Z",
+  "buildId": "20260829T032656Z",
+  "sourceCommit": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "context": "frontend",
+  "dockerfile": "frontend/Dockerfile",
+  "buildArgs": {
+    "VITE_ENTRA_TENANT_ID": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+    "VITE_ENTRA_WEB_CLIENT_ID": "0c6ed940-01ca-416c-832f-406ca00212cd",
+    "VITE_ENTRA_API_CLIENT_ID": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+    "VITE_API_URL": "https://proposalops-api-preprod.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+    "RELEASE_SHA": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+    "BUILD_ID": "20260829T032656Z"
+  },
+  "localDockerUsed": false,
+  "latestTagUsed": false,
+  "buildCount": 1
+}

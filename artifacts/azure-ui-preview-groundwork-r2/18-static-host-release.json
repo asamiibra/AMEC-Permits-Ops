@@ -1,0 +1,25 @@
+{
+  "url": "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/release.json",
+  "status": 200,
+  "headers": {
+    "server": "nginx",
+    "date": "Sat, 29 Aug 2026 03:31:20 GMT",
+    "content-type": "application/json,application/json",
+    "content-length": "89",
+    "last-modified": "Sat, 29 Aug 2026 03:28:58 GMT",
+    "etag": "\"6a9251fa-59\"",
+    "strict-transport-security": "max-age=31536000",
+    "x-frame-options": "SAMEORIGIN",
+    "permissions-policy": "camera=(), microphone=(), geolocation=()",
+    "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+    "cache-control": "no-store",
+    "x-content-type-options": "nosniff",
+    "accept-ranges": "bytes"
+  },
+  "body": {
+    "release_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+    "build_id": "20260829T032656Z"
+  },
+  "shaMatchesC42": true,
+  "buildIdMatches": true
+}

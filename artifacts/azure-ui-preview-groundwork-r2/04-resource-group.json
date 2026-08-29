@@ -1,0 +1,14 @@
+{
+  "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae",
+  "location": "uaenorth",
+  "name": "rg-proposalops-prod-uae",
+  "provisioningState": "Succeeded",
+  "tags": {
+    "Application": "ProposalOps",
+    "DataBoundary": "SyntheticOnly",
+    "DeploymentStage": "Commissioning",
+    "FutureRegion": "Qatar-Central",
+    "Purpose": "AzureSQL",
+    "TargetRegion": "UAE-North"
+  }
+}

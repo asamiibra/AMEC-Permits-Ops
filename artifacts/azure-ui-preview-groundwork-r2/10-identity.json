@@ -1,0 +1,16 @@
+{
+  "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourcegroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-ui-prev",
+  "name": "id-proposalops-ui-prev",
+  "location": "uaenorth",
+  "principalId": "2f0a0760-98ab-4e67-bf42-993f63fab4f1",
+  "clientId": "0faf9ad6-de76-4c2b-b61c-99ec724f2666",
+  "tags": {
+    "Application": "ProposalOps",
+    "DataMode": "synthetic_only",
+    "Environment": "ui-preview",
+    "Lane": "ui-preview",
+    "Production": "false",
+    "Purpose": "acr-pull"
+  },
+  "attachedToPreviewOnly": true
+}

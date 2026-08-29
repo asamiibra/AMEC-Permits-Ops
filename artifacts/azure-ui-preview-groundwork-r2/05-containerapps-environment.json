@@ -1,0 +1,22 @@
+{
+  "defaultDomain": "agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae",
+  "location": "UAE North",
+  "name": "cae-proposalops-prod-uae",
+  "provisioningState": "Succeeded",
+  "publicNetworkAccess": "Enabled",
+  "tags": {
+    "Application": "ProposalOps",
+    "DataBoundary": "SyntheticOnly",
+    "DeploymentStage": "Commissioning",
+    "Purpose": "UAEContainerAppsRuntime"
+  },
+  "vnetInternal": false,
+  "workloadProfiles": [
+    {
+      "enableFips": false,
+      "name": "Consumption",
+      "workloadProfileType": "Consumption"
+    }
+  ]
+}

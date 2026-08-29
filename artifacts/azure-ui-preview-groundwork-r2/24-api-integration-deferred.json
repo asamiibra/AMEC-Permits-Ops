@@ -1,0 +1,11 @@
+{
+  "apiIntegration": "NOT_AUTHORIZED",
+  "dataBackedPreview": false,
+  "apiOrigin": "https://proposalops-api-preprod.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "apiApp": "ProposalOps P0 API V2",
+  "corsChanges": 0,
+  "sqlChanges": 0,
+  "synologyChanges": 0,
+  "interactiveLogin": "NOT_EXECUTED_OWNER_INTERACTION_REQUIRED",
+  "reason": "Explicitly deferred and forbidden by brief."
+}

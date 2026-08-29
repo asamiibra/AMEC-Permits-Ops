@@ -1,0 +1,22 @@
+{
+  "objectId": "53345530-9182-4433-9e44-ab7cbca613ed",
+  "appId": "0c6ed940-01ca-416c-832f-406ca00212cd",
+  "displayName": "ProposalOps P0 Web V2",
+  "signInAudience": "AzureADMyOrg",
+  "spaRedirectUris": [],
+  "webRedirectUris": [],
+  "requiredResourceAccess": [
+    {
+      "resourceAccess": [
+        {
+          "id": "195ff067-c63b-4adf-9d36-f35888b6897f",
+          "type": "Scope"
+        }
+      ],
+      "resourceAppId": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e"
+    }
+  ],
+  "passwordCredentials": 0,
+  "keyCredentials": 0,
+  "sha256": "cdc50e138e5a2a8b488479cb03d0a6bb7d1d556caf8e6bfca3e2570081d2cf30"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "proposalops-ui-preview",
+  "resourceGroup": "rg-proposalops-prod-uae",
+  "environmentId": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae",
+  "image": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T032656Z",
+  "registryServer": "acrproposalopsproduae2bea2887.azurecr.io",
+  "registryIdentity": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourcegroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-ui-prev",
+  "userAssignedIdentity": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourcegroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-ui-prev",
+  "workloadProfile": "Consumption",
+  "ingress": "external",
+  "targetPort": 8080,
+  "allowInsecure": false,
+  "minReplicas": 0,
+  "maxReplicas": 2,
+  "cpu": 0.25,
+  "memory": "0.5Gi",
+  "revisionsMode": "single",
+  "dapr": "disabled/no configuration",
+  "envVars": "omitted",
+  "secrets": "omitted",
+  "volumes": "omitted",
+  "customDomain": "omitted"
+}

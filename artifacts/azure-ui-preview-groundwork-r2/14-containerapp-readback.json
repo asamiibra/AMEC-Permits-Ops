@@ -1,0 +1,40 @@
+{
+  "allowInsecure": false,
+  "configurationDapr": null,
+  "containers": [
+    {
+      "image": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T032656Z",
+      "imageType": "ContainerImage",
+      "name": "proposalops-ui-preview",
+      "resources": {
+        "cpu": 0.25,
+        "ephemeralStorage": "1Gi",
+        "memory": "0.5Gi"
+      }
+    }
+  ],
+  "environmentId": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae",
+  "fqdn": "proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+  "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/containerapps/proposalops-ui-preview",
+  "identity": {
+    "type": "UserAssigned",
+    "userAssignedIdentities": {
+      "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourcegroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-ui-prev": {
+        "clientId": "0faf9ad6-de76-4c2b-b61c-99ec724f2666",
+        "principalId": "2f0a0760-98ab-4e67-bf42-993f63fab4f1"
+      }
+    }
+  },
+  "ingress": true,
+  "latestReadyRevisionName": "proposalops-ui-preview--cff959k",
+  "latestRevisionName": "proposalops-ui-preview--cff959k",
+  "location": "UAE North",
+  "maxReplicas": 2,
+  "minReplicas": 0,
+  "name": "proposalops-ui-preview",
+  "provisioningState": "Succeeded",
+  "targetPort": 8080,
+  "templateDapr": null,
+  "transport": "Auto",
+  "workloadProfile": "Consumption"
+}

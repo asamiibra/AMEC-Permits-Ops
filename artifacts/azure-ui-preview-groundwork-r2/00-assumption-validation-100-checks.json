@@ -1,0 +1,924 @@
+{
+  "generated_at_utc": "2026-08-29T03:22:27.695Z",
+  "scope": "AZURE_UI_PREVIEW_GROUNDWORK_R2",
+  "baseline_sha": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+  "checks": [
+    {
+      "id": "A01",
+      "group": "A",
+      "assertion": "accepted source commit exists",
+      "result": "PASS",
+      "evidence": "c42e6c449483b0951de0f366d700dbaf7b9e5525"
+    },
+    {
+      "id": "A02",
+      "group": "A",
+      "assertion": "accepted source tree matches expected",
+      "result": "PASS",
+      "evidence": "a497c6951064119453d175d1b93d4e59c9029fd0"
+    },
+    {
+      "id": "A03",
+      "group": "A",
+      "assertion": "accepted source parent is exact",
+      "result": "PASS",
+      "evidence": "de6f6d0a6464a5c05e66c99ee0108299273f6bc0"
+    },
+    {
+      "id": "A04",
+      "group": "A",
+      "assertion": "accepted frontend subtree is recorded",
+      "result": "PASS",
+      "evidence": "0fd21769c398f70c8f956a01c9e1f107d37ed5aa"
+    },
+    {
+      "id": "A05",
+      "group": "A",
+      "assertion": "current worktree path is captured",
+      "result": "PASS",
+      "evidence": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev"
+    },
+    {
+      "id": "A06",
+      "group": "A",
+      "assertion": "current branch is captured",
+      "result": "PASS",
+      "evidence": "azure-p0-v25-preauthorization-repair-v1"
+    },
+    {
+      "id": "A07",
+      "group": "A",
+      "assertion": "current HEAD is captured",
+      "result": "PASS",
+      "evidence": "0dd403fbf3f3100f283cd1ee1274465ded81998c"
+    },
+    {
+      "id": "A08",
+      "group": "A",
+      "assertion": "current tree is captured",
+      "result": "PASS",
+      "evidence": "a250658597d47354b196698cfcc905c672e9c21b"
+    },
+    {
+      "id": "A09",
+      "group": "A",
+      "assertion": "active worktree changes are preserved",
+      "result": "PASS",
+      "evidence": "4 status entries including census artifacts"
+    },
+    {
+      "id": "A10",
+      "group": "A",
+      "assertion": "active frontend divergence is captured",
+      "result": "PASS",
+      "evidence": "88 frontend paths vs c42"
+    },
+    {
+      "id": "B01",
+      "group": "B",
+      "assertion": "Azure CLI is installed",
+      "result": "PASS",
+      "evidence": "2.89.1"
+    },
+    {
+      "id": "B02",
+      "group": "B",
+      "assertion": "Azure CLI version is supported",
+      "result": "PASS",
+      "evidence": "2.89.1"
+    },
+    {
+      "id": "B03",
+      "group": "B",
+      "assertion": "containerapp extension is installed",
+      "result": "PASS",
+      "evidence": "containerapp extension"
+    },
+    {
+      "id": "B04",
+      "group": "B",
+      "assertion": "containerapp create exposes registry identity",
+      "result": "PASS",
+      "evidence": "--registry-identity"
+    },
+    {
+      "id": "B05",
+      "group": "B",
+      "assertion": "containerapp create exposes target port",
+      "result": "PASS",
+      "evidence": "--target-port"
+    },
+    {
+      "id": "B06",
+      "group": "B",
+      "assertion": "containerapp create exposes HTTPS ingress controls",
+      "result": "PASS",
+      "evidence": "--ingress/--allow-insecure"
+    },
+    {
+      "id": "B07",
+      "group": "B",
+      "assertion": "containerapp create exposes preview scale controls",
+      "result": "PASS",
+      "evidence": "--min-replicas/--max-replicas"
+    },
+    {
+      "id": "B08",
+      "group": "B",
+      "assertion": "ACR build exposes unique image option",
+      "result": "PASS",
+      "evidence": "--image"
+    },
+    {
+      "id": "B09",
+      "group": "B",
+      "assertion": "ACR build exposes build args",
+      "result": "PASS",
+      "evidence": "--build-arg"
+    },
+    {
+      "id": "B10",
+      "group": "B",
+      "assertion": "groundwork branch is absent locally and remotely",
+      "result": "PASS",
+      "evidence": "local=false, remote=absent"
+    },
+    {
+      "id": "C01",
+      "group": "C",
+      "assertion": "Azure account is authenticated",
+      "result": "PASS",
+      "evidence": "a.sami.ibra@gmail.com"
+    },
+    {
+      "id": "C02",
+      "group": "C",
+      "assertion": "subscription display name is exact",
+      "result": "PASS",
+      "evidence": "AMEC Subscription"
+    },
+    {
+      "id": "C03",
+      "group": "C",
+      "assertion": "subscription ID is exact",
+      "result": "PASS",
+      "evidence": "2bea2887-9255-4273-a73f-43ae33813455"
+    },
+    {
+      "id": "C04",
+      "group": "C",
+      "assertion": "tenant ID is captured",
+      "result": "PASS",
+      "evidence": "2a82f16d-87fa-4036-97a9-17d94060eddd"
+    },
+    {
+      "id": "C05",
+      "group": "C",
+      "assertion": "resource group exists exact",
+      "result": "PASS",
+      "evidence": "rg-proposalops-prod-uae"
+    },
+    {
+      "id": "C06",
+      "group": "C",
+      "assertion": "resource group location is UAE North",
+      "result": "PASS",
+      "evidence": "uaenorth"
+    },
+    {
+      "id": "C07",
+      "group": "C",
+      "assertion": "resource group provisioning succeeded",
+      "result": "PASS",
+      "evidence": null
+    },
+    {
+      "id": "C08",
+      "group": "C",
+      "assertion": "ACA environment exists exact",
+      "result": "PASS",
+      "evidence": "cae-proposalops-prod-uae"
+    },
+    {
+      "id": "C09",
+      "group": "C",
+      "assertion": "ACA environment provisioning succeeded",
+      "result": "PASS",
+      "evidence": "Succeeded"
+    },
+    {
+      "id": "C10",
+      "group": "C",
+      "assertion": "ACA environment has external public network",
+      "result": "PASS",
+      "evidence": "{\"publicNetworkAccess\":\"Enabled\",\"internal\":false}"
+    },
+    {
+      "id": "D01",
+      "group": "D",
+      "assertion": "canonical API resource is absent",
+      "result": "PASS",
+      "evidence": "ABSENT"
+    },
+    {
+      "id": "D02",
+      "group": "D",
+      "assertion": "canonical web resource is absent",
+      "result": "PASS",
+      "evidence": "ABSENT"
+    },
+    {
+      "id": "D03",
+      "group": "D",
+      "assertion": "preview app resource is absent",
+      "result": "PASS",
+      "evidence": "ABSENT"
+    },
+    {
+      "id": "D04",
+      "group": "D",
+      "assertion": "no unexpected Container Apps are present",
+      "result": "PASS",
+      "evidence": "0 apps"
+    },
+    {
+      "id": "D05",
+      "group": "D",
+      "assertion": "Container App Jobs are inventoried",
+      "result": "PASS",
+      "evidence": "35 jobs"
+    },
+    {
+      "id": "D06",
+      "group": "D",
+      "assertion": "canonical API mutation is not authorized",
+      "result": "NOT_APPLICABLE_WITH_REASON",
+      "evidence": "frozen by brief",
+      "reason": "Explicitly frozen or deferred by the execution brief; no mutation or inference is authorized in this lane."
+    },
+    {
+      "id": "D07",
+      "group": "D",
+      "assertion": "canonical web mutation is not authorized",
+      "result": "NOT_APPLICABLE_WITH_REASON",
+      "evidence": "frozen by brief",
+      "reason": "Explicitly frozen or deferred by the execution brief; no mutation or inference is authorized in this lane."
+    },
+    {
+      "id": "D08",
+      "group": "D",
+      "assertion": "preview app name is unoccupied",
+      "result": "PASS",
+      "evidence": "ABSENT"
+    },
+    {
+      "id": "D09",
+      "group": "D",
+      "assertion": "canonical API reserved origin can be derived",
+      "result": "PASS",
+      "evidence": "https://proposalops-api-preprod.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io"
+    },
+    {
+      "id": "D10",
+      "group": "D",
+      "assertion": "canonical app traffic mutation is not authorized",
+      "result": "NOT_APPLICABLE_WITH_REASON",
+      "evidence": "frozen by brief",
+      "reason": "Explicitly frozen or deferred by the execution brief; no mutation or inference is authorized in this lane."
+    },
+    {
+      "id": "E01",
+      "group": "E",
+      "assertion": "ACR exists exact",
+      "result": "PASS",
+      "evidence": "acrproposalopsproduae2bea2887"
+    },
+    {
+      "id": "E02",
+      "group": "E",
+      "assertion": "ACR location matches resource group",
+      "result": "PASS",
+      "evidence": "uaenorth"
+    },
+    {
+      "id": "E03",
+      "group": "E",
+      "assertion": "ACR login server is exact",
+      "result": "PASS",
+      "evidence": "acrproposalopsproduae2bea2887.azurecr.io"
+    },
+    {
+      "id": "E04",
+      "group": "E",
+      "assertion": "ACR SKU is Premium",
+      "result": "PASS",
+      "evidence": "Premium"
+    },
+    {
+      "id": "E05",
+      "group": "E",
+      "assertion": "ACR uses classic legacy permissions",
+      "result": "PASS",
+      "evidence": "LegacyRegistryPermissions"
+    },
+    {
+      "id": "E06",
+      "group": "E",
+      "assertion": "ACR ARM authentication is enabled",
+      "result": "PASS",
+      "evidence": "{\"status\":\"enabled\"}"
+    },
+    {
+      "id": "E07",
+      "group": "E",
+      "assertion": "ACR public network access is enabled",
+      "result": "PASS",
+      "evidence": "Enabled"
+    },
+    {
+      "id": "E08",
+      "group": "E",
+      "assertion": "ACR admin credentials are disabled",
+      "result": "PASS",
+      "evidence": "false"
+    },
+    {
+      "id": "E09",
+      "group": "E",
+      "assertion": "preview repository is currently absent",
+      "result": "PASS",
+      "evidence": "state=absent"
+    },
+    {
+      "id": "E10",
+      "group": "E",
+      "assertion": "ACR role assignments are readable",
+      "result": "PASS",
+      "evidence": "3 assignments"
+    },
+    {
+      "id": "F01",
+      "group": "F",
+      "assertion": "exact API registration is unique",
+      "result": "PASS",
+      "evidence": "ProposalOps P0 API V2"
+    },
+    {
+      "id": "F02",
+      "group": "F",
+      "assertion": "API registration is single tenant",
+      "result": "PASS",
+      "evidence": "AzureADMyOrg"
+    },
+    {
+      "id": "F03",
+      "group": "F",
+      "assertion": "API access token version is 2",
+      "result": "PASS",
+      "evidence": "2"
+    },
+    {
+      "id": "F04",
+      "group": "F",
+      "assertion": "API identifier URI is exact",
+      "result": "PASS",
+      "evidence": "[\"api://a4c5f430-90ce-43ee-9e4e-1a07722bdf8e\"]"
+    },
+    {
+      "id": "F05",
+      "group": "F",
+      "assertion": "API has one delegated scope",
+      "result": "PASS",
+      "evidence": "1"
+    },
+    {
+      "id": "F06",
+      "group": "F",
+      "assertion": "API scope value is access_as_user",
+      "result": "PASS",
+      "evidence": "access_as_user"
+    },
+    {
+      "id": "F07",
+      "group": "F",
+      "assertion": "API scope is enabled user scope",
+      "result": "PASS",
+      "evidence": "{\"isEnabled\":true,\"type\":\"User\"}"
+    },
+    {
+      "id": "F08",
+      "group": "F",
+      "assertion": "API has no password credentials",
+      "result": "PASS",
+      "evidence": "0"
+    },
+    {
+      "id": "F09",
+      "group": "F",
+      "assertion": "API has no key credentials",
+      "result": "PASS",
+      "evidence": "0"
+    },
+    {
+      "id": "F10",
+      "group": "F",
+      "assertion": "API registration has no unexpected required resource access",
+      "result": "PASS",
+      "evidence": "0"
+    },
+    {
+      "id": "G01",
+      "group": "G",
+      "assertion": "exact Web registration is unique",
+      "result": "PASS",
+      "evidence": "ProposalOps P0 Web V2"
+    },
+    {
+      "id": "G02",
+      "group": "G",
+      "assertion": "Web registration is separate app ID",
+      "result": "PASS",
+      "evidence": "0c6ed940-01ca-416c-832f-406ca00212cd"
+    },
+    {
+      "id": "G03",
+      "group": "G",
+      "assertion": "Web registration is single tenant",
+      "result": "PASS",
+      "evidence": "AzureADMyOrg"
+    },
+    {
+      "id": "G04",
+      "group": "G",
+      "assertion": "Web has one required API resource",
+      "result": "PASS",
+      "evidence": "[\"a4c5f430-90ce-43ee-9e4e-1a07722bdf8e\"]"
+    },
+    {
+      "id": "G05",
+      "group": "G",
+      "assertion": "Web requests exact access_as_user scope ID",
+      "result": "PASS",
+      "evidence": "[{\"id\":\"195ff067-c63b-4adf-9d36-f35888b6897f\",\"type\":\"Scope\"}]"
+    },
+    {
+      "id": "G06",
+      "group": "G",
+      "assertion": "Web request type is Scope",
+      "result": "PASS",
+      "evidence": "Scope"
+    },
+    {
+      "id": "G07",
+      "group": "G",
+      "assertion": "Web has SPA platform object",
+      "result": "PASS",
+      "evidence": "present"
+    },
+    {
+      "id": "G08",
+      "group": "G",
+      "assertion": "Web currently has no SPA redirect",
+      "result": "PASS",
+      "evidence": "0"
+    },
+    {
+      "id": "G09",
+      "group": "G",
+      "assertion": "Web currently has no web redirects",
+      "result": "PASS",
+      "evidence": "0"
+    },
+    {
+      "id": "G10",
+      "group": "G",
+      "assertion": "Web has no credentials",
+      "result": "PASS",
+      "evidence": "{\"password\":0,\"key\":0}"
+    },
+    {
+      "id": "H01",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/Dockerfile /8080/",
+      "result": "PASS",
+      "evidence": "/8080/"
+    },
+    {
+      "id": "H02",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/nginx.conf /try_files/",
+      "result": "PASS",
+      "evidence": "/try_files/"
+    },
+    {
+      "id": "H03",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/nginx.conf /redirect\\.html/",
+      "result": "PASS",
+      "evidence": "/redirect\\.html/"
+    },
+    {
+      "id": "H04",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/nginx.conf /release\\.json/",
+      "result": "PASS",
+      "evidence": "/release\\.json/"
+    },
+    {
+      "id": "H05",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/main /RELEASE_SHA/",
+      "result": "PASS",
+      "evidence": "/RELEASE_SHA/"
+    },
+    {
+      "id": "H06",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/main /BUILD_ID/",
+      "result": "PASS",
+      "evidence": "/BUILD_ID/"
+    },
+    {
+      "id": "H07",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/src/auth.ts /window\\.location\\.origin/",
+      "result": "PASS",
+      "evidence": "/window\\.location\\.origin/"
+    },
+    {
+      "id": "H08",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/src/auth.ts /ENTRA/",
+      "result": "PASS",
+      "evidence": "/ENTRA/"
+    },
+    {
+      "id": "H09",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/vite.config.ts /VITE_API_URL/",
+      "result": "PASS",
+      "evidence": "/VITE_API_URL/"
+    },
+    {
+      "id": "H10",
+      "group": "H",
+      "assertion": "c42 contract marker frontend/package.json /\"build\"/",
+      "result": "PASS",
+      "evidence": "/\"build\"/"
+    },
+    {
+      "id": "I01",
+      "group": "I",
+      "assertion": "original worktree is not being used as build context",
+      "result": "PASS",
+      "evidence": "separate worktree required by brief"
+    },
+    {
+      "id": "I02",
+      "group": "I",
+      "assertion": "backend source mutation count is zero before gate",
+      "result": "PASS",
+      "evidence": "status backend empty"
+    },
+    {
+      "id": "I03",
+      "group": "I",
+      "assertion": "migration mutation count is zero before gate",
+      "result": "PASS",
+      "evidence": "status migrations empty"
+    },
+    {
+      "id": "I04",
+      "group": "I",
+      "assertion": "Azure source mutation count is zero before gate",
+      "result": "PASS",
+      "evidence": "status infra/azure empty"
+    },
+    {
+      "id": "I05",
+      "group": "I",
+      "assertion": "GitHub workflow mutation count is zero before gate",
+      "result": "PASS",
+      "evidence": "status .github empty"
+    },
+    {
+      "id": "I06",
+      "group": "I",
+      "assertion": "SQL reads are zero in this run",
+      "result": "PASS",
+      "evidence": "no SQL command executed"
+    },
+    {
+      "id": "I07",
+      "group": "I",
+      "assertion": "Azure Files reads are zero in this run",
+      "result": "PASS",
+      "evidence": "no Azure Files command executed"
+    },
+    {
+      "id": "I08",
+      "group": "I",
+      "assertion": "Synology reads/writes are zero in this run",
+      "result": "PASS",
+      "evidence": "no Synology command executed"
+    },
+    {
+      "id": "I09",
+      "group": "I",
+      "assertion": "real-data reads/writes are zero in this run",
+      "result": "PASS",
+      "evidence": "no real-data command executed"
+    },
+    {
+      "id": "I10",
+      "group": "I",
+      "assertion": "API integration is deferred and CORS is unchanged",
+      "result": "PASS",
+      "evidence": "DEFERRED_SINGLE_ORIGIN_CONTRACT"
+    },
+    {
+      "id": "J01",
+      "group": "J",
+      "assertion": "Microsoft.App provider is registered",
+      "result": "PASS",
+      "evidence": "Microsoft.App Registered"
+    },
+    {
+      "id": "J02",
+      "group": "J",
+      "assertion": "Microsoft.ContainerRegistry provider is registered",
+      "result": "PASS",
+      "evidence": "Microsoft.ContainerRegistry Registered"
+    },
+    {
+      "id": "J03",
+      "group": "J",
+      "assertion": "ACA environment has Consumption workload profile",
+      "result": "PASS",
+      "evidence": "Consumption"
+    },
+    {
+      "id": "J04",
+      "group": "J",
+      "assertion": "ACA environment has no resource locks",
+      "result": "PASS",
+      "evidence": "0 locks"
+    },
+    {
+      "id": "J05",
+      "group": "J",
+      "assertion": "resource-group policy assignments are readable",
+      "result": "PASS",
+      "evidence": "0 assignments"
+    },
+    {
+      "id": "J06",
+      "group": "J",
+      "assertion": "Consumption quota has capacity",
+      "result": "PASS",
+      "evidence": "{\"currentValue\":0,\"limit\":100,\"name\":{\"localizedValue\":\"Managed Environment Consumption Cores\",\"value\":\"ManagedEnvironmentConsumptionCores\"},\"usage\":0}"
+    },
+    {
+      "id": "J07",
+      "group": "J",
+      "assertion": "preview pull identity is not yet occupied",
+      "result": "PASS",
+      "evidence": "name validation/read-before-create required"
+    },
+    {
+      "id": "J08",
+      "group": "J",
+      "assertion": "preview repository name is valid under ACR naming grammar",
+      "result": "PASS",
+      "evidence": "proposalops/ui-preview"
+    },
+    {
+      "id": "J09",
+      "group": "J",
+      "assertion": "custom domain mutation is not applicable now",
+      "result": "NOT_APPLICABLE_WITH_REASON",
+      "evidence": "permanent hostname not supplied",
+      "reason": "Explicitly frozen or deferred by the execution brief; no mutation or inference is authorized in this lane."
+    },
+    {
+      "id": "J10",
+      "group": "J",
+      "assertion": "interactive Entra login is optional owner interaction",
+      "result": "NOT_APPLICABLE_WITH_REASON",
+      "evidence": "not executed before preview exists",
+      "reason": "Explicitly frozen or deferred by the execution brief; no mutation or inference is authorized in this lane."
+    }
+  ],
+  "summary": {
+    "total": 100,
+    "PASS": 95,
+    "PARTIAL": 0,
+    "BLOCKING_GAP": 0,
+    "LIVE_DISCOVERY_REQUIRED": 0,
+    "HISTORICAL_PROOF_ONLY": 0,
+    "NOT_APPLICABLE_WITH_REASON": 5
+  },
+  "live_snapshot": {
+    "subscription": {
+      "id": "2bea2887-9255-4273-a73f-43ae33813455",
+      "name": "AMEC Subscription",
+      "tenantId": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+      "user": "a.sami.ibra@gmail.com"
+    },
+    "resource_group": {
+      "location": "uaenorth",
+      "name": "rg-proposalops-prod-uae",
+      "provisioningState": null
+    },
+    "aca_environment": {
+      "defaultDomain": "agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io",
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae",
+      "internal": false,
+      "location": "UAE North",
+      "name": "cae-proposalops-prod-uae",
+      "provisioningState": "Succeeded",
+      "publicNetworkAccess": "Enabled",
+      "workloadProfiles": [
+        {
+          "enableFips": false,
+          "name": "Consumption",
+          "workloadProfileType": "Consumption"
+        }
+      ]
+    },
+    "container_apps": [],
+    "container_app_jobs": [
+      {
+        "name": "p0-probe-v2",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-probe-v2"
+      },
+      {
+        "name": "p0-probe-v2-r2-27171837",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-probe-v2-r2-27171837"
+      },
+      {
+        "name": "p0-sql-bootstrap-v2-r2-27171837",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-bootstrap-v2-r2-27171837"
+      },
+      {
+        "name": "p0-sql-bootstrap-v2-2-27175029",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-bootstrap-v2-2-27175029"
+      },
+      {
+        "name": "p0-mi-token-v2-4-20260828000329",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-mi-token-v2-4-20260828000329"
+      },
+      {
+        "name": "p024-mi-diag-0828000347",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p024-mi-diag-0828000347"
+      },
+      {
+        "name": "p0-net-v2-5a-20260828015257",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-net-v2-5a-20260828015257"
+      },
+      {
+        "name": "p0-login-v2-5b-20260828024609",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-login-v2-5b-20260828024609"
+      },
+      {
+        "name": "p0-sql-r7-050133",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-r7-050133"
+      },
+      {
+        "name": "p0-sql-r8-052924",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-r8-052924"
+      },
+      {
+        "name": "p0-net-r9-131734",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-net-r9-131734"
+      },
+      {
+        "name": "p0-sql-r10-140449",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-r10-140449"
+      },
+      {
+        "name": "p0-sql-poststate-adj-v1",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-poststate-adj-v1"
+      },
+      {
+        "name": "p0-migrate-c1-20260828-164945",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-migrate-c1-20260828-164945"
+      },
+      {
+        "name": "p0-sql-poststate-adj-v2",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-poststate-adj-v2"
+      },
+      {
+        "name": "p0-sql-rootcause-v3",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-rootcause-v3"
+      },
+      {
+        "name": "p0-sql-root-c2-20260828-182441",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-root-c2-20260828-182441"
+      },
+      {
+        "name": "p0-sql-security-final-v1",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-v1"
+      },
+      {
+        "name": "p0-sql-root-c21-20260828-184948",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-root-c21-20260828-184948"
+      },
+      {
+        "name": "p0-sql-security-final-v2",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-v2"
+      },
+      {
+        "name": "p0-sql-security-final-0828191902",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-0828191902"
+      },
+      {
+        "name": "p0-sql-security-final-v3",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-v3"
+      },
+      {
+        "name": "p0-sql-security-terminal-v1",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-terminal-v1"
+      },
+      {
+        "name": "p0-sql-security-canonical-final",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-canonical-final"
+      },
+      {
+        "name": "p0-sql-security-canonical-v2",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-canonical-v2"
+      },
+      {
+        "name": "p0-sql-sec-canonical-repair",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-sec-canonical-repair"
+      },
+      {
+        "name": "p0-sql-auth-smoke-v1",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-auth-smoke-v1"
+      },
+      {
+        "name": "p0-token-selftest-final",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-token-selftest-final"
+      },
+      {
+        "name": "p0-token-selftest-corrective",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-token-selftest-corrective"
+      },
+      {
+        "name": "p0-sql-auth-smoke-final",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-auth-smoke-final"
+      },
+      {
+        "name": "p0-db-migrate-final",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-db-migrate-final"
+      },
+      {
+        "name": "p0-bootstrap-preprod-final",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-bootstrap-preprod-final"
+      },
+      {
+        "name": "p0-bootstrap-state-adjudication",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-bootstrap-state-adjudication"
+      },
+      {
+        "name": "p0-bootstrap-rehearse",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-bootstrap-rehearse"
+      },
+      {
+        "name": "p0-wb-smoke-final",
+        "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-wb-smoke-final"
+      }
+    ],
+    "acr": {
+      "adminUserEnabled": false,
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ContainerRegistry/registries/acrproposalopsproduae2bea2887",
+      "location": "uaenorth",
+      "loginServer": "acrproposalopsproduae2bea2887.azurecr.io",
+      "name": "acrproposalopsproduae2bea2887",
+      "provisioningState": "Succeeded",
+      "publicNetworkAccess": "Enabled",
+      "roleAssignmentMode": "LegacyRegistryPermissions",
+      "sku": "Premium"
+    },
+    "acr_arm_auth": {
+      "status": "enabled"
+    },
+    "entra_api": {
+      "id": "b91e7ef3-2845-45d8-9cae-cef0a03af712",
+      "appId": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e",
+      "displayName": "ProposalOps P0 API V2"
+    },
+    "entra_web": {
+      "id": "53345530-9182-4433-9e44-ab7cbca613ed",
+      "appId": "0c6ed940-01ca-416c-832f-406ca00212cd",
+      "displayName": "ProposalOps P0 Web V2"
+    }
+  },
+  "mutation_gate": "OPEN_IF_NO_BLOCKING_GAP",
+  "validation": {
+    "exact_check_count": true,
+    "allowed_result_vocabulary": true,
+    "duplicate_ids": false,
+    "blocking_gate_clear": true
+  }
+}

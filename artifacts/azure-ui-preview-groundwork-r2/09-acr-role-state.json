@@ -1,0 +1,14 @@
+{
+  "mode": "LegacyRegistryPermissions",
+  "identityPrincipalId": "2f0a0760-98ab-4e67-bf42-993f63fab4f1",
+  "assignments": [
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ContainerRegistry/registries/acrproposalopsproduae2bea2887/providers/Microsoft.Authorization/roleAssignments/6365b7e5-6305-400a-bed3-ef6615dc7566",
+      "role": "AcrPull",
+      "scope": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ContainerRegistry/registries/acrproposalopsproduae2bea2887",
+      "principalId": "2f0a0760-98ab-4e67-bf42-993f63fab4f1",
+      "principalType": "ServicePrincipal"
+    }
+  ],
+  "exactLeastPrivilege": true
+}

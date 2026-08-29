@@ -1,0 +1,25 @@
+{
+  "objectId": "53345530-9182-4433-9e44-ab7cbca613ed",
+  "appId": "0c6ed940-01ca-416c-832f-406ca00212cd",
+  "displayName": "ProposalOps P0 Web V2",
+  "signInAudience": "AzureADMyOrg",
+  "spaRedirectUris": [
+    "https://proposalops-ui-preview.agreeablemoss-d49f9b26.uaenorth.azurecontainerapps.io/redirect.html"
+  ],
+  "webRedirectUris": [],
+  "requiredResourceAccess": [
+    {
+      "resourceAccess": [
+        {
+          "id": "195ff067-c63b-4adf-9d36-f35888b6897f",
+          "type": "Scope"
+        }
+      ],
+      "resourceAppId": "a4c5f430-90ce-43ee-9e4e-1a07722bdf8e"
+    }
+  ],
+  "passwordCredentials": 0,
+  "keyCredentials": 0,
+  "sha256": "9c4ce815367cfed00cecf6bab4bde33dbc5f6ec222b99778598cec9f1e19a451",
+  "onlyAuthorizedChange": "spa.redirectUris additive exact preview URI"
+}

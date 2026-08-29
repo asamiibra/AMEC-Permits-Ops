@@ -1,0 +1,22 @@
+{
+  "revisions": [
+    {
+      "name": "proposalops-ui-preview--cff959k",
+      "active": true,
+      "healthState": "Healthy",
+      "provisioningState": "Provisioned",
+      "runningState": "Running",
+      "replicas": 1,
+      "trafficWeight": 100,
+      "image": "acrproposalopsproduae2bea2887.azurecr.io/proposalops/ui-preview:groundwork-c42e6c449483-20260829T032656Z",
+      "scale": {
+        "cooldownPeriod": null,
+        "maxReplicas": 2,
+        "minReplicas": 0,
+        "pollingInterval": null,
+        "rules": null
+      }
+    }
+  ],
+  "ready": true
+}
