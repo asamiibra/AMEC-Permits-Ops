@@ -1,0 +1,14 @@
+{
+  "V4_SOURCE_RESULT": "USEFUL_VALID_SOURCE_EVIDENCE",
+  "V4_SEMANTIC_CORRECTIONS": "ACCEPTED_AS_INPUT_AFTER_FRESH_VERIFICATION",
+  "V4_C4_FINAL_CERTIFICATION_AUTHORITY": "SUPERSEDED",
+  "V4_FINAL_010_INTERNAL_CONTRADICTION": true,
+  "V4_FINAL_010_OBSERVED": 0,
+  "V4_FINAL_010_EXPECTED": 1,
+  "V4_FINAL_010_RECORDED_EVALUATION": true,
+  "V4_FINAL_010_RECORDED_RESULT": "PASS",
+  "V4_FINAL50_VALIDATOR_STUB": true,
+  "V4_SCHEMA_HANDOFF_STATE_STALE": true,
+  "HISTORICAL_REWRITE": false,
+  "reason": "The source and semantic evidence remain useful after fresh verification; only C4 certification authority is superseded because its final row is internally impossible, its validator is a stub, and its schema handoff state is stale."
+}

@@ -1,0 +1,23 @@
+{
+  "SOURCE_SHA": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "RUNTIME_EVIDENCE_REUSED": true,
+  "RUNTIME_REFERENCE_COMMIT": "8da1aea8478d9ef08ff6a93a24b2b508758300aa",
+  "RUNTIME_REFERENCE_PATH": "artifacts/ui-ux-r1-clean-handoff-v3/17-full-ui-crawl",
+  "route_count": 66,
+  "applicable_route_persona_combinations": 104,
+  "viewports": [
+    "390",
+    "834",
+    "1024",
+    "1280",
+    "1440",
+    "1920"
+  ],
+  "scenario_count": 624,
+  "pass_count": 624,
+  "failure_count": 0,
+  "screenshot_count": 624,
+  "mobile_pass_count": 25,
+  "original_gate_pass_count": 28,
+  "no_624_rerun": true
+}

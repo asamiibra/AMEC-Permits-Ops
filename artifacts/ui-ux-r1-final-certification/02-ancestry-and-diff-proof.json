@@ -1,0 +1,19 @@
+{
+  "C4": "8da1aea8478d9ef08ff6a93a24b2b508758300aa",
+  "H4": "3a7fe70ec447b4c977fc6cee60db5f8b149bbbab",
+  "E4": "5f994931f3ddbe3a6266d6bdb6a8681956fc9e9e",
+  "H3": "8ba42bfe6c32339df45527007bdbf089087e919f",
+  "parents": {
+    "C4": "3a7fe70ec447b4c977fc6cee60db5f8b149bbbab",
+    "H4": "5f994931f3ddbe3a6266d6bdb6a8681956fc9e9e",
+    "E4": "8ba42bfe6c32339df45527007bdbf089087e919f"
+  },
+  "S_ancestor_C4": true,
+  "E4_to_H4_changed_paths": [
+    "artifacts/ui-ux-r1-clean-handoff-v4/24-azure-handoff.json"
+  ],
+  "H4_to_C4_changed_paths": [
+    "artifacts/ui-ux-r1-clean-handoff-v4/25-final-certification.json"
+  ],
+  "source_paths_changed_in_C4": []
+}

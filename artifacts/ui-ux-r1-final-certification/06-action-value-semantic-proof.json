@@ -1,0 +1,34 @@
+{
+  "SOURCE_SHA": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "actions": {
+    "count": 6,
+    "classes": {
+      "AMECWORK-INITIAL-LOAD": "READ_REFRESH",
+      "AMECWORK-RETRY": "READ_REFRESH",
+      "AMECWORK-KPI": "READ_REFRESH_TRIGGER",
+      "AMECWORK-TEAM": "READ_REFRESH_TRIGGER",
+      "AMECWORK-WORK-DOMAIN": "READ_REFRESH_TRIGGER",
+      "AMECWORK-CLEAR-FILTERS": "READ_REFRESH_TRIGGER"
+    },
+    "api_backed_local_misclassification": 0,
+    "indirect_api_local_misclassification": 0,
+    "unresolved": 0
+  },
+  "values": {
+    "unresolved": 0,
+    "canonical_paths": [
+      "data.summary",
+      "data.items",
+      "data.has_unassigned",
+      "data.unfiltered_visible_count",
+      "data.context_visible_count",
+      "data.recent_changes"
+    ],
+    "canonical_route_status": [
+      "EXACT_BACKEND_ROUTE"
+    ],
+    "canonical_function": [
+      "work"
+    ]
+  }
+}

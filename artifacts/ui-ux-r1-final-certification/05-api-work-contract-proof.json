@@ -1,0 +1,12 @@
+{
+  "SOURCE_SHA": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "frontend_path_template": "/api/work?{query}",
+  "method": "GET",
+  "backend_prefix": "/api/work",
+  "backend_function": "work",
+  "backend_decorator_exact": true,
+  "backend_match": "EXACT_BACKEND_ROUTE",
+  "backend_contract_gap_count": 0,
+  "api_family_unresolved": 0,
+  "auth_registration": true
+}

@@ -1,0 +1,850 @@
+{
+  "FINAL_COUNT": 50,
+  "FINAL_PASS": 50,
+  "FINAL_FAIL": 0,
+  "FINAL_DUPLICATE_IDS": 0,
+  "FINAL_DUPLICATE_PROPOSITIONS": 0,
+  "FINAL_UNSUPPORTED_OPERATORS": 0,
+  "FINAL_RECOMPUTE_MISMATCHES": 0,
+  "FINAL_TAUTOLOGIES": 0,
+  "FINAL_PADDING": 0,
+  "checks": [
+    {
+      "CHECK_ID": "FINAL-001",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "branch exact",
+      "EVIDENCE_SOURCE": "git branch --show-current",
+      "OBSERVED_VALUE": "ui-product-r1-clean-handoff-v1",
+      "EXPECTED_VALUE": "ui-product-r1-clean-handoff-v1",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-002",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "remote tip C4",
+      "EVIDENCE_SOURCE": "git ls-remote origin branch",
+      "OBSERVED_VALUE": "8da1aea8478d9ef08ff6a93a24b2b508758300aa",
+      "EXPECTED_VALUE": "8da1aea8478d9ef08ff6a93a24b2b508758300aa",
+      "OPERATOR": "HASH_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-003",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "local HEAD C4",
+      "EVIDENCE_SOURCE": "git rev-parse HEAD",
+      "OBSERVED_VALUE": "8da1aea8478d9ef08ff6a93a24b2b508758300aa",
+      "EXPECTED_VALUE": "8da1aea8478d9ef08ff6a93a24b2b508758300aa",
+      "OPERATOR": "HASH_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-004",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "ancestry chain exact",
+      "EVIDENCE_SOURCE": "parents C4,H4,E4",
+      "OBSERVED_VALUE": [
+        "3a7fe70ec447b4c977fc6cee60db5f8b149bbbab",
+        "5f994931f3ddbe3a6266d6bdb6a8681956fc9e9e",
+        "8ba42bfe6c32339df45527007bdbf089087e919f"
+      ],
+      "EXPECTED_VALUE": [
+        "3a7fe70ec447b4c977fc6cee60db5f8b149bbbab",
+        "5f994931f3ddbe3a6266d6bdb6a8681956fc9e9e",
+        "8ba42bfe6c32339df45527007bdbf089087e919f"
+      ],
+      "OPERATOR": "ARRAY_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-005",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "S ancestor C4",
+      "EVIDENCE_SOURCE": "git merge-base --is-ancestor S C4",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_VALUE": true,
+      "OPERATOR": "ANCESTOR",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-006",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "S tree exact",
+      "EVIDENCE_SOURCE": "git show S tree",
+      "OBSERVED_VALUE": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+      "EXPECTED_VALUE": "6e676f2c5b7888af3631a413e26176ec028ae5eb",
+      "OPERATOR": "HASH_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-007",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "frontend tree exact",
+      "EVIDENCE_SOURCE": "git rev-parse S:frontend",
+      "OBSERVED_VALUE": "0d32e10e1882a1061ca86926347365ec866279fc",
+      "EXPECTED_VALUE": "0d32e10e1882a1061ca86926347365ec866279fc",
+      "OPERATOR": "HASH_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-008",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "backend tree exact",
+      "EVIDENCE_SOURCE": "git rev-parse S:backend",
+      "OBSERVED_VALUE": "df227ee768ba0e52268622fa8790c5e4ae035d54",
+      "EXPECTED_VALUE": "df227ee768ba0e52268622fa8790c5e4ae035d54",
+      "OPERATOR": "HASH_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-009",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "E4-H4 changed path set",
+      "EVIDENCE_SOURCE": "git diff --name-only E4 H4",
+      "OBSERVED_VALUE": [
+        "artifacts/ui-ux-r1-clean-handoff-v4/24-azure-handoff.json"
+      ],
+      "EXPECTED_VALUE": [
+        "artifacts/ui-ux-r1-clean-handoff-v4/24-azure-handoff.json"
+      ],
+      "OPERATOR": "PATH_SET_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-010",
+      "CHECK_CATEGORY": "REMOTE / GIT / ANCESTRY / SOURCE TREES",
+      "PROPOSITION": "H4-C4 changed path set",
+      "EVIDENCE_SOURCE": "git diff --name-only H4 C4",
+      "OBSERVED_VALUE": [
+        "artifacts/ui-ux-r1-clean-handoff-v4/25-final-certification.json"
+      ],
+      "EXPECTED_VALUE": [
+        "artifacts/ui-ux-r1-clean-handoff-v4/25-final-certification.json"
+      ],
+      "OPERATOR": "PATH_SET_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-011",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "010 observed zero",
+      "EVIDENCE_SOURCE": "C4 25 V4-FINAL-010",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-012",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "010 expected one",
+      "EVIDENCE_SOURCE": "C4 25 V4-FINAL-010",
+      "OBSERVED_VALUE": 1,
+      "EXPECTED_VALUE": 1,
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-013",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "010 evaluation true",
+      "EVIDENCE_SOURCE": "C4 25 V4-FINAL-010",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_VALUE": true,
+      "OPERATOR": "TRUE",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-014",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "010 result PASS",
+      "EVIDENCE_SOURCE": "C4 25 V4-FINAL-010",
+      "OBSERVED_VALUE": "PASS",
+      "EXPECTED_VALUE": "PASS",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-015",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "validator stub recorded",
+      "EVIDENCE_SOURCE": "00 adjudication",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_VALUE": true,
+      "OPERATOR": "TRUE",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-016",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "schema stale recorded",
+      "EVIDENCE_SOURCE": "00 adjudication",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_VALUE": true,
+      "OPERATOR": "TRUE",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-017",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "historical rewrite false",
+      "EVIDENCE_SOURCE": "00 adjudication",
+      "OBSERVED_VALUE": false,
+      "EXPECTED_VALUE": false,
+      "OPERATOR": "FALSE",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-018",
+      "CHECK_CATEGORY": "HISTORICAL PRE-005 / OWNER EXCEPTION",
+      "PROPOSITION": "owner exception applied",
+      "EVIDENCE_SOURCE": "03 PRE005 exception",
+      "OBSERVED_VALUE": "APPLIED",
+      "EXPECTED_VALUE": "APPLIED",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-019",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "source schema errors zero",
+      "EVIDENCE_SOURCE": "07 schema validation",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "SCHEMA_ZERO_ERRORS",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-020",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "handoff schema errors zero",
+      "EVIDENCE_SOURCE": "07 schema validation",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "SCHEMA_ZERO_ERRORS",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-021",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "manifest hash mismatches zero",
+      "EVIDENCE_SOURCE": "08 manifest validation",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-022",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "manifest missing zero",
+      "EVIDENCE_SOURCE": "08 manifest validation",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-023",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "manifest duplicate paths zero",
+      "EVIDENCE_SOURCE": "08 manifest validation",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-024",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "13 exists at E4",
+      "EVIDENCE_SOURCE": "git cat-file E4:13",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_VALUE": true,
+      "OPERATOR": "TRUE",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-025",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "24 exists at H4",
+      "EVIDENCE_SOURCE": "git cat-file H4:24",
+      "OBSERVED_VALUE": true,
+      "EXPECTED_VALUE": true,
+      "OPERATOR": "TRUE",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-026",
+      "CHECK_CATEGORY": "SCHEMA / MANIFEST / PAYLOAD",
+      "PROPOSITION": "C4 contradiction superseded",
+      "EVIDENCE_SOURCE": "00 adjudication",
+      "OBSERVED_VALUE": "SUPERSEDED",
+      "EXPECTED_VALUE": "SUPERSEDED",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-027",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "action binding unresolved zero",
+      "EVIDENCE_SOURCE": "E4 action ledger",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-028",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "API work path exact",
+      "EVIDENCE_SOURCE": "E4 API001",
+      "OBSERVED_VALUE": "/api/work?{query}",
+      "EXPECTED_VALUE": "/api/work?{query}",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-029",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "all six actions exact route/API/disposition",
+      "EVIDENCE_SOURCE": "E4 action ledger",
+      "OBSERVED_VALUE": [
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ]
+      ],
+      "EXPECTED_VALUE": [
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ],
+        [
+          "API-001",
+          "EXACT_BACKEND_ROUTE",
+          "CANONICAL_BACKEND_ROUTE_BOUND"
+        ]
+      ],
+      "OPERATOR": "ARRAY_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-030",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "no API-backed action is local presentation",
+      "EVIDENCE_SOURCE": "E4 action ledger",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-031",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "API001 exact match",
+      "EVIDENCE_SOURCE": "E4 API001",
+      "OBSERVED_VALUE": "EXACT_BACKEND_ROUTE",
+      "EXPECTED_VALUE": "EXACT_BACKEND_ROUTE",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-032",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "backend gap zero",
+      "EVIDENCE_SOURCE": "E4 API ledger",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-033",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "API family unresolved zero",
+      "EVIDENCE_SOURCE": "E4 API ledger",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-034",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "value unresolved zero",
+      "EVIDENCE_SOURCE": "E4 values",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-035",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "six canonical values",
+      "EVIDENCE_SOURCE": "E4 API001 values",
+      "OBSERVED_VALUE": [
+        "data.summary",
+        "data.items",
+        "data.has_unassigned",
+        "data.unfiltered_visible_count",
+        "data.context_visible_count",
+        "data.recent_changes"
+      ],
+      "EXPECTED_VALUE": [
+        "data.summary",
+        "data.items",
+        "data.has_unassigned",
+        "data.unfiltered_visible_count",
+        "data.context_visible_count",
+        "data.recent_changes"
+      ],
+      "OPERATOR": "SET_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-036",
+      "CHECK_CATEGORY": "API / VALUE / ACTION SEMANTICS",
+      "PROPOSITION": "six actions present",
+      "EVIDENCE_SOURCE": "E4 action ledger",
+      "OBSERVED_VALUE": [
+        {
+          "ACTION_ID": "AMECWORK-INITIAL-LOAD",
+          "VISIBLE_CONTROL": "Initial AMEC Work load",
+          "HANDLER": "load",
+          "STATE_CHANGE": "component mount invokes load",
+          "EFFECT_DEPENDENCY": "initial mount and filter effect",
+          "API_FAMILY_ID": "API-001",
+          "METHOD": "GET",
+          "BACKEND_ROUTE_STATUS": "EXACT_BACKEND_ROUTE",
+          "SUCCESS_BEHAVIOR": "setData then render summary/items/context values",
+          "FAILURE_BEHAVIOR": "setError renders explicit alert and Retry; no zero-state substitution",
+          "POST_ACTION_REFRESH": "DIRECT_READ",
+          "PERSONA_APPLICABILITY": [
+            "Owner",
+            "Business Development",
+            "Engineering"
+          ],
+          "ROUTE": "/work",
+          "SOURCE_FILE": "frontend/src/AMECWork.tsx",
+          "VISIBLE_CTA_OR_ACCESSIBLE_NAME": "Initial AMEC Work load",
+          "ACTION_CLASS": "READ_REFRESH",
+          "PATH_TEMPLATE": "/api/work?{query}",
+          "BACKEND_FUNCTION": "work",
+          "DISPOSITION": "CANONICAL_BACKEND_ROUTE_BOUND",
+          "UNRESOLVED_REASON": "",
+          "PROTECTED_HUMAN_STATUS": "NOT_APPLICABLE_TO_READ",
+          "DIRECT_BEHAVIOR": "source inspected",
+          "INDIRECT_BEHAVIOR_CHAIN": "initial mount and filter effect",
+          "SOURCE_LOCATOR": "frontend/src/AMECWork.tsx:57-90"
+        },
+        {
+          "ACTION_ID": "AMECWORK-RETRY",
+          "VISIBLE_CONTROL": "Retry",
+          "HANDLER": "load",
+          "STATE_CHANGE": "reissue read after error",
+          "EFFECT_DEPENDENCY": "direct handler",
+          "API_FAMILY_ID": "API-001",
+          "METHOD": "GET",
+          "BACKEND_ROUTE_STATUS": "EXACT_BACKEND_ROUTE",
+          "SUCCESS_BEHAVIOR": "replace data and clear loading/error presentation",
+          "FAILURE_BEHAVIOR": "retain explicit error presentation with Retry",
+          "POST_ACTION_REFRESH": "DIRECT_READ",
+          "PERSONA_APPLICABILITY": [
+            "Owner",
+            "Business Development",
+            "Engineering"
+          ],
+          "ROUTE": "/work",
+          "SOURCE_FILE": "frontend/src/AMECWork.tsx",
+          "VISIBLE_CTA_OR_ACCESSIBLE_NAME": "Retry",
+          "ACTION_CLASS": "READ_REFRESH",
+          "PATH_TEMPLATE": "/api/work?{query}",
+          "BACKEND_FUNCTION": "work",
+          "DISPOSITION": "CANONICAL_BACKEND_ROUTE_BOUND",
+          "UNRESOLVED_REASON": "",
+          "PROTECTED_HUMAN_STATUS": "NOT_APPLICABLE_TO_READ",
+          "DIRECT_BEHAVIOR": "source inspected",
+          "INDIRECT_BEHAVIOR_CHAIN": "direct handler",
+          "SOURCE_LOCATOR": "frontend/src/AMECWork.tsx:57-90"
+        },
+        {
+          "ACTION_ID": "AMECWORK-KPI",
+          "VISIBLE_CONTROL": "KPI filter",
+          "HANDLER": "update({ kpi })",
+          "STATE_CHANGE": "filters.kpi changes",
+          "EFFECT_DEPENDENCY": "filters.kpi -> useEffect -> load",
+          "API_FAMILY_ID": "API-001",
+          "METHOD": "GET",
+          "BACKEND_ROUTE_STATUS": "EXACT_BACKEND_ROUTE",
+          "SUCCESS_BEHAVIOR": "refresh summary/items for selected KPI",
+          "FAILURE_BEHAVIOR": "explicit read error with Retry",
+          "POST_ACTION_REFRESH": "READ_AFTER_STATE_CHANGE",
+          "PERSONA_APPLICABILITY": [
+            "Owner",
+            "Business Development",
+            "Engineering"
+          ],
+          "ROUTE": "/work",
+          "SOURCE_FILE": "frontend/src/AMECWork.tsx",
+          "VISIBLE_CTA_OR_ACCESSIBLE_NAME": "KPI filter",
+          "ACTION_CLASS": "READ_REFRESH_TRIGGER",
+          "PATH_TEMPLATE": "/api/work?{query}",
+          "BACKEND_FUNCTION": "work",
+          "DISPOSITION": "CANONICAL_BACKEND_ROUTE_BOUND",
+          "UNRESOLVED_REASON": "",
+          "PROTECTED_HUMAN_STATUS": "NOT_APPLICABLE_TO_READ",
+          "DIRECT_BEHAVIOR": "source inspected",
+          "INDIRECT_BEHAVIOR_CHAIN": "filters.kpi -> useEffect -> load",
+          "SOURCE_LOCATOR": "frontend/src/AMECWork.tsx:57-90"
+        },
+        {
+          "ACTION_ID": "AMECWORK-TEAM",
+          "VISIBLE_CONTROL": "Team filter",
+          "HANDLER": "onTeamChange -> update({ team })",
+          "STATE_CHANGE": "filters.team changes",
+          "EFFECT_DEPENDENCY": "filters.team -> useEffect -> load",
+          "API_FAMILY_ID": "API-001",
+          "METHOD": "GET",
+          "BACKEND_ROUTE_STATUS": "EXACT_BACKEND_ROUTE",
+          "SUCCESS_BEHAVIOR": "refresh work projection for selected team",
+          "FAILURE_BEHAVIOR": "explicit read error with Retry",
+          "POST_ACTION_REFRESH": "READ_AFTER_STATE_CHANGE",
+          "PERSONA_APPLICABILITY": [
+            "Owner",
+            "Business Development",
+            "Engineering"
+          ],
+          "ROUTE": "/work",
+          "SOURCE_FILE": "frontend/src/AMECWork.tsx",
+          "VISIBLE_CTA_OR_ACCESSIBLE_NAME": "Team filter",
+          "ACTION_CLASS": "READ_REFRESH_TRIGGER",
+          "PATH_TEMPLATE": "/api/work?{query}",
+          "BACKEND_FUNCTION": "work",
+          "DISPOSITION": "CANONICAL_BACKEND_ROUTE_BOUND",
+          "UNRESOLVED_REASON": "",
+          "PROTECTED_HUMAN_STATUS": "NOT_APPLICABLE_TO_READ",
+          "DIRECT_BEHAVIOR": "source inspected",
+          "INDIRECT_BEHAVIOR_CHAIN": "filters.team -> useEffect -> load",
+          "SOURCE_LOCATOR": "frontend/src/AMECWork.tsx:57-90"
+        },
+        {
+          "ACTION_ID": "AMECWORK-WORK-DOMAIN",
+          "VISIBLE_CONTROL": "Work/domain filter",
+          "HANDLER": "onWorkChange -> update({ domain })",
+          "STATE_CHANGE": "filters.domain changes",
+          "EFFECT_DEPENDENCY": "filters.domain -> useEffect -> load",
+          "API_FAMILY_ID": "API-001",
+          "METHOD": "GET",
+          "BACKEND_ROUTE_STATUS": "EXACT_BACKEND_ROUTE",
+          "SUCCESS_BEHAVIOR": "refresh work projection for selected domain",
+          "FAILURE_BEHAVIOR": "explicit read error with Retry",
+          "POST_ACTION_REFRESH": "READ_AFTER_STATE_CHANGE",
+          "PERSONA_APPLICABILITY": [
+            "Owner",
+            "Business Development",
+            "Engineering"
+          ],
+          "ROUTE": "/work",
+          "SOURCE_FILE": "frontend/src/AMECWork.tsx",
+          "VISIBLE_CTA_OR_ACCESSIBLE_NAME": "Work/domain filter",
+          "ACTION_CLASS": "READ_REFRESH_TRIGGER",
+          "PATH_TEMPLATE": "/api/work?{query}",
+          "BACKEND_FUNCTION": "work",
+          "DISPOSITION": "CANONICAL_BACKEND_ROUTE_BOUND",
+          "UNRESOLVED_REASON": "",
+          "PROTECTED_HUMAN_STATUS": "NOT_APPLICABLE_TO_READ",
+          "DIRECT_BEHAVIOR": "source inspected",
+          "INDIRECT_BEHAVIOR_CHAIN": "filters.domain -> useEffect -> load",
+          "SOURCE_LOCATOR": "frontend/src/AMECWork.tsx:57-90"
+        },
+        {
+          "ACTION_ID": "AMECWORK-CLEAR-FILTERS",
+          "VISIBLE_CONTROL": "Clear filters",
+          "HANDLER": "clearFilters",
+          "STATE_CHANGE": "team/domain/kpi reset to all",
+          "EFFECT_DEPENDENCY": "filter reset -> useEffect -> load",
+          "API_FAMILY_ID": "API-001",
+          "METHOD": "GET",
+          "BACKEND_ROUTE_STATUS": "EXACT_BACKEND_ROUTE",
+          "SUCCESS_BEHAVIOR": "refresh unfiltered work projection",
+          "FAILURE_BEHAVIOR": "explicit read error with Retry",
+          "POST_ACTION_REFRESH": "READ_AFTER_STATE_CHANGE",
+          "PERSONA_APPLICABILITY": [
+            "Owner",
+            "Business Development",
+            "Engineering"
+          ],
+          "ROUTE": "/work",
+          "SOURCE_FILE": "frontend/src/AMECWork.tsx",
+          "VISIBLE_CTA_OR_ACCESSIBLE_NAME": "Clear filters",
+          "ACTION_CLASS": "READ_REFRESH_TRIGGER",
+          "PATH_TEMPLATE": "/api/work?{query}",
+          "BACKEND_FUNCTION": "work",
+          "DISPOSITION": "CANONICAL_BACKEND_ROUTE_BOUND",
+          "UNRESOLVED_REASON": "",
+          "PROTECTED_HUMAN_STATUS": "NOT_APPLICABLE_TO_READ",
+          "DIRECT_BEHAVIOR": "source inspected",
+          "INDIRECT_BEHAVIOR_CHAIN": "filter reset -> useEffect -> load",
+          "SOURCE_LOCATOR": "frontend/src/AMECWork.tsx:57-90"
+        }
+      ],
+      "EXPECTED_VALUE": 6,
+      "OPERATOR": "COUNT_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-037",
+      "CHECK_CATEGORY": "RUNTIME / ORIGINAL 28 / MOBILE / VIEWPORT",
+      "PROPOSITION": "624 runtime rows",
+      "EVIDENCE_SOURCE": "C4 V3 runtime-results",
+      "OBSERVED_VALUE": 624,
+      "EXPECTED_VALUE": 624,
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-038",
+      "CHECK_CATEGORY": "RUNTIME / ORIGINAL 28 / MOBILE / VIEWPORT",
+      "PROPOSITION": "624 runtime rows pass",
+      "EVIDENCE_SOURCE": "C4 V3 runtime-results",
+      "OBSERVED_VALUE": 624,
+      "EXPECTED_VALUE": 624,
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-039",
+      "CHECK_CATEGORY": "RUNTIME / ORIGINAL 28 / MOBILE / VIEWPORT",
+      "PROPOSITION": "runtime failure count zero",
+      "EVIDENCE_SOURCE": "C4 V3 runtime-results",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-040",
+      "CHECK_CATEGORY": "RUNTIME / ORIGINAL 28 / MOBILE / VIEWPORT",
+      "PROPOSITION": "six viewport set exact",
+      "EVIDENCE_SOURCE": "C4 V3 runtime-results",
+      "OBSERVED_VALUE": [
+        "1024",
+        "1280",
+        "1440",
+        "1920",
+        "390",
+        "834"
+      ],
+      "EXPECTED_VALUE": [
+        "390",
+        "834",
+        "1024",
+        "1280",
+        "1440",
+        "1920"
+      ],
+      "OPERATOR": "SET_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-041",
+      "CHECK_CATEGORY": "RUNTIME / ORIGINAL 28 / MOBILE / VIEWPORT",
+      "PROPOSITION": "mobile pass exact",
+      "EVIDENCE_SOURCE": "C4 V3 mobile evidence",
+      "OBSERVED_VALUE": 25,
+      "EXPECTED_VALUE": 25,
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-042",
+      "CHECK_CATEGORY": "RUNTIME / ORIGINAL 28 / MOBILE / VIEWPORT",
+      "PROPOSITION": "original gate pass exact",
+      "EVIDENCE_SOURCE": "E4 11 gates",
+      "OBSERVED_VALUE": 28,
+      "EXPECTED_VALUE": 28,
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-043",
+      "CHECK_CATEGORY": "ZERO MUTATION / AUTHORITY",
+      "PROPOSITION": "frontend mutation zero",
+      "EVIDENCE_SOURCE": "E4 source result",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-044",
+      "CHECK_CATEGORY": "ZERO MUTATION / AUTHORITY",
+      "PROPOSITION": "backend mutation zero",
+      "EVIDENCE_SOURCE": "E4 source result",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-045",
+      "CHECK_CATEGORY": "ZERO MUTATION / AUTHORITY",
+      "PROPOSITION": "Azure Entra SQL Synology real data zero",
+      "EVIDENCE_SOURCE": "H4 handoff counters",
+      "OBSERVED_VALUE": 0,
+      "EXPECTED_VALUE": 0,
+      "OPERATOR": "ZERO",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-046",
+      "CHECK_CATEGORY": "ZERO MUTATION / AUTHORITY",
+      "PROPOSITION": "authority source scoped",
+      "EVIDENCE_SOURCE": "H4 handoff",
+      "OBSERVED_VALUE": "GRANTED_FOR_EXACT_UI_SOURCE_SHA_ONLY",
+      "EXPECTED_VALUE": "GRANTED_FOR_EXACT_UI_SOURCE_SHA_ONLY",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-047",
+      "CHECK_CATEGORY": "HANDOFF / AZURE BUILD CONTRACT",
+      "PROPOSITION": "H4 accepted SHA S",
+      "EVIDENCE_SOURCE": "H4 handoff",
+      "OBSERVED_VALUE": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+      "EXPECTED_VALUE": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+      "OPERATOR": "HASH_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-048",
+      "CHECK_CATEGORY": "HANDOFF / AZURE BUILD CONTRACT",
+      "PROPOSITION": "H4 Azure executor build SHA S",
+      "EVIDENCE_SOURCE": "H4 handoff",
+      "OBSERVED_VALUE": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+      "EXPECTED_VALUE": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+      "OPERATOR": "HASH_EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-049",
+      "CHECK_CATEGORY": "HANDOFF / AZURE BUILD CONTRACT",
+      "PROPOSITION": "E4 not build SHA",
+      "EVIDENCE_SOURCE": "E4 versus source SHA",
+      "OBSERVED_VALUE": "5f994931f3ddbe3a6266d6bdb6a8681956fc9e9e",
+      "EXPECTED_VALUE": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+      "OPERATOR": "NE",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    },
+    {
+      "CHECK_ID": "FINAL-050",
+      "CHECK_CATEGORY": "HANDOFF / AZURE BUILD CONTRACT",
+      "PROPOSITION": "C4 authority superseded",
+      "EVIDENCE_SOURCE": "00 adjudication",
+      "OBSERVED_VALUE": "SUPERSEDED",
+      "EXPECTED_VALUE": "SUPERSEDED",
+      "OPERATOR": "EQ",
+      "MECHANICAL_EVALUATION": true,
+      "RESULT": "PASS"
+    }
+  ]
+}
