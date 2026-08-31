@@ -3,16 +3,26 @@
 from __future__ import annotations
 
 import io
+import sys
+import tempfile
 import zipfile
+from pathlib import Path
 from uuid import uuid4
 
-from sqlalchemy import func, select
+from fastapi import HTTPException
+from sqlalchemy import create_engine, func, select
+from sqlalchemy.orm import sessionmaker
 from pydantic import ValidationError
+import pytest
+from fastapi.testclient import TestClient
 
-from backend.app.db import SessionLocal
+from backend.app.db import SessionLocal, get_db
 from backend.app.models import (
+    Base,
     ClassificationReviewStatus,
     ConsultancyOffice,
+    Criticality,
+    DataType,
     Document,
     DocumentApprovalState,
     DocumentClassification,
@@ -37,11 +47,52 @@ from backend.app.services.governed_retrieval import (
     answer_from_retrieval,
     governed_retrieve,
 )
+from backend.app.services.master_content import create_master_content
 from backend.app.services.source_intake import SourceIntakeService
 from backend.app.services.week2_workflows import classify_version, verify_observation
 
 
 OWNER = {"X-Dev-Role": "OWNER_SPONSOR"}
+
+
+@pytest.fixture(scope="module")
+def canonical_session_factory():
+    path = Path(tempfile.gettempdir()) / f"permitops_canonical_retrieval_{uuid4().hex}.db"
+    engine = create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False}, future=True)
+    Base.metadata.create_all(bind=engine)
+    factory = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False)
+    with factory() as db:
+        office = ConsultancyOffice(office_code="QEC-DOHA", name_en="Synthetic AMEC Office", name_ar="مكتب اصطناعي", status="ACTIVE")
+        db.add(office)
+        db.add(FieldDefinition(field_code="PERMIT.TYPE", name_en="Permit type", data_type=DataType.STRING, criticality=Criticality.CRITICAL, normalization_rule="TEXT", description="Synthetic permit type"))
+        db.add_all([
+            MasterContentReferenceSequence(content_type="FORM", prefix="F", padding=4, scope="GLOBAL", active=True, current_value=0),
+            MasterContentReferenceSequence(content_type="REPORT", prefix="R", padding=4, scope="GLOBAL", active=True, current_value=0),
+            MasterContentReferenceSequence(content_type="ENGINEERING_WORK", prefix="E", padding=4, scope="GLOBAL", active=True, current_value=0),
+            MasterContentReferenceSequence(content_type="DEFINITION", prefix="D", padding=4, scope="GLOBAL", active=True, current_value=0),
+        ])
+        db.commit()
+    yield factory
+    engine.dispose()
+    if path.exists():
+        path.unlink()
+
+
+@pytest.fixture
+def canonical_client(canonical_session_factory, monkeypatch):
+    monkeypatch.setattr(sys.modules[__name__], "SessionLocal", canonical_session_factory)
+
+    def override_get_db():
+        with canonical_session_factory() as db:
+            yield db
+
+    from backend.app.main import app
+    app.dependency_overrides[get_db] = override_get_db
+    try:
+        with TestClient(app) as value:
+            yield value
+    finally:
+        app.dependency_overrides.pop(get_db, None)
 
 
 def _archive() -> tuple[bytes, bytes]:
@@ -50,6 +101,38 @@ def _archive() -> tuple[bytes, bytes]:
     with zipfile.ZipFile(stream, "w") as archive:
         archive.writestr("FORME/Synthetic Reusable Form.txt", source)
     return stream.getvalue(), source
+
+
+def _archive_with_source(source: bytes) -> bytes:
+    stream = io.BytesIO()
+    with zipfile.ZipFile(stream, "w") as archive:
+        archive.writestr("FORME/Observed Reference.txt", source)
+    return stream.getvalue()
+
+
+def _observed_manifest(source: bytes, ref: str) -> dict:
+    import hashlib
+
+    return {"version": "reference-authority-proof-v1", "items": [{
+        "relative_path": "Observed Reference.txt",
+        "sha256": hashlib.sha256(source).hexdigest(),
+        "v1_4_disposition": "PROMOTE_MASTER_CURRENT",
+        "dashboard_mapping": "Forms",
+        "category": "Synthetic observed reference",
+        "used_in": ["PERMIT"],
+        "ref": ref,
+    }]}
+
+
+def _promote_observed_source(source: bytes, ref: str, location: str, *, actor: str = "synthetic-reference-auditor") -> tuple[str, str, str]:
+    payload = _archive_with_source(source)
+    with SessionLocal() as db:
+        service = SourceIntakeService(db, actor=actor)
+        batch = service.ingest_zip(payload, source_display_name="synthetic observed reference", source_location_reference=location)
+        service.promote_batch(batch, payload, _observed_manifest(source, ref))
+        row = db.scalar(select(SourceIntakeItem).where(SourceIntakeItem.batch_id == batch.id))
+        item = db.get(MasterContentItem, row.target_master_content_id)
+        return item.id, item.current_document_version_id, row.id
 
 
 def _manifest(source: bytes, ref: str) -> dict:
@@ -69,7 +152,6 @@ def _manifest(source: bytes, ref: str) -> dict:
 def _proof_fixture() -> dict[str, str]:
     payload, source = _archive()
     with SessionLocal() as db:
-        sequence_values = {row.id: row.current_value for row in db.scalars(select(MasterContentReferenceSequence)).all()}
         office = db.scalar(select(ConsultancyOffice).where(ConsultancyOffice.office_code == "QEC-DOHA"))
         project = Project(project_number=f"SYN-CANON-{uuid4().hex[:8]}", project_name="Synthetic canonical retrieval project", office_id=office.id, workstream="PROOF", status="ACTIVE", municipality="Synthetic", permit_type="Synthetic Permit")
         wrong_project = Project(project_number=f"SYN-WRONG-{uuid4().hex[:8]}", project_name="Synthetic unrelated project", office_id=office.id, workstream="PROOF", status="ACTIVE", municipality="Synthetic", permit_type="Synthetic Permit")
@@ -97,10 +179,6 @@ def _proof_fixture() -> dict[str, str]:
         db.flush()
         assertion = verify_observation(db, observation, actor_id="synthetic-owner", method=VerificationMethod.HUMAN_VERIFIED, correction=None, correlation_id=f"proof:{batch.id}")
         db.commit()
-        for row in db.scalars(select(MasterContentReferenceSequence)).all():
-            if row.id in sequence_values:
-                row.current_value = sequence_values[row.id]
-        db.commit()
         return {"item_id": item.id, "document_id": item.document_id, "v1_id": v1.id, "project_id": project.id, "wrong_project_id": wrong_project.id, "assertion_id": assertion.id, "batch_id": batch.id}
 
 
@@ -124,7 +202,7 @@ def _transactional_fixture(project_id: str) -> str:
         return version.id
 
 
-def test_complete_synthetic_vertical_proof(client):
+def test_complete_synthetic_vertical_proof(canonical_client):
     fixture = _proof_fixture()
     transactional_version_id = _transactional_fixture(fixture["project_id"])
     with SessionLocal() as db:
@@ -184,20 +262,20 @@ def test_complete_synthetic_vertical_proof(client):
         assert current[0].envelope.document_version_id == v2_id
 
 
-def test_retrieval_api_is_read_only_and_returns_citations(client):
+def test_retrieval_api_is_read_only_and_returns_citations(canonical_client):
     fixture = _proof_fixture()
-    response = client.get("/api/retrieval/query", params={"master_content_id": fixture["item_id"], "query": "SYN-F-001"}, headers=OWNER)
+    response = canonical_client.get("/api/retrieval/query", params={"master_content_id": fixture["item_id"], "query": "SYN-F-001"}, headers=OWNER)
     assert response.status_code == 200, response.text
     body = response.json()
     assert body[0]["envelope"]["master_content_id"] == fixture["item_id"]
     assert body[0]["envelope"]["citation"]["document_version_id"] == fixture["v1_id"]
-    answer = client.post("/api/retrieval/answer", json={"question": "What is the form code?", "query": {"master_content_id": fixture["item_id"], "query": "SYN-F-001"}}, headers=OWNER)
+    answer = canonical_client.post("/api/retrieval/answer", json={"question": "What is the form code?", "query": {"master_content_id": fixture["item_id"], "query": "SYN-F-001"}}, headers=OWNER)
     assert answer.status_code == 200, answer.text
     assert answer.json()["canonical_state_mutated"] is False
-    assert client.post("/api/retrieval/answer", json={"question": "No access", "query": {"document_version_id": fixture["v1_id"]}}, headers={"X-Dev-Role": "PERMIT_PREPARER"}).json()["citations"] == []
+    assert canonical_client.post("/api/retrieval/answer", json={"question": "No access", "query": {"document_version_id": fixture["v1_id"]}}, headers={"X-Dev-Role": "PERMIT_PREPARER"}).json()["citations"] == []
 
 
-def test_envelope_and_access_context_are_frozen():
+def test_envelope_and_access_context_are_frozen(canonical_client):
     context = RetrievalAccessContext(caller_id="synthetic", role=Role.OWNER_SPONSOR)
     assert context.model_config["frozen"] is True
     try:
@@ -207,3 +285,47 @@ def test_envelope_and_access_context_are_frozen():
     else:
         raise AssertionError("retrieval access context must be immutable")
     assert GovernedRetrievalEnvelope.model_config["frozen"] is True
+
+
+def test_source_intake_reference_authority_is_separate_from_observed_metadata(canonical_client):
+    cases = (
+        (b"MALFORMED OBSERVED REF", "not a canonical ref", "synthetic://observed-malformed"),
+        (b"WRONG TYPE OBSERVED REF", "R-9999", "synthetic://observed-wrong-type"),
+        (b"ORDINARY SOURCE OBSERVED REF", "F-ORD-001", "smb://ordinary-source"),
+    )
+    promoted = []
+    for source, observed_ref, location in cases:
+        item_id, version_id, row_id = _promote_observed_source(source, observed_ref, location, actor="ordinary-source-worker" if location.startswith("smb:") else "synthetic-reference-auditor")
+        promoted.append((item_id, version_id, row_id, observed_ref))
+
+    with SessionLocal() as db:
+        for item_id, version_id, row_id, observed_ref in promoted:
+            item = db.get(MasterContentItem, item_id)
+            version = db.get(DocumentVersion, version_id)
+            row = db.get(SourceIntakeItem, row_id)
+            assert item.content_type == "FORM"
+            assert item.ref != observed_ref
+            assert item.ref.startswith("F-")
+            assert row.metadata_json["manifest"]["ref"] == observed_ref
+            assert version.metadata_json["engineering_metadata"]["source_observed_reference"] == observed_ref
+
+
+def test_governed_canonical_reference_and_hash_reuse_preserve_single_identity(canonical_client):
+    with SessionLocal() as db:
+        first = create_master_content(db, content_type="FORM", ref="F-9001", title="Governed official form", category_id=None, description="Synthetic governed reference", filename="official.txt", mime_type="text/plain", content=b"official governed source", actor="OWNER_SPONSOR", idempotency_key=f"governed-reference:{uuid4()}", correlation_id="reference-authority-proof", source_surface="DASHBOARD", used_in=["PERMIT"])
+        assert first["ref"] == "F-9001"
+        try:
+            create_master_content(db, content_type="FORM", ref="F-9001", title="Different source", category_id=None, description="Collision", filename="collision.txt", mime_type="text/plain", content=b"different source", actor="OWNER_SPONSOR", idempotency_key=f"governed-collision:{uuid4()}", correlation_id="reference-authority-proof", source_surface="DASHBOARD", used_in=["PERMIT"])
+        except HTTPException as exc:
+            assert exc.status_code == 409
+            assert exc.detail["code"] == "MASTER_CONTENT_REF_CONFLICT"
+        else:
+            raise AssertionError("canonical reference collision must be rejected")
+
+    source = b"same source hash cannot fork canonical identity"
+    first_id, first_version, _ = _promote_observed_source(source, "F-HASH-A", "synthetic://same-hash-a")
+    second_id, second_version, _ = _promote_observed_source(source, "F-HASH-B", "synthetic://same-hash-b")
+    assert second_id == first_id
+    assert second_version == first_version
+    with SessionLocal() as db:
+        assert db.scalar(select(func.count(MasterContentItem.id)).where(MasterContentItem.id == first_id)) == 1
