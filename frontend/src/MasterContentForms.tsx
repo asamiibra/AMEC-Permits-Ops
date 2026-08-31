@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
+import { readCanonicalForm, readCanonicalForms } from "./contentLibraryApi";
 import {
   AIAssistCompact,
   ContentType,
@@ -131,18 +132,26 @@ export function CanonicalFormsLibrary({
     setLoading(true);
     setError("");
     try {
-      const params = new URLSearchParams({ content_type: "FORM" });
-      if (filters?.q) params.set("q", filters.q);
-      if (filters?.category) params.set("category_label", filters.category);
-      if (filters?.status) params.set("owner_status", filters.status);
-      if (filters?.module) params.set("module", filters.module);
-      Object.entries(governanceFilters).forEach(([key, value]) => { if (value) params.set(key, value); });
-      const v2Params = new URLSearchParams();
-      Object.entries(v2Filters).forEach(([key, value]) => { if (value) v2Params.set(key, value); });
-      const v2FilterActive = v2Params.size > 0;
-      if (v2FilterActive && filters?.q) v2Params.set("q", filters.q);
       const [content, categoryRows, catalogRows] = await Promise.all([
-        api<CanonicalForm[]>(v2FilterActive ? `/api/dashboard-v2/forms?${v2Params}` : `/api/master-content?${params}`),
+        readCanonicalForms<CanonicalForm>({
+          q: filters?.q,
+          category_label: filters?.category,
+          owner_status: filters?.status,
+          module: filters?.module,
+          ownership: governanceFilters.ownership,
+          artifact_kind: governanceFilters.artifact_kind,
+          currentness: governanceFilters.currentness,
+          wave_a_readiness: governanceFilters.readiness,
+          automation_readiness: v2Filters.readiness,
+          quality_state: governanceFilters.quality_state,
+          restricted_sample: governanceFilters.restricted_sample,
+          language: governanceFilters.language,
+          external_body_id: v2Filters.external_body_id,
+          jurisdiction_id: v2Filters.jurisdiction_id,
+          service_type_id: v2Filters.service_type_id,
+          lifecycle_phase_id: v2Filters.lifecycle_phase_id,
+          applicability_status: v2Filters.applicability_status,
+        }),
         api<Category[]>("/api/master-content/categories"),
         api<V2Catalogs>("/api/dashboard-v2/catalogs"),
       ]);
@@ -268,11 +277,9 @@ export function CanonicalFormsLibrary({
           forms={forms}
           canWrite={canWrite}
           onEdit={setEditor}
-          onOpen={async (form) => setDetails(await api<CanonicalForm>(`/api/dashboard-v2/forms/${form.id}`))}
+          onOpen={async (form) => setDetails(await readCanonicalForm<CanonicalForm>(form.id))}
           onHistory={async (form) => {
-            const detail = await api<CanonicalForm>(
-              `/api/dashboard-v2/forms/${form.id}`,
-            );
+            const detail = await readCanonicalForm<CanonicalForm>(form.id);
             setHistory({
               itemId: form.id,
               title: `${form.ref} · ${form.title}`,
@@ -293,7 +300,7 @@ export function CanonicalFormsLibrary({
       {history && (
         <FormHistory history={history} onClose={() => setHistory(null)} />
       )}
-      {details && <FormDetails item={details} role={role} onRefresh={async () => setDetails(await api<CanonicalForm>(`/api/dashboard-v2/forms/${details.id}`))} onClose={() => setDetails(null)} />}
+      {details && <FormDetails item={details} role={role} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onClose={() => setDetails(null)} />}
     </section>
   );
 }

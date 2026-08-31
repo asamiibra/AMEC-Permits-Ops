@@ -81,6 +81,58 @@ type DashboardFormSummary = {
   current_document_version_id?: string | null;
 };
 
+type GovernedDiscoveryResult = {
+  envelope: {
+    canonical_domain: string;
+    canonical_entity_type: string;
+    canonical_entity_id: string;
+    document_version_id?: string | null;
+    definition_revision_id?: string | null;
+    verification_state: string;
+    relationship_context?: { project_id?: string; used_in?: string[] };
+    citation: { locator: string };
+  };
+  score_reason: string;
+};
+
+function GovernedDiscovery({ query }: { query: string }) {
+  const [results, setResults] = useState<GovernedDiscoveryResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      setError("");
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    void api<GovernedDiscoveryResult[]>(`/api/retrieval/query?query=${encodeURIComponent(query.trim())}&limit=8`)
+      .then((rows) => { if (!cancelled) setResults(rows); })
+      .catch((cause) => { if (!cancelled) setError(cause instanceof Error ? cause.message : "Governed discovery is unavailable."); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [query]);
+  if (!query.trim()) return null;
+  return <section className="panel discovery-card" aria-label="Governed discovery">
+    <div className="panel-head"><div><span className="eyebrow">GOVERNED DISCOVERY</span><h3>Related library and evidence</h3></div><span className="tag">READ ONLY</span></div>
+    <p>Canonical library matches are shown alongside authorized operational evidence. Discovery never creates or changes business records.</p>
+    {loading && <p className="muted">Checking governed sources…</p>}
+    {error && <p className="error-banner" role="alert">{error}</p>}
+    {!loading && !error && results.length === 0 && <p className="muted">No authorized canonical match or related evidence was found.</p>}
+    {!loading && !error && results.map((result) => {
+      const envelope = result.envelope;
+      const transactional = envelope.canonical_domain === "TRANSACTIONAL_EVIDENCE";
+      return <div className="link-row" key={`${envelope.canonical_domain}-${envelope.canonical_entity_id}`}>
+        <span className={`system-mark ${transactional ? "municipality" : ""}`}>{transactional ? "E" : "M"}</span>
+        <span><b>{transactional ? "RELATED OPERATIONAL / SOURCE EVIDENCE" : "MASTER LIBRARY"}</b><small>{envelope.canonical_entity_type} · {envelope.canonical_entity_id}</small></span>
+        <span className="linked">{envelope.verification_state} · {envelope.citation.locator}</span>
+      </div>;
+    })}
+  </section>;
+}
+
 export function CurrentDashboard({ role }: { role: string }) {
   const [items, setItems] = useState<MasterItem[]>([]);
   const [definitions, setDefinitions] = useState<Definition[]>([]);
@@ -322,6 +374,7 @@ export function CurrentDashboard({ role }: { role: string }) {
           Loading master content…
         </div>
       )}
+      {!loading && <GovernedDiscovery query={query} />}
       {!loading && !error && (
         <>
           <CanonicalFormsLibrary
