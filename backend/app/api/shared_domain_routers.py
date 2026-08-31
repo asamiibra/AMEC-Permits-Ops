@@ -78,6 +78,7 @@ from ..services.shared_domains import (
     resolve_requirement_policy,
     resolve_rule_set,
 )
+from ..services.master_content import exact_master_content_binding_check
 
 
 router = APIRouter(prefix="/api", tags=["shared-domain-foundations"])
@@ -577,6 +578,17 @@ def create_form_instance(payload: dict[str, Any] = Body(default={}), request: Re
     master = db.get(MasterContentItem, profile.master_content_item_id)
     if not master:
         raise _missing("MasterContentItem")
+    requested_item_id = payload.get("master_content_item_id", profile.master_content_item_id)
+    if requested_item_id != profile.master_content_item_id:
+        raise HTTPException(409, {"code": "FORM_INSTANCE_MASTER_CONTENT_MISMATCH"})
+    binding = exact_master_content_binding_check(
+        db,
+        master_content_item_id=profile.master_content_item_id,
+        document_version_id=profile.source_document_version_id,
+        content_type="FORM",
+    )
+    if not binding["valid"]:
+        raise HTTPException(409, {"code": "MASTER_CONTENT_NOT_CONSUMABLE", "reasons": binding["reasons"]})
     if master.current_document_version_id != profile.source_document_version_id:
         profile.source_version_state = "NEEDS_REVALIDATION"
         db.commit()
@@ -592,6 +604,7 @@ def create_form_instance(payload: dict[str, Any] = Body(default={}), request: Re
             values[key.semantic_key] = assertion.value_json
             assertion_ids.append(assertion.id)
     values.update(payload.get("resolved_values", {}))
+    payload = {**payload, "master_content_item_id": profile.master_content_item_id, "source_document_version_id": profile.source_document_version_id, "profile_id": profile.id}
     item = create_record(db, FormInstance, payload, defaults={"master_content_item_id": profile.master_content_item_id, "source_document_version_id": profile.source_document_version_id, "profile_id": profile.id, "resolved_values": values, "resolved_assertion_ids": assertion_ids, "created_by": actor(role), "status": "DRAFT"})
     return _commit(db, item, request, event="FORM_INSTANCE_CREATED", role=role)
 

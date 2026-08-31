@@ -85,6 +85,7 @@ DEFAULT_REFERENCE_SEQUENCES = [
 ]
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
 ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
+PURPOSE_CONTENT_TYPES = {"PROPOSAL_TEMPLATE": "FORM", "PROPOSAL_CHECKLIST": "FORM", "CONTRACT_TEMPLATE": "FORM"}
 CONTENT_TYPE_MODULES = {
     "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
@@ -289,10 +290,29 @@ def _modules_for(db: Session, *, item_id: str | None = None, definition_id: str 
     return sorted(set(db.scalars(query).all()))
 
 
-def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+def _status(version: DocumentVersion) -> str:
+    return str((version.metadata_json or {}).get("master_status", "PENDING_WRITE"))
+
+
+def canonical_master_content_candidates(
+    db: Session,
+    *,
+    module: str,
+    usage_type: str,
+    content_type: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return only deterministic, reusable current Master Content sources.
+
+    This is the shared eligibility seam for workflow consumers.  Discovery
+    projections may show more lifecycle states, but a consumer may only use a
+    source whose binding, lifecycle, current pointer, version governance, and
+    source reference all agree.  Ambiguity is deliberately preserved for the
+    caller to fail closed; this function never chooses a first row.
+    """
     module = module.strip().upper()
     usage_type = usage_type.strip().upper()
-    rows = db.scalars(
+    content_type = content_type.strip().upper() if content_type else None
+    statement = (
         select(MasterContentItem)
         .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
         .where(
@@ -302,16 +322,25 @@ def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str)
             MasterContentItem.status == "ACTIVE",
             MasterContentItem.needs_review.is_(False),
         )
-        .order_by(MasterContentItem.updated_at.desc(), MasterContentItem.ref)
-    ).all()
-    resolved = []
-    for item in rows:
+        .order_by(MasterContentItem.ref)
+    )
+    if content_type:
+        statement = statement.where(MasterContentItem.content_type == content_type)
+
+    candidates: list[dict[str, Any]] = []
+    for item in db.scalars(statement).all():
         version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+        if not version:
+            continue
+        if _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
+            continue
+        if not version.source_path_or_reference or version.source_path_or_reference == "PENDING":
+            continue
+
         governance = governance_projection(db, item)
         if item.content_type == "FORM":
-            # Preserve the frozen purpose bindings for AMEC-owned canonical
-            # proposal/contract forms while keeping external, restricted, and
-            # reference-only forms out of downstream resolution.
+            # Proposal and Contract AMEC-owned bindings are frozen canonical
+            # product configuration. Other forms require manual readiness.
             frozen_purpose = usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
             profile = governance["profile"]
             is_frozen_amec_form = (
@@ -321,13 +350,75 @@ def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str)
             )
             if not is_frozen_amec_form and governance["readiness"]["state"] != "MANUAL_USE_READY":
                 continue
-        if version:
-            resolved.append({"id": item.id, "ref": item.ref, "title": item.title, "content_type": item.content_type, "version_id": version.id, "version": version.version_number, "hash": version.sha256, "source_filename": version.source_filename, "module": module, "purpose": usage_type, "canonical": True})
+        elif item.content_type == "ENGINEERING_WORK":
+            if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:
+                continue
+
+        candidates.append({
+            "id": item.id,
+            "ref": item.ref,
+            "title": item.title,
+            "content_type": item.content_type,
+            "version_id": version.id,
+            "version": version.version_number,
+            "hash": version.sha256,
+            "source_filename": version.source_filename,
+            "source_type": item.source_type_code,
+            "discipline": (item.engineering_metadata or {}).get("discipline"),
+            "module": module,
+            "purpose": usage_type,
+            "canonical": True,
+        })
+    return candidates
+
+
+def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+    module = module.strip().upper()
+    usage_type = usage_type.strip().upper()
+    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=PURPOSE_CONTENT_TYPES.get(usage_type))
     return {"module": module, "purpose": usage_type, "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED", "canonical_count": len(resolved), "item": resolved[0] if len(resolved) == 1 else None, "candidates": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
 
 
-def _status(version: DocumentVersion) -> str:
-    return str((version.metadata_json or {}).get("master_status", "PENDING_WRITE"))
+def exact_master_content_binding_check(
+    db: Session,
+    *,
+    master_content_item_id: str,
+    document_version_id: str,
+    content_type: str | None = None,
+) -> dict[str, Any]:
+    """Validate a durable consumer's exact item/version binding.
+
+    This check intentionally does not select a source or copy bytes.  It
+    verifies the caller-provided binding before a consuming context is built.
+    """
+    item = db.get(MasterContentItem, master_content_item_id)
+    version = db.get(DocumentVersion, document_version_id)
+    reasons: list[str] = []
+    if not item:
+        reasons.append("MASTER_CONTENT_NOT_FOUND")
+    if not version:
+        reasons.append("DOCUMENT_VERSION_NOT_FOUND")
+    if item and content_type and item.content_type != content_type.strip().upper():
+        reasons.append("MASTER_CONTENT_TYPE_MISMATCH")
+    if item and item.status != "ACTIVE":
+        reasons.append("MASTER_CONTENT_INACTIVE")
+    if item and item.needs_review:
+        reasons.append("MASTER_CONTENT_NEEDS_REVIEW")
+    if item and version and version.document_id != item.document_id:
+        reasons.append("DOCUMENT_VERSION_ITEM_MISMATCH")
+    if item and item.current_document_version_id != document_version_id:
+        reasons.append("MASTER_CONTENT_VERSION_NOT_CURRENT")
+    if version and _status(version) != "CURRENT":
+        reasons.append("DOCUMENT_VERSION_NOT_CURRENT")
+    if version and version.approval_state != DocumentApprovalState.REVIEWED:
+        reasons.append("DOCUMENT_VERSION_NOT_REVIEWED")
+    if version and (not version.source_path_or_reference or version.source_path_or_reference == "PENDING"):
+        reasons.append("MASTER_CONTENT_SOURCE_UNAVAILABLE")
+    if item:
+        profile = governance_projection(db, item)["profile"]
+        if profile.get("restricted_reference_sample"):
+            reasons.append("MASTER_CONTENT_RESTRICTED_REFERENCE")
+    return {"valid": not reasons, "reasons": list(dict.fromkeys(reasons)), "item": item, "version": version}
 
 
 def _now() -> datetime:
