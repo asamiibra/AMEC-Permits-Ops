@@ -60,6 +60,7 @@ describe("Owner content library surface", () => {
     await waitFor(() => expect(screen.getAllByText("Shared synthetic form").length).toBeGreaterThan(0));
     const requests = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.map(([input]) => String(input));
     expect(requests.some((input) => input.includes("/api/retrieval/query"))).toBe(false);
+    expect(requests.some((input) => input.includes("/api/governed-prefill/preview"))).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Open" }));
     await waitFor(() => expect(screen.getByRole("heading", { name: /F-0001 · Shared synthetic form/ })).toBeVisible());
     expect(screen.getByText("Current source file")).toBeVisible();

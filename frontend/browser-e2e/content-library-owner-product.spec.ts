@@ -68,8 +68,10 @@ test.describe("Owner Content Library product acceptance", () => {
     test(`${name} Dashboard and library surfaces are owner-ready`, async ({ page }, testInfo) => {
       await page.setViewportSize(viewport);
       let retrievalRequested = false;
+      let assistRequested = false;
       page.on("request", (request) => {
         if (request.url().includes("/api/retrieval/query")) retrievalRequested = true;
+        if (request.url().includes("/api/governed-prefill/preview")) assistRequested = true;
       });
       await page.goto("/dashboard");
       await expect(page.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "content-library");
@@ -82,6 +84,7 @@ test.describe("Owner Content Library product acceptance", () => {
       await page.getByLabel("Search master content").fill("permit");
       await expect(page.getByText("Permit application form", { exact: true })).toBeVisible();
       expect(retrievalRequested).toBe(false);
+      expect(assistRequested).toBe(false);
       await page.screenshot({ path: testInfo.outputPath(`owner-content-library-${name}.png`), fullPage: true });
 
       await page.getByRole("button", { name: "Open" }).first().click();
