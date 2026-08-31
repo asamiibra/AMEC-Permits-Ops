@@ -40,7 +40,31 @@ class EntraTokenValidator:
         self.tenant_id = str(UUID(settings.entra_tenant_id))
         self.api_client_id = str(UUID(settings.entra_api_client_id))
         self.web_client_id = str(UUID(settings.entra_web_client_id))
+        preview_web_client_id = settings.entra_preview_web_client_id.strip()
+        self.preview_web_client_id = (
+            str(UUID(preview_web_client_id))
+            if preview_web_client_id
+            else None
+        )
         self.required_scope = settings.entra_required_scope
+
+        authorized_browser_client_ids = {self.web_client_id}
+        if self.preview_web_client_id is not None:
+            authorized_browser_client_ids.add(self.preview_web_client_id)
+        if self.api_client_id in authorized_browser_client_ids:
+            raise ValueError(
+                "API client ID cannot be an authorized browser client ID"
+            )
+        if (
+            self.preview_web_client_id is not None
+            and len(authorized_browser_client_ids) != 2
+        ):
+            raise ValueError(
+                "Canonical and preview browser client IDs must be distinct"
+            )
+        self.authorized_browser_client_ids = frozenset(
+            authorized_browser_client_ids
+        )
 
         # A1 is intentionally single-tenant and v2-token only.
         self.issuer = (
@@ -153,7 +177,7 @@ class EntraTokenValidator:
                 "Access token client application ID is invalid"
             ) from exc
 
-        if client_id != self.web_client_id:
+        if client_id not in self.authorized_browser_client_ids:
             raise EntraAuthenticationError(
                 "Access token client application is not authorized"
             )

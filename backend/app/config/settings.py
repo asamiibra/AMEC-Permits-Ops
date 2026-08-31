@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     entra_tenant_id: str = ""
     entra_api_client_id: str = ""
     entra_web_client_id: str = ""
+    entra_preview_web_client_id: str = ""
     entra_required_scope: str = "access_as_user"
 
     synology_mode: str = "SYNTHETIC"
@@ -136,24 +137,38 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "AZURE-PREPROD requires explicit FRONTEND_ORIGINS"
                 )
-            if len(self.origins) != 1:
-                raise ValueError(
-                    "AZURE-PREPROD requires exactly one FRONTEND_ORIGINS value"
+            if self.entra_preview_web_client_id:
+                self._require_guid(
+                    self.entra_preview_web_client_id,
+                    "ENTRA_PREVIEW_WEB_CLIENT_ID",
                 )
-            origin = self.origins[0]
-            parsed_origin = urlsplit(origin)
-            if (
-                parsed_origin.scheme != "https"
-                or not parsed_origin.netloc
-                or parsed_origin.path not in {"", "/"}
-                or parsed_origin.query
-                or parsed_origin.fragment
-                or "*" in origin
-                or parsed_origin.hostname in {"localhost", "127.0.0.1", "::1"}
-            ):
+
+            expected_origin_count = (
+                2 if self.entra_preview_web_client_id else 1
+            )
+            if len(self.origins) != expected_origin_count:
                 raise ValueError(
-                    "AZURE-PREPROD FRONTEND_ORIGINS must be one exact HTTPS origin"
+                    "AZURE-PREPROD requires exactly "
+                    f"{expected_origin_count} FRONTEND_ORIGINS values"
                 )
+            if len(set(self.origins)) != len(self.origins):
+                raise ValueError(
+                    "AZURE-PREPROD FRONTEND_ORIGINS must contain unique origins"
+                )
+            for origin in self.origins:
+                parsed_origin = urlsplit(origin)
+                if (
+                    parsed_origin.scheme != "https"
+                    or not parsed_origin.netloc
+                    or parsed_origin.path not in {"", "/"}
+                    or parsed_origin.query
+                    or parsed_origin.fragment
+                    or "*" in origin
+                    or parsed_origin.hostname in {"localhost", "127.0.0.1", "::1"}
+                ):
+                    raise ValueError(
+                        "AZURE-PREPROD FRONTEND_ORIGINS must be exact HTTPS origins"
+                    )
             if not self.synthetic_only:
                 raise ValueError(
                     "AZURE-PREPROD requires SYNTHETIC_ONLY=true"
@@ -206,6 +221,26 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "AZURE-PREPROD requires separate Entra "
                     "API and web client IDs"
+                )
+
+            if self.entra_preview_web_client_id and (
+                self.entra_preview_web_client_id.lower()
+                == self.entra_web_client_id.lower()
+            ):
+                raise ValueError(
+                    "AZURE-PREPROD requires "
+                    "ENTRA_PREVIEW_WEB_CLIENT_ID to differ from "
+                    "ENTRA_WEB_CLIENT_ID"
+                )
+
+            if self.entra_preview_web_client_id and (
+                self.entra_preview_web_client_id.lower()
+                == self.entra_api_client_id.lower()
+            ):
+                raise ValueError(
+                    "AZURE-PREPROD requires "
+                    "ENTRA_PREVIEW_WEB_CLIENT_ID to differ from "
+                    "ENTRA_API_CLIENT_ID"
                 )
 
             if self.entra_required_scope != "access_as_user":
@@ -297,6 +332,11 @@ class Settings(BaseSettings):
                 )
 
         if environment == "PROD":
+            if self.entra_preview_web_client_id:
+                raise ValueError(
+                    "PROD forbids ENTRA_PREVIEW_WEB_CLIENT_ID"
+                )
+
             if self.synthetic_only:
                 raise ValueError(
                     "PROD requires SYNTHETIC_ONLY=false"
