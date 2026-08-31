@@ -9,7 +9,7 @@ test("AuthorityCase Forms exposes explicit cited preview and keeps Dashboard sea
     if (url.pathname.includes("/retrieval/query")) retrievalCalls += 1;
     if (url.pathname === "/api/governed-prefill/preview") {
       assistCalls += 1;
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ preview_status: "READY", staleness_state: "CURRENT", master_content_ref: "S3-FORM-001", document_version_id: "version-1", mapping_release_id: "release-1", fields: [{ mapping_rule_id: "rule-1", target_field: "authority_reference", proposal_status: "READY", proposed_value: "QAT-001", citations: [{ canonical_entity_type: "SemanticValueAssertion", canonical_entity_id: "assertion-1", locator: "SemanticValueAssertion:assertion-1", document_version_id: "version-1" }] }] }) });
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ preview_status: "READY", staleness_state: "CURRENT", master_content_ref: "S3-FORM-001", document_version_id: "version-1", mapping_release_id: "release-1", fields: [{ mapping_rule_id: "rule-1", target_field: "authority_reference", proposal_status: "READY", proposed_value: "QAT-001", citations: [{ canonical_entity_type: "DocumentVersion", canonical_entity_id: "evidence-version-1", locator: "DocumentVersion:evidence-version-1", document_version_id: "evidence-version-1" }, { canonical_entity_type: "AuthorityCase", canonical_entity_id: "case-1", locator: "AuthorityCase:case-1", document_version_id: null }] }] }) });
       return;
     }
     if (url.pathname === "/api/permit-ux/cases/case-1") {
@@ -29,9 +29,12 @@ test("AuthorityCase Forms exposes explicit cited preview and keeps Dashboard sea
   await expect(page.getByText("S3-FORM-001 · Permit application form")).toBeVisible();
   await page.getByRole("button", { name: "Review suggestion" }).click();
   await expect(page.getByText("GOVERNED PREFILL PREVIEW")).toBeVisible();
+  await expect(page.getByText(/FORM VERSION \(TEMPLATE\) version-1/)).toBeVisible();
   await expect(page.getByText("QAT-001")).toBeVisible();
   await page.locator("details").first().locator("summary").click();
-  await expect(page.getByText(/SemanticValueAssertion assertion-1/)).toBeVisible();
+  await expect(page.getByText(/DocumentVersion evidence-version-1/)).toBeVisible();
+  await expect(page.getByText(/structured source \(no document version\)/)).toBeVisible();
+  await expect(page.locator("body")).not.toContainText("undefined");
   expect(assistCalls).toBe(1);
   expect(retrievalCalls).toBe(0);
 });
