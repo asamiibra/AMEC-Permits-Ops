@@ -1,0 +1,12 @@
+{
+  "step": "CONTENT_LIBRARY_STEP_3",
+  "authoritative_base": "3ed290cbe52d93cdbfade3856924775578d052ac",
+  "historical_step3": "46934d09c7df8c5a5b40e604ee9537e303273df1",
+  "quality_queries": ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10", "Q11", "Q12", "Q13", "Q14", "Q15", "Q16"],
+  "unsafe_hunks": 0,
+  "unknown_hunks": 0,
+  "duplicate_retrieval_engines": 0,
+  "retrieval_canonical_writes": 0,
+  "second_canonical_databases": 0,
+  "migration_created": false
+}
