@@ -128,6 +128,7 @@ export function CanonicalFormsLibrary({
   const [v2Filters, setV2Filters] = useState({ external_body_id: "", jurisdiction_id: "", service_type_id: "", lifecycle_phase_id: "", applicability_status: "", readiness: "" });
   const [catalogs, setCatalogs] = useState<V2Catalogs | null>(null);
   const canWrite = ownerRoles.has(role);
+  const technicalGovernance = surface === "ADMINISTRATION";
   const load = async () => {
     setLoading(true);
     setError("");
@@ -245,7 +246,7 @@ export function CanonicalFormsLibrary({
           Business Development, and Permit workflows.
         </p>
       )}
-      <details className="forms-advanced-filters">
+      {technicalGovernance && <details className="forms-advanced-filters">
         <summary>Advanced governance filters</summary>
         <div className="dashboard-filter-bar forms-governance-filters">
           <>
@@ -256,7 +257,7 @@ export function CanonicalFormsLibrary({
             <label>Restricted sample<select aria-label="Restricted sample" value={governanceFilters.restricted_sample} onChange={(event) => setGovernanceFilters((current) => ({ ...current, restricted_sample: event.target.value }))}><option value="">All</option><option value="true">Restricted</option><option value="false">Not restricted</option></select></label>
           </>
         </div>
-      </details>
+      </details>}
       {error && (
         <div className="dashboard-error" role="alert">
           <b>Forms unavailable</b>
@@ -300,7 +301,7 @@ export function CanonicalFormsLibrary({
       {history && (
         <FormHistory history={history} onClose={() => setHistory(null)} />
       )}
-      {details && <FormDetails item={details} role={role} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onClose={() => setDetails(null)} />}
+      {details && <FormDetails item={details} role={role} surface={surface} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onModify={() => { setDetails(null); setEditor(details); }} onClose={() => setDetails(null)} />}
     </section>
   );
 }
@@ -343,7 +344,6 @@ function FormTable({
               <td>
                 <b>{form.title}</b>
                 <small className="table-subline">Version {form.version || "—"}</small>
-                <div className="governance-badges">{(form.governance?.badges || []).slice(0, 2).map((badge) => <span key={badge} className="tag">{badge}</span>)}</div>
               </td>
               <td>{form.category?.label || "Uncategorized"}</td>
               <td
@@ -379,10 +379,11 @@ function FormTable({
   );
 }
 
-function FormDetails({ item, role, onRefresh, onClose }: { item: CanonicalForm; role: string; onRefresh: () => Promise<void>; onClose: () => void }) {
+function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { item: CanonicalForm; role: string; surface: "DASHBOARD" | "ADMINISTRATION"; onRefresh: () => Promise<void>; onModify: () => void; onClose: () => void }) {
   const governance = item.governance || {};
   const profile = governance.profile || {};
   const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
+  const technicalGovernance = surface === "ADMINISTRATION";
   return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <section className="form-governance-section"><h3>Overview</h3><div className="content-detail-grid">
       <div><span>Reference</span><b>{item.ref}</b></div>
@@ -390,16 +391,18 @@ function FormDetails({ item, role, onRefresh, onClose }: { item: CanonicalForm; 
       <div><span>Current Version</span><b>{versionLabel(item.version)}</b></div>
       <div><span>Status</span><StatusBadge value={item.owner_status || item.version_status} hasVersion={Boolean(item.version)} /></div>
       <div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div>
-      <div><span>Artifact kind</span><b>{String(profile.artifact_kind || "UNKNOWN").replaceAll("_", " ")}</b></div>
-      <div><span>Readiness</span><b>{readiness.state.replaceAll("_", " ")}</b></div>
+      <div><span>Current source file</span><b>{item.current_source_filename || "Not recorded"}</b></div>
     </div><p className="detail-description">{item.description || "No description"}</p>{item.owner_status === "Needs Review" && item.review_note && <p className="review-note"><b>Review note:</b> {item.review_note}</p>}</section>
+    <section className="form-governance-section"><h3>Version History</h3>{(item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name} · {version.status}</span><small>{version.updated_at ? new Date(version.updated_at).toLocaleDateString() : "Date not recorded"}</small></div>)}</div> : <p>No previous versions recorded.</p>}</section>
+    {technicalGovernance && <>
     <section className="form-governance-section"><h3>Source &amp; Authority</h3><div className="content-detail-grid"><div><span>Ownership</span><b>{String(profile.content_ownership_class || "NEEDS_REVIEW").replaceAll("_", " ")}</b></div><div><span>Publisher / Origin</span><b>{profile.publisher_name || "Not recorded"}</b></div><div><span>Official Form No.</span><b>{profile.official_form_no || "Not recorded"}</b></div><div><span>Issue / Date</span><b>{[profile.official_issue_no, profile.official_issue_date].filter(Boolean).join(" · ") || "Not recorded"}</b></div><div><span>Language</span><b>{String(profile.language_profile || "OTHER").replaceAll("_", " ")}</b></div><div><span>Currentness</span><b>{String(profile.currentness_status || "UNVERIFIED").replaceAll("_", " ")}</b></div></div></section>
     <section className="form-governance-section"><h3>Quality &amp; Sensitivity</h3><p>{profile.sensitivity_flags?.length ? `Sensitive flags: ${profile.sensitivity_flags.join(", ")}` : "No sensitivity flags recorded."}</p>{(governance.quality_flags || []).map((flag: any) => <div className={`quality-flag quality-${String(flag.severity).toLowerCase()}`} key={flag.id}><b>{String(flag.code).replaceAll("_", " ")}</b><span>{flag.status} · {flag.description}</span></div>)}</section>
     <section className="form-governance-section"><h3>Source Sections</h3>{(governance.source_sections || []).length ? (governance.source_sections || []).map((section: any) => <div className="source-section-row" key={section.id}><b>{section.label}</b><span>{section.locator_type} {section.page_start ? `· p.${section.page_start}${section.page_end && section.page_end !== section.page_start ? `–${section.page_end}` : ""}` : ""} · exact version {section.document_version_id.slice(0, 8)}</span></div>) : <p>No exact source sections pinned.</p>}</section>
     <section className="form-governance-section readiness-panel"><h3>Readiness</h3><strong>{readiness.state.replaceAll("_", " ")}</strong>{readiness.blocking_reasons.length > 0 && <><b>Blocking reasons</b><ul>{readiness.blocking_reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></>}{readiness.warnings.length > 0 && <><b>Warnings</b><ul>{readiness.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></>}</section>
     <V2GovernanceDetails item={item} role={role} onRefresh={onRefresh} />
-    <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}</div>
-    {!profile.restricted_reference_sample && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+    </>}
+    {(surface === "DASHBOARD" || !profile.restricted_reference_sample) && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+    {ownerRoles.has(role) && <div className="detail-actions"><button type="button" className="button-secondary" onClick={onModify}>Modify</button><button type="button" className="button-secondary" onClick={onModify}>Upload version</button></div>}
   </Drawer>;
 }
 
