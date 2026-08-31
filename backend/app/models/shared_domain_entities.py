@@ -575,9 +575,41 @@ class FormInstance(Base, TimestampMixin):
     context_id: Mapped[str] = mapped_column(String(36), nullable=False)
     resolved_values: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     resolved_assertion_ids: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    field_provenance_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    field_citations_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    field_write_metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    draft_revision: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_applied_preview_fingerprint: Mapped[str | None] = mapped_column(String(128))
+    last_applied_by: Mapped[str | None] = mapped_column(String(200))
+    last_applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="DRAFT")
     invalidation_reason: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class FormInstanceApply(Base, TimestampMixin):
+    """Consequential apply ledger; FormInstance remains the draft identity."""
+
+    __tablename__ = "form_instance_apply_commands"
+    __table_args__ = (
+        UniqueConstraint("idempotency_key", name="uq_form_instance_apply_idempotency"),
+        Index("ix_form_instance_apply_form_instance", "form_instance_id"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    form_instance_id: Mapped[str] = mapped_column(ForeignKey("form_instances.id"), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    request_fingerprint: Mapped[str] = mapped_column(String(128), nullable=False)
+    preview_fingerprint: Mapped[str] = mapped_column(String(128), nullable=False)
+    project_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    context_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    context_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    expected_draft_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    resulting_draft_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    selected_field_keys: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    applied_field_keys: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    result_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
 
 
 class GeneratedArtifact(Base, TimestampMixin):

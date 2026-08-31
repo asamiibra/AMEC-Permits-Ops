@@ -85,7 +85,7 @@ def _fixture():
         release = db.get(FormMappingRelease, release.id)
         release.mapping_checksum = release_checksum(db, release)
         db.commit()
-        return {"case_id": case.id, "item_id": item.id, "version_id": version.id, "evidence_version_id": evidence_version.id, "release_id": release.id, "key_id": key.id, "project_id": project.id}
+        return {"case_id": case.id, "item_id": item.id, "version_id": version.id, "evidence_version_id": evidence_version.id, "release_id": release.id, "instance_id": instance.id, "assertion_id": assertion.id, "version_document_id": document.id, "evidence_document_id": evidence_document.id, "key_id": key.id, "semantic_key": key.semantic_key, "project_id": project.id}
 
 
 def test_governed_prefill_is_pinned_cited_deterministic_and_non_mutating(client):
