@@ -56,6 +56,7 @@ from ..storage.port import StorageTarget
 from ..storage.service import DocumentStorageService
 from ..storage.errors import StorageError
 from .forms_governance import ensure_profile, governance_projection
+from .backend_realignment import persona_for_role
 
 CONTENT_TYPES = {"FORM", "REPORT", "ENGINEERING_WORK"}
 ENGINEERING_SOURCE_TYPES = ("REGULATION", "QCS", "MUNICIPALITY_COMMENT", "AUTHORITY_GUIDANCE", "ENGINEERING_STANDARD", "DESIGN_GUIDE", "TECHNICAL_REFERENCE", "OTHER")
@@ -649,6 +650,163 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         versions = db.scalars(select(DocumentVersion).where(DocumentVersion.document_id == item.document_id).order_by(DocumentVersion.version_number.desc())).all()
         result["versions"] = [_version_projection(version) for version in versions]
     return result
+
+
+def _canonical_role_can_see(role: Any, row: dict[str, Any]) -> bool:
+    """Apply the existing Owner/BD/Engineering visibility rule to one row."""
+    persona = persona_for_role(role)
+    if persona in {"OWNER", "SYSTEM_ADMIN"}:
+        return True
+    module = "BD" if persona == "BUSINESS_DEVELOPMENT" else "ENGINEERING"
+    return module in row.get("used_in", [])
+
+
+def _normalized_owner_status(value: str | None) -> str | None:
+    return value.replace("_", " ").strip().upper() if value else None
+
+
+def _canonical_row_matches(
+    row: dict[str, Any],
+    *,
+    q: str = "",
+    category_label: str | None = None,
+    owner_status: str | None = None,
+    module: str | None = None,
+    ownership: str | None = None,
+    artifact_kind: str | None = None,
+    publisher: str | None = None,
+    currentness: str | None = None,
+    wave_a_readiness: str | None = None,
+    quality_state: str | None = None,
+    restricted_sample: bool | None = None,
+    language: str | None = None,
+    applicability_status: str | None = None,
+    external_body_id: str | None = None,
+    jurisdiction_id: str | None = None,
+    service_type_id: str | None = None,
+    lifecycle_phase_id: str | None = None,
+    automation_readiness: str | None = None,
+) -> bool:
+    normalized_owner_status = _normalized_owner_status(owner_status)
+    if normalized_owner_status and row.get("owner_status", "").upper() != normalized_owner_status:
+        return False
+    if q.strip():
+        needle = q.strip().casefold()
+        profile = row.get("governance", {}).get("profile", {})
+        searchable = " ".join(filter(None, (row.get("title"), row.get("ref"), row.get("description"), profile.get("official_form_no")))).casefold()
+        if needle not in searchable:
+            return False
+    if category_label and (row.get("category") or {}).get("label") != category_label:
+        return False
+    if module and module.upper() not in row.get("used_in", []):
+        return False
+    profile = row.get("governance", {}).get("profile", {})
+    readiness = row.get("governance", {}).get("readiness", {})
+    flags = row.get("governance", {}).get("quality_flags", [])
+    if ownership and profile.get("content_ownership_class") != ownership.upper():
+        return False
+    if artifact_kind and profile.get("artifact_kind") != artifact_kind.upper():
+        return False
+    if publisher and publisher.casefold() not in " ".join(filter(None, (profile.get("publisher_name"), profile.get("publisher_unit")))).casefold():
+        return False
+    if currentness and profile.get("currentness_status") != currentness.upper():
+        return False
+    if wave_a_readiness and readiness.get("state") != wave_a_readiness.upper():
+        return False
+    if language and profile.get("language_profile") != language.upper():
+        return False
+    if restricted_sample is not None and profile.get("restricted_reference_sample") is not restricted_sample:
+        return False
+    if quality_state and not any(flag.get("status") == quality_state.upper() for flag in flags):
+        return False
+    applicability = row.get("applicability", [])
+    if any((external_body_id, jurisdiction_id, service_type_id, lifecycle_phase_id, applicability_status)):
+        if not any(
+            (not external_body_id or candidate.get("external_body_id") == external_body_id)
+            and (not jurisdiction_id or candidate.get("jurisdiction_id") == jurisdiction_id)
+            and (not service_type_id or candidate.get("service_type_id") == service_type_id)
+            and (not lifecycle_phase_id or candidate.get("lifecycle_phase_id") in {lifecycle_phase_id, None})
+            and (not applicability_status or candidate.get("status") == applicability_status.upper())
+            for candidate in applicability
+        ):
+            return False
+    if automation_readiness and not any(profile_row.get("readiness", {}).get("state") == automation_readiness.upper() for profile_row in row.get("automation_profiles", [])):
+        return False
+    return True
+
+
+def canonical_master_content_read(
+    db: Session,
+    *,
+    role: Any,
+    content_type: str | None = None,
+    item_id: str | None = None,
+    q: str = "",
+    category_id: str | None = None,
+    category_label: str | None = None,
+    status: str | None = None,
+    owner_status: str | None = None,
+    module: str | None = None,
+    ownership: str | None = None,
+    artifact_kind: str | None = None,
+    publisher: str | None = None,
+    currentness: str | None = None,
+    readiness: str | None = None,
+    wave_a_readiness: str | None = None,
+    automation_readiness: str | None = None,
+    quality_state: str | None = None,
+    restricted_sample: bool | None = None,
+    language: str | None = None,
+    external_body_id: str | None = None,
+    jurisdiction_id: str | None = None,
+    service_type_id: str | None = None,
+    lifecycle_phase_id: str | None = None,
+    applicability_status: str | None = None,
+    include_archived: bool = False,
+    include_history: bool = False,
+    include_governance: bool = False,
+) -> list[dict[str, Any]]:
+    """The single canonical read model for MasterContentItem consumers.
+
+    Governance overlays are optional projections over the same canonical item;
+    they never create a second content row or substitute for DocumentVersion.
+    """
+    normalized_owner_status = _normalized_owner_status(owner_status)
+    if normalized_owner_status == "INACTIVE":
+        include_archived = True
+    statement = select(MasterContentItem).order_by(MasterContentItem.content_type, MasterContentItem.ref)
+    if item_id:
+        statement = statement.where(MasterContentItem.id == item_id)
+    if content_type:
+        statement = statement.where(MasterContentItem.content_type == content_type.upper())
+    if category_id:
+        statement = statement.where(MasterContentItem.category_id == category_id)
+    if status:
+        statement = statement.where(MasterContentItem.status == status.upper())
+    elif not include_archived:
+        statement = statement.where(MasterContentItem.status == "ACTIVE")
+    rows: list[dict[str, Any]] = []
+    for item in db.scalars(statement).all():
+        row = item_projection(db, item, include_history=include_history)
+        if include_governance and item.content_type == "FORM":
+            from .dashboard_v2_governance import evaluate_automated_readiness, list_applicability, list_policy_lineage, list_technical_lineage
+            from .shared_domains import projection, projections
+
+            profiles = list(db.scalars(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item.id)).all())
+            row["applicability"] = list_applicability(db, item.id)
+            row["requirement_policy_lineage"] = list_policy_lineage(db, item.id)
+            row["technical_rule_lineage"] = list_technical_lineage(db, item.id)
+            row["automation_profiles"] = [{
+                **projection(profile),
+                "readiness": evaluate_automated_readiness(db, profile, actor="canonical-read", persist=False),
+                "releases": projections(list(db.scalars(select(FormMappingRelease).where(FormMappingRelease.profile_id == profile.id).order_by(FormMappingRelease.created_at.desc())).all())),
+            } for profile in profiles]
+        if not _canonical_role_can_see(role, row):
+            continue
+        effective_wave_readiness = wave_a_readiness or readiness
+        if _canonical_row_matches(row, q=q, category_label=category_label, owner_status=owner_status, module=module, ownership=ownership, artifact_kind=artifact_kind, publisher=publisher, currentness=currentness, wave_a_readiness=effective_wave_readiness, quality_state=quality_state, restricted_sample=restricted_sample, language=language, applicability_status=applicability_status, external_body_id=external_body_id, jurisdiction_id=jurisdiction_id, service_type_id=service_type_id, lifecycle_phase_id=lifecycle_phase_id, automation_readiness=automation_readiness):
+            rows.append(row)
+    return [{**row, "serial_number": index + 1} for index, row in enumerate(rows)]
 
 
 def _verify_and_promote(
