@@ -1,0 +1,22 @@
+{
+  "repository": "asamiibra/AMEC-Permits-Ops",
+  "starting_branch": "azure-p0-v25-preauthorization-repair-v1",
+  "starting_sha": "0dd403fbf3f3100f283cd1ee1274465ded81998c",
+  "starting_tree": "a250658597d47354b196698cfcc905c672e9c21b",
+  "implementation_branch": "branch/canonical-domain-retrieval-proof",
+  "migration_head_before": "0058_source_intake_ledger",
+  "migration_head_after": "0058_source_intake_ledger",
+  "migration_created": false,
+  "real_amec_data_used": 0,
+  "real_synology_reads": 0,
+  "real_synology_writes": 0,
+  "unauthorized_external_infra_mutations": 0,
+  "retrieval_contract": "GovernedRetrievalEnvelope v1.0",
+  "retrieval_api": ["GET /api/retrieval/query", "POST /api/retrieval/answer"],
+  "new_test_module": "backend/tests/test_canonical_domain_retrieval.py",
+  "focused_test_result": {"passed": 3, "failed": 0},
+  "backend_test_result": {"passed": 231, "skipped": 15, "failed": 0},
+  "frontend_test_result": {"passed": 37, "failed": 0},
+  "external_retrieval_infrastructure": "not provisioned",
+  "technology_decision": "EXISTING_SQL_SUFFICIENT_FOR_PROVEN_USE_CASES; FURTHER_EVIDENCE_REQUIRED_FOR_SEMANTIC_OR_SCALE_REQUIREMENTS"
+}

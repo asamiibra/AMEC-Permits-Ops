@@ -46,6 +46,7 @@ from .api.billing_invoice_routers import router as billing_invoice_router
 from .api.construction_routers import router as construction_router
 from .api.completion_asbuilt_routers import router as completion_asbuilt_router
 from .api.handover_closeout_routers import router as handover_closeout_router
+from .api.retrieval_routers import router as retrieval_router
 
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO), format='%(message)s')
@@ -60,6 +61,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="ProposalOps · AMEC Proposal & Contract Workflow", version="0.8.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=settings.origins, allow_credentials=False, allow_methods=["GET", "POST", "PATCH", "PUT"], allow_headers=["*"])
+app.include_router(retrieval_router)
 
 
 @app.middleware("http")
