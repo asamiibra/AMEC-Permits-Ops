@@ -3,17 +3,23 @@ import { expect, test } from "@playwright/test";
 test("AuthorityCase Forms exposes explicit cited preview without retrieval side effects", async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem("proposalops-role", "SYSTEM_ADMIN"));
   let assistCalls = 0;
+  let applyCalls = 0;
   let retrievalCalls = 0;
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.includes("/retrieval/query")) retrievalCalls += 1;
+    if (url.pathname === "/api/governed-prefill/apply") {
+      applyCalls += 1;
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ apply_status: "APPLIED", form_instance: { id: "instance-1", draft_revision: 1, status: "DRAFT" } }) });
+      return;
+    }
     if (url.pathname === "/api/governed-prefill/preview") {
       assistCalls += 1;
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ preview_status: "READY", staleness_state: "CURRENT", master_content_ref: "LG-F-001", document_version_id: "template-v1", mapping_release_id: "release-1", fields: [{ mapping_rule_id: "rule-1", target_field: "authority_reference", proposal_status: "READY", proposed_value: "QAT-001", citations: [{ canonical_entity_type: "DocumentVersion", canonical_entity_id: "evidence-v1", locator: "DocumentVersion:evidence-v1", document_version_id: "evidence-v1" }] }] }) });
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ preview_status: "READY", staleness_state: "CURRENT", form_instance_id: "instance-1", draft_revision: 0, preview_fingerprint: "preview-fingerprint-0000000000000000000000000000000000000000000000000000000000000000", master_content_ref: "LG-F-001", document_version_id: "template-v1", mapping_release_id: "release-1", fields: [{ logical_field_key: "permit.reference", mapping_rule_id: "rule-1", target_field: "authority_reference", proposal_status: "READY", write_eligibility: "READY", proposed_value: "QAT-001", citations: [{ canonical_entity_type: "DocumentVersion", canonical_entity_id: "evidence-v1", locator: "DocumentVersion:evidence-v1", document_version_id: "evidence-v1" }] }] }) });
       return;
     }
     if (url.pathname === "/api/permit-ux/cases/case-1") {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ case: { case_reference: "CASE-001" }, project: { project_name: "Synthetic project" }, forms: [], status: { system_status: "ON_TRACK" } }) });
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ case: { case_reference: "CASE-001" }, project: { project_name: "Synthetic project" }, forms: [{ id: "row-1", form: { id: "instance-1", status: "DRAFT", draft_revision: 0 }, generated_artifacts: [] }], status: { system_status: "ON_TRACK" } }) });
       return;
     }
     if (url.pathname === "/api/master-content") {
@@ -29,6 +35,9 @@ test("AuthorityCase Forms exposes explicit cited preview without retrieval side 
   await page.getByRole("button", { name: "Review suggestion" }).click();
   await expect(page.getByText("GOVERNED PREFILL PREVIEW")).toBeVisible();
   await expect(page.getByText("QAT-001")).toBeVisible();
+  await page.getByRole("button", { name: "Apply selected suggestions to DRAFT" }).click();
+  await expect(page.getByText("Applied to DRAFT revision 1")).toBeVisible();
   expect(assistCalls).toBe(1);
+  expect(applyCalls).toBe(1);
   expect(retrievalCalls).toBe(0);
 });
