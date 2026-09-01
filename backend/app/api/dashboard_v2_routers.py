@@ -60,7 +60,7 @@ from ..services.dashboard_v2_governance import (
     transition_release,
     validate_release,
 )
-from ..services.master_content import item_projection
+from ..services.master_content import canonical_form_discovery_catalogs, canonical_master_content_read
 from ..services.shared_domains import projection, projections
 
 
@@ -71,61 +71,26 @@ def _correlation(request: Request) -> str:
     return getattr(request.state, "correlation_id", "dashboard-v2")
 
 
-def _v2_form(db: Session, item: MasterContentItem) -> dict[str, Any]:
-    profiles = list(db.scalars(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item.id)).all())
-    return {
-        **item_projection(db, item, include_history=True),
-        "applicability": list_applicability(db, item.id),
-        "requirement_policy_lineage": list_policy_lineage(db, item.id),
-        "technical_rule_lineage": list_technical_lineage(db, item.id),
-        "automation_profiles": [{**projection(profile), "readiness": evaluate_automated_readiness(db, profile, actor="dashboard-v2", persist=False), "releases": projections(list(db.scalars(select(FormMappingRelease).where(FormMappingRelease.profile_id == profile.id).order_by(FormMappingRelease.created_at.desc())).all()))} for profile in profiles],
-    }
-
-
 @router.get("/catalogs")
 def catalogs(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    return {
-        "external_bodies": projections(list(db.scalars(select(ExternalBody).where(ExternalBody.status != "RETIRED").order_by(ExternalBody.name_en)).all())),
-        "jurisdictions": projections(list(db.scalars(select(Jurisdiction).where(Jurisdiction.status != "RETIRED").order_by(Jurisdiction.name_en)).all())),
-        "service_types": projections(list(db.scalars(select(ServiceType).where(ServiceType.status != "RETIRED").order_by(ServiceType.name_en)).all())),
-        "lifecycle_phases": projections(list(db.scalars(select(RegulatoryLifecyclePhase).where(RegulatoryLifecyclePhase.status != "RETIRED").order_by(RegulatoryLifecyclePhase.sort_order)).all())),
-        "release_statuses": sorted(RELEASE_STATUSES),
-        "lineage_statuses": sorted(LINEAGE_STATUSES),
-        "source_roles": sorted(SOURCE_ROLES),
-        "qa_types": ["STRUCTURAL_MAPPING", "SYNTHETIC_FILL", "READ_BACK", "VISUAL", "ARABIC_RTL", "BILINGUAL", "REPEATING_GRID", "SIGNATURE_ZONE", "WRITER_OWNERSHIP", "NORMALIZED_RENDITION"],
-    }
+    return canonical_form_discovery_catalogs(db)
 
 
 @router.get("/forms")
-def list_v2_forms(q: str = "", readiness: str | None = None, external_body_id: str | None = None, jurisdiction_id: str | None = None, service_type_id: str | None = None, lifecycle_phase_id: str | None = None, applicability_status: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_v2_forms(q: str = "", readiness: str | None = None, wave_a_readiness: str | None = None, automation_readiness: str | None = None, category_id: str | None = None, category_label: str | None = None, owner_status: str | None = None, module: str | None = None, ownership: str | None = None, artifact_kind: str | None = None, publisher: str | None = None, currentness: str | None = None, quality_state: str | None = None, restricted_sample: bool | None = None, language: str | None = None, external_body_id: str | None = None, jurisdiction_id: str | None = None, service_type_id: str | None = None, lifecycle_phase_id: str | None = None, applicability_status: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    stmt = select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.status == "ACTIVE").order_by(MasterContentItem.ref)
-    if q.strip():
-        needle = f"%{q.strip()}%"
-        stmt = stmt.where(MasterContentItem.ref.ilike(needle) | MasterContentItem.title.ilike(needle) | MasterContentItem.description.ilike(needle))
-    rows = [_v2_form(db, item) for item in db.scalars(stmt).all()]
-    if any(value for value in (external_body_id, jurisdiction_id, service_type_id, lifecycle_phase_id, applicability_status)):
-        def match(row: dict[str, Any]) -> bool:
-            applicability = row["applicability"]
-            return any(
-                (not applicability_status or a.get("status") == applicability_status) and
-                (not external_body_id or a.get("external_body_id") == external_body_id) and
-                (not jurisdiction_id or a.get("jurisdiction_id") == jurisdiction_id) and
-                (not service_type_id or a.get("service_type_id") == service_type_id) and
-                (not lifecycle_phase_id or a.get("lifecycle_phase_id") in {lifecycle_phase_id, None})
-                for a in applicability
-            )
-        rows = [row for row in rows if match(row)]
-    if readiness:
-        rows = [row for row in rows if any(profile.get("id") and profile.get("readiness", {}).get("state") == readiness for profile in row.get("automation_profiles", []))]
-    return [{**row, "serial_number": index + 1} for index, row in enumerate(rows)]
+    return canonical_master_content_read(db, role=role, content_type="FORM", q=q, category_id=category_id, category_label=category_label, owner_status=owner_status, module=module, ownership=ownership, artifact_kind=artifact_kind, publisher=publisher, currentness=currentness, wave_a_readiness=wave_a_readiness, automation_readiness=automation_readiness or readiness, quality_state=quality_state, restricted_sample=restricted_sample, language=language, external_body_id=external_body_id, jurisdiction_id=jurisdiction_id, service_type_id=service_type_id, lifecycle_phase_id=lifecycle_phase_id, applicability_status=applicability_status, include_governance=True)
 
 
 @router.get("/forms/{item_id}")
 def get_v2_form(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    return _v2_form(db, _form(db, item_id))
+    rows = canonical_master_content_read(db, role=role, content_type="FORM", item_id=item_id, include_archived=True, include_history=True, include_governance=True)
+    if not rows:
+        _form(db, item_id)
+        raise HTTPException(status_code=403, detail={"code": "MASTER_CONTENT_NOT_APPLICABLE"})
+    return rows[0]
 
 
 @router.get("/forms/{item_id}/applicability")
