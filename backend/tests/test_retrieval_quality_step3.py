@@ -114,6 +114,21 @@ def test_access_filter_precedes_source_context(quality_corpus, monkeypatch):
     with factory() as db: assert governed_retrieve(db, RetrievalQuery(master_content_id=ids["engineering"], query="Engineering"), access) == ()
     assert ids["engineering_doc"] not in reads
 
+def test_governance_filters_archived_review_and_restricted_content_and_purpose(quality_corpus):
+    factory, _, ids, _ = quality_corpus
+    owner = access_context_for_role(Role.OWNER_SPONSOR, project_ids=(ids["project"],))
+    preparer = access_context_for_role(Role.PERMIT_PREPARER, project_ids=(ids["project"],))
+    with factory() as db:
+        db.get(DefinitionEntry, ids["definition"]).status = "ARCHIVED"
+        db.get(MasterContentItem, ids["engineering"]).needs_review = True
+        db.commit()
+        assert governed_retrieve(db, RetrievalQuery(definition_entry_id=ids["definition"], query="Gross Floor Area"), owner) == ()
+        assert governed_retrieve(db, RetrievalQuery(master_content_id=ids["engineering"], query="Engineering"), owner) == ()
+        restricted = governed_retrieve(db, RetrievalQuery(master_content_id=ids["restricted"]), owner)
+        assert restricted and restricted[0].envelope.verification_state == "RESTRICTED_REFERENCE"
+        assert governed_retrieve(db, RetrievalQuery(master_content_id=ids["restricted"]), preparer) == ()
+        assert governed_retrieve(db, RetrievalQuery(master_content_id=ids["form"]), access_context_for_role(Role.OWNER_SPONSOR, purpose="UNSUPPORTED_CAPABILITY")) == ()
+
 def test_performance_measurement_is_bounded_and_indexable(quality_corpus, capsys):
     factory, engine, ids, path = quality_corpus; access = access_context_for_role(Role.OWNER_SPONSOR, project_ids=(ids["project"],)); statements = []
     def count(*args): statements.append(args[2])

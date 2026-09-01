@@ -25,6 +25,13 @@ RETRIEVAL_CANONICAL_WRITE_COUNT = 0
 RETRIEVAL_SECOND_CANONICAL_DATABASE_COUNT = 0
 AUTHORIZED_MASTER_MODULES = {Role.PROCESS_CHAMPION: "BD", Role.RESPONSIBLE_ENGINEER: "ENGINEERING", Role.PERMIT_PREPARER: "PERMIT"}
 OWNER_ROLES = frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN})
+PURPOSE_ROLES = {
+    "READ": frozenset(Role),
+    "SEARCH": frozenset(Role),
+    "FORM_PREPARATION": OWNER_ROLES | {Role.PERMIT_PREPARER},
+    "PROPOSAL_PREPARATION": OWNER_ROLES | {Role.PROCESS_CHAMPION},
+    "CONTRACT_PREPARATION": OWNER_ROLES,
+}
 
 class RetrievalAccessContext(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -32,6 +39,8 @@ class RetrievalAccessContext(BaseModel):
     role: Role
     project_ids: tuple[str, ...] = ()
     purpose: str = Field(default="READ", min_length=1)
+    def may_use_purpose(self) -> bool:
+        return self.role in PURPOSE_ROLES.get(self.purpose.strip().upper(), frozenset())
     def may_read_project(self, project_id: str | None) -> bool:
         return bool(project_id and (self.role in OWNER_ROLES or project_id in self.project_ids))
     def may_read_master(self, item: MasterContentItem) -> bool:
@@ -151,6 +160,8 @@ def _master(db: Session, item: MasterContentItem, version: DocumentVersion, acce
     citation = RetrievalCitation(canonical_domain="MASTER_CONTENT", canonical_entity_type="MasterContentItem", canonical_entity_id=item.id, document_id=item.document_id, document_version_id=version.id, locator=f"DocumentVersion:{version.id}", source_hash=version.sha256)
     envelope = GovernedRetrievalEnvelope(canonical_domain="MASTER_CONTENT", canonical_entity_type="MasterContentItem", canonical_entity_id=item.id, master_content_id=item.id, document_id=item.document_id, document_version_id=version.id, source_artifact_id=source, source_currentness_state=profile.currentness_status if profile else None, verification_state="VERIFIED_CURRENT" if profile and profile.currentness_status == "VERIFIED_CURRENT" else "CANONICAL_VERSION", authority_source_class=profile.content_ownership_class if profile else None, superseded=version.id != item.current_document_version_id, sensitivity_class=profile.sensitivity_class if profile else "NONE", relationship_context={"used_in": tuple(item.used_in or []), "bindings": tuple(b.usage_type for b in (bindings or [])), "current_version_id": item.current_document_version_id, "source_references": tuple(v for v in (source, version.source_path_or_reference, profile.official_form_no if profile else None, profile.official_issue_no if profile else None) if v)}, content=content, citation=citation)
     lifecycle = (2 if version.id == item.current_document_version_id else 0, int(bool(profile and profile.currentness_status == "VERIFIED_CURRENT")), int(version.id == item.current_document_version_id))
+    if profile and profile.restricted_reference_sample:
+        envelope = envelope.model_copy(update={"verification_state": "RESTRICTED_REFERENCE"})
     return GovernedRetrievalResult(envelope=envelope, score_reason="canonical identity, exact/source rank, and lifecycle rank"), rank + lifecycle
 
 def _transactional(db: Session, version: DocumentVersion, access: RetrievalAccessContext, query: RetrievalQuery, *, document=None, observations=None, assertions=None, classifications=None, prefetched=False):
@@ -175,6 +186,7 @@ def _transactional(db: Session, version: DocumentVersion, access: RetrievalAcces
     return GovernedRetrievalResult(envelope=envelope, score_reason="project membership, verified facts, and current-version rank"), rank + (2 if document.current_version_id == version.id else 0, int(bool(assertions)), int(document.current_version_id == version.id))
 
 def _definition(db: Session, definition: DefinitionEntry, access: RetrievalAccessContext, query: RetrievalQuery):
+    if definition.status != "ACTIVE": return None
     if access.role not in OWNER_ROLES and AUTHORIZED_MASTER_MODULES.get(access.role) not in (definition.used_in or []): return None
     revision = db.get(DefinitionRevision, definition.current_revision_id) if definition.current_revision_id else None
     content = revision.description if revision else ""
@@ -209,15 +221,18 @@ def _annotate(candidates, query):
     return updated
 
 def governed_retrieve(db: Session, query: RetrievalQuery, access: RetrievalAccessContext) -> tuple[GovernedRetrievalResult, ...]:
+    if not access.may_use_purpose(): return ()
     candidates = []
     if query.master_content_id or (not query.document_version_id and not query.definition_entry_id):
         statement = select(MasterContentItem)
         if query.master_content_id: statement = statement.where(MasterContentItem.id == query.master_content_id)
-        items = [i for i in db.scalars(statement).all() if i.status == "ACTIVE" and i.current_document_version_id and access.may_read_master(i)]
+        all_items = db.scalars(statement).all()
+        all_item_ids = [i.id for i in all_items]
+        profiles = {p.master_content_item_id: p for p in db.scalars(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id.in_(all_item_ids))).all()} if all_item_ids else {}
+        items = [i for i in all_items if i.status == "ACTIVE" and not i.needs_review and i.current_document_version_id and access.may_read_master(i) and (access.role in OWNER_ROLES or not profiles.get(i.id) or not profiles[i.id].restricted_reference_sample)]
         item_ids = [i.id for i in items]; version_ids = [i.current_document_version_id for i in items]
         if query.document_version_id and query.document_version_id not in version_ids: version_ids.append(query.document_version_id)
         versions = {v.id: v for v in db.scalars(select(DocumentVersion).where(DocumentVersion.id.in_(version_ids))).all()} if version_ids else {}
-        profiles = {p.master_content_item_id: p for p in db.scalars(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id.in_(item_ids))).all()} if item_ids else {}
         provenance = defaultdict(list)
         for p in (db.scalars(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id.in_(version_ids))).all() if version_ids else []): provenance[p.document_version_id].append(p)
         bindings = defaultdict(list)

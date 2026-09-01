@@ -14,8 +14,6 @@ from ..models import (
     AuditEvent,
     DefinitionEntry,
     DefinitionRevision,
-    DocumentVersion,
-    MasterContentItem,
     MasterContentModuleBinding,
     Opportunity,
     ProposalAcceptedRevision,
@@ -25,7 +23,7 @@ from ..models import (
     ProposalNote,
     ProposalIntakeArtifact,
 )
-from .master_content import definition_lookup, resolve_master_content_purpose
+from .master_content import canonical_master_content_candidates, definition_lookup, resolve_master_content_purpose
 from .master_content import definition_projection, governance_projection
 from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
 from .owner_decisions import runtime_decision_value
@@ -83,7 +81,7 @@ def definitions_for_bd(db: Session) -> list[dict[str, Any]]:
 
 
 def engineering_references_for_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
-    """Resolve only verified/current Engineering Works during preparation."""
+    """Resolve Engineering Works through the shared canonical eligibility seam."""
     if proposal.status != "PROPOSAL_PREPARATION":
         return {
             "status": "DEFERRED",
@@ -91,36 +89,17 @@ def engineering_references_for_proposal(db: Session, proposal: Opportunity) -> d
             "items": [],
             "truth": "DASHBOARD_MASTER_CONTENT",
         }
-    rows = db.scalars(
-        select(MasterContentItem)
-        .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
-        .where(
-            MasterContentItem.content_type == "ENGINEERING_WORK",
-            MasterContentItem.status == "ACTIVE",
-            MasterContentItem.needs_review.is_(False),
-            MasterContentModuleBinding.module == "ENGINEERING",
-            MasterContentModuleBinding.active.is_(True),
-            MasterContentModuleBinding.usage_type == "AVAILABLE",
-        )
-        .order_by(MasterContentItem.ref)
-    ).all()
     items: list[dict[str, Any]] = []
-    for item in rows:
-        version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
-        if not version or (version.metadata_json or {}).get("master_status") != "CURRENT":
-            continue
-        governance = governance_projection(db, item)
-        if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:
-            continue
+    for candidate in canonical_master_content_candidates(db, module="ENGINEERING", usage_type="AVAILABLE", content_type="ENGINEERING_WORK"):
         items.append({
-            "id": item.id,
-            "ref": item.ref,
-            "title": item.title,
-            "version_id": version.id,
-            "version": version.version_number,
-            "hash": version.sha256,
-            "source_type": item.source_type_code,
-            "discipline": (item.engineering_metadata or {}).get("discipline"),
+            "id": candidate["id"],
+            "ref": candidate["ref"],
+            "title": candidate["title"],
+            "version_id": candidate["version_id"],
+            "version": candidate["version"],
+            "hash": candidate["hash"],
+            "source_type": candidate.get("source_type"),
+            "discipline": candidate.get("discipline"),
             "managed_in": "/dashboard",
         })
     return {

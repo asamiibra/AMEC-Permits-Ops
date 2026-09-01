@@ -9,4 +9,9 @@
   "retrieval_canonical_writes": 0,
   "second_canonical_databases": 0,
   "migration_created": false
+  ,"backend_regression": "246 passed, 15 skipped"
+  ,"frontend_regression": "38 passed"
+  ,"frontend_build": "PASS"
+  ,"browser_prefill_proof": "1 passed"
+  ,"order_isolation": "PASS"
 }

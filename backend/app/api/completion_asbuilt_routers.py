@@ -19,6 +19,7 @@ from ..audit.service import audit
 from ..db import get_db
 from ..models import *
 from .dependencies import current_user_role
+from ..services.master_content import exact_master_content_binding_check
 
 
 router = APIRouter(prefix="/api/completion", tags=["completion-asbuilt"])
@@ -596,6 +597,11 @@ def create_completion_form(case_id: str, payload: FormRequest, request: Request,
     _require(role, REVIEW_ROLES)
     project = _case_project(db, case_id); profile = db.get(FormAutomationProfile, payload.profile_id); source = db.get(DocumentVersion, payload.source_document_version_id)
     if not profile or not source or profile.source_document_version_id != source.id: raise HTTPException(409, "FORM_SOURCE_PROFILE_MISMATCH")
+    if payload.master_content_item_id != profile.master_content_item_id:
+        raise HTTPException(409, {"code": "FORM_INSTANCE_MASTER_CONTENT_MISMATCH"})
+    binding = exact_master_content_binding_check(db, master_content_item_id=profile.master_content_item_id, document_version_id=source.id, content_type="FORM")
+    if not binding["valid"]:
+        raise HTTPException(409, {"code": "MASTER_CONTENT_NOT_CONSUMABLE", "reasons": binding["reasons"]})
     policy = profile.writer_policy_json or {}; authority_fields = {k for k, v in policy.items() if isinstance(v, dict) and str(v.get("writer", "")).upper() in {"AUTHORITY", "AUTHORITY_ONLY"}}
     if authority_fields.intersection(payload.resolved_values): raise HTTPException(403, {"code": "AUTHORITY_ONLY_FIELD_WRITE_DENIED", "fields": sorted(authority_fields.intersection(payload.resolved_values))})
     if payload.mode == "AUTO" and profile.automation_status == "AUTOMATED_USE_READY": status = "AUTOMATED_USE_READY"
