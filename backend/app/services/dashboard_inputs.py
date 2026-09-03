@@ -158,8 +158,8 @@ def _current_state(db: Session, spec: dict[str, Any]) -> dict[str, Any]:
     if key == "DASHBOARD_CATEGORY_SEMANTICS":
         return {"category": "Owner-managed business classification", "engineering_source_type": "Provenance taxonomy", "engineering_discipline": "Technical applicability taxonomy", "summary": "Category, Engineering Source Type, and Discipline are separate fields; Owner confirmation is still required."}
     if key == "DASHBOARD_REFERENCE_NUMBERING":
-        sequences = list(db.scalars(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.active.is_(True), MasterContentReferenceSequence.content_type.in_(("FORM", "REPORT", "ENGINEERING_WORK", "DEFINITION"))).order_by(MasterContentReferenceSequence.content_type)).all())
-        patterns = [f"{s.prefix}-{s.current_value + 1:0{s.padding}d}" for s in sequences] or ["F-0001", "R-0001", "E-0001", "D-0001"]
+        # This is a proposed Owner policy, not a live allocation preview.
+        patterns = ["F-0001", "R-0001", "E-0001", "D-0001"]
         return {"patterns": patterns, "summary": "Proposed references are F-0001, R-0001, E-0001, and D-0001."}
     if key == "DASHBOARD_ENGINEERING_SOURCE_TYPES":
         return {"values": list(ENGINEERING_SOURCE_TYPES), "summary": "Starter source types are explicit and separate from Category; Owner confirmation is still required."}

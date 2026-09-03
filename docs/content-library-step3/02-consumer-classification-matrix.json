@@ -1,0 +1,17 @@
+{
+  "step": "CONTENT_LIBRARY_STEP_3",
+  "resolver": "canonical_master_content_candidates + resolve_master_content_purpose",
+  "consumers": [
+    {"id": "bd-proposal-template", "purpose": "PROPOSAL_TEMPLATE", "classification": "CANONICAL_BUT_NOT_PINNED", "exact_model": "ProposalAcceptedRevision"},
+    {"id": "bd-proposal-checklist", "purpose": "PROPOSAL_CHECKLIST", "classification": "CANONICAL_BUT_NOT_PINNED", "exact_model": "ProposalAcceptedRevision"},
+    {"id": "bd-engineering-references", "purpose": "AVAILABLE", "classification": "UNSAFE_DYNAMIC_LOOKUP", "step3_action": "shared eligibility seam"},
+    {"id": "contract-template", "purpose": "CONTRACT_TEMPLATE", "classification": "CANONICAL_AND_PINNED", "exact_model": "ContractTemplateSnapshot"},
+    {"id": "form-automation", "classification": "MISSING_ELIGIBILITY_ENFORCEMENT", "step3_action": "exact binding validation"},
+    {"id": "completion-form", "classification": "MISSING_ELIGIBILITY_ENFORCEMENT", "step3_action": "exact binding validation"},
+    {"id": "definitions", "classification": "CANONICAL_AND_PINNED", "exact_model": "DefinitionRevision"},
+    {"id": "retrieval", "classification": "CANONICAL_DISCOVERY_ONLY", "step3_action": "selection authority excluded"},
+    {"id": "transactional-proposal-sources", "classification": "NOT_APPLICABLE", "step3_action": "remain transactional"},
+    {"id": "permit-preparation-submission", "classification": "NO_CURRENT_INTEGRATION", "step3_action": "preserve transactional pointers"},
+    {"id": "engineering-reports-handover-billing", "classification": "NO_CURRENT_INTEGRATION", "step3_action": "future consumer matrix"}
+  ]
+}
