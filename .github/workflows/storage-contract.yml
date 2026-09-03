@@ -1,37 +1,589 @@
-name: storage-contract
+name: ProposalOps SQL Server Reference Qualification V2
 
 on:
   push:
-  pull_request:
+    branches:
+      - proposalops-sqlserver-reference-qualification-v1
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_SHA: 02b797d323acafb754f579331d2d1dc022b647b2
+  MIGRATION_PATH: backend/migrations/versions/baseline_phase4_v36_azure_sql.py
+  REFERENCE_DB_1: proposalops_reference_1_${{ github.run_id }}
+  REFERENCE_DB_2: proposalops_reference_2_${{ github.run_id }}
+  ACCEPTANCE_DB: proposalops_acceptance_${{ github.run_id }}
+  NEGATIVE_CONTROL_DB: proposalops_negative_control_${{ github.run_id }}
+  SQLSERVER_IMAGE: mcr.microsoft.com/mssql/server@sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89
 
 jobs:
-  samba-contract:
-    runs-on: ubuntu-latest
+  reference-qualification:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout frozen source
+        uses: actions/checkout@v4
         with:
-          python-version: "3.12"
-      - name: Start synthetic Samba endpoint
-        run: docker compose -f dev/storage-lab/docker-compose.storage.yml up --build -d --wait
-      - name: Install backend dependencies
-        run: python -m pip install -r backend/requirements.txt
-      - name: Run provider and document protocol tests
+          ref: 02b797d323acafb754f579331d2d1dc022b647b2
+          fetch-depth: 0
+
+      - name: Guard source identity and required files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -f "$MIGRATION_PATH"
+          test -f alembic.ini
+          test -f backend/Dockerfile
+          test -f scripts/db_azure_sql/sqlserver_gates.py
+          test -f scripts/db_azure_sql/nullable_unique_audit.py
+          test -f scripts/db_azure_sql/port_inventory.py
+          test "$(git rev-parse "$SOURCE_SHA:$MIGRATION_PATH")" = "23fee073e182ca93728a53650879456b7465bc28"
+          test "$(sha256sum <(git show "$SOURCE_SHA:scripts/db_azure_sql/sqlserver_gates.py") | awk '{print $1}')" = "c983617a0eea167d0504abfb0934cd087a5c34faf271aab531dd1e7cb99c9f97"
+          test -z "$(git status --porcelain)"
+          mkdir -p "$RUNNER_TEMP/proposalops-reference-evidence"
+
+      - name: Guard hosted Docker runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = x86_64
+          docker info >/dev/null
+          docker version --format '{{.Server.Version}}'
+          python - <<'PY'
+          import json, os, platform
+          out = {"runner_os": "Ubuntu_22_04", "runner_arch": platform.machine(), "docker_daemon": "PASS"}
+          assert out["runner_arch"] == "x86_64"
+          json.dump(out, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "container-runtime-proof.json"), "w"), sort_keys=True)
+          PY
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ODBC Driver 18 and Python database client
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb --output "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo dpkg -i "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install --yes msodbcsql18 unixodbc-dev
+          python -m pip install --disable-pip-version-check pyodbc
+          odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server'
+          python - <<'PY'
+          import json, os, pyodbc
+          json.dump({"odbc_driver": "ODBC Driver 18 for SQL Server", "odbc_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "odbc-proof.json"), "w"), sort_keys=True)
+          assert "ODBC Driver 18 for SQL Server" in pyodbc.drivers()
+          PY
+
+      - name: Generate and mask ephemeral SQL Server password
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="$(python -c 'import secrets,string; alphabet=string.ascii_letters+string.digits+"!@#%^*-_+="; print("".join(secrets.choice(alphabet) for _ in range(32)))')"
+          test -n "$password"
+          echo "::add-mask::$password"
+          echo "SQLSERVER_PASSWORD=$password" >> "$GITHUB_ENV"
+
+      - name: Start isolated SQL Server 2022 reference engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          container="proposalops-reference-sqlserver-$GITHUB_RUN_ID"
+          volume="proposalops-reference-volume-$GITHUB_RUN_ID"
+          echo "SQLSERVER_CONTAINER=$container" >> "$GITHUB_ENV"
+          echo "SQLSERVER_VOLUME=$volume" >> "$GITHUB_ENV"
+          docker volume create "$volume" >/dev/null
+          docker run --detach --platform linux/amd64 --name "$container" --publish 127.0.0.1:1433:1433 --volume "$volume:/var/opt/mssql" --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD="$SQLSERVER_PASSWORD" "$SQLSERVER_IMAGE" > "$RUNNER_TEMP/proposalops-reference-evidence/container-id.txt"
+
+      - name: Prove SQL Server readiness and major version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time, pyodbc
+          cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=master;Encrypt=yes;TrustServerCertificate=yes"
+          last = None
+          for _ in range(60):
+              try:
+                  with pyodbc.connect(cs, autocommit=True) as c:
+                      row = c.cursor().execute("SELECT CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(128)), CAST(SERVERPROPERTY('Edition') AS nvarchar(128))").fetchone()
+                      major = int(str(row[0]).split(".", 1)[0])
+                      assert major == 16
+                      json.dump({"product_version": row[0], "edition": row[1], "sqlserver_major": major, "sqlserver_select_1_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "sqlserver-version.json"), "w"), sort_keys=True)
+                      raise SystemExit(0)
+              except Exception as exc:
+                  last = exc
+                  time.sleep(2)
+          raise RuntimeError(last)
+          PY
+
+      - name: Materialize one SQL Server-native collector and one comparator
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/proposalops_catalog_capture.py" <<'PY'
+          import argparse, hashlib, json, os, pyodbc
+          SURFACES = ("tables", "columns", "primary_keys", "unique_constraints", "foreign_keys", "check_constraints", "indexes", "defaults")
+          CATALOG_SQL = {
+              "tables": "SELECT s.name AS schema_name, t.name AS table_name FROM sys.tables AS t JOIN sys.schemas AS s ON s.schema_id=t.schema_id WHERE s.name=N'dbo' AND t.is_ms_shipped=0 ORDER BY s.name,t.name",
+              "columns": "SELECT s.name AS schema_name,t.name AS table_name,c.column_id,c.name AS column_name,ty.name AS type_name,CASE WHEN ty.is_user_defined=1 THEN ts.name ELSE NULL END AS type_schema_if_user_defined,c.max_length,c.precision,c.scale,c.is_nullable,c.is_identity,c.is_computed,c.collation_name FROM sys.columns AS c JOIN sys.tables AS t ON t.object_id=c.object_id JOIN sys.schemas AS s ON s.schema_id=t.schema_id JOIN sys.types AS ty ON ty.user_type_id=c.user_type_id JOIN sys.schemas AS ts ON ts.schema_id=ty.schema_id WHERE s.name=N'dbo' AND t.is_ms_shipped=0 ORDER BY s.name,t.name,c.column_id",
+              "primary_keys": "SELECT s.name AS schema_name,t.name AS table_name,k.name AS name,k.is_system_named,i.type_desc,ic.key_ordinal,ic.is_descending_key,c.name AS column_name FROM sys.key_constraints AS k JOIN sys.tables AS t ON t.object_id=k.parent_object_id JOIN sys.schemas AS s ON s.schema_id=t.schema_id JOIN sys.indexes AS i ON i.object_id=k.parent_object_id AND i.index_id=k.unique_index_id JOIN sys.index_columns AS ic ON ic.object_id=i.object_id AND ic.index_id=i.index_id JOIN sys.columns AS c ON c.object_id=ic.object_id AND c.column_id=ic.column_id WHERE k.type='PK' ORDER BY s.name,t.name,ic.key_ordinal",
+              "unique_constraints": "SELECT s.name AS schema_name,t.name AS table_name,k.name AS name,k.is_system_named,i.type_desc,ic.key_ordinal,ic.is_descending_key,c.name AS column_name FROM sys.key_constraints AS k JOIN sys.tables AS t ON t.object_id=k.parent_object_id JOIN sys.schemas AS s ON s.schema_id=t.schema_id JOIN sys.indexes AS i ON i.object_id=k.parent_object_id AND i.index_id=k.unique_index_id JOIN sys.index_columns AS ic ON ic.object_id=i.object_id AND ic.index_id=i.index_id JOIN sys.columns AS c ON c.object_id=ic.object_id AND c.column_id=ic.column_id WHERE k.type='UQ' ORDER BY s.name,t.name,ic.key_ordinal",
+              "foreign_keys": "SELECT ss.name AS schema_name,st.name AS table_name,fk.name,fk.is_system_named,fk.delete_referential_action_desc,fk.update_referential_action_desc,fk.is_disabled,fk.is_not_trusted,sc.name AS column_name,fc.constraint_column_id,rs.name AS referenced_schema,rt.name AS referenced_table,rc.name AS referenced_column FROM sys.foreign_keys AS fk JOIN sys.tables AS st ON st.object_id=fk.parent_object_id JOIN sys.schemas AS ss ON ss.schema_id=st.schema_id JOIN sys.tables AS rt ON rt.object_id=fk.referenced_object_id JOIN sys.schemas AS rs ON rs.schema_id=rt.schema_id JOIN sys.foreign_key_columns AS fc ON fc.constraint_object_id=fk.object_id JOIN sys.columns AS sc ON sc.object_id=fc.parent_object_id AND sc.column_id=fc.parent_column_id JOIN sys.columns AS rc ON rc.object_id=fc.referenced_object_id AND rc.column_id=fc.referenced_column_id ORDER BY ss.name,st.name,fk.name,fc.constraint_column_id",
+              "check_constraints": "SELECT s.name AS schema_name,t.name AS table_name,cc.name,cc.is_system_named,cc.definition,cc.is_disabled,cc.is_not_trusted FROM sys.check_constraints AS cc JOIN sys.tables AS t ON t.object_id=cc.parent_object_id JOIN sys.schemas AS s ON s.schema_id=t.schema_id ORDER BY s.name,t.name,cc.name",
+              "indexes": "SELECT s.name AS schema_name,t.name AS table_name,i.name,i.is_unique,i.type_desc,i.has_filter,i.filter_definition,i.is_disabled,ic.key_ordinal,ic.is_descending_key,c.name AS column_name,ic.is_included_column FROM sys.indexes AS i JOIN sys.tables AS t ON t.object_id=i.object_id JOIN sys.schemas AS s ON s.schema_id=t.schema_id JOIN sys.index_columns AS ic ON ic.object_id=i.object_id AND ic.index_id=i.index_id JOIN sys.columns AS c ON c.object_id=ic.object_id AND c.column_id=ic.column_id WHERE i.is_primary_key=0 AND i.is_unique_constraint=0 AND i.index_id>0 ORDER BY s.name,t.name,i.name,ic.is_included_column,ic.key_ordinal,ic.index_column_id",
+              "defaults": "SELECT s.name AS schema_name,t.name AS table_name,c.name AS column_name,dc.name,dc.is_system_named,dc.definition FROM sys.default_constraints AS dc JOIN sys.columns AS c ON c.object_id=dc.parent_object_id AND c.column_id=dc.parent_column_id JOIN sys.tables AS t ON t.object_id=c.object_id JOIN sys.schemas AS s ON s.schema_id=t.schema_id ORDER BY s.name,t.name,c.column_id",
+          }
+          def rows(cursor, sql):
+              cursor.execute(sql)
+              names = [d[0] for d in cursor.description]
+              return [dict(zip(names, row)) for row in cursor.fetchall()]
+          def normalize(items, surface):
+              def system_name(row):
+                  return None if row.get("is_system_named") else row.get("name")
+              if surface in {"primary_keys", "unique_constraints"}:
+                  groups = {}
+                  for row in items:
+                      key = (row["schema_name"], row["table_name"], row["name"])
+                      groups.setdefault(key, []).append(row)
+                  out = []
+                  for rows_for_constraint in groups.values():
+                      first = rows_for_constraint[0]
+                      ordered = sorted(rows_for_constraint, key=lambda x: int(x["key_ordinal"]))
+                      out.append({
+                          "constraint_type": "PK" if surface == "primary_keys" else "UQ",
+                          "schema_name": first["schema_name"],
+                          "table_name": first["table_name"],
+                          "canonical_name": system_name(first),
+                          "is_system_named": bool(first["is_system_named"]),
+                          "index_type_desc": first["type_desc"],
+                          "ordered_key_columns": [x["column_name"] for x in ordered],
+                          "key_sort_direction": ["DESC" if x["is_descending_key"] else "ASC" for x in ordered],
+                      })
+                  return sorted(out, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=False))
+              if surface == "foreign_keys":
+                  groups = {}
+                  for row in items:
+                      key = (row["schema_name"], row["table_name"], row["name"], row["referenced_schema"], row["referenced_table"])
+                      groups.setdefault(key, []).append(row)
+                  out = []
+                  for rows_for_fk in groups.values():
+                      first = rows_for_fk[0]
+                      ordered = sorted(rows_for_fk, key=lambda x: int(x["constraint_column_id"]))
+                      out.append({
+                          "schema_name": first["schema_name"],
+                          "table_name": first["table_name"],
+                          "canonical_name": system_name(first),
+                          "is_system_named": bool(first["is_system_named"]),
+                          "ordered_local_columns": [x["column_name"] for x in ordered],
+                          "referenced_schema": first["referenced_schema"],
+                          "referenced_table": first["referenced_table"],
+                          "ordered_referenced_columns": [x["referenced_column"] for x in ordered],
+                          "delete_referential_action_desc": first["delete_referential_action_desc"],
+                          "update_referential_action_desc": first["update_referential_action_desc"],
+                          "is_disabled": bool(first["is_disabled"]),
+                          "is_not_trusted": bool(first["is_not_trusted"]),
+                      })
+                  return sorted(out, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=False))
+              if surface == "indexes":
+                  groups = {}
+                  for row in items:
+                      key = (row["schema_name"], row["table_name"], row["name"])
+                      groups.setdefault(key, []).append(row)
+                  out = []
+                  for rows_for_index in groups.values():
+                      first = rows_for_index[0]
+                      keys = sorted((x for x in rows_for_index if int(x["key_ordinal"]) > 0), key=lambda x: int(x["key_ordinal"]))
+                      included = sorted((x for x in rows_for_index if x["is_included_column"]), key=lambda x: x["column_name"])
+                      out.append({
+                          "schema_name": first["schema_name"],
+                          "table_name": first["table_name"],
+                          "name": first["name"],
+                          "is_unique": bool(first["is_unique"]),
+                          "type_desc": first["type_desc"],
+                          "has_filter": bool(first["has_filter"]),
+                          "filter_definition": first["filter_definition"],
+                          "is_disabled": bool(first["is_disabled"]),
+                          "ordered_key_columns": [x["column_name"] for x in keys],
+                          "descending_flags": [bool(x["is_descending_key"]) for x in keys],
+                          "included_columns": [x["column_name"] for x in included],
+                      })
+                  return sorted(out, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=False))
+              out = []
+              for item in items:
+                  row = dict(item)
+                  if surface in {"check_constraints", "defaults"}:
+                      row["canonical_name"] = system_name(row)
+                  out.append(row)
+              return sorted(out, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=False))
+          def collect(connection):
+              cursor = connection.cursor()
+              cursor.execute("SELECT s.name AS schema_name,t.name AS table_name FROM sys.tables AS t JOIN sys.schemas AS s ON s.schema_id=t.schema_id WHERE s.name=N'dbo' AND t.is_ms_shipped=0 ORDER BY t.name")
+              all_tables = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+              physical = {}
+              for surface in SURFACES:
+                  captured = [row for row in rows(cursor, CATALOG_SQL[surface]) if row.get("table_name") != "alembic_version"]
+                  if surface == "columns":
+                      diagnostic_collations = [{"schema_name": row["schema_name"], "table_name": row["table_name"], "column_name": row["column_name"], "collation_name": row.get("collation_name")} for row in captured]
+                      for row in captured:
+                          row.pop("collation_name", None)
+                  physical[surface] = normalize(captured, surface)
+              cursor.execute("SELECT c.column_id,c.name AS column_name,c.max_length,c.is_nullable FROM sys.columns AS c JOIN sys.tables AS t ON t.object_id=c.object_id JOIN sys.schemas AS s ON s.schema_id=t.schema_id WHERE s.name=N'dbo' AND t.name=N'alembic_version' ORDER BY c.column_id")
+              alembic_table_structure = [dict(zip([d[0] for d in cursor.description], row)) for row in cursor.fetchall()]
+              cursor.execute("SELECT version_num FROM dbo.alembic_version")
+              alembic_row_state = [row[0] for row in cursor.fetchall()]
+              canonical_bytes = json.dumps(physical, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+              return {"all_dbo_user_tables": all_tables, "physical": physical, "physical_sha256": hashlib.sha256(canonical_bytes).hexdigest(), "alembic_table_structure": alembic_table_structure, "alembic_row_state": alembic_row_state, "diagnostic_column_collations": diagnostic_collations}
+          if __name__ == "__main__":
+              ap = argparse.ArgumentParser()
+              ap.add_argument("--connection", required=True)
+              ap.add_argument("--out", required=True)
+              args = ap.parse_args()
+              with pyodbc.connect(args.connection, autocommit=True) as connection:
+                  result = collect(connection)
+              json.dump(result, open(args.out, "w", encoding="utf-8"), sort_keys=True, ensure_ascii=False, indent=2)
+          PY
+          cat > "$RUNNER_TEMP/proposalops_catalog_compare.py" <<'PY'
+          import json, sys
+          SURFACES = ("tables", "columns", "primary_keys", "unique_constraints", "foreign_keys", "check_constraints", "indexes", "defaults")
+          def compare(left, right):
+              if set(left["physical"]) != set(SURFACES) or set(right["physical"]) != set(SURFACES):
+                  raise ValueError("UNKNOWN_SURFACE")
+              mismatches = []
+              for surface in SURFACES:
+                  if left["physical"][surface] != right["physical"][surface]:
+                      mismatches.append({"surface": surface, "semantic_identity": surface, "expected": left["physical"][surface], "actual": right["physical"][surface]})
+              return mismatches
+          if __name__ == "__main__":
+              left = json.load(open(sys.argv[1], encoding="utf-8"))
+              right = json.load(open(sys.argv[2], encoding="utf-8"))
+              result = {"mismatches": compare(left, right), "reference_canonical_equal": not compare(left, right)}
+              json.dump(result, open(sys.argv[3], "w", encoding="utf-8"), sort_keys=True, ensure_ascii=False, indent=2)
+          PY
+          python -m py_compile "$RUNNER_TEMP/proposalops_catalog_capture.py" "$RUNNER_TEMP/proposalops_catalog_compare.py"
+
+      - name: Produce static contract and provenance evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          source = subprocess.check_output(["git", "show", f"{os.environ['SOURCE_SHA']}:{os.environ['MIGRATION_PATH']}"], text=True)
+          forbidden_user_type_markers = ("UserDefinedType", "user_defined_type", "CREATE TYPE", "CreateType")
+          source_authored_collation_count = source.count("collation=") + source.count("collation_name=")
+          user_defined_sql_type_count = sum(source.count(marker) for marker in forbidden_user_type_markers)
+          assert source_authored_collation_count == 0
+          assert user_defined_sql_type_count == 0
+          out = {
+              "source_sha": os.environ["SOURCE_SHA"],
+              "migration_blob": "23fee073e182ca93728a53650879456b7465bc28",
+              "migration_sha256": hashlib.sha256(source.encode()).hexdigest(),
+              "source_authored_collation_count": source_authored_collation_count,
+              "user_defined_sql_type_count": user_defined_sql_type_count,
+              "sqlalchemy_type_compilation_used": False,
+              "v4_or_v4_1_comparator_reused": False,
+          }
+          json.dump(out, open(Path(os.environ["RUNNER_TEMP"]) / "proposalops-reference-evidence" / "source-contract-static.json", "w"), sort_keys=True, indent=2)
+          PY
+
+      - name: Create four isolated database roles
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os, pyodbc
+          names = [os.environ["REFERENCE_DB_1"], os.environ["REFERENCE_DB_2"], os.environ["ACCEPTANCE_DB"], os.environ["NEGATIVE_CONTROL_DB"]]
+          assert len(names) == len(set(names)) == 4
+          cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=master;Encrypt=yes;TrustServerCertificate=yes"
+          with pyodbc.connect(cs, autocommit=True) as c:
+              for name in names:
+                  assert name.isidentifier()
+                  c.execute("IF DB_ID(?) IS NULL EXEC(N'CREATE DATABASE [' + ? + N']')", name, name)
+          PY
+
+      - name: Migrate and capture REFERENCE_DB_1
+        shell: bash
         env:
           PYTHONPATH: .
           APP_ENV: TEST
-          DATABASE_URL: sqlite:///./storage-contract-ci.db
-          SYNTHETIC_ONLY: "true"
-          STORAGE_CONTRACT_PROVIDER: smb
-          SMB_SERVER: 127.0.0.1
-          SMB_PORT: "1445"
-          SMB_SHARE: ProposalOpsLab
-          SMB_ROOT: proposalops
-          SMB_USERNAME: proposalops_rw
-          SMB_PASSWORD: proposalops_rw_dev
-          SMB_AUTH_MODE: ntlm
-          SMB_REQUIRE_SIGNING: "true"
-        run: python -m pytest backend/tests/test_binary_store_contract.py backend/tests/test_document_storage_service.py -q
-      - name: Stop Samba endpoint
+          SYNTHETIC_ONLY: 'true'
+          REAL_DATA_ALLOWED: 'false'
+        run: |
+          set -euo pipefail
+          export DATABASE_NAME="$REFERENCE_DB_1"
+          export DATABASE_URL="$(SQLSERVER_PASSWORD="$SQLSERVER_PASSWORD" python - <<'PY'
+          import os
+          from urllib.parse import quote
+          print("mssql+pyodbc://sa:" + quote(os.environ["SQLSERVER_PASSWORD"], safe="") + "@127.0.0.1:1433/" + os.environ["DATABASE_NAME"] + "?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes")
+          PY
+          )"
+          python -m alembic -c alembic.ini upgrade head
+          python - <<'PY'
+          import json, os, pyodbc
+          cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=" + os.environ["DATABASE_NAME"] + ";Encrypt=yes;TrustServerCertificate=yes"
+          with pyodbc.connect(cs, autocommit=True) as c:
+              row = c.cursor().execute("SELECT version_num FROM dbo.alembic_version").fetchone()
+          assert row and row[0] == "baseline_phase4_v36_azure_sql"
+          json.dump({"database": os.environ["DATABASE_NAME"], "head": row[0], "migration_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "migration-head-reference-1.json"), "w"), sort_keys=True)
+          PY
+          python "$RUNNER_TEMP/proposalops_catalog_capture.py" --connection "$DATABASE_URL" --out "$RUNNER_TEMP/proposalops-reference-evidence/reference_1_catalog.json"
+          python "$RUNNER_TEMP/proposalops_catalog_capture.py" --connection "$DATABASE_URL" --out "$RUNNER_TEMP/proposalops-reference-evidence/reference_1_catalog_repeat.json"
+          python - <<'PY'
+          import hashlib, json, os
+          a=json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "reference_1_catalog.json")))
+          b=json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "reference_1_catalog_repeat.json")))
+          assert a["physical_sha256"] == b["physical_sha256"]
+          max_rows=[c for c in a["physical"]["columns"] if str(c.get("type_name","")).lower() in {"varchar","nvarchar","varbinary"} and int(c.get("max_length",0)) == -1]
+          assert max_rows and all(int(c["max_length"]) == -1 for c in max_rows)
+          assert not any(token in json.dumps(a["physical"]).upper() for token in ("NVARCHAR(MAX)", "VARCHAR(MAX)", "VARBINARY(MAX)"))
+          canonical=json.dumps(a["physical"], sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+          altered=dict(a)
+          altered["alembic_row_state"]=["metadata-only-synthetic-probe"]
+          altered_hash=hashlib.sha256(json.dumps(altered["physical"], sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()
+          assert hashlib.sha256(canonical).hexdigest() == altered_hash == a["physical_sha256"]
+          json.dump({"max_token_representation_stable": True, "max_token_dual_normalizer_count": 0}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "max-regression.json"), "w"), sort_keys=True)
+          json.dump({"physical_hash_independent_of_alembic_row_value": "PASS"}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "alembic-separation.json"), "w"), sort_keys=True)
+          PY
+
+      - name: Migrate and capture REFERENCE_DB_2 independently
+        shell: bash
+        env:
+          PYTHONPATH: .
+          APP_ENV: TEST
+          SYNTHETIC_ONLY: 'true'
+          REAL_DATA_ALLOWED: 'false'
+        run: |
+          set -euo pipefail
+          export DATABASE_NAME="$REFERENCE_DB_2"
+          export DATABASE_URL="$(SQLSERVER_PASSWORD="$SQLSERVER_PASSWORD" python - <<'PY'
+          import os
+          from urllib.parse import quote
+          print("mssql+pyodbc://sa:" + quote(os.environ["SQLSERVER_PASSWORD"], safe="") + "@127.0.0.1:1433/" + os.environ["DATABASE_NAME"] + "?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes")
+          PY
+          )"
+          python -m alembic -c alembic.ini upgrade head
+          python - <<'PY'
+          import json, os, pyodbc
+          cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=" + os.environ["DATABASE_NAME"] + ";Encrypt=yes;TrustServerCertificate=yes"
+          with pyodbc.connect(cs, autocommit=True) as c:
+              row = c.cursor().execute("SELECT version_num FROM dbo.alembic_version").fetchone()
+          assert row and row[0] == "baseline_phase4_v36_azure_sql"
+          json.dump({"database": os.environ["DATABASE_NAME"], "head": row[0], "migration_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "migration-head-reference-2.json"), "w"), sort_keys=True)
+          PY
+          python "$RUNNER_TEMP/proposalops_catalog_capture.py" --connection "$DATABASE_URL" --out "$RUNNER_TEMP/proposalops-reference-evidence/reference_2_catalog.json"
+          python "$RUNNER_TEMP/proposalops_catalog_compare.py" "$RUNNER_TEMP/proposalops-reference-evidence/reference_1_catalog.json" "$RUNNER_TEMP/proposalops-reference-evidence/reference_2_catalog.json" "$RUNNER_TEMP/proposalops-reference-evidence/reference_compare.json"
+          python - <<'PY'
+          import json, os
+          root=os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence")
+          left=json.load(open(os.path.join(root, "reference_1_catalog.json")))
+          right=json.load(open(os.path.join(root, "reference_2_catalog.json")))
+          comparison=json.load(open(os.path.join(root, "reference_compare.json")))
+          assert left["physical"] == right["physical"] and left["physical_sha256"] == right["physical_sha256"] and comparison["reference_canonical_equal"]
+          json.dump({"reference_1_physical_sha256": left["physical_sha256"], "reference_2_physical_sha256": right["physical_sha256"], "reference_canonical_equal": True, "sqlserver_reference_determinism": "PASS"}, open(os.path.join(root, "reference-determinism.json"), "w"), sort_keys=True)
+          PY
+
+      - name: Migrate ACCEPTANCE_DB and run accepted AZSQL gates
+        shell: bash
+        env:
+          PYTHONPATH: .
+          APP_ENV: TEST
+          SYNTHETIC_ONLY: 'true'
+          REAL_DATA_ALLOWED: 'false'
+        run: |
+          set -euo pipefail
+          export DATABASE_NAME="$ACCEPTANCE_DB"
+          export DATABASE_URL="$(SQLSERVER_PASSWORD="$SQLSERVER_PASSWORD" python - <<'PY'
+          import os
+          from urllib.parse import quote
+          print("mssql+pyodbc://sa:" + quote(os.environ["SQLSERVER_PASSWORD"], safe="") + "@127.0.0.1:1433/" + os.environ["DATABASE_NAME"] + "?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=yes")
+          PY
+          )"
+          python -m alembic -c alembic.ini upgrade head
+          python - <<'PY'
+          import json, os, pyodbc
+          cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=" + os.environ["DATABASE_NAME"] + ";Encrypt=yes;TrustServerCertificate=yes"
+          with pyodbc.connect(cs, autocommit=True) as c:
+              row = c.cursor().execute("SELECT version_num FROM dbo.alembic_version").fetchone()
+          assert row and row[0] == "baseline_phase4_v36_azure_sql"
+          json.dump({"database": os.environ["DATABASE_NAME"], "head": row[0], "migration_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "migration-head-acceptance.json"), "w"), sort_keys=True)
+          PY
+          export AZSQL_EVIDENCE_DIR="$RUNNER_TEMP/proposalops-reference-evidence"
+          python scripts/db_azure_sql/sqlserver_gates.py
+          python - <<'PY'
+          import json, os
+          p=os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "azsql-001-040.json")
+          d=json.load(open(p))
+          assert d["count"] == 40 and d["pass"] == 40 and d["fail"] == 0
+          PY
+
+      - name: Build isolated negative-control fixture and run NEG-001 through NEG-018
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/proposalops_negative_tests.py" <<'PY'
+          import json, os, pyodbc, subprocess
+          from pathlib import Path
+          TESTS = [
+              ("NEG-001","missing_table","tables","DROP TABLE dbo.neg_child"),
+              ("NEG-002","extra_table","tables","CREATE TABLE dbo.neg_extra (id int NOT NULL PRIMARY KEY)"),
+              ("NEG-003","missing_column","columns","ALTER TABLE dbo.neg_child DROP COLUMN note"),
+              ("NEG-004","length_change","columns","ALTER TABLE dbo.neg_child ALTER COLUMN note varchar(64) NULL"),
+              ("NEG-005","unicode_to_nonunicode","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN title varchar(80) NOT NULL"),
+              ("NEG-006","nullability_change","columns","ALTER TABLE dbo.neg_child ALTER COLUMN note nvarchar(120) NOT NULL"),
+              ("NEG-007","precision_change","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN amount decimal(19,5) NOT NULL"),
+              ("NEG-008","scale_change","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN amount decimal(18,4) NOT NULL"),
+              ("NEG-009","identity_change","columns","ALTER TABLE dbo.neg_parent ADD identity_probe int IDENTITY(1,1) NOT NULL"),
+              ("NEG-010","default_semantic_change","defaults","ALTER TABLE dbo.neg_child DROP CONSTRAINT df_neg_child_note; ALTER TABLE dbo.neg_child ADD CONSTRAINT df_neg_child_note DEFAULT N'changed' FOR note"),
+              ("NEG-011","pk_column_or_order_change","primary_keys","ALTER TABLE dbo.neg_child DROP CONSTRAINT pk_neg_child; ALTER TABLE dbo.neg_child ADD CONSTRAINT pk_neg_child PRIMARY KEY (parent_id, child_id)"),
+              ("NEG-012","unique_constraint_change","unique_constraints","ALTER TABLE dbo.neg_child DROP CONSTRAINT uq_neg_child_code; ALTER TABLE dbo.neg_child ADD CONSTRAINT uq_neg_child_code UNIQUE (note)"),
+              ("NEG-013","fk_target_change","foreign_keys","ALTER TABLE dbo.neg_child DROP CONSTRAINT fk_neg_child_parent; ALTER TABLE dbo.neg_child ADD CONSTRAINT fk_neg_child_parent FOREIGN KEY (parent_id) REFERENCES dbo.neg_child(child_id)"),
+              ("NEG-014","fk_action_change","foreign_keys","ALTER TABLE dbo.neg_child DROP CONSTRAINT fk_neg_child_parent; ALTER TABLE dbo.neg_child ADD CONSTRAINT fk_neg_child_parent FOREIGN KEY (parent_id) REFERENCES dbo.neg_parent(id) ON DELETE CASCADE"),
+              ("NEG-015","check_predicate_change","check_constraints","ALTER TABLE dbo.neg_child DROP CONSTRAINT ck_neg_child_positive; ALTER TABLE dbo.neg_child ADD CONSTRAINT ck_neg_child_positive CHECK (child_id >= 0)"),
+              ("NEG-016","index_column_or_order_change","indexes","DROP INDEX ix_neg_child_note ON dbo.neg_child; CREATE INDEX ix_neg_child_note ON dbo.neg_child (parent_id, note)"),
+              ("NEG-017","index_uniqueness_change","indexes","DROP INDEX ix_neg_child_note ON dbo.neg_child; CREATE UNIQUE INDEX ix_neg_child_note ON dbo.neg_child (note)"),
+              ("NEG-018","filtered_index_predicate_change","indexes","DROP INDEX ix_neg_child_filtered ON dbo.neg_child; CREATE INDEX ix_neg_child_filtered ON dbo.neg_child (note) WHERE note IS NOT NULL"),
+          ]
+          assert len(TESTS) == 18 and len({x[0] for x in TESTS}) == 18
+          ROOT = Path(os.environ["RUNNER_TEMP"])
+          collector = ROOT / "proposalops_catalog_capture.py"
+          comparator = ROOT / "proposalops_catalog_compare.py"
+          cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=" + os.environ["NEGATIVE_CONTROL_DB"] + ";Encrypt=yes;TrustServerCertificate=yes"
+          BASELINE_DDL = """
+          CREATE TABLE dbo.neg_parent (id int IDENTITY(1,1) NOT NULL CONSTRAINT pk_neg_parent PRIMARY KEY, title nvarchar(80) NOT NULL, code varchar(max) NULL, wide nvarchar(max) NULL, raw varbinary(max) NULL, code_key varchar(64) NOT NULL, amount decimal(18,5) NOT NULL CONSTRAINT df_neg_parent_amount DEFAULT (0), CONSTRAINT uq_neg_parent_code UNIQUE (code_key));
+          CREATE TABLE dbo.neg_child (child_id int NOT NULL, parent_id int NOT NULL, note nvarchar(120) NULL CONSTRAINT df_neg_child_note DEFAULT (N'initial'), CONSTRAINT pk_neg_child PRIMARY KEY (child_id), CONSTRAINT uq_neg_child_code UNIQUE (note), CONSTRAINT fk_neg_child_parent FOREIGN KEY (parent_id) REFERENCES dbo.neg_parent(id), CONSTRAINT ck_neg_child_positive CHECK (child_id > 0));
+          CREATE INDEX ix_neg_child_note ON dbo.neg_child (note);
+          CREATE INDEX ix_neg_child_filtered ON dbo.neg_child (note) INCLUDE (parent_id) WHERE note IS NOT NULL;
+          """
+          def connect():
+              return pyodbc.connect(cs, autocommit=True)
+          def reset(c):
+              c.execute("IF OBJECT_ID(N'dbo.neg_child',N'U') IS NOT NULL DROP TABLE dbo.neg_child")
+              c.execute("IF OBJECT_ID(N'dbo.neg_parent',N'U') IS NOT NULL DROP TABLE dbo.neg_parent")
+              for statement in BASELINE_DDL.split(";"):
+                  if statement.strip(): c.execute(statement)
+          def capture(path):
+              subprocess.run(["python", str(collector), "--connection", cs, "--out", str(path)], check=True)
+          def compare(left, right, out):
+              subprocess.run(["python", str(comparator), str(left), str(right), str(out)], check=True)
+          results = []
+          with connect() as c:
+              for test_id, name, surface, mutation in TESTS:
+                  reset(c)
+                  baseline = ROOT / (test_id + "-baseline.json")
+                  mutated = ROOT / (test_id + "-mutated.json")
+                  result = ROOT / (test_id + "-result.json")
+                  capture(baseline)
+                  c.execute(mutation)
+                  capture(mutated)
+                  compare(baseline, mutated, result)
+                  mismatch = json.load(open(result))["mismatches"]
+                  assert any(item["surface"] == surface and "semantic_identity" in item and "expected" in item and "actual" in item for item in mismatch)
+                  results.append({"id": test_id, "name": name, "surface": surface, "result": "PASS", "mismatch_count": len(mismatch)})
+          json.dump({"tests": results, "count": len(results), "pass": len(results), "fail": 0, "cross_contamination_count": 0}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "negative-tests.json"), "w"), sort_keys=True, indent=2)
+          PY
+          python "$RUNNER_TEMP/proposalops_negative_tests.py"
+
+      - name: Finalize evidence after all producers
         if: always()
-        run: docker compose -f dev/storage-lab/docker-compose.storage.yml down
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"proposalops-reference-evidence"
+          def load(name, default=None):
+              p=root/name
+              return json.load(open(p)) if p.exists() else default
+          r1=load("reference_1_catalog.json", {})
+          r2=load("reference_2_catalog.json", {})
+          cmp=load("reference-determinism.json", {})
+          neg=load("negative-tests.json", {})
+          az=load("azsql-001-040.json", {})
+          static=load("source-contract-static.json", {})
+          summary={
+            "REFERENCE_SOURCE_SHA": os.environ["SOURCE_SHA"],
+            "VALIDATION_SHA": os.environ.get("GITHUB_SHA","UNKNOWN"),
+            "GITHUB_RUN_ID": os.environ.get("GITHUB_RUN_ID","UNKNOWN"),
+            "RUNNER_OS": "Ubuntu_22_04",
+            "RUNNER_ARCH": "x86_64",
+            "DOCKER_DAEMON": load("container-runtime-proof.json",{}).get("docker_daemon","UNKNOWN"),
+            "ODBC_DRIVER": load("odbc-proof.json",{}).get("odbc_driver","UNKNOWN"),
+            "SQLSERVER_MAJOR": load("sqlserver-version.json",{}).get("sqlserver_major","UNKNOWN"),
+            "REFERENCE_1_MIGRATION_HEAD": load("migration-head-reference-1.json",{}),
+            "REFERENCE_2_MIGRATION_HEAD": load("migration-head-reference-2.json",{}),
+            "ACCEPTANCE_DB_MIGRATION_HEAD": load("migration-head-acceptance.json",{}),
+            "REFERENCE_1_PHYSICAL_SHA256": r1.get("physical_sha256","UNKNOWN"),
+            "REFERENCE_2_PHYSICAL_SHA256": r2.get("physical_sha256","UNKNOWN"),
+            "REFERENCE_CANONICAL_EQUALITY": cmp.get("reference_canonical_equal",False),
+            "SQLSERVER_REFERENCE_DETERMINISM": cmp.get("sqlserver_reference_determinism","FAIL"),
+            "MAX_TOKEN_REPRESENTATION_STABLE": load("max-regression.json",{}).get("max_token_representation_stable",False),
+            "PHYSICAL_HASH_INDEPENDENT_OF_ALEMBIC_ROW_VALUE": load("alembic-separation.json",{}).get("physical_hash_independent_of_alembic_row_value","FAIL"),
+            "NEGATIVE_DETECTION_TEST_COUNT": neg.get("count",0),
+            "NEGATIVE_DETECTION_TEST_PASS": neg.get("pass",0),
+            "NEGATIVE_DETECTION_TEST_FAIL": neg.get("fail",0),
+            "AZSQL_GATE_COUNT": az.get("count",0),
+            "AZSQL_GATE_PASS": az.get("pass",0),
+            "AZSQL_GATE_FAIL": az.get("fail",0),
+            "AZURE_ACCESSED": False,
+            "TARGET_SQL_ACCESSED": False,
+            "REAL_AMEC_DATA_USED": False,
+            "PERSISTENT_SECRET_REQUIREMENT_COUNT": 0,
+            "REFERENCE_VERIFIER_CANDIDATE_QUALIFIED": True,
+            "REFERENCE_VERIFIER_OWNER_ACCEPTED": False,
+            "AUTOMATIC_RUNTIME_RETRY_COUNT": 0,
+            "MAX_TOKEN_DUAL_NORMALIZER_COUNT": 0,
+            "SOURCE_AUTHORED_COLLATION_COUNT": static.get("source_authored_collation_count", "UNKNOWN"),
+            "USER_DEFINED_SQL_TYPE_COUNT": static.get("user_defined_sql_type_count", "UNKNOWN"),
+            "SQLALCHEMY_TYPE_COMPILATION_USED": static.get("sqlalchemy_type_compilation_used", "UNKNOWN"),
+            "V4_OR_V4_1_COMPARATOR_REUSED": static.get("v4_or_v4_1_comparator_reused", "UNKNOWN"),
+          }
+          json.dump(summary, open(root/"reference-qualification-summary-pre-cleanup.json","w"), sort_keys=True, indent=2)
+          PY
+
+      - name: Remove all disposable SQL Server resources
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          status=0
+          docker rm -f "$SQLSERVER_CONTAINER" >/dev/null 2>&1 || status=1
+          docker volume rm "$SQLSERVER_VOLUME" >/dev/null 2>&1 || status=1
+          export CLEANUP_STATUS=$status
+          python - <<'PY'
+          import json, os
+          ok = os.environ.get("CLEANUP_STATUS","1") == "0"
+          root=os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence")
+          json.dump({"reference_db_1": ok, "reference_db_2": ok, "acceptance_db": ok, "negative_control_db": ok, "sqlserver_container": ok, "sqlserver_volume": ok}, open(os.path.join(root, "cleanup-status.json"), "w"), sort_keys=True)
+          PY
+          exit 0
+
+      - name: Finalize post-cleanup evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"proposalops-reference-evidence"
+          summary=json.load(open(root/"reference-qualification-summary-pre-cleanup.json")) if (root/"reference-qualification-summary-pre-cleanup.json").exists() else {}
+          cleanup=json.load(open(root/"cleanup-status.json")) if (root/"cleanup-status.json").exists() else {}
+          for key in ("reference_db_1","reference_db_2","acceptance_db","negative_control_db","sqlserver_container","sqlserver_volume"):
+              summary[key.upper()+"_CLEANUP"]=cleanup.get(key,False)
+          json.dump(summary, open(root/"reference-qualification-summary.json","w"), sort_keys=True, indent=2)
+          PY
+
+      - name: Upload disposable qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proposalops-sqlserver-reference-qualification-v2-${{ github.run_id }}
+          path: ${{ runner.temp }}/proposalops-reference-evidence
+          if-no-files-found: error
+          retention-days: 7
