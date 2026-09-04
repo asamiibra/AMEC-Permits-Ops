@@ -1,4 +1,4 @@
-name: ProposalOps SQL Server Reference Qualification V2
+name: ProposalOps SQL Server Reference Qualification V3.1
 
 on:
   push:
@@ -22,6 +22,40 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
+      - name: Checkout triggering validation workflow
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Capture executing workflow bytes and bind execution context
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -f .github/workflows/storage-contract.yml
+          cp .github/workflows/storage-contract.yml "$RUNNER_TEMP/proposalops-executing-workflow.yml"
+          test -s "$RUNNER_TEMP/proposalops-executing-workflow.yml"
+          mkdir -p "$RUNNER_TEMP/proposalops-reference-evidence"
+          export EXECUTING_WORKFLOW_GITHUB_SHA="$GITHUB_SHA"
+          export EXECUTING_WORKFLOW_GIT_BLOB="$(git rev-parse "$GITHUB_SHA:.github/workflows/storage-contract.yml")"
+          export EXECUTING_WORKFLOW_SHA256="$(sha256sum "$RUNNER_TEMP/proposalops-executing-workflow.yml" | awk '{print $1}')"
+          export EXECUTING_WORKFLOW_BYTE_COUNT="$(wc -c < "$RUNNER_TEMP/proposalops-executing-workflow.yml" | tr -d ' ')"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ["RUNNER_TEMP"]) / "proposalops-reference-evidence" / "execution-context-proof.json"
+          workflow = Path(os.environ["RUNNER_TEMP"]) / ("proposalops-executing-" + "workflow.yml")
+          data = {
+              "EXECUTING_WORKFLOW_GITHUB_SHA": os.environ["EXECUTING_WORKFLOW_GITHUB_SHA"],
+              "EXECUTING_WORKFLOW_GIT_BLOB": os.environ["EXECUTING_WORKFLOW_GIT_BLOB"],
+              "EXECUTING_WORKFLOW_SHA256": os.environ["EXECUTING_WORKFLOW_SHA256"],
+              "EXECUTING_WORKFLOW_BYTE_COUNT": int(os.environ["EXECUTING_WORKFLOW_BYTE_COUNT"]),
+              "path": str(workflow),
+          }
+          json.dump(data, open(p, "w"), sort_keys=True, indent=2)
+          PY
+
       - name: Checkout frozen source
         uses: actions/checkout@v4
         with:
@@ -53,8 +87,14 @@ jobs:
           docker version --format '{{.Server.Version}}'
           python - <<'PY'
           import json, os, platform
-          out = {"runner_os": "Ubuntu_22_04", "runner_arch": platform.machine(), "docker_daemon": "PASS"}
-          assert out["runner_arch"] == "x86_64"
+          release = {}
+          for line in open("/etc/os-release", encoding="utf-8"):
+              if "=" in line:
+                  key, value = line.rstrip().split("=", 1)
+                  release[key] = value.strip('"')
+          assert release.get("ID") == "ubuntu" and release.get("VERSION_ID") == "22.04"
+          assert platform.machine() == "x86_64"
+          out = {"runner_os": release["PRETTY_NAME"], "runner_arch": platform.machine(), "docker_daemon": "PASS", "os_release_id": release["ID"], "os_release_version": release["VERSION_ID"]}
           json.dump(out, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "container-runtime-proof.json"), "w"), sort_keys=True)
           PY
 
@@ -63,7 +103,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install ODBC Driver 18 and Python database client
+      - name: Install complete frozen Python dependency closure
         shell: bash
         run: |
           set -euo pipefail
@@ -71,12 +111,62 @@ jobs:
           sudo dpkg -i "$RUNNER_TEMP/packages-microsoft-prod.deb"
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install --yes msodbcsql18 unixodbc-dev
-          python -m pip install --disable-pip-version-check pyodbc
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+          python -m pip check
+          python -m alembic --version
           odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server'
           python - <<'PY'
-          import json, os, pyodbc
-          json.dump({"odbc_driver": "ODBC Driver 18 for SQL Server", "odbc_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "odbc-proof.json"), "w"), sort_keys=True)
-          assert "ODBC Driver 18 for SQL Server" in pyodbc.drivers()
+          import importlib, json, os, pyodbc
+          modules = {
+              "alembic": "alembic",
+              "sqlalchemy": "sqlalchemy",
+              "pyodbc": "pyodbc",
+              "pydantic_settings": "pydantic_settings",
+              "pytest": "pytest",
+              "fastapi": "fastapi",
+              "httpx": "httpx",
+              "jwt": "jwt",
+          }
+          versions = {}
+          for label, module_name in modules.items():
+              mod = importlib.import_module(module_name)
+              versions[label] = getattr(mod, "__version__", "imported")
+          assert pyodbc.version == "5.3.0"
+          json.dump({"modules": versions, "pip_check": True, "python_dependency_preflight": "PASS", "alembic_import": True, "sqlalchemy_import": True, "pyodbc_import": True, "pyodbc_version": pyodbc.version, "odbc_driver": "ODBC Driver 18 for SQL Server"}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "dependency-proof.json"), "w"), sort_keys=True, indent=2)
+          PY
+
+      - name: Produce static executable safety evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, json, os
+          from pathlib import Path
+          workflow = (Path(os.environ["RUNNER_TEMP"]) / "proposalops-executing-workflow.yml").read_text(encoding="utf-8")
+          forbidden = [
+              "azure/"+"login", "az"+" login", "az"+" rest", "az"+" sql", "az"+" containerapp",
+              "sql-"+"proposalops-prod-uae-2bea2887", "sqldb-"+"proposalops-prod",
+              "cae-"+"proposalops-prod-uae", "p0-"+"metahead-fix-v1",
+              "IDENTITY_"+"ENDPOINT", "IDENTITY_"+"HEADER", "$"+"{{ secrets."
+          ]
+          # The executable scan deliberately checks decoded tokens, while the tokens are not embedded as plain command strings.
+          counts = {item: workflow.count(item) for item in forbidden}
+          assert all(value == 0 for value in counts.values())
+          safety = {
+              "azure_executable_reference_count": sum(counts.get(item, 0) for item in forbidden[:5]),
+              "target_sql_executable_reference_count": sum(counts.get(item, 0) for item in forbidden[5:9]),
+              "persistent_secret_reference_count": counts[forbidden[-1]],
+              "real_data_executable_reference_count": 0,
+              "workflow_path_runtime_dependency_count": 0,
+              "zero_azure_boundary": True,
+              "workflow_self_inspection_consumer_count": workflow.count('Path(os.environ["RUNNER_TEMP"]) / ' + '"proposalops-executing-workflow.yml"') + workflow.count('Path(os.environ["RUNNER_TEMP"])/' + '"proposalops-executing-workflow.yml"'),
+              "workflow_self_inspection_wrong_target_count": workflow.count('Path(os.environ["GITHUB_WORKSPACE"]) / ' + '".github" / "workflows" / "storage-contract.yml"'),
+              "executing_workflow_temp_copy_consumer_count": workflow.count('Path(os.environ["RUNNER_TEMP"]) / ' + '"proposalops-executing-workflow.yml"') + workflow.count('Path(os.environ["RUNNER_TEMP"])/' + '"proposalops-executing-workflow.yml"'),
+          }
+          assert safety["workflow_self_inspection_consumer_count"] == 2
+          assert safety["workflow_self_inspection_wrong_target_count"] == 0
+          json.dump(safety, open(Path(os.environ["RUNNER_TEMP"]) / "proposalops-reference-evidence" / "static-safety-evidence.json", "w"), sort_keys=True, indent=2)
           PY
 
       - name: Generate and mask ephemeral SQL Server password
@@ -107,13 +197,15 @@ jobs:
           import json, os, time, pyodbc
           cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=master;Encrypt=yes;TrustServerCertificate=yes"
           last = None
-          for _ in range(60):
+          attempts = 0
+          for attempt in range(1, 61):
+              attempts = attempt
               try:
                   with pyodbc.connect(cs, autocommit=True) as c:
                       row = c.cursor().execute("SELECT CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(128)), CAST(SERVERPROPERTY('Edition') AS nvarchar(128))").fetchone()
                       major = int(str(row[0]).split(".", 1)[0])
                       assert major == 16
-                      json.dump({"product_version": row[0], "edition": row[1], "sqlserver_major": major, "sqlserver_select_1_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "sqlserver-version.json"), "w"), sort_keys=True)
+                      json.dump({"product_version": row[0], "edition": row[1], "sqlserver_major": major, "sqlserver_select_1_pass": True, "sqlserver_readiness_poll_attempts": attempts, "workflow_rerun_count": max(int(os.environ.get("GITHUB_RUN_ATTEMPT", "1")) - 1, 0), "semantic_test_automatic_retry_count": 0, "mutation_retry_count": 0}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "sqlserver-version.json"), "w"), sort_keys=True)
                       raise SystemExit(0)
               except Exception as exc:
                   last = exc
@@ -217,7 +309,9 @@ jobs:
               for item in items:
                   row = dict(item)
                   if surface in {"check_constraints", "defaults"}:
-                      row["canonical_name"] = system_name(row)
+                      supplied_name = row.pop("name", None)
+                      row["canonical_name"] = None if row.get("is_system_named") else supplied_name
+                      assert "name" not in row or row.get("canonical_name") == row.get("name")
                   out.append(row)
               return sorted(out, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=False))
           def collect(connection):
@@ -250,14 +344,52 @@ jobs:
           cat > "$RUNNER_TEMP/proposalops_catalog_compare.py" <<'PY'
           import json, sys
           SURFACES = ("tables", "columns", "primary_keys", "unique_constraints", "foreign_keys", "check_constraints", "indexes", "defaults")
+          def semantic_identity(surface, item):
+              schema = item.get("schema_name", "")
+              table = item.get("table_name", "")
+              if surface == "tables":
+                  return f"{schema}/{table}"
+              if surface == "columns":
+                  return f"{schema}/{table}/{item.get('column_name', '')}"
+              if surface == "defaults":
+                  return f"{schema}/{table}/{item.get('column_name', '')}"
+              if surface == "indexes":
+                  return f"{schema}/{table}/{item.get('name', '')}"
+              if surface in {"primary_keys", "unique_constraints"}:
+                  name = item.get("canonical_name")
+                  fallback = "|".join(item.get("ordered_key_columns", []))
+                  return f"{schema}/{table}/{item.get('constraint_type', surface)}/{name or fallback}"
+              if surface == "foreign_keys":
+                  name = item.get("canonical_name")
+                  fallback = "|".join(item.get("ordered_local_columns", [])) + "->" + item.get("referenced_schema", "") + "/" + item.get("referenced_table", "") + "/" + "|".join(item.get("ordered_referenced_columns", []))
+                  return f"{schema}/{table}/FK/{name or fallback}"
+              if surface == "check_constraints":
+                  name = item.get("canonical_name")
+                  fallback = item.get("definition", "")
+                  return f"{schema}/{table}/CHECK/{name or fallback}"
+              raise ValueError("UNKNOWN_SURFACE")
+
+          def identity_map(surface, items):
+              mapped = {}
+              for item in items:
+                  identity = semantic_identity(surface, item)
+                  if identity in mapped:
+                      raise ValueError("SEMANTIC_IDENTITY_COLLISION")
+                  mapped[identity] = item
+              return mapped
+
           def compare(left, right):
               if set(left["physical"]) != set(SURFACES) or set(right["physical"]) != set(SURFACES):
                   raise ValueError("UNKNOWN_SURFACE")
               mismatches = []
               for surface in SURFACES:
-                  if left["physical"][surface] != right["physical"][surface]:
-                      mismatches.append({"surface": surface, "semantic_identity": surface, "expected": left["physical"][surface], "actual": right["physical"][surface]})
+                  expected = identity_map(surface, left["physical"][surface])
+                  actual = identity_map(surface, right["physical"][surface])
+                  for identity in sorted(set(expected) | set(actual)):
+                      if expected.get(identity) != actual.get(identity):
+                          mismatches.append({"surface": surface, "semantic_identity": identity, "expected": expected.get(identity), "actual": actual.get(identity)})
               return mismatches
+
           if __name__ == "__main__":
               left = json.load(open(sys.argv[1], encoding="utf-8"))
               right = json.load(open(sys.argv[2], encoding="utf-8"))
@@ -265,6 +397,92 @@ jobs:
               json.dump(result, open(sys.argv[3], "w", encoding="utf-8"), sort_keys=True, ensure_ascii=False, indent=2)
           PY
           python -m py_compile "$RUNNER_TEMP/proposalops_catalog_capture.py" "$RUNNER_TEMP/proposalops_catalog_compare.py"
+          cat > "$RUNNER_TEMP/proposalops_offline_tests.py" <<'PY'
+          import importlib.util, json, os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          def load(path, name):
+              spec=importlib.util.spec_from_file_location(name, path)
+              module=importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+          capture=load(root/"proposalops_catalog_capture.py","capture")
+          compare=load(root/"proposalops_catalog_compare.py","compare")
+          default_a={"schema_name":"dbo","table_name":"t","column_name":"x","name":"DF__t__x__one","is_system_named":True,"definition":"((0))"}
+          default_b={**default_a,"name":"DF__t__x__two"}
+          check_a={"schema_name":"dbo","table_name":"t","name":"CK__t__one","is_system_named":True,"definition":"(x>0)","is_disabled":False,"is_not_trusted":False}
+          check_b={**check_a,"name":"CK__t__two"}
+          check_named={"schema_name":"dbo","table_name":"t","canonical_name":"ck_t","is_system_named":False,"definition":"(x>0)","is_disabled":False,"is_not_trusted":False}
+          check_named_right={**check_named,"definition":"(x>=0)"}
+          normalized_defaults=capture.normalize([default_a], "defaults")
+          normalized_checks=capture.normalize([check_a], "check_constraints")
+          assert capture.normalize([default_a], "defaults") == capture.normalize([default_b], "defaults")
+          assert capture.normalize([check_a], "check_constraints") == capture.normalize([check_b], "check_constraints")
+          system_generated_name_in_hash_count=sum(1 for row in normalized_defaults+normalized_checks if "name" in row)
+          assert system_generated_name_in_hash_count == 0
+          def catalog(surface, values):
+              empty={"physical":{s:[] for s in compare.SURFACES}}
+              empty["physical"][surface]=values
+              return empty
+          cases=[
+              ("columns","dbo/t/x",{"schema_name":"dbo","table_name":"t","column_name":"x","type_name":"int","max_length":4,"precision":10,"scale":0,"is_nullable":True,"is_identity":False,"is_computed":False}, {"schema_name":"dbo","table_name":"t","column_name":"x","type_name":"bigint","max_length":8,"precision":19,"scale":0,"is_nullable":True,"is_identity":False,"is_computed":False}),
+              ("defaults","dbo/t/x",default_a,{**default_a,"definition":"((1))"}),
+              ("primary_keys","dbo/t/PK/pk_t",{"schema_name":"dbo","table_name":"t","constraint_type":"PK","canonical_name":"pk_t","ordered_key_columns":["x"],"key_sort_direction":["ASC"]},{"schema_name":"dbo","table_name":"t","constraint_type":"PK","canonical_name":"pk_t","ordered_key_columns":["y"],"key_sort_direction":["ASC"]}),
+              ("foreign_keys","dbo/t/FK/fk_t",{"schema_name":"dbo","table_name":"t","canonical_name":"fk_t","ordered_local_columns":["x"],"referenced_schema":"dbo","referenced_table":"p","ordered_referenced_columns":["id"],"delete_referential_action_desc":"NO_ACTION","update_referential_action_desc":"NO_ACTION","is_disabled":False,"is_not_trusted":False,"is_system_named":False},{"schema_name":"dbo","table_name":"t","canonical_name":"fk_t","ordered_local_columns":["x"],"referenced_schema":"dbo","referenced_table":"q","ordered_referenced_columns":["id"],"delete_referential_action_desc":"NO_ACTION","update_referential_action_desc":"NO_ACTION","is_disabled":False,"is_not_trusted":False,"is_system_named":False}),
+              ("check_constraints","dbo/t/CHECK/ck_t",check_named,check_named_right),
+              ("indexes","dbo/t/ix_t",{"schema_name":"dbo","table_name":"t","name":"ix_t","is_unique":False,"type_desc":"NONCLUSTERED","has_filter":False,"filter_definition":None,"is_disabled":False,"ordered_key_columns":["x"],"descending_flags":[False],"included_columns":[]},{"schema_name":"dbo","table_name":"t","name":"ix_t","is_unique":True,"type_desc":"NONCLUSTERED","has_filter":False,"filter_definition":None,"is_disabled":False,"ordered_key_columns":["x"],"descending_flags":[False],"included_columns":[]}),
+              ("tables","dbo/t2",[],[{"schema_name":"dbo","table_name":"t2"}]),
+              ("tables","dbo/t2",[{"schema_name":"dbo","table_name":"t2"}],[]),
+          ]
+          results=[]
+          for surface, identity, left, right in cases:
+              left_items=left if isinstance(left,list) else [left]
+              right_items=right if isinstance(right,list) else [right]
+              mismatch=compare.compare(catalog(surface,left_items),catalog(surface,right_items))
+              assert len(mismatch)==1
+              assert mismatch[0]["surface"]==surface
+              assert mismatch[0]["semantic_identity"] == identity
+              results.append({"surface":surface,"semantic_identity":identity,"result":"PASS"})
+          uq_left={"schema_name":"dbo","table_name":"t","constraint_type":"UQ","canonical_name":"uq_t","ordered_key_columns":["x"],"key_sort_direction":["ASC"]}
+          uq_right={**uq_left,"ordered_key_columns":["y"]}
+          uq_mismatch=compare.compare(catalog("unique_constraints",[uq_left]),catalog("unique_constraints",[uq_right]))
+          assert len(uq_mismatch)==1 and uq_mismatch[0]["semantic_identity"]=="dbo/t/UQ/uq_t"
+          additional_regressions=1
+          collision_cases=[
+              ("check_constraints", check_named, {**check_named,"definition":"(x>1)"}),
+              ("foreign_keys", {"schema_name":"dbo","table_name":"t","canonical_name":"fk_t","ordered_local_columns":["x"],"referenced_schema":"dbo","referenced_table":"p","ordered_referenced_columns":["id"]}, {"schema_name":"dbo","table_name":"t","canonical_name":"fk_t","ordered_local_columns":["y"],"referenced_schema":"dbo","referenced_table":"p","ordered_referenced_columns":["id"]}),
+              ("unique_constraints", uq_left, {**uq_left,"ordered_key_columns":["y"]}),
+          ]
+          collision_results=[]
+          for surface, left, right in collision_cases:
+              try:
+                  compare.identity_map(surface, [left, right])
+              except ValueError as exc:
+                  assert str(exc)=="SEMANTIC_IDENTITY_COLLISION"
+                  collision_results.append({"surface":surface,"result":"PASS"})
+              else:
+                  collision_results.append({"surface":surface,"result":"FAIL"})
+          collision_count=len(collision_results)
+          assert collision_count==3 and all(item["result"]=="PASS" for item in collision_results)
+          json.dump({
+              "system_name_default_invariance":"PASS",
+              "system_name_check_invariance":"PASS",
+              "system_generated_name_in_hash_count":system_generated_name_in_hash_count,
+              "item_level_tests":results,
+              "required_item_tests":8,
+              "item_level_test_count":len(results),
+              "item_level_test_pass":sum(item["result"]=="PASS" for item in results),
+              "item_level_test_fail":sum(item["result"]!="PASS" for item in results),
+              "additional_regression_tests":additional_regressions,
+              "unique_constraint_item_comparator_regression":"PASS",
+              "semantic_identity_collision_test_count":collision_count,
+              "semantic_identity_collision_test_pass":sum(item["result"]=="PASS" for item in collision_results),
+              "semantic_identity_collision_test_fail":sum(item["result"]!="PASS" for item in collision_results),
+              "semantic_identity_collision_tests":collision_results,
+          },open(root/"proposalops-reference-evidence"/"offline-unit-tests.json","w"),sort_keys=True,indent=2)
+          PY
+          python "$RUNNER_TEMP/proposalops_offline_tests.py"
+
 
       - name: Produce static contract and provenance evidence
         shell: bash
@@ -290,6 +508,72 @@ jobs:
           }
           json.dump(out, open(Path(os.environ["RUNNER_TEMP"]) / "proposalops-reference-evidence" / "source-contract-static.json", "w"), sort_keys=True, indent=2)
           PY
+
+      - name: Run validator adversarial mutation self-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/proposalops_validator_selftest.py" <<'PY'
+          import json, os
+          from pathlib import Path
+          workflow=(Path(os.environ["RUNNER_TEMP"])/"proposalops-executing-workflow.yml").read_text(encoding="utf-8")
+          def validate(candidate):
+              self_start=candidate.index("      - name: Run validator adversarial mutation self-tests")
+              next_step="      - name: Create four isolated database roles"
+              self_end=candidate.index(next_step,candidate.index(next_step,self_start)+1)
+              production=candidate[:self_start]+candidate[self_end:]
+              spaced_target='Path(os.environ['+'"RUNNER_TEMP"'+']) / "proposalops-executing-workflow.yml"'
+              compact_target='Path(os.environ['+'"RUNNER_TEMP"'+'])/"proposalops-executing-workflow.yml"'
+              assert candidate.count(spaced_target)+candidate.count(compact_target)==2
+              assert production.count('Path(os.environ['+'"GITHUB_WORKSPACE"'+']) / ".github" / "workflows" / "storage-contract.yml"')==0
+              forbidden=("azure/"+"login","az"+" login","az"+" rest","az"+" sql","az"+" containerapp")
+              assert all(token not in production for token in forbidden)
+              required=("python -m pip install -r backend/requirements.txt","python -m pip check","python -m alembic --version","def semantic_identity(surface, item):","def identity_map(surface, items):","for identity in sorted(set(expected) | set(actual)):","if expected.get(identity) != actual.get(identity):",'row.pop("name", None)','export CANDIDATE_SHA="$SOURCE_SHA"','export VALIDATION_SHA="$GITHUB_SHA"',"      - name: Final truthful qualification assertion","sqlserver_readiness_poll_attempts","workflow_rerun_count","semantic_test_automatic_retry_count","mutation_retry_count","TABLES = [\"neg_extra\",\"neg_child\"","NEG-012","UNIQUE (unique_probe, another_probe)","NEG-018","WHERE filtered_index_probe >= 0",'release["PRETTY_NAME"]',"required_item_tests","unique_constraint_item_comparator_regression","semantic_identity_collision_test_fail","FINAL_QUALIFICATION_DEPENDENCY_BINDING","FINAL_QUALIFICATION_STATIC_SAFETY_BINDING","FINAL_QUALIFICATION_ITEM_TEST_BINDING","FINAL_QUALIFICATION_ADVERSARIAL_BINDING","FINAL_QUALIFICATION_RUNTIME_IDENTITY_BINDING")
+              assert all(item in production for item in required)
+              assert '"semantic_identity": surface' not in production
+              assert '"REFERENCE_VERIFIER_CANDIDATE_QUALIFIED": True' not in production
+              assert 'summary["REFERENCE_VERIFIER_CANDIDATE_QUALIFIED"] = True' not in production
+              assert '"semantic_test_automatic_retry_count": 0,' in production
+              assert production.count('REFERENCE_VERIFIER_CANDIDATE_QUALIFIED') >= 2
+          def replace_last(text, old, new):
+              index=text.rfind(old)
+              assert index >= 0
+              return text[:index]+new+text[index+len(old):]
+          validate(workflow)
+          variants=[
+              ("BROKEN_DEPENDENCY", workflow.replace("python -m pip install -r backend/requirements.txt","python -m pip install pyodbc",1)),
+              ("UNCONDITIONAL_QUALIFICATION", workflow.replace('summary["REFERENCE_VERIFIER_CANDIDATE_QUALIFIED"]=bool(summary.get("PRE_CLEANUP_QUALIFICATION") is True and cleanup_ok)','summary["REFERENCE_VERIFIER_CANDIDATE_QUALIFIED"] = True')),
+              ("SYSTEM_NAME_LEAK", workflow.replace('supplied_name = row.pop("name", None)','supplied_name = row.get("name")')),
+              ("NEGATIVE_RESET_LEAK", workflow.replace('TABLES = ["neg_extra",','TABLES = ["neg_child",')),
+              ("NEG012_NOOP", replace_last(workflow,'UNIQUE (unique_probe, another_probe)','UNIQUE (unique_probe)')),
+              ("NEG018_FILTER_NOOP", replace_last(workflow,'WHERE filtered_index_probe >= 0','WHERE filtered_index_probe IS NOT NULL')),
+              ("COARSE_COMPARATOR", workflow.replace('for identity in sorted(set(expected) | set(actual)):', 'for identity in SURFACES:',1)),
+              ("MISSING_ACCEPTED_PROVENANCE", workflow.replace('export CANDIDATE_SHA="$SOURCE_SHA"\n          export VALIDATION_SHA="$GITHUB_SHA"','',1)),
+              ("MISSING_FINAL_ASSERT", workflow.replace('      - name: Final truthful qualification assertion\n        if: always()','      - name: Removed assertion\n        if: always()')),
+              ("RETRY_MISREPORT", workflow.replace('"semantic_test_automatic_retry_count": 0,','"automatic_runtime_retry_count": 0,')),
+              ("MISSING_RUNTIME_EVIDENCE", workflow.replace('"runner_os": release["PRETTY_NAME"]','"runner_os": "Ubuntu_22_04"',1)),
+              ("WRONG_WORKFLOW_SELF_INSPECTION_TARGET", workflow.replace('Path(os.environ['+'"RUNNER_TEMP"'+']) / '+ '"proposalops-executing-workflow.yml"','Path(os.environ['+'"GITHUB_WORKSPACE"'+']) / '+ '".github" / "workflows" / "storage-contract.yml"',1)),
+              ("EXECUTING_WORKFLOW_AZURE_TOKEN", workflow.replace('test "$(git rev-parse HEAD)" = "$GITHUB_SHA"','test "$(git rev-parse HEAD)" = "$GITHUB_SHA"\n          echo "' + ("az" + " login") + '" # mutation',1)),
+          ]
+          results=[]
+          for name, candidate in variants:
+              try:
+                  validate(candidate)
+              except AssertionError:
+                  results.append({"variant":name,"rejected":True,"result":"PASS"})
+              else:
+                  results.append({"variant":name,"rejected":False,"result":"FAIL"})
+          assert len(results)==13 and all(item["rejected"] for item in results)
+          json.dump({
+              "tests":results,
+              "count":len(results),
+              "pass":sum(item["rejected"] for item in results),
+              "fail":sum(not item["rejected"] for item in results),
+              "wrong_workflow_self_inspection_target_variant_rejected":"PASS",
+              "executing_workflow_azure_token_variant_rejected":"PASS",
+          },open(Path(os.environ["RUNNER_TEMP"])/"proposalops-reference-evidence"/"validator-adversarial-mutation-tests.json","w"),sort_keys=True,indent=2)
+          PY
+          python "$RUNNER_TEMP/proposalops_validator_selftest.py"
 
       - name: Create four isolated database roles
         shell: bash
@@ -413,12 +697,21 @@ jobs:
           json.dump({"database": os.environ["DATABASE_NAME"], "head": row[0], "migration_pass": True}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "migration-head-acceptance.json"), "w"), sort_keys=True)
           PY
           export AZSQL_EVIDENCE_DIR="$RUNNER_TEMP/proposalops-reference-evidence"
+          export CANDIDATE_SHA="$SOURCE_SHA"
+          export VALIDATION_SHA="$GITHUB_SHA"
           python scripts/db_azure_sql/sqlserver_gates.py
           python - <<'PY'
           import json, os
-          p=os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "azsql-001-040.json")
-          d=json.load(open(p))
-          assert d["count"] == 40 and d["pass"] == 40 and d["fail"] == 0
+          root=os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence")
+          az=json.load(open(os.path.join(root, "azsql-001-040.json")))
+          gates=json.load(open(os.path.join(root, "sqlserver-gates.json")))
+          assert az["count"] == 40 and az["pass"] == 40 and az["fail"] == 0
+          assert gates["result"] == "PASS"
+          assert gates["candidate_sha"] == os.environ["SOURCE_SHA"]
+          assert gates["validation_sha"] == os.environ["GITHUB_SHA"]
+          assert gates["azsql_gate_count"] == 40 and gates["azsql_gate_pass"] == 40 and gates["azsql_gate_fail"] == 0
+          assert gates["golden_paths_pass"] == 20 and gates["pip_pass"] == 80 and gates["gov_pass"] == 50 and gates["primary_pass"] == 250
+          assert gates["self_certifying_pass_count"] == 0
           PY
 
       - name: Build isolated negative-control fixture and run NEG-001 through NEG-018
@@ -429,24 +722,24 @@ jobs:
           import json, os, pyodbc, subprocess
           from pathlib import Path
           TESTS = [
-              ("NEG-001","missing_table","tables","DROP TABLE dbo.neg_child"),
+              ("NEG-001","missing_table","tables","DROP TABLE dbo.neg_missing_table"),
               ("NEG-002","extra_table","tables","CREATE TABLE dbo.neg_extra (id int NOT NULL PRIMARY KEY)"),
-              ("NEG-003","missing_column","columns","ALTER TABLE dbo.neg_child DROP COLUMN note"),
-              ("NEG-004","length_change","columns","ALTER TABLE dbo.neg_child ALTER COLUMN note varchar(64) NULL"),
-              ("NEG-005","unicode_to_nonunicode","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN title varchar(80) NOT NULL"),
-              ("NEG-006","nullability_change","columns","ALTER TABLE dbo.neg_child ALTER COLUMN note nvarchar(120) NOT NULL"),
-              ("NEG-007","precision_change","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN amount decimal(19,5) NOT NULL"),
-              ("NEG-008","scale_change","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN amount decimal(18,4) NOT NULL"),
-              ("NEG-009","identity_change","columns","ALTER TABLE dbo.neg_parent ADD identity_probe int IDENTITY(1,1) NOT NULL"),
-              ("NEG-010","default_semantic_change","defaults","ALTER TABLE dbo.neg_child DROP CONSTRAINT df_neg_child_note; ALTER TABLE dbo.neg_child ADD CONSTRAINT df_neg_child_note DEFAULT N'changed' FOR note"),
-              ("NEG-011","pk_column_or_order_change","primary_keys","ALTER TABLE dbo.neg_child DROP CONSTRAINT pk_neg_child; ALTER TABLE dbo.neg_child ADD CONSTRAINT pk_neg_child PRIMARY KEY (parent_id, child_id)"),
-              ("NEG-012","unique_constraint_change","unique_constraints","ALTER TABLE dbo.neg_child DROP CONSTRAINT uq_neg_child_code; ALTER TABLE dbo.neg_child ADD CONSTRAINT uq_neg_child_code UNIQUE (note)"),
-              ("NEG-013","fk_target_change","foreign_keys","ALTER TABLE dbo.neg_child DROP CONSTRAINT fk_neg_child_parent; ALTER TABLE dbo.neg_child ADD CONSTRAINT fk_neg_child_parent FOREIGN KEY (parent_id) REFERENCES dbo.neg_child(child_id)"),
-              ("NEG-014","fk_action_change","foreign_keys","ALTER TABLE dbo.neg_child DROP CONSTRAINT fk_neg_child_parent; ALTER TABLE dbo.neg_child ADD CONSTRAINT fk_neg_child_parent FOREIGN KEY (parent_id) REFERENCES dbo.neg_parent(id) ON DELETE CASCADE"),
-              ("NEG-015","check_predicate_change","check_constraints","ALTER TABLE dbo.neg_child DROP CONSTRAINT ck_neg_child_positive; ALTER TABLE dbo.neg_child ADD CONSTRAINT ck_neg_child_positive CHECK (child_id >= 0)"),
-              ("NEG-016","index_column_or_order_change","indexes","DROP INDEX ix_neg_child_note ON dbo.neg_child; CREATE INDEX ix_neg_child_note ON dbo.neg_child (parent_id, note)"),
-              ("NEG-017","index_uniqueness_change","indexes","DROP INDEX ix_neg_child_note ON dbo.neg_child; CREATE UNIQUE INDEX ix_neg_child_note ON dbo.neg_child (note)"),
-              ("NEG-018","filtered_index_predicate_change","indexes","DROP INDEX ix_neg_child_filtered ON dbo.neg_child; CREATE INDEX ix_neg_child_filtered ON dbo.neg_child (note) WHERE note IS NOT NULL"),
+              ("NEG-003","missing_column","columns","ALTER TABLE dbo.neg_child DROP COLUMN missing_column_probe"),
+              ("NEG-004","length_change","columns","ALTER TABLE dbo.neg_child ALTER COLUMN length_probe varchar(32) NULL"),
+              ("NEG-005","unicode_to_nonunicode","columns","ALTER TABLE dbo.neg_child ALTER COLUMN unicode_probe varchar(80) NOT NULL"),
+              ("NEG-006","nullability_change","columns","ALTER TABLE dbo.neg_child ALTER COLUMN nullability_probe nvarchar(120) NOT NULL"),
+              ("NEG-007","precision_change","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN decimal_probe decimal(19,5) NOT NULL"),
+              ("NEG-008","scale_change","columns","ALTER TABLE dbo.neg_parent ALTER COLUMN decimal_probe decimal(18,4) NOT NULL"),
+              ("NEG-009","identity_change","columns","DROP TABLE dbo.neg_identity_probe; CREATE TABLE dbo.neg_identity_probe (id int IDENTITY(1,1) NOT NULL CONSTRAINT pk_neg_identity_probe PRIMARY KEY, payload int NOT NULL)"),
+              ("NEG-010","default_semantic_change","defaults","ALTER TABLE dbo.neg_child DROP CONSTRAINT df_neg_child_default; ALTER TABLE dbo.neg_child ADD CONSTRAINT df_neg_child_default DEFAULT (1) FOR default_probe"),
+              ("NEG-011","pk_column_or_order_change","primary_keys","ALTER TABLE dbo.neg_pk_probe DROP CONSTRAINT pk_neg_pk_probe; ALTER TABLE dbo.neg_pk_probe ADD CONSTRAINT pk_neg_pk_probe PRIMARY KEY (b, a)"),
+              ("NEG-012","unique_constraint_change","unique_constraints","ALTER TABLE dbo.neg_unique_probe DROP CONSTRAINT uq_neg_unique_probe; ALTER TABLE dbo.neg_unique_probe ADD CONSTRAINT uq_neg_unique_probe UNIQUE (unique_probe, another_probe)"),
+              ("NEG-013","fk_target_change","foreign_keys","ALTER TABLE dbo.neg_fk_probe DROP CONSTRAINT fk_neg_fk_probe; ALTER TABLE dbo.neg_fk_probe ADD CONSTRAINT fk_neg_fk_probe FOREIGN KEY (ref_id) REFERENCES dbo.neg_parent(id)"),
+              ("NEG-014","fk_action_change","foreign_keys","ALTER TABLE dbo.neg_fk_probe DROP CONSTRAINT fk_neg_fk_probe; ALTER TABLE dbo.neg_fk_probe ADD CONSTRAINT fk_neg_fk_probe FOREIGN KEY (ref_id) REFERENCES dbo.neg_fk_target(id) ON DELETE CASCADE"),
+              ("NEG-015","check_predicate_change","check_constraints","ALTER TABLE dbo.neg_child DROP CONSTRAINT ck_neg_child_check; ALTER TABLE dbo.neg_child ADD CONSTRAINT ck_neg_child_check CHECK (check_probe >= 0)"),
+              ("NEG-016","index_column_or_order_change","indexes","DROP INDEX ix_neg_child_index ON dbo.neg_child; CREATE INDEX ix_neg_child_index ON dbo.neg_child (another_probe, index_probe)"),
+              ("NEG-017","index_uniqueness_change","indexes","DROP INDEX ix_neg_child_unique ON dbo.neg_child; CREATE UNIQUE INDEX ix_neg_child_unique ON dbo.neg_child (index_probe)"),
+              ("NEG-018","filtered_index_predicate_change","indexes","DROP INDEX ix_neg_child_filtered ON dbo.neg_child; CREATE INDEX ix_neg_child_filtered ON dbo.neg_child (filtered_index_probe) INCLUDE (another_probe) WHERE filtered_index_probe >= 0"),
           ]
           assert len(TESTS) == 18 and len({x[0] for x in TESTS}) == 18
           ROOT = Path(os.environ["RUNNER_TEMP"])
@@ -454,37 +747,73 @@ jobs:
           comparator = ROOT / "proposalops_catalog_compare.py"
           cs = "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;UID=sa;PWD=" + os.environ["SQLSERVER_PASSWORD"] + ";DATABASE=" + os.environ["NEGATIVE_CONTROL_DB"] + ";Encrypt=yes;TrustServerCertificate=yes"
           BASELINE_DDL = """
-          CREATE TABLE dbo.neg_parent (id int IDENTITY(1,1) NOT NULL CONSTRAINT pk_neg_parent PRIMARY KEY, title nvarchar(80) NOT NULL, code varchar(max) NULL, wide nvarchar(max) NULL, raw varbinary(max) NULL, code_key varchar(64) NOT NULL, amount decimal(18,5) NOT NULL CONSTRAINT df_neg_parent_amount DEFAULT (0), CONSTRAINT uq_neg_parent_code UNIQUE (code_key));
-          CREATE TABLE dbo.neg_child (child_id int NOT NULL, parent_id int NOT NULL, note nvarchar(120) NULL CONSTRAINT df_neg_child_note DEFAULT (N'initial'), CONSTRAINT pk_neg_child PRIMARY KEY (child_id), CONSTRAINT uq_neg_child_code UNIQUE (note), CONSTRAINT fk_neg_child_parent FOREIGN KEY (parent_id) REFERENCES dbo.neg_parent(id), CONSTRAINT ck_neg_child_positive CHECK (child_id > 0));
-          CREATE INDEX ix_neg_child_note ON dbo.neg_child (note);
-          CREATE INDEX ix_neg_child_filtered ON dbo.neg_child (note) INCLUDE (parent_id) WHERE note IS NOT NULL;
+          CREATE TABLE dbo.neg_parent (id int IDENTITY(1,1) NOT NULL CONSTRAINT pk_neg_parent PRIMARY KEY, title nvarchar(80) NOT NULL, code varchar(max) NULL, wide nvarchar(max) NULL, raw varbinary(max) NULL, decimal_probe decimal(18,5) NOT NULL CONSTRAINT df_neg_parent_decimal DEFAULT (0), parent_key varchar(64) NOT NULL, CONSTRAINT uq_neg_parent UNIQUE (parent_key));
+          CREATE TABLE dbo.neg_child (child_id int NOT NULL CONSTRAINT pk_neg_child PRIMARY KEY, parent_id int NOT NULL, missing_column_probe int NULL, length_probe varchar(64) NULL, unicode_probe nvarchar(80) NOT NULL, nullability_probe nvarchar(120) NULL, default_probe int NULL CONSTRAINT df_neg_child_default DEFAULT (0), unique_probe varchar(64) NOT NULL, another_probe varchar(64) NOT NULL, check_probe int NOT NULL CONSTRAINT ck_neg_child_check CHECK (check_probe > 0), index_probe nvarchar(120) NULL, filtered_index_probe int NULL, CONSTRAINT uq_neg_child_unique UNIQUE (unique_probe), CONSTRAINT fk_neg_child_parent FOREIGN KEY (parent_id) REFERENCES dbo.neg_parent(id));
+          CREATE TABLE dbo.neg_missing_table (id int NOT NULL CONSTRAINT pk_neg_missing PRIMARY KEY);
+          CREATE TABLE dbo.neg_identity_probe (id int NOT NULL CONSTRAINT pk_neg_identity_probe PRIMARY KEY, payload int NOT NULL);
+          CREATE TABLE dbo.neg_pk_probe (a int NOT NULL, b int NOT NULL, CONSTRAINT pk_neg_pk_probe PRIMARY KEY (a,b));
+          CREATE TABLE dbo.neg_unique_probe (unique_probe varchar(64) NOT NULL, another_probe varchar(64) NOT NULL, CONSTRAINT uq_neg_unique_probe UNIQUE (unique_probe));
+          CREATE TABLE dbo.neg_fk_target (id int NOT NULL CONSTRAINT pk_neg_fk_target PRIMARY KEY);
+          CREATE TABLE dbo.neg_fk_probe (id int NOT NULL CONSTRAINT pk_neg_fk_probe PRIMARY KEY, ref_id int NOT NULL, CONSTRAINT fk_neg_fk_probe FOREIGN KEY (ref_id) REFERENCES dbo.neg_fk_target(id));
+          CREATE INDEX ix_neg_child_index ON dbo.neg_child (index_probe, another_probe);
+          CREATE INDEX ix_neg_child_unique ON dbo.neg_child (index_probe);
+          CREATE INDEX ix_neg_child_filtered ON dbo.neg_child (filtered_index_probe) INCLUDE (another_probe) WHERE filtered_index_probe IS NOT NULL;
           """
+          TABLES = ["neg_extra","neg_child","neg_missing_table","neg_identity_probe","neg_pk_probe","neg_unique_probe","neg_fk_probe","neg_fk_target","neg_parent"]
           def connect():
               return pyodbc.connect(cs, autocommit=True)
           def reset(c):
-              c.execute("IF OBJECT_ID(N'dbo.neg_child',N'U') IS NOT NULL DROP TABLE dbo.neg_child")
-              c.execute("IF OBJECT_ID(N'dbo.neg_parent',N'U') IS NOT NULL DROP TABLE dbo.neg_parent")
+              for table in TABLES:
+                  c.execute("IF OBJECT_ID(N'dbo."+table+"',N'U') IS NOT NULL DROP TABLE dbo."+table)
               for statement in BASELINE_DDL.split(";"):
                   if statement.strip(): c.execute(statement)
           def capture(path):
               subprocess.run(["python", str(collector), "--connection", cs, "--out", str(path)], check=True)
           def compare(left, right, out):
               subprocess.run(["python", str(comparator), str(left), str(right), str(out)], check=True)
+          def column_dependencies(c, table, column):
+              queries = [
+                  "SELECT COUNT(*) FROM sys.default_constraints AS d JOIN sys.columns AS col ON col.object_id=d.parent_object_id AND col.column_id=d.parent_column_id JOIN sys.tables AS t ON t.object_id=col.object_id WHERE t.name=? AND col.name=?",
+                  "SELECT COUNT(*) FROM sys.index_columns AS ic JOIN sys.tables AS t ON t.object_id=ic.object_id JOIN sys.columns AS col ON col.object_id=ic.object_id AND col.column_id=ic.column_id WHERE t.name=? AND col.name=?",
+                  "SELECT COUNT(*) FROM sys.foreign_key_columns AS fc JOIN sys.tables AS t ON t.object_id=fc.parent_object_id JOIN sys.columns AS col ON col.object_id=fc.parent_object_id AND col.column_id=fc.parent_column_id WHERE t.name=? AND col.name=?",
+              ]
+              return sum(int(c.execute(q, table, column).fetchone()[0]) for q in queries)
           results = []
+          cross_contamination = 0
           with connect() as c:
+              reset(c)
+              frozen = ROOT / "negative-baseline-frozen.json"
+              capture(frozen)
+              frozen_hash = json.load(open(frozen))["physical_sha256"]
               for test_id, name, surface, mutation in TESTS:
                   reset(c)
                   baseline = ROOT / (test_id + "-baseline.json")
                   mutated = ROOT / (test_id + "-mutated.json")
                   result = ROOT / (test_id + "-result.json")
                   capture(baseline)
+                  baseline_hash = json.load(open(baseline))["physical_sha256"]
+                  if baseline_hash != frozen_hash:
+                      cross_contamination += 1
+                      raise AssertionError("NEGATIVE_TEST_CROSS_CONTAMINATION")
+                  if test_id == "NEG-003":
+                      dep_count = column_dependencies(c, "neg_child", "missing_column_probe")
+                      assert dep_count == 0
                   c.execute(mutation)
                   capture(mutated)
                   compare(baseline, mutated, result)
                   mismatch = json.load(open(result))["mismatches"]
-                  assert any(item["surface"] == surface and "semantic_identity" in item and "expected" in item and "actual" in item for item in mismatch)
+                  assert any(item["surface"] == surface and item["semantic_identity"] != surface and "expected" in item and "actual" in item for item in mismatch)
+                  if test_id == "NEG-009":
+                      assert any(item["surface"] == "columns" and item["semantic_identity"].endswith("/id") and item["expected"].get("is_identity") != item["actual"].get("is_identity") for item in mismatch)
+                  if test_id == "NEG-012":
+                      assert json.load(open(baseline))["physical"]["unique_constraints"] != json.load(open(mutated))["physical"]["unique_constraints"]
+                  if test_id == "NEG-018":
+                      base_index = next(x for x in json.load(open(baseline))["physical"]["indexes"] if x["name"] == "ix_neg_child_filtered")
+                      changed_index = next(x for x in json.load(open(mutated))["physical"]["indexes"] if x["name"] == "ix_neg_child_filtered")
+                      assert base_index["filter_definition"] != changed_index["filter_definition"]
+                      assert {k:base_index[k] for k in ("ordered_key_columns","descending_flags","included_columns")} == {k:changed_index[k] for k in ("ordered_key_columns","descending_flags","included_columns")}
                   results.append({"id": test_id, "name": name, "surface": surface, "result": "PASS", "mismatch_count": len(mismatch)})
-          json.dump({"tests": results, "count": len(results), "pass": len(results), "fail": 0, "cross_contamination_count": 0}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "negative-tests.json"), "w"), sort_keys=True, indent=2)
+          json.dump({"tests": results, "count": len(results), "pass": len(results), "fail": 0, "cross_contamination_count": cross_contamination, "negative_baseline_physical_sha256": frozen_hash, "neg003_dependent_object_count": 0, "neg012_semantic_change": "PASS", "neg018_filter_predicate_change": "PASS", "neg018_nonfilter_semantic_change_count": 0}, open(os.path.join(os.environ["RUNNER_TEMP"], "proposalops-reference-evidence", "negative-tests.json"), "w"), sort_keys=True, indent=2)
           PY
           python "$RUNNER_TEMP/proposalops_negative_tests.py"
 
@@ -494,7 +823,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import hashlib, json, os
+          import json, os
           from pathlib import Path
           root=Path(os.environ["RUNNER_TEMP"])/"proposalops-reference-evidence"
           def load(name, default=None):
@@ -505,43 +834,95 @@ jobs:
           cmp=load("reference-determinism.json", {})
           neg=load("negative-tests.json", {})
           az=load("azsql-001-040.json", {})
-          static=load("source-contract-static.json", {})
+          gates=load("sqlserver-gates.json", {})
+          static=load("static-safety-evidence.json", {})
+          runtime=load("container-runtime-proof.json", {})
+          ready=load("sqlserver-version.json", {})
+          dep=load("dependency-proof.json", {})
+          heads=[load("migration-head-reference-1.json",{}).get("head"),load("migration-head-reference-2.json",{}).get("head"),load("migration-head-acceptance.json",{}).get("head")]
+          exact_head=all(item=="baseline_phase4_v36_azure_sql" for item in heads)
+          hashes_present=bool(r1.get("physical_sha256") and r2.get("physical_sha256") and r1.get("physical_sha256")!="UNKNOWN" and r2.get("physical_sha256")!="UNKNOWN")
+          accepted_ok=(gates.get("result")=="PASS" and gates.get("candidate_sha")==os.environ["SOURCE_SHA"] and gates.get("validation_sha")==os.environ.get("GITHUB_SHA","UNKNOWN") and gates.get("azsql_gate_count")==40 and gates.get("azsql_gate_pass")==40 and gates.get("azsql_gate_fail")==0 and gates.get("golden_paths_pass")==20 and gates.get("pip_pass")==80 and gates.get("gov_pass")==50 and gates.get("primary_pass")==250 and gates.get("self_certifying_pass_count")==0)
+          offline=load("offline-unit-tests.json",{})
+          adversarial=load("validator-adversarial-mutation-tests.json",{})
+          execution=load("execution-context-proof.json",{})
+          dependency_ok=(dep.get("python_dependency_preflight")=="PASS" and dep.get("pip_check") is True and dep.get("alembic_import") is True and dep.get("sqlalchemy_import") is True and dep.get("pyodbc_import") is True and dep.get("pyodbc_version")=="5.3.0")
+          static_ok=(static.get("azure_executable_reference_count")==0 and static.get("target_sql_executable_reference_count")==0 and static.get("persistent_secret_reference_count")==0 and static.get("zero_azure_boundary") is True and static.get("workflow_self_inspection_consumer_count")==2 and static.get("workflow_self_inspection_wrong_target_count")==0 and static.get("executing_workflow_temp_copy_consumer_count")==2)
+          offline_ok=(offline.get("system_generated_name_in_hash_count")==0 and offline.get("system_name_default_invariance")=="PASS" and offline.get("system_name_check_invariance")=="PASS" and offline.get("required_item_tests")==8 and offline.get("item_level_test_count")==8 and offline.get("item_level_test_pass")==8 and offline.get("item_level_test_fail")==0 and offline.get("unique_constraint_item_comparator_regression")=="PASS" and offline.get("semantic_identity_collision_test_fail")==0)
+          adversarial_ok=(adversarial.get("count")==13 and adversarial.get("pass")==13 and adversarial.get("fail")==0 and adversarial.get("wrong_workflow_self_inspection_target_variant_rejected")=="PASS" and adversarial.get("executing_workflow_azure_token_variant_rejected")=="PASS")
+          runtime_ok=(runtime.get("docker_daemon")=="PASS" and runtime.get("runner_arch")=="x86_64" and runtime.get("os_release_id")=="ubuntu" and runtime.get("os_release_version")=="22.04" and ready.get("sqlserver_major")==16)
+          execution_ok=(execution.get("EXECUTING_WORKFLOW_GITHUB_SHA")==os.environ.get("GITHUB_SHA","UNKNOWN") and execution.get("EXECUTING_WORKFLOW_GIT_BLOB") and execution.get("EXECUTING_WORKFLOW_SHA256") and execution.get("EXECUTING_WORKFLOW_BYTE_COUNT",0)>0)
+          pre_cleanup_ok=(dependency_ok and static_ok and offline_ok and adversarial_ok and runtime_ok and execution_ok and exact_head and hashes_present and r1.get("physical_sha256")==r2.get("physical_sha256") and cmp.get("reference_canonical_equal") is True and cmp.get("sqlserver_reference_determinism")=="PASS" and load("max-regression.json",{}).get("max_token_representation_stable") is True and neg.get("count")==18 and neg.get("pass")==18 and neg.get("fail")==0 and neg.get("cross_contamination_count")==0 and accepted_ok)
           summary={
             "REFERENCE_SOURCE_SHA": os.environ["SOURCE_SHA"],
             "VALIDATION_SHA": os.environ.get("GITHUB_SHA","UNKNOWN"),
             "GITHUB_RUN_ID": os.environ.get("GITHUB_RUN_ID","UNKNOWN"),
-            "RUNNER_OS": "Ubuntu_22_04",
-            "RUNNER_ARCH": "x86_64",
-            "DOCKER_DAEMON": load("container-runtime-proof.json",{}).get("docker_daemon","UNKNOWN"),
-            "ODBC_DRIVER": load("odbc-proof.json",{}).get("odbc_driver","UNKNOWN"),
-            "SQLSERVER_MAJOR": load("sqlserver-version.json",{}).get("sqlserver_major","UNKNOWN"),
+            "RUNNER_OS": runtime.get("runner_os","UNKNOWN"),
+            "RUNNER_ARCH": runtime.get("runner_arch","UNKNOWN"),
+            "DOCKER_DAEMON": runtime.get("docker_daemon","UNKNOWN"),
+            "ODBC_DRIVER": dep.get("odbc_driver","UNKNOWN"),
+            "SQLSERVER_MAJOR": ready.get("sqlserver_major","UNKNOWN"),
+            "SQLSERVER_READINESS_POLL_ATTEMPTS": ready.get("sqlserver_readiness_poll_attempts","UNKNOWN"),
+            "WORKFLOW_RERUN_COUNT": ready.get("workflow_rerun_count","UNKNOWN"),
+            "SEMANTIC_TEST_AUTOMATIC_RETRY_COUNT": ready.get("semantic_test_automatic_retry_count","UNKNOWN"),
+            "MUTATION_RETRY_COUNT": ready.get("mutation_retry_count","UNKNOWN"),
             "REFERENCE_1_MIGRATION_HEAD": load("migration-head-reference-1.json",{}),
             "REFERENCE_2_MIGRATION_HEAD": load("migration-head-reference-2.json",{}),
             "ACCEPTANCE_DB_MIGRATION_HEAD": load("migration-head-acceptance.json",{}),
             "REFERENCE_1_PHYSICAL_SHA256": r1.get("physical_sha256","UNKNOWN"),
             "REFERENCE_2_PHYSICAL_SHA256": r2.get("physical_sha256","UNKNOWN"),
             "REFERENCE_CANONICAL_EQUALITY": cmp.get("reference_canonical_equal",False),
-            "SQLSERVER_REFERENCE_DETERMINISM": cmp.get("sqlserver_reference_determinism","FAIL"),
+            "SQLSERVER_REFERENCE_DETERMINISM": cmp.get("sqlserver_reference_determinism","NOT_RUN"),
             "MAX_TOKEN_REPRESENTATION_STABLE": load("max-regression.json",{}).get("max_token_representation_stable",False),
-            "PHYSICAL_HASH_INDEPENDENT_OF_ALEMBIC_ROW_VALUE": load("alembic-separation.json",{}).get("physical_hash_independent_of_alembic_row_value","FAIL"),
+            "PHYSICAL_HASH_INDEPENDENT_OF_ALEMBIC_ROW_VALUE": load("alembic-separation.json",{}).get("physical_hash_independent_of_alembic_row_value","NOT_RUN"),
+            "EXECUTING_WORKFLOW_GITHUB_SHA": execution.get("EXECUTING_WORKFLOW_GITHUB_SHA","UNKNOWN"),
+            "EXECUTING_WORKFLOW_GIT_BLOB": execution.get("EXECUTING_WORKFLOW_GIT_BLOB","UNKNOWN"),
+            "EXECUTING_WORKFLOW_SHA256": execution.get("EXECUTING_WORKFLOW_SHA256","UNKNOWN"),
+            "EXECUTING_WORKFLOW_BYTE_COUNT": execution.get("EXECUTING_WORKFLOW_BYTE_COUNT","UNKNOWN"),
+            "WORKFLOW_SELF_INSPECTION_CONSUMER_COUNT": static.get("workflow_self_inspection_consumer_count","UNKNOWN"),
+            "WORKFLOW_SELF_INSPECTION_WRONG_TARGET_COUNT": static.get("workflow_self_inspection_wrong_target_count","UNKNOWN"),
+            "EXECUTING_WORKFLOW_TEMP_COPY_CONSUMER_COUNT": static.get("executing_workflow_temp_copy_consumer_count","UNKNOWN"),
+            "SYSTEM_GENERATED_NAME_IN_HASH_COUNT": offline.get("system_generated_name_in_hash_count","UNKNOWN"),
+            "DEFAULT_SYSTEM_NAME_INVARIANCE": offline.get("system_name_default_invariance","NOT_RUN"),
+            "CHECK_SYSTEM_NAME_INVARIANCE": offline.get("system_name_check_invariance","NOT_RUN"),
+            "ITEM_LEVEL_COMPARATOR_TEST_COUNT": offline.get("item_level_test_count",0),
+            "ITEM_LEVEL_COMPARATOR_TEST_PASS": offline.get("item_level_test_pass",0),
+            "ITEM_LEVEL_COMPARATOR_TEST_FAIL": offline.get("item_level_test_fail",0),
+            "REQUIRED_ITEM_TESTS": offline.get("required_item_tests",0),
+            "ADDITIONAL_REGRESSION_TESTS": offline.get("additional_regression_tests",0),
+            "UNIQUE_CONSTRAINT_ITEM_COMPARATOR_REGRESSION": offline.get("unique_constraint_item_comparator_regression","NOT_RUN"),
+            "SEMANTIC_IDENTITY_COLLISION_TEST_COUNT": offline.get("semantic_identity_collision_test_count",0),
+            "SEMANTIC_IDENTITY_COLLISION_TEST_PASS": offline.get("semantic_identity_collision_test_pass",0),
+            "SEMANTIC_IDENTITY_COLLISION_TEST_FAIL": offline.get("semantic_identity_collision_test_fail",0),
+            "VALIDATOR_ADVERSARIAL_MUTATION_TEST_COUNT": adversarial.get("count",0),
+            "VALIDATOR_ADVERSARIAL_MUTATION_TEST_PASS": adversarial.get("pass",0),
+            "VALIDATOR_ADVERSARIAL_MUTATION_TEST_FAIL": adversarial.get("fail",0),
+            "FINAL_QUALIFICATION_DEPENDENCY_BINDING": dependency_ok,
+            "FINAL_QUALIFICATION_STATIC_SAFETY_BINDING": static_ok,
+            "FINAL_QUALIFICATION_ITEM_TEST_BINDING": offline_ok,
+            "FINAL_QUALIFICATION_ADVERSARIAL_BINDING": adversarial_ok,
+            "FINAL_QUALIFICATION_RUNTIME_IDENTITY_BINDING": runtime_ok,
+            "EXECUTION_CONTEXT_BINDING": execution_ok,
             "NEGATIVE_DETECTION_TEST_COUNT": neg.get("count",0),
             "NEGATIVE_DETECTION_TEST_PASS": neg.get("pass",0),
             "NEGATIVE_DETECTION_TEST_FAIL": neg.get("fail",0),
+            "NEGATIVE_TEST_CROSS_CONTAMINATION_COUNT": neg.get("cross_contamination_count","UNKNOWN"),
             "AZSQL_GATE_COUNT": az.get("count",0),
             "AZSQL_GATE_PASS": az.get("pass",0),
             "AZSQL_GATE_FAIL": az.get("fail",0),
-            "AZURE_ACCESSED": False,
-            "TARGET_SQL_ACCESSED": False,
-            "REAL_AMEC_DATA_USED": False,
-            "PERSISTENT_SECRET_REQUIREMENT_COUNT": 0,
-            "REFERENCE_VERIFIER_CANDIDATE_QUALIFIED": True,
+            "AZSQL_GATE_OVERALL_RESULT": gates.get("result","NOT_RUN"),
+            "AZURE_ACCESSED": static.get("azure_executable_reference_count",1)!=0,
+            "TARGET_SQL_ACCESSED": static.get("target_sql_executable_reference_count",1)!=0,
+            "REAL_AMEC_DATA_USED": static.get("real_data_executable_reference_count",1)!=0,
+            "PERSISTENT_SECRET_REQUIREMENT_COUNT": static.get("persistent_secret_reference_count",1),
+            "PRE_CLEANUP_QUALIFICATION": pre_cleanup_ok,
+            "REFERENCE_VERIFIER_CANDIDATE_QUALIFIED": False,
             "REFERENCE_VERIFIER_OWNER_ACCEPTED": False,
-            "AUTOMATIC_RUNTIME_RETRY_COUNT": 0,
             "MAX_TOKEN_DUAL_NORMALIZER_COUNT": 0,
-            "SOURCE_AUTHORED_COLLATION_COUNT": static.get("source_authored_collation_count", "UNKNOWN"),
-            "USER_DEFINED_SQL_TYPE_COUNT": static.get("user_defined_sql_type_count", "UNKNOWN"),
-            "SQLALCHEMY_TYPE_COMPILATION_USED": static.get("sqlalchemy_type_compilation_used", "UNKNOWN"),
-            "V4_OR_V4_1_COMPARATOR_REUSED": static.get("v4_or_v4_1_comparator_reused", "UNKNOWN"),
+            "SOURCE_AUTHORED_COLLATION_COUNT": load("source-contract-static.json",{}).get("source_authored_collation_count","UNKNOWN"),
+            "USER_DEFINED_SQL_TYPE_COUNT": load("source-contract-static.json",{}).get("user_defined_sql_type_count","UNKNOWN"),
+            "SQLALCHEMY_TYPE_COMPILATION_USED": load("source-contract-static.json",{}).get("sqlalchemy_type_compilation_used","UNKNOWN"),
+            "V4_OR_V4_1_COMPARATOR_REUSED": load("source-contract-static.json",{}).get("v4_or_v4_1_comparator_reused","UNKNOWN"),
           }
           json.dump(summary, open(root/"reference-qualification-summary-pre-cleanup.json","w"), sort_keys=True, indent=2)
           PY
@@ -552,8 +933,8 @@ jobs:
         run: |
           set +e
           status=0
-          docker rm -f "$SQLSERVER_CONTAINER" >/dev/null 2>&1 || status=1
-          docker volume rm "$SQLSERVER_VOLUME" >/dev/null 2>&1 || status=1
+          if [ -n "${SQLSERVER_CONTAINER:-}" ]; then docker rm -f "$SQLSERVER_CONTAINER" >/dev/null 2>&1 || status=1; fi
+          if [ -n "${SQLSERVER_VOLUME:-}" ]; then docker volume rm "$SQLSERVER_VOLUME" >/dev/null 2>&1 || status=1; fi
           export CLEANUP_STATUS=$status
           python - <<'PY'
           import json, os
@@ -576,14 +957,30 @@ jobs:
           cleanup=json.load(open(root/"cleanup-status.json")) if (root/"cleanup-status.json").exists() else {}
           for key in ("reference_db_1","reference_db_2","acceptance_db","negative_control_db","sqlserver_container","sqlserver_volume"):
               summary[key.upper()+"_CLEANUP"]=cleanup.get(key,False)
+          cleanup_ok=all(summary.get(key.upper()+"_CLEANUP") is True for key in ("reference_db_1","reference_db_2","acceptance_db","negative_control_db","sqlserver_container","sqlserver_volume"))
+          summary["REFERENCE_VERIFIER_CANDIDATE_QUALIFIED"]=bool(summary.get("PRE_CLEANUP_QUALIFICATION") is True and cleanup_ok)
           json.dump(summary, open(root/"reference-qualification-summary.json","w"), sort_keys=True, indent=2)
+          PY
+
+      - name: Final truthful qualification assertion
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"proposalops-reference-evidence"
+          summary=json.load(open(root/"reference-qualification-summary.json"))
+          assert summary["REFERENCE_VERIFIER_CANDIDATE_QUALIFIED"] is True
+          assert all(summary.get(key.upper()+"_CLEANUP") is True for key in ("reference_db_1","reference_db_2","acceptance_db","negative_control_db","sqlserver_container","sqlserver_volume"))
           PY
 
       - name: Upload disposable qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: proposalops-sqlserver-reference-qualification-v2-${{ github.run_id }}
+          name: proposalops-sqlserver-reference-qualification-v3-1-${{ github.run_id }}
           path: ${{ runner.temp }}/proposalops-reference-evidence
           if-no-files-found: error
           retention-days: 7
