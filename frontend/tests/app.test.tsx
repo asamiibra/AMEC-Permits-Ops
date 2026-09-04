@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "../src/App";
 
 vi.stubGlobal("fetch", vi.fn((url:string) => Promise.resolve({ok:true,json:async()=>url.endsWith("/projects")?[]:url.endsWith("/applications")?[]:{}})));
@@ -14,5 +14,16 @@ describe("ProposalOps shell", () => {
     expect(screen.getByText("Prioritized work and lifecycle exceptions")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Intake & Opportunity" })).toBeTruthy();
     expect(screen.queryByText("WEEK 1 FOUNDATION")).toBeNull();
+  });
+
+  it("provides a mobile navigation disclosure", async () => {
+    render(<App />);
+    const trigger = screen.getByRole("button", { name: "Open navigation" });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: "Mobile primary navigation" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Close navigation" })).toBeTruthy();
+    });
   });
 });

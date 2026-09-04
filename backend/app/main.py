@@ -47,6 +47,7 @@ from .api.reconciliation_routers import (
     router as reconciliation_router,
 )
 from .api.recovery_routers import router as recovery_router
+from .api.retrieval_routers import router as retrieval_router
 from .api.regulatory_context_routers import (
     router as regulatory_context_router,
 )
@@ -77,7 +78,7 @@ from .models import ConsultancyOffice
 from .runtime_provenance import get_runtime_provenance
 from .db import verify_database_migration_head
 from .observability import initialize_observability
-
+from .api.governed_prefill_routers import router as governed_prefill_router
 
 settings = get_settings()
 initialize_observability(settings)
@@ -188,6 +189,8 @@ def _trusted_request_actor(
         "auth_mode": auth_mode,
         "actor_role": principal.role.value,
     }
+
+app.include_router(governed_prefill_router, dependencies=API_AUTH_DEPENDENCIES)
 
 
 @app.middleware("http")
@@ -1022,6 +1025,11 @@ app.include_router(
 
 app.include_router(
     recovery_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+
+app.include_router(
+    retrieval_router,
     dependencies=API_AUTH_DEPENDENCIES,
 )
 

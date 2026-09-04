@@ -16,7 +16,7 @@ from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
 from ..config.settings import get_settings
-from ..models import ContentCategory, DefinitionEntry, DefinitionRevision, DocumentVersion, LineageEdge, MasterContentChangeEvent, MasterContentDependency, MasterContentItem, MasterContentModuleBinding, MasterContentReferenceSequence, MasterContentQualityFlag, MasterContentGovernanceProfile, Role
+from ..models import ContentCategory, DefinitionEntry, DefinitionRevision, DocumentVersion, LineageEdge, MasterContentChangeEvent, MasterContentDependency, MasterContentItem, MasterContentModuleBinding, MasterContentReferenceSequence, MasterContentQualityFlag, Role
 from ..services.backend_realignment import persona_for_role, require_capability
 from ..services.master_content import (
     CONTENT_TYPES,
@@ -28,6 +28,7 @@ from ..services.master_content import (
     emit_definition_revision_event,
     archive_master_content,
     item_projection,
+    canonical_master_content_read,
     eligible_master_content,
     read_master_content_bytes,
     register_dependency,
@@ -87,14 +88,6 @@ def _json_object(value: str | None, code: str = "MASTER_CONTENT_METADATA_INVALID
 
 def _write_capability(content_type: str) -> str:
     return {"FORM": "MASTER_FORM_WRITE", "REPORT": "MASTER_REPORT_WRITE", "ENGINEERING_WORK": "MASTER_ENGINEERING_WRITE"}.get(content_type.upper(), "MASTER_FORM_WRITE")
-
-
-def _role_can_see(role: Role, row: dict[str, Any]) -> bool:
-    persona = persona_for_role(role)
-    if persona in {"OWNER", "SYSTEM_ADMIN"}:
-        return True
-    module = "BD" if persona == "BUSINESS_DEVELOPMENT" else "ENGINEERING"
-    return module in row.get("used_in", [])
 
 
 def _definition_role_can_see(role: Role, row: dict[str, Any]) -> bool:
@@ -342,47 +335,8 @@ def consumer_resolvers(consumer: str, db: Session = Depends(get_db), role: Role 
 
 
 @router.get("/master-content")
-def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, owner_status: str | None = None, module: str | None = None, ownership: str | None = None, artifact_kind: str | None = None, publisher: str | None = None, currentness: str | None = None, readiness: str | None = None, quality_state: str | None = None, restricted_sample: bool | None = None, language: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    query = select(MasterContentItem).order_by(MasterContentItem.content_type, MasterContentItem.ref)
-    normalized_owner_status = owner_status.replace("_", " ").upper() if owner_status else None
-    if normalized_owner_status == "INACTIVE":
-        include_archived = True
-    if status:
-        query = query.where(MasterContentItem.status == status.upper())
-    elif not include_archived:
-        query = query.where(MasterContentItem.status == "ACTIVE")
-    if content_type:
-        query = query.where(MasterContentItem.content_type == content_type.upper())
-    if category_id:
-        query = query.where(MasterContentItem.category_id == category_id)
-    if q.strip():
-        needle = f"%{q.strip()}%"
-        query = query.outerjoin(MasterContentGovernanceProfile, MasterContentGovernanceProfile.master_content_item_id == MasterContentItem.id).where(or_(MasterContentItem.title.ilike(needle), MasterContentItem.ref.ilike(needle), MasterContentItem.description.ilike(needle), MasterContentGovernanceProfile.official_form_no.ilike(needle)))
-    rows = [item_projection(db, item) for item in db.scalars(query).all()]
-    rows = [row for row in rows if _role_can_see(role, row)]
-    if normalized_owner_status:
-        rows = [row for row in rows if row.get("owner_status", "").upper() == normalized_owner_status]
-    if q.strip():
-        needle = q.strip().lower()
-        rows = [row for row in rows if needle in row.get("title", "").lower() or needle in row.get("ref", "").lower() or needle in (row.get("description") or "").lower() or needle in (row.get("governance", {}).get("profile", {}).get("official_form_no") or "").lower()]
-    if category_label:
-        rows = [row for row in rows if (row.get("category") or {}).get("label") == category_label]
-    if module:
-        rows = [row for row in rows if module.upper() in row.get("used_in", [])]
-    def matches(row: dict[str, Any]) -> bool:
-        governance = row.get("governance", {})
-        profile = governance.get("profile", {})
-        readiness_row = governance.get("readiness", {})
-        flags = governance.get("quality_flags", [])
-        return all((not value or expected in actual) for value, expected, actual in (
-            (ownership, ownership.upper() if ownership else "", profile.get("content_ownership_class", "")),
-            (artifact_kind, artifact_kind.upper() if artifact_kind else "", profile.get("artifact_kind", "")),
-            (currentness, currentness.upper() if currentness else "", profile.get("currentness_status", "")),
-            (readiness, readiness.upper() if readiness else "", readiness_row.get("state", "")),
-            (language, language.upper() if language else "", profile.get("language_profile", "")),
-        )) and (not publisher or publisher.lower() in " ".join(filter(None, [profile.get("publisher_name"), profile.get("publisher_unit")])).lower()) and (restricted_sample is None or profile.get("restricted_reference_sample") is restricted_sample) and (not quality_state or any(flag.get("status") == quality_state.upper() for flag in flags))
-    rows = [row for row in rows if matches(row)]
-    return [{**row, "serial_number": index + 1} for index, row in enumerate(rows)]
+def list_master_content(q: str = "", content_type: str | None = None, category_id: str | None = None, category_label: str | None = None, status: str | None = None, owner_status: str | None = None, module: str | None = None, ownership: str | None = None, artifact_kind: str | None = None, publisher: str | None = None, currentness: str | None = None, readiness: str | None = None, wave_a_readiness: str | None = None, automation_readiness: str | None = None, quality_state: str | None = None, restricted_sample: bool | None = None, language: str | None = None, external_body_id: str | None = None, jurisdiction_id: str | None = None, service_type_id: str | None = None, lifecycle_phase_id: str | None = None, applicability_status: str | None = None, include_archived: bool = False, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    return canonical_master_content_read(db, role=role, content_type=content_type, q=q, category_id=category_id, category_label=category_label, status=status, owner_status=owner_status, module=module, ownership=ownership, artifact_kind=artifact_kind, publisher=publisher, currentness=currentness, readiness=readiness, wave_a_readiness=wave_a_readiness, automation_readiness=automation_readiness, quality_state=quality_state, restricted_sample=restricted_sample, language=language, external_body_id=external_body_id, jurisdiction_id=jurisdiction_id, service_type_id=service_type_id, lifecycle_phase_id=lifecycle_phase_id, applicability_status=applicability_status, include_archived=include_archived, include_governance=True)
 
 
 @router.get("/master-content/eligible")
@@ -423,13 +377,12 @@ async def create_content(
 
 @router.get("/master-content/{item_id}")
 def get_content(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = db.get(MasterContentItem, item_id)
-    if not item:
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
-    projection = item_projection(db, item, include_history=True)
-    if not _role_can_see(role, projection):
+    rows = canonical_master_content_read(db, role=role, item_id=item_id, include_archived=True, include_history=True, include_governance=True)
+    if not rows:
+        if not db.get(MasterContentItem, item_id):
+            raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
         raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE", "persona": persona_for_role(role)})
-    return projection
+    return rows[0]
 
 
 def _governed_item(db: Session, item_id: str) -> MasterContentItem:
@@ -451,11 +404,11 @@ def governance_blocker_rollup(db: Session = Depends(get_db), role: Role = Depend
 
 @router.get("/master-content/{item_id}/governance")
 def get_governance(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = _governed_item(db, item_id)
-    projection = item_projection(db, item, include_history=True)
-    if not _role_can_see(role, projection):
+    rows = canonical_master_content_read(db, role=role, item_id=item_id, include_archived=True, include_history=True, include_governance=True)
+    if not rows:
+        _governed_item(db, item_id)
         raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE"})
-    return projection["governance"]
+    return rows[0]["governance"]
 
 
 @router.patch("/master-content/{item_id}/governance")

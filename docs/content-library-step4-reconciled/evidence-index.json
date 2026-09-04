@@ -1,0 +1,27 @@
+{
+  "step": "CONTENT_LIBRARY_STEP_4",
+  "baseline_sha": "534e525f4510b326ca2d2e85e3b41112a7b4c9c5",
+  "baseline_tree": "2a432bd1c2f638e4faab16eb2f1e4ce13d8538f8",
+  "migration": {
+    "required": true,
+    "created": "0059_governed_form_draft_apply",
+    "down_revision": "0058_source_intake_ledger",
+    "azure_executed": false
+  },
+  "contracts": {
+    "owner_dashboard_search": "CANONICAL_MASTER_LIBRARY_APIS",
+    "governed_retrieval": "READ_ONLY_EVIDENCE",
+    "prefill_preview": "READ_ONLY_DETERMINISTIC_PROPOSAL",
+    "apply": "HUMAN_DOMAIN_COMMAND_TO_DRAFT_ONLY",
+    "ai_autonomous_apply_authority": 0,
+    "retrieval_canonical_write_count": 0,
+    "prefill_preview_canonical_write_count": 0
+  },
+  "validation": {
+    "backend": "264 passed, 15 skipped",
+    "frontend": "39 passed",
+    "owner_dashboard_e2e": "PASS",
+    "prefill_apply_e2e": "PASS",
+    "migration_roundtrip": "PASS"
+  }
+}

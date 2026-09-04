@@ -44,7 +44,23 @@ def material_fingerprint(db: Session, proposal: Opportunity, forms: dict[str, An
         "fields": fields,
         "forms": normalized_forms,
         "source_hashes": sorted((item.content_hash, item.source_type, item.status) for item in db.scalars(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id)).all()),
+        "master_content": master_content_fingerprint(db),
     })
+
+
+def master_content_fingerprint(db: Session) -> str:
+    """Capture the exact reusable sources that a Proposal would resolve now."""
+    from .master_content import resolve_master_content_purpose
+
+    resolutions = []
+    for purpose in ("PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST"):
+        result = resolve_master_content_purpose(db, module="BD", usage_type=purpose)
+        resolutions.append({
+            "purpose": purpose,
+            "status": result["status"],
+            "candidates": sorted((item["id"], item["version_id"], item["hash"]) for item in result.get("candidates", [])),
+        })
+    return stable_hash(resolutions)
 
 
 def hardening_projection(db: Session, proposal: Opportunity, forms: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -60,6 +76,11 @@ def hardening_projection(db: Session, proposal: Opportunity, forms: dict[str, An
     accepted = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
     fingerprint = material_fingerprint(db, proposal, forms)
     accepted_fingerprint = (accepted.snapshot or {}).get("material_fingerprint") if accepted else None
+    current_master_fingerprint = master_content_fingerprint(db)
+    accepted_master_fingerprint = (accepted.snapshot or {}).get("master_content_fingerprint") if accepted else None
+    master_content_changed = bool(accepted and accepted_master_fingerprint and accepted_master_fingerprint != current_master_fingerprint)
+    draft_revalidation_open = bool(accepted and any(item.status == "DRAFT" and item.base_accepted_revision_id == accepted.id for item in revisions))
+    master_revalidation_required = master_content_changed and not draft_revalidation_open
     material_open_unknowns = [item for item in unknowns if item.status == "OPEN" and item.materiality in {"MATERIAL", "BLOCKING"} and ("PROPOSAL_UNKNOWN", item.id) not in ack_by_target]
     material_open_conflicts = [item for item in conflicts if item.status == "OPEN" and item.materiality in {"MATERIAL", "BLOCKING"} and ("PROPOSAL_CONFLICT", item.id) not in ack_by_target]
     return {
@@ -70,6 +91,10 @@ def hardening_projection(db: Session, proposal: Opportunity, forms: dict[str, An
         "staleness": [{"id": item.id, "trigger_type": item.trigger_type, "trigger_reference": item.trigger_reference, "reason_code": item.reason_code, "impacted_sections": item.impacted_sections, "status": item.status, "detected_by": item.detected_by, "created_at": _iso(item.created_at)} for item in staleness],
         "active_staleness": [{"id": item.id, "reason_code": item.reason_code, "impacted_sections": item.impacted_sections, "trigger_reference": item.trigger_reference} for item in active_staleness],
         "current_information_changed": bool(accepted and accepted_fingerprint and accepted_fingerprint != fingerprint),
+        "master_content_changed": master_content_changed,
+        "master_revalidation_required": master_revalidation_required,
+        "master_content_fingerprint": current_master_fingerprint,
+        "accepted_master_content_fingerprint": accepted_master_fingerprint,
         "accepted_fingerprint": accepted_fingerprint,
         "current_fingerprint": fingerprint,
         "revisions": [{"id": item.id, "revision_number": item.revision_number, "base_accepted_revision_id": item.base_accepted_revision_id, "status": item.status, "change_summary": item.change_summary, "content_hash": item.content_hash, "created_by": item.created_by} for item in revisions],
@@ -77,7 +102,7 @@ def hardening_projection(db: Session, proposal: Opportunity, forms: dict[str, An
         "commercial_outcome": {"id": outcome.id, "accepted_revision_id": outcome.accepted_revision_id, "outcome": outcome.outcome, "reason": outcome.reason, "evidence_reference": outcome.evidence_reference, "recorded_by": outcome.recorded_by, "recorded_at": _iso(outcome.recorded_at)} if outcome else None,
         "material_open_unknowns": [{"id": item.id, "label": item.statement} for item in material_open_unknowns],
         "material_open_conflicts": [{"id": item.id, "label": f"{item.field_code}: {item.source_a} vs {item.source_b}"} for item in material_open_conflicts],
-        "accept_blockers": [{"code": "MATERIAL_UNKNOWN_REQUIRES_ACKNOWLEDGMENT", "label": item.statement} for item in material_open_unknowns] + [{"code": "MATERIAL_CONFLICT_REQUIRES_ACKNOWLEDGMENT", "label": f"{item.field_code}: {item.source_a} vs {item.source_b}"} for item in material_open_conflicts] + ([{"code": "SOURCE_CHANGE_REQUIRES_REVIEW", "label": "Source or governed input changed; review impacted Proposal sections before Accept"}] if active_staleness else []),
+        "accept_blockers": [{"code": "MATERIAL_UNKNOWN_REQUIRES_ACKNOWLEDGMENT", "label": item.statement} for item in material_open_unknowns] + [{"code": "MATERIAL_CONFLICT_REQUIRES_ACKNOWLEDGMENT", "label": f"{item.field_code}: {item.source_a} vs {item.source_b}"} for item in material_open_conflicts] + ([{"code": "SOURCE_CHANGE_REQUIRES_REVIEW", "label": "Source or governed input changed; review impacted Proposal sections before Accept"}] if active_staleness else []) + ([{"code": "MASTER_CONTENT_REVALIDATION_REQUIRED", "label": "Create an explicit Proposal revision to revalidate changed master content before Accept"}] if master_revalidation_required else []),
         "boundaries": {"client_response_is_not_amec_accept": True, "ready_close_is_not_outcome": True, "acknowledged_is_not_resolved": True, "authority_case_created": False},
     }
 

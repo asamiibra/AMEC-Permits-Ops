@@ -1,0 +1,20 @@
+{
+  "step": "CONTENT_LIBRARY_STEP_2",
+  "starting_sha": "686ddbf79c25154e0c0d254912f66301af97b658",
+  "classification": {
+    "/dashboard": "CANONICAL_PROJECTION",
+    "/dashboard-v2": "CANONICAL_SHARED",
+    "/api/master-content": "CANONICAL_SHARED",
+    "forms": "CANONICAL_SHARED",
+    "reports": "CANONICAL_SHARED",
+    "engineering_works": "CANONICAL_SHARED",
+    "definitions": "CANONICAL_SHARED",
+    "search_and_filters": "CANONICAL_SHARED",
+    "inputs_and_go_live": "CANONICAL_PROJECTION",
+    "detail_history_open_download": "CANONICAL_PROJECTION",
+    "source_intake": "CANONICAL_PROJECTION",
+    "unrelated_transactional_workspaces": "LEGACY_COMPATIBILITY"
+  },
+  "duplicate_canonical_store_count": 0,
+  "basic_discovery": "SQL_ONLY"
+}

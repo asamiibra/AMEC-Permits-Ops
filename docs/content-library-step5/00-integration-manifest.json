@@ -1,0 +1,62 @@
+{
+  "step": "CONTENT_LIBRARY_STEP_5_AZURE_PREPROD_INTEGRATION",
+  "candidate_branch": "branch/content-library-step5-azure-preprod-integration-v1",
+  "base_commit": "02b797d323acafb754f579331d2d1dc022b647b2",
+  "azure_backend_base": "02b797d323acafb754f579331d2d1dc022b647b2",
+  "accepted_frontend_base": "3f60c02ee7fdee385130b97b518f9060de1d42a8",
+  "step3_source": "3b556fd2fd4804a6e2aa4a92deb334e22efe9cbb",
+  "step4_source": "1c0e9fcc74747f30256c880b4063698f958b93ed",
+  "step4_tree": "ce5a79457246d7d02f726cba12cee0637341cd82",
+  "integration_mode": "bounded_three_way_apply_with_explicit_conflict_resolution",
+  "semantic_rules": [
+    "canonical discovery remains authoritative",
+    "consumer resolution is deterministic and exact-version aware",
+    "governed retrieval is read-only and citation/lineage preserving",
+    "Apply is explicit human DRAFT-only and idempotent",
+    "AI apply, protected action, real data, and production operations remain out of scope"
+  ],
+  "migration": {
+    "path": "backend/migrations/versions/step5_content_library_azure_sql_v1.py",
+    "revision": "step5_content_library_azure_sql_v1",
+    "down_revision": "baseline_phase4_v36_azure_sql",
+    "source_step4_revision": "0059_governed_form_draft_apply",
+    "source_step4_blob": "9a3237016ebdd2c59706545518b646e7e3f3354c",
+    "mode": "single_next_migration_preserving_step4_logical_schema"
+  },
+  "selected_backend_paths": [
+    "backend/app/api/completion_asbuilt_routers.py",
+    "backend/app/api/dashboard_v2_routers.py",
+    "backend/app/api/governed_prefill_routers.py",
+    "backend/app/api/master_content_routers.py",
+    "backend/app/api/shared_domain_routers.py",
+    "backend/app/main.py",
+    "backend/app/models/shared_domain_entities.py",
+    "backend/app/services/dashboard_inputs.py",
+    "backend/app/services/governed_prefill.py",
+    "backend/app/services/governed_retrieval.py",
+    "backend/app/services/master_content.py",
+    "backend/app/services/proposal_workspace.py",
+    "backend/app/services/shared_domains.py"
+  ],
+  "selected_frontend_paths": [
+    "frontend/src/App.tsx",
+    "frontend/src/Dashboard.tsx",
+    "frontend/src/MasterContentForms.tsx",
+    "frontend/src/PermitAuthorityUX.tsx",
+    "frontend/src/contentLibraryApi.ts",
+    "frontend/src/dashboard.css",
+    "frontend/src/main.tsx",
+    "frontend/src/permit-authority-ux.css"
+  ],
+  "qualification": {
+    "required": [
+      "backend syntax/import/static tests",
+      "frontend typecheck/unit tests/build",
+      "migration shape and revision-chain checks",
+      "synthetic-only Step5 content-library integration checks"
+    ],
+    "real_data": false,
+    "sql_writes": false,
+    "azure_deployment": "blocked_until_track_a_converges"
+  }
+}

@@ -8,6 +8,7 @@ import {
 } from "react-dom/client";
 
 import App from "./App";
+import { AuthFailureSurface } from "./AuthFailureSurface";
 import {
   initializeBrowserAuthentication,
 } from "./auth";
@@ -23,6 +24,7 @@ import "./amec-work.css";
 import "./final-closure-accessibility.css";
 import "./ui-productionization.css";
 import "./ui-system-closure.css";
+import "./mobile-navigation.css";
 
 
 class AppErrorBoundary extends Component<
@@ -148,9 +150,8 @@ void bootstrap().catch(
       );
 
     if (root) {
-      root.textContent =
-        "ProposalOps sign-in could not be initialized. "
-        + "Refresh the page or contact the system administrator.";
+      root.textContent = "";
+      createRoot(root).render(<AuthFailureSurface />);
     }
   },
 );
