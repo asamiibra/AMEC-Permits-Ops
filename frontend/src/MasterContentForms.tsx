@@ -31,7 +31,7 @@ export type CanonicalForm = {
   category?: { id: string; label: string } | null;
   description?: string;
   used_in?: string[];
-  purpose_bindings?: { module: string; usage_type: string; active: boolean }[];
+  purpose_bindings?: PurposeBinding[];
   source_type_code?: string | null;
   version?: number;
   version_status: string;
@@ -97,7 +97,37 @@ type Filters = {
   status?: string;
   module?: string;
 };
-type SaveRequest = { form?: FormData; metadata?: Record<string, unknown> };
+type SaveRequest = { form?: FormData; metadata?: Record<string, unknown>; bindings?: PurposeBinding[] };
+
+type PurposeBinding = {
+  id?: string;
+  module: string;
+  usage_type: string;
+  active: boolean;
+  created_by?: string;
+};
+
+const PROPOSAL_PURPOSES = [
+  "PROPOSAL_TEMPLATE",
+  "PROPOSAL_CHECKLIST",
+] as const;
+
+function bindingSignature(bindings: PurposeBinding[]) {
+  return JSON.stringify(
+    bindings
+      .filter((binding) => binding.active)
+      .map(({ module, usage_type, active }) => ({ module, usage_type, active }))
+      .sort((left, right) => `${left.module}:${left.usage_type}`.localeCompare(`${right.module}:${right.usage_type}`)),
+  );
+}
+
+function purposeLabel(value: string) {
+  return value === "PROPOSAL_TEMPLATE"
+    ? "Proposal Template"
+    : value === "PROPOSAL_CHECKLIST"
+      ? "Proposal Checklist"
+      : value;
+}
 
 export function CanonicalFormsLibrary({
   role,
@@ -194,6 +224,24 @@ export function CanonicalFormsLibrary({
             body: request.form,
             headers: {
               "Idempotency-Key": crypto.randomUUID(),
+              "X-Source-Surface": surface,
+            },
+          },
+        );
+      if (request.bindings && editor)
+        await api(
+          `/api/master-content/${editor.id}/module-bindings`,
+          {
+            method: "PUT",
+            body: JSON.stringify(
+              request.bindings.map(({ module, usage_type, active }) => ({
+                module,
+                usage_type,
+                active,
+              })),
+            ),
+            headers: {
+              "Content-Type": "application/json",
               "X-Source-Surface": surface,
             },
           },
@@ -394,6 +442,7 @@ function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { it
       <div><span>Current source file</span><b>{item.current_source_filename || "Not recorded"}</b></div>
     </div><p className="detail-description">{item.description || "No description"}</p>{item.owner_status === "Needs Review" && item.review_note && <p className="review-note"><b>Review note:</b> {item.review_note}</p>}</section>
     <section className="form-governance-section"><h3>Version History</h3>{(item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name} · {version.status}</span><small>{version.updated_at ? new Date(version.updated_at).toLocaleDateString() : "Date not recorded"}</small></div>)}</div> : <p>No previous versions recorded.</p>}</section>
+    <section className="form-governance-section"><h3>Module / Purpose</h3>{(item.purpose_bindings || []).filter((binding) => binding.active).length ? <div className="content-history-list">{(item.purpose_bindings || []).filter((binding) => binding.active).map((binding) => <div className="content-history-row" key={`${binding.module}:${binding.usage_type}`}><b>{MODULE_LABELS[binding.module] || binding.module}</b><span>{purposeLabel(binding.usage_type)} · ACTIVE</span><small>Server-resolved binding</small></div>)}</div> : <p>No explicit purpose binding is recorded. Generic Used In availability does not select a canonical consumer purpose.</p>}</section>
     {technicalGovernance && <>
     <section className="form-governance-section"><h3>Source &amp; Authority</h3><div className="content-detail-grid"><div><span>Ownership</span><b>{String(profile.content_ownership_class || "NEEDS_REVIEW").replaceAll("_", " ")}</b></div><div><span>Publisher / Origin</span><b>{profile.publisher_name || "Not recorded"}</b></div><div><span>Official Form No.</span><b>{profile.official_form_no || "Not recorded"}</b></div><div><span>Issue / Date</span><b>{[profile.official_issue_no, profile.official_issue_date].filter(Boolean).join(" · ") || "Not recorded"}</b></div><div><span>Language</span><b>{String(profile.language_profile || "OTHER").replaceAll("_", " ")}</b></div><div><span>Currentness</span><b>{String(profile.currentness_status || "UNVERIFIED").replaceAll("_", " ")}</b></div></div></section>
     <section className="form-governance-section"><h3>Quality &amp; Sensitivity</h3><p>{profile.sensitivity_flags?.length ? `Sensitive flags: ${profile.sensitivity_flags.join(", ")}` : "No sensitivity flags recorded."}</p>{(governance.quality_flags || []).map((flag: any) => <div className={`quality-flag quality-${String(flag.severity).toLowerCase()}`} key={flag.id}><b>{String(flag.code).replaceAll("_", " ")}</b><span>{flag.status} · {flag.description}</span></div>)}</section>
@@ -463,6 +512,55 @@ function FormEditor({
   const [needsReview, setNeedsReview] = useState(Boolean(item?.needs_review));
   const [reviewNote, setReviewNote] = useState(item?.review_note || "");
   const [file, setFile] = useState<File | null>(null);
+  const [purposeBindings, setPurposeBindings] = useState<PurposeBinding[]>(item?.purpose_bindings || []);
+  const [initialPurposeBindings, setInitialPurposeBindings] = useState<PurposeBinding[]>(item?.purpose_bindings || []);
+  const [purposeLoading, setPurposeLoading] = useState(Boolean(item));
+  const [purposeError, setPurposeError] = useState("");
+
+  useEffect(() => {
+    if (!item) {
+      setPurposeLoading(false);
+      return;
+    }
+    let mounted = true;
+    void api<PurposeBinding[]>(`/api/master-content/${item.id}/module-bindings`)
+      .then((bindings) => {
+        if (!mounted) return;
+        setPurposeBindings(bindings);
+        setInitialPurposeBindings(bindings);
+      })
+      .catch((cause) => {
+        if (mounted) setPurposeError(cause instanceof Error ? cause.message : "Purpose bindings could not be loaded.");
+      })
+      .finally(() => {
+        if (mounted) setPurposeLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [item?.id]);
+
+  const currentProposalPurpose = purposeBindings.find(
+    (binding) => binding.active && binding.module === "BD" && PROPOSAL_PURPOSES.includes(binding.usage_type as typeof PROPOSAL_PURPOSES[number]),
+  )?.usage_type || "";
+  const setProposalPurpose = (usageType: string) => {
+    setPurposeBindings((current) => {
+      const retained = current.filter(
+        (binding) => !(binding.module === "BD" && PROPOSAL_PURPOSES.includes(binding.usage_type as typeof PROPOSAL_PURPOSES[number])),
+      );
+      return usageType
+        ? [...retained, { module: "BD", usage_type: usageType, active: true }]
+        : retained;
+    });
+  };
+  const metadataDirty = Boolean(item && (
+    title !== item.title
+    || category !== (item.category?.id || "")
+    || description !== (item.description || "")
+    || JSON.stringify(usedIn) !== JSON.stringify(item.used_in || [])
+    || needsReview !== Boolean(item.needs_review)
+    || (needsReview ? reviewNote.trim() : "") !== (item.review_note || "")
+  ));
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!item) {
@@ -479,6 +577,19 @@ function FormEditor({
       void onSave({ form });
       return;
     }
+    const metadata = {
+      title,
+      category_id: category || null,
+      description,
+      used_in: usedIn,
+      needs_review: needsReview,
+      review_note: needsReview ? reviewNote.trim() : null,
+      change_reason: reason,
+    };
+    const bindingsChanged = bindingSignature(purposeBindings) !== bindingSignature(initialPurposeBindings);
+    const bindings = bindingsChanged
+      ? purposeBindings.filter((binding) => binding.active)
+      : undefined;
     if (file) {
       const form = new FormData();
       form.append("expected_current_version", String(item.version || 0));
@@ -490,19 +601,9 @@ function FormEditor({
       form.append("needs_review", String(needsReview));
       if (reviewNote.trim()) form.append("review_note", reviewNote.trim());
       form.append("file", file);
-      void onSave({ form });
-    } else
-      void onSave({
-        metadata: {
-          title,
-          category_id: category || null,
-          description,
-          used_in: usedIn,
-          needs_review: needsReview,
-          review_note: needsReview ? reviewNote.trim() : null,
-          change_reason: reason,
-        },
-      });
+      void onSave({ form, bindings });
+    } else if (metadataDirty || bindingsChanged)
+      void onSave({ metadata: metadataDirty ? metadata : undefined, bindings });
   };
   const action = item
     ? file
@@ -519,7 +620,7 @@ function FormEditor({
           <button type="button" className="button-secondary" onClick={onClose}>
             Cancel
           </button>
-          <button className="button-primary" disabled={busy}>
+          <button className="button-primary" disabled={busy || purposeLoading || Boolean(purposeError)}>
             {busy ? "Saving…" : action}
           </button>
         </>
@@ -580,6 +681,20 @@ function FormEditor({
           </label>
         </section>
         <UsedInPicker type="FORM" value={usedIn} onChange={setUsedIn} />
+        {item && <section className="editor-group">
+          <h3>Canonical Consumer Purpose</h3>
+          <p>Used In availability does not select a purpose. Choose the explicit Business Development purpose required by the canonical resolver.</p>
+          <label>
+            Business Development purpose
+            <select aria-label="Canonical Business Development purpose" value={currentProposalPurpose} disabled={purposeLoading || Boolean(purposeError)} onChange={(event) => setProposalPurpose(event.target.value)}>
+              <option value="">No explicit Proposal purpose</option>
+              <option value="PROPOSAL_TEMPLATE">Proposal Template</option>
+              <option value="PROPOSAL_CHECKLIST">Proposal Checklist</option>
+            </select>
+          </label>
+          {purposeBindings.filter((binding) => binding.active).map((binding) => <small key={`${binding.module}:${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {purposeLabel(binding.usage_type)} · active</small>)}
+          {purposeError && <div className="dashboard-error" role="alert">{purposeError}</div>}
+        </section>}
         <section className="editor-group">
           <h3>Status</h3>
           <label className="status-choice"><input type="checkbox" checked={needsReview} onChange={(event) => setNeedsReview(event.target.checked)} /> Needs Review</label>
@@ -621,7 +736,7 @@ function FormEditor({
             <label>
               Why are you making this change?
               <input
-                required
+                required={metadataDirty || Boolean(file)}
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
               />
