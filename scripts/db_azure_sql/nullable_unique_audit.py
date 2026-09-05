@@ -13,7 +13,7 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy.schema import Index
 
 ROOT = Path(__file__).resolve().parents[2]
-MIGRATION_PATH = ROOT / "backend/migrations/versions/baseline_phase4_v36_azure_sql.py"
+MIGRATION_PATHS = tuple(sorted((ROOT / "backend/migrations/versions").glob("*.py")))
 SAFE_CLASSIFICATION = "NULLABLE_UNIQUE_FILTER_REQUIRED"
 NON_NULL_CLASSIFICATION = "NON_NULL_UNIQUE_NO_ACTION"
 UNSAFE_CLASSIFICATION = "UNSAFE_FK_OR_SEMANTIC_REVIEW_REQUIRED"
@@ -102,65 +102,66 @@ def _model_objects() -> list[dict[str, object]]:
 
 
 def _migration_objects() -> list[dict[str, object]]:
-    tree = ast.parse(MIGRATION_PATH.read_text(encoding="utf-8"), filename=str(MIGRATION_PATH))
     objects: list[dict[str, object]] = []
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
-            continue
-        if node.func.attr not in {"create_index", "create_unique_constraint", "create_table"}:
-            continue
-        if node.func.attr == "create_table":
-            if not node.args:
+    for migration_path in MIGRATION_PATHS:
+        tree = ast.parse(migration_path.read_text(encoding="utf-8"), filename=str(migration_path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
                 continue
-            table_name = _literal(node.args[0])
-            for child in node.args[1:]:
-                if not isinstance(child, ast.Call) or not isinstance(child.func, ast.Attribute) or child.func.attr != "UniqueConstraint":
+            if node.func.attr not in {"create_index", "create_unique_constraint", "create_table"}:
+                continue
+            if node.func.attr == "create_table":
+                if not node.args:
                     continue
-                key_columns = [_literal(argument) for argument in child.args]
-                name = next((_literal(keyword.value) for keyword in child.keywords if keyword.arg == "name"), None)
-                objects.append(
-                    {
-                        "object_name": name,
-                        "object_kind": "UNIQUE_CONSTRAINT",
-                        "table_name": table_name,
-                        "migration_key_columns": key_columns,
-                        "migration_filter": None,
-                        "migration_line": child.lineno,
-                    }
-                )
-            continue
-        try:
-            values = [_literal(argument) for argument in node.args]
-        except ValueError:
-            continue
-        if node.func.attr == "create_index":
-            if len(values) < 3:
+                table_name = _literal(node.args[0])
+                for child in node.args[1:]:
+                    if not isinstance(child, ast.Call) or not isinstance(child.func, ast.Attribute) or child.func.attr != "UniqueConstraint":
+                        continue
+                    key_columns = [_literal(argument) for argument in child.args]
+                    name = next((_literal(keyword.value) for keyword in child.keywords if keyword.arg == "name"), None)
+                    objects.append(
+                        {
+                            "object_name": name,
+                            "object_kind": "UNIQUE_CONSTRAINT",
+                            "table_name": table_name,
+                            "migration_key_columns": key_columns,
+                            "migration_filter": None,
+                            "migration_line": child.lineno,
+                        }
+                    )
                 continue
-            name, table_name, key_columns = values[:3]
-            unique = next((_literal(keyword.value) for keyword in node.keywords if keyword.arg == "unique"), False)
-            if unique is not True:
+            try:
+                values = [_literal(argument) for argument in node.args]
+            except ValueError:
                 continue
-            kind = "INDEX"
-        else:
-            if len(values) < 2:
-                continue
-            name, table_name = values[:2]
-            key_columns = values[2:]
-            kind = "UNIQUE_CONSTRAINT"
-        filter_node = next((keyword.value for keyword in node.keywords if keyword.arg == "mssql_where"), None)
-        filter_value = None
-        if isinstance(filter_node, ast.Call) and isinstance(filter_node.func, ast.Attribute) and filter_node.func.attr == "text" and filter_node.args:
-            filter_value = _literal(filter_node.args[0])
-        objects.append(
-            {
-                "object_name": name,
-                "object_kind": kind,
-                "table_name": table_name,
-                "migration_key_columns": list(key_columns),
-                "migration_filter": _normalize_filter(filter_value),
-                "migration_line": node.lineno,
-            }
-        )
+            if node.func.attr == "create_index":
+                if len(values) < 3:
+                    continue
+                name, table_name, key_columns = values[:3]
+                unique = next((_literal(keyword.value) for keyword in node.keywords if keyword.arg == "unique"), False)
+                if unique is not True:
+                    continue
+                kind = "INDEX"
+            else:
+                if len(values) < 2:
+                    continue
+                name, table_name = values[:2]
+                key_columns = values[2:]
+                kind = "UNIQUE_CONSTRAINT"
+            filter_node = next((keyword.value for keyword in node.keywords if keyword.arg == "mssql_where"), None)
+            filter_value = None
+            if isinstance(filter_node, ast.Call) and isinstance(filter_node.func, ast.Attribute) and filter_node.func.attr == "text" and filter_node.args:
+                filter_value = _literal(filter_node.args[0])
+            objects.append(
+                {
+                    "object_name": name,
+                    "object_kind": kind,
+                    "table_name": table_name,
+                    "migration_key_columns": list(key_columns),
+                    "migration_filter": _normalize_filter(filter_value),
+                    "migration_line": node.lineno,
+                }
+            )
     return sorted(objects, key=lambda item: (item["table_name"], item["object_kind"], item["object_name"] or ""))
 
 
@@ -278,7 +279,7 @@ def audit(mode: str) -> dict[str, object]:
         "audit_type": "PHASE4_R3R5_NULLABLE_UNIQUE_AUDIT",
         "mode": mode,
         "model_source_path": "backend/app/models/entities.py",
-        "migration_source_path": str(MIGRATION_PATH.relative_to(ROOT)),
+        "migration_source_path": [str(path.relative_to(ROOT)) for path in MIGRATION_PATHS],
         "unique_object_total_count": len(model_objects),
         "unique_object_classified_count": len(objects),
         "unclassified_unique_object_count": unclassified,

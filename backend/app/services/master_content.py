@@ -58,6 +58,7 @@ from ..storage.service import DocumentStorageService
 from ..storage.errors import StorageError
 from ..fixtures.forme_parity import FORME_ARCHIVE_SHA256, FORME_CATEGORY_LABELS, FORME_MASTER_SPECS
 from .forms_governance import ensure_profile, governance_projection
+from .backend_realignment import persona_for_role
 
 CONTENT_TYPES = {"FORM", "REPORT", "ENGINEERING_WORK"}
 ENGINEERING_SOURCE_TYPES = ("REGULATION", "QCS", "MUNICIPALITY_COMMENT", "AUTHORITY_GUIDANCE", "ENGINEERING_STANDARD", "DESIGN_GUIDE", "TECHNICAL_REFERENCE", "OTHER")
@@ -86,6 +87,7 @@ DEFAULT_REFERENCE_SEQUENCES = [
 ]
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
 ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
+PURPOSE_CONTENT_TYPES = {"PROPOSAL_TEMPLATE": "FORM", "PROPOSAL_CHECKLIST": "FORM", "CONTRACT_TEMPLATE": "FORM"}
 CONTENT_TYPE_MODULES = {
     "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
@@ -186,21 +188,43 @@ def _category(db: Session, category_id: str | None, content_type: str) -> Conten
 
 
 def seed_categories(db: Session) -> None:
+    dialect = db.bind.dialect.name if db.bind is not None else ""
+    if dialect == "sqlite":
+        from sqlalchemy.dialects.sqlite import insert
+    elif dialect == "postgresql":
+        from sqlalchemy.dialects.postgresql import insert
+    else:
+        insert = None
     for data in DEFAULT_CATEGORIES:
+        if insert is not None:
+            db.execute(insert(ContentCategory).values(**data).on_conflict_do_nothing(index_elements=["code"]))
+        else:
+            existing = db.scalar(select(ContentCategory).where(ContentCategory.code == data["code"]))
+            if not existing:
+                db.add(ContentCategory(**data))
         existing = db.scalar(select(ContentCategory).where(ContentCategory.code == data["code"]))
-        if not existing:
-            db.add(ContentCategory(**data))
-        elif not getattr(existing, "source_kind", None):
+        if existing and not getattr(existing, "source_kind", None):
             existing.source_kind = "SYNTHETIC_CONFIGURABLE"
     db.flush()
 
 
 def seed_reference_sequences(db: Session) -> None:
+    dialect = db.bind.dialect.name if db.bind is not None else ""
+    if dialect == "sqlite":
+        from sqlalchemy.dialects.sqlite import insert
+    elif dialect == "postgresql":
+        from sqlalchemy.dialects.postgresql import insert
+    else:
+        insert = None
     for data in DEFAULT_REFERENCE_SEQUENCES:
-        existing = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == data["content_type"], MasterContentReferenceSequence.scope == data["scope"]))
-        if not existing:
-            db.add(MasterContentReferenceSequence(**data, current_value=0, active=True))
+        if insert is not None:
+            db.execute(insert(MasterContentReferenceSequence).values(**data, current_value=0, active=True).on_conflict_do_nothing(index_elements=["content_type", "scope"]))
         else:
+            existing = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == data["content_type"], MasterContentReferenceSequence.scope == data["scope"]))
+            if not existing:
+                db.add(MasterContentReferenceSequence(**data, current_value=0, active=True))
+        existing = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == data["content_type"], MasterContentReferenceSequence.scope == data["scope"]))
+        if existing:
             maximum = 0
             prefix_pattern = re.compile(rf"^{re.escape(existing.prefix)}-(\d+)$")
             refs = db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == existing.content_type)).all()
@@ -271,10 +295,29 @@ def _modules_for(db: Session, *, item_id: str | None = None, definition_id: str 
     return sorted(set(db.scalars(query).all()))
 
 
-def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+def _status(version: DocumentVersion) -> str:
+    return str((version.metadata_json or {}).get("master_status", "PENDING_WRITE"))
+
+
+def canonical_master_content_candidates(
+    db: Session,
+    *,
+    module: str,
+    usage_type: str,
+    content_type: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return only deterministic, reusable current Master Content sources.
+
+    This is the shared eligibility seam for workflow consumers.  Discovery
+    projections may show more lifecycle states, but a consumer may only use a
+    source whose binding, lifecycle, current pointer, version governance, and
+    source reference all agree.  Ambiguity is deliberately preserved for the
+    caller to fail closed; this function never chooses a first row.
+    """
     module = module.strip().upper()
     usage_type = usage_type.strip().upper()
-    rows = db.scalars(
+    content_type = content_type.strip().upper() if content_type else None
+    statement = (
         select(MasterContentItem)
         .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
         .where(
@@ -284,16 +327,25 @@ def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str)
             MasterContentItem.status == "ACTIVE",
             MasterContentItem.needs_review == false(),
         )
-        .order_by(MasterContentItem.updated_at.desc(), MasterContentItem.ref)
-    ).all()
-    resolved = []
-    for item in rows:
+        .order_by(MasterContentItem.ref)
+    )
+    if content_type:
+        statement = statement.where(MasterContentItem.content_type == content_type)
+
+    candidates: list[dict[str, Any]] = []
+    for item in db.scalars(statement).all():
         version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+        if not version:
+            continue
+        if _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
+            continue
+        if not version.source_path_or_reference or version.source_path_or_reference == "PENDING":
+            continue
+
         governance = governance_projection(db, item)
         if item.content_type == "FORM":
-            # Preserve the frozen purpose bindings for AMEC-owned canonical
-            # proposal/contract forms while keeping external, restricted, and
-            # reference-only forms out of downstream resolution.
+            # Proposal and Contract AMEC-owned bindings are frozen canonical
+            # product configuration. Other forms require manual readiness.
             frozen_purpose = usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
             profile = governance["profile"]
             is_frozen_amec_form = (
@@ -303,13 +355,75 @@ def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str)
             )
             if not is_frozen_amec_form and governance["readiness"]["state"] != "MANUAL_USE_READY":
                 continue
-        if version:
-            resolved.append({"id": item.id, "ref": item.ref, "title": item.title, "content_type": item.content_type, "version_id": version.id, "version": version.version_number, "hash": version.sha256, "source_filename": version.source_filename, "module": module, "purpose": usage_type, "canonical": True})
+        elif item.content_type == "ENGINEERING_WORK":
+            if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:
+                continue
+
+        candidates.append({
+            "id": item.id,
+            "ref": item.ref,
+            "title": item.title,
+            "content_type": item.content_type,
+            "version_id": version.id,
+            "version": version.version_number,
+            "hash": version.sha256,
+            "source_filename": version.source_filename,
+            "source_type": item.source_type_code,
+            "discipline": (item.engineering_metadata or {}).get("discipline"),
+            "module": module,
+            "purpose": usage_type,
+            "canonical": True,
+        })
+    return candidates
+
+
+def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+    module = module.strip().upper()
+    usage_type = usage_type.strip().upper()
+    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=PURPOSE_CONTENT_TYPES.get(usage_type))
     return {"module": module, "purpose": usage_type, "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED", "canonical_count": len(resolved), "item": resolved[0] if len(resolved) == 1 else None, "candidates": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
 
 
-def _status(version: DocumentVersion) -> str:
-    return str((version.metadata_json or {}).get("master_status", "PENDING_WRITE"))
+def exact_master_content_binding_check(
+    db: Session,
+    *,
+    master_content_item_id: str,
+    document_version_id: str,
+    content_type: str | None = None,
+) -> dict[str, Any]:
+    """Validate a durable consumer's exact item/version binding.
+
+    This check intentionally does not select a source or copy bytes.  It
+    verifies the caller-provided binding before a consuming context is built.
+    """
+    item = db.get(MasterContentItem, master_content_item_id)
+    version = db.get(DocumentVersion, document_version_id)
+    reasons: list[str] = []
+    if not item:
+        reasons.append("MASTER_CONTENT_NOT_FOUND")
+    if not version:
+        reasons.append("DOCUMENT_VERSION_NOT_FOUND")
+    if item and content_type and item.content_type != content_type.strip().upper():
+        reasons.append("MASTER_CONTENT_TYPE_MISMATCH")
+    if item and item.status != "ACTIVE":
+        reasons.append("MASTER_CONTENT_INACTIVE")
+    if item and item.needs_review:
+        reasons.append("MASTER_CONTENT_NEEDS_REVIEW")
+    if item and version and version.document_id != item.document_id:
+        reasons.append("DOCUMENT_VERSION_ITEM_MISMATCH")
+    if item and item.current_document_version_id != document_version_id:
+        reasons.append("MASTER_CONTENT_VERSION_NOT_CURRENT")
+    if version and _status(version) != "CURRENT":
+        reasons.append("DOCUMENT_VERSION_NOT_CURRENT")
+    if version and version.approval_state != DocumentApprovalState.REVIEWED:
+        reasons.append("DOCUMENT_VERSION_NOT_REVIEWED")
+    if version and (not version.source_path_or_reference or version.source_path_or_reference == "PENDING"):
+        reasons.append("MASTER_CONTENT_SOURCE_UNAVAILABLE")
+    if item:
+        profile = governance_projection(db, item)["profile"]
+        if profile.get("restricted_reference_sample"):
+            reasons.append("MASTER_CONTENT_RESTRICTED_REFERENCE")
+    return {"valid": not reasons, "reasons": list(dict.fromkeys(reasons)), "item": item, "version": version}
 
 
 def _now() -> datetime:
@@ -801,6 +915,163 @@ def item_projection(db: Session, item: MasterContentItem, include_history: bool 
         versions = db.scalars(select(DocumentVersion).where(DocumentVersion.document_id == item.document_id).order_by(DocumentVersion.version_number.desc())).all()
         result["versions"] = [_version_projection(version) for version in versions]
     return result
+
+
+def _canonical_role_can_see(role: Any, row: dict[str, Any]) -> bool:
+    """Apply the existing Owner/BD/Engineering visibility rule to one row."""
+    persona = persona_for_role(role)
+    if persona in {"OWNER", "SYSTEM_ADMIN"}:
+        return True
+    module = "BD" if persona == "BUSINESS_DEVELOPMENT" else "ENGINEERING"
+    return module in row.get("used_in", [])
+
+
+def _normalized_owner_status(value: str | None) -> str | None:
+    return value.replace("_", " ").strip().upper() if value else None
+
+
+def _canonical_row_matches(
+    row: dict[str, Any],
+    *,
+    q: str = "",
+    category_label: str | None = None,
+    owner_status: str | None = None,
+    module: str | None = None,
+    ownership: str | None = None,
+    artifact_kind: str | None = None,
+    publisher: str | None = None,
+    currentness: str | None = None,
+    wave_a_readiness: str | None = None,
+    quality_state: str | None = None,
+    restricted_sample: bool | None = None,
+    language: str | None = None,
+    applicability_status: str | None = None,
+    external_body_id: str | None = None,
+    jurisdiction_id: str | None = None,
+    service_type_id: str | None = None,
+    lifecycle_phase_id: str | None = None,
+    automation_readiness: str | None = None,
+) -> bool:
+    normalized_owner_status = _normalized_owner_status(owner_status)
+    if normalized_owner_status and row.get("owner_status", "").upper() != normalized_owner_status:
+        return False
+    if q.strip():
+        needle = q.strip().casefold()
+        profile = row.get("governance", {}).get("profile", {})
+        searchable = " ".join(filter(None, (row.get("title"), row.get("ref"), row.get("description"), profile.get("official_form_no")))).casefold()
+        if needle not in searchable:
+            return False
+    if category_label and (row.get("category") or {}).get("label") != category_label:
+        return False
+    if module and module.upper() not in row.get("used_in", []):
+        return False
+    profile = row.get("governance", {}).get("profile", {})
+    readiness = row.get("governance", {}).get("readiness", {})
+    flags = row.get("governance", {}).get("quality_flags", [])
+    if ownership and profile.get("content_ownership_class") != ownership.upper():
+        return False
+    if artifact_kind and profile.get("artifact_kind") != artifact_kind.upper():
+        return False
+    if publisher and publisher.casefold() not in " ".join(filter(None, (profile.get("publisher_name"), profile.get("publisher_unit")))).casefold():
+        return False
+    if currentness and profile.get("currentness_status") != currentness.upper():
+        return False
+    if wave_a_readiness and readiness.get("state") != wave_a_readiness.upper():
+        return False
+    if language and profile.get("language_profile") != language.upper():
+        return False
+    if restricted_sample is not None and profile.get("restricted_reference_sample") is not restricted_sample:
+        return False
+    if quality_state and not any(flag.get("status") == quality_state.upper() for flag in flags):
+        return False
+    applicability = row.get("applicability", [])
+    if any((external_body_id, jurisdiction_id, service_type_id, lifecycle_phase_id, applicability_status)):
+        if not any(
+            (not external_body_id or candidate.get("external_body_id") == external_body_id)
+            and (not jurisdiction_id or candidate.get("jurisdiction_id") == jurisdiction_id)
+            and (not service_type_id or candidate.get("service_type_id") == service_type_id)
+            and (not lifecycle_phase_id or candidate.get("lifecycle_phase_id") in {lifecycle_phase_id, None})
+            and (not applicability_status or candidate.get("status") == applicability_status.upper())
+            for candidate in applicability
+        ):
+            return False
+    if automation_readiness and not any(profile_row.get("readiness", {}).get("state") == automation_readiness.upper() for profile_row in row.get("automation_profiles", [])):
+        return False
+    return True
+
+
+def canonical_master_content_read(
+    db: Session,
+    *,
+    role: Any,
+    content_type: str | None = None,
+    item_id: str | None = None,
+    q: str = "",
+    category_id: str | None = None,
+    category_label: str | None = None,
+    status: str | None = None,
+    owner_status: str | None = None,
+    module: str | None = None,
+    ownership: str | None = None,
+    artifact_kind: str | None = None,
+    publisher: str | None = None,
+    currentness: str | None = None,
+    readiness: str | None = None,
+    wave_a_readiness: str | None = None,
+    automation_readiness: str | None = None,
+    quality_state: str | None = None,
+    restricted_sample: bool | None = None,
+    language: str | None = None,
+    external_body_id: str | None = None,
+    jurisdiction_id: str | None = None,
+    service_type_id: str | None = None,
+    lifecycle_phase_id: str | None = None,
+    applicability_status: str | None = None,
+    include_archived: bool = False,
+    include_history: bool = False,
+    include_governance: bool = False,
+) -> list[dict[str, Any]]:
+    """The single canonical read model for MasterContentItem consumers.
+
+    Governance overlays are optional projections over the same canonical item;
+    they never create a second content row or substitute for DocumentVersion.
+    """
+    normalized_owner_status = _normalized_owner_status(owner_status)
+    if normalized_owner_status == "INACTIVE":
+        include_archived = True
+    statement = select(MasterContentItem).order_by(MasterContentItem.content_type, MasterContentItem.ref)
+    if item_id:
+        statement = statement.where(MasterContentItem.id == item_id)
+    if content_type:
+        statement = statement.where(MasterContentItem.content_type == content_type.upper())
+    if category_id:
+        statement = statement.where(MasterContentItem.category_id == category_id)
+    if status:
+        statement = statement.where(MasterContentItem.status == status.upper())
+    elif not include_archived:
+        statement = statement.where(MasterContentItem.status == "ACTIVE")
+    rows: list[dict[str, Any]] = []
+    for item in db.scalars(statement).all():
+        row = item_projection(db, item, include_history=include_history)
+        if include_governance and item.content_type == "FORM":
+            from .dashboard_v2_governance import evaluate_automated_readiness, list_applicability, list_policy_lineage, list_technical_lineage
+            from .shared_domains import projection, projections
+
+            profiles = list(db.scalars(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item.id)).all())
+            row["applicability"] = list_applicability(db, item.id)
+            row["requirement_policy_lineage"] = list_policy_lineage(db, item.id)
+            row["technical_rule_lineage"] = list_technical_lineage(db, item.id)
+            row["automation_profiles"] = [{
+                **projection(profile),
+                "readiness": evaluate_automated_readiness(db, profile, actor="canonical-read", persist=False),
+                "releases": projections(list(db.scalars(select(FormMappingRelease).where(FormMappingRelease.profile_id == profile.id).order_by(FormMappingRelease.created_at.desc())).all())),
+            } for profile in profiles]
+        if not _canonical_role_can_see(role, row):
+            continue
+        effective_wave_readiness = wave_a_readiness or readiness
+        if _canonical_row_matches(row, q=q, category_label=category_label, owner_status=owner_status, module=module, ownership=ownership, artifact_kind=artifact_kind, publisher=publisher, currentness=currentness, wave_a_readiness=effective_wave_readiness, quality_state=quality_state, restricted_sample=restricted_sample, language=language, applicability_status=applicability_status, external_body_id=external_body_id, jurisdiction_id=jurisdiction_id, service_type_id=service_type_id, lifecycle_phase_id=lifecycle_phase_id, automation_readiness=automation_readiness):
+            rows.append(row)
+    return [{**row, "serial_number": index + 1} for index, row in enumerate(rows)]
 
 
 def _verify_and_promote(

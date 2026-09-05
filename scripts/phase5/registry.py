@@ -124,12 +124,12 @@ def _declare(producer: str, **paths: dict[str, Any]) -> None:
 
 
 _declare("sqlserver-bootstrap", sqlserver_major=_path_spec("integer", const=16),
-         migration_head=_path_spec("string", const="baseline_phase4_v36_azure_sql"),
+         migration_head=_path_spec("string", const="step5_content_library_azure_sql_v1"),
          migration_pass=_path_spec("boolean", const=True),
          engine=_path_spec("string", const="MICROSOFT_SQL_SERVER_2022_X64"))
 _declare("sqlserver-targeted", sqlserver_major=_path_spec("integer", const=16),
          gate_count=_path_spec("integer", const=16), failed_count=_path_spec("integer", const=0),
-         skipped_count=_path_spec("integer", const=0), migration_head=_path_spec("string", const="baseline_phase4_v36_azure_sql"), gates=_path_spec("object"))
+         skipped_count=_path_spec("integer", const=0), migration_head=_path_spec("string", const="step5_content_library_azure_sql_v1"), gates=_path_spec("object"))
 for _producer in ("browser-required-paths", "browser-quality"):
     _declare(_producer, required_path_count=_path_spec("integer", const=10),
              required_path_pass=_path_spec("integer", const=10),
@@ -289,7 +289,7 @@ def pipeline_audit(edges: tuple[tuple[str, str], ...] = PIPELINE_EDGES) -> dict[
 
 
 _BOUNDARY_FIELDS = (("shadow-replay", "new_source_reads", "zero", 0, "integer"), ("shadow-replay", "new_source_bytes", "zero", 0, "integer"), ("shadow-replay", "real_content", "false", False, "boolean"), ("shadow-replay", "llm_external_call_count", "zero", 0, "integer"), ("shadow-replay", "classifier_only_projection_count", "zero", 0, "integer"), ("shadow-replay", "synology_writeback_count", "zero", 0, "integer"), ("shadow-replay", "external_protected_action_count", "zero", 0, "integer"), ("authority-denial", "result", "eq", "PASS", "string"), ("security-hygiene", "result", "eq", "PASS", "string"), ("shadow-replay", "replay_side_effect_duplicate_count", "zero", 0, "integer"))
-_SQL_FIELDS = (("sqlserver-bootstrap", "sqlserver_major", "eq", 16, "integer"), ("sqlserver-bootstrap", "migration_head", "eq", "baseline_phase4_v36_azure_sql", "string"), ("sqlserver-bootstrap", "engine", "eq", "MICROSOFT_SQL_SERVER_2022_X64", "string"), ("sqlserver-bootstrap", "migration_pass", "true", True, "boolean"), ("sqlserver-targeted", "gate_count", "eq", 16, "integer"), ("sqlserver-targeted", "failed_count", "zero", 0, "integer"), ("sqlserver-targeted", "skipped_count", "zero", 0, "integer"), ("sqlserver-targeted", "gates", "all_pass", "PASS", "object"), ("sqlserver-targeted", "sqlserver_major", "eq", 16, "integer"), ("sqlserver-targeted", "migration_head", "eq", "baseline_phase4_v36_azure_sql", "string"))
+_SQL_FIELDS = (("sqlserver-bootstrap", "sqlserver_major", "eq", 16, "integer"), ("sqlserver-bootstrap", "migration_head", "eq", "step5_content_library_azure_sql_v1", "string"), ("sqlserver-bootstrap", "engine", "eq", "MICROSOFT_SQL_SERVER_2022_X64", "string"), ("sqlserver-bootstrap", "migration_pass", "true", True, "boolean"), ("sqlserver-targeted", "gate_count", "eq", 16, "integer"), ("sqlserver-targeted", "failed_count", "zero", 0, "integer"), ("sqlserver-targeted", "skipped_count", "zero", 0, "integer"), ("sqlserver-targeted", "gates", "all_pass", "PASS", "object"), ("sqlserver-targeted", "sqlserver_major", "eq", 16, "integer"), ("sqlserver-targeted", "migration_head", "eq", "step5_content_library_azure_sql_v1", "string"))
 _BROWSER_FIELDS = (("browser-required-paths", "required_path_count", "eq", 10, "integer"), ("browser-required-paths", "required_path_pass", "eq", 10, "integer"), ("browser-required-paths", "required_path_fail", "zero", 0, "integer"), ("browser-required-paths", "required_path_skip", "zero", 0, "integer"), ("browser-required-paths", "declared_ids", "count_eq", 10, "array"), ("browser-quality", "quality_check_count", "nonzero", 1, "integer"), ("browser-quality", "quality_pass_count", "nonzero", 1, "integer"), ("browser-quality", "quality_fail_count", "zero", 0, "integer"), ("browser-quality", "quality_skip_count", "zero", 0, "integer"), ("browser-required-paths", "api_mock_count_for_required_paths", "zero", 0, "integer"))
 
 

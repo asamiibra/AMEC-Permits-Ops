@@ -20,7 +20,7 @@ INPUT_IDENTITIES = {
     "phase3c_accepted_sha": "44968e3d43571ceb1df8493da683ff9e51a146d9",
     "module_truth_contract_sha256": "d18ebed191b8f2633d5984ff57ab25803fe19beeb9c73999946abffddb974f2c",
     "phase4_corpus_app_contract_sha256": "387a741b2531afb54398fadbe8aac0d73e2a1ba9aab619e48d5dd5b5d7289908",
-    "active_alembic_revision": "baseline_phase4_v36_azure_sql",
+    "active_alembic_revision": "step5_content_library_azure_sql_v1",
     "database_engine_target": "AZURE_SQL_SQL_SERVER_ENGINE",
     "phase5_master_design_sha256": "761dd4e642ce8dc30589bab393808e965a4f931e9e2a9ddda94cff6f217fa81b",
     "phase5_design_validation_sha256": "61e57216ca5b8671df7337420bb7d116c94be138da62cde851dcab6236ecbe0f",

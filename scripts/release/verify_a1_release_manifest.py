@@ -98,7 +98,7 @@ def verify(document: dict[str, Any], expected_source_sha: str | None = None) -> 
         raise ValueError("database section is required")
     if database.get("engine") != "azure_sql" or database.get("major") != 16:
         raise ValueError("wrong database target")
-    if database.get("migration_head") != "baseline_phase4_v36_azure_sql":
+    if database.get("migration_head") != "step5_content_library_azure_sql_v1":
         raise ValueError("wrong migration head")
 
     entra = document.get("entra")

@@ -36,6 +36,7 @@ from backend.app.services.phase4 import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
+ACTIVE_MIGRATION_HEAD = "step5_content_library_azure_sql_v1"
 OUT_DIR = Path(os.environ.get("AZSQL_EVIDENCE_DIR", os.environ.get("RUNNER_TEMP", ROOT / "artifacts")))
 NOW = datetime.now(timezone.utc).isoformat()
 RESULTS: list[dict[str, object]] = []
@@ -202,8 +203,8 @@ def schema_gates(project_id: str) -> None:
     gate("AZSQL-001", AZSQL_ASSERTIONS[0], "RUNTIME_SQLSERVER", "engine.dialect", ["azsql-001-040.json#AZSQL-001"], dialect == "mssql", dialect)
     with engine.connect() as connection:
         heads = database_migration_heads(engine)
-        gate("AZSQL-002", AZSQL_ASSERTIONS[1], "RUNTIME_SQLSERVER", "alembic.upgrade", ["azsql-001-040.json#AZSQL-002"], heads == ("baseline_phase4_v36_azure_sql",), heads)
-        gate("AZSQL-003", AZSQL_ASSERTIONS[2], "SCHEMA_INTROSPECTION", "database_migration_heads", ["azsql-001-040.json#AZSQL-003"], heads == ("baseline_phase4_v36_azure_sql",) and repository_migration_head() == "baseline_phase4_v36_azure_sql", heads)
+        gate("AZSQL-002", AZSQL_ASSERTIONS[1], "RUNTIME_SQLSERVER", "alembic.upgrade", ["azsql-001-040.json#AZSQL-002"], heads == (ACTIVE_MIGRATION_HEAD,), heads)
+        gate("AZSQL-003", AZSQL_ASSERTIONS[2], "SCHEMA_INTROSPECTION", "database_migration_heads", ["azsql-001-040.json#AZSQL-003"], heads == (ACTIVE_MIGRATION_HEAD,) and repository_migration_head() == ACTIVE_MIGRATION_HEAD, heads)
         actual_tables = set(inspect(connection).get_table_names())
         model_tables = set(Base.metadata.tables)
         unexplained = (model_tables - actual_tables) | (actual_tables - model_tables - {"alembic_version"})
@@ -477,7 +478,7 @@ def runtime_gates(project_id: str, assertion_id: str) -> None:
     gate("AZSQL-035", AZSQL_ASSERTIONS[34], "SECURITY_NEGATIVE_PROOF", "protected_authority_denials", ["protected-authority-16-validation.json"], len(PROTECTED_RESULTS) == 16 and all(item["result"] == "PASS" for item in PROTECTED_RESULTS), {"count": len(PROTECTED_RESULTS)})
 
     heads = database_migration_heads(engine)
-    gate("AZSQL-036", AZSQL_ASSERTIONS[35], "RUNTIME_SQLSERVER", "database_migration_heads", ["azsql-001-040.json#AZSQL-036"], heads == ("baseline_phase4_v36_azure_sql",) and repository_migration_head() == "baseline_phase4_v36_azure_sql", heads)
+    gate("AZSQL-036", AZSQL_ASSERTIONS[35], "RUNTIME_SQLSERVER", "database_migration_heads", ["azsql-001-040.json#AZSQL-036"], heads == (ACTIVE_MIGRATION_HEAD,) and repository_migration_head() == ACTIVE_MIGRATION_HEAD, heads)
     secure_url = "mssql+pyodbc://runtime:secret@proposalops.database.windows.net:1433/proposalops?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no"
     unsafe_url = secure_url.replace("Encrypt=yes", "Encrypt=no")
     try:
@@ -488,8 +489,8 @@ def runtime_gates(project_id: str, assertion_id: str) -> None:
     unsafe_rejected = _expect_value_error(lambda: validate_mssql_connection_url(unsafe_url, require_encryption=True))
     gate("AZSQL-037", AZSQL_ASSERTIONS[36], "STATIC_CONFIG", "validate_mssql_connection_url", ["azsql-001-040.json#AZSQL-037"], strict_accepted and unsafe_rejected, {"secure": strict_accepted, "unsafe_rejected": unsafe_rejected})
     phase4_source = (ROOT / "backend/app/services/phase4.py").read_text(encoding="utf-8")
-    migration_source = (ROOT / "backend/migrations/versions/baseline_phase4_v36_azure_sql.py").read_text(encoding="utf-8")
-    migration_findings = _migration_postgresql_physical_findings(migration_source)
+    migration_sources = [path.read_text(encoding="utf-8") for path in sorted((ROOT / "backend/migrations/versions").glob("*.py"))]
+    migration_findings = [finding for source in migration_sources for finding in _migration_postgresql_physical_findings(source)]
     gate("AZSQL-038", AZSQL_ASSERTIONS[37], "STATIC_SOURCE", "phase4.py", ["azsql-001-040.json#AZSQL-038"], "pg_advisory_xact_lock" not in phase4_source, "advisory lock absent")
     gate("AZSQL-039", AZSQL_ASSERTIONS[38], "STATIC_SOURCE", "_migration_postgresql_physical_findings", ["azsql-001-040.json#AZSQL-039"], len(migration_findings) == 0, {"finding_count": len(migration_findings), "findings": migration_findings})
     safe_state = os.environ.get("SYNTHETIC_ONLY") == "true" and os.environ.get("REAL_DATA_ALLOWED", "false") == "false"
