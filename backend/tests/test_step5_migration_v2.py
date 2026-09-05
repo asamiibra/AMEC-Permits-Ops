@@ -20,6 +20,14 @@ def _load_v2():
     return module
 
 
+def test_revision_identity_fits_alembic_version_contract():
+    v2 = _load_v2()
+
+    assert v2.revision == "step5_content_azure_sql_v2"
+    assert len(v2.revision) <= 32
+    assert v2.down_revision == "baseline_phase4_v36_azure_sql"
+
+
 class _CatalogResult:
     def __init__(self, values):
         self.values = values

@@ -94,9 +94,9 @@ def test_release_contract_accepts_new_head_and_rejects_old_head():
 
 
 def test_old_0059_database_head_fails_closed(monkeypatch):
-    monkeypatch.setattr(database, "repository_migration_head", lambda: "step5_content_library_azure_sql_v2")
+    monkeypatch.setattr(database, "repository_migration_head", lambda: "step5_content_azure_sql_v2")
     monkeypatch.setattr(database, "database_migration_heads", lambda: ("baseline_phase4_v36_azure_sql",))
-    with pytest.raises(RuntimeError, match="step5_content_library_azure_sql_v2"):
+    with pytest.raises(RuntimeError, match="step5_content_azure_sql_v2"):
         database.verify_database_migration_head()
 
 

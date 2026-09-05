@@ -157,7 +157,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert "ON CONFLICT" not in source
     assert "Base.metadata.create_all" not in source
     successor = active[1].read_text(encoding="utf-8")
-    assert 'revision = "step5_content_library_azure_sql_v2"' in successor
+    assert 'revision = "step5_content_azure_sql_v2"' in successor
     assert 'down_revision = "baseline_phase4_v36_azure_sql"' in successor
 
 

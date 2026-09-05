@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = "step5_content_library_azure_sql_v2"
+revision = "step5_content_azure_sql_v2"
 down_revision = "baseline_phase4_v36_azure_sql"
 branch_labels = None
 depends_on = None

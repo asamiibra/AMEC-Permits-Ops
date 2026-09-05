@@ -5,7 +5,7 @@ import pytest
 from backend.app import migrate
 
 
-EXPECTED_HEAD = "step5_content_library_azure_sql_v2"
+EXPECTED_HEAD = "step5_content_azure_sql_v2"
 
 
 def _settings(
