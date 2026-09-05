@@ -71,4 +71,34 @@ describe("Owner purpose binding UI", () => {
     await waitFor(() => expect(screen.getByText("Synthetic Proposal Template")).toBeVisible());
     expect(screen.queryByRole("button", { name: "Modify" })).not.toBeInTheDocument();
   });
+
+  it("supports the Administration Contract Template purpose without changing BD bindings", async () => {
+    const adminForm = { ...form, id: "form-contract-1", ref: "F-0004", title: "Synthetic Contract Template", used_in: ["ADMIN"], purpose_bindings: [{ module: "ADMIN", usage_type: "AVAILABLE", active: true }] };
+    fetchMock.mockImplementation((input: string | URL, init?: RequestInit) => {
+      const url = new URL(String(input), window.location.origin);
+      if (url.pathname === "/api/master-content" && !url.pathname.endsWith("/module-bindings")) return Promise.resolve(response([adminForm]));
+      if (url.pathname === "/api/master-content/categories") return Promise.resolve(response([{ id: "contract", label: "Contract", allowed_content_types: ["FORM"] }]));
+      if (url.pathname === "/api/dashboard-v2/catalogs") return Promise.resolve(response({ external_bodies: [], jurisdictions: [], service_types: [], lifecycle_phases: [] }));
+      if (url.pathname === "/api/master-content/form-contract-1/module-bindings") {
+        if (init?.method === "PUT") return Promise.resolve(response({ ...adminForm, purpose_bindings: [{ module: "ADMIN", usage_type: "AVAILABLE", active: true }, { module: "ADMIN", usage_type: "CONTRACT_TEMPLATE", active: true }] }));
+        return Promise.resolve(response([{ module: "ADMIN", usage_type: "AVAILABLE", active: true }]));
+      }
+      return Promise.resolve(response({}));
+    });
+
+    render(<CanonicalFormsLibrary role="OWNER_SPONSOR" />);
+    await waitFor(() => expect(screen.getByText("Synthetic Contract Template")).toBeVisible());
+    fireEvent.click(screen.getByRole("button", { name: "Modify" }));
+    const administrationPurpose = await screen.findByLabelText("Canonical Administration purpose");
+    fireEvent.change(administrationPurpose, { target: { value: "CONTRACT_TEMPLATE" } });
+    await waitFor(() => expect(administrationPurpose).toHaveValue("CONTRACT_TEMPLATE"));
+    fireEvent.submit(screen.getByRole("dialog").querySelector("form")!);
+
+    await waitFor(() => expect(fetchMock.mock.calls.some(([input, init]) => String(input).includes("/module-bindings") && init?.method === "PUT")).toBe(true));
+    const [, init] = fetchMock.mock.calls.find(([input, request]) => String(input).includes("/module-bindings") && request?.method === "PUT") as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual([
+      { module: "ADMIN", usage_type: "AVAILABLE", active: true },
+      { module: "ADMIN", usage_type: "CONTRACT_TEMPLATE", active: true },
+    ]);
+  });
 });

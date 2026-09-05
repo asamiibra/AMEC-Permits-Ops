@@ -111,6 +111,9 @@ const PROPOSAL_PURPOSES = [
   "PROPOSAL_TEMPLATE",
   "PROPOSAL_CHECKLIST",
 ] as const;
+const ADMINISTRATION_PURPOSES = [
+  "CONTRACT_TEMPLATE",
+] as const;
 
 function bindingSignature(bindings: PurposeBinding[]) {
   return JSON.stringify(
@@ -126,6 +129,8 @@ function purposeLabel(value: string) {
     ? "Proposal Template"
     : value === "PROPOSAL_CHECKLIST"
       ? "Proposal Checklist"
+      : value === "CONTRACT_TEMPLATE"
+        ? "Contract Template"
       : value;
 }
 
@@ -540,16 +545,16 @@ function FormEditor({
     };
   }, [item?.id]);
 
-  const currentProposalPurpose = purposeBindings.find(
-    (binding) => binding.active && binding.module === "BD" && PROPOSAL_PURPOSES.includes(binding.usage_type as typeof PROPOSAL_PURPOSES[number]),
+  const currentPurpose = (module: string, purposes: readonly string[]) => purposeBindings.find(
+    (binding) => binding.active && binding.module === module && purposes.includes(binding.usage_type),
   )?.usage_type || "";
-  const setProposalPurpose = (usageType: string) => {
+  const setModulePurpose = (module: string, purposes: readonly string[], usageType: string) => {
     setPurposeBindings((current) => {
       const retained = current.filter(
-        (binding) => !(binding.module === "BD" && PROPOSAL_PURPOSES.includes(binding.usage_type as typeof PROPOSAL_PURPOSES[number])),
+        (binding) => !(binding.module === module && purposes.includes(binding.usage_type)),
       );
       return usageType
-        ? [...retained, { module: "BD", usage_type: usageType, active: true }]
+        ? [...retained, { module, usage_type: usageType, active: true }]
         : retained;
     });
   };
@@ -683,13 +688,20 @@ function FormEditor({
         <UsedInPicker type="FORM" value={usedIn} onChange={setUsedIn} />
         {item && <section className="editor-group">
           <h3>Canonical Consumer Purpose</h3>
-          <p>Used In availability does not select a purpose. Choose the explicit Business Development purpose required by the canonical resolver.</p>
+          <p>Used In availability does not select a purpose. Choose an explicit canonical module purpose required by its resolver.</p>
           <label>
             Business Development purpose
-            <select aria-label="Canonical Business Development purpose" value={currentProposalPurpose} disabled={purposeLoading || Boolean(purposeError)} onChange={(event) => setProposalPurpose(event.target.value)}>
+            <select aria-label="Canonical Business Development purpose" value={currentPurpose("BD", PROPOSAL_PURPOSES)} disabled={purposeLoading || Boolean(purposeError)} onChange={(event) => setModulePurpose("BD", PROPOSAL_PURPOSES, event.target.value)}>
               <option value="">No explicit Proposal purpose</option>
               <option value="PROPOSAL_TEMPLATE">Proposal Template</option>
               <option value="PROPOSAL_CHECKLIST">Proposal Checklist</option>
+            </select>
+          </label>
+          <label>
+            Administration purpose
+            <select aria-label="Canonical Administration purpose" value={currentPurpose("ADMIN", ADMINISTRATION_PURPOSES)} disabled={purposeLoading || Boolean(purposeError)} onChange={(event) => setModulePurpose("ADMIN", ADMINISTRATION_PURPOSES, event.target.value)}>
+              <option value="">No explicit Administration purpose</option>
+              <option value="CONTRACT_TEMPLATE">Contract Template</option>
             </select>
           </label>
           {purposeBindings.filter((binding) => binding.active).map((binding) => <small key={`${binding.module}:${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {purposeLabel(binding.usage_type)} · active</small>)}
