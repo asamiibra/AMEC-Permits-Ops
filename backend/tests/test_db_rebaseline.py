@@ -20,7 +20,8 @@ SOURCE_SHA = "96c4b90968754efd8e5998cd1b1793b67c23d2bc"
 
 def test_active_graph_and_legacy_archive_are_exact():
     assert sorted(path.name for path in (ROOT / "backend/migrations/versions").glob("*.py")) == [
-        "baseline_phase4_v36_azure_sql.py"
+        "baseline_phase4_v36_azure_sql.py",
+        "step5_content_library_azure_sql_v2.py",
     ]
     phase4_source = PHASE4.read_text(encoding="utf-8")
     assert 'revision = "phase4_corpus_app_integration_v1"' in phase4_source
@@ -93,9 +94,9 @@ def test_release_contract_accepts_new_head_and_rejects_old_head():
 
 
 def test_old_0059_database_head_fails_closed(monkeypatch):
-    monkeypatch.setattr(database, "repository_migration_head", lambda: "baseline_phase4_v36_azure_sql")
-    monkeypatch.setattr(database, "database_migration_heads", lambda: ("0059_entra_user_identity",))
-    with pytest.raises(RuntimeError, match="baseline_phase4_v36_azure_sql"):
+    monkeypatch.setattr(database, "repository_migration_head", lambda: "step5_content_library_azure_sql_v2")
+    monkeypatch.setattr(database, "database_migration_heads", lambda: ("baseline_phase4_v36_azure_sql",))
+    with pytest.raises(RuntimeError, match="step5_content_library_azure_sql_v2"):
         database.verify_database_migration_head()
 
 

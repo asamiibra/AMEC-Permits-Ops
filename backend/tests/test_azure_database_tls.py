@@ -34,9 +34,30 @@ def _install_cached_settings(monkeypatch, migration_url=MIGRATION_DATABASE_URL):
 
 
 def _stub_migration_verification(monkeypatch):
+    class FakeConnection:
+        def close(self):
+            return None
+
+        def exec_driver_sql(self, statement):
+            assert statement == "SELECT 1"
+
     class FakeEngine:
+        def __init__(self):
+            self.connection = FakeConnection()
+
+        def connect(self):
+            return self.connection
+
         def dispose(self):
             return None
+
+    class FakeMigrationContext:
+        @classmethod
+        def configure(cls, connection):
+            return cls()
+
+        def get_current_heads(self):
+            return (MIGRATION_HEAD,)
 
     monkeypatch.setattr(
         migrate,
@@ -50,8 +71,8 @@ def _stub_migration_verification(monkeypatch):
     )
     monkeypatch.setattr(
         migrate,
-        "verify_database_migration_head",
-        lambda *_: MIGRATION_HEAD,
+        "MigrationContext",
+        FakeMigrationContext,
     )
 
 
