@@ -158,6 +158,17 @@ def _connect_with_bounded_attempts(engine):
         try:
             connection = engine.connect()
             connection.exec_driver_sql("SELECT 1")
+            rollback = getattr(connection, "rollback", None)
+            if rollback is not None:
+                rollback()
+            if hasattr(connection, "in_transaction"):
+                in_transaction = connection.in_transaction
+                if callable(in_transaction):
+                    in_transaction = in_transaction()
+                if in_transaction:
+                    raise RuntimeError(
+                        "Migration preflight transaction remained active."
+                    )
             return connection, attempt
         except Exception as exc:
             last_error = exc
@@ -233,7 +244,8 @@ def run_migrations() -> str:
             config = _alembic_config(migration_url)
             config.attributes["connection"] = connection
             try:
-                command.upgrade(config, "head")
+                with connection.begin():
+                    command.upgrade(config, "head")
             except Exception as exc:
                 wrapped = MigrationExecutionError("alembic_upgrade", exc)
                 wrapped.expected_head = expected_head

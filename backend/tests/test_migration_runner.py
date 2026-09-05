@@ -25,15 +25,55 @@ def _settings(
 
 
 class _FakeConnection:
-    def __init__(self):
+    def __init__(self, *, commit_error=None):
         self.statements = []
+        self.events = []
         self.closed = False
+        self._in_transaction = False
+        self.commit_error = commit_error
+
+    @property
+    def in_transaction(self):
+        return self._in_transaction
 
     def exec_driver_sql(self, statement):
         self.statements.append(statement)
+        self.events.append(statement)
+        self._in_transaction = True
+
+    def rollback(self):
+        self.events.append("preflight rollback")
+        self._in_transaction = False
+
+    def begin(self):
+        assert not self._in_transaction
+        self.events.append("begin migration transaction")
+        self._in_transaction = True
+        return _FakeTransaction(self)
 
     def close(self):
+        self.events.append("close")
         self.closed = True
+
+
+class _FakeTransaction:
+    def __init__(self, connection):
+        self.connection = connection
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        if exc_type is not None:
+            self.connection.events.append("rollback migration transaction")
+            self.connection._in_transaction = False
+            return False
+        if self.connection.commit_error is not None:
+            self.connection._in_transaction = False
+            raise self.connection.commit_error
+        self.connection.events.append("commit migration transaction")
+        self.connection._in_transaction = False
+        return False
 
 
 class _FakeEngine:
@@ -62,6 +102,7 @@ class _FakeMigrationContextType:
     @classmethod
     def configure(cls, connection):
         cls.connection = connection
+        connection.events.append("post-commit verify")
         return _FakeMigrationContext()
 
 
@@ -144,6 +185,7 @@ def test_runner_uses_one_connection_for_upgrade_and_verification(monkeypatch):
         assert config.config_file_name is None
         assert revision == "head"
         assert config.attributes["connection"] is connection
+        connection.events.append("command.upgrade")
         calls.append("upgrade")
 
     monkeypatch.setattr(migrate.command, "upgrade", upgrade)
@@ -152,8 +194,68 @@ def test_runner_uses_one_connection_for_upgrade_and_verification(monkeypatch):
     assert calls == ["upgrade"]
     assert engine.connect_calls == 1
     assert connection.statements == ["SELECT 1"]
+    assert connection.events == [
+        "SELECT 1",
+        "preflight rollback",
+        "begin migration transaction",
+        "command.upgrade",
+        "commit migration transaction",
+        "post-commit verify",
+        "close",
+    ]
+    assert connection.in_transaction is False
     assert connection.closed
     assert engine.disposed
+
+
+def test_runner_rolls_back_when_upgrade_raises(monkeypatch):
+    connection = _FakeConnection()
+    engine = _FakeEngine(connection=connection)
+    _install_fake_database(monkeypatch, engine=engine)
+
+    def upgrade(*_args):
+        connection.events.append("command.upgrade")
+        raise RuntimeError("upgrade failed")
+
+    monkeypatch.setattr(migrate.command, "upgrade", upgrade)
+
+    with pytest.raises(migrate.MigrationExecutionError, match="upgrade failed"):
+        migrate.run_migrations()
+
+    assert connection.events == [
+        "SELECT 1",
+        "preflight rollback",
+        "begin migration transaction",
+        "command.upgrade",
+        "rollback migration transaction",
+        "close",
+    ]
+    assert connection.in_transaction is False
+
+
+def test_main_reports_commit_failure_without_success(monkeypatch, capsys):
+    connection = _FakeConnection(commit_error=RuntimeError("commit failed"))
+    engine = _FakeEngine(connection=connection)
+    _install_fake_database(monkeypatch, engine=engine)
+
+    monkeypatch.setattr(
+        migrate.command,
+        "upgrade",
+        lambda *_args: connection.events.append("command.upgrade"),
+    )
+
+    assert migrate.main() == 1
+    output = capsys.readouterr()
+
+    assert '"status": "FAILED"' in output.err
+    assert '"status": "SUCCEEDED"' not in output.out
+    assert connection.events == [
+        "SELECT 1",
+        "preflight rollback",
+        "begin migration transaction",
+        "command.upgrade",
+        "close",
+    ]
 
 
 def test_runner_bounds_connection_acquisition_and_closes_failed_connections(monkeypatch):
