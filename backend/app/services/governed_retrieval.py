@@ -150,7 +150,7 @@ def _master(db: Session, item: MasterContentItem, version: DocumentVersion, acce
     if not prefetched:
         profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == item.id))
         provenance = list(db.scalars(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id == version.id)))
-        bindings = list(db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active.is_(True))))
+        bindings = list(db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active == 1)))
     provenance = sorted(provenance or [], key=lambda row: (row.source_reference or "", row.id))
     source = provenance[0].source_reference if provenance else None
     content = _content(db, item, version, access)
@@ -236,7 +236,7 @@ def governed_retrieve(db: Session, query: RetrievalQuery, access: RetrievalAcces
         provenance = defaultdict(list)
         for p in (db.scalars(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id.in_(version_ids))).all() if version_ids else []): provenance[p.document_version_id].append(p)
         bindings = defaultdict(list)
-        for b in (db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id.in_(item_ids), MasterContentModuleBinding.active.is_(True))).all() if item_ids else []): bindings[b.master_content_id].append(b)
+        for b in (db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id.in_(item_ids), MasterContentModuleBinding.active == 1)).all() if item_ids else []): bindings[b.master_content_id].append(b)
         for item in items:
             version = db.get(DocumentVersion, query.document_version_id) if query.document_version_id else versions.get(item.current_document_version_id)
             if version and version.document_id == item.document_id:
