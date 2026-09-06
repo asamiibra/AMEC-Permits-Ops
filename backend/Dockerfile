@@ -1,12 +1,15 @@
 FROM python:3.12-slim-trixie@sha256:876416ecde9aca2bcc90e1fb0c7a9500bbf749f5788b70f82d4c5a5c2357f8b4
 
 ARG RELEASE_SHA
+ARG BUILD_TIMESTAMP
 
 RUN RELEASE_SHA="$RELEASE_SHA" python -c \
     'import os, re, sys; value=os.environ.get("RELEASE_SHA", ""); sys.exit(0 if re.fullmatch(r"[0-9a-f]{40}", value) else 1)'
+RUN test -n "$BUILD_TIMESTAMP"
 
 LABEL org.opencontainers.image.revision="${RELEASE_SHA}" \
-      org.opencontainers.image.source="https://github.com/asamiibra/AMEC-Permits-Ops"
+      org.opencontainers.image.source="https://github.com/asamiibra/AMEC-Permits-Ops" \
+      org.opencontainers.image.created="${BUILD_TIMESTAMP}"
 
 ENV RELEASE_SHA="${RELEASE_SHA}" \
     APP_ENV=AZURE-PREPROD \
