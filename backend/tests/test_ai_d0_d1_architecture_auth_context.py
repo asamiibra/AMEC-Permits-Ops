@@ -132,19 +132,20 @@ def db():
 
 
 def test_d0_contract_is_exact_and_has_no_auto_or_fallback():
-    assert AI_ARCHITECTURE.architecture_version == "AI-D0-D1-ARCHITECTURE-1.0"
+    assert AI_ARCHITECTURE.architecture_version == "AI-D0-D3-ARCHITECTURE-1.1"
     assert AI_ARCHITECTURE.execution_modes == (
         AIExecutionMode.INTERACTIVE,
         AIExecutionMode.BACKGROUND,
     )
     assert AI_ARCHITECTURE.auto_mode_allowed is False
     assert AI_ARCHITECTURE.hidden_interactive_background_fallback is False
-    assert AI_ARCHITECTURE.provider == "AZURE_OPENAI_FOUNDRY"
-    assert AI_ARCHITECTURE.model == "gpt-5.1"
-    assert AI_ARCHITECTURE.model_version == "2025-11-13"
-    assert AI_ARCHITECTURE.deployment_type == "Standard"
-    assert AI_ARCHITECTURE.resource_region == "uaenorth"
-    assert AI_ARCHITECTURE.processing_boundary == "UAE_NORTH_REGIONAL"
+    assert AI_ARCHITECTURE.provider == "AZURE_FOUNDRY"
+    assert AI_ARCHITECTURE.access_mode == "INSTANT"
+    assert AI_ARCHITECTURE.model == "gpt-5-mini"
+    assert AI_ARCHITECTURE.model_version == "2025-08-07"
+    assert AI_ARCHITECTURE.deployment_type == "INSTANT_ACCESS"
+    assert AI_ARCHITECTURE.resource_region == "westus3"
+    assert AI_ARCHITECTURE.processing_boundary == "GLOBAL"
     assert AI_ARCHITECTURE.model_router_allowed is False
     assert AI_ARCHITECTURE.fallback_models == ()
     assert AI_ARCHITECTURE.provider_managed_memory_allowed is False

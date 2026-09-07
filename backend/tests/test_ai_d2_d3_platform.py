@@ -21,7 +21,7 @@ def _settings() -> Settings:
         app_env="TEST", synthetic_only=True, real_data_allowed=False, ai_enabled=True,
         ai_d3_synthetic_project_ids="project-1", ai_input_price_usd_per_1m_tokens=1,
         ai_output_price_usd_per_1m_tokens=1, ai_pricing_source_reference="test-price-reference",
-        ai_azure_openai_endpoint="https://proposalops.openai.azure.com",
+        ai_azure_openai_endpoint="https://proposalopsd3instant.services.ai.azure.com/api/projects/project-1",
     )
 
 
@@ -46,7 +46,7 @@ def test_provider_request_is_exact_v1_responses_without_tools_or_redirects():
     class Response:
         status_code = 200
         def json(self):
-            return {"id": "resp-1", "status": "completed", "output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps(_payload())}]}], "usage": {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30}}
+            return {"id": "resp-1", "status": "completed", "model": "gpt-5-mini-2025-08-07", "output": [{"type": "reasoning", "summary": [{"type": "summary_text", "text": "must not escape"}]}, {"type": "message", "content": [{"type": "output_text", "text": json.dumps(_payload())}]}], "usage": {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30}}
 
     class Client:
         def __init__(self, **kwargs):
@@ -62,11 +62,31 @@ def test_provider_request_is_exact_v1_responses_without_tools_or_redirects():
     assert captured["url"].endswith("/openai/v1/responses")
     assert captured["client"]["follow_redirects"] is False
     body = captured["request"]["json"]
-    assert body["model"] == "proposalops-gpt51-methodology-v1"
+    assert body["model"] == "gpt-5-mini"
     assert body["store"] is False
     assert body["tools"] == []
     assert "previous_response_id" not in body and "conversation" not in body
     assert body["text"]["format"]["strict"] is True
+    assert result.model_name == "gpt-5-mini"
+    assert result.model_version == "2025-08-07"
+    assert result.access_mode == "INSTANT"
+
+
+def test_provider_accepts_top_level_output_text_and_ignores_reasoning():
+    class Response:
+        status_code = 200
+        def json(self):
+            return {"id": "resp-top-level", "status": "completed", "model": "gpt-5-mini", "model_version": "2025-08-07", "output_text": json.dumps(_payload()), "output": [{"type": "reasoning", "summary": [{"type": "summary_text", "text": "secret reasoning"}]}], "usage": {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30}}
+
+    class Client:
+        def __init__(self, **kwargs): pass
+        def __enter__(self): return self
+        def __exit__(self, *args): return False
+        def post(self, url, **kwargs): return Response()
+
+    result = AzureOpenAIResponsesProvider(_settings(), token_provider=lambda _: "memory-token", http_client_factory=Client).execute_structured(AIProviderRequest(provider_input="static-input", max_output_tokens=6000))
+    assert result.payload == _payload()
+    assert "secret reasoning" not in json.dumps(result.payload)
 
 
 def test_structured_output_rejects_missing_section_citation():

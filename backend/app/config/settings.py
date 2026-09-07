@@ -80,12 +80,18 @@ class Settings(BaseSettings):
     # browser-selectable request fields.
     ai_enabled: bool = False
     ai_real_content_allowed: bool = False
+    ai_provider: str = "AZURE_FOUNDRY"
+    ai_access_mode: str = "INSTANT"
+    ai_project_region: str = "westus3"
+    ai_token_resource: str = "https://ai.azure.com"
+    ai_model_router_enabled: bool = False
+    ai_fallback_models: str = ""
     ai_azure_openai_endpoint: str = ""
-    ai_azure_openai_deployment: str = "proposalops-gpt51-methodology-v1"
-    ai_azure_openai_expected_model: str = "gpt-5.1"
-    ai_azure_openai_expected_version: str = "2025-11-13"
-    ai_azure_openai_region: str = "uaenorth"
-    ai_azure_openai_deployment_type: str = "Standard"
+    ai_azure_openai_deployment: str = ""
+    ai_azure_openai_expected_model: str = "gpt-5-mini"
+    ai_azure_openai_expected_version: str = "2025-08-07"
+    ai_azure_openai_region: str = "westus3"
+    ai_azure_openai_deployment_type: str = "INSTANT_ACCESS"
     ai_uami_client_id: str = ""
     ai_uami_principal_id: str = ""
     ai_azure_tenant_id: str = ""
@@ -336,12 +342,20 @@ class Settings(BaseSettings):
             if self.ai_enabled:
                 if self.ai_real_content_allowed or not self.synthetic_only or self.real_data_allowed:
                     raise ValueError("AI-D2/D3 preprod requires synthetic-only real-content gates")
-                if self.ai_azure_openai_deployment != "proposalops-gpt51-methodology-v1":
-                    raise ValueError("AI deployment name is frozen")
-                if self.ai_azure_openai_expected_model != "gpt-5.1" or self.ai_azure_openai_expected_version != "2025-11-13":
+                if self.ai_provider != "AZURE_FOUNDRY":
+                    raise ValueError("AI_PROVIDER is frozen to AZURE_FOUNDRY")
+                if self.ai_access_mode != "INSTANT":
+                    raise ValueError("AI_ACCESS_MODE is frozen to INSTANT")
+                if self.ai_model_router_enabled or self.ai_fallback_models.strip():
+                    raise ValueError("AI model routing and fallback models are forbidden")
+                if self.ai_azure_openai_expected_model != "gpt-5-mini" or self.ai_azure_openai_expected_version != "2025-08-07":
                     raise ValueError("AI model/version is frozen")
-                if self.ai_azure_openai_region != "uaenorth" or self.ai_azure_openai_deployment_type != "Standard":
-                    raise ValueError("AI region/deployment type is frozen")
+                if self.ai_project_region != "westus3" or self.ai_azure_openai_region != "westus3" or self.ai_azure_openai_deployment_type != "INSTANT_ACCESS":
+                    raise ValueError("AI region/access mode is frozen")
+                if self.ai_token_resource.rstrip("/") != "https://ai.azure.com":
+                    raise ValueError("AI_TOKEN_RESOURCE is frozen to the Microsoft Foundry scope")
+                if self.ai_azure_openai_deployment:
+                    raise ValueError("Instant Access forbids a deployment binding")
                 for setting_name, value in (
                     ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
                     ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),
@@ -363,11 +377,12 @@ class Settings(BaseSettings):
                 if not self.ai_azure_openai_endpoint:
                     raise ValueError("AI_AZURE_OPENAI_ENDPOINT is required")
                 endpoint = urlsplit(self.ai_azure_openai_endpoint)
-                if endpoint.scheme.lower() != "https" or not endpoint.hostname or endpoint.path.rstrip("/"):
-                    raise ValueError("AI endpoint must be an HTTPS Azure OpenAI resource origin")
+                if endpoint.scheme.lower() != "https" or not endpoint.hostname or endpoint.query or endpoint.fragment:
+                    raise ValueError("AI endpoint must be an HTTPS Microsoft Foundry endpoint")
                 host = endpoint.hostname.lower()
-                if not (host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com")):
-                    raise ValueError("AI endpoint host is not an approved Azure OpenAI host")
+                path_parts = [part for part in endpoint.path.rstrip("/").split("/") if part]
+                if not host.endswith(".services.ai.azure.com") or len(path_parts) != 3 or path_parts[:2] != ["api", "projects"]:
+                    raise ValueError("AI endpoint must be a Microsoft Foundry project endpoint")
                 if self.ai_uami_client_id.lower() == self.azure_sql_uami_client_id.lower() or self.ai_uami_principal_id.lower() == self.azure_sql_uami_principal_id.lower():
                     raise ValueError("AI and SQL managed identities must be separate")
                 if self.ai_max_context_items != 8 or self.ai_max_context_utf8_bytes != 16384 or self.ai_max_output_tokens != 6000:

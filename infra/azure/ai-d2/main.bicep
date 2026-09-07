@@ -2,10 +2,10 @@ targetScope = 'resourceGroup'
 
 @description('The exact preproduction AI UAMI name.')
 param aiIdentityName string = 'uami-proposalops-ai-preprod'
-@description('The exact preproduction Azure OpenAI account name.')
-param openAiAccountName string
-@description('The exact deployment name frozen by AI-D2.')
-param deploymentName string = 'proposalops-gpt51-methodology-v1'
+@description('The existing Microsoft Foundry account name.')
+param aiAccountName string
+@description('The existing Microsoft Foundry project name.')
+param projectName string
 @description('The approved Entra tenant.')
 param tenantId string
 
@@ -14,50 +14,25 @@ resource aiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31
   location: resourceGroup().location
 }
 
-resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
-  name: openAiAccountName
-  location: 'uaenorth'
-  kind: 'OpenAI'
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    customSubDomainName: openAiAccountName
-    publicNetworkAccess: 'Enabled'
-    disableLocalAuth: true
-  }
-  sku: {
-    name: 'S0'
-  }
+resource aiAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
+  name: aiAccountName
 }
 
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
-  parent: openAi
-  name: deploymentName
-  sku: {
-    name: 'Standard'
-    capacity: 1
-  }
-  properties: {
-    model: {
-      format: 'OpenAI'
-      name: 'gpt-5.1'
-      version: '2025-11-13'
-    }
-    raiPolicyName: 'Microsoft.Default'
-  }
+resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' existing = {
+  parent: aiAccount
+  name: projectName
 }
 
-resource openAiUserRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+resource foundryUserRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: subscription()
-  name: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
+  name: '53ca6127-db72-4b80-b1b0-d745d6d5456d'
 }
 
 resource inferenceRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(openAi.id, aiIdentityName, openAiUserRole.id)
-  scope: openAi
+  name: guid(aiProject.id, aiIdentityName, foundryUserRole.id)
+  scope: aiProject
   properties: {
-    roleDefinitionId: openAiUserRole.id
+    roleDefinitionId: foundryUserRole.id
     principalId: aiIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -67,6 +42,9 @@ output aiIdentityResourceId string = aiIdentity.id
 output aiIdentityClientId string = aiIdentity.properties.clientId
 output aiIdentityPrincipalId string = aiIdentity.properties.principalId
 output tenant string = tenantId
-output openAiResourceId string = openAi.id
-output endpoint string = openAi.properties.endpoint
-output deployment string = deployment.name
+output aiAccountResourceId string = aiAccount.id
+output projectResourceId string = aiProject.id
+output endpoint string = 'https://${aiAccountName}.services.ai.azure.com/api/projects/${projectName}'
+output accessMode string = 'INSTANT'
+output model string = 'gpt-5-mini'
+output modelVersion string = '2025-08-07'

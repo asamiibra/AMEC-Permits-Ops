@@ -45,7 +45,7 @@ def _prove_synthetic(db: Session, manifest) -> None:
             continue
         version = db.get(DocumentVersion, item.document_version_id)
         metadata = version.metadata_json if version is not None else {}
-        proven = version is not None and (version.synthetic_content is not None or (metadata.get("synthetic_only") is True and str(version.source_system).upper() in {"SYNTHETIC", "MOCK"}))
+        proven = version is not None and (version.synthetic_content is not None or (metadata.get("synthetic_only") is True and str(version.source_system).upper() in {"SYNTHETIC", "MOCK"}) or (metadata.get("synthetic") is True and str(version.source_system).upper() == "SYNTHETIC_SYNOLOGY"))
         if not proven:
             raise AIError("AI_D3_CONTEXT_SYNTHETIC_PROVENANCE_UNPROVEN", status_code=403)
 
@@ -88,7 +88,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     reservation_db = SessionLocal()
     reservation = None
     try:
-        reservation = reserve_execution(reservation_db, settings=settings, idempotency_key=client_request_id, correlation_id=correlation_id, actor_user_id=principal.user_id, auth_mode=principal.auth_mode, purpose=manifest.purpose.value, execution_mode=manifest.execution_mode.value, project_id=project_id, target_entity_type=manifest.scope.target_entity_type.value, target_entity_id=manifest.scope.target_entity_id, architecture_version=manifest.architecture_version, policy_version=manifest.policy_version, context_fingerprint=manifest.manifest_fingerprint, request_fingerprint=request_fingerprint, provider=AI_ARCHITECTURE.provider, provider_region=settings.ai_azure_openai_region, deployment_name=settings.ai_azure_openai_deployment, model_name=settings.ai_azure_openai_expected_model, model_version=settings.ai_azure_openai_expected_version, citation_count=len(manifest.items), provider_input=provider_input)
+        reservation = reserve_execution(reservation_db, settings=settings, idempotency_key=client_request_id, correlation_id=correlation_id, actor_user_id=principal.user_id, auth_mode=principal.auth_mode, purpose=manifest.purpose.value, execution_mode=manifest.execution_mode.value, project_id=project_id, target_entity_type=manifest.scope.target_entity_type.value, target_entity_id=manifest.scope.target_entity_id, architecture_version=manifest.architecture_version, policy_version=manifest.policy_version, context_fingerprint=manifest.manifest_fingerprint, request_fingerprint=request_fingerprint, provider=AI_ARCHITECTURE.provider, provider_region=settings.ai_project_region, deployment_name=settings.ai_azure_openai_deployment or "INSTANT_ACCESS", model_name=settings.ai_azure_openai_expected_model, model_version=settings.ai_azure_openai_expected_version, citation_count=len(manifest.items), provider_input=provider_input)
         reserve_audit(reservation_db, ledger=reservation.ledger, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER")
         reservation_db.commit()
     except AIError as exc:
@@ -137,7 +137,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     # returning the transient draft to the browser.
     final_db = SessionLocal()
     try:
-        finalize_success(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", usage=result.usage, estimated_cost=estimated_cost, output_fingerprint=fingerprint, citation_count=len(citation_map), provider_response_id=result.response_id)
+        finalize_success(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", usage=result.usage, estimated_cost=estimated_cost, output_fingerprint=fingerprint, citation_count=len(citation_map), provider_response_id=result.response_id, actual_model=result.model_name, actual_version=result.model_version, access_mode=result.access_mode, latency_ms=result.latency_ms)
         final_db.commit()
     except Exception as exc:
         final_db.rollback()
@@ -145,4 +145,4 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     finally:
         final_db.close()
 
-    return {"execution_id": reservation.ledger.id, "status": "DRAFT_ONLY", "draft": draft.model_dump(mode="json"), "citations": citation_map, "context_fingerprint": manifest.manifest_fingerprint, "request_fingerprint": request_fingerprint, "output_fingerprint": fingerprint, "model": {"provider": AI_ARCHITECTURE.provider, "model": settings.ai_azure_openai_expected_model, "version": settings.ai_azure_openai_expected_version}, "usage": {"input_tokens": result.usage.input_tokens, "output_tokens": result.usage.output_tokens, "total_tokens": result.usage.total_tokens, "estimated_cost_usd": estimated_cost}, "draft_only": True, "human_review_required": True, "canonical_state_mutated": False, "protected_action_count": 0, "background_task_count": 0}
+    return {"execution_id": reservation.ledger.id, "status": "DRAFT_ONLY", "draft": draft.model_dump(mode="json"), "citations": citation_map, "context_fingerprint": manifest.manifest_fingerprint, "request_fingerprint": request_fingerprint, "output_fingerprint": fingerprint, "model": {"provider": AI_ARCHITECTURE.provider, "access_mode": result.access_mode, "region": settings.ai_project_region, "model": result.model_name, "version": result.model_version}, "usage": {"input_tokens": result.usage.input_tokens, "output_tokens": result.usage.output_tokens, "total_tokens": result.usage.total_tokens, "estimated_cost_usd": estimated_cost}, "draft_only": True, "human_review_required": True, "canonical_state_mutated": False, "protected_action_count": 0, "background_task_count": 0}

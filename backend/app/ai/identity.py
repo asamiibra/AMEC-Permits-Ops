@@ -30,10 +30,12 @@ def _guid_equal(left: object, right: str) -> bool:
     return str(left or "").lower() == right.lower()
 
 
-def _approved_audience(value: object) -> bool:
+def _approved_audience(value: object, settings: Settings) -> bool:
     if not isinstance(value, str):
         return False
     normalized = value.rstrip("/").lower()
+    if normalized == settings.ai_token_resource.rstrip("/").lower():
+        return True
     return normalized in {
         "https://cognitiveservices.azure.com",
         "https://azure.cognitiveservices.azure.com",
@@ -47,7 +49,7 @@ def acquire_ai_token(settings: Settings) -> str:
         raise AIError("AI_PROVIDER_IDENTITY_DENIED", status_code=503)
     parsed = urlsplit(endpoint)
     query = dict(parse_qsl(parsed.query, keep_blank_values=True))
-    query.update({"resource": "https://cognitiveservices.azure.com", "client_id": settings.ai_uami_client_id, "api-version": "2019-08-01"})
+    query.update({"resource": settings.ai_token_resource.rstrip("/"), "client_id": settings.ai_uami_client_id, "api-version": "2019-08-01"})
     request_url = urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
     try:
         response = httpx.get(request_url, headers={"X-IDENTITY-HEADER": header_value}, timeout=settings.ai_identity_timeout_seconds, follow_redirects=False)
@@ -64,6 +66,6 @@ def acquire_ai_token(settings: Settings) -> str:
     except (ValueError, KeyError, TypeError) as exc:
         raise AIError("AI_PROVIDER_IDENTITY_DENIED", status_code=503) from exc
     claims = _claims(str(token))
-    if not (_guid_equal(claims.get("oid"), settings.ai_uami_principal_id) and _guid_equal(claims.get("tid"), settings.ai_azure_tenant_id) and _approved_audience(claims.get("aud"))):
+    if not (_guid_equal(claims.get("oid"), settings.ai_uami_principal_id) and _guid_equal(claims.get("tid"), settings.ai_azure_tenant_id) and _approved_audience(claims.get("aud"), settings)):
         raise AIError("AI_PROVIDER_IDENTITY_TOKEN_MISMATCH", status_code=503)
     return str(token)

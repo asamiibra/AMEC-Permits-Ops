@@ -1,4 +1,4 @@
-"""Frozen AI-D0/D1 contracts.
+"""Frozen AI-D0/D3 contracts.
 
 The model binding in this module is an architectural target only.  It is not
 evidence that a hosted model is deployed, reachable, or approved for real
@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from ..services.governed_retrieval import RetrievalCitation
 
 
-ARCHITECTURE_CONTRACT_VERSION = "AI-D0-D1-ARCHITECTURE-1.0"
+ARCHITECTURE_CONTRACT_VERSION = "AI-D0-D3-ARCHITECTURE-1.1"
 MANIFEST_CONTRACT_VERSION = "AI-CONTEXT-MANIFEST-1.0"
 POLICY_VERSION = "ENGINEERING_TECHNICAL_DRAFT-1.0"
 MAX_CONTEXT_ITEMS = 20
@@ -47,12 +47,13 @@ class AIArchitectureContract(BaseModel):
     )
     auto_mode_allowed: Literal[False] = False
     hidden_interactive_background_fallback: Literal[False] = False
-    provider: Literal["AZURE_OPENAI_FOUNDRY"] = "AZURE_OPENAI_FOUNDRY"
-    model: Literal["gpt-5.1"] = "gpt-5.1"
-    model_version: Literal["2025-11-13"] = "2025-11-13"
-    deployment_type: Literal["Standard"] = "Standard"
-    resource_region: Literal["uaenorth"] = "uaenorth"
-    processing_boundary: Literal["UAE_NORTH_REGIONAL"] = "UAE_NORTH_REGIONAL"
+    provider: Literal["AZURE_FOUNDRY"] = "AZURE_FOUNDRY"
+    access_mode: Literal["INSTANT"] = "INSTANT"
+    model: Literal["gpt-5-mini"] = "gpt-5-mini"
+    model_version: Literal["2025-08-07"] = "2025-08-07"
+    deployment_type: Literal["INSTANT_ACCESS"] = "INSTANT_ACCESS"
+    resource_region: Literal["westus3"] = "westus3"
+    processing_boundary: Literal["GLOBAL"] = "GLOBAL"
     model_router_allowed: Literal[False] = False
     fallback_models: tuple[str, ...] = ()
     provider_managed_memory_allowed: Literal[False] = False
