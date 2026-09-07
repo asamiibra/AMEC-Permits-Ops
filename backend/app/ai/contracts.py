@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from ..services.governed_retrieval import RetrievalCitation
 
 
-ARCHITECTURE_CONTRACT_VERSION = "AI-D0-D1-ARCHITECTURE-1.0"
+ARCHITECTURE_CONTRACT_VERSION = "AI-D4-SYNTHETIC-RUNTIME-1.0"
 MANIFEST_CONTRACT_VERSION = "AI-CONTEXT-MANIFEST-1.0"
 POLICY_VERSION = "ENGINEERING_TECHNICAL_DRAFT-1.0"
 MAX_CONTEXT_ITEMS = 20
@@ -50,15 +50,15 @@ class AIArchitectureContract(BaseModel):
     provider: Literal["AZURE_OPENAI_FOUNDRY"] = "AZURE_OPENAI_FOUNDRY"
     model: Literal["gpt-5.1"] = "gpt-5.1"
     model_version: Literal["2025-11-13"] = "2025-11-13"
-    deployment_type: Literal["Standard"] = "Standard"
+    deployment_type: Literal["GlobalStandard"] = "GlobalStandard"
     resource_region: Literal["uaenorth"] = "uaenorth"
-    processing_boundary: Literal["UAE_NORTH_REGIONAL"] = "UAE_NORTH_REGIONAL"
+    processing_boundary: Literal["GLOBAL_AZURE"] = "GLOBAL_AZURE"
     model_router_allowed: Literal[False] = False
     fallback_models: tuple[str, ...] = ()
     provider_managed_memory_allowed: Literal[False] = False
     provider_managed_threads_allowed: Literal[False] = False
     real_content_allowed: Literal[False] = False
-    external_invocation_enabled: Literal[False] = False
+    external_invocation_enabled: Literal[True] = True
     canonical_write_authority: Literal["ZERO"] = "ZERO"
     protected_action_authority: Literal["ZERO"] = "ZERO"
     second_rag_store: Literal[False] = False

@@ -131,8 +131,8 @@ def db():
         session.close()
 
 
-def test_d0_contract_is_exact_and_has_no_auto_or_fallback():
-    assert AI_ARCHITECTURE.architecture_version == "AI-D0-D1-ARCHITECTURE-1.0"
+def test_current_contract_is_exact_and_has_no_auto_or_fallback():
+    assert AI_ARCHITECTURE.architecture_version == "AI-D4-SYNTHETIC-RUNTIME-1.0"
     assert AI_ARCHITECTURE.execution_modes == (
         AIExecutionMode.INTERACTIVE,
         AIExecutionMode.BACKGROUND,
@@ -142,15 +142,15 @@ def test_d0_contract_is_exact_and_has_no_auto_or_fallback():
     assert AI_ARCHITECTURE.provider == "AZURE_OPENAI_FOUNDRY"
     assert AI_ARCHITECTURE.model == "gpt-5.1"
     assert AI_ARCHITECTURE.model_version == "2025-11-13"
-    assert AI_ARCHITECTURE.deployment_type == "Standard"
+    assert AI_ARCHITECTURE.deployment_type == "GlobalStandard"
     assert AI_ARCHITECTURE.resource_region == "uaenorth"
-    assert AI_ARCHITECTURE.processing_boundary == "UAE_NORTH_REGIONAL"
+    assert AI_ARCHITECTURE.processing_boundary == "GLOBAL_AZURE"
     assert AI_ARCHITECTURE.model_router_allowed is False
     assert AI_ARCHITECTURE.fallback_models == ()
     assert AI_ARCHITECTURE.provider_managed_memory_allowed is False
     assert AI_ARCHITECTURE.provider_managed_threads_allowed is False
     assert AI_ARCHITECTURE.real_content_allowed is False
-    assert AI_ARCHITECTURE.external_invocation_enabled is False
+    assert AI_ARCHITECTURE.external_invocation_enabled is True
     assert AI_ARCHITECTURE.canonical_write_authority == "ZERO"
     assert AI_ARCHITECTURE.protected_action_authority == "ZERO"
 

@@ -75,7 +75,7 @@ class Settings(BaseSettings):
     monitoring_mode: str = "DISABLED"
     applicationinsights_connection_string: str = ""
 
-    # AI-D2/D3 is disabled by default and fail-closed when enabled in
+    # AI-D4/D5 is disabled by default and fail-closed when enabled in
     # preproduction.  These values are deployment configuration, never
     # browser-selectable request fields.
     ai_enabled: bool = False
@@ -85,7 +85,8 @@ class Settings(BaseSettings):
     ai_azure_openai_expected_model: str = "gpt-5.1"
     ai_azure_openai_expected_version: str = "2025-11-13"
     ai_azure_openai_region: str = "uaenorth"
-    ai_azure_openai_deployment_type: str = "Standard"
+    ai_azure_openai_deployment_type: str = "GlobalStandard"
+    ai_azure_openai_processing_boundary: str = "GLOBAL_AZURE"
     ai_uami_client_id: str = ""
     ai_uami_principal_id: str = ""
     ai_azure_tenant_id: str = ""
@@ -335,12 +336,16 @@ class Settings(BaseSettings):
 
             if self.ai_enabled:
                 if self.ai_real_content_allowed or not self.synthetic_only or self.real_data_allowed:
-                    raise ValueError("AI-D2/D3 preprod requires synthetic-only real-content gates")
+                    raise ValueError("AI-D4/D5 preprod requires synthetic-only real-content gates")
                 if self.ai_azure_openai_deployment != "proposalops-gpt51-methodology-v1":
                     raise ValueError("AI deployment name is frozen")
                 if self.ai_azure_openai_expected_model != "gpt-5.1" or self.ai_azure_openai_expected_version != "2025-11-13":
                     raise ValueError("AI model/version is frozen")
-                if self.ai_azure_openai_region != "uaenorth" or self.ai_azure_openai_deployment_type != "Standard":
+                if (
+                    self.ai_azure_openai_region != "uaenorth"
+                    or self.ai_azure_openai_deployment_type != "GlobalStandard"
+                    or self.ai_azure_openai_processing_boundary != "GLOBAL_AZURE"
+                ):
                     raise ValueError("AI region/deployment type is frozen")
                 for setting_name, value in (
                     ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),

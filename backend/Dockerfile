@@ -57,6 +57,7 @@ RUN set -eux; \
 COPY backend/__init__.py /workspace/backend/__init__.py
 COPY backend/app /workspace/backend/app
 COPY backend/migrations /workspace/backend/migrations
+COPY alembic.ini /workspace/alembic.ini
 
 RUN groupadd --gid 10001 proposalops \
     && useradd --uid 10001 --gid 10001 --create-home \
