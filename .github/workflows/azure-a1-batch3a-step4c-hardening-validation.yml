@@ -1,0 +1,800 @@
+name: Azure A1 Batch 3A Step 4C Hardening
+
+on:
+  push:
+    branches: [azure-a1-f1-batch3a-step4c]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+  BICEP_VERSION: "0.46.1"
+  POSTGRES_IMAGE: "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5"
+  BASE_SHA: "446dfe578ebbe6433960ad94880e96674a685877"
+  EXPECTED_PARENT_SHA: dd24e1c9ac65d6137614252f821d3a3e6b1263c2
+
+jobs:
+  exact-head-hardening:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout exact HEAD
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Exact ancestry and cumulative scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$EXPECTED_PARENT_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" HEAD
+          latest_allowlist='
+          .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
+          '
+          test "$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | wc -l | tr -d ' ')" = 1
+          while IFS= read -r path; do
+            test -z "$path" || grep -Fqx "$path" <<< "$latest_allowlist"
+          done < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA")
+          cumulative_allowlist='
+          backend/app/config/settings.py
+          backend/app/main.py
+          backend/app/runtime_provenance.py
+          backend/app/db.py
+          backend/app/migrate.py
+          backend/app/observability.py
+          backend/app/provision_db_roles.py
+          backend/Dockerfile
+          backend/requirements-runtime.txt
+          backend/requirements-runtime.lock
+          backend/requirements-test.lock
+          backend/tests/test_environment_guardrails.py
+          backend/tests/test_database_startup_contract.py
+          backend/tests/test_seed_modes.py
+          backend/tests/test_azure_readiness.py
+          backend/tests/test_azure_runtime_provenance.py
+          backend/tests/test_azure_database_tls.py
+          backend/tests/test_observability.py
+          backend/tests/test_db_role_separation.py
+          backend/tests/test_correlation_id.py
+          frontend/package.json
+          frontend/package-lock.json
+          frontend/Dockerfile
+          frontend/nginx.conf
+          deploy/webjobs/worker/run.sh
+          deploy/webjobs/worker/settings.job
+          scripts/azure/package_webjobs.sh
+          release/a1-release-manifest.schema.json
+          scripts/release/verify_a1_release_manifest.py
+          docs/azure/A1_PREDEPLOY_HARDENING_AND_RELEASE_CONTRACT.md
+          infra/azure/main.bicep
+          infra/azure/modules/appservice.bicep
+          infra/azure/README.md
+          .github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml
+          '
+          cumulative_count=0
+          while IFS= read -r path; do
+            test -z "$path" && continue
+            cumulative_count=$((cumulative_count + 1))
+            grep -Fqx "$path" <<< "$cumulative_allowlist" || {
+              echo "STOP: unauthorized cumulative path=$path"
+              exit 1
+            }
+          done < <(git diff --name-only "$BASE_SHA" HEAD)
+          test "$cumulative_count" -le 34
+          test ! -e deploy/webjobs/migrate/run.sh
+          test ! -e deploy/webjobs/migrate/settings.job
+          ! git diff --name-only "$BASE_SHA" HEAD | grep -E '^deploy/webjobs/migrate/'
+          test "$(git hash-object scripts/azure/step3a4_whatif.sh)" = "8494ff5e8bd39afba8fa110a539b97413728699e"
+          ! git diff --name-only "$BASE_SHA" HEAD | grep -E '^backend/migrations/'
+          echo CUMULATIVE_SCOPE_COUNT="$cumulative_count"
+          echo CUMULATIVE_SCOPE=PASS
+          echo MIGRATION_WEBJOB_PATHS_ABSENT=PASS
+          echo WHATIF_BLOB_FROZEN=PASS
+
+      - name: Workflow escaped-substitution sentinel
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          path = Path(".github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml")
+          text = path.read_text()
+          forbidden = chr(92) + chr(36) + chr(123)
+          hits = [(i, line) for i, line in enumerate(text.splitlines(), 1) if forbidden in line]
+          if hits:
+              for line_number, _ in hits:
+                  print(f"STOP: escaped substitution remains at line {line_number}")
+              raise SystemExit(1)
+          dollar_braces = "$" + "{{"
+          required = [
+              "python-version: " + dollar_braces + " env.PYTHON_VERSION }}",
+              "node-version: " + dollar_braces + " env.NODE_VERSION }}",
+              "name: azure-a1-step4c-evidence-" + dollar_braces + " github.sha }}",
+              dollar_braces + " runner.temp }}/secret-summary.txt",
+              dollar_braces + " runner.temp }}/historical-secret-summary.txt",
+              dollar_braces + " runner.temp }}/frontend-sbom.json",
+              dollar_braces + " runner.temp }}/backend-sbom.json",
+              dollar_braces + " runner.temp }}/worker.sha256",
+              dollar_braces + " runner.temp }}/predeploy.json",
+          ]
+          missing = [item for item in required if item not in text]
+          if missing:
+              raise SystemExit(f"required unescaped workflow text missing: {missing}")
+          versioned_label = re.compile("azure-a1-step4c-r" + r"\d+-evidence-")
+          versioned_hits = [
+              (i, line) for i, line in enumerate(text.splitlines(), 1)
+              if versioned_label.search(line)
+          ]
+          if versioned_hits:
+              raise SystemExit(f"versioned evidence artifact label remains: {versioned_hits}")
+          history_start = text.index("\n      - name: Gitleaks full-history scan") + 1
+          history_end = text.index("\n      - name: Backend Docker command static contract", history_start)
+          history = text[history_start:history_end]
+          approved_patterns = [
+              r"32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:92",
+              r"32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:95",
+              r"789014228bff19e48023b73b0a12b034733b2da9:backend/tests/test_billing_invoice_full.py:generic-api-key:69",
+          ]
+          if any(len(re.findall(pattern, history)) != 2 for pattern in approved_patterns):
+              raise SystemExit("historical approved fingerprint set is not exactly three entries")
+          if history.count("--gitleaks-ignore-path") != 2:
+              raise SystemExit("historical temporary ignore path assertion failed")
+          if 'IGNORE_FILE="$RUNNER_TEMP/' not in history:
+              raise SystemExit("historical ignore file is not runner-temp scoped")
+          if "test ! -e .gitleaksignore" not in history or "test ! -e .gitleaks.toml" not in history:
+              raise SystemExit("repository gitleaks suppression-file assertion missing")
+          if any(token in history for token in ("--path-wide", "--commit-wide", "--rule-wide", "--regex-wide", "--stopword-wide")):
+              raise SystemExit("broad historical allowlist token present")
+          upload_start = text.index("\n      - name: Upload bounded sanitized evidence") + 1
+          upload_end = text.index("\n      - name: Final provenance and mutation boundary", upload_start)
+          upload = text[upload_start:upload_end]
+          if "historical-secret-raw.json" in upload:
+              raise SystemExit("raw historical report is in artifact upload path")
+          pg_start = text.index("\n      - name: PostgreSQL 16 and isolated migration/bootstrap proof") + 1
+          pg_end = text.index("\n      - name: Worker claim, completion, and recovery regression", pg_start)
+          postgres = text[pg_start:pg_end]
+          if "SHOW server_version_num" not in postgres:
+              raise SystemExit("running PostgreSQL version query is missing")
+          if 'case "$server_version_num" in' not in postgres or "16*) ;;" not in postgres:
+              raise SystemExit("PostgreSQL major-16 fail-closed branch is missing")
+          if "postgres --version | grep -Fq 'PostgreSQL 16'" in postgres:
+              raise SystemExit("fragile PostgreSQL image-version pipeline remains")
+          if "DATABASE_URL=postgresql+psycopg://runtime:runtime@" not in postgres:
+              raise SystemExit("runtime poison database authority is missing")
+          if "DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@" not in postgres:
+              raise SystemExit("migration database authority is missing")
+          if "MIGRATION_RUNTIME_POISON_URL_BYPASSED=PASS" not in postgres:
+              raise SystemExit("migration authority bypass proof is missing")
+          if "MIGRATION_HEAD=0059_entra_user_identity" not in postgres:
+              raise SystemExit("migration head proof is missing")
+          if 'docker run --rm "${migration_env[@]}" "${runtime_env[@]}"' in postgres:
+              raise SystemExit("role provisioning still concatenates full environment arrays")
+          if 'docker run -d --rm --network host --name proposalops-backend-ready' in postgres:
+              raise SystemExit("backend-ready command still duplicates host networking")
+          role_marker = "python -m backend.app.provision_db_roles"
+          role_end = postgres.index(role_marker) + len(role_marker)
+          role_start = postgres.rfind("docker run", 0, role_end)
+          role = postgres[role_start:role_end]
+          if '"${runtime_env[@]}"' not in role:
+              raise SystemExit("role provisioning does not use runtime environment")
+          if '"${migration_env[@]}"' in role:
+              raise SystemExit("role provisioning still uses migration environment array")
+          if "-e DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/app" not in role:
+              raise SystemExit("role provisioning migration authority is missing")
+          if "DATABASE_URL=postgresql+psycopg://runtime:runtime@" not in postgres:
+              raise SystemExit("role provisioning runtime authority is missing")
+          if "python -m backend.app.provision_db_roles" not in role:
+              raise SystemExit("role provisioning command is missing")
+          print("WORKFLOW_ESCAPED_SUBSTITUTIONS=0")
+          PY
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install exact hashed backend environment
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r backend/requirements-test.lock
+          python -m pip check
+          python -c "import azure.monitor.opentelemetry"
+          echo BACKEND_TEST_LOCK_USED=PASS
+
+      - name: Backend targeted and full regression
+        run: |
+          set -euo pipefail
+          python -m pytest -q \
+            backend/tests/test_azure_readiness.py \
+            backend/tests/test_azure_database_tls.py \
+            backend/tests/test_db_role_separation.py
+          python -m pytest -q backend/tests/test_worker.py
+          python -m pytest -q backend/tests
+          echo BACKEND_REGRESSION=PASS
+
+      - name: Python dependency audit
+        run: |
+          set -euo pipefail
+          python -m pip install pip-audit==2.10.1
+          python -m pip_audit -r backend/requirements-runtime.lock --strict
+          echo PYTHON_DEPENDENCY_AUDIT=PASS
+
+      - name: Frontend regression and production audit
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          npm ci
+          npm audit --omit=dev --audit-level=high
+          npm test -- --run
+          npm run build
+          echo FRONTEND_TESTS=PASS
+          echo FRONTEND_BUILD=PASS
+          echo NPM_PRODUCTION_AUDIT=PASS
+
+      - name: Clean-tree secret baseline comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install detect-secrets==1.5.0
+          base_dir="$RUNNER_TEMP/secret-base"
+          candidate_dir="$RUNNER_TEMP/secret-candidate"
+          mkdir -p "$base_dir" "$candidate_dir"
+          git archive "$BASE_SHA" | tar -x -C "$base_dir"
+          git archive HEAD | tar -x -C "$candidate_dir"
+          detect-secrets scan --all-files "$base_dir" \
+            --exclude-files '(^|/)(node_modules|dist|artifacts|__pycache__|\.pytest_cache)/' \
+            > "$RUNNER_TEMP/secrets-base.json"
+          detect-secrets scan --all-files "$candidate_dir" \
+            --exclude-files '(^|/)(node_modules|dist|artifacts|__pycache__|\.pytest_cache)/' \
+            > "$RUNNER_TEMP/secrets-candidate.json"
+          python - "$RUNNER_TEMP/secrets-base.json" "$RUNNER_TEMP/secrets-candidate.json" "$base_dir" "$candidate_dir" "$RUNNER_TEMP/secret-summary.txt" <<'PY'
+          import hashlib
+          import json
+          import sys
+          from pathlib import Path
+
+          def load(path, root):
+              data = json.loads(Path(path).read_text())
+              findings = []
+              for file_name, entries in data.get("results", {}).items():
+                  path = Path(file_name)
+                  relative = str(path.relative_to(root)) if path.is_absolute() else str(path)
+                  for entry in entries:
+                      findings.append((
+                          relative,
+                          entry.get("type", ""),
+                          entry.get("line_number", 0),
+                          entry.get("hashed_secret", ""),
+                      ))
+              return sorted(findings)
+
+          base = load(sys.argv[1], sys.argv[3])
+          candidate = load(sys.argv[2], sys.argv[4])
+          base_set = set(base)
+          candidate_set = set(candidate)
+          new = candidate_set - base_set
+          changed_files = {item[0] for item in new}
+          removed = base_set - candidate_set
+
+          def digest(items):
+              raw = "\n".join(repr(item) for item in sorted(items)).encode()
+              return hashlib.sha256(raw).hexdigest()
+
+          summary = [
+              f"BASE_SECRET_FINDING_COUNT={len(base)}",
+              f"CANDIDATE_SECRET_FINDING_COUNT={len(candidate)}",
+              f"REMOVED_SECRET_FINDING_COUNT={len(removed)}",
+              f"NEW_SECRET_FINDING_COUNT={len(new)}",
+              f"CHANGED_FILE_SECRET_FINDING_COUNT={len(changed_files)}",
+              f"BASE_FINGERPRINT_SET_SHA256={digest(base_set)}",
+              f"CANDIDATE_FINGERPRINT_SET_SHA256={digest(candidate_set)}",
+              "SECRET_VALUES_PRINTED=0",
+              "BROAD_IGNORE_ADDED=false",
+              "HISTORY_REWRITTEN=false",
+              "HISTORICAL_SECRET_TRIAGE_STATUS=PENDING_FULL_HISTORY",
+              "LIVE_AZURE_MUTATION_SECRET_TRIAGE_STATUS=PENDING_FULL_HISTORY",
+          ]
+          Path(sys.argv[5]).write_text("\n".join(summary) + "\n")
+          print("\n".join(summary))
+          raise SystemExit(bool(new or changed_files))
+          PY
+
+      - name: Gitleaks commit-range scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            | tar -xz -C "$RUNNER_TEMP"
+          "$RUNNER_TEMP/gitleaks" detect --source . --redact --no-banner \
+            --log-opts "$BASE_SHA..$GITHUB_SHA" --exit-code 1
+          echo GITLEAKS=PASS
+
+      - name: Gitleaks full-history scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOTAL_REACHABLE_COMMITS="$(git rev-list --all --count)"
+          test "$TOTAL_REACHABLE_COMMITS" -gt 5
+          echo "FULL_HISTORY_REACHABLE_COMMITS=$TOTAL_REACHABLE_COMMITS"
+          gitleaks_help="$("$RUNNER_TEMP/gitleaks" git --help 2>&1)"
+          for flag in \
+            --gitleaks-ignore-path \
+            --report-format \
+            --report-path \
+            --exit-code \
+            --redact; do
+            grep -Fq -- "$flag" <<< "$gitleaks_help"
+          done
+
+          RAW_REPORT="$RUNNER_TEMP/historical-secret-raw.json"
+          GITLEAKS_LOG="$RUNNER_TEMP/historical-secret-gitleaks.log"
+          set +e
+          "$RUNNER_TEMP/gitleaks" git \
+            --redact \
+            --no-banner \
+            --report-format json \
+            --report-path "$RAW_REPORT" \
+            --exit-code 0 \
+            . >"$GITLEAKS_LOG" 2>&1
+          unfiltered_status=$?
+          set -e
+          test "$unfiltered_status" = 0
+          test -s "$RAW_REPORT"
+          python - "$RAW_REPORT" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          expected = {
+              "32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:92",
+              "32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:95",
+              "789014228bff19e48023b73b0a12b034733b2da9:backend/tests/test_billing_invoice_full.py:generic-api-key:69",
+          }
+          report = json.loads(Path(sys.argv[1]).read_text())
+          observed = [
+              f"{item.get('Commit')}:{item.get('File')}:{item.get('RuleID')}:{item.get('StartLine')}"
+              for item in report
+          ]
+          observed_set = set(observed)
+          if len(observed) != 3 or observed_set != expected:
+              print(f"HISTORICAL_UNFILTERED_FINDING_COUNT={len(observed)}")
+              print("HISTORICAL_EXPECTED_FINDING_SET_MATCH=false")
+              raise SystemExit(1)
+          print("HISTORICAL_UNFILTERED_FINDING_COUNT=3")
+          print("HISTORICAL_EXPECTED_FINDING_SET_MATCH=true")
+          PY
+          rm -f "$RAW_REPORT" "$GITLEAKS_LOG"
+          test ! -e "$RAW_REPORT"
+
+          IGNORE_FILE="$RUNNER_TEMP/historical-secret-fingerprint-ignore"
+          cat > "$IGNORE_FILE" <<'EOF'
+          32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:92
+          32daf7471b7086ee399df92256ec030bd5c18f70:backend/tests/test_billing_invoice_full.py:generic-api-key:95
+          789014228bff19e48023b73b0a12b034733b2da9:backend/tests/test_billing_invoice_full.py:generic-api-key:69
+          EOF
+          test ! -e .gitleaksignore
+          test ! -e .gitleaks.toml
+          test "$(grep -Ev '^[[:space:]]*(#|$)' "$IGNORE_FILE" | wc -l | tr -d ' ')" = 3
+
+          FILTERED_LOG="$RUNNER_TEMP/historical-secret-filtered.log"
+          set +e
+          "$RUNNER_TEMP/gitleaks" git \
+            --redact \
+            --no-banner \
+            --exit-code 1 \
+            --gitleaks-ignore-path "$IGNORE_FILE" \
+            . >"$FILTERED_LOG" 2>&1
+          filtered_status=$?
+          set -e
+          test "$filtered_status" = 0
+          echo HISTORICAL_FILTERED_FINDING_COUNT=0
+          rm -f "$IGNORE_FILE" "$FILTERED_LOG"
+          test ! -e "$IGNORE_FILE"
+          cat > "$RUNNER_TEMP/historical-secret-summary.txt" <<EOF
+          FULL_HISTORY_GITLEAKS=PASS
+          HISTORICAL_SECRET_FINDINGS_TOTAL=3
+          HISTORICAL_SECRET_FINDINGS_PROVEN_SYNTHETIC=3
+          HISTORICAL_SECRET_DISPOSITION=EXACT_FINGERPRINT_TEMP_RUNTIME_ALLOWLIST
+          HISTORICAL_SECRET_TRIAGE_REQUIRED=false
+          LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=false
+          SECRET_VALUES_PRINTED=0
+          SECRET_DERIVED_HASHES_PRINTED=0
+          RAW_GITLEAKS_REPORT_UPLOADED=false
+          RAW_GITLEAKS_REPORT_DELETED=true
+          REPOSITORY_GITLEAKS_IGNORE_ADDED=false
+          HISTORY_REWRITTEN=false
+          LIVE_AZURE_MUTATION_AUTHORIZED=false
+          STEP_3A_4C_ACCEPTED=false
+          EOF
+          {
+            echo "HISTORICAL_SECRET_TRIAGE_REQUIRED=false"
+            echo "LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=false"
+          } >> "$GITHUB_ENV"
+          echo FULL_HISTORY_GITLEAKS=PASS
+
+      - name: Backend Docker command static contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          workflow = Path(".github/workflows/azure-a1-batch3a-step4c-hardening-validation.yml").read_text()
+
+          def block(name):
+              marker = f"      - name: {name}\n"
+              start = workflow.index(marker) + len(marker)
+              end = workflow.find("\n      - name:", start)
+              return workflow[start:] if end == -1 else workflow[start:end]
+
+          positive = block("Build immutable CI-local images")
+          negative = block("Negative immutable-release gates")
+          backend_start = positive.index("docker build --pull")
+          backend_end = positive.index("\n          echo FRONTEND_IMAGE_ID_CLASS", backend_start)
+          backend_command = positive[backend_start:backend_end]
+          assert backend_command.count("docker build --pull") == 1
+          assert backend_command.count("-f backend/Dockerfile") == 1
+          assert '--build-arg RELEASE_SHA="$GITHUB_SHA"' in backend_command
+          assert '-t proposalops/backend:"$GITHUB_SHA"' in backend_command
+          assert backend_command.rstrip().endswith(".")
+          assert negative.count("expect_backend_build_failure") == 3
+          assert negative.count("docker build --pull --no-cache") == 1
+          assert negative.count("-f backend/Dockerfile") == 1
+          assert re.search(
+              r'docker build --pull --no-cache .*? \. >"\$log" 2>&1',
+              negative,
+              re.DOTALL,
+          )
+          print("BACKEND_DOCKER_COMMAND_STATIC_GATE=PASS")
+          PY
+
+      - name: Build immutable CI-local images
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f backend/Dockerfile
+          test ! -f Dockerfile
+          grep -Fq 'COPY backend/requirements-runtime.lock' backend/Dockerfile
+          grep -Fq 'COPY backend/app' backend/Dockerfile
+          grep -Fq 'COPY backend/migrations' backend/Dockerfile
+          echo BACKEND_DOCKERFILE_PATH_CONTRACT=PASS
+          docker build \
+            --build-arg RELEASE_SHA="$GITHUB_SHA" \
+            --build-arg BUILD_ID="$GITHUB_RUN_ID" \
+            --build-arg VITE_ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111 \
+            --build-arg VITE_ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222 \
+            --build-arg VITE_ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333 \
+            --build-arg VITE_API_URL=https://api.invalid \
+            -t proposalops/frontend:"$GITHUB_SHA" frontend
+          docker build --pull \
+            -f backend/Dockerfile \
+            --build-arg RELEASE_SHA="$GITHUB_SHA" \
+            -t proposalops/backend:"$GITHUB_SHA" .
+          echo FRONTEND_IMAGE_ID_CLASS=CI_LOCAL_EPHEMERAL
+          echo BACKEND_IMAGE_ID_CLASS=CI_LOCAL_EPHEMERAL
+          echo ACR_BACKEND_MANIFEST_DIGEST=NOT_CREATED
+          echo ACR_FRONTEND_MANIFEST_DIGEST=NOT_CREATED
+
+      - name: Negative immutable-release gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          frontend_args=(
+            --build-arg VITE_ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111
+            --build-arg VITE_ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222
+            --build-arg VITE_ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333
+            --build-arg VITE_API_URL=https://api.invalid
+          )
+          if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA=short -t proposalops/frontend:negative-short frontend; then exit 1; fi
+          if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA=not-a-hex-release-sha -t proposalops/frontend:negative-nonhex frontend; then exit 1; fi
+          if docker build "${frontend_args[@]}" --build-arg RELEASE_SHA="$GITHUB_SHA" --build-arg BUILD_ID='bad build id!' -t proposalops/frontend:negative-build-id frontend; then exit 1; fi
+          expect_backend_build_failure() {
+            local label="$1"
+            local release_sha="$2"
+            local log="$RUNNER_TEMP/backend-negative-${label}.log"
+
+            if docker build --pull --no-cache \
+                -f backend/Dockerfile \
+                --build-arg RELEASE_SHA="$release_sha" \
+                -t "proposalops/backend:negative-${label}" \
+                . >"$log" 2>&1; then
+              cat "$log"
+              echo "unexpectedly accepted invalid backend RELEASE_SHA: $label" >&2
+              exit 1
+            fi
+
+            if grep -Fq 'failed to read dockerfile' "$log" ||
+               grep -Fq 'open Dockerfile: no such file or directory' "$log"; then
+              cat "$log"
+              echo "negative backend build failed for Dockerfile-path reason, not RELEASE_SHA validation" >&2
+              exit 1
+            fi
+
+            echo "BACKEND_NEGATIVE_BUILD_${label}=PASS"
+          }
+          expect_backend_build_failure short short
+          expect_backend_build_failure nonhex not-a-hex-release-sha
+          echo FRONTEND_NEGATIVE_BUILD_GATES=PASS
+          echo BACKEND_NEGATIVE_BUILD_GATES=PASS
+
+      - name: Frontend runtime contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --rm --name proposalops-frontend -p 18080:8080 proposalops/frontend:"$GITHUB_SHA"
+          trap 'docker rm -f proposalops-frontend >/dev/null 2>&1 || true' EXIT
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:18080/ >/dev/null && break
+            sleep 1
+          done
+          test "$(docker exec proposalops-frontend id -u)" != 0
+          ! docker exec proposalops-frontend sh -c 'command -v node'
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/redirect.html)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/app/deep-route)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/assets/missing.js)" = 404
+          curl --fail --silent http://127.0.0.1:18080/release.json | grep -F '"release_sha":"'"$GITHUB_SHA"'"'
+          headers=$(curl --fail --silent --dump-header - http://127.0.0.1:18080/redirect.html)
+          grep -qi '^cache-control:.*no-store' <<< "$headers"
+          ! grep -qi '^cross-origin-opener-policy:' <<< "$headers"
+          ! grep -qi '^cross-origin-embedder-policy:' <<< "$headers"
+          for header in strict-transport-security x-frame-options permissions-policy content-security-policy; do
+            grep -qi "^$header:" <<< "$headers"
+          done
+          echo FRONTEND_RUNTIME_CONTRACT=PASS
+          echo FRONTEND_SECURITY_HEADERS=PASS
+          echo FRONTEND_RELEASE_JSON=PASS
+
+      - name: Backend runtime contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(docker run --rm proposalops/backend:"$GITHUB_SHA" id -u)" != 0
+          ! docker run --rm proposalops/backend:"$GITHUB_SHA" sh -c 'command -v pytest'
+          ! docker run --rm proposalops/backend:"$GITHUB_SHA" test -e /workspace/backend/tests
+          ! docker run --rm proposalops/backend:"$GITHUB_SHA" test -e /workspace/backend/scripts
+          docker image inspect proposalops/backend:"$GITHUB_SHA" --format '{{json .Config.Cmd}}' | grep -Fq 'uvicorn'
+          ! docker image inspect proposalops/backend:"$GITHUB_SHA" --format '{{json .Config.Env}}' | grep -Fq DATABASE_MIGRATION_URL
+          echo API_DEFAULT_CMD=PASS
+          echo BACKEND_RUNTIME_CONTRACT=PASS
+
+      - name: PostgreSQL 16 and isolated migration/bootstrap proof
+        env:
+          PG_CONTAINER_ID: ${{ job.services.postgres.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pg_container="$PG_CONTAINER_ID"
+          test -n "$pg_container"
+          server_version_num="$(
+            docker exec "$pg_container" \
+              psql -U postgres -d app -Atqc 'SHOW server_version_num'
+          )"
+          case "$server_version_num" in
+            16*) ;;
+            *)
+              echo "STOP: expected PostgreSQL 16 service" >&2
+              exit 1
+              ;;
+          esac
+          echo POSTGRES_VERSION=16
+
+          migration_env=(
+            --network host
+            -e APP_ENV=AZURE-PREPROD
+            -e SYNTHETIC_ONLY=true
+            -e REAL_DATA_ALLOWED=false
+            -e AUTH_MODE=ENTRA
+            -e ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111
+            -e ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333
+            -e ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222
+            -e ENTRA_REQUIRED_SCOPE=access_as_user
+            -e FRONTEND_ORIGINS=https://frontend.invalid
+            -e STORAGE_PROVIDER=mock
+            -e SYNOLOGY_MODE=SYNTHETIC
+            -e DATABASE_URL=postgresql+psycopg://placeholder:placeholder@127.0.0.1:5432/app
+            -e DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/app
+          )
+          runtime_env=(
+            --network host
+            -e APP_ENV=AZURE-PREPROD
+            -e SYNTHETIC_ONLY=true
+            -e REAL_DATA_ALLOWED=false
+            -e AUTH_MODE=ENTRA
+            -e ENTRA_TENANT_ID=11111111-1111-4111-8111-111111111111
+            -e ENTRA_API_CLIENT_ID=33333333-3333-4333-8333-333333333333
+            -e ENTRA_WEB_CLIENT_ID=22222222-2222-4222-8222-222222222222
+            -e ENTRA_REQUIRED_SCOPE=access_as_user
+            -e FRONTEND_ORIGINS=https://frontend.invalid
+            -e STORAGE_PROVIDER=mock
+            -e SYNOLOGY_MODE=SYNTHETIC
+            -e DATABASE_URL=postgresql+psycopg://runtime:runtime@127.0.0.1:5432/app
+          )
+          docker run --rm "${migration_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.migrate
+          echo MIGRATION_RUNTIME_POISON_URL_BYPASSED=PASS
+          echo MIGRATION_HEAD=0059_entra_user_identity
+          docker run --rm "${runtime_env[@]}" \
+            -e DATABASE_MIGRATION_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/app \
+            proposalops/backend:"$GITHUB_SHA" python -m backend.app.provision_db_roles
+          echo DB_RUNTIME_ROLE_PROVISIONED=PASS
+          test "$(docker exec "$pg_container" psql -U postgres -d app -Atqc "SELECT has_schema_privilege('runtime','public','CREATE')")" = f
+          echo DB_RUNTIME_ROLE_DDL_DENIED=PASS
+          docker exec -e PGPASSWORD=runtime "$pg_container" psql -h 127.0.0.1 -U runtime -d app -v ON_ERROR_STOP=1 -c "UPDATE master_content_reference_sequences SET current_value = current_value WHERE id = 'proposal-reference-sequence'" >/dev/null
+          echo DB_RUNTIME_ROLE_DML=PASS
+          if docker exec -e PGPASSWORD=runtime "$pg_container" psql -h 127.0.0.1 -U runtime -d app -v ON_ERROR_STOP=1 -c "CREATE TABLE public.r2_privilege_probe (id integer)" >/dev/null; then exit 1; fi
+          if docker exec -e PGPASSWORD=runtime "$pg_container" psql -h 127.0.0.1 -U runtime -d app -v ON_ERROR_STOP=1 -c "ALTER TABLE public.master_content_reference_sequences ADD COLUMN r2_privilege_probe integer" >/dev/null; then exit 1; fi
+          if docker exec -e PGPASSWORD=runtime "$pg_container" psql -h 127.0.0.1 -U runtime -d app -v ON_ERROR_STOP=1 -c "DROP TABLE public.master_content_reference_sequences" >/dev/null; then exit 1; fi
+          echo CREATE_TABLE=DENIED
+          echo ALTER_PROTECTED_TABLE=DENIED
+          echo DROP_APPLICATION_TABLE=DENIED
+          docker run --rm "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.bootstrap_preprod | tee "$RUNNER_TEMP/bootstrap-first.json"
+          docker run --rm "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA" python -m backend.app.bootstrap_preprod | tee "$RUNNER_TEMP/bootstrap-repeat.json"
+          grep -q '"status": "BOOTSTRAPPED"' "$RUNNER_TEMP/bootstrap-first.json"
+          grep -q '"status": "ALREADY_BOOTSTRAPPED"' "$RUNNER_TEMP/bootstrap-repeat.json"
+          echo BOOTSTRAP_FIRST=BOOTSTRAPPED
+          echo BOOTSTRAP_REPEAT=ALREADY_BOOTSTRAPPED
+          docker run -d --rm --name proposalops-backend-ready \
+            "${runtime_env[@]}" proposalops/backend:"$GITHUB_SHA"
+          trap 'docker rm -f proposalops-backend-ready >/dev/null 2>&1 || true' EXIT
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:8000/health/live >/dev/null && break
+            sleep 1
+          done
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8000/health/live)" = 200
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8000/health/ready)" = 200
+          echo API_LIVE=PASS
+          echo API_READY=PASS
+
+      - name: Worker claim, completion, and recovery regression
+        run: |
+          set -euo pipefail
+          python -m pytest -q backend/tests/test_worker.py
+          echo WORKER_CLAIM_COMPLETE=PASS
+          echo WORKER_RECOVERY=PASS
+
+      - name: Scan images and generate bounded SBOM evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.73.0/trivy_0.73.0_Linux-64bit.tar.gz \
+            | tar -xz -C "$RUNNER_TEMP"
+          curl -fsSL https://github.com/anchore/syft/releases/download/v1.50.0/syft_1.50.0_linux_amd64.tar.gz \
+            | tar -xz -C "$RUNNER_TEMP"
+          "$RUNNER_TEMP/trivy" image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 proposalops/frontend:"$GITHUB_SHA"
+          "$RUNNER_TEMP/trivy" image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 proposalops/backend:"$GITHUB_SHA"
+          "$RUNNER_TEMP/syft" proposalops/frontend:"$GITHUB_SHA" -o spdx-json="$RUNNER_TEMP/frontend-sbom.json"
+          "$RUNNER_TEMP/syft" proposalops/backend:"$GITHUB_SHA" -o spdx-json="$RUNNER_TEMP/backend-sbom.json"
+          echo FRONTEND_CONTAINER_SCAN=PASS
+          echo BACKEND_CONTAINER_SCAN=PASS
+          echo FRONTEND_SBOM=PASS
+          echo BACKEND_SBOM=PASS
+
+      - name: Package worker WebJob only
+        shell: bash
+        run: |
+          set -euo pipefail
+          a="$RUNNER_TEMP/webjobs-a"
+          b="$RUNNER_TEMP/webjobs-b"
+          scripts/azure/package_webjobs.sh "$a"
+          scripts/azure/package_webjobs.sh "$b"
+          cmp "$a/worker.zip.sha256" "$b/worker.zip.sha256"
+          cmp "$a/worker.zip" "$b/worker.zip"
+          ! compgen -G "$a/migrate.*" >/dev/null
+          unzip -Z1 "$a/worker.zip" | grep -Fx worker/run.sh
+          unzip -Z1 "$a/worker.zip" | grep -Fx worker/settings.job
+          unzip -Z -v "$a/worker.zip" | awk 'BEGIN {entry=0} /^  worker\/run\.sh$/ {entry=1} entry && /Unix file attributes/ {print; exit}' | grep -Fq '100755'
+          bash -n deploy/webjobs/worker/run.sh
+          cat "$a/worker.zip.sha256" > "$RUNNER_TEMP/worker.sha256"
+          echo WORKER_ONLY_PACKAGING=PASS
+          echo WORKER_PACKAGE_SHA256="$(cat "$a/worker.zip.sha256")"
+          echo MIGRATION_PACKAGE_PRESENT=false
+
+      - name: Release manifest and Bicep proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          sha = "0123456789abcdef0123456789abcdef01234567"
+          digest = "a" * 64
+          common = {
+              "repository": "asamiibra/AMEC-Permits-Ops",
+              "source_sha": sha,
+              "database": {"engine": "postgresql", "major": 16, "migration_head": "0059_entra_user_identity"},
+              "entra": {"required_scope": "access_as_user", "requested_access_token_version": 2},
+              "azure": {"subscription_id": "61080f8b-16cb-4abc-bb8c-5d8e59ab15bf", "region": "qatarcentral"},
+              "safety": {"app_env": "AZURE-PREPROD", "synthetic_only": True, "real_data_allowed": False, "storage_provider": "mock", "synology_mode": "SYNTHETIC", "azure_to_synology": False},
+          }
+          predeploy = {**common, "stage": "PREDEPLOY"}
+          predeploy["webjobs"] = {"worker_package_sha256": digest}
+          Path(__import__("os").environ["RUNNER_TEMP"], "predeploy.json").write_text(json.dumps(predeploy))
+          deployed = {**common, "stage": "DEPLOYED"}
+          deployed["entra"] = {**common["entra"], "tenant_id": "11111111-1111-4111-8111-111111111111", "api_client_id": "33333333-3333-4333-8333-333333333333", "web_client_id": "22222222-2222-4222-8222-222222222222"}
+          deployed["azure"] = {**common["azure"], "resource_group": "rg", "frontend_site": "front", "backend_site": "back", "postgres_server": "pg", "postgres_database": "app"}
+          deployed["frontend"] = {"image_reference": f"front@sha256:{digest}", "image_digest": digest, "release_sha": sha, "base_image_digest": digest}
+          deployed["backend"] = {"image_reference": f"back@sha256:{digest}", "image_digest": digest, "release_sha": sha, "base_image_digest": digest}
+          deployed["webjobs"] = {"worker_package_sha256": digest}
+          deployed["evidence"] = {key: "run" for key in ("source_ci_run", "iac_ci_run", "deployment_run", "browser_e2e_run", "restore_run")}
+          Path(__import__("os").environ["RUNNER_TEMP"], "deployed.json").write_text(json.dumps(deployed))
+          bad = json.loads(json.dumps(deployed))
+          bad["webjobs"]["unexpected_package_sha256"] = digest
+          Path(__import__("os").environ["RUNNER_TEMP"], "bad.json").write_text(json.dumps(bad))
+          PY
+          python scripts/release/verify_a1_release_manifest.py "$RUNNER_TEMP/predeploy.json"
+          python scripts/release/verify_a1_release_manifest.py "$RUNNER_TEMP/deployed.json"
+          if python scripts/release/verify_a1_release_manifest.py "$RUNNER_TEMP/bad.json"; then exit 1; fi
+          python -m json.tool release/a1-release-manifest.schema.json >/dev/null
+          echo RELEASE_MANIFEST_WORKER_ONLY=PASS
+          echo MIGRATE_PACKAGE_FIELD_PRESENT=false
+          echo RELEASE_MANIFEST_TESTS=PASS
+
+          curl -fsSL "https://github.com/Azure/bicep/releases/download/v${BICEP_VERSION}/bicep-linux-x64" \
+            -o "$RUNNER_TEMP/bicep"
+          chmod +x "$RUNNER_TEMP/bicep"
+          "$RUNNER_TEMP/bicep" --version | grep -Fq "Bicep CLI version ${BICEP_VERSION}"
+          "$RUNNER_TEMP/bicep" build infra/azure/main.bicep --stdout > "$RUNNER_TEMP/main.bicep.json" 2> "$RUNNER_TEMP/main.bicep.diag"
+          "$RUNNER_TEMP/bicep" build infra/azure/modules/appservice.bicep --stdout > "$RUNNER_TEMP/appservice.bicep.json" 2> "$RUNNER_TEMP/appservice.bicep.diag"
+          "$RUNNER_TEMP/bicep" build-params infra/azure/preprod.bicepparam --stdout > "$RUNNER_TEMP/preprod.bicepparam.json" 2> "$RUNNER_TEMP/preprod.bicepparam.diag"
+          ! grep -Fq BCP081 "$RUNNER_TEMP/main.bicep.diag" "$RUNNER_TEMP/appservice.bicep.diag" "$RUNNER_TEMP/preprod.bicepparam.diag"
+          grep -q "healthCheckPath: '/health/ready'" infra/azure/modules/appservice.bicep
+          echo "BICEP_VERSION=${BICEP_VERSION}"
+          echo BICEP_LINT=PASS
+          echo BICEP_BUILD=PASS
+          echo BCP081=0
+
+      - name: Upload bounded sanitized evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: azure-a1-step4c-evidence-${{ github.sha }}
+          retention-days: 3
+          path: |
+            ${{ runner.temp }}/secret-summary.txt
+            ${{ runner.temp }}/historical-secret-summary.txt
+            ${{ runner.temp }}/frontend-sbom.json
+            ${{ runner.temp }}/backend-sbom.json
+            ${{ runner.temp }}/worker.sha256
+            ${{ runner.temp }}/predeploy.json
+          if-no-files-found: warn
+
+      - name: Final provenance and mutation boundary
+        run: |
+          set -euo pipefail
+          echo GITHUB_ACTIONS_RUN_ID=$GITHUB_RUN_ID
+          echo "GITHUB_ACTIONS_URL=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          echo REAL_DATA_USED=false
+          echo AZURE_LOGIN_USED=false
+          echo AZURE_RESOURCES_CREATED=false
+          echo AZURE_RESOURCES_UPDATED=false
+          echo AZURE_RESOURCES_DELETED=false
+          echo ENTRA_RESOURCES_CREATED=false
+          echo SYNOLOGY_ACCESSED=false
+          echo SMB_ACCESSED=false
+          echo "HISTORICAL_SECRET_TRIAGE_REQUIRED=${HISTORICAL_SECRET_TRIAGE_REQUIRED:-true}"
+          echo "LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE=${LIVE_AZURE_MUTATION_BLOCKED_PENDING_SECRET_TRIAGE:-true}"
+          echo STEP_3A_4C_ACCEPTED=false

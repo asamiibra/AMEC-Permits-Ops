@@ -1,0 +1,144 @@
+{
+  "$id": "https://amec.local/contracts/phase4/",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contract_id": {
+      "const": "AMEC_CORPUS_APP_INTEGRATION_CONTRACT_V1",
+      "type": "string"
+    },
+    "contract_version": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "document_intelligence_runtime": {
+      "type": "object"
+    },
+    "domains": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "domain_code": {
+            "enum": [
+              "M1",
+              "M2",
+              "M3",
+              "M4",
+              "M5",
+              "M6",
+              "M7",
+              "FINANCE",
+              "MASTER_CONTENT",
+              "REPORTS"
+            ],
+            "type": "string"
+          },
+          "integration_dimensions": {
+            "items": {
+              "type": "object"
+            },
+            "maxItems": 12,
+            "minItems": 12,
+            "type": "array"
+          }
+        },
+        "required": [
+          "domain_code",
+          "integration_dimensions"
+        ],
+        "type": "object"
+      },
+      "maxItems": 10,
+      "minItems": 10,
+      "type": "array"
+    },
+    "finance_semantics": {
+      "type": "object"
+    },
+    "integration_dimensions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 12,
+      "minItems": 12,
+      "type": "array"
+    },
+    "master_content_rules": {
+      "type": "object"
+    },
+    "owner_decision_policy": {
+      "type": "object"
+    },
+    "party_authorization_professional_dependencies": {
+      "type": "object"
+    },
+    "phase3c_accepted_sha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "phase3c_freeze_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "phase3c_input_manifest_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "phase3c_module_truth_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "phase3c_owner_decision_applicability_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "protected_action_exclusions": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "rbac_capability_policy": {
+      "type": "object"
+    },
+    "side_effects": {
+      "type": "object"
+    },
+    "source_identity_contract": {
+      "type": "object"
+    },
+    "source_modes": {
+      "items": {
+        "enum": [
+          "APP_UPLOAD",
+          "SYNOLOGY_EXTERNAL_EVIDENCE"
+        ],
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "source_precedence": {
+      "type": "object"
+    },
+    "taxonomy_identity": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "contract_id",
+    "contract_version",
+    "phase3c_accepted_sha",
+    "phase3c_module_truth_sha",
+    "phase3c_freeze_sha",
+    "phase3c_input_manifest_sha",
+    "taxonomy_identity",
+    "source_modes",
+    "integration_dimensions",
+    "domains",
+    "protected_action_exclusions",
+    "side_effects",
+    "owner_decision_policy"
+  ],
+  "title": "AMEC Corpus App Integration Contract v1",
+  "type": "object"
+}

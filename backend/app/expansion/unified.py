@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -108,7 +108,7 @@ def build_my_work(db: Session, *, assistant_id: str | None = None, role: str | N
     tasks = db.scalars(select(WorkflowTask).order_by(WorkflowTask.created_at.desc())).all()
     cards = [_task_card(task) for task in tasks if (not assistant_id or assistant_for_task(task) == assistant_id) and (not role or task.owner_role == role or task.owner_user_id == role)]
     drafts = db.scalars(select(CommunicationDraft).order_by(CommunicationDraft.created_at.desc())).all()
-    blocks = db.scalars(select(SystemBlock).where(SystemBlock.blocking.is_(True)).order_by(SystemBlock.created_at.desc())).all()
+    blocks = db.scalars(select(SystemBlock).where(SystemBlock.blocking == true()).order_by(SystemBlock.created_at.desc())).all()
     handoffs = db.scalars(select(AssistantHandoff).where(AssistantHandoff.status.in_(("CREATED", "ACCEPTED"))).order_by(AssistantHandoff.created_at.desc())).all()
     summary = {
         "action_required": sum(1 for item in cards if item["status"] in {"OPEN", "ACKNOWLEDGED", "IN_PROGRESS"}),

@@ -2,6 +2,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
 import os
+import hashlib
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from ..fixtures.canonical import CANONICAL_PROJECTION_SHEET, CANONICAL_WORKBOOK_SHEETS
@@ -27,40 +28,46 @@ def ensure_canonical_workbook(path: str | Path) -> Path:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     wb = Workbook()
-    first = wb.active
-    wb.remove(first)
-    for sheet, headers in HUMAN_HEADERS.items():
-        ws = wb.create_sheet(sheet)
-        ws.append(headers)
-        for cell in ws[1]:
+    try:
+        first = wb.active
+        wb.remove(first)
+        for sheet, headers in HUMAN_HEADERS.items():
+            ws = wb.create_sheet(sheet)
+            ws.append(headers)
+            for cell in ws[1]:
+                cell.font = Font(bold=True)
+            if sheet == "GENERAL FOLLOW UP":
+                for number, name, owner, status, permit_type in HUMAN_ROWS:
+                    ws.append([number, name, owner, status, permit_type, "Synthetic human-owned fixture cell"])
+            else:
+                for number, *_ in HUMAN_ROWS:
+                    ws.append([number, "R01", "Synthetic", "Synthetic human-owned fixture cell"])
+        projection = wb.create_sheet(CANONICAL_PROJECTION_SHEET)
+        projection.append(PROJECTION_HEADERS)
+        for cell in projection[1]:
             cell.font = Font(bold=True)
-        if sheet == "GENERAL FOLLOW UP":
-            for number, name, owner, status, permit_type in HUMAN_ROWS:
-                ws.append([number, name, owner, status, permit_type, "Synthetic human-owned fixture cell"])
-        else:
-            for number, *_ in HUMAN_ROWS:
-                ws.append([number, "R01", "Synthetic", "Synthetic human-owned fixture cell"])
-    projection = wb.create_sheet(CANONICAL_PROJECTION_SHEET)
-    projection.append(PROJECTION_HEADERS)
-    for cell in projection[1]:
-        cell.font = Font(bold=True)
-    wb.properties.title = "PermitOps Synthetic MVP Dataset v1 — Recording-derived workbook"
-    wb.properties.subject = "DEMONSTRATION BASELINE — SYNTHETIC DATA — NOT CLIENT APPROVED"
-    wb.save(destination)
+        wb.properties.title = "PermitOps Synthetic MVP Dataset v1 — Recording-derived workbook"
+        wb.properties.subject = "DEMONSTRATION BASELINE — SYNTHETIC DATA — NOT CLIENT APPROVED"
+        wb.save(destination)
+    finally:
+        wb.close()
     return destination
 
 
 def canonical_workbook_contract(path: str | Path) -> dict[str, Any]:
     wb = load_workbook(path, read_only=True, data_only=True)
-    return {
-        "workbook_identity": str(path),
-        "required_sheets": CANONICAL_WORKBOOK_SHEETS,
-        "sheets": wb.sheetnames,
-        "row_identity": "GENERAL FOLLOW UP: Project Number exact match; sheet + row number retained",
-        "human_owned_columns": {sheet: headers for sheet, headers in HUMAN_HEADERS.items()},
-        "system_owned_projection": {"sheet": CANONICAL_PROJECTION_SHEET, "columns": PROJECTION_HEADERS[1:]},
-        "write_policy": "Only PERMITOPS SYSTEM PROJECTION is writable by the system; human sheets are read-only.",
-    }
+    try:
+        return {
+            "workbook_identity": str(path),
+            "required_sheets": CANONICAL_WORKBOOK_SHEETS,
+            "sheets": wb.sheetnames,
+            "row_identity": "GENERAL FOLLOW UP: Project Number exact match; sheet + row number retained",
+            "human_owned_columns": {sheet: headers for sheet, headers in HUMAN_HEADERS.items()},
+            "system_owned_projection": {"sheet": CANONICAL_PROJECTION_SHEET, "columns": PROJECTION_HEADERS[1:]},
+            "write_policy": "Only PERMITOPS SYSTEM PROJECTION is writable by the system; human sheets are read-only.",
+        }
+    finally:
+        wb.close()
 
 
 def _lock_paths(path: Path) -> list[Path]:
@@ -71,30 +78,132 @@ class WorkbookLockedError(RuntimeError):
     pass
 
 
+class WorkbookWriteError(RuntimeError):
+    pass
+
+
+def _fsync_candidate(path: Path) -> None:
+    file_descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(file_descriptor)
+    finally:
+        os.close(file_descriptor)
+
+
+def _human_sheet_snapshot(workbook) -> dict[str, tuple[tuple[Any, ...], ...]]:
+    return {
+        sheet: tuple(
+            tuple(cell.value for cell in row)
+            for row in workbook[sheet].iter_rows()
+        )
+        for sheet in HUMAN_HEADERS
+    }
+
+
+def _validate_workbook_candidate(
+    path: Path,
+    project_number: str,
+    values: dict[str, Any],
+    human_snapshot: dict[str, tuple[tuple[Any, ...], ...]],
+) -> None:
+    if not path.is_file() or path.stat().st_size == 0:
+        raise WorkbookWriteError("TEMP_WORKBOOK_VALIDATION=FAIL")
+    workbook = None
+    try:
+        workbook = load_workbook(path, read_only=True, data_only=True)
+        required_sheets = set(CANONICAL_WORKBOOK_SHEETS) | {CANONICAL_PROJECTION_SHEET}
+        if not required_sheets.issubset(set(workbook.sheetnames)):
+            raise WorkbookWriteError("TEMP_WORKBOOK_VALIDATION=FAIL")
+        if _human_sheet_snapshot(workbook) != human_snapshot:
+            raise WorkbookWriteError("HUMAN_SHEET_PRESERVATION=FAIL")
+        sheet = workbook[CANONICAL_PROJECTION_SHEET]
+        headers = [cell.value for cell in sheet[1]]
+        if any(header not in headers for header in PROJECTION_HEADERS):
+            raise WorkbookWriteError("PROJECTION_HEADERS=FAIL")
+        row = next(
+            (
+                index
+                for index in range(2, sheet.max_row + 1)
+                if sheet.cell(index, 1).value == project_number
+            ),
+        )
+        if row is None:
+            raise WorkbookWriteError("PROJECTION_ROW=FAIL")
+        for key, value in values.items():
+            if key in PROJECTION_HEADERS and sheet.cell(row, headers.index(key) + 1).value != value:
+                raise WorkbookWriteError("PROJECTION_VALUES=FAIL")
+        expected_status = values.get("Projection Status", "WRITTEN")
+        if sheet.cell(row, headers.index("Projection Status") + 1).value != expected_status:
+            raise WorkbookWriteError("PROJECTION_STATUS=FAIL")
+    except WorkbookWriteError:
+        raise
+    except Exception as exc:
+        raise WorkbookWriteError("TEMP_WORKBOOK_VALIDATION=FAIL") from exc
+    finally:
+        if workbook is not None:
+            workbook.close()
+
+
 def write_system_projection(path: str | Path, project_number: str, values: dict[str, Any]) -> dict[str, Any]:
     workbook_path = Path(path)
     if any(lock.exists() for lock in _lock_paths(workbook_path)):
         raise WorkbookLockedError("WORKBOOK_LOCKED_MANUAL_COPY_REQUIRED")
-    wb = load_workbook(workbook_path)
-    if CANONICAL_PROJECTION_SHEET not in wb.sheetnames:
-        raise ValueError("CANONICAL_PROJECTION_SHEET_MISSING")
-    ws = wb[CANONICAL_PROJECTION_SHEET]
-    headers = [cell.value for cell in ws[1]]
-    row = next((index for index in range(2, ws.max_row + 1) if ws.cell(index, 1).value == project_number), None)
-    if row is None:
-        row = ws.max_row + 1
-        ws.cell(row, 1).value = project_number
-    allowed = set(PROJECTION_HEADERS[1:])
-    for key, value in values.items():
-        if key in allowed:
-            ws.cell(row, headers.index(key) + 1).value = value
-    ws.cell(row, headers.index("Projection Status") + 1).value = values.get("Projection Status", "WRITTEN")
-    with NamedTemporaryFile(prefix="permitops-excel-", suffix=".xlsx", dir=workbook_path.parent, delete=False) as temporary:
-        temporary_path = Path(temporary.name)
+    wb = None
+    temporary_path = None
+    primary_error = None
     try:
-        wb.save(temporary_path)
-        os.replace(temporary_path, workbook_path)
+        try:
+            wb = load_workbook(workbook_path)
+            human_snapshot = _human_sheet_snapshot(wb)
+            if CANONICAL_PROJECTION_SHEET not in wb.sheetnames:
+                raise ValueError("CANONICAL_PROJECTION_SHEET_MISSING")
+            ws = wb[CANONICAL_PROJECTION_SHEET]
+            headers = [cell.value for cell in ws[1]]
+            row = next((index for index in range(2, ws.max_row + 1) if ws.cell(index, 1).value == project_number), None)
+            if row is None:
+                row = ws.max_row + 1
+                ws.cell(row, 1).value = project_number
+            allowed = set(PROJECTION_HEADERS[1:])
+            for key, value in values.items():
+                if key in allowed:
+                    ws.cell(row, headers.index(key) + 1).value = value
+            ws.cell(row, headers.index("Projection Status") + 1).value = values.get("Projection Status", "WRITTEN")
+            with NamedTemporaryFile(prefix="permitops-excel-", suffix=".xlsx", dir=workbook_path.parent, delete=False) as temporary:
+                temporary_path = Path(temporary.name)
+            wb.save(temporary_path)
+        finally:
+            if wb is not None:
+                wb.close()
+
+        _fsync_candidate(temporary_path)
+        _validate_workbook_candidate(temporary_path, project_number, values, human_snapshot)
+        candidate_sha256 = hashlib.sha256(temporary_path.read_bytes()).hexdigest()
+        try:
+            os.replace(temporary_path, workbook_path)
+        except PermissionError as replace_error:
+            raise WorkbookWriteError("ATOMIC_WORKBOOK_REPLACE=FAIL") from replace_error
+        _validate_workbook_candidate(workbook_path, project_number, values, human_snapshot)
+        destination_sha256 = hashlib.sha256(workbook_path.read_bytes()).hexdigest()
+        if destination_sha256 != candidate_sha256:
+            raise WorkbookWriteError("POST_REPLACE_SHA256=FAIL")
+    except BaseException as exc:
+        primary_error = exc
+        raise
     finally:
-        if temporary_path.exists():
-            temporary_path.unlink()
-    return {"workbook_identity": str(workbook_path), "sheet": CANONICAL_PROJECTION_SHEET, "row_number": row, "row_key": project_number, "status": "WRITTEN", "owned_region_only": True}
+        if temporary_path is not None and temporary_path.exists():
+            try:
+                temporary_path.unlink()
+            except Exception as cleanup_error:
+                if primary_error is None:
+                    raise WorkbookWriteError("WORKBOOK_TEMP_CLEANUP=FAIL") from cleanup_error
+    return {
+        "workbook_identity": str(workbook_path),
+        "sheet": CANONICAL_PROJECTION_SHEET,
+        "row_number": row,
+        "row_key": project_number,
+        "status": "WRITTEN",
+        "write_mode": "ATOMIC_REPLACE",
+        "candidate_sha256": candidate_sha256,
+        "destination_sha256": destination_sha256,
+        "owned_region_only": True,
+    }

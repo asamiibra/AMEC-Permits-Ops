@@ -5,7 +5,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -193,7 +193,7 @@ def execute_monitoring_run(db: Session, policy: MonitoringPolicy, *, scheduled_f
     state = _state(application, observed_override)
     current_hash = stable_hash({k: v for k, v in state.items() if k != "captured_at"})
     current_contract = contracts["READ_CURRENT_STATE"]
-    previous = db.scalar(select(MonitoringStateSnapshot).where(MonitoringStateSnapshot.application_id == application.id, MonitoringStateSnapshot.trusted.is_(True)).order_by(MonitoringStateSnapshot.captured_at.desc()))
+    previous = db.scalar(select(MonitoringStateSnapshot).where(MonitoringStateSnapshot.application_id == application.id, MonitoringStateSnapshot.trusted == true()).order_by(MonitoringStateSnapshot.captured_at.desc()))
     run.prior_snapshot_id = previous.id if previous else None
     snapshot = MonitoringStateSnapshot(application_id=application.id, monitoring_run_id=run.id, capture_method=capture_method, trusted=True, application_identity=state["application_identity"], state=state, raw_evidence={"source": "mock-authority", "state": state}, contract_fingerprint=current_contract.expected_structural_fingerprint if current_contract else "", state_hash=current_hash)
     db.add(snapshot); db.flush(); run.new_snapshot_id = snapshot.id
@@ -245,7 +245,7 @@ def execute_monitoring_run(db: Session, policy: MonitoringPolicy, *, scheduled_f
 
 
 def due_run(db: Session, *, policy_id: str | None = None, application_id: str | None = None, observed_override: dict[str, Any] | None = None, correlation_id: str | None = None) -> dict[str, Any]:
-    stmt = select(MonitoringPolicy).where(MonitoringPolicy.enabled.is_(True), MonitoringPolicy.status.in_(["SYNTHETIC_ACTIVE", "APPROVED_TEST", "PRODUCTION_APPROVED"]))
+    stmt = select(MonitoringPolicy).where(MonitoringPolicy.enabled == true(), MonitoringPolicy.status.in_(["SYNTHETIC_ACTIVE", "APPROVED_TEST", "PRODUCTION_APPROVED"]))
     if policy_id: stmt = stmt.where(MonitoringPolicy.id == policy_id)
     if application_id: stmt = stmt.where(MonitoringPolicy.application_id == application_id)
     policy = db.scalar(stmt.order_by(MonitoringPolicy.effective_from))

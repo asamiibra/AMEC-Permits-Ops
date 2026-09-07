@@ -1,0 +1,321 @@
+{
+  "artifact_type": "AMEC_PHASE4_REUSE_DECISION_MATRIX_V1",
+  "legacy_direct_source_intake_promotion_is_canonical_new_path": false,
+  "new_canonical_path_requires_verifiedassertion": true,
+  "phase3c_accepted_sha": "44968e3d43571ceb1df8493da683ff9e51a146d9",
+  "rows": [
+    {
+      "accepted_phase3c_relevance": "Source Intake authority and source-version lineage",
+      "api_change_required": true,
+      "concept": "SourceIntakeBatch / SourceIntakeItem",
+      "current_behavior": "durable batch/item ledger and replay identity",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "SourceIntakeBatch, SourceIntakeItem",
+      "existing_path": "backend/app/models/source_intake_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Existing unique batch/item identities are the compatibility anchor.",
+      "regression_tests": [
+        "same_event_replay",
+        "legacy_manifest_replay"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Legacy compatibility path only; new canonical path must pass VerifiedAssertion",
+      "api_change_required": true,
+      "concept": "SourceIntakeService",
+      "current_behavior": "ZIP/manifest reconciliation and legacy promotion path",
+      "disposition": "COMPATIBILITY_ADAPTER",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "SourceIntakeService",
+      "existing_path": "backend/app/services/source_intake.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Keep legacy behavior while routing new events through the Phase4 authority seam.",
+      "regression_tests": [
+        "legacy_source_intake_regression"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "DocumentEvidenceEnvelope binds immutable source-version identity",
+      "api_change_required": true,
+      "concept": "Document / DocumentVersion",
+      "current_behavior": "document identity, versions, source hash, synthetic bytes",
+      "disposition": "ADDITIVE_EXTENSION",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "Document, DocumentVersion",
+      "existing_path": "backend/app/models/week2_entities.py",
+      "frontend_change_required": false,
+      "migration_required": true,
+      "reason": "Reuse document identity and add Phase4 envelope linkage.",
+      "regression_tests": [
+        "document_version_identity"
+      ],
+      "schema_change_required": true
+    },
+    {
+      "accepted_phase3c_relevance": "Compatibility projection of immutable ClassificationEnvelope",
+      "api_change_required": true,
+      "concept": "DocumentClassification",
+      "current_behavior": "classification result and review status",
+      "disposition": "COMPATIBILITY_ADAPTER",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "DocumentClassification",
+      "existing_path": "backend/app/models/week2_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Existing classification remains a read-compatible projection, not a second envelope.",
+      "regression_tests": [
+        "classification_compatibility"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Evidence observations are non-authoritative parser output",
+      "api_change_required": true,
+      "concept": "FieldObservation",
+      "current_behavior": "observed fields with evidence lineage",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "FieldObservation",
+      "existing_path": "backend/app/models/week2_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Existing observations are the evidence layer.",
+      "regression_tests": [
+        "envelope_observation"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Phase4 review promotion must converge here",
+      "api_change_required": true,
+      "concept": "VerifiedAssertion",
+      "current_behavior": "single current/superseded assertion authority",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "VerifiedAssertion",
+      "existing_path": "backend/app/models/week2_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Do not create a second truth store.",
+      "regression_tests": [
+        "verified_assertion_promotion"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Phase3C source precedence and protected authority policy",
+      "api_change_required": true,
+      "concept": "FieldAuthorityRule",
+      "current_behavior": "source precedence and verifier role",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "FieldAuthorityRule",
+      "existing_path": "backend/app/models/week2_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Existing authority rules remain the target policy seam.",
+      "regression_tests": [
+        "authority_rule_enforcement"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Phase3C Master Content semantics",
+      "api_change_required": true,
+      "concept": "Master Content",
+      "current_behavior": "four reusable content libraries with current revision",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "MasterContentItem and services/master_content.py",
+      "existing_path": "backend/app/models/master_content_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Reuse canonical content store; no duplicate library.",
+      "regression_tests": [
+        "master_content_replay"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "review and blocked projection work",
+      "api_change_required": true,
+      "concept": "Work",
+      "current_behavior": "canonical work/task store",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "WorkflowTask",
+      "existing_path": "backend/app/models/week7_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Reuse shared Work store and lineage metadata.",
+      "regression_tests": [
+        "work_idempotency"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "missing/contradiction/unsupported capability issues",
+      "api_change_required": true,
+      "concept": "Issues",
+      "current_behavior": "canonical issue store",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "Finding",
+      "existing_path": "backend/app/models/week7_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Reuse shared Issue store.",
+      "regression_tests": [
+        "issue_idempotency"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "policy-triggered notifications",
+      "api_change_required": true,
+      "concept": "Notifications",
+      "current_behavior": "canonical notification event store",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "NotificationEvent",
+      "existing_path": "backend/app/models/week7_entities.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Reuse shared Notification store.",
+      "regression_tests": [
+        "notification_idempotency"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "every Phase4 transition and side effect",
+      "api_change_required": true,
+      "concept": "Audit",
+      "current_behavior": "append-only request/entity lineage",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "audit / AuditEvent",
+      "existing_path": "backend/app/audit/service.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Reuse shared audit service.",
+      "regression_tests": [
+        "audit_lineage"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "review/promote/restricted evidence capability gates",
+      "api_change_required": true,
+      "concept": "Capability model",
+      "current_behavior": "persona-to-capability authorization",
+      "disposition": "ADDITIVE_EXTENSION",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "CAPABILITY_MATRIX / require_capability",
+      "existing_path": "backend/app/services/backend_realignment.py",
+      "frontend_change_required": false,
+      "migration_required": true,
+      "reason": "Add only Phase4-specific capability names to the existing matrix.",
+      "regression_tests": [
+        "capability_denial"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Phase4 review/promotion isolation",
+      "api_change_required": true,
+      "concept": "Project/entity scope",
+      "current_behavior": "request identity and role context",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "AuthenticatedPrincipal and existing entity scope",
+      "existing_path": "backend/app/api/dependencies.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Reuse principal and require explicit scope checks.",
+      "regression_tests": [
+        "scope_isolation"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Phase4 receipts and shared side effects",
+      "api_change_required": true,
+      "concept": "Outbox/event patterns",
+      "current_behavior": "durable event lineage patterns",
+      "disposition": "REUSE_AS_IS",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "outbox and audit patterns",
+      "existing_path": "backend/app/storage/outbox.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Reuse existing lineage patterns without another journal.",
+      "regression_tests": [
+        "receipt_lineage"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "APP_UPLOAD source mode",
+      "api_change_required": true,
+      "concept": "App upload flow",
+      "current_behavior": "synthetic/local upload persistence",
+      "disposition": "COMPATIBILITY_ADAPTER",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "existing upload endpoints and DocumentVersion",
+      "existing_path": "backend/app/api/routers.py",
+      "frontend_change_required": false,
+      "migration_required": true,
+      "reason": "Phase4 adds an explicit synthetic upload boundary without changing legacy uploads.",
+      "regression_tests": [
+        "app_upload_golden_path"
+      ],
+      "schema_change_required": true
+    },
+    {
+      "accepted_phase3c_relevance": "legacy compatibility and no direct canonical promotion",
+      "api_change_required": false,
+      "concept": "FORME reconciliation",
+      "current_behavior": "legacy 7 Current / 7 Needs Review / 0 invented Inactive state",
+      "disposition": "COMPATIBILITY_ADAPTER",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "FORME v1.4 fixtures and manifest",
+      "existing_path": "backend/scripts/forme_acceptance_v1_4.py",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Preserve as regression provenance; new path requires VerifiedAssertion.",
+      "regression_tests": [
+        "forme_regression"
+      ],
+      "schema_change_required": false
+    },
+    {
+      "accepted_phase3c_relevance": "Phase4 review API is the application-facing surface; browser remains Phase5",
+      "api_change_required": true,
+      "concept": "Frontend review surface",
+      "current_behavior": "repository is backend/API-only at accepted Phase3C",
+      "disposition": "MISSING_CREATE_MINIMAL",
+      "duplicate_store_risk": false,
+      "existing_model_or_service": "none",
+      "existing_path": "(no frontend tree in accepted commit)",
+      "frontend_change_required": false,
+      "migration_required": false,
+      "reason": "Create only repository-safe API contract and no browser acceptance claim.",
+      "regression_tests": [
+        "api_review_surface"
+      ],
+      "schema_change_required": true
+    }
+  ],
+  "second_audit_store_created": false,
+  "second_document_store_created": false,
+  "second_parser_platform_created": false,
+  "second_source_intake_database_created": false,
+  "second_verified_truth_store_created": false,
+  "second_work_task_store_created": false
+}

@@ -5,7 +5,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -145,7 +145,7 @@ def finding_from_portal_validation(preparation_revision_id: str, payload: dict[s
     revision = db.get(PreparationRevision, preparation_revision_id)
     if not revision:
         raise HTTPException(404, "Preparation revision not found")
-    rule = db.scalar(select(PortalValidationFindingRule).where(PortalValidationFindingRule.validation_code == payload.get("validation_code"), PortalValidationFindingRule.active.is_(True)))
+    rule = db.scalar(select(PortalValidationFindingRule).where(PortalValidationFindingRule.validation_code == payload.get("validation_code"), PortalValidationFindingRule.active == true()))
     if not rule or not rule.create_finding:
         return {"created": False, "reason": "VALIDATION_CODE_IGNORED", "fixture": fixture_metadata()}
     application = application_or_404(db, revision.application_id); project = project_or_404(db, revision.project_id); code = db.get(FindingCode, rule.finding_code_id) if rule.finding_code_id else None
@@ -298,7 +298,7 @@ def retry_notification(notification_id: str, payload: dict[str, Any] | None = No
 
 
 def open_blocking(db: Session, *, project_id: str | None = None, application_id: str | None = None, preparation_revision_id: str | None = None) -> list[Finding]:
-    stmt = select(Finding).where(Finding.blocking.is_(True), Finding.status.in_(ACTIVE_FINDING_STATUSES))
+    stmt = select(Finding).where(Finding.blocking == true(), Finding.status.in_(ACTIVE_FINDING_STATUSES))
     if project_id: stmt = stmt.where(Finding.project_id == project_id)
     if application_id: stmt = stmt.where(Finding.application_id == application_id)
     if preparation_revision_id: stmt = stmt.where(Finding.preparation_revision_id == preparation_revision_id)

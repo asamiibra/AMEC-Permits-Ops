@@ -227,6 +227,101 @@ def _snapshot_template(db: Session, contract: Contract, revision: ContractRevisi
     return {"id": snap.id, "ref": snap.master_content_ref, "version_id": snap.document_version_id, "version": snap.version, "hash": snap.content_hash, "master_content_id": snap.master_content_id}
 
 
+def capture_current_contract_template(
+    db: Session,
+    *,
+    contract_id: str,
+    actor: str,
+    correlation_id: str,
+    reason: str,
+    idempotency_key: str | None = None,
+) -> dict[str, Any]:
+    """Capture the exact current Dashboard Contract Template once.
+
+    This is deliberately pre-finalization and contract-scoped.  The locked
+    Contract row serializes concurrent callers; an existing snapshot is an
+    idempotent committed result and is never replaced.
+    """
+    contract = db.scalar(select(Contract).where(Contract.id == contract_id).with_for_update())
+    if not contract:
+        raise ValueError("CONTRACT_NOT_FOUND")
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    if not revision:
+        raise ValueError("CONTRACT_REVISION_REQUIRED")
+    if contract_revision_is_finalized(revision):
+        raise ValueError("FINALIZED_CONTRACT_SNAPSHOT_BACKFILL_FORBIDDEN")
+
+    existing = db.scalar(
+        select(ContractTemplateSnapshot)
+        .where(ContractTemplateSnapshot.contract_id == contract.id)
+        .order_by(ContractTemplateSnapshot.captured_at.desc())
+    )
+    if existing:
+        return {
+            "decision": "ALREADY_CAPTURED",
+            "captured": False,
+            "snapshot": {
+                "id": existing.id,
+                "master_content_id": existing.master_content_id,
+                "reference": existing.master_content_ref,
+                "document_version_id": existing.document_version_id,
+                "version": existing.version,
+                "hash": existing.content_hash,
+                "contract_revision_id": existing.contract_revision_id,
+            },
+        }
+
+    resolved = resolve_master_content_purpose(db, module="ADMIN", usage_type="CONTRACT_TEMPLATE")
+    if resolved["status"] == "AMBIGUOUS":
+        raise ValueError("CONTRACT_TEMPLATE_CONFIGURATION_CONFLICT")
+    if resolved["status"] != "RESOLVED":
+        raise ValueError("CONTRACT_TEMPLATE_NOT_RESOLVED")
+    item = resolved["item"]
+    snapshot = ContractTemplateSnapshot(
+        contract_id=contract.id,
+        contract_revision_id=revision.id,
+        master_content_id=item["id"],
+        master_content_ref=item["ref"],
+        document_version_id=item["version_id"],
+        version=str(item["version"]),
+        content_hash=item["hash"],
+        captured_by=actor,
+    )
+    db.add(snapshot)
+    db.flush()
+    audit(
+        db,
+        correlation_id=correlation_id,
+        event_type="ADMIN_CONTRACT_TEMPLATE_SNAPSHOT_CAPTURED",
+        entity_type="Contract",
+        entity_id=contract.id,
+        actor_id=actor,
+        after={
+            "contract_revision_id": revision.id,
+            "master_content_id": snapshot.master_content_id,
+            "master_content_ref": snapshot.master_content_ref,
+            "document_version_id": snapshot.document_version_id,
+            "version": snapshot.version,
+            "content_hash": snapshot.content_hash,
+        },
+        metadata={"idempotency_key": idempotency_key, "pre_finalization": True, "resolver": "ADMIN/CONTRACT_TEMPLATE", "reason": reason},
+    )
+    db.commit()
+    return {
+        "decision": "CAPTURED",
+        "captured": True,
+        "snapshot": {
+            "id": snapshot.id,
+            "master_content_id": snapshot.master_content_id,
+            "reference": snapshot.master_content_ref,
+            "document_version_id": snapshot.document_version_id,
+            "version": snapshot.version,
+            "hash": snapshot.content_hash,
+            "contract_revision_id": snapshot.contract_revision_id,
+        },
+    }
+
+
 def _ensure_task_notification(db: Session, contract: Contract, correlation_id: str, actor: str) -> None:
     task = db.scalar(select(WorkflowTask).where(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract.id, WorkflowTask.status.in_(("OPEN", "IN_PROGRESS"))).order_by(WorkflowTask.created_at))
     if not task:

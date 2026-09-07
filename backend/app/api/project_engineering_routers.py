@@ -15,7 +15,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
-from sqlalchemy import select, func
+from sqlalchemy import select, func, true
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -190,7 +190,7 @@ def create_review_category(payload: dict[str, Any], request: Request, db: Sessio
 def project_review_categories(project_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     project = _project(db, project_id); _authorized(db, project_id, role, _actor(request))
     assignments = db.scalars(select(EngineeringCategoryAssignment).where(EngineeringCategoryAssignment.project_id == project.id).order_by(EngineeringCategoryAssignment.created_at)).all()
-    return {"project": _row(project), "categories": [_row(item) for item in db.scalars(select(EngineeringReviewCategory).where(EngineeringReviewCategory.active.is_(True)).order_by(EngineeringReviewCategory.sort_order, EngineeringReviewCategory.name)).all()], "assignments": [_row(item) for item in assignments], "visible_global_roles": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"]}
+    return {"project": _row(project), "categories": [_row(item) for item in db.scalars(select(EngineeringReviewCategory).where(EngineeringReviewCategory.active == true()).order_by(EngineeringReviewCategory.sort_order, EngineeringReviewCategory.name)).all()], "assignments": [_row(item) for item in assignments], "visible_global_roles": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"]}
 
 
 @router.post("/projects/{project_id}/engineering/review-categories/{category_id}/assignments")

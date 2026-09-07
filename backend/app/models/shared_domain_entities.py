@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TimestampMixin, utcnow
@@ -210,7 +210,7 @@ class MasterContentApplicability(Base, TimestampMixin):
     """Version-pinned regulatory applicability for a canonical source."""
     __tablename__ = "master_content_applicability"
     __table_args__ = (
-        UniqueConstraint("master_content_item_id", "source_document_version_id", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id", name="uq_master_content_applicability_version"),
+        Index("uq_master_content_applicability_version", "master_content_item_id", "source_document_version_id", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id", unique=True, mssql_where=text("jurisdiction_id IS NOT NULL AND lifecycle_phase_id IS NOT NULL")),
         Index("ix_master_content_applicability_context", "external_body_id", "jurisdiction_id", "service_type_id", "lifecycle_phase_id"),
     )
 
@@ -263,7 +263,7 @@ class RequirementDefinition(Base, TimestampMixin):
 
 class RequirementPolicyVersion(Base, TimestampMixin):
     __tablename__ = "requirement_policy_versions"
-    __table_args__ = (UniqueConstraint("service_type_id", "jurisdiction_id", "external_body_id", "version", name="uq_requirement_policy_context_version"), Index("ix_requirement_policy_context", "service_type_id", "jurisdiction_id", "external_body_id"), Index("ix_requirement_policy_effective", "effective_from", "effective_to"), Index("ix_requirement_policy_status", "status"))
+    __table_args__ = (Index("uq_requirement_policy_context_version", "service_type_id", "jurisdiction_id", "external_body_id", "version", unique=True, mssql_where=text("jurisdiction_id IS NOT NULL AND external_body_id IS NOT NULL")), Index("ix_requirement_policy_context", "service_type_id", "jurisdiction_id", "external_body_id"), Index("ix_requirement_policy_effective", "effective_from", "effective_to"), Index("ix_requirement_policy_status", "status"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     service_type_id: Mapped[str] = mapped_column(ForeignKey("service_types.id"), nullable=False)
@@ -294,7 +294,7 @@ class RequirementGroup(Base, TimestampMixin):
 
 class RequirementPolicyItem(Base, TimestampMixin):
     __tablename__ = "requirement_policy_items"
-    __table_args__ = (UniqueConstraint("policy_version_id", "requirement_definition_id", "phase_id", name="uq_requirement_policy_item"), Index("ix_requirement_policy_item_policy", "policy_version_id"), Index("ix_requirement_policy_item_requirement", "requirement_definition_id"))
+    __table_args__ = (Index("uq_requirement_policy_item", "policy_version_id", "requirement_definition_id", "phase_id", unique=True, mssql_where=text("phase_id IS NOT NULL")), Index("ix_requirement_policy_item_policy", "policy_version_id"), Index("ix_requirement_policy_item_requirement", "requirement_definition_id"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     policy_version_id: Mapped[str] = mapped_column(ForeignKey("requirement_policy_versions.id"), nullable=False)
@@ -328,7 +328,7 @@ class RequirementEvidenceConstraint(Base, TimestampMixin):
 
 class RequirementPolicyLineage(Base, TimestampMixin):
     __tablename__ = "requirement_policy_lineage"
-    __table_args__ = (UniqueConstraint("policy_version_id", "master_content_item_id", "document_version_id", "source_section_id", name="uq_requirement_policy_lineage"),)
+    __table_args__ = (Index("uq_requirement_policy_lineage", "policy_version_id", "master_content_item_id", "document_version_id", "source_section_id", unique=True, mssql_where=text("source_section_id IS NOT NULL")),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     policy_version_id: Mapped[str] = mapped_column(ForeignKey("requirement_policy_versions.id"), nullable=False, index=True)
@@ -440,7 +440,7 @@ class TechnicalRule(Base, TimestampMixin):
 
 class TechnicalRuleLineage(Base, TimestampMixin):
     __tablename__ = "technical_rule_lineage"
-    __table_args__ = (UniqueConstraint("technical_rule_id", "master_content_item_id", "document_version_id", "source_section_id", name="uq_technical_rule_lineage"),)
+    __table_args__ = (Index("uq_technical_rule_lineage", "technical_rule_id", "master_content_item_id", "document_version_id", "source_section_id", unique=True, mssql_where=text("source_section_id IS NOT NULL")),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     technical_rule_id: Mapped[str] = mapped_column(ForeignKey("technical_rules.id"), nullable=False, index=True)
@@ -575,9 +575,41 @@ class FormInstance(Base, TimestampMixin):
     context_id: Mapped[str] = mapped_column(String(36), nullable=False)
     resolved_values: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     resolved_assertion_ids: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    field_provenance_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    field_citations_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    field_write_metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    draft_revision: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_applied_preview_fingerprint: Mapped[str | None] = mapped_column(String(128))
+    last_applied_by: Mapped[str | None] = mapped_column(String(200))
+    last_applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="DRAFT")
     invalidation_reason: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class FormInstanceApply(Base, TimestampMixin):
+    """Consequential apply ledger; FormInstance remains the draft identity."""
+
+    __tablename__ = "form_instance_apply_commands"
+    __table_args__ = (
+        UniqueConstraint("idempotency_key", name="uq_form_instance_apply_idempotency"),
+        Index("ix_form_instance_apply_form_instance", "form_instance_id"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    form_instance_id: Mapped[str] = mapped_column(ForeignKey("form_instances.id"), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    request_fingerprint: Mapped[str] = mapped_column(String(128), nullable=False)
+    preview_fingerprint: Mapped[str] = mapped_column(String(128), nullable=False)
+    project_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    context_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    context_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    expected_draft_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    resulting_draft_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    selected_field_keys: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    applied_field_keys: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    result_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
 
 
 class GeneratedArtifact(Base, TimestampMixin):

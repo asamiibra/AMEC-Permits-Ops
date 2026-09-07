@@ -1,0 +1,92 @@
+{
+  "$id": "https://amec.local/contracts/phase4/",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "capability_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "content_retention_class": {
+      "enum": [
+        "BOUNDED_EVIDENCE",
+        "SECRET_EXCLUDE",
+        "METADATA_ONLY"
+      ],
+      "type": "string"
+    },
+    "document_intelligence_runtime_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "document_intelligence_runtime_version": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "evidence_envelope_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "handler_parser_identity": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "metering": {
+      "type": "object"
+    },
+    "root_event_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_artifact_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_surface": {
+      "enum": [
+        "APP_UPLOAD",
+        "SYNOLOGY_EXTERNAL_EVIDENCE"
+      ],
+      "type": "string"
+    },
+    "source_version_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_version_token": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "unsupported_capability_state": {
+      "enum": [
+        "SUPPORTED",
+        "NEEDS_REVIEW_UNSUPPORTED_CAPABILITY"
+      ],
+      "type": "string"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "root_event_id",
+    "source_artifact_id",
+    "source_version_id",
+    "source_version_token",
+    "source_surface",
+    "evidence_envelope_sha256",
+    "document_intelligence_runtime_version",
+    "document_intelligence_runtime_sha256",
+    "capability_id",
+    "handler_parser_identity",
+    "metering",
+    "warnings",
+    "content_retention_class",
+    "unsupported_capability_state"
+  ],
+  "title": "AMEC Document Evidence Ingress Contract v1",
+  "type": "object"
+}

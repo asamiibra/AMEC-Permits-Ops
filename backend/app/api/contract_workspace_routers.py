@@ -19,7 +19,7 @@ from ..db import get_db
 from ..models import Contract, ContractAdminEvidence, ContractAdminInput, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, DashboardInputItem, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProjectActivation, Role
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.admin_contract_read_model import owner_contract_extensions
-from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, contract_projection, contract_revision_is_finalized, create_contract_from_proposal, effective_contract_stages, now, project_activation, readiness
+from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, capture_current_contract_template, contract_projection, contract_revision_is_finalized, create_contract_from_proposal, effective_contract_stages, now, project_activation, readiness
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
 from ..config.settings import get_settings
@@ -144,6 +144,11 @@ class ContractDocumentPayload(BaseModel):
 
 class AcceptContractPayload(BaseModel):
     reason: str = Field(default="Owner accepted the current Contract revision", min_length=3, max_length=1000)
+    idempotency_key: str | None = Field(default=None, max_length=200)
+
+
+class CaptureContractTemplatePayload(BaseModel):
+    reason: str = Field(default="Owner captured the current canonical Contract Template", min_length=3, max_length=1000)
     idempotency_key: str | None = Field(default=None, max_length=200)
 
 
@@ -273,6 +278,28 @@ def get_contract(contract_id: str, db: Session = Depends(get_db), role: Role = D
     detail["contract"].update(extension.pop("contract"))
     detail.update(extension)
     return detail
+
+
+@router.post("/{contract_id}/template-snapshot")
+def capture_template_snapshot(contract_id: str, payload: CaptureContractTemplatePayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_AUTHORITY_ACTION")
+    try:
+        result = capture_current_contract_template(
+            db,
+            contract_id=contract_id,
+            actor=actor_name(role),
+            correlation_id=request.state.correlation_id,
+            reason=payload.reason,
+            idempotency_key=payload.idempotency_key,
+        )
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    contract = _contract_or_404(db, contract_id)
+    detail = contract_projection(db, contract)
+    extension = owner_contract_extensions(db, contract)
+    detail["contract"].update(extension.pop("contract"))
+    detail.update(extension)
+    return {**result, "contract": detail}
 
 
 @router.get("/{contract_id}/billing-context")

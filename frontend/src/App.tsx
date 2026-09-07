@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { api } from "./api";
 import {
   DocumentsPage,
@@ -62,6 +63,8 @@ import { AmecLogo } from "./AmecLogo";
 import { readDemoRole } from "./rebrand";
 import { CurrentDashboard } from "./Dashboard";
 import { DashboardInputsPage } from "./DashboardInputs";
+import { Phase4ReviewPage } from "./Phase4Review";
+import { Phase5ReviewPage } from "./Phase5Review";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
@@ -78,6 +81,8 @@ import "./completion.css";
 import "./handover.css";
 import "./home-command-center.css";
 import "./home-command-center-accessibility.css";
+import "./phase4-review.css";
+import "./phase5-review.css";
 
 type Decision = {
   id: string;
@@ -107,6 +112,8 @@ type BusinessNavItem = {
 };
 const businessNav: BusinessNavItem[] = [
   { id: "home", page: "home", label: "Home", icon: "dashboard", path: "/home", group: "HOME" },
+  { id: "phase4-review", page: "phase4-review", label: "Evidence Review", icon: "check", path: "/phase4/review", group: "HOME" },
+  { id: "phase5-review", page: "phase5-review", label: "Classifier Review", icon: "check", path: "/phase5/review", group: "HOME" },
   { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
   { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
   { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
@@ -159,6 +166,8 @@ const statusClass = (status: string) =>
 const pageFromPath = () => {
   const path = window.location.pathname;
   if (path === "/" || path === "/home") return "home";
+  if (path === "/phase4/review") return "phase4-review";
+  if (path === "/phase5/review") return "phase5-review";
   if (path === "/dashboard") return "dashboard";
   if (path === "/dashboard-v2") return "dashboard";
   if (path === "/content-library" || path === "/library" || path === "/master-content") return "dashboard";
@@ -242,6 +251,14 @@ function App() {
   const [role, setRole] = useState<string>(() => readDemoRole());
   const [searchOpen, setSearchOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const mobileNavTriggerRef = useRef<HTMLButtonElement>(null);
+  const mobileNavDrawerRef = useRef<HTMLElement>(null);
+  const mobileNavCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNavInitiatorRef = useRef<HTMLElement | null>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const mainContentRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -331,7 +348,73 @@ function App() {
       window.history.replaceState({}, "", "/home");
     }
   }, [role]);
+  const restoreMobileNavFocus = () => {
+    const target = mobileNavInitiatorRef.current || mobileNavTriggerRef.current;
+    mobileNavInitiatorRef.current = null;
+    window.requestAnimationFrame(() => target?.focus());
+  };
+  const closeMobileNav = (restoreFocus = true) => {
+    setMobileNavOpen(false);
+    if (restoreFocus) restoreMobileNavFocus();
+    else mobileNavInitiatorRef.current = null;
+  };
+  const openMobileNav = () => {
+    mobileNavInitiatorRef.current = mobileNavTriggerRef.current;
+    setMobileNavOpen(true);
+  };
+  useEffect(() => {
+    const background = [sidebarRef.current, mainRef.current].filter(
+      (element): element is HTMLElement => Boolean(element),
+    );
+    background.forEach((element) => {
+      (element as HTMLElement & { inert: boolean }).inert = mobileNavOpen;
+      if (mobileNavOpen) element.setAttribute("aria-hidden", "true");
+      else element.removeAttribute("aria-hidden");
+    });
+    return () => {
+      background.forEach((element) => {
+        (element as HTMLElement & { inert: boolean }).inert = false;
+        element.removeAttribute("aria-hidden");
+      });
+    };
+  }, [mobileNavOpen]);
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    window.requestAnimationFrame(() => {
+      const firstControl = mobileNavCloseButtonRef.current ||
+        mobileNavDrawerRef.current?.querySelector<HTMLElement>("button, a[href]");
+      firstControl?.focus();
+    });
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeMobileNav();
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [mobileNavOpen]);
+  const handleMobileDrawerKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
+    if (event.key !== "Tab") return;
+    const focusable = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
   const navigate = (next: string) => {
+    const fromMobileDrawer = mobileNavOpen;
+    closeMobileNav(false);
     const navItem = businessNav.find((item) => item.id === next);
     const nextPage = navItem?.page || next;
     setPage(nextPage);
@@ -345,6 +428,10 @@ function App() {
             ? "/proposals-contracts"
           : nextPage === "contract-mobilization"
             ? "/contract-mobilization"
+          : nextPage === "phase4-review"
+            ? "/phase4/review"
+          : nextPage === "phase5-review"
+            ? "/phase5/review"
           : nextPage === "about"
             ? "/operating-guide"
             : nextPage === "administration"
@@ -356,6 +443,9 @@ function App() {
                   : `/${nextPage}`);
     window.history.pushState({}, "", path);
     window.dispatchEvent(new PopStateEvent("popstate"));
+    if (fromMobileDrawer) {
+      window.requestAnimationFrame(() => mainContentRef.current?.focus());
+    }
   };
   const openPermit = (
     projectId: string,
@@ -402,6 +492,8 @@ function App() {
     if (role === "COMMERCIAL_APPROVER")
       return [
         "home",
+        "phase4-review",
+        "phase5-review",
         "intake-opportunity",
         "contract-mobilization",
         "regulatory-submissions",
@@ -410,13 +502,15 @@ function App() {
     if (role === "RESPONSIBLE_ENGINEER")
       return [
         "home",
+        "phase4-review",
+        "phase5-review",
         "design-delivery",
         "regulatory-submissions",
         "construction-post-approval",
         "completion-as-built",
         "handover-closeout",
       ].includes(item.id);
-    return ["home", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
+    return ["home", "phase4-review", "phase5-review", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
   });
   const title =
     page === "permit-workspace" && selected
@@ -446,7 +540,65 @@ function App() {
     : undefined;
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      {mobileNavOpen && (
+        <div
+          className="mobile-nav-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeMobileNav();
+          }}
+        >
+          <aside
+            ref={mobileNavDrawerRef}
+            className="mobile-nav-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-nav-title"
+            onKeyDown={handleMobileDrawerKeyDown}
+          >
+            <div className="mobile-nav-drawer-head">
+              <div>
+                <b id="mobile-nav-title">AMEC Works</b>
+                <small>PROPOSALOPS WORKSPACE</small>
+              </div>
+              <button
+                ref={mobileNavCloseButtonRef}
+                className="mobile-nav-close"
+                type="button"
+                aria-label="Close navigation"
+                onClick={() => closeMobileNav()}
+              >
+                ×
+              </button>
+            </div>
+            <nav id="mobile-primary-navigation" aria-label="Mobile primary navigation">
+              <div className="nav-section-label">HOME</div>
+              {visibleBusinessNav.filter((item) => item.group === "HOME").map((item) => (
+                <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
+                  <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
+                </button>
+              ))}
+              <div className="nav-section-label">BUSINESS FLOW</div>
+              {visibleBusinessNav.filter((item) => item.group === "BUSINESS FLOW").map((item) => (
+                <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
+                  <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
+                </button>
+              ))}
+              {adminRoles.has(role) && (
+                <>
+                  <div className="nav-section-label">SYSTEM</div>
+                  <button type="button" aria-label="Admin" data-nav-id="administration" className={page === "administration" ? "nav-item active" : "nav-item"} onClick={() => navigate("administration")}>
+                    <span className="nav-icon"><Icon name="settings" size={18} /></span><span>Admin</span>
+                  </button>
+                </>
+              )}
+              <button type="button" aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}>
+                <span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span>
+              </button>
+            </nav>
+          </aside>
+        </div>
+      )}
+      <aside ref={sidebarRef} className="sidebar">
         <div className="brand">
           <AmecLogo size="sm" className="sidebar-amec-logo" />
           <div className="brand-product">
@@ -498,11 +650,22 @@ function App() {
           </span>
         </div>
       </aside>
-      <main className="main">
+      <main ref={mainRef} className="main">
         {page === "handover" && <HandoverPage />}
         {page === "engineering-drawing-review" && <EngineeringDrawingReviewPage />}
         <header className="topbar">
           <div className="topbar-heading">
+            <button
+              ref={mobileNavTriggerRef}
+              className="mobile-nav-trigger"
+              type="button"
+              aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={mobileNavOpen}
+              aria-controls="mobile-primary-navigation"
+              onClick={() => (mobileNavOpen ? closeMobileNav() : openMobileNav())}
+            >
+              Menu
+            </button>
             <AmecLogo size="sm" className="mobile-topbar-amec-logo" />
             <div>
               <span className="eyebrow">AMEC WORKSPACE</span>
@@ -555,7 +718,7 @@ function App() {
             </button>
           </div>
         </header>
-        <div className="content">
+        <div ref={mainContentRef} className="content" tabIndex={-1}>
           {error && (
             <div className="error-banner">
               API unavailable: {error}. Start the backend to view seeded data.
@@ -574,6 +737,8 @@ function App() {
           )}
           {page === "dashboard" && <CurrentDashboard role={role} />}{" "}
           {page === "home" && <HomeCommandCenter role={role} />}{" "}
+          {page === "phase4-review" && <Phase4ReviewPage role={role} />}
+          {page === "phase5-review" && <Phase5ReviewPage role={role} />}
           {page === "my-work" && (
             <MyWorkPage
               projects={projects}

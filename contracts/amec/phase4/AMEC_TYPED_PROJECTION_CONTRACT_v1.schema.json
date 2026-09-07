@@ -1,0 +1,155 @@
+{
+  "$id": "https://amec.local/contracts/phase4/",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "audit_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "corpus_app_contract_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "correlation_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "created_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "failure_or_review_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "issue_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "module_truth_contract_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "notification_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "operation": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "postcondition_version": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "precondition_version": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "projection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "result": {
+      "enum": [
+        "PROJECTED",
+        "ALREADY_PROJECTED",
+        "REJECTED",
+        "NEEDS_REVIEW"
+      ],
+      "type": "string"
+    },
+    "root_event_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_domain": {
+      "enum": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "FINANCE",
+        "MASTER_CONTENT",
+        "REPORTS"
+      ],
+      "type": "string"
+    },
+    "target_entity_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_entity_type": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "updated_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verified_assertion_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "work_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "projection_id",
+    "root_event_id",
+    "verified_assertion_id",
+    "module_truth_contract_sha",
+    "corpus_app_contract_sha",
+    "target_domain",
+    "target_entity_type",
+    "target_entity_id",
+    "operation",
+    "precondition_version",
+    "idempotency_key",
+    "result",
+    "created_ids",
+    "updated_ids",
+    "work_ids",
+    "issue_ids",
+    "notification_ids",
+    "audit_ids",
+    "correlation_id",
+    "created_at"
+  ],
+  "title": "AMEC Typed Projection Contract v1",
+  "type": "object"
+}

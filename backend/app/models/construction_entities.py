@@ -10,7 +10,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, utcnow
@@ -287,7 +287,7 @@ class ConstructionInspection(Base):
     __tablename__ = "construction_inspections"
     __table_args__ = (
         Index("ix_construction_inspection_execution", "construction_execution_id", "inspection_kind", "status"),
-        UniqueConstraint("construction_execution_id", "idempotency_key", name="uq_construction_inspection_idempotency"),
+        Index("uq_construction_inspection_idempotency", "construction_execution_id", "idempotency_key", unique=True, mssql_where=text("idempotency_key IS NOT NULL")),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)

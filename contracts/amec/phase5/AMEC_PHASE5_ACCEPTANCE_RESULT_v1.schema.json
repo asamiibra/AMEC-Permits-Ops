@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "AMEC_PHASE5_ACCEPTANCE_RESULT_v1",
+  "type": "object",
+  "required": ["version", "result", "primary_check_count", "primary_check_pass_count", "primary_check_fail_count", "duplicate_assertion_count", "unknown_evidence_id_count", "unresolved_evidence_reference_count", "checks"],
+  "properties": {
+    "version": {"const": 1},
+    "result": {"const": "PASS"},
+    "primary_check_count": {"type": "integer", "minimum": 300},
+    "primary_check_fail_count": {"const": 0},
+    "checks": {"type": "array", "items": {"type": "object", "required": ["check_id", "requirement_id", "category", "assertion", "method", "evidence", "evidence_ids", "basis_refs", "result"]}}
+  }
+}

@@ -75,12 +75,6 @@ type MasterType = "REPORT" | "ENGINEERING_WORK";
 
 const ownerRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
 
-type DashboardFormSummary = {
-  owner_status?: "Current" | "Needs Review" | "Inactive";
-  needs_review?: boolean;
-  current_document_version_id?: string | null;
-};
-
 export function CurrentDashboard({ role }: { role: string }) {
   const [items, setItems] = useState<MasterItem[]>([]);
   const [definitions, setDefinitions] = useState<Definition[]>([]);
@@ -213,7 +207,7 @@ export function CurrentDashboard({ role }: { role: string }) {
     }
   };
   return (
-    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="v2-evolution" data-testid="current-dashboard" data-testid-content-library="true">
+    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="content-library" data-testid="current-dashboard" data-testid-content-library="true">
       <header className="dashboard-page-header">
         <div>
           <span className="eyebrow">AMEC · CONTENT LIBRARY</span>
@@ -244,8 +238,11 @@ export function CurrentDashboard({ role }: { role: string }) {
           </a>
         </div>
       </header>
-      <DashboardGovernanceOverview />
       <DashboardLibraryNavigation />
+      <div className="dashboard-source-card" data-testid="dashboard-source-authority-panel">
+        <strong>Canonical source records linked</strong>
+        <small>MasterContentItem → Document → DocumentVersion</small>
+      </div>
       <section id="categories" className="dashboard-filter-bar" aria-label="Dashboard filters">
         <label>
           Search
@@ -414,48 +411,13 @@ export function CurrentDashboard({ role }: { role: string }) {
   );
 }
 
-function DashboardGovernanceOverview() {
-  const [forms, setForms] = useState<DashboardFormSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    void api<DashboardFormSummary[]>("/api/master-content?content_type=FORM")
-      .then(setForms)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const count = (status: DashboardFormSummary["owner_status"]) =>
-    forms.filter((form) => form.owner_status === status).length;
-
-  return (
-    <section className="dashboard-v2-overview" aria-label="Dashboard governance overview" data-testid="dashboard-governance-overview">
-      <div className="dashboard-v2-overview-heading">
-        <div>
-          <span className="eyebrow">GOVERNANCE OVERVIEW</span>
-          <h3>Canonical control plane</h3>
-          <p>One governed view of currentness, review state, source authority, and immutable version history.</p>
-        </div>
-        <span className="dashboard-v2-overview-state">{error ? "Summary unavailable" : loading ? "Reading canonical Forms…" : String(forms.length) + " canonical Forms"}</span>
-      </div>
-      <div className="dashboard-v2-overview-grid">
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-current-summary"><span>Current</span><strong>{loading ? "—" : count("Current")}</strong><small>Eligible business status</small></article>
-        <article className="dashboard-v2-summary-card dashboard-v2-summary-review" data-testid="dashboard-review-summary"><span>Needs Review</span><strong>{loading ? "—" : count("Needs Review")}</strong><small>Visible, not resolver eligible</small></article>
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-inactive-summary"><span>Inactive</span><strong>{loading ? "—" : count("Inactive")}</strong><small>Historical versions retained</small></article>
-        <article className="dashboard-v2-source-card" data-testid="dashboard-source-authority-panel"><span className="eyebrow">SOURCE / VERSION</span><strong>Canonical records remain linked</strong><small>MasterContentItem → Document → DocumentVersion</small></article>
-      </div>
-    </section>
-  );
-}
-
 function DashboardLibraryNavigation() {
   return (
     <nav className="dashboard-v2-library-nav" aria-label="Dashboard master libraries" data-testid="dashboard-library-navigation">
-      <a href="#forms"><span className="eyebrow">PRIMARY LIBRARY</span><strong>Forms</strong><small>Governed templates and automation readiness</small></a>
-      <a href="#reports"><span className="eyebrow">REFERENCE LIBRARY</span><strong>Reports</strong><small>Reusable reporting references</small></a>
-      <a href="#engineering-works"><span className="eyebrow">TECHNICAL LIBRARY</span><strong>Engineering Works</strong><small>Controlled technical references</small></a>
-      <a href="#definitions"><span className="eyebrow">SEMANTIC LIBRARY</span><strong>Definitions</strong><small>Shared business language</small></a>
+      <a href="#forms"><span className="eyebrow">CONTENT LIBRARY</span><strong>Forms</strong><small>Reusable forms and templates.</small></a>
+      <a href="#reports"><span className="eyebrow">CONTENT LIBRARY</span><strong>Reports</strong><small>Reusable reports and references.</small></a>
+      <a href="#engineering-works"><span className="eyebrow">CONTENT LIBRARY</span><strong>Engineering Works</strong><small>Controlled engineering references.</small></a>
+      <a href="#definitions"><span className="eyebrow">CONTENT LIBRARY</span><strong>Definitions</strong><small>Shared business language.</small></a>
     </nav>
   );
 }
@@ -494,8 +456,8 @@ function MasterSection({
           </h3>
           <p className="section-description">
             {type === "ENGINEERING_WORK"
-              ? "Controlled technical references for engineering and permit work."
-              : "Reusable AMEC reports and reporting references."}
+              ? "Controlled engineering references."
+              : "Reusable reports and references."}
           </p>
         </div>
         <div className="section-head-actions">
@@ -598,7 +560,7 @@ function DefinitionSection({
     >
       <div className="dashboard-section-head">
         <div>
-          <span className="eyebrow">STRUCTURED SEMANTICS</span>
+          <span className="eyebrow">CONTENT LIBRARY</span>
           <h3>Definitions</h3>
           <p className="section-description">
             Shared business language for client, project, proposal, and permit
@@ -883,14 +845,7 @@ function MasterEditor({
                 {['GENERAL','DESIGN','ARCHITECTURE','STRUCTURAL','CIVIL','MEP','FIRE_LIFE_SAFETY','PERMIT','OTHER'].map(value => <option key={value} value={value}>{value.replaceAll('_', ' ')}</option>)}
               </select>
             </label>
-            <label>
-              Additional metadata (authority, edition, effective date, clause/section, applicability notes)
-              <textarea
-                aria-label="Engineering metadata"
-                value={metadata}
-                onChange={(event) => setMetadata(event.target.value)}
-              />
-            </label>
+            <small>Additional reference metadata is maintained by Administration.</small>
           </section>
         )}
         {item && (
@@ -1184,11 +1139,11 @@ function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onCl
       <div><span>Category</span><b>{isDefinition ? item.category || "Uncategorized" : item.category?.label || "Uncategorized"}</b></div>
       <div><span>{isDefinition ? "Revision" : "Version"}</span><b>{isDefinition ? versionLabel(item.revision, true) : versionLabel(item.version)}</b></div>
       <div><span>Status</span><b>{isDefinition ? friendlyStatus(item.status, true) : friendlyStatus(item.version_status, Boolean(item.version))}</b></div>
-      {!isDefinition && <div><span>Source Type</span><b>{item.source_type_code || "Not classified"}</b></div>}
       <div><span>Used In</span><b>{(item.used_in || []).map(module => MODULE_LABELS[module] || module).join(", ") || "Not assigned"}</b></div>
+      {!isDefinition && <div><span>Current source file</span><b>{item.current_source_filename || "Not recorded"}</b></div>}
     </div>
     <p className="detail-description">{item.description || "No description"}</p>
-    {!isDefinition && <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}{!item.purpose_bindings?.length && <small>No explicit purpose binding.</small>}</div>}
+    <section className="form-governance-section"><h3>{isDefinition ? "Revision History" : "Version History"}</h3>{isDefinition ? ((item.revisions || []).length ? <div className="content-history-list">{(item.revisions || []).map((revision) => <div className="content-history-row" key={revision.id}><b>Revision {revision.revision}</b><span>{revision.status}</span><small>{formatDateTime(revision.changed_at)}</small></div>)}</div> : <p>No previous revisions recorded.</p>) : ((item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name} · {version.status}</span><small>{formatDateTime(version.updated_at)}</small></div>)}</div> : <p>No previous versions recorded.</p>)}</section>
     {!isDefinition && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
   </Drawer>;
 }

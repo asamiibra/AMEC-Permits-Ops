@@ -8,7 +8,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, or_, select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -333,7 +333,7 @@ def transition_release(db: Session, release: FormMappingRelease, status: str, *,
         result = validate_release(db, release)
         if not result["valid"]:
             raise _error("MAPPING_VALIDATION_FAILED", reasons=result["reasons"])
-        gates = list(db.scalars(select(FormMappingReleaseQAGate).where(FormMappingReleaseQAGate.mapping_release_id == release.id, FormMappingReleaseQAGate.required.is_(True))).all())
+        gates = list(db.scalars(select(FormMappingReleaseQAGate).where(FormMappingReleaseQAGate.mapping_release_id == release.id, FormMappingReleaseQAGate.required == true())).all())
         passed = {gate.qa_type for gate in gates if db.get(FormQARun, gate.qa_run_id) and db.get(FormQARun, gate.qa_run_id).result == "PASS"}
         required = {"STRUCTURAL_MAPPING", "SYNTHETIC_FILL", "READ_BACK", "WRITER_OWNERSHIP"}
         if not required.issubset(passed):
@@ -387,7 +387,7 @@ def evaluate_automated_readiness(db: Session, profile: FormAutomationProfile, *,
         validation = validate_release(db, release)
         if validation["mapping_checksum"] != release.mapping_checksum: reasons.append("MAPPING_CHECKSUM_INVALID")
         if not validation["valid"]: reasons.extend(validation["reasons"])
-        gates = list(db.scalars(select(FormMappingReleaseQAGate).where(FormMappingReleaseQAGate.mapping_release_id == release.id, FormMappingReleaseQAGate.required.is_(True))).all())
+        gates = list(db.scalars(select(FormMappingReleaseQAGate).where(FormMappingReleaseQAGate.mapping_release_id == release.id, FormMappingReleaseQAGate.required == true())).all())
         passed = {gate.qa_type for gate in gates if db.get(FormQARun, gate.qa_run_id) and db.get(FormQARun, gate.qa_run_id).result == "PASS"}
         required_qa = {"STRUCTURAL_MAPPING", "SYNTHETIC_FILL", "READ_BACK", "WRITER_OWNERSHIP"}
         if governance_profile and governance_profile.language_profile in {"AR", "AR_EN_BILINGUAL"}: required_qa.add("ARABIC_RTL")

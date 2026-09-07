@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..models import SourceIntakeBatch, SourceIntakeItem
+from ..models import DocumentVersion, MasterContentItem, SourceIntakeBatch, SourceIntakeItem
 from ..storage.archive import ArchiveEntryObservation, BoundedZipReader
 from ..storage.external import StableSourceRead
 from .master_content import create_master_content
@@ -103,7 +103,7 @@ class SourceIntakeService:
             row.disposition = disposition
             row.disposition_reason = match.get("required_action") or match.get("summary")
             row.duplicate_group = "sha256:" + row.sha256 if disposition == "BLOCKED_AMBIGUOUS" and row.sha256 else None
-            row.metadata_json = {**(row.metadata_json or {}), "manifest": {"version": manifest.get("version"), "audit_index": match.get("audit_index"), "dashboard_mapping": match.get("dashboard_mapping"), "category": match.get("category"), "used_in": match.get("used_in")}}
+            row.metadata_json = {**(row.metadata_json or {}), "manifest": {"version": manifest.get("version"), "audit_index": match.get("audit_index"), "dashboard_mapping": match.get("dashboard_mapping"), "category": match.get("category"), "used_in": match.get("used_in"), "ref": match.get("ref")}}
             row.promotion_status = "DISPOSITIONED"
             counts[disposition] = counts.get(disposition, 0) + 1
         batch.manifest_version = str(manifest.get("version", "v1"))
@@ -144,9 +144,27 @@ class SourceIntakeService:
             row.promotion_status = "PROMOTING"
             self.db.flush()
             metadata = row.metadata_json.get("manifest", {}) if row.metadata_json else {}
-            result = create_master_content(self.db, content_type=_content_type(metadata), ref=None, title=_safe_title(row.normalized_safe_path), category_id=None, description=metadata.get("category"), filename=row.original_filename or "source.bin", mime_type=observation.media_type or "application/octet-stream", content=content, actor=self.actor, idempotency_key=f"source-intake:{row.id}", correlation_id=f"source-intake:{batch.id}:{row.id}", source_surface="SOURCE_INTAKE_V1_4", used_in=["PERMIT", "ENGINEERING"] if _content_type(metadata) == "FORM" else ["REPORTS"], engineering_metadata={"source_intake_batch_id": batch.id, "source_intake_item_id": row.id, "original_relative_path": row.original_relative_path}, needs_review=disposition == "PROMOTE_MASTER_NEEDS_REVIEW", review_note=row.disposition_reason if disposition == "PROMOTE_MASTER_NEEDS_REVIEW" else None)
-            row.target_master_content_id = result["id"]
-            row.target_document_version_id = result.get("current_version_id")
+            content_type = _content_type(metadata)
+            observed_reference = str(metadata.get("ref") or "").strip() or None
+            existing = self.db.scalar(
+                select(MasterContentItem)
+                .join(DocumentVersion, DocumentVersion.document_id == MasterContentItem.document_id)
+                .where(
+                    MasterContentItem.content_type == content_type,
+                    MasterContentItem.status == "ACTIVE",
+                    DocumentVersion.sha256 == row.sha256,
+                )
+                .order_by(MasterContentItem.created_at)
+            )
+            if existing and existing.current_document_version_id:
+                row.target_master_content_id = existing.id
+                row.target_document_version_id = existing.current_document_version_id
+            else:
+                # A manifest reference is source-observed metadata.  It is
+                # never a canonical identity decision for Source Intake.
+                result = create_master_content(self.db, content_type=content_type, ref=None, title=_safe_title(row.normalized_safe_path), category_id=None, description=metadata.get("category"), filename=row.original_filename or "source.bin", mime_type=observation.media_type or "application/octet-stream", content=content, actor=self.actor, idempotency_key=f"source-intake:{row.id}", correlation_id=f"source-intake:{batch.id}:{row.id}", source_surface="SOURCE_INTAKE_V1_4", used_in=["PERMIT", "ENGINEERING"] if content_type == "FORM" else ["REPORTS"], engineering_metadata={"source_intake_batch_id": batch.id, "source_intake_item_id": row.id, "original_relative_path": row.original_relative_path, "source_observed_reference": observed_reference}, needs_review=disposition == "PROMOTE_MASTER_NEEDS_REVIEW", review_note=row.disposition_reason if disposition == "PROMOTE_MASTER_NEEDS_REVIEW" else None)
+                row.target_master_content_id = result["id"]
+                row.target_document_version_id = result.get("current_version_id")
             hard_kill_if_requested("OUTBOX_DURABLE_BEFORE_SOURCE_ITEM_FINAL")
             row.promotion_status = "PUBLISHED"
             counts[disposition] = counts.get(disposition, 0) + 1

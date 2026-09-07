@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from datetime import datetime, timezone, date
 from types import SimpleNamespace
-from sqlalchemy import delete, select, text, update
+from sqlalchemy import delete, select, text, update, true
 from reportlab.pdfgen.canvas import Canvas
 from ..config.settings import get_settings, repo_root
 from ..db import engine, SessionLocal, init_db
@@ -24,11 +24,106 @@ from ..services.permit_workflow import ensure_project_sources_task
 from ..services.proposals_sor import ACTION_CONFIG, ingest_project_artifact
 
 
-def seed():
-    init_db()
+def _delete_seed_models(db, models, *, enabled: bool) -> None:
+    """Execute the legacy destructive reset only when the caller explicitly allows it."""
+    if not enabled:
+        return
+    for model in models:
+        db.execute(delete(model))
+
+
+PREPROD_MIGRATION_BASELINE_SEQUENCE = {
+    "id": "proposal-reference-sequence",
+    "content_type": "PROPOSAL_REFERENCE",
+    "prefix": "AMEC-SYN-PROP",
+    "padding": 4,
+    "scope": "GLOBAL",
+    "active": True,
+    "current_value": 0,
+}
+
+
+def validate_preprod_migration_baseline(db) -> None:
+    """Validate the only row allowed before a non-destructive preprod seed."""
+    try:
+        rows = list(
+            db.scalars(
+                select(MasterContentReferenceSequence)
+            ).all()
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            "Synthetic preprod migration baseline could not "
+            "be verified; refusing seed."
+        ) from exc
+
+    if len(rows) != 1:
+        raise RuntimeError(
+            "Synthetic preprod migration baseline is missing "
+            "or unexpected; refusing seed."
+        )
+
+    row = rows[0]
+    observed = {
+        field: getattr(row, field, None)
+        for field in PREPROD_MIGRATION_BASELINE_SEQUENCE
+    }
+    if observed != PREPROD_MIGRATION_BASELINE_SEQUENCE:
+        raise RuntimeError(
+            "Synthetic preprod migration baseline is mutated; "
+            "refusing seed."
+        )
+
+    for table in Base.metadata.sorted_tables:
+        if (
+            table.name
+            == "master_content_reference_sequences"
+        ):
+            continue
+        if db.execute(select(table).limit(1)).first() is not None:
+            raise RuntimeError(
+                "Synthetic preprod migration baseline is accompanied "
+                "by unexpected application data; refusing seed."
+            )
+
+
+def seed(
+    *,
+    initialize_schema: bool = True,
+    reset_existing: bool = True,
+    clean_fixtures: bool = True,
+):
+    settings = get_settings()
+    environment = settings.app_env.upper()
+
+    # Production never accepts synthetic seed execution.
+    if environment == "PROD":
+        raise RuntimeError("Synthetic seed execution is forbidden in PROD.")
+
+    # Azure preprod has exactly one authorized seed mode: an already-migrated,
+    # empty database populated with synthetic fixtures without destructive reset.
+    if environment == "AZURE-PREPROD":
+        if not settings.synthetic_only:
+            raise RuntimeError("AZURE-PREPROD synthetic seed requires SYNTHETIC_ONLY=true.")
+        if settings.real_data_allowed:
+            raise RuntimeError("AZURE-PREPROD synthetic seed requires REAL_DATA_ALLOWED=false.")
+        if initialize_schema:
+            raise RuntimeError("AZURE-PREPROD synthetic seed requires initialize_schema=False.")
+        if reset_existing:
+            raise RuntimeError("AZURE-PREPROD synthetic seed requires reset_existing=False.")
+        if clean_fixtures:
+            raise RuntimeError("AZURE-PREPROD synthetic seed requires clean_fixtures=False.")
+    elif not reset_existing:
+        raise RuntimeError("Non-destructive synthetic seed mode is restricted to AZURE-PREPROD.")
+
+    if initialize_schema:
+        init_db()
+
     with SessionLocal() as db:
-        db.execute(update(EngineeringReview).values(current_scope_id=None))
-        db.execute(update(Invoice).values(requirement_decision_id=None))
+        if reset_existing:
+            db.execute(update(EngineeringReview).values(current_scope_id=None))
+            db.execute(update(Invoice).values(requirement_decision_id=None))
+
         reset_order = [
             # Shared-domain foundation records are reset before their
             # canonical master-content/project parents in disposable TEST.
@@ -57,17 +152,18 @@ def seed():
             SpikeFieldResult, SpikeDocumentResult, ExtractionSpikeRun, GoldFieldLabel, GoldDocumentLabel, RealDocumentTestGate, MunicipalityDraft, MunicipalityConfig, Conflict, DrawingMetadataControl, AttachmentCategoryConfig, ApprovalDependency, RequirementConfig, FieldAuthorityRule, VerifiedAssertion, FieldObservation, DocumentClassification, DocumentVersion, Document, FieldDefinition, ScenarioConfig,
             ExternalSystemLink, PermitApplication, Project, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
         ]
-        # PostgreSQL enforces the complete FK graph while SQLite's reset path
-        # historically relied on the hand-maintained model order.  Disposable
-        # local TEST databases can be reset atomically; Vercel/bootstrap never
-        # takes this path, so a deployment cannot accidentally truncate data.
-        settings = get_settings()
-        if db.bind.dialect.name == "postgresql" and settings.app_env.upper() == "TEST" and settings.synthetic_only and not os.getenv("VERCEL"):
-            tables = ", ".join(f'"{name}"' for name in Base.metadata.tables)
-            db.execute(text(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
+
+        if reset_existing:
+            if db.bind.dialect.name == "postgresql" and environment == "TEST" and settings.synthetic_only and not os.getenv("VERCEL"):
+                tables = ", ".join(f'"{name}"' for name in Base.metadata.tables)
+                db.execute(text(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
+            else:
+                _delete_seed_models(db, reset_order, enabled=True)
         else:
-            for model in reset_order: db.execute(delete(model))
-        office = ConsultancyOffice(office_code="QEC-DOHA", name_en="AMEC Engineering", name_ar="مكتب آفاق الخليج للاستشارات الهندسية", status="ACTIVE"); db.add(office); db.flush()
+            validate_preprod_migration_baseline(db)
+
+        office = ConsultancyOffice(office_code="QEC-DOHA", name_en="AMEC Engineering", name_ar="مكتب آفاق الخليج للاستشارات الهندسية", status="ACTIVE")
+        db.add(office); db.flush()
         users = [("owner@amec.synthetic", "Maha Al-Khatri", Role.OWNER_SPONSOR), ("champion@amec.synthetic", "Yousef Nasser", Role.PROCESS_CHAMPION), ("steward@amec.synthetic", "Noura Salem", Role.REQUIREMENT_STEWARD), ("engineer@amec.synthetic", "Omar Haddad", Role.RESPONSIBLE_ENGINEER), ("preparer@amec.synthetic", "Rana Faisal", Role.PERMIT_PREPARER), ("submitter@amec.synthetic", "Khalid Mansour", Role.FINAL_SUBMITTER), ("admin@amec.synthetic", "Samir Qasem", Role.SYSTEM_ADMIN)]
         db.add_all([User(email=e, display_name=n, role=r, office_id=office.id) for e,n,r in users]); db.flush()
         projects = [Project(project_number=CANONICAL_PROJECT_IDS[0], project_name="Al Noor Villa", office_id=office.id, workstream="RESIDENTIAL", status="ACTIVE", municipality="Doha", permit_type="Building Permit", assigned_engineer="Omar Haddad"), Project(project_number=CANONICAL_PROJECT_IDS[1], project_name="West Bay Residence", office_id=office.id, workstream="RESIDENTIAL", status="ACTIVE", municipality="Doha", permit_type="Building Permit", assigned_engineer="Rana Faisal"), Project(project_number=CANONICAL_PROJECT_IDS[2], project_name="Lusail Office Annex", office_id=office.id, workstream="COMMERCIAL", status="ACTIVE", municipality="Lusail", permit_type="Fit-out Permit", assigned_engineer="Omar Haddad"), Project(project_number=CANONICAL_PROJECT_IDS[3], project_name="Pearl Community Clinic", office_id=office.id, workstream="COMMERCIAL", status="ON_HOLD", municipality="Doha", permit_type="Renovation Permit", assigned_engineer="Noura Salem")]
@@ -83,8 +179,8 @@ def seed():
         db.add_all([MinistryInquiry(question_code=c, question=q, status=InquiryStatus.NOT_ASKED, client_owner="TBD") for c,q in questions])
         raid = [(RaidType.RISK,"R1 - Client data processing permissions unknown","Real sensitive-document processing approval is not established.","HIGH","TBD","Synthetic only until decision"),(RaidType.RISK,"R2 - Ministry automation permissions unknown","Authority automation boundaries are unknown.","HIGH","TBD","Use read-only simulator"),(RaidType.ISSUE,"R3 - Real portal behavior not yet mapped","No official portal has been contacted.","MEDIUM","TBD","Discovery inquiry"),(RaidType.RISK,"R4 - Arabic OCR performance unknown","OCR is deferred.","MEDIUM","TBD","Create synthetic acceptance corpus later"),(RaidType.ASSUMPTION,"R5 - Pilot project not yet frozen","No candidate is automatically selected.","MEDIUM","Client","Review candidate list"),(RaidType.ISSUE,"R6 - Excel locking behavior not yet validated","Workbook lock behavior is simulated only.","MEDIUM","TBD","Validate with client"),(RaidType.DEPENDENCY,"D1 - Responsible Engineer availability required","Pilot requires an available responsible engineer.","MEDIUM","Client","Confirm availability"),(RaidType.DEPENDENCY,"D2 - Client Ministry inquiry required","Narrow process questions need client ownership.","HIGH","Client","Assign inquiry owner"),(RaidType.DEPENDENCY,"D3 - Security/hosting approval required","Hosting and raw-data route remain open.","HIGH","Client","Obtain approval"),(RaidType.ASSUMPTION,"A1 - Assisted municipality preparation is planning default","Human final submission remains outside Week 1 scope.","LOW","Product","Validate in Phase 0")]
         db.add_all([RaidItem(type=t,title=title,description=desc,severity=sev,owner=owner,status="OPEN",mitigation=mit,phase0_close_impact=("BLOCKER" if title.startswith(("R1", "R5", "D2", "D3")) else "CONDITION" if title.startswith(("R2", "R4", "D1", "A1")) else "NONE")) for t,title,desc,sev,owner,mit in raid])
-        seed_week2(db, projects)
-        seed_week3(db, projects)
+        seed_week2(db, projects, reset_existing=reset_existing)
+        seed_week3(db, projects, reset_existing=reset_existing)
         seed_week4(db, projects)
         seed_week45(db, projects)
         seed_week7(db, projects)
@@ -102,7 +198,8 @@ def seed():
         for project, application in zip(projects, apps):
             ensure_project_sources_task(db, project, application)
         db.commit()
-    create_fixtures(synthetic_workspace_root())
+
+    create_fixtures(synthetic_workspace_root(), clean=clean_fixtures)
     ensure_primary_proposal_sources()
     ensure_proposals_contracts_demo_state()
     ensure_contract_center_golden_state()
@@ -286,12 +383,13 @@ def ensure_contract_center_golden_state():
         db.commit()
 
 
-def create_fixtures(root: Path):
+def create_fixtures(root: Path, *, clean: bool = True):
     synology_year = root / "mock-systems/synology/2026"
     synology_year.mkdir(parents=True, exist_ok=True)
-    for stale_root in synology_year.glob("PRJ-*"):
-        if stale_root.is_dir():
-            shutil.rmtree(stale_root)
+    if clean:
+        for stale_root in synology_year.glob("PRJ-*"):
+            if stale_root.is_dir():
+                shutil.rmtree(stale_root)
     (root / "mock-systems/municipality").mkdir(parents=True, exist_ok=True)
     (root / "synthetic-data/fixtures").mkdir(parents=True, exist_ok=True)
     for folder in ["master-content/forms", "master-content/reports", "master-content/engineering-works", "proposal-intake"]:
@@ -311,10 +409,13 @@ def create_fixtures(root: Path):
     (root / "mock-systems/municipality/README.md").write_text("PERMIT AUTHORITY SIMULATOR\nLOCAL SYNTHETIC TEST SYSTEM - NOT AN OFFICIAL GOVERNMENT SERVICE\n", encoding="utf-8")
 
 
-def seed_week2(db, projects):
+def seed_week2(db, projects, *, reset_existing: bool = True):
     # Deterministic synthetic rebuild; raw document contents never enter audit metadata.
-    for model in [SubmissionConfirmation, SpikeFieldResult, SpikeDocumentResult, ExtractionSpikeRun, GoldFieldLabel, GoldDocumentLabel, RealDocumentTestGate, MunicipalityDraft, MunicipalityConfig, Conflict, DrawingMetadataControl, AttachmentCategoryConfig, ApprovalDependency, RequirementConfig, FieldAuthorityRule, FieldObservation, DocumentClassification, DocumentVersion, Document, FieldDefinition, ScenarioConfig]:
-        db.execute(delete(model))
+    _delete_seed_models(
+        db,
+        [SubmissionConfirmation, SpikeFieldResult, SpikeDocumentResult, ExtractionSpikeRun, GoldFieldLabel, GoldDocumentLabel, RealDocumentTestGate, MunicipalityDraft, MunicipalityConfig, Conflict, DrawingMetadataControl, AttachmentCategoryConfig, ApprovalDependency, RequirementConfig, FieldAuthorityRule, FieldObservation, DocumentClassification, DocumentVersion, Document, FieldDefinition, ScenarioConfig],
+        enabled=reset_existing,
+    )
     scenario = ScenarioConfig(scenario_code="DEMO_BUILDING_PERMIT_V1", display_name="Demo Building Permit - Synthetic", version="DEMO_BUILDING_PERMIT_V1.0", office_workstream="QEC-DOHA / BUILDING_PERMIT", municipality="Demo Municipality A", permit_type="Building Permit", application_transaction_type="NEW", supported_owner_variants=["INDIVIDUAL", "COMPANY"], supported_languages=["AR", "EN"], supported_complexity_notes="Synthetic Tier 1 configuration example; not a client decision.", interaction_mode=InteractionMode.ASSISTED, status=ConfigStatus.PROVISIONAL)
     db.add(scenario); db.flush()
     field_specs = [("PROPERTY.PIN","Property PIN","IDENTIFIER",Criticality.CRITICAL,"PIN_EXACT"),("PROPERTY.PLOT_NUMBER","Plot number","IDENTIFIER",Criticality.CRITICAL,"IDENTIFIER_EXACT"),("PROPERTY.ZONE","Zone","STRING",Criticality.MAJOR,"TEXT"),("PROPERTY.MUNICIPALITY","Municipality","STRING",Criticality.MAJOR,"TEXT"),("PROPERTY.LAND_AREA","Land area","NUMBER",Criticality.MAJOR,"DECIMAL_2"),("OWNER.TYPE","Owner type","CODE",Criticality.MAJOR,"TEXT"),("OWNER.NAME_AR","Owner Arabic name","STRING",Criticality.CRITICAL,"ARABIC_NAME_COMPARISON"),("OWNER.NAME_EN","Owner English name","STRING",Criticality.MAJOR,"TEXT"),("OWNER.QID","Synthetic owner ID","IDENTIFIER",Criticality.CRITICAL,"QID_EXACT"),("OWNER.CR_NUMBER","Synthetic CR","IDENTIFIER",Criticality.CRITICAL,"CR_EXACT"),("REPRESENTATIVE.FLAG","Representative present","BOOLEAN",Criticality.MAJOR,"TEXT"),("PERMIT.TYPE","Permit type","CODE",Criticality.MAJOR,"TEXT"),("DRAWING.REVISION","Drawing revision","STRING",Criticality.MAJOR,"TEXT"),("DRAWING.PROJECT_NUMBER","Drawing project number","IDENTIFIER",Criticality.CRITICAL,"IDENTIFIER_EXACT")]
@@ -387,9 +488,12 @@ def seed_week2(db, projects):
     for p in projects[:3]: compare_project_conflicts(db, p.id, "seed-week2")
 
 
-def seed_week3(db, projects):
-    for model in [SignoffCProposal, Stage2ReviewAcknowledgement, Stage2Baseline, Phase0Decision, PilotCohort, PrecheckDecision, MunicipalityOperationDecision, DeliveryScenario, BusinessKpiTarget, BusinessBaseline, Tier2BacklogItem, Tier1Decision, AcceptanceCorpusDefinition, ThresholdDefinition, AdjudicationHistory, AdjudicationCase, PhaseBaseline]:
-        db.execute(delete(model))
+def seed_week3(db, projects, *, reset_existing: bool = True):
+    _delete_seed_models(
+        db,
+        [SignoffCProposal, Stage2ReviewAcknowledgement, Stage2Baseline, Phase0Decision, PilotCohort, PrecheckDecision, MunicipalityOperationDecision, DeliveryScenario, BusinessKpiTarget, BusinessBaseline, Tier2BacklogItem, Tier1Decision, AcceptanceCorpusDefinition, ThresholdDefinition, AdjudicationHistory, AdjudicationCase, PhaseBaseline],
+        enabled=reset_existing,
+    )
     steward = db.scalar(select(User).where(User.role == Role.REQUIREMENT_STEWARD))
     engineer = db.scalar(select(User).where(User.role == Role.RESPONSIBLE_ENGINEER))
     champion = db.scalar(select(User).where(User.role == Role.PROCESS_CHAMPION))
@@ -731,7 +835,7 @@ def seed_week10(db, projects):
         ]
         existing_requirement_codes = {x.requirement_code for x in db.scalars(select(RequirementConfig).where(RequirementConfig.scenario_id == scenario.id)).all()}
         db.add_all([RequirementConfig(scenario_id=scenario.id, requirement_code=code, description=description, requirement_type=kind, applicability_expression_json={"signed_scenario": True}, human_decision_required=human, blocking=True, effective_from=date(2026, 1, 1), status=ConfigStatus.PROVISIONAL) for code, description, kind, human in matrix_requirements if code not in existing_requirement_codes])
-        for field in db.scalars(select(FieldDefinition).where(FieldDefinition.active.is_(True))).all():
+        for field in db.scalars(select(FieldDefinition).where(FieldDefinition.active == true())).all():
             authority = db.scalar(select(FieldAuthorityRule).where(FieldAuthorityRule.scenario_id == scenario.id, FieldAuthorityRule.field_definition_id == field.id))
             if not authority:
                 db.add(FieldAuthorityRule(scenario_id=scenario.id, field_definition_id=field.id, purpose="PERMIT_PREPARATION", primary_source_type="SYNTHETIC_CANONICAL", fallback_source_type=None, conflict_behavior="BLOCK_CRITICAL_CONFLICT", human_verifier_role=Role.RESPONSIBLE_ENGINEER.value if field.criticality == Criticality.CRITICAL else Role.REQUIREMENT_STEWARD.value, notes="Synthetic Week 10 signed-scenario matrix rule.", status=ConfigStatus.PROVISIONAL))
@@ -794,7 +898,7 @@ def seed_week12(db, projects):
     ]
     db.add_all(variants); db.flush()
     db.add(VariantCompatibilityResult(scenario_id=scenario.id, base_variant=variants[0].variant_code, second_variant=variants[1].variant_code, domain_schema_change_required=False, new_semantic_fields=["OWNER.CR_NUMBER"], new_rendering_rules=["OWNER.TYPE", "OWNER.CR_NUMBER"], new_requirement_rules=["COMPANY_CR"], new_attachment_rules=["COMMERCIAL_REGISTRATION"], new_grid_rules=[], new_human_decisions=["company registration applicability"], core_code_fork_required=False, result="CONFIGURATION_ONLY"))
-    fields = [x.field_code for x in db.scalars(select(FieldDefinition).where(FieldDefinition.active.is_(True)).order_by(FieldDefinition.field_code)).all()]
+    fields = [x.field_code for x in db.scalars(select(FieldDefinition).where(FieldDefinition.active == true()).order_by(FieldDefinition.field_code)).all()]
     for variant in variants:
         for target in ["FORM", "EXCEL", "MUNICIPALITY_SCALAR", "MUNICIPALITY_DROPDOWN", "MUNICIPALITY_GRID_FIELD"]:
             mapped = fields

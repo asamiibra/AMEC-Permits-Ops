@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -180,6 +180,6 @@ def run_restore_rehearsal(db: Session, *, manifest: RecoveryManifest | None = No
 def operations_report(db: Session) -> dict[str, Any]:
     policies = db.scalars(select(MonitoringPolicy)).all()
     latest_checks = db.scalars(select(MonitoringCheck).order_by(MonitoringCheck.checked_at.desc()).limit(20)).all()
-    open_findings = db.scalar(select(func.count(Finding.id)).where(Finding.blocking.is_(True), Finding.status.in_(list(ACTIVE_FINDING_STATUSES)))) or 0
+    open_findings = db.scalar(select(func.count(Finding.id)).where(Finding.blocking == true(), Finding.status.in_(list(ACTIVE_FINDING_STATUSES)))) or 0
     overdue = db.scalar(select(func.count(WorkflowTask.id)).where(WorkflowTask.status.notin_([WorkflowTaskStatus.COMPLETED, WorkflowTaskStatus.CANCELLED]), WorkflowTask.due_at < now_utc())) or 0
     return {"monitoring": {"active": sum(x.enabled and x.status == "SYNTHETIC_ACTIVE" for x in policies), "paused": sum(x.status == "PAUSED" for x in policies), "drifted": sum(x.status == "DRIFTED" for x in policies)}, "latest_successful_checks": len(latest_checks), "open_blocking_findings": open_findings, "overdue_tasks": overdue, "notification_failures": db.scalar(select(func.count(NotificationDeliveryAttempt.id)).where(NotificationDeliveryAttempt.result == "FAILED")) or 0, "recurrence_flags": db.scalar(select(func.count(FindingRecurrenceAnalysisItem.id)).where(FindingRecurrenceAnalysisItem.classification != "FIRST_OCCURRENCE")) or 0, "support_cases": db.scalar(select(func.count(SupportCase.id))) or 0, "p1_incidents": db.scalar(select(func.count(IntegrityIncident.id)).where(IntegrityIncident.severity == "P1")) or 0, "stale_packages": db.scalar(select(func.count(Package.id)).where(Package.status.in_(["STALE", "SUPERSEDED"]))) or 0, "stale_revisions": db.scalar(select(func.count(PreparationRevision.id)).where(PreparationRevision.status.in_(["STALE", "SUPERSEDED"]))) or 0, "auth_mfa_failures": db.scalar(select(func.count(MfaChallengeEvent.id)).where(MfaChallengeEvent.result == "FAILED")) or 0, "portal_drift_events": db.scalar(select(func.count(PortalDriftEvent.id))) or 0, "recovery_ready": db.scalar(select(func.count(RestoreRehearsal.id)).where(RestoreRehearsal.result == "PASS")) or 0, "evidence_class": "SYNTHETIC_IMPLEMENTATION_EVIDENCE", "fixture": fixture_metadata()}

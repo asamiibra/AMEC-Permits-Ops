@@ -1,0 +1,17 @@
+{
+  "source_sha": "96c4b90968754efd8e5998cd1b1793b67c23d2bc",
+  "source_parent_sha": "dd24e1c9ac65d6137614252f821d3a3e6b1263c2",
+  "source_tree_sha": "c547005d3a18a9c71965a40a5327aa46edb28c6f",
+  "legacy_versions_tree_sha": "4b5df36eaba0816df17bb2078958da946a6442d6",
+  "legacy_migration_count": 59,
+  "legacy_head": "0059_entra_user_identity",
+  "postgres_image": "postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5",
+  "manifest_sha256": "582895ddd645588247d49edc2d1812b9f6837e33eb683edf3c2b7eb19f85355e",
+  "reference_schema_sha256": "1f75d13fbac7b42585504df2da7c48a2bf6c22def49fedff64a13954dfa540e1",
+  "reference_control_data_sha256": "b423173037fb3b16a4d0a158faa8321397e926c2721b6a4c5b12c501b2b0f27f",
+  "normalization_rules_sha256": "83296fd8b692f18850c7c78d1f0bd00f3fda2127a41b14e3229f834bf4ae0d4a",
+  "contract_exclusions_sha256": "2b92b724de8d4d9dc17a14a1f4a76605f60911365a9c62b3a7957edd99ae1b76",
+  "stage_a_run_id": 32612830868,
+  "stage_a_job_id": 97128428199,
+  "reference_package_status": "PASS"
+}

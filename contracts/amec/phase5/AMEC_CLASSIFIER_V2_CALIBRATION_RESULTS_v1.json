@@ -1,0 +1,15 @@
+{
+  "calibration_mutated_validation": false,
+  "classifier_version": "classifier-v2-rules-only-1.0.0",
+  "critical_false_promotions": 0,
+  "learned_lane": "NOT_PROMOTED_DATA_INSUFFICIENT",
+  "result": "PASS",
+  "rules_version": "classifier-v2-rules-1.0.0",
+  "split": "CALIBRATION_DEVELOPMENT",
+  "synthetic_only": true,
+  "thresholds": {
+    "hard_gate": 1.0,
+    "review_required": 1.0
+  },
+  "version": 1
+}

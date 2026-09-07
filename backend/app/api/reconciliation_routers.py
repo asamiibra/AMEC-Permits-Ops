@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.orm import Session
 from ..adapters.excel.adapter import MockExcelAdapter, WorkbookLockedError
 from ..audit.service import audit
@@ -53,7 +53,7 @@ def canonical_fixture(db: Session = Depends(get_db)):
     fixture = db.scalar(select(SyntheticFixtureSet).where(SyntheticFixtureSet.fixture_set_id == CANONICAL_FIXTURE_ID))
     if not fixture:
         raise HTTPException(404, "Canonical fixture set is not seeded")
-    active_count = db.scalar(select(func.count(SyntheticFixtureSet.id)).where(SyntheticFixtureSet.golden_path_authority.is_(True)))
+    active_count = db.scalar(select(func.count(SyntheticFixtureSet.id)).where(SyntheticFixtureSet.golden_path_authority == true()))
     return {**safe_row(fixture), **fixture_metadata(), "manifest": CANONICAL_FIXTURE_MANIFEST, "active_golden_path_authorities": active_count, "legacy_aliases": [safe_row(x) for x in db.scalars(select(LegacyFixtureAlias).order_by(LegacyFixtureAlias.legacy_id)).all()]}
 
 

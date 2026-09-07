@@ -55,19 +55,92 @@ export function NewPermitPage() {
 
 const tabs = ["overview", "project-details", "requirements", "documents", "drawings", "forms", "comments", "submission-history", "permit-license", "history"];
 export function PermitCasePage() {
-  const parts = window.location.pathname.split("/"); const caseId = parts[2] || ""; const [tab, setTab] = useState(parts[3] || "overview"); const [workspace, setWorkspace] = useState<any | null>(null); const [error, setError] = useState("");
-  useEffect(() => { if (caseId) api<any>(`/api/permit-ux/cases/${caseId}`).then(setWorkspace).catch((e) => setError(e instanceof Error ? e.message : "Permit workspace unavailable.")); }, [caseId]);
+  const parts = window.location.pathname.split("/"); const caseId = parts[2] || ""; const [tab, setTab] = useState(parts[3] || "overview"); const [workspace, setWorkspace] = useState<any | null>(null); const [error, setError] = useState(""); const [assistForms, setAssistForms] = useState<any[] | null>(null); const [assistPreview, setAssistPreview] = useState<any | null>(null); const [assistError, setAssistError] = useState(""); const [assistBusy, setAssistBusy] = useState(false); const [assistTargetId, setAssistTargetId] = useState(""); const [assistSelection, setAssistSelection] = useState<string[]>([]); const [assistApplyResult, setAssistApplyResult] = useState<any | null>(null);
+  useEffect(() => { if (caseId) api<any>(`/api/permit-ux/cases/${caseId}`).then((value) => { setWorkspace(value); setAssistTargetId(value.forms.find((row: any) => row.form?.status === "DRAFT")?.form?.id || ""); }).catch((e) => setError(e instanceof Error ? e.message : "Permit workspace unavailable.")); }, [caseId]);
+  const loadAssistForms = async () => { setAssistBusy(true); setAssistError(""); try { setAssistForms(await api<any[]>("/api/master-content?content_type=FORM&module=PERMIT&automation_readiness=AUTOMATED_USE_READY")); } catch (cause) { setAssistError(cause instanceof Error ? cause.message : "Eligible forms unavailable."); } finally { setAssistBusy(false); } };
+  const previewAssist = async (form: any) => { setAssistBusy(true); setAssistError(""); setAssistApplyResult(null); try { const result = await api<any>("/api/governed-prefill/preview", { method: "POST", body: JSON.stringify({ master_content_id: form.id, form_instance_id: assistTargetId || undefined, context_entity_type: "AuthorityCase", context_entity_id: caseId, purpose: "FORM_PREPARATION" }) }); setAssistPreview(result); setAssistSelection((result.fields || []).filter((field: any) => field.proposal_status === "READY" && field.write_eligibility === "READY").map((field: any) => field.logical_field_key)); } catch (cause) { setAssistPreview(null); setAssistError(cause instanceof Error ? cause.message : "Assist preview unavailable."); } finally { setAssistBusy(false); } };
+  const applyAssist = async () => {
+    if (!assistPreview?.preview_fingerprint || !assistTargetId || !assistSelection.length) return;
+    setAssistBusy(true);
+    setAssistError("");
+    try {
+      const result = await api<any>("/api/governed-prefill/apply", {
+        method: "POST",
+        body: JSON.stringify({
+          form_instance_id: assistTargetId,
+          context_entity_type: "AuthorityCase",
+          context_entity_id: caseId,
+          purpose: "FORM_PREPARATION",
+          preview_fingerprint: assistPreview.preview_fingerprint,
+          expected_draft_revision: assistPreview.draft_revision,
+          idempotency_key: crypto.randomUUID(),
+          selected_field_keys: assistSelection,
+        }),
+      });
+      setAssistApplyResult(result);
+      setWorkspace((current: any) => current ? {
+        ...current,
+        forms: current.forms.map((row: any) => row.form?.id === assistTargetId ? { ...row, form: result.form_instance } : row),
+      } : current);
+    } catch (cause) {
+      setAssistError(cause instanceof Error ? cause.message : "The governed draft apply was rejected.");
+    } finally {
+      setAssistBusy(false);
+    }
+  };
+
   const content = useMemo(() => { if (!workspace) return null; if (tab === "overview") return <><section className="workspace-summary"><div><span className="eyebrow">{workspace.case.case_reference}</span><h2>{workspace.project.project_name}</h2><p>{workspace.journey?.journey_code || "Journey pending"} · {label(workspace.external_body)} · {label(workspace.service_type)} · {label(workspace.jurisdiction)}</p></div><Status value={workspace.status.system_status} /></section><div className="workspace-metrics">{[["Stage", pretty(workspace.status.stage)], ["Blockers", workspace.status.block_count], ["Open Comments", workspace.status.open_comments], ["Permit Number", workspace.permit_identifier?.value || "Pending"]].map(([name, value]) => <div className="metric" key={String(name)}><span>{name}</span><strong>{String(value)}</strong><small>Canonical projection</small></div>)}</div><section className="panel next-action"><span className="eyebrow">NEXT ACTION</span><h3>{workspace.next_action}</h3><p>System status is derived from requirements, evidence, baseline, precheck, findings, and submission state.</p></section></>;
     if (tab === "project-details") return <Detail title="Project Details"><Info rows={[["Project reference", workspace.project.project_number], ["Project", workspace.project.project_name], ["Municipality", workspace.project.municipality], ["Permit type", workspace.project.permit_type], ["Property", workspace.project_details.properties.map((x: any) => `${x.plot_number} · ${x.municipality}`).join(", ") || "Not configured"], ["Party / client", workspace.project_details.parties.map((x: any) => x.name_en || x.name_ar).join(", ") || "Not configured"]]} /><p className="muted">{workspace.project_details.sensitive_fields}</p><section className="context-card"><span className="eyebrow">PARTIES &amp; REPRESENTATION</span>{(workspace.parties_representation?.assignments || []).length ? workspace.parties_representation.assignments.map((x: any) => <p key={x.id}><b>{pretty(x.role_code)}</b> · {x.party?.name_en || x.party?.name_ar || "Party"} · {pretty(x.status)}</p>) : <p>No case-scoped party roles confirmed.</p>}<small>Commercial Client, Owner, Applicant, Agent, Consultant, Contractor, Signatory, and Regulatory Contact remain distinct unless explicitly assigned.</small></section><section className="context-card"><span className="eyebrow">REGULATORY CONTACT</span>{(workspace.parties_representation?.contacts || []).filter((x: any) => x.purpose === "REGULATORY").length ? <p>Verified purpose-specific contact is recorded.</p> : <p>No verified regulatory-purpose contact; general mobile is not substituted.</p>}</section></Detail>;
     if (tab === "requirements") return <Detail title="Requirements"><Rows items={workspace.requirements} render={(x: any) => <><b><Status value={x.status} /></b><small>{pretty(x.applicability)} · {x.reason}</small></>} /></Detail>;
     if (tab === "documents") return <Detail title="Documents"><Rows items={workspace.documents} render={(x: any) => <><b>{x.document.logical_name}</b><small>{x.versions.length} immutable version(s) · canonical View / Upload / Replace controls</small></>} /></Detail>;
     if (tab === "drawings") return <Detail title="Drawings"><Rows items={workspace.drawings} render={(x: any) => <><b>{x.deliverable?.deliverable_ref || "Drawing"} · {x.revision?.title || "Untitled"}</b><small>{x.revision?.revision_code || "Revision pending"} · {x.discipline || "Discipline not configured"} · professional approval {x.professional_approval?.status || "not evidenced"}</small></>} /></Detail>;
-    if (tab === "forms") return <Detail title="Forms"><Rows items={workspace.forms} render={(x: any) => <><b>{x.form.context_type} form</b><small>{pretty(x.form.status)} · generated artifacts {x.generated_artifacts.length} · signatures/stamps remain human gates</small></>} /></Detail>;
+    if (tab === "forms") {
+      const draftForms = workspace.forms.filter((row: any) => row.form?.status === "DRAFT");
+      return <Detail title="Forms">
+        <div className="assist-toolbar">
+          <div>
+            <span className="eyebrow">EXPLICIT CASE ACTION</span>
+            <p>Review governed suggestions for this Authority Case. Apply updates the selected DRAFT only.</p>
+          </div>
+          <button className="button-primary" onClick={() => { setAssistPreview(null); setAssistApplyResult(null); void loadAssistForms(); }} disabled={assistBusy || !draftForms.length}>
+            {assistBusy ? "Loading…" : "Assist with Form"}
+          </button>
+        </div>
+        <label className="assist-target">
+          Draft FormInstance
+          <select aria-label="Draft form target" value={assistTargetId} onChange={(event) => { setAssistTargetId(event.target.value); setAssistPreview(null); setAssistApplyResult(null); }}>
+            <option value="">Select an editable draft</option>
+            {draftForms.map((row: any) => <option key={row.form.id} value={row.form.id}>{row.form.id} · {pretty(row.form.status)} · revision {row.form.draft_revision ?? 0}</option>)}
+          </select>
+        </label>
+        <Rows items={workspace.forms} render={(x: any) => <><b>{x.form.context_type} form</b><small>{pretty(x.form.status)} · draft revision {x.form.draft_revision ?? 0} · generated artifacts {x.generated_artifacts.length} · signatures/stamps remain human gates</small></>} />
+        {assistError && <div className="error-banner" role="alert">{assistError}</div>}
+        {assistForms && <div className="assist-panel">
+          <h4>Eligible canonical forms</h4>
+          {assistForms.length ? assistForms.map((form: any) => <div className="assist-choice" key={form.id}>
+            <div><b>{form.ref} · {form.title}</b><small>{form.owner_status} · current version {form.current_version_id || form.document_version_id || "not pinned"}</small></div>
+            <button className="button-secondary" onClick={() => void previewAssist(form)} disabled={assistBusy || !assistTargetId}>Review suggestion</button>
+          </div>) : <p>No eligible governed form is available for this case.</p>}
+          {assistPreview && <div className="assist-preview">
+            <div className="assist-preview-head"><div><span className="eyebrow">GOVERNED PREFILL PREVIEW</span><h4>{assistPreview.master_content_ref}</h4></div><Status value={assistPreview.preview_status} /></div>
+            <p>Master version {assistPreview.document_version_id} · mapping release {assistPreview.mapping_release_id} · draft revision {assistPreview.draft_revision ?? "—"} · {assistPreview.staleness_state}</p>
+            {assistPreview.fields.map((field: any) => <label className="assist-field" key={field.mapping_rule_id}>
+              <span><input type="checkbox" checked={assistSelection.includes(field.logical_field_key)} disabled={field.proposal_status !== "READY" || field.write_eligibility !== "READY" || assistBusy} onChange={(event) => setAssistSelection((current) => event.target.checked ? [...current, field.logical_field_key] : current.filter((key) => key !== field.logical_field_key))} /> <b>{field.target_field}</b><small>{field.proposal_status} · {field.write_reason || field.warning || "Citation-backed value"}</small></span>
+              <strong>{field.proposed_value == null ? "Not proposed" : String(field.proposed_value)}</strong>
+              <details><summary>Evidence &amp; citation</summary>{field.citations.map((citation: any, index: number) => <small key={citation.evidence_identity || citation.canonical_entity_id + index}>{citation.canonical_entity_type} {citation.canonical_entity_id} · {citation.locator} · version {citation.document_version_id || "structured current"}</small>)}</details>
+            </label>)}
+            <button className="button-primary" onClick={() => void applyAssist()} disabled={assistBusy || !assistSelection.length || assistPreview.staleness_state !== "CURRENT" || !assistPreview.preview_fingerprint}>Apply selected suggestions to DRAFT</button>
+            {assistApplyResult && <div className="scope-note" role="status">Applied to DRAFT revision {assistApplyResult.form_instance.draft_revision}. No submission, approval, signature, or authority action was performed.</div>}
+            <div className="scope-note">Human Apply is explicit and revalidated at write time. Signatures, stamps, approvals, and authority actions remain human-controlled.</div>
+          </div>}
+        </div>}
+      </Detail>;
+    }
     if (tab === "comments") return <Detail title="Comments / Findings"><Rows items={workspace.comments} render={(x: any) => <><b>{x.finding.title}</b><small>{pretty(x.finding.status)} · {pretty(x.finding.severity)} · {x.finding.raw_text}</small><small>{x.responses.length} internal response(s); AI boundary: {x.ai_boundary}</small></>} /></Detail>;
     if (tab === "submission-history") return <Detail title="Submission History"><Rows items={workspace.submission_history.cycles} render={(x: any) => <><b>C{x.cycle_number}</b><small>{pretty(x.status)} · immutable package/snapshot boundary</small></>} /></Detail>;
     if (tab === "permit-license") return <Detail title="Permit / License"><div className="context-card"><h3>{workspace.permit_identifier?.value || "No authority identifier"}</h3><p>{workspace.permit_license.outcomes.length ? "Authority outcome is evidence-backed." : "No evidence-backed authority outcome has been recorded."}</p><small>System summary only. This surface does not create an official permit or construction authorization.</small></div></Detail>;
     return <Detail title="History"><Rows items={workspace.history} render={(x: any) => <><b>{x.event_type}</b><small>{x.created_at} · {x.actor_id}</small></>} /></Detail>;
-  }, [tab, workspace]);
+  }, [assistBusy, assistError, assistForms, assistPreview, assistApplyResult, assistSelection, assistTargetId, tab, workspace]);
   return <div className="permit-ux-page">{error && <div className="error-banner">{error}</div>}{!workspace ? <p className="permit-empty">Loading permit workspace…</p> : <><div className="page-intro"><div><span className="eyebrow">PERMIT / AUTHORITY CASE WORKSPACE</span><h2>{workspace.case.case_reference}</h2><p>{workspace.project.project_name}</p></div><button className="button-secondary" onClick={() => move("/permits")}>Back to permits</button></div><nav className="workspace-tabs" aria-label="Permit workspace tabs">{tabs.map((item) => <button className={tab === item ? "active" : ""} key={item} onClick={() => { setTab(item); move(`/permits/${caseId}/${item}`); }}>{pretty(item)}</button>)}</nav>{content}</>}</div>;
 }
 function Detail({ title, children }: { title: string; children: ReactNode }) { return <section className="panel permit-detail"><div className="panel-head"><div><span className="eyebrow">CANONICAL READ MODEL</span><h3>{title}</h3></div></div>{children}</section>; }

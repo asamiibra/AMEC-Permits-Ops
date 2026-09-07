@@ -354,6 +354,18 @@ def render_instance(db: Session, instance: FormInstance, *, actor_id: str, corre
         instance.invalidation_reason = "Source DocumentVersion changed after profile/instance creation."
         db.flush()
         raise DomainConflict("SOURCE_VERSION_NEEDS_REVALIDATION")
+    from .master_content import exact_master_content_binding_check
+    binding = exact_master_content_binding_check(
+        db,
+        master_content_item_id=instance.master_content_item_id,
+        document_version_id=instance.source_document_version_id,
+        content_type="FORM",
+    )
+    if not binding["valid"]:
+        instance.status = "NEEDS_REVALIDATION"
+        instance.invalidation_reason = "; ".join(binding["reasons"])
+        db.flush()
+        raise DomainConflict("MASTER_CONTENT_NOT_CONSUMABLE")
     release = db.get(FormMappingRelease, instance.mapping_release_id) if instance.mapping_release_id else None
     rules = list(db.scalars(select(FormMappingRule).where(FormMappingRule.mapping_release_id == release.id).order_by(FormMappingRule.id)).all()) if release else []
     output: dict[str, Any] = {}

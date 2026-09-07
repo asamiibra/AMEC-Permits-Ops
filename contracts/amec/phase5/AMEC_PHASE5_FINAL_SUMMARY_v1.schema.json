@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "AMEC_PHASE5_FINAL_SUMMARY_v1",
+  "type": "object",
+  "required": ["version", "result", "classifier_version", "rules_version", "freeze_manifest", "acceptance_check_count", "critical_false_promotions", "shadow_state", "handoff_state"],
+  "properties": {
+    "version": {"const": 1},
+    "result": {"const": "PASS"},
+    "acceptance_check_count": {"type": "integer", "minimum": 300},
+    "shadow_state": {"const": "REVIEW_COMPARE_ONLY"},
+    "handoff_state": {"const": "READY_FOR_INDEPENDENT_PHASE5_ACCEPTANCE"}
+  }
+}

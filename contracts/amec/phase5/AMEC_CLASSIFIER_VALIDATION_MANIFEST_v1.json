@@ -1,0 +1,13 @@
+{
+  "case_ids": [
+    "P5-GOLD-SECRET-001",
+    "P5-VAL-MODIFIED-001",
+    "P5-VAL-MOVE-001",
+    "P5-VAL-MISSING-001",
+    "P5-VAL-FINANCE-001"
+  ],
+  "frozen": true,
+  "leakage_overlap_count": 0,
+  "split": "VALIDATION",
+  "version": 1
+}

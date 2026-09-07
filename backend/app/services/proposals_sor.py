@@ -94,6 +94,42 @@ def intake_sor_root() -> Path:
     return root / "synology" / "proposal-intake"
 
 
+def read_proposal_source_bytes(
+    *,
+    opportunity_reference: str,
+    sor_path: str,
+    expected_sha256: str,
+    expected_file_size: int,
+) -> bytes:
+    """Read one already-linked Proposal intake artifact without mutation."""
+    if not opportunity_reference or not sor_path:
+        raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_LINKAGE_MISMATCH")
+    persisted_path = Path(sor_path)
+    if ".." in persisted_path.parts:
+        raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_PATH_INVALID")
+    try:
+        resolved_intake_root = intake_sor_root().resolve(strict=True)
+        proposal_root = (resolved_intake_root / opportunity_reference).resolve(strict=True)
+        proposal_root.relative_to(resolved_intake_root)
+        if proposal_root == resolved_intake_root:
+            raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_PATH_INVALID")
+        resolved_path = persisted_path.resolve(strict=True)
+        resolved_path.relative_to(proposal_root)
+    except (FileNotFoundError, OSError, RuntimeError, ValueError) as exc:
+        raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_PATH_INVALID") from exc
+    if not resolved_path.is_file():
+        raise HTTPException(404, "PROPOSAL_SOURCE_READBACK_FILE_NOT_FOUND")
+    try:
+        content = resolved_path.read_bytes()
+    except (OSError, ValueError) as exc:
+        raise HTTPException(502, "PROPOSAL_SOURCE_READBACK_UNAVAILABLE") from exc
+    if hashlib.sha256(content).hexdigest() != expected_sha256:
+        raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_HASH_MISMATCH")
+    if len(content) != expected_file_size:
+        raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_SIZE_MISMATCH")
+    return content
+
+
 def ingest_provisional_intake_artifact(
     db: Session,
     *,

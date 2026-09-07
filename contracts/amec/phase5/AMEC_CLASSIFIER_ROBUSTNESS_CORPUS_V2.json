@@ -1,0 +1,261 @@
+{
+  "cases": [
+    {
+      "case_id": "P5-GOLD-NEW-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-NEW-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-NEW-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "NEW_UNKNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-GOLD-AMBIG-001",
+      "contradiction_families": [
+        "DISCIPLINE_CONFLICT"
+      ],
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-AMBIG-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-AMBIG-001/02"
+      ],
+      "expected": "NEEDS_REVIEW",
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-GOLD-OOS-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-OOS-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-OOS-001/02"
+      ],
+      "expected": "OUT_OF_SCOPE",
+      "out_of_scope": true,
+      "source_mode": "NEW_UNKNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-GOLD-SECRET-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-GOLD-SECRET-001/01",
+        "synthetic-evidence://phase5/P5-GOLD-SECRET-001/02"
+      ],
+      "expected": "SECRET_EXCLUDE",
+      "secret_exclude": true,
+      "source_mode": "NEW_UNKNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-VAL-MODIFIED-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-MODIFIED-001/01",
+        "synthetic-evidence://phase5/P5-VAL-MODIFIED-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "MODIFIED_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "candidate_entity_id": "synthetic-project-001",
+      "case_id": "P5-VAL-MOVE-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-MOVE-001/01",
+        "synthetic-evidence://phase5/P5-VAL-MOVE-001/02"
+      ],
+      "expected": "RELATIONSHIP_REVIEW",
+      "source_mode": "MOVE_RENAME_CANDIDATE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-VAL-MISSING-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-MISSING-001/01",
+        "synthetic-evidence://phase5/P5-VAL-MISSING-001/02"
+      ],
+      "expected": "MISSING_CANDIDATE",
+      "missing_candidate": true,
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-VAL-FINANCE-001",
+      "document_type_hint": "FINANCE",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-VAL-FINANCE-001/01",
+        "synthetic-evidence://phase5/P5-VAL-FINANCE-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-HOLDOUT-UNTOUCHED-001",
+      "document_type_hint": "MASTER_CONTENT",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-001/01",
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-001/02"
+      ],
+      "expected": "PROPOSED",
+      "source_mode": "EXISTING_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-HOLDOUT-UNTOUCHED-002",
+      "contradiction_families": [
+        "CURRENTNESS_CONFLICT"
+      ],
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-002/01",
+        "synthetic-evidence://phase5/P5-HOLDOUT-UNTOUCHED-002/02"
+      ],
+      "expected": "NEEDS_REVIEW",
+      "source_mode": "MODIFIED_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-ADV-CONFLICT-001",
+      "contradiction_families": [
+        "CURRENTNESS_CONFLICT",
+        "RELATIONSHIP_CONFLICT"
+      ],
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-ADV-CONFLICT-001/01",
+        "synthetic-evidence://phase5/P5-ADV-CONFLICT-001/02"
+      ],
+      "expected": "NEEDS_REVIEW",
+      "source_mode": "MODIFIED_KNOWN_SOURCE",
+      "synthetic_only": true
+    },
+    {
+      "case_id": "P5-ADV-SECRET-001",
+      "evidence_ids": [
+        "synthetic-evidence://phase5/P5-ADV-SECRET-001/01",
+        "synthetic-evidence://phase5/P5-ADV-SECRET-001/02"
+      ],
+      "expected": "SECRET_EXCLUDE",
+      "secret_exclude": true,
+      "source_mode": "MOVE_RENAME_CANDIDATE",
+      "synthetic_only": true
+    }
+  ],
+  "content_mode": "METADATA_ONLY",
+  "corpus_id": "AMEC_CLASSIFIER_ROBUSTNESS_CORPUS_V2",
+  "coverage_summary": {
+    "fabricated_adequate_count": 0,
+    "master_content_type_covered_count": 4,
+    "master_content_type_expected_count": 4,
+    "missing_count": 12,
+    "safe_disposition": "REVIEW_OR_ABSTAIN",
+    "thin_count": 2,
+    "truth_domain_covered_count": 10,
+    "truth_domain_expected_count": 10,
+    "unknown_or_unaccounted_count": 0
+  },
+  "master_content_type_coverage": [
+    {
+      "coverage_id": "FORM",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "REPORT",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "ENGINEERING_WORK",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "DEFINITION",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No synthetic case is authorized to fabricate this Master Content type.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    }
+  ],
+  "truth_domain_coverage": [
+    {
+      "coverage_id": "M1",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M2",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M3",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M4",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M5",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M6",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "M7",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "FINANCE",
+      "coverage_state": "THIN",
+      "evidence_case_ids": [
+        "P5-VAL-FINANCE-001"
+      ],
+      "reason": "Synthetic metadata-only coverage is intentionally bounded; no real source bytes are used.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "MASTER_CONTENT",
+      "coverage_state": "THIN",
+      "evidence_case_ids": [
+        "P5-HOLDOUT-UNTOUCHED-001"
+      ],
+      "reason": "Synthetic metadata-only coverage is intentionally bounded; no real source bytes are used.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    },
+    {
+      "coverage_id": "REPORTS",
+      "coverage_state": "MISSING",
+      "evidence_case_ids": [],
+      "reason": "No governing synthetic case is present for this truth domain in the frozen corpus.",
+      "safe_disposition": "REVIEW_OR_ABSTAIN"
+    }
+  ],
+  "version": 2
+}

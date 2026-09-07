@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "rules_id": "AMEC_CLASSIFIER_V2_RULES_V1",
+  "classifier_version": "classifier-v2-rules-only-1.0.0",
+  "rules_version": "classifier-v2-rules-1.0.0",
+  "deterministic": true,
+  "learned_classifier_mode": "NOT_PROMOTED_DATA_INSUFFICIENT",
+  "llm_real_content_mode": "DISABLED",
+  "l0_source_modes": ["EXISTING_KNOWN_SOURCE", "NEW_UNKNOWN_SOURCE", "MODIFIED_KNOWN_SOURCE", "MOVE_RENAME_CANDIDATE"],
+  "scope_values": ["CORE_IN_SCOPE", "ADJACENT_RECOGNIZED", "OUT_OF_SCOPE", "AMBIGUOUS_REVIEW"],
+  "hard_gates": ["OUT_OF_SCOPE", "SECRET_EXCLUDE"],
+  "review_actions": ["ACCEPT", "CORRECT", "DEFER", "MARK_OUT_OF_SCOPE", "RESOLVE_RELATIONSHIP"],
+  "material_contradiction_result": "NEEDS_REVIEW",
+  "no_authority_inference": true,
+  "no_classifier_only_projection": true
+}

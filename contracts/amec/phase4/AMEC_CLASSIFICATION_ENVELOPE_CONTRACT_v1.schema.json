@@ -1,0 +1,119 @@
+{
+  "$id": "https://amec.local/contracts/phase4/",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "axes": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "contradiction_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "model_origin": {
+            "type": "string"
+          },
+          "review_required": {
+            "type": "boolean"
+          },
+          "rule_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "value": {}
+        },
+        "required": [
+          "value",
+          "confidence",
+          "evidence_ids",
+          "rule_ids",
+          "model_origin",
+          "review_required",
+          "contradiction_ids"
+        ],
+        "type": "object"
+      },
+      "minProperties": 1,
+      "type": "object"
+    },
+    "classification_envelope_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "classifier_version": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "corpus_app_contract_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "document_version_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "immutable_result_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "module_truth_contract_sha": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "root_event_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "rules_version": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_mode": {
+      "enum": [
+        "APP_UPLOAD",
+        "SYNOLOGY_EXTERNAL_EVIDENCE"
+      ],
+      "type": "string"
+    },
+    "taxonomy_revision": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "classification_envelope_id",
+    "root_event_id",
+    "document_version_id",
+    "source_mode",
+    "classifier_version",
+    "rules_version",
+    "taxonomy_revision",
+    "module_truth_contract_sha",
+    "corpus_app_contract_sha",
+    "created_at",
+    "immutable_result_hash",
+    "axes"
+  ],
+  "title": "AMEC Classification Envelope Contract v1",
+  "type": "object"
+}

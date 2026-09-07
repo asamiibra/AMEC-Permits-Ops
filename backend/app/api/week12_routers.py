@@ -3,7 +3,7 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -34,7 +34,7 @@ def handoff_or_404(db: Session, handoff_id: str) -> SubmissionHandoff:
 
 @router.get("/scenario-variants")
 def scenario_variants(scenario_id: str | None = None, db: Session = Depends(get_db)):
-    stmt = select(ScenarioVariant).where(ScenarioVariant.included.is_(True)).order_by(ScenarioVariant.variant_code)
+    stmt = select(ScenarioVariant).where(ScenarioVariant.included == true()).order_by(ScenarioVariant.variant_code)
     if scenario_id: stmt = stmt.where(ScenarioVariant.scenario_id == scenario_id)
     return {"variants": [row(x) for x in db.scalars(stmt).all()], "signed_scope_only": True, "fixture": fixture_metadata()}
 
@@ -78,7 +78,7 @@ def handoff_readiness(revision_id: str, final_submitter_user_id: str | None = No
     if newer: blockers.append("STALE_REVISION")
     clearance = db.scalar(select(PrecheckClearanceEvaluation).where(PrecheckClearanceEvaluation.preparation_revision_id == revision.id).order_by(PrecheckClearanceEvaluation.evaluated_at.desc()))
     if not clearance or clearance.result != "CLEAR": blockers.append("PRECHECK_CLEARANCE_REQUIRED")
-    findings = db.scalars(select(Finding).where(Finding.application_id == revision.application_id, Finding.blocking.is_(True), Finding.status.in_([FindingStatus.OPEN, FindingStatus.ASSIGNED, FindingStatus.IN_PROGRESS, FindingStatus.DISPUTED, FindingStatus.DEFERRED]))).all()
+    findings = db.scalars(select(Finding).where(Finding.application_id == revision.application_id, Finding.blocking == true(), Finding.status.in_([FindingStatus.OPEN, FindingStatus.ASSIGNED, FindingStatus.IN_PROGRESS, FindingStatus.DISPUTED, FindingStatus.DEFERRED]))).all()
     blockers.extend(f"BLOCKING_FINDING:{x.id}" for x in findings)
     if final_submitter_user_id:
         user = db.get(User, final_submitter_user_id)
@@ -153,7 +153,7 @@ def week12_edge_coverage(variant_id: str | None = None, db: Session = Depends(ge
 
 @router.get("/week12/report")
 def week12_report(db: Session = Depends(get_db)):
-    variants = db.scalars(select(ScenarioVariant).where(ScenarioVariant.included.is_(True))).all()
+    variants = db.scalars(select(ScenarioVariant).where(ScenarioVariant.included == true())).all()
     compatibility = db.scalars(select(VariantCompatibilityResult)).all()
     coverage = db.scalars(select(TargetRenderingCoverage)).all()
     auth = db.scalars(select(AttendedAuthSession)).all()

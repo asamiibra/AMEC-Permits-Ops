@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
@@ -46,7 +46,7 @@ def _next_action(application: PermitApplication, project: Project) -> dict[str, 
 
 
 def source_bindings(db: Session, project: Project, application: PermitApplication, *, strict: bool = True) -> dict[str, Any]:
-    links = list(db.scalars(select(ExternalSystemLink).where(ExternalSystemLink.project_id == project.id, ExternalSystemLink.active.is_(True))).all())
+    links = list(db.scalars(select(ExternalSystemLink).where(ExternalSystemLink.project_id == project.id, ExternalSystemLink.active == true())).all())
     by_type = {str(link.system_type.value if hasattr(link.system_type, "value") else link.system_type): link for link in links}
     required = {"SYNOLOGY", "EXCEL", "MUNICIPALITY"}
     missing = sorted(required - set(by_type))

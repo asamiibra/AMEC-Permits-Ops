@@ -1,0 +1,45 @@
+{
+  "$id": "https://amec.local/contracts/phase4/",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "bridge_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "classification_envelope_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "lineage": {
+      "type": "object"
+    },
+    "review_decision_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "strategy": {
+      "const": "ADDITIVE_GENERALIZATION",
+      "type": "string"
+    },
+    "verified_assertion_id": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "bridge_id",
+    "classification_envelope_id",
+    "review_decision_id",
+    "verified_assertion_id",
+    "strategy",
+    "lineage",
+    "idempotency_key"
+  ],
+  "title": "AMEC Verified Assertion Bridge Contract v1",
+  "type": "object"
+}

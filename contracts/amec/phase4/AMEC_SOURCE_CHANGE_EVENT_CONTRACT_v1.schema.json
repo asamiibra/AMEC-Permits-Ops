@@ -1,0 +1,118 @@
+{
+  "$id": "https://amec.local/contracts/phase4/",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "content_identity_proof": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "correlation_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "event_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "event_type": {
+      "enum": [
+        "NEW",
+        "MODIFIED_CANDIDATE",
+        "MISSING_CANDIDATE",
+        "MOVE_RENAME_CANDIDATE",
+        "UNCHANGED"
+      ],
+      "type": "string"
+    },
+    "observation_count": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "observed_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "observed_mtime": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "observed_size": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "origin": {
+      "enum": [
+        "EXTERNAL",
+        "PROPOSALOPS",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "previous_observation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scan_id_or_observation_group": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_artifact_id_or_locator": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_collection_role_if_applicable": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_surface": {
+      "enum": [
+        "APP_UPLOAD",
+        "SYNOLOGY_EXTERNAL_EVIDENCE"
+      ],
+      "type": "string"
+    },
+    "source_version_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_version_token": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "stability_state": {
+      "enum": [
+        "DETECTED",
+        "WAITING_FOR_STABILITY",
+        "READY_FOR_INTAKE"
+      ],
+      "type": "string"
+    },
+    "stability_window_seconds": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "event_id",
+    "scan_id_or_observation_group",
+    "source_surface",
+    "source_artifact_id_or_locator",
+    "source_version_id",
+    "source_version_token",
+    "event_type",
+    "origin",
+    "correlation_id",
+    "observed_at"
+  ],
+  "title": "AMEC Source Change Event Contract v1",
+  "type": "object"
+}
