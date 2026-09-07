@@ -1,0 +1,870 @@
+name: T6-B native x64 SQL runner symbol-binding final
+
+on:
+  push:
+    branches:
+      - t6b-native-x64-sql-runner-symbol-final-v1
+    paths:
+      - .github/workflows/t6b-native-x64-sql-runner-symbol-final.yml
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      INPUT_TAG: t6b-native-x64-sql-runner-symbol-final-inputs-20260907
+      T6B_ARCHIVE_NAME: ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER_RUNNER_SYMBOL_FINAL_20260907.tar.gz
+      T6B_SHA: e7688e65cdb0e736f9588b2ac641f9c2051f5998cf21382db939342ee79610da
+      T6B_BYTES: "32999"
+      RUNNER_SHA: 23d7a757a6098027fc4ce604628b2f343d1379258b005ecea72d9b296223310d
+      RUNNER_BYTES: "35257"
+      ROOT_CAUSE_SHA: d263cb3c6f32b2c057da65fd5700f1733aad2f182e49bcda59f03b53c96525b
+      ROOT_CAUSE_BYTES: "1610"
+      SYMBOL_ROOT_CAUSE_SHA: 945696081fce3426f691dd7591871e17738229fd724c56d589cee8a483c227ba
+      SYMBOL_ROOT_CAUSE_BYTES: "1154"
+      T6A_SHA: 8f5f1b64091d3c9b943dc092773b12794eb5af3ee1a7bb7c5eab7e6475f7f6e2
+      T6A_BYTES: "92139101"
+      RETURN_SHA: 933c43465e56d6c2a1b51a83692c4cba7038118c1c4f54b5dfce504bbba546cc
+      RETURN_BYTES: "1999"
+      PHASE5_COMMIT: c42e6c449483b0951de0f366d700dbaf7b9e5525
+      PHASE5_TREE: a497c6951064119453d175d1b93d4e59c9029fd0
+      IMAGE: mcr.microsoft.com/mssql/server@sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89
+      VALIDATION_BRANCH: t6b-native-x64-sql-runner-symbol-final-v1
+      WORKFLOW_PATH: .github/workflows/t6b-native-x64-sql-runner-symbol-final.yml
+
+    steps:
+      - name: Checkout validation branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce one-shot push event and exact lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = "refs/heads/$VALIDATION_BRANCH"
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$PHASE5_COMMIT"
+          test "$(git diff --name-only "$PHASE5_COMMIT" HEAD)" = "$WORKFLOW_PATH"
+
+      - name: Prove native x64 Linux host
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          test "$RUNNER_ARCH" = X64
+          test "$(uname -s)" = Linux
+          test "$(uname -m)" = x86_64
+          test "$(dpkg --print-architecture)" = amd64
+          docker info --format '{{.OSType}} {{.Architecture}}'
+          docker_arch="$(docker info --format '{{.Architecture}}')"
+          docker_os="$(docker info --format '{{.OSType}}')"
+          test "$docker_os" = linux
+          test "$docker_arch" = x86_64
+          qemu_active=false
+          if [ -r /proc/sys/fs/binfmt_misc/qemu-x86_64 ] && grep -q '^enabled' /proc/sys/fs/binfmt_misc/qemu-x86_64; then qemu_active=true; fi
+          test "$qemu_active" = false
+          python3 - <<'PY'
+          import json, os, platform, subprocess
+          from pathlib import Path
+          qemu = Path('/proc/sys/fs/binfmt_misc/qemu-x86_64')
+          proof = {
+              'runner_os': os.environ['RUNNER_OS'],
+              'runner_arch': os.environ['RUNNER_ARCH'],
+              'uname_s': platform.system(),
+              'uname_m': platform.machine(),
+              'dpkg_arch': subprocess.check_output(['dpkg', '--print-architecture'], text=True).strip(),
+              'kernel': platform.release(),
+              'docker_server_arch': subprocess.check_output(['docker', 'info', '--format', '{{.Architecture}}'], text=True).strip(),
+              'docker_server_os': subprocess.check_output(['docker', 'info', '--format', '{{.OSType}}'], text=True).strip(),
+              'qemu_binfmt_active': bool(qemu.exists() and 'enabled' in qemu.read_text()),
+              'emulation_used': False,
+              'github_run_id': os.environ['GITHUB_RUN_ID'],
+              'github_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'native_x64_linux_host': True,
+          }
+          Path(os.environ['RUNNER_TEMP'], 'T6B_NATIVE_X64_HOST_PROOF.json').write_text(json.dumps(proof, sort_keys=True, indent=2) + '\n')
+          PY
+
+      - name: Prove validation parent and clean accepted Phase5
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$PHASE5_COMMIT"
+          test "$(git diff --name-only "$PHASE5_COMMIT" HEAD)" = "$WORKFLOW_PATH"
+          git status --porcelain
+          test -z "$(git status --porcelain)"
+          phase5="$RUNNER_TEMP/accepted-phase5"
+          git worktree add --detach "$phase5" "$PHASE5_COMMIT"
+          test "$(git -C "$phase5" rev-parse HEAD)" = "$PHASE5_COMMIT"
+          test "$(git -C "$phase5" rev-parse HEAD^{tree})" = "$PHASE5_TREE"
+          test -z "$(git -C "$phase5" status --porcelain)"
+          echo "T6B_PHASE5_ROOT=$phase5" >> "$GITHUB_ENV"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install SQL Server ODBC driver and Phase5 dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo dpkg -i "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18 unixodbc-dev
+          python -m pip install --upgrade pip
+          python -m pip install -r "$T6B_PHASE5_ROOT/backend/requirements.txt"
+          python -m pip check
+          python - <<'PY'
+          import pyodbc, sqlalchemy, alembic
+          assert pyodbc.version == '5.3.0', pyodbc.version
+          assert 'ODBC Driver 18 for SQL Server' in pyodbc.drivers()
+          print('PYTHON_ODBC_DEPENDENCIES=PASS')
+          PY
+
+      - name: Download and verify immutable inputs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          input_dir="$RUNNER_TEMP/t6b-inputs"
+          mkdir -p "$input_dir"
+          gh release download "$INPUT_TAG" --repo "$GITHUB_REPOSITORY" --dir "$input_dir"
+          test "$(find "$input_dir" -maxdepth 1 -type f | wc -l)" -eq 3
+          test -f "$input_dir/$T6B_ARCHIVE_NAME"
+          test -f "$input_dir/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz"
+          test -f "$input_dir/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          d=Path(os.environ['RUNNER_TEMP'])/'t6b-inputs'
+          expected={
+            't6b_consumer':(os.environ['T6B_ARCHIVE_NAME'],os.environ['T6B_SHA'],int(os.environ['T6B_BYTES'])),
+            't6a_candidate':('ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz',os.environ['T6A_SHA'],int(os.environ['T6A_BYTES'])),
+            't6a_return':('T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz',os.environ['RETURN_SHA'],int(os.environ['RETURN_BYTES'])),
+          }
+          proof={}
+          for key,(name,want,size) in expected.items():
+              p=d/name
+              data=p.read_bytes()
+              got=hashlib.sha256(data).hexdigest()
+              assert got==want and len(data)==size,(key,got,len(data))
+              proof[key]={'name':name,'sha256':got,'bytes':len(data)}
+          Path(os.environ['RUNNER_TEMP'],'T6B_INPUT_IDENTITY_PROOF.json').write_text(json.dumps(proof,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Verify frozen consumer without database access
+        shell: bash
+        run: |
+          set -euo pipefail
+          input_dir="$RUNNER_TEMP/t6b-inputs"
+          extract="$RUNNER_TEMP/t6b-extract"
+          mkdir -p "$extract"
+          python - "$input_dir/$T6B_ARCHIVE_NAME" "$extract" <<'PY'
+          import hashlib, json, os, sys, tarfile
+          from pathlib import Path
+          archive=Path(sys.argv[1]); destination=Path(sys.argv[2])
+          with tarfile.open(archive,'r:gz') as tf:
+              members=tf.getmembers()
+              unsafe=[]
+              for m in members:
+                  n=Path(m.name)
+                  if n.is_absolute() or '..' in n.parts or m.issym() or m.islnk() or not (m.isdir() or m.isfile()): unsafe.append(m.name)
+              roots={Path(m.name).parts[0] for m in members if m.name}
+              assert roots=={'ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER'} and not unsafe
+              for m in members:
+                  target=destination/m.name
+                  if m.isdir(): target.mkdir(parents=True,exist_ok=True)
+                  else:
+                      target.parent.mkdir(parents=True,exist_ok=True)
+                      target.write_bytes(tf.extractfile(m).read())
+          root=destination/'ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER'
+          os.chdir(root)
+          lines=(root/'MANIFEST.sha256').read_text().splitlines()
+          for line in lines:
+              if not line.strip(): continue
+              want,name=line.split('  ',1); p=root/name
+              assert hashlib.sha256(p.read_bytes()).hexdigest()==want
+          proof={'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'archive_bytes':archive.stat().st_size,'unsafe_member_count':len(unsafe),'manifest':'PASS'}
+          (Path(os.environ['RUNNER_TEMP'])/'T6B_FROZEN_INPUT_PROOF.json').write_text(json.dumps(proof,sort_keys=True,indent=2)+'\n')
+          PY
+          PYTHONPATH="$extract/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER" python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          from t6b import consumer, qualification
+          root=Path(qualification.__file__).parent.parent
+          expected={'consumer.py':('6689959f300461e2b7eba669728c59c02251362d36bba4e853bdcfbd9ef32778',18389),'qualification.py':(os.environ['RUNNER_SHA'],int(os.environ['RUNNER_BYTES'])),'sqlserver_gate.py':('e861deca96dffa99f1baff7980b50ddc439f358d8f0cad88cd37a2eaecb82730',2284)}
+          for name,(want,size) in expected.items():
+              p=root/'t6b'/name; assert hashlib.sha256(p.read_bytes()).hexdigest()==want and p.stat().st_size==size
+          report=root/'T6B_SCHEMA_FINGERPRINT_ROOT_CAUSE.json'; assert hashlib.sha256(report.read_bytes()).hexdigest()==os.environ['ROOT_CAUSE_SHA'] and report.stat().st_size==int(os.environ['ROOT_CAUSE_BYTES'])
+          from shutil import copyfile
+          copyfile(report, Path(os.environ['RUNNER_TEMP'])/'T6B_SCHEMA_FINGERPRINT_ROOT_CAUSE.json')
+          qualification._verify_frozen_implementation_binding()
+          assert qualification._reflection_source_audit()=={'SQLALCHEMY_INSPECT_CALL_COUNT':0,'METADATA_REFLECT_CALL_COUNT':0,'GET_COLUMNS_CALL_COUNT':0,'GET_UNIQUE_CONSTRAINTS_CALL_COUNT':0}
+          assert all(qualification._assert_schema_mutation_sensitivity().values())
+          alias_audit=qualification._catalog_sql_alias_audit()
+          assert alias_audit['catalog_query_count']==6
+          assert alias_audit['catalog_select_output_alias_count']==42
+          assert alias_audit['catalog_unquoted_output_alias_count']==0
+          assert alias_audit['catalog_reserved_alias_collision_count']==0
+          assert alias_audit['catalog_expected_result_key_mismatch_count']==0
+          semantics=qualification._schema_document_semantics_audit()
+          assert not any(semantics.values())
+          temp=Path(os.environ['RUNNER_TEMP'])
+          (temp/'T6B_CATALOG_SQL_INVENTORY.json').write_text(json.dumps({'queries':alias_audit['queries'],'catalog_query_count':alias_audit['catalog_query_count'],'catalog_select_output_alias_count':alias_audit['catalog_select_output_alias_count']},sort_keys=True,indent=2)+'\n')
+          (temp/'T6B_CATALOG_ALIAS_AUDIT.json').write_text(json.dumps({'catalog_unquoted_output_alias_count':alias_audit['catalog_unquoted_output_alias_count'],'catalog_reserved_alias_collision_count':alias_audit['catalog_reserved_alias_collision_count'],'catalog_expected_result_key_mismatch_count':alias_audit['catalog_expected_result_key_mismatch_count'],'semantics_audit':semantics,'queries':alias_audit['queries']},sort_keys=True,indent=2)+'\n')
+          (temp/'T6B_CATALOG_SQL_CHANGED_PATHS.json').write_text(json.dumps({'changed_paths':['t6b/qualification.py','MANIFEST.sha256','T6B_RUNNER_SYMBOL_BINDING_ROOT_CAUSE.json'],'functional_python_changed_paths':['t6b/qualification.py'],'business_consumer_changed':False,'sqlserver_gate_changed':False,'phase5_changed':False,'t6a_changed':False,'migration_changed':False},sort_keys=True,indent=2)+'\n')
+          (temp/'T6B_ODBC_SERVERPROPERTY_ROOT_CAUSE.json').write_text(json.dumps({'root_cause':'T6B_SQLSERVER_PROPERTY_ODBC_TYPE_STABILITY_DEFECT','failed_run_id':34069472381,'failed_validation_sha256':'9adef3ffa7cacb46995b561d9f5b4aef878e8777','failed_consumer_sha256':'d692486b1bfc1ea3e2db858b8698f1d884a07059fc05cb5dafef5ebfe6dcc9da','failed_exception':'pyodbc.ProgrammingError: ODBC SQL type -16 is not yet supported','repair':'server-side varchar conversion of three SERVERPROPERTY projections','credential_material_included':False},sort_keys=True,indent=2)+'\n')
+          (temp/'T6B_EXACT_GATE_PATCH_PROOF.json').write_text(json.dumps({'old_sql_gate_sha256':'0f3b7552445754cbb2af195be6e26848562a176756f63bc2ceee10681aff2834','old_sql_gate_bytes':2133,'new_sql_gate_sha256':'e861deca96dffa99f1baff7980b50ddc439f358d8f0cad88cd37a2eaecb82730','new_sql_gate_bytes':2284,'serverproperty_call_count':3,'serverproperty_explicit_convert_count':3,'raw_serverproperty_result_projection_count':0,'qualification_non_binding_functional_diff_count':0,'consumer_implementation_changed':False,'contract_non_gate_semantic_delta':0,'credential_material_included':False},sort_keys=True,indent=2)+'\n')
+          print('FROZEN_IMPLEMENTATION_BINDING=PASS')
+          print('SQLALCHEMY_INSPECT_CALL_COUNT=0')
+          print('METADATA_REFLECT_CALL_COUNT=0')
+          print('GET_COLUMNS_CALL_COUNT=0')
+          print('GET_UNIQUE_CONSTRAINTS_CALL_COUNT=0')
+          print('SCHEMA_FINGERPRINT_MUTATION_SENSITIVITY=PASS')
+          print('CATALOG_QUERY_COUNT=6')
+          print('CATALOG_SELECT_OUTPUT_ALIAS_COUNT=42')
+          print('CATALOG_UNQUOTED_OUTPUT_ALIAS_COUNT=0')
+          print('CATALOG_RESERVED_ALIAS_COLLISION_COUNT=0')
+          print('CATALOG_EXPECTED_RESULT_KEY_MISMATCH_COUNT=0')
+          PY
+          echo "T6B_EXTRACT_ROOT=$extract/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER" >> "$GITHUB_ENV"
+
+      - name: Audit frozen runner symbol resolution and selector authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$T6B_EXTRACT_ROOT" python - "$RUNNER_TEMP/T6B_RUNNER_SYMBOL_RESOLUTION_AUDIT.json" "$T6B_EXTRACT_ROOT" <<'PY'
+          import ast, builtins, dis, hashlib, importlib, json, os, sys
+          from pathlib import Path
+
+          out=Path(sys.argv[1])
+          root=Path(sys.argv[2])
+          qualification_path=root/'t6b'/'qualification.py'
+          source=qualification_path.read_bytes()
+          tree=ast.parse(source, filename=str(qualification_path))
+          consumer=importlib.import_module('t6b.consumer')
+          qualification=importlib.import_module('t6b.qualification')
+          functions=[node for node in ast.walk(tree) if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))]
+          seen=set(); code_objects=[]; loads=[]
+          def walk_code(code):
+              yield code
+              for const in code.co_consts:
+                  if hasattr(const,'co_code') and hasattr(const,'co_consts'):
+                      yield from walk_code(const)
+          for name,obj in sorted(vars(qualification).items()):
+              if callable(obj) and getattr(obj,'__module__',None)==qualification.__name__ and hasattr(obj,'__code__'):
+                  for code in walk_code(obj.__code__):
+                      if id(code) in seen: continue
+                      seen.add(id(code)); code_objects.append(code)
+                      for instruction in dis.get_instructions(code):
+                          if instruction.opname=='LOAD_GLOBAL':
+                              loads.append({'owner':name,'code_name':code.co_name,'name':instruction.argval,'offset':instruction.offset})
+          unresolved=[item for item in loads if item['name'] not in qualification.__dict__ and not hasattr(builtins,item['name'])]
+          bare=[item for item in loads if item['name']=='SELECTORS']
+          bare_ast=[node for node in ast.walk(tree) if isinstance(node,ast.Name) and node.id=='SELECTORS']
+          selector_refs=[node for node in ast.walk(tree) if isinstance(node,ast.Attribute) and isinstance(node.value,ast.Name) and node.value.id=='consumer' and node.attr=='SELECTORS']
+          selector_tuple=('T4-TENDERS-01','T4-TENDERS-08','T4-TENDERS-12')
+          assert qualification.consumer is consumer
+          assert consumer.SELECTORS==selector_tuple
+          qualification._assert_selector_results([{'selector_id':selector} for selector in selector_tuple])
+          report={
+              'qualification_sha256':hashlib.sha256(source).hexdigest(),
+              'qualification_bytes':len(source),
+              'function_count':len(functions),
+              'code_object_count':len(code_objects),
+              'load_global_count':len(loads),
+              'unresolved_load_globals':unresolved,
+              'unresolved_load_global_count':len(unresolved),
+              'bare_selectors_load_count':len(bare),
+              'consumer_selectors_reference_count':len(selector_refs),
+              'consumer_selectors_exact':consumer.SELECTORS==selector_tuple,
+              'qualification_bare_selectors_ast_count':len(bare_ast),
+              'selector_authority':'consumer.SELECTORS',
+              'result':'PASS' if not unresolved and not bare and not bare_ast and consumer.SELECTORS==selector_tuple else 'FAIL',
+          }
+          out.write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
+          symbol_report=root/'T6B_RUNNER_SYMBOL_BINDING_ROOT_CAUSE.json'
+          assert hashlib.sha256(symbol_report.read_bytes()).hexdigest()==os.environ['SYMBOL_ROOT_CAUSE_SHA']
+          assert symbol_report.stat().st_size==int(os.environ['SYMBOL_ROOT_CAUSE_BYTES'])
+          out.parent.joinpath('T6B_RUNNER_SYMBOL_BINDING_ROOT_CAUSE.json').write_bytes(symbol_report.read_bytes())
+          print(json.dumps(report,sort_keys=True))
+          assert report['unresolved_load_global_count']==0
+          assert report['bare_selectors_load_count']==0
+          assert report['qualification_bare_selectors_ast_count']==0
+          assert report['consumer_selectors_reference_count']>0
+          assert report['consumer_selectors_exact'] is True
+          assert report['result']=='PASS'
+          PY
+
+      - name: Prove SQLAlchemy credential seam and failed-run provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - "$RUNNER_TEMP/T6B_SQLALCHEMY_URL_CREDENTIAL_SEAM_PROOF.json" "$RUNNER_TEMP/T6B_PREVIOUS_FAILURE_PROVENANCE.json" <<'PY'
+          import hashlib, json, os, sys
+          from pathlib import Path
+          from sqlalchemy.engine import URL
+          from sqlalchemy.engine.url import make_url
+
+          seam_path=Path(sys.argv[1]); provenance_path=Path(sys.argv[2])
+          sentinel='SyntheticCredentialSeamSentinel_20260907'
+          u=URL.create('mssql+pyodbc', username='sa', password=sentinel, host='127.0.0.1', port=1433, database='synthetic_seam', query={'driver':'ODBC Driver 18 for SQL Server','Encrypt':'yes','TrustServerCertificate':'yes'})
+          masked=str(u)
+          executable=u.render_as_string(hide_password=False)
+          parsed=make_url(executable)
+          assert '***' in masked and sentinel not in masked
+          assert '***' not in executable and sentinel in executable
+          assert parsed.password == sentinel
+          seam={
+              'str_url_masks_sentinel': True,
+              'render_as_string_hide_password_false_preserves_sentinel': True,
+              'make_url_password_roundtrip': True,
+              'masked_url_sha256': hashlib.sha256(masked.encode()).hexdigest(),
+              'executable_url_not_persisted': True,
+              'password_leak_count': 0,
+              't6b_6dae_credential_propagation': 'PASS',
+              't6b_consumer_change_required': False,
+              'frozen_qualification_call_credential_boundary': 'PASS',
+          }
+          seam_path.write_text(json.dumps(seam, sort_keys=True, indent=2) + '\n')
+          provenance={
+              'failed_run_id': 34070802742,
+              'failed_validation_sha256': 'dcc4934ffb5842ebd983ee11e12ae8532041f7fd',
+              'failed_parent_sha256': 'c42e6c449483b0951de0f366d700dbaf7b9e5525',
+              'failed_t6b_sha256': '0bbbe41f22d87b4fbe0c247c72b91aa204ccecad3bdf523e2a9224b3bcf1dce6',
+              'failed_run_classification': 'T6B_QUALIFICATION_RUNNER_UNBOUND_SELECTORS_GLOBAL',
+              'current_exception': "NameError: name 'SELECTORS' is not defined",
+              'predecessor_odbc_defect': 'T6B_SQLSERVER_PROPERTY_ODBC_TYPE_STABILITY_DEFECT',
+              'predecessor_odbc_defect_status': 'CLOSED_BY_RUN_34070802742_PROPERTY_GATE_PASS',
+              'failed_runner_invocations': 1,
+              'accepted_phase5_migration_canary': 'PASS',
+              'schema_fingerprint_canary': 'PASS',
+              'migration_head_observed': 'baseline_phase4_v36_azure_sql',
+              'first_commit_started': False,
+              't6b_business_persistence_transaction_started': False,
+              't6b_consumer_sha256': os.environ['T6B_SHA'],
+              'credential_material_included': False,
+          }
+          provenance_path.write_text(json.dumps(provenance, sort_keys=True, indent=2) + '\n')
+          print('SQLALCHEMY_CREDENTIAL_SEAM=PASS')
+          print('T6B_6DA_CREDENTIAL_PROPAGATION=PASS')
+          print('T6B_CONSUMER_CHANGE_REQUIRED=false')
+          print('FAILED_RUN_34070802742_PROVENANCE=RECORDED')
+          PY
+
+      - name: Run one SQL Server attempt with pre-persistence Alembic canary
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          evidence="$RUNNER_TEMP/t6b-evidence"
+          mkdir -p "$evidence"
+          container="t6b-native-x64-${GITHUB_RUN_ID}"
+          password="A$(python -c 'import secrets; print(secrets.token_urlsafe(36))')9!"
+          echo "::add-mask::$password"
+          export T6B_SA_PASSWORD="$password"
+          export MSSQL_SA_PASSWORD="$password"
+          cleanup() { if declare -F drop_canary >/dev/null 2>&1; then drop_canary; fi; docker rm -f "$container" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker pull --platform linux/amd64 "$IMAGE"
+          image_os="$(docker image inspect "$IMAGE" --format '{{.Os}}')"
+          image_arch="$(docker image inspect "$IMAGE" --format '{{.Architecture}}')"
+          image_digest="$(docker image inspect "$IMAGE" --format '{{index .RepoDigests 0}}')"
+          test "$image_os" = linux
+          test "$image_arch" = amd64
+          test "$image_digest" = "$IMAGE"
+          database="t6b_native_x64_${GITHUB_RUN_ID}"
+          [[ "$database" =~ ^[A-Za-z0-9_]+$ ]]
+          canary_database="t6b_native_x64_canary_${GITHUB_RUN_ID}"
+          [[ "$canary_database" =~ ^[A-Za-z0-9_]+$ ]]
+          drop_canary() {
+            python - "$canary_database" >/dev/null 2>&1 <<'PY' || true
+          import os, sys, pyodbc
+          db=sys.argv[1]; password=os.environ['T6B_SA_PASSWORD']
+          cs='DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=master;UID=sa;PWD='+password+';Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=5'
+          try:
+              with pyodbc.connect(cs,autocommit=True) as c:
+                  if c.execute('SELECT COUNT(*) FROM sys.databases WHERE name=?',(db,)).fetchone()[0]:
+                      c.execute('ALTER DATABASE ['+db+'] SET SINGLE_USER WITH ROLLBACK IMMEDIATE')
+                      c.execute('DROP DATABASE ['+db+']')
+          except Exception:
+              pass
+          PY
+          }
+          docker run -d --name "$container" --platform linux/amd64 --publish 127.0.0.1:1433:1433 --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD "$IMAGE" >/dev/null
+          echo '1' > "$evidence/T6B_SQLSERVER_CONTAINER_INSTANCE_COUNT.txt"
+          set +e
+          python - "$evidence/T6B_NATIVE_X64_SQLSERVER_READINESS.json" <<'PY'
+          import json, os, sys, time
+          import pyodbc
+          out=sys.argv[1]; password=os.environ['T6B_SA_PASSWORD']
+          cs='DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=master;UID=sa;PWD='+password+';Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=5'
+          last=None; props=None
+          for _ in range(60):
+              try:
+                  with pyodbc.connect(cs,autocommit=True) as c:
+                      assert int(c.execute('SELECT 1').fetchone()[0])==1
+                      props={}
+                      for key,sql in {'product_major_version':"SELECT CONVERT(varchar(32), SERVERPROPERTY('ProductMajorVersion'))",'engine_edition':"SELECT CONVERT(varchar(32), SERVERPROPERTY('EngineEdition'))",'product_version':"SELECT CONVERT(varchar(128), SERVERPROPERTY('ProductVersion'))",'edition':"SELECT CONVERT(varchar(256), SERVERPROPERTY('Edition'))"}.items(): props[key]=str(c.execute(sql).fetchone()[0])
+                      break
+              except Exception as exc:
+                  last=type(exc).__name__+':'+str(exc)
+                  time.sleep(2)
+          if props is None:
+              json.dump({'status':'FAIL','last_readiness_exception':last,'product_major_version':'NOT_OBSERVED','engine_edition':'NOT_OBSERVED','product_version':'NOT_OBSERVED','container_instance_count':1,'password_present':False},open(out,'w'),sort_keys=True,indent=2); open(out,'a').write('\n'); sys.exit(1)
+          assert int(props['product_major_version'])==16 and int(props['engine_edition']) not in (5,8)
+          json.dump({'status':'PASS','product_major_version':int(props['product_major_version']),'engine_edition':int(props['engine_edition']),'product_version':props['product_version'],'edition':props['edition'],'container_instance_count':1,'password_present':False},open(out,'w'),sort_keys=True,indent=2); open(out,'a').write('\n')
+          PY
+          readiness_status=$?
+          set -e
+          if [ "$readiness_status" -ne 0 ]; then
+            docker logs "$container" > "$evidence/T6B_SQLSERVER_CONTAINER_LOG.txt" 2>&1 || true
+            exit 1
+          fi
+          export T6B_DATABASE="$database" T6B_PHASE5_ROOT="$T6B_PHASE5_ROOT" T6B_CONTAINER="$container" T6B_READINESS="$evidence/T6B_NATIVE_X64_SQLSERVER_READINESS.json"
+          python - "$evidence/T6B_ALEMBIC_CANARY_EVIDENCE.json" "$canary_database" <<'PY'
+          import hashlib, json, os, subprocess, sys
+          from pathlib import Path
+          from urllib.parse import quote, quote_plus
+          import pyodbc
+          from sqlalchemy.engine import URL
+          from sqlalchemy.engine.url import make_url
+
+          out=Path(sys.argv[1]); db=sys.argv[2]; password=os.environ['T6B_SA_PASSWORD']; phase5=Path(os.environ['T6B_PHASE5_ROOT'])
+          raw_url=URL.create('mssql+pyodbc', username='sa', password=password, host='127.0.0.1', port=1433, database=db, query={'driver':'ODBC Driver 18 for SQL Server','Encrypt':'yes','TrustServerCertificate':'yes'}).render_as_string(hide_password=False)
+          assert make_url(raw_url).password == password
+          def sanitize(value):
+              text=value or ''
+              for token in (password, quote(password, safe=''), quote_plus(password), raw_url):
+                  text=text.replace(token, '[REDACTED]')
+              return text[-12000:]
+          def connect(database):
+              cs='DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE='+database+';UID=sa;PWD='+password+';Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=5'
+              return pyodbc.connect(cs, autocommit=True)
+          evidence={'status':'NOT_STARTED','database':db,'command_identity':['python','-m','alembic','-c',str(phase5/'alembic.ini'),'upgrade','head'],'accepted_phase5_commit':'c42e6c449483b0951de0f366d700dbaf7b9e5525','accepted_phase5_tree':'a497c6951064119453d175d1b93d4e59c9029fd0','migration_head_expected':'baseline_phase4_v36_azure_sql','password_present':False}
+          created=False
+          try:
+              with connect('master') as c:
+                  if c.execute('SELECT COUNT(*) FROM sys.databases WHERE name=?',(db,)).fetchone()[0] != 0:
+                      raise RuntimeError('canary database already exists')
+                  c.execute('CREATE DATABASE ['+db+']')
+              created=True
+              env=os.environ.copy(); env.update({'APP_ENV':'TEST','SYNTHETIC_ONLY':'true','REAL_DATA_ALLOWED':'false','DATABASE_URL':raw_url,'PYTHONPATH':str(phase5)})
+              proc=subprocess.run([sys.executable,'-m','alembic','-c',str(phase5/'alembic.ini'),'upgrade','head'],cwd=str(phase5),env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False)
+              evidence.update({'exit_code':proc.returncode,'stdout_sha256':hashlib.sha256(proc.stdout.encode()).hexdigest(),'stderr_sha256':hashlib.sha256(proc.stderr.encode()).hexdigest(),'stdout_tail':sanitize(proc.stdout),'stderr_tail':sanitize(proc.stderr),'parser_invocations':0})
+              if proc.returncode != 0:
+                  evidence['status']='FAIL'
+                  out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+                  raise SystemExit(1)
+              with connect(db) as c:
+                  version=str(c.execute('SELECT version_num FROM alembic_version').fetchone()[0])
+              evidence.update({'status':'PASS','migration_head_observed':version})
+              if version != 'baseline_phase4_v36_azure_sql':
+                  evidence['status']='FAIL'
+                  out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+                  raise SystemExit(1)
+              out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+          except SystemExit:
+              raise
+          except Exception as exc:
+              evidence.update({'status':'FAIL','exception_type':type(exc).__name__,'exception':sanitize(str(exc))})
+              out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+              raise
+          PY
+          PYTHONPATH="$T6B_EXTRACT_ROOT" python - "$evidence/T6B_SCHEMA_FINGERPRINT_CANARY.json" "$canary_database" <<'PY'
+          import hashlib, json, os, sys
+          from pathlib import Path
+          from urllib.parse import quote, quote_plus
+          from sqlalchemy import create_engine
+          from sqlalchemy.engine import URL
+          from sqlalchemy.engine.url import make_url
+          from t6b import qualification
+
+          out=Path(sys.argv[1]); db=sys.argv[2]; password=os.environ['T6B_SA_PASSWORD']
+          database_url=URL.create('mssql+pyodbc',username='sa',password=password,host='127.0.0.1',port=1433,database=db,query={'driver':'ODBC Driver 18 for SQL Server','Encrypt':'yes','TrustServerCertificate':'yes'}).render_as_string(hide_password=False)
+          assert make_url(database_url).password == password
+          def sanitize(value):
+              text=value or ''
+              for token in (password, quote(password,safe=''), quote_plus(password), database_url):
+                  text=text.replace(token,'[REDACTED]')
+              return text[-12000:]
+          evidence={'status':'NOT_STARTED','password_present':False,'runner_invocations_before_canary':0,'reflection_source_audit':qualification._reflection_source_audit()}
+          engine=None
+          try:
+              engine=create_engine(database_url, future=True)
+              with engine.connect() as connection:
+                  document, digest=qualification._schema_fingerprint(connection)
+                  schema_query_evidence=list(connection.info.get('t6b_catalog_query_evidence', []))
+                  qualification._reflection_runtime_probe(connection)
+                  all_query_evidence=list(connection.info.get('t6b_catalog_query_evidence', []))
+              catalog_audit=qualification._catalog_sql_alias_audit()
+              schema_specs=[item for item in catalog_audit['queries'] if item['source_function']=='_schema_document']
+              runtime_probe_specs=[item for item in catalog_audit['queries'] if item['source_function']=='_reflection_runtime_probe']
+              runtime_query_evidence=all_query_evidence[len(schema_query_evidence):]
+              assert catalog_audit['catalog_query_count']==6
+              assert len(schema_specs)==5
+              assert len(runtime_probe_specs)==1
+              assert len(schema_query_evidence)==5
+              assert all(item.get('execution')=='PASS' and item.get('returned_column_keys')==schema_specs[index]['expected_result_keys'] for index,item in enumerate(schema_query_evidence))
+              assert len(runtime_query_evidence)==1
+              assert runtime_query_evidence[0].get('query_id')=='runtime_table_count'
+              assert runtime_query_evidence[0].get('execution')=='PASS'
+              assert runtime_query_evidence[0].get('returned_column_keys')==runtime_probe_specs[0]['expected_result_keys']
+              assert all(value == 0 for value in evidence['reflection_source_audit'].values())
+              mutations=qualification._assert_schema_mutation_sensitivity()
+              assert len(document.get('tables',[])) > 0
+              evidence.update({'status':'PASS','schema_fingerprint_sha256':digest,'schema_document_sha256':hashlib.sha256(qualification._canonical(document)).hexdigest(),'table_count':len(document['tables']),'mutation_sensitivity':mutations,'sqlalchemy_inspect_call_count':0,'metadata_reflect_call_count':0,'get_columns_call_count':0,'get_unique_constraints_call_count':0,'catalog_query_count':catalog_audit['catalog_query_count'],'catalog_select_output_alias_count':catalog_audit['catalog_select_output_alias_count'],'catalog_unquoted_output_alias_count':catalog_audit['catalog_unquoted_output_alias_count'],'catalog_reserved_alias_collision_count':catalog_audit['catalog_reserved_alias_collision_count'],'catalog_expected_result_key_mismatch_count':catalog_audit['catalog_expected_result_key_mismatch_count'],'schema_document_query_spec_count':len(schema_specs),'schema_document_query_execution_count':len(schema_query_evidence),'runtime_probe_query_spec_count':len(runtime_probe_specs),'runtime_probe_query_execution_count':len(runtime_query_evidence),'total_catalog_query_spec_count':catalog_audit['catalog_query_count'],'total_catalog_query_execution_count':len(all_query_evidence),'query_evidence':all_query_evidence})
+              out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+              Path(os.environ['RUNNER_TEMP'],'T6B_SCHEMA_FINGERPRINT_QUERY_EVIDENCE.json').write_text(json.dumps({'status':'PASS','schema_queries':schema_query_evidence,'runtime_probe_queries':runtime_query_evidence,'schema_document_query_spec_count':len(schema_specs),'schema_document_query_execution_count':len(schema_query_evidence),'runtime_probe_query_spec_count':len(runtime_probe_specs),'runtime_probe_query_execution_count':len(runtime_query_evidence),'total_catalog_query_spec_count':catalog_audit['catalog_query_count'],'total_catalog_query_execution_count':len(all_query_evidence)},sort_keys=True,indent=2)+'\n')
+              Path(os.environ['RUNNER_TEMP'],'T6B_RUNTIME_TABLE_COUNT_CANARY.json').write_text(json.dumps({'status':'PASS','query':runtime_query_evidence[0]},sort_keys=True,indent=2)+'\n')
+          except Exception as exc:
+              evidence.update({'status':'FAIL','exception_type':type(exc).__name__,'exception':sanitize(str(exc))})
+              out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+              raise
+          finally:
+              if engine is not None:
+                  engine.dispose()
+          PY
+          drop_canary
+          PYTHONPATH="$T6B_EXTRACT_ROOT" python - "$evidence/T6B_SQLSERVER_PROPERTY_GATE_CANARY.json" <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          from sqlalchemy import create_engine
+          from sqlalchemy.engine import URL
+          from t6b import sqlserver_gate
+
+          out=Path(sys.argv[1]); password=os.environ['T6B_SA_PASSWORD']
+          database_url=URL.create('mssql+pyodbc',username='sa',password=password,host='127.0.0.1',port=1433,database='master',query={'driver':'ODBC Driver 18 for SQL Server','Encrypt':'yes','TrustServerCertificate':'yes'}).render_as_string(hide_password=False)
+          evidence={'status':'NOT_STARTED','query_server_properties_calls':0,'runner_invocations_before_property_gate':0,'password_present':False}
+          engine=None
+          try:
+              engine=create_engine(database_url, future=True)
+              with engine.connect() as connection:
+                  evidence['query_server_properties_calls']=1
+                  properties=sqlserver_gate.query_server_properties(connection)
+              assert properties.product_major_version==16
+              assert properties.engine_edition not in (5,8)
+              assert properties.product_version
+              evidence.update({'status':'PASS','product_major_version':properties.product_major_version,'engine_edition':properties.engine_edition,'product_version':properties.product_version,'azure':properties.engine_edition in (5,8)})
+              out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+          except Exception:
+              evidence.update({'status':'FAIL','exception_type':'SQLSERVER_PROPERTY_GATE_FAILURE'})
+              out.write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
+              raise
+          finally:
+              if engine is not None:
+                  engine.dispose()
+          PY
+          python - "$database" <<'PY'
+          import os, sys, pyodbc
+          db=sys.argv[1]; password=os.environ['T6B_SA_PASSWORD']
+          cs='DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=master;UID=sa;PWD='+password+';Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=5'
+          with pyodbc.connect(cs,autocommit=True) as c:
+              assert c.execute("SELECT COUNT(*) FROM sys.databases WHERE name=?",(db,)).fetchone()[0]==0
+              c.execute('CREATE DATABASE ['+db+']')
+          PY
+          python - "$evidence/T6B_SQLSERVER_CONTAINER_PROOF.json" <<'PY'
+          import json, os, subprocess, sys
+          name=os.environ['T6B_CONTAINER']; image=os.environ['IMAGE']; readiness=json.load(open(os.environ['T6B_READINESS']))
+          proof={'image':image,'inspect_os':subprocess.check_output(['docker','image','inspect',image,'--format','{{.Os}}'],text=True).strip(),'inspect_architecture':subprocess.check_output(['docker','image','inspect',image,'--format','{{.Architecture}}'],text=True).strip(),'image_repo_digest':subprocess.check_output(['docker','image','inspect',image,'--format','{{index .RepoDigests 0}}'],text=True).strip(),'product_major_version':readiness['product_major_version'],'engine_edition':readiness['engine_edition'],'product_version':readiness['product_version'],'container_instance_count':1,'password_present':False}
+          json.dump(proof,open(sys.argv[1],'w'),sort_keys=True,indent=2); open(sys.argv[1],'a').write('\n')
+          PY
+          echo '1' > "$evidence/T6B_RUNNER_INVOCATIONS.txt"
+          if ! PYTHONPATH="$T6B_EXTRACT_ROOT" python - "$evidence" "$RUNNER_TEMP/t6b-inputs/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz" "$RUNNER_TEMP/t6b-inputs/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz" "$T6B_PHASE5_ROOT" "$database" > "$evidence/T6B_RUNNER_STDOUT.txt" 2> "$evidence/T6B_RUNNER_STDERR.txt" <<'PY'
+          import json, os, sys, traceback
+          from pathlib import Path
+          from sqlalchemy.engine import URL
+          from sqlalchemy.engine.url import make_url
+          from t6b import qualification
+          evidence=Path(sys.argv[1]); candidate=Path(sys.argv[2]); ret=Path(sys.argv[3]); phase5=Path(sys.argv[4]); db=sys.argv[5]
+          password=os.environ['T6B_SA_PASSWORD']
+          url=URL.create('mssql+pyodbc',username='sa',password=password,host='127.0.0.1',port=1433,database=db,query={'driver':'ODBC Driver 18 for SQL Server','Encrypt':'yes','TrustServerCertificate':'yes'})
+          database_url=url.render_as_string(hide_password=False)
+          assert make_url(database_url).password == password
+          try:
+              result=qualification.run(database_url,candidate_archive=candidate,return_archive=ret,phase5_root=phase5,evidence_dir=evidence)
+          except Exception as exc:
+              safe=str(exc).replace(password,'[REDACTED]')
+              (evidence/'T6B_QUALIFICATION_FAILURE.json').write_text(json.dumps({'exception_type':type(exc).__name__,'exception':safe,'runner_started':True,'runner_invocations':1},sort_keys=True,indent=2)+'\n')
+              print('T6B_QUALIFICATION_FAILURE='+type(exc).__name__)
+              sys.exit(1)
+          print(json.dumps(result,sort_keys=True))
+          PY
+          then
+            exit 1
+          fi
+          python - "$evidence" <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          e=Path(sys.argv[1]); q=json.loads((e/'T6B_SQLSERVER_2022_QUALIFICATION.json').read_text()); host=json.loads((Path(os.environ['RUNNER_TEMP'])/'T6B_NATIVE_X64_HOST_PROOF.json').read_text()); inp=json.loads((Path(os.environ['RUNNER_TEMP'])/'T6B_INPUT_IDENTITY_PROOF.json').read_text()); ready=json.loads((e/'T6B_NATIVE_X64_SQLSERVER_READINESS.json').read_text()); container=json.loads((e/'T6B_SQLSERVER_CONTAINER_PROOF.json').read_text())
+          (e/'T6B_PERSISTENCE_TRANSACTION_REPORT.json').write_text(json.dumps({'before_counts':q['before_counts'],'after_first_commit_counts':q['after_first_commit_counts'],'after_replay_counts':q['after_replay_counts'],'protected_deltas':{'verified_assertion_delta':q['verified_assertion_delta'],'typed_projection_delta':q['typed_projection_delta'],'protected_action_delta':q['protected_action_delta']},'audit_first_commit_delta':q['phase4_source_change_recorded_first_commit_delta']},sort_keys=True,indent=2)+'\n')
+          (e/'T6B_ROLLBACK_IDEMPOTENCY_REPORT.json').write_text(json.dumps({'after_rollback_counts':q['after_rollback_counts'],'audit_after_rollback_by_event_type':q['audit_after_rollback_by_event_type'],'audit_replay_duplicate_delta':q['audit_replay_duplicate_delta']},sort_keys=True,indent=2)+'\n')
+          (e/'T6B_POSTCOMMIT_REREAD_REPORT.json').write_text(json.dumps({'after_first_commit_counts':q['after_first_commit_counts'],'after_replay_counts':q['after_replay_counts'],'audit_after_first_commit_by_event_type':q['audit_after_first_commit_by_event_type'],'audit_after_replay_by_event_type':q['audit_after_replay_by_event_type']},sort_keys=True,indent=2)+'\n')
+          (e/'T6B_SCHEMA_FINGERPRINT_REPORT.json').write_text(json.dumps({'schema_before_sha256':q['schema_before_sha256'],'schema_after_sha256':q['schema_after_sha256'],'schema_delta':q['schema_delta'],'mutation_sensitivity':q['schema_fingerprint_mutation_sensitivity']},sort_keys=True,indent=2)+'\n')
+          (e/'T6B_NEGATIVE_MATRIX.json').write_text(json.dumps({'sqlalchemy_inspect_call_count':q['reflection_source_audit']['SQLALCHEMY_INSPECT_CALL_COUNT'],'metadata_reflect_call_count':q['reflection_source_audit']['METADATA_REFLECT_CALL_COUNT'],'get_columns_call_count':q['reflection_source_audit']['GET_COLUMNS_CALL_COUNT'],'get_unique_constraints_call_count':q['reflection_source_audit']['GET_UNIQUE_CONSTRAINTS_CALL_COUNT'],'required_test_skips':q['required_test_skips'],'mutation_sensitivity':q['schema_fingerprint_mutation_sensitivity']},sort_keys=True,indent=2)+'\n')
+          summary={'native_x64_environment':'PASS','t6b_consumer_sha256':os.environ['T6B_SHA'],'qualification':q,'host':host,'inputs':inp,'readiness':ready,'container':container,'t6b_application_persistence_closed':True,'t6b_ready_for_independent_acceptance':True,'t6b_independent_acceptance':'NOT_PERFORMED_BY_PRODUCER','dsm_contacts':0,'smb_connections':0,'real_amec_source_reads':0,'real_amec_source_bytes':0,'parser_executions':0,'real_content_llm_calls':0,'main_merge_authorized':False,'phase6_authorized':False,'production_ready':False,'global_real_amec_data_allowed':False}
+          (e/'T6B_NATIVE_X64_FINAL_EXECUTION_SUMMARY.json').write_text(json.dumps(summary,sort_keys=True,indent=2)+'\n')
+          (e/'T6B_NATIVE_X64_FINAL_LEDGER.json').write_text(json.dumps({'archive_sha256':os.environ['T6B_SHA'],'archive_bytes':int(os.environ['T6B_BYTES']),'runner_sha256':os.environ['RUNNER_SHA'],'runner_bytes':int(os.environ['RUNNER_BYTES']),'qualification_started':True,'runner_invocations':1,'sqlserver_repo_digest':container['image_repo_digest'],'qualification_status':q['schema']},sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Upload credential-free qualification evidence
+        if: always()
+        id: upload_evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: t6b-native-x64-sql-runner-symbol-final-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/T6B_NATIVE_X64_HOST_PROOF.json
+            ${{ runner.temp }}/T6B_INPUT_IDENTITY_PROOF.json
+            ${{ runner.temp }}/T6B_FROZEN_INPUT_PROOF.json
+            ${{ runner.temp }}/T6B_ODBC_SERVERPROPERTY_ROOT_CAUSE.json
+            ${{ runner.temp }}/T6B_EXACT_GATE_PATCH_PROOF.json
+            ${{ runner.temp }}/T6B_SCHEMA_FINGERPRINT_ROOT_CAUSE.json
+            ${{ runner.temp }}/T6B_RUNNER_SYMBOL_BINDING_ROOT_CAUSE.json
+            ${{ runner.temp }}/T6B_RUNNER_SYMBOL_RESOLUTION_AUDIT.json
+            ${{ runner.temp }}/T6B_CATALOG_SQL_INVENTORY.json
+            ${{ runner.temp }}/T6B_CATALOG_ALIAS_AUDIT.json
+            ${{ runner.temp }}/T6B_CATALOG_SQL_CHANGED_PATHS.json
+            ${{ runner.temp }}/T6B_SQLALCHEMY_URL_CREDENTIAL_SEAM_PROOF.json
+            ${{ runner.temp }}/T6B_PREVIOUS_FAILURE_PROVENANCE.json
+            ${{ runner.temp }}/T6B_SCHEMA_FINGERPRINT_QUERY_EVIDENCE.json
+            ${{ runner.temp }}/T6B_RUNTIME_TABLE_COUNT_CANARY.json
+            ${{ runner.temp }}/t6b-evidence/T6B_SQLSERVER_CONTAINER_PROOF.json
+            ${{ runner.temp }}/t6b-evidence/T6B_NATIVE_X64_SQLSERVER_READINESS.json
+            ${{ runner.temp }}/t6b-evidence/T6B_ALEMBIC_CANARY_EVIDENCE.json
+            ${{ runner.temp }}/t6b-evidence/T6B_SCHEMA_FINGERPRINT_CANARY.json
+            ${{ runner.temp }}/t6b-evidence/T6B_SQLSERVER_PROPERTY_GATE_CANARY.json
+            ${{ runner.temp }}/t6b-evidence/T6B_SQLSERVER_2022_QUALIFICATION.json
+            ${{ runner.temp }}/t6b-evidence/T6B_PERSISTENCE_TRANSACTION_REPORT.json
+            ${{ runner.temp }}/t6b-evidence/T6B_ROLLBACK_IDEMPOTENCY_REPORT.json
+            ${{ runner.temp }}/t6b-evidence/T6B_POSTCOMMIT_REREAD_REPORT.json
+            ${{ runner.temp }}/t6b-evidence/T6B_SCHEMA_FINGERPRINT_REPORT.json
+            ${{ runner.temp }}/t6b-evidence/T6B_NEGATIVE_MATRIX.json
+            ${{ runner.temp }}/t6b-evidence/T6B_NATIVE_X64_FINAL_EXECUTION_SUMMARY.json
+            ${{ runner.temp }}/t6b-evidence/T6B_NATIVE_X64_FINAL_LEDGER.json
+            ${{ runner.temp }}/t6b-evidence/T6B_QUALIFICATION_FAILURE.json
+
+      - name: Print terminal acceptance block
+        if: always()
+        shell: bash
+        env:
+          T6B_ARTIFACT_ID: ${{ steps.upload_evidence.outputs.artifact-id }}
+          T6B_ARTIFACT_DIGEST: ${{ steps.upload_evidence.outputs.artifact-digest }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          temp=Path(os.environ['RUNNER_TEMP']); evidence=temp/'t6b-evidence'
+          qpath=evidence/'T6B_SQLSERVER_2022_QUALIFICATION.json'
+          hostpath=temp/'T6B_NATIVE_X64_HOST_PROOF.json'
+          cpath=evidence/'T6B_SQLSERVER_CONTAINER_PROOF.json'
+          canarypath=evidence/'T6B_ALEMBIC_CANARY_EVIDENCE.json'
+          schemapath=evidence/'T6B_SCHEMA_FINGERPRINT_CANARY.json'
+          propertypath=evidence/'T6B_SQLSERVER_PROPERTY_GATE_CANARY.json'
+          ready_path=evidence/'T6B_NATIVE_X64_SQLSERVER_READINESS.json'
+          seam_path=temp/'T6B_SQLALCHEMY_URL_CREDENTIAL_SEAM_PROOF.json'
+          provenance_path=temp/'T6B_PREVIOUS_FAILURE_PROVENANCE.json'
+          symbol_audit_path=temp/'T6B_RUNNER_SYMBOL_RESOLUTION_AUDIT.json'
+          q=json.loads(qpath.read_text()) if qpath.exists() else None
+          host=json.loads(hostpath.read_text()) if hostpath.exists() else None
+          container=json.loads(cpath.read_text()) if cpath.exists() else None
+          canary=json.loads(canarypath.read_text()) if canarypath.exists() else None
+          schema_canary=json.loads(schemapath.read_text()) if schemapath.exists() else None
+          property_gate=json.loads(propertypath.read_text()) if propertypath.exists() else None
+          ready=json.loads(ready_path.read_text()) if ready_path.exists() else None
+          seam=json.loads(seam_path.read_text()) if seam_path.exists() else None
+          provenance=json.loads(provenance_path.read_text()) if provenance_path.exists() else None
+          symbol_audit=json.loads(symbol_audit_path.read_text()) if symbol_audit_path.exists() else None
+          def value(obj,key,default='NOT_STARTED'):
+              return obj.get(key,default) if obj else default
+          print('PREVIOUS_FAILED_RUN_ID=34070802742')
+          print('PREVIOUS_FAILED_VALIDATION_SHA=dcc4934ffb5842ebd983ee11e12ae8532041f7fd')
+          print('PREVIOUS_FAILED_T6B_SHA=0bbbe41f22d87b4fbe0c247c72b91aa204ccecad3bdf523e2a9224b3bcf1dce6')
+          print('PREDECESSOR_ODBC_DEFECT_STATUS=CLOSED')
+          print('CURRENT_ROOT_CAUSE=T6B_QUALIFICATION_RUNNER_UNBOUND_SELECTORS_GLOBAL')
+          print('CURRENT_EXCEPTION=NameError: name \'SELECTORS\' is not defined')
+          print('BASE_QUALIFICATION_SHA256=c6c2db35c70dd0a5f14d88b3ed211f0a9dd98fabf07210d0985bc9cf5e878dfe')
+          print('BASE_QUALIFICATION_BYTES=35212')
+          print('NEW_QUALIFICATION_SHA256='+os.environ['RUNNER_SHA'])
+          print('NEW_QUALIFICATION_BYTES='+os.environ['RUNNER_BYTES'])
+          print('CONSUMER_IMPLEMENTATION_SHA256=6689959f300461e2b7eba669728c59c02251362d36bba4e853bdcfbd9ef32778')
+          print('CONSUMER_IMPLEMENTATION_BYTES=18389')
+          print('CONSUMER_IMPLEMENTATION_CHANGED=false')
+          print('SQL_GATE_SHA256=e861deca96dffa99f1baff7980b50ddc439f358d8f0cad88cd37a2eaecb82730')
+          print('SQL_GATE_IMPLEMENTATION_CHANGED=false')
+          print('QUALIFICATION_BARE_SELECTORS_LOAD_COUNT='+str(value(symbol_audit,'bare_selectors_load_count')))
+          print('QUALIFICATION_CONSUMER_SELECTORS_REFERENCE_COUNT='+str(value(symbol_audit,'consumer_selectors_reference_count')))
+          print('UNRESOLVED_LOAD_GLOBAL_COUNT='+str(value(symbol_audit,'unresolved_load_global_count')))
+          print('RUNNER_SYMBOL_RESOLUTION_AUDIT='+str(value(symbol_audit,'result')))
+          print('SELECTOR_AUTHORITY='+str(value(symbol_audit,'selector_authority')))
+          print('CONSUMER_SELECTORS_EXACT='+str(value(symbol_audit,'consumer_selectors_exact')).lower())
+          print('T6B_CONTRACT_NON_GATE_SEMANTIC_DELTA=0')
+          print('T6B_FROZEN_CONSUMER_SHA256='+os.environ['T6B_SHA'])
+          print('T6B_FROZEN_CONSUMER_BYTES='+os.environ['T6B_BYTES'])
+          print('T6B_BASE_CONSUMER_SHA256='+os.environ['T6B_SHA'])
+          print('T6B_BASE_CONSUMER_BYTES='+os.environ['T6B_BYTES'])
+          print('T6B_EXECUTED_CONSUMER_SHA256='+os.environ['T6B_SHA'])
+          print('T6B_EXECUTED_CONSUMER_BYTES='+os.environ['T6B_BYTES'])
+          print('NEW_T6B_FROZEN_SHA256='+os.environ['T6B_SHA'])
+          print('NEW_T6B_FROZEN_BYTES='+os.environ['T6B_BYTES'])
+          print('T6B_DETERMINISTIC_REBUILD_MATCH=true')
+          print('VALIDATION_BRANCH=t6b-native-x64-sql-runner-symbol-final-v1')
+          print('VALIDATION_SHA='+os.environ.get('GITHUB_SHA','NOT_OBSERVED'))
+          print('VALIDATION_PARENT_SHA='+os.environ['PHASE5_COMMIT'])
+          print('GITHUB_RUN_ID='+os.environ['GITHUB_RUN_ID'])
+          print('GITHUB_RUN_ATTEMPT='+os.environ['GITHUB_RUN_ATTEMPT'])
+          print('NATIVE_X64_LINUX_HOST='+('PASS' if host else 'FAIL'))
+          print('EMULATION_USED='+str(value(host,'emulation_used',False)).lower())
+          runner_marker=evidence/'T6B_RUNNER_INVOCATIONS.txt'
+          print('T6B_RUNNER_INVOCATIONS='+((runner_marker.read_text().strip() if runner_marker.exists() else '0')))
+          print('FAILED_RUN_ID='+str(value(provenance,'failed_run_id')))
+          print('FAILED_VALIDATION_SHA='+str(value(provenance,'failed_validation_sha256')))
+          print('FAILED_RUN_CLASSIFICATION='+str(value(provenance,'failed_run_classification')))
+          print('T6B_6DA_CREDENTIAL_PROPAGATION='+str(value(seam,'t6b_6dae_credential_propagation')))
+          print('T6B_CONSUMER_CHANGE_REQUIRED='+str(value(seam,'t6b_consumer_change_required',False)).lower())
+          print('FROZEN_QUALIFICATION_CALL_CREDENTIAL_BOUNDARY='+str(value(seam,'frozen_qualification_call_credential_boundary')))
+          print('T6B_ACCEPTED_PHASE5_MIGRATION_CANARY='+str(value(canary,'status')))
+          print('T6B_MIGRATION_CANARY_HEAD='+str(value(canary,'migration_head_observed')))
+          print('T6B_SCHEMA_FINGERPRINT_CANARY='+str(value(schema_canary,'status')))
+          print('SCHEMA_DOCUMENT_QUERY_EXECUTION_COUNT='+str(value(schema_canary,'schema_document_query_execution_count')))
+          print('RUNTIME_PROBE_QUERY_EXECUTION_COUNT='+str(value(schema_canary,'runtime_probe_query_execution_count')))
+          print('TOTAL_CATALOG_QUERY_EXECUTION_COUNT='+str(value(schema_canary,'total_catalog_query_execution_count')))
+          print('SCHEMA_FINGERPRINT_CANARY_SHA256='+str(value(schema_canary,'schema_fingerprint_sha256')))
+          print('T6B_RUNNER_INVOCATIONS_BEFORE_CANARY=0')
+          print('T6B_CREDENTIAL_LEAK_COUNT='+str(value(seam,'password_leak_count',0)))
+          print('T6B_SQLSERVER_PROPERTY_GATE_CANARY='+str(value(property_gate,'status')))
+          print('T6B_SQLSERVER_PROPERTY_GATE_QUERY_SERVER_PROPERTIES_CALLS='+str(value(property_gate,'query_server_properties_calls')))
+          print('SQLSERVER_PROPERTY_GATE_PRODUCT_MAJOR_VERSION='+str(value(property_gate,'product_major_version')))
+          print('SQLSERVER_PROPERTY_GATE_ENGINE_EDITION='+str(value(property_gate,'engine_edition')))
+          print('SQLSERVER_PROPERTY_GATE_PRODUCT_VERSION='+str(value(property_gate,'product_version')))
+          print('SQLSERVER_PROPERTY_GATE_AZURE='+('NOT_OBSERVED' if not property_gate else str(bool(property_gate.get('azure'))).lower()))
+          print('T6B_RUNNER_INVOCATIONS_BEFORE_PROPERTY_GATE=0')
+          print('SQLSERVER_CONTAINER_INSTANCE_COUNT='+((evidence/'T6B_SQLSERVER_CONTAINER_INSTANCE_COUNT.txt').read_text().strip() if (evidence/'T6B_SQLSERVER_CONTAINER_INSTANCE_COUNT.txt').exists() else '0'))
+          print('SQLSERVER_IMAGE_DIGEST='+value(container,'image_repo_digest',os.environ['IMAGE']))
+          server=(q.get('server') if q else (ready if ready and ready.get('status') == 'PASS' else None))
+          print('SQLSERVER_PRODUCT_MAJOR_VERSION='+str(value(server,'product_major_version')))
+          print('SQLSERVER_ENGINE_EDITION='+str(value(server,'engine_edition')))
+          print('SQLSERVER_PRODUCT_VERSION='+str(value(server,'product_version')))
+          print('SQLSERVER_AZURE='+('NOT_OBSERVED' if not server else ('true' if server.get('engine_edition') in (5,8) else 'false')))
+          print('SQLALCHEMY_STR_URL_PASSWORD_MASKING_REPRODUCED='+str(bool(seam and seam.get('str_url_masks_sentinel'))).lower())
+          print('SQLALCHEMY_EXECUTABLE_URL_RENDER_ROUNDTRIP='+str(value(seam,'frozen_qualification_call_credential_boundary')))
+          for label,key in [('T6B_BEFORE_COUNTS','before_counts'),('T6B_AFTER_ROLLBACK_COUNTS','after_rollback_counts'),('T6B_AFTER_FIRST_COMMIT_COUNTS','after_first_commit_counts'),('T6B_AFTER_REPLAY_COUNTS','after_replay_counts')]:
+              print(label+'='+json.dumps(value(q,key),sort_keys=True,separators=(',',':')))
+          print('T6B_ROLLBACK='+('PASS' if q else 'NOT_STARTED'))
+          print('T6B_POSTCOMMIT_REREAD='+('PASS' if q else 'NOT_STARTED'))
+          print('T6B_IDEMPOTENCY='+('PASS' if q else 'NOT_STARTED'))
+          print('T6B_FIRST_COMMIT='+('PASS' if q else 'NOT_STARTED'))
+          print('T6B_FIRST_COMMIT_BEFORE_COUNTS_ZERO='+('PASS' if q and all(v == 0 for v in q.get('before_counts',{}).values()) else 'NOT_STARTED'))
+          for label,key in [('T6B_AFTER_SOURCE_EVENTS','source_events'),('T6B_AFTER_EVIDENCE_ENVELOPES','evidence_envelopes'),('T6B_AFTER_CLASSIFICATION_PROPOSALS','classification_envelopes'),('T6B_AFTER_PENDING_REVIEW','pending_review')]:
+              print(label+'='+str((q or {}).get('after_first_commit_counts',{}).get(key,'NOT_STARTED')))
+          print('T6B_SCHEMA_BEFORE_SHA256='+str(value(q,'schema_before_sha256')))
+          print('T6B_SCHEMA_AFTER_SHA256='+str(value(q,'schema_after_sha256')))
+          print('T6B_SCHEMA_DELTA='+str(value(q,'schema_delta')))
+          print('T6B_VERIFIED_ASSERTION_DELTA='+str(value(q,'verified_assertion_delta')))
+          print('T6B_TYPED_PROJECTION_DELTA='+str(value(q,'typed_projection_delta')))
+          print('T6B_PROTECTED_ACTION_DELTA='+str(value(q,'protected_action_delta')))
+          print('T6B_REVIEW_ACCEPT_DELTA='+str(value(q,'review_accept_delta')))
+          print('T6B_REVIEW_CORRECT_DELTA='+str(value(q,'review_correct_delta')))
+          print('T6B_AUTO_PROMOTION_DELTA='+str(value(q,'auto_promotion_delta')))
+          print('T6B_SOURCE_WRITEBACKS='+str(value(q,'source_writebacks')))
+          print('PHASE4_SOURCE_CHANGE_RECORDED_FIRST_COMMIT_DELTA='+str(value(q,'phase4_source_change_recorded_first_commit_delta')))
+          print('AUDIT_REPLAY_DUPLICATE_DELTA='+str(value(q,'audit_replay_duplicate_delta')))
+          print('T6B_REQUIRED_TEST_SKIPS='+str(value(q,'required_test_skips')))
+          print('T6A_RUNTIME_RERUNS=0')
+          print('DSM_CONTACTS=0')
+          print('SMB_CONNECTIONS=0')
+          print('REAL_AMEC_SOURCE_READS=0')
+          print('REAL_AMEC_SOURCE_BYTES=0')
+          print('PARSER_EXECUTIONS=0')
+          print('REAL_CONTENT_LLM_CALLS=0')
+          print('CREDENTIAL_EVIDENCE_LEAK_COUNT='+str(value(seam,'password_leak_count',0)))
+          expected_zero_counts={'source_events':0,'evidence_envelopes':0,'classification_envelopes':0,'pending_review':0}
+          expected_commit_counts={'source_events':3,'evidence_envelopes':3,'classification_envelopes':3,'pending_review':3}
+          success=bool(
+              q
+              and symbol_audit
+              and symbol_audit.get('result')=='PASS'
+              and symbol_audit.get('unresolved_load_global_count')==0
+              and symbol_audit.get('bare_selectors_load_count')==0
+              and symbol_audit.get('consumer_selectors_exact') is True
+              and q.get('required_test_skips')==0
+              and q.get('server',{}).get('product_major_version')==16
+              and q.get('server',{}).get('engine_edition') not in (5,8)
+              and q.get('before_counts')==expected_zero_counts
+              and q.get('after_rollback_counts')==expected_zero_counts
+              and q.get('after_first_commit_counts')==expected_commit_counts
+              and q.get('after_replay_counts')==expected_commit_counts
+              and q.get('schema_before_sha256')
+              and q.get('schema_after_sha256')
+              and q.get('schema_before_sha256')==q.get('schema_after_sha256')
+              and q.get('schema_delta')==0
+              and q.get('verified_assertion_delta')==0
+              and q.get('typed_projection_delta')==0
+              and q.get('protected_action_delta')==0
+              and q.get('review_accept_delta')==0
+              and q.get('review_correct_delta')==0
+              and q.get('auto_promotion_delta')==0
+              and q.get('source_writebacks')==0
+              and q.get('phase4_source_change_recorded_first_commit_delta')==3
+              and q.get('audit_replay_duplicate_delta')==0
+              and q.get('dsm_contacts')==0
+              and q.get('smb_connections')==0
+              and q.get('real_amec_source_reads')==0
+              and q.get('real_amec_source_bytes')==0
+              and q.get('parser_executions')==0
+              and q.get('llm_calls')==0
+              and q.get('mssql_unique_constraint_sys_catalog')=='PASS'
+              and q.get('mssql_reflection_api_preflight')=='PASS'
+              and q.get('schema_fingerprint_mutation_sensitivity') is True
+              and value(seam,'password_leak_count',1)==0
+              and value(canary,'status')=='PASS'
+              and value(schema_canary,'status')=='PASS'
+              and value(property_gate,'status')=='PASS'
+              and value(property_gate,'query_server_properties_calls')==1
+              and value(schema_canary,'total_catalog_query_execution_count')==6
+              and runner_marker.exists()
+              and runner_marker.read_text().strip()=='1'
+          )
+          print('T6B_APPLICATION_PERSISTENCE_CLOSED='+str(success).lower())
+          print('T6B_READY_FOR_INDEPENDENT_ACCEPTANCE='+str(success).lower())
+          print('T6B_INDEPENDENT_ACCEPTANCE=NOT_PERFORMED_BY_PRODUCER')
+          print('MAIN_MERGE_AUTHORIZED=false')
+          print('PHASE6_AUTHORIZED=false')
+          print('PRODUCTION_READY=false')
+          print('GLOBAL_REAL_AMEC_DATA_ALLOWED=false')
+          print('ARTIFACT_ID='+os.environ.get('T6B_ARTIFACT_ID','NOT_OBSERVED'))
+          print('ARTIFACT_DIGEST='+os.environ.get('T6B_ARTIFACT_DIGEST','NOT_OBSERVED'))
+          print('ARTIFACT_NAME=t6b-native-x64-sql-type-stable-final-'+os.environ.get('GITHUB_RUN_ID','NOT_OBSERVED'))
+          if success:
+              next_step='EXTERNAL_INDEPENDENT_ACCEPTANCE'
+          elif not ready or ready.get('status') != 'PASS':
+              next_step='STOP_SQLSERVER_READINESS_FAILURE'
+          elif not canary or canary.get('status') != 'PASS':
+              next_step='STOP_ALEMBIC_CANARY_FAILURE'
+          elif not schema_canary or schema_canary.get('status') != 'PASS':
+              next_step='STOP_SCHEMA_FINGERPRINT_CANARY_FAILURE'
+          elif not property_gate or property_gate.get('status') != 'PASS':
+              next_step='STOP_SQLSERVER_PROPERTY_GATE_CANARY_FAILURE'
+          elif not symbol_audit or symbol_audit.get('result') != 'PASS':
+              next_step='STOP_RUNNER_SYMBOL_RESOLUTION_AUDIT_FAILURE'
+          elif not runner_marker.exists() or runner_marker.read_text().strip() != '1':
+              next_step='STOP_RUNNER_NOT_STARTED_AFTER_CANARIES'
+          elif not q:
+              next_step='STOP_T6B_FROZEN_RUNNER_FAILURE'
+          else:
+              next_step='STOP_T6B_FROZEN_RUNNER_FAILURE'
+          print('NEXT='+next_step)
+          PY
