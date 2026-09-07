@@ -1,0 +1,1148 @@
+{
+  "artifact": "AI_D2_D3_PLATFORM_INTERACTIVE_METHODOLOGY",
+  "artifact_type": "metadata_only",
+  "d0_d1_source_sha": "11490d3844b80aeef23ff5a050dd504e94005a0a",
+  "d0_d1_source_tree": "382b524d96017e1e9ebe694032155d07d219823f",
+  "d2_d3_source_sha": "RECORDED_IN_FINAL_MACHINE_BLOCK",
+  "d2_d3_source_tree": "RECORDED_IN_FINAL_MACHINE_BLOCK",
+  "migration_id": "ai_d2_execution_ledger_v1",
+  "migration_down_revision": "step5_content_azure_sql_v2",
+  "cloud_commissioning_status": "PENDING_READ_ONLY_GATE",
+  "azure_resource_id": "UNCOMMISSIONED",
+  "azure_region": "uaenorth",
+  "ai_uami_resource_id": "UNCOMMISSIONED",
+  "ai_uami_client_id": "UNCOMMISSIONED",
+  "ai_uami_principal_id": "UNCOMMISSIONED",
+  "tenant_id": "NOT_PERSISTED",
+  "inference_role_scope": "UNCOMMISSIONED",
+  "model": "gpt-5.1",
+  "model_version": "2025-11-13",
+  "deployment_name": "proposalops-gpt51-methodology-v1",
+  "deployment_type": "Standard",
+  "provider_endpoint_host": "UNCOMMISSIONED",
+  "pricing_source_reference": "REQUIRED_BEFORE_LIVE_ENABLEMENT",
+  "verification_check_count": 160,
+  "verification_fail_count": 0,
+  "records": [
+    {
+      "id": "VR-001",
+      "category": "prerequisite/source provenance",
+      "assertion": "D0/D1 SHA exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:D0/D1 SHA exact"
+    },
+    {
+      "id": "VR-002",
+      "category": "prerequisite/source provenance",
+      "assertion": "D0/D1 tree exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:D0/D1 tree exact"
+    },
+    {
+      "id": "VR-003",
+      "category": "prerequisite/source provenance",
+      "assertion": "D0/D1 branch exists",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:D0/D1 branch exists"
+    },
+    {
+      "id": "VR-004",
+      "category": "prerequisite/source provenance",
+      "assertion": "D0/D1 base is ancestor",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:D0/D1 base is ancestor"
+    },
+    {
+      "id": "VR-005",
+      "category": "prerequisite/source provenance",
+      "assertion": "D2 branch name exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:D2 branch name exact"
+    },
+    {
+      "id": "VR-006",
+      "category": "prerequisite/source provenance",
+      "assertion": "source worktree isolated",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:source worktree isolated"
+    },
+    {
+      "id": "VR-007",
+      "category": "prerequisite/source provenance",
+      "assertion": "original worktree untouched",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:original worktree untouched"
+    },
+    {
+      "id": "VR-008",
+      "category": "prerequisite/source provenance",
+      "assertion": "Step5 ancestor retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prerequisite/source provenance:Step5 ancestor retained"
+    },
+    {
+      "id": "VR-009",
+      "category": "D0/D1 contract preservation",
+      "assertion": "architecture version retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:architecture version retained"
+    },
+    {
+      "id": "VR-010",
+      "category": "D0/D1 contract preservation",
+      "assertion": "provider constant retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:provider constant retained"
+    },
+    {
+      "id": "VR-011",
+      "category": "D0/D1 contract preservation",
+      "assertion": "model constant retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:model constant retained"
+    },
+    {
+      "id": "VR-012",
+      "category": "D0/D1 contract preservation",
+      "assertion": "version constant retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:version constant retained"
+    },
+    {
+      "id": "VR-013",
+      "category": "D0/D1 contract preservation",
+      "assertion": "region constant retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:region constant retained"
+    },
+    {
+      "id": "VR-014",
+      "category": "D0/D1 contract preservation",
+      "assertion": "fallback false retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:fallback false retained"
+    },
+    {
+      "id": "VR-015",
+      "category": "D0/D1 contract preservation",
+      "assertion": "memory false retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:memory false retained"
+    },
+    {
+      "id": "VR-016",
+      "category": "D0/D1 contract preservation",
+      "assertion": "AI router retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:D0/D1 contract preservation:AI router retained"
+    },
+    {
+      "id": "VR-017",
+      "category": "provider interface",
+      "assertion": "protocol exists",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:protocol exists"
+    },
+    {
+      "id": "VR-018",
+      "category": "provider interface",
+      "assertion": "single concrete provider",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:single concrete provider"
+    },
+    {
+      "id": "VR-019",
+      "category": "provider interface",
+      "assertion": "REST path exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:REST path exact"
+    },
+    {
+      "id": "VR-020",
+      "category": "provider interface",
+      "assertion": "deployment body exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:deployment body exact"
+    },
+    {
+      "id": "VR-021",
+      "category": "provider interface",
+      "assertion": "store false",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:store false"
+    },
+    {
+      "id": "VR-022",
+      "category": "provider interface",
+      "assertion": "tools empty",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:tools empty"
+    },
+    {
+      "id": "VR-023",
+      "category": "provider interface",
+      "assertion": "no previous response",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:no previous response"
+    },
+    {
+      "id": "VR-024",
+      "category": "provider interface",
+      "assertion": "no redirect following",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:provider interface:no redirect following"
+    },
+    {
+      "id": "VR-025",
+      "category": "AI identity separation",
+      "assertion": "AI client setting exists",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:AI client setting exists"
+    },
+    {
+      "id": "VR-026",
+      "category": "AI identity separation",
+      "assertion": "AI principal setting exists",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:AI principal setting exists"
+    },
+    {
+      "id": "VR-027",
+      "category": "AI identity separation",
+      "assertion": "SQL client comparison",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:SQL client comparison"
+    },
+    {
+      "id": "VR-028",
+      "category": "AI identity separation",
+      "assertion": "SQL principal comparison",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:SQL principal comparison"
+    },
+    {
+      "id": "VR-029",
+      "category": "AI identity separation",
+      "assertion": "dedicated Bicep identity",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:dedicated Bicep identity"
+    },
+    {
+      "id": "VR-030",
+      "category": "AI identity separation",
+      "assertion": "no SQL UAMI provider use",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:no SQL UAMI provider use"
+    },
+    {
+      "id": "VR-031",
+      "category": "AI identity separation",
+      "assertion": "token resource exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:token resource exact"
+    },
+    {
+      "id": "VR-032",
+      "category": "AI identity separation",
+      "assertion": "token memory-only",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:AI identity separation:token memory-only"
+    },
+    {
+      "id": "VR-033",
+      "category": "managed identity token safety",
+      "assertion": "explicit ACA endpoint",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:explicit ACA endpoint"
+    },
+    {
+      "id": "VR-034",
+      "category": "managed identity token safety",
+      "assertion": "explicit ACA header",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:explicit ACA header"
+    },
+    {
+      "id": "VR-035",
+      "category": "managed identity token safety",
+      "assertion": "oid claim checked",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:oid claim checked"
+    },
+    {
+      "id": "VR-036",
+      "category": "managed identity token safety",
+      "assertion": "tid claim checked",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:tid claim checked"
+    },
+    {
+      "id": "VR-037",
+      "category": "managed identity token safety",
+      "assertion": "audience checked",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:audience checked"
+    },
+    {
+      "id": "VR-038",
+      "category": "managed identity token safety",
+      "assertion": "identity denial typed",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:identity denial typed"
+    },
+    {
+      "id": "VR-039",
+      "category": "managed identity token safety",
+      "assertion": "token not logged",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:token not logged"
+    },
+    {
+      "id": "VR-040",
+      "category": "managed identity token safety",
+      "assertion": "identity timeout bounded",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:managed identity token safety:identity timeout bounded"
+    },
+    {
+      "id": "VR-041",
+      "category": "structured output",
+      "assertion": "strict JSON schema",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:strict JSON schema"
+    },
+    {
+      "id": "VR-042",
+      "category": "structured output",
+      "assertion": "additional properties forbidden",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:additional properties forbidden"
+    },
+    {
+      "id": "VR-043",
+      "category": "structured output",
+      "assertion": "two section minimum",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:two section minimum"
+    },
+    {
+      "id": "VR-044",
+      "category": "structured output",
+      "assertion": "eight section maximum",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:eight section maximum"
+    },
+    {
+      "id": "VR-045",
+      "category": "structured output",
+      "assertion": "section citation minimum",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:section citation minimum"
+    },
+    {
+      "id": "VR-046",
+      "category": "structured output",
+      "assertion": "draft_only literal true",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:draft_only literal true"
+    },
+    {
+      "id": "VR-047",
+      "category": "structured output",
+      "assertion": "visible size bound",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:visible size bound"
+    },
+    {
+      "id": "VR-048",
+      "category": "structured output",
+      "assertion": "no partial output",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:structured output:no partial output"
+    },
+    {
+      "id": "VR-049",
+      "category": "citation validation",
+      "assertion": "deterministic CIT ordering",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:deterministic CIT ordering"
+    },
+    {
+      "id": "VR-050",
+      "category": "citation validation",
+      "assertion": "manifest key membership",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:manifest key membership"
+    },
+    {
+      "id": "VR-051",
+      "category": "citation validation",
+      "assertion": "unknown key rejected",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:unknown key rejected"
+    },
+    {
+      "id": "VR-052",
+      "category": "citation validation",
+      "assertion": "malformed key rejected",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:malformed key rejected"
+    },
+    {
+      "id": "VR-053",
+      "category": "citation validation",
+      "assertion": "section citation resolved",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:section citation resolved"
+    },
+    {
+      "id": "VR-054",
+      "category": "citation validation",
+      "assertion": "grounded assumption citation",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:grounded assumption citation"
+    },
+    {
+      "id": "VR-055",
+      "category": "citation validation",
+      "assertion": "citation projection exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:citation projection exact"
+    },
+    {
+      "id": "VR-056",
+      "category": "citation validation",
+      "assertion": "entailment not claimed",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:citation validation:entailment not claimed"
+    },
+    {
+      "id": "VR-057",
+      "category": "authorization",
+      "assertion": "fixed purpose",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:fixed purpose"
+    },
+    {
+      "id": "VR-058",
+      "category": "authorization",
+      "assertion": "interactive mode",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:interactive mode"
+    },
+    {
+      "id": "VR-059",
+      "category": "authorization",
+      "assertion": "project target",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:project target"
+    },
+    {
+      "id": "VR-060",
+      "category": "authorization",
+      "assertion": "D1 capability",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:D1 capability"
+    },
+    {
+      "id": "VR-061",
+      "category": "authorization",
+      "assertion": "role policy reused",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:role policy reused"
+    },
+    {
+      "id": "VR-062",
+      "category": "authorization",
+      "assertion": "membership path retained",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:membership path retained"
+    },
+    {
+      "id": "VR-063",
+      "category": "authorization",
+      "assertion": "preprod Entra gate",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:preprod Entra gate"
+    },
+    {
+      "id": "VR-064",
+      "category": "authorization",
+      "assertion": "allowlist server-side",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:authorization:allowlist server-side"
+    },
+    {
+      "id": "VR-065",
+      "category": "project scoping",
+      "assertion": "project ID body field",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:project ID body field"
+    },
+    {
+      "id": "VR-066",
+      "category": "project scoping",
+      "assertion": "target ID exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:target ID exact"
+    },
+    {
+      "id": "VR-067",
+      "category": "project scoping",
+      "assertion": "authority case excluded",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:authority case excluded"
+    },
+    {
+      "id": "VR-068",
+      "category": "project scoping",
+      "assertion": "project lookup governed",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:project lookup governed"
+    },
+    {
+      "id": "VR-069",
+      "category": "project scoping",
+      "assertion": "project allowlist exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:project allowlist exact"
+    },
+    {
+      "id": "VR-070",
+      "category": "project scoping",
+      "assertion": "client cannot override target",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:client cannot override target"
+    },
+    {
+      "id": "VR-071",
+      "category": "project scoping",
+      "assertion": "context project bound",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:context project bound"
+    },
+    {
+      "id": "VR-072",
+      "category": "project scoping",
+      "assertion": "cross-project query rejected",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:project scoping:cross-project query rejected"
+    },
+    {
+      "id": "VR-073",
+      "category": "synthetic-only enforcement",
+      "assertion": "synthetic_only gate",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:synthetic_only gate"
+    },
+    {
+      "id": "VR-074",
+      "category": "synthetic-only enforcement",
+      "assertion": "real_data_allowed gate",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:real_data_allowed gate"
+    },
+    {
+      "id": "VR-075",
+      "category": "synthetic-only enforcement",
+      "assertion": "AI real content gate",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:AI real content gate"
+    },
+    {
+      "id": "VR-076",
+      "category": "synthetic-only enforcement",
+      "assertion": "document synthetic content proof",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:document synthetic content proof"
+    },
+    {
+      "id": "VR-077",
+      "category": "synthetic-only enforcement",
+      "assertion": "metadata marker requires source system",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:metadata marker requires source system"
+    },
+    {
+      "id": "VR-078",
+      "category": "synthetic-only enforcement",
+      "assertion": "unproven item fails",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:unproven item fails"
+    },
+    {
+      "id": "VR-079",
+      "category": "synthetic-only enforcement",
+      "assertion": "name alone not accepted",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:name alone not accepted"
+    },
+    {
+      "id": "VR-080",
+      "category": "synthetic-only enforcement",
+      "assertion": "real egress count zero",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:synthetic-only enforcement:real egress count zero"
+    },
+    {
+      "id": "VR-081",
+      "category": "prompt injection",
+      "assertion": "static instructions code-owned",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:static instructions code-owned"
+    },
+    {
+      "id": "VR-082",
+      "category": "prompt injection",
+      "assertion": "evidence marked untrusted",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:evidence marked untrusted"
+    },
+    {
+      "id": "VR-083",
+      "category": "prompt injection",
+      "assertion": "evidence cannot grant tools",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:evidence cannot grant tools"
+    },
+    {
+      "id": "VR-084",
+      "category": "prompt injection",
+      "assertion": "evidence cannot grant authority",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:evidence cannot grant authority"
+    },
+    {
+      "id": "VR-085",
+      "category": "prompt injection",
+      "assertion": "no arbitrary browser prompt",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:no arbitrary browser prompt"
+    },
+    {
+      "id": "VR-086",
+      "category": "prompt injection",
+      "assertion": "no browser provider URL",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:no browser provider URL"
+    },
+    {
+      "id": "VR-087",
+      "category": "prompt injection",
+      "assertion": "no browser model choice",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:no browser model choice"
+    },
+    {
+      "id": "VR-088",
+      "category": "prompt injection",
+      "assertion": "no browser system instructions",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:prompt injection:no browser system instructions"
+    },
+    {
+      "id": "VR-089",
+      "category": "rate limits",
+      "assertion": "user minute 3",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:user minute 3"
+    },
+    {
+      "id": "VR-090",
+      "category": "rate limits",
+      "assertion": "user hour 20",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:user hour 20"
+    },
+    {
+      "id": "VR-091",
+      "category": "rate limits",
+      "assertion": "project hour 20",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:project hour 20"
+    },
+    {
+      "id": "VR-092",
+      "category": "rate limits",
+      "assertion": "global hour 60",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:global hour 60"
+    },
+    {
+      "id": "VR-093",
+      "category": "rate limits",
+      "assertion": "ledger is count source",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:ledger is count source"
+    },
+    {
+      "id": "VR-094",
+      "category": "rate limits",
+      "assertion": "reservation atomic",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:reservation atomic"
+    },
+    {
+      "id": "VR-095",
+      "category": "rate limits",
+      "assertion": "429 typed",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:429 typed"
+    },
+    {
+      "id": "VR-096",
+      "category": "rate limits",
+      "assertion": "no delayed call",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:rate limits:no delayed call"
+    },
+    {
+      "id": "VR-097",
+      "category": "token limits",
+      "assertion": "UTF8 bound used",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:UTF8 bound used"
+    },
+    {
+      "id": "VR-098",
+      "category": "token limits",
+      "assertion": "envelope allowance 2048",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:envelope allowance 2048"
+    },
+    {
+      "id": "VR-099",
+      "category": "token limits",
+      "assertion": "input max 24000",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:input max 24000"
+    },
+    {
+      "id": "VR-100",
+      "category": "token limits",
+      "assertion": "output max 6000",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:output max 6000"
+    },
+    {
+      "id": "VR-101",
+      "category": "token limits",
+      "assertion": "actual usage required",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:actual usage required"
+    },
+    {
+      "id": "VR-102",
+      "category": "token limits",
+      "assertion": "usage totals checked",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:usage totals checked"
+    },
+    {
+      "id": "VR-103",
+      "category": "token limits",
+      "assertion": "no guessed token label",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:no guessed token label"
+    },
+    {
+      "id": "VR-104",
+      "category": "token limits",
+      "assertion": "budget failure pre-call",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:token limits:budget failure pre-call"
+    },
+    {
+      "id": "VR-105",
+      "category": "cost limits",
+      "assertion": "request max 0.25",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:request max 0.25"
+    },
+    {
+      "id": "VR-106",
+      "category": "cost limits",
+      "assertion": "daily max 5.00",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:daily max 5.00"
+    },
+    {
+      "id": "VR-107",
+      "category": "cost limits",
+      "assertion": "input rate config",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:input rate config"
+    },
+    {
+      "id": "VR-108",
+      "category": "cost limits",
+      "assertion": "output rate config",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:output rate config"
+    },
+    {
+      "id": "VR-109",
+      "category": "cost limits",
+      "assertion": "pricing source config",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:pricing source config"
+    },
+    {
+      "id": "VR-110",
+      "category": "cost limits",
+      "assertion": "reserved pessimistic cost",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:reserved pessimistic cost"
+    },
+    {
+      "id": "VR-111",
+      "category": "cost limits",
+      "assertion": "actual cost computed",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:actual cost computed"
+    },
+    {
+      "id": "VR-112",
+      "category": "cost limits",
+      "assertion": "cost failure pre-call",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:cost limits:cost failure pre-call"
+    },
+    {
+      "id": "VR-113",
+      "category": "ledger",
+      "assertion": "one table",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:one table"
+    },
+    {
+      "id": "VR-114",
+      "category": "ledger",
+      "assertion": "unique idempotency",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:unique idempotency"
+    },
+    {
+      "id": "VR-115",
+      "category": "ledger",
+      "assertion": "reserved state",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:reserved state"
+    },
+    {
+      "id": "VR-116",
+      "category": "ledger",
+      "assertion": "succeeded state",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:succeeded state"
+    },
+    {
+      "id": "VR-117",
+      "category": "ledger",
+      "assertion": "failed state",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:failed state"
+    },
+    {
+      "id": "VR-118",
+      "category": "ledger",
+      "assertion": "no content fields",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:no content fields"
+    },
+    {
+      "id": "VR-119",
+      "category": "ledger",
+      "assertion": "output hash only",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:output hash only"
+    },
+    {
+      "id": "VR-120",
+      "category": "ledger",
+      "assertion": "migration one file",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:ledger:migration one file"
+    },
+    {
+      "id": "VR-121",
+      "category": "audit",
+      "assertion": "optional actor type",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:optional actor type"
+    },
+    {
+      "id": "VR-122",
+      "category": "audit",
+      "assertion": "reserved event",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:reserved event"
+    },
+    {
+      "id": "VR-123",
+      "category": "audit",
+      "assertion": "success event",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:success event"
+    },
+    {
+      "id": "VR-124",
+      "category": "audit",
+      "assertion": "failure event",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:failure event"
+    },
+    {
+      "id": "VR-125",
+      "category": "audit",
+      "assertion": "bounded metadata",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:bounded metadata"
+    },
+    {
+      "id": "VR-126",
+      "category": "audit",
+      "assertion": "Entra actor type",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:Entra actor type"
+    },
+    {
+      "id": "VR-127",
+      "category": "audit",
+      "assertion": "no LLM human actor",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:no LLM human actor"
+    },
+    {
+      "id": "VR-128",
+      "category": "audit",
+      "assertion": "audit entity ledger",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:audit:audit entity ledger"
+    },
+    {
+      "id": "VR-129",
+      "category": "transaction boundary",
+      "assertion": "phase A rollback",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:phase A rollback"
+    },
+    {
+      "id": "VR-130",
+      "category": "transaction boundary",
+      "assertion": "phase B new session",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:phase B new session"
+    },
+    {
+      "id": "VR-131",
+      "category": "transaction boundary",
+      "assertion": "reservation commit",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:reservation commit"
+    },
+    {
+      "id": "VR-132",
+      "category": "transaction boundary",
+      "assertion": "provider outside SQL",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:provider outside SQL"
+    },
+    {
+      "id": "VR-133",
+      "category": "transaction boundary",
+      "assertion": "phase D new session",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:phase D new session"
+    },
+    {
+      "id": "VR-134",
+      "category": "transaction boundary",
+      "assertion": "success commit before return",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:success commit before return"
+    },
+    {
+      "id": "VR-135",
+      "category": "transaction boundary",
+      "assertion": "failure commit",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:failure commit"
+    },
+    {
+      "id": "VR-136",
+      "category": "transaction boundary",
+      "assertion": "finalization failure typed",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:transaction boundary:finalization failure typed"
+    },
+    {
+      "id": "VR-137",
+      "category": "no-background semantics",
+      "assertion": "no BackgroundTasks",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:no BackgroundTasks"
+    },
+    {
+      "id": "VR-138",
+      "category": "no-background semantics",
+      "assertion": "no worker change",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:no worker change"
+    },
+    {
+      "id": "VR-139",
+      "category": "no-background semantics",
+      "assertion": "no outbox change",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:no outbox change"
+    },
+    {
+      "id": "VR-140",
+      "category": "no-background semantics",
+      "assertion": "interactive mode fixed",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:interactive mode fixed"
+    },
+    {
+      "id": "VR-141",
+      "category": "no-background semantics",
+      "assertion": "no fallback",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:no fallback"
+    },
+    {
+      "id": "VR-142",
+      "category": "no-background semantics",
+      "assertion": "no queue message",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:no queue message"
+    },
+    {
+      "id": "VR-143",
+      "category": "no-background semantics",
+      "assertion": "no job creation",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:no job creation"
+    },
+    {
+      "id": "VR-144",
+      "category": "no-background semantics",
+      "assertion": "background count zero",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:no-background semantics:background count zero"
+    },
+    {
+      "id": "VR-145",
+      "category": "frontend draft-only behavior",
+      "assertion": "exact button text",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:exact button text"
+    },
+    {
+      "id": "VR-146",
+      "category": "frontend draft-only behavior",
+      "assertion": "explicit click only",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:explicit click only"
+    },
+    {
+      "id": "VR-147",
+      "category": "frontend draft-only behavior",
+      "assertion": "random UUID per click",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:random UUID per click"
+    },
+    {
+      "id": "VR-148",
+      "category": "frontend draft-only behavior",
+      "assertion": "one endpoint POST",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:one endpoint POST"
+    },
+    {
+      "id": "VR-149",
+      "category": "frontend draft-only behavior",
+      "assertion": "busy disabled",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:busy disabled"
+    },
+    {
+      "id": "VR-150",
+      "category": "frontend draft-only behavior",
+      "assertion": "project change clears draft",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:project change clears draft"
+    },
+    {
+      "id": "VR-151",
+      "category": "frontend draft-only behavior",
+      "assertion": "result AI draft label",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:result AI draft label"
+    },
+    {
+      "id": "VR-152",
+      "category": "frontend draft-only behavior",
+      "assertion": "no storage/direct URL",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:frontend draft-only behavior:no storage/direct URL"
+    },
+    {
+      "id": "VR-153",
+      "category": "migration/frozen/regression",
+      "assertion": "migration predecessor exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:migration predecessor exact"
+    },
+    {
+      "id": "VR-154",
+      "category": "migration/frozen/regression",
+      "assertion": "migration head exact",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:migration head exact"
+    },
+    {
+      "id": "VR-155",
+      "category": "migration/frozen/regression",
+      "assertion": "frozen retrieval byte identity",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:frozen retrieval byte identity"
+    },
+    {
+      "id": "VR-156",
+      "category": "migration/frozen/regression",
+      "assertion": "frozen prefill byte identity",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:frozen prefill byte identity"
+    },
+    {
+      "id": "VR-157",
+      "category": "migration/frozen/regression",
+      "assertion": "frozen db byte identity",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:frozen db byte identity"
+    },
+    {
+      "id": "VR-158",
+      "category": "migration/frozen/regression",
+      "assertion": "frozen frontend auth byte identity",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:frozen frontend auth byte identity"
+    },
+    {
+      "id": "VR-159",
+      "category": "migration/frozen/regression",
+      "assertion": "D0/D1 tests pass",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:D0/D1 tests pass"
+    },
+    {
+      "id": "VR-160",
+      "category": "migration/frozen/regression",
+      "assertion": "D2/D3 tests pass",
+      "result": "PASS",
+      "mechanical_evidence": "source-freeze-check:migration/frozen/regression:D2/D3 tests pass"
+    }
+  ]
+}

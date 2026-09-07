@@ -75,6 +75,43 @@ class Settings(BaseSettings):
     monitoring_mode: str = "DISABLED"
     applicationinsights_connection_string: str = ""
 
+    # AI-D2/D3 is disabled by default and fail-closed when enabled in
+    # preproduction.  These values are deployment configuration, never
+    # browser-selectable request fields.
+    ai_enabled: bool = False
+    ai_real_content_allowed: bool = False
+    ai_azure_openai_endpoint: str = ""
+    ai_azure_openai_deployment: str = "proposalops-gpt51-methodology-v1"
+    ai_azure_openai_expected_model: str = "gpt-5.1"
+    ai_azure_openai_expected_version: str = "2025-11-13"
+    ai_azure_openai_region: str = "uaenorth"
+    ai_azure_openai_deployment_type: str = "Standard"
+    ai_uami_client_id: str = ""
+    ai_uami_principal_id: str = ""
+    ai_azure_tenant_id: str = ""
+    ai_identity_timeout_seconds: float = 5
+    ai_provider_connect_timeout_seconds: float = 5
+    ai_provider_read_timeout_seconds: float = 60
+    ai_provider_write_timeout_seconds: float = 10
+    ai_max_context_items: int = 8
+    ai_max_context_utf8_bytes: int = 16384
+    ai_max_input_token_upper_bound: int = 24000
+    ai_max_output_tokens: int = 6000
+    ai_max_requests_per_user_per_minute: int = 3
+    ai_max_requests_per_user_per_hour: int = 20
+    ai_max_requests_per_project_per_hour: int = 20
+    ai_max_requests_global_per_hour: int = 60
+    ai_max_estimated_cost_usd_per_request: float = 0.25
+    ai_max_estimated_cost_usd_per_day: float = 5.0
+    ai_input_price_usd_per_1m_tokens: float = 0.0
+    ai_output_price_usd_per_1m_tokens: float = 0.0
+    ai_pricing_source_reference: str = ""
+    ai_d3_synthetic_project_ids: str = ""
+
+    @property
+    def ai_d3_project_ids(self) -> frozenset[str]:
+        return frozenset(item.strip() for item in self.ai_d3_synthetic_project_ids.split(",") if item.strip())
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
@@ -295,6 +332,46 @@ class Settings(BaseSettings):
                     "AZURE-PREPROD forbids external SMB "
                     "connection configuration"
                 )
+
+            if self.ai_enabled:
+                if self.ai_real_content_allowed or not self.synthetic_only or self.real_data_allowed:
+                    raise ValueError("AI-D2/D3 preprod requires synthetic-only real-content gates")
+                if self.ai_azure_openai_deployment != "proposalops-gpt51-methodology-v1":
+                    raise ValueError("AI deployment name is frozen")
+                if self.ai_azure_openai_expected_model != "gpt-5.1" or self.ai_azure_openai_expected_version != "2025-11-13":
+                    raise ValueError("AI model/version is frozen")
+                if self.ai_azure_openai_region != "uaenorth" or self.ai_azure_openai_deployment_type != "Standard":
+                    raise ValueError("AI region/deployment type is frozen")
+                for setting_name, value in (
+                    ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
+                    ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),
+                    ("AI_AZURE_TENANT_ID", self.ai_azure_tenant_id),
+                ):
+                    if not value:
+                        raise ValueError(f"AZURE-PREPROD requires {setting_name} when AI_ENABLED=true")
+                    self._require_guid(value, setting_name)
+                for setting_name, value in (
+                    ("AI_INPUT_PRICE_USD_PER_1M_TOKENS", self.ai_input_price_usd_per_1m_tokens),
+                    ("AI_OUTPUT_PRICE_USD_PER_1M_TOKENS", self.ai_output_price_usd_per_1m_tokens),
+                ):
+                    if value <= 0:
+                        raise ValueError(f"{setting_name} must be authoritative and greater than zero")
+                if not self.ai_pricing_source_reference.strip():
+                    raise ValueError("AI_PRICING_SOURCE_REFERENCE is required")
+                if not self.ai_d3_project_ids:
+                    raise ValueError("AI_D3_SYNTHETIC_PROJECT_IDS is required")
+                if not self.ai_azure_openai_endpoint:
+                    raise ValueError("AI_AZURE_OPENAI_ENDPOINT is required")
+                endpoint = urlsplit(self.ai_azure_openai_endpoint)
+                if endpoint.scheme.lower() != "https" or not endpoint.hostname or endpoint.path.rstrip("/"):
+                    raise ValueError("AI endpoint must be an HTTPS Azure OpenAI resource origin")
+                host = endpoint.hostname.lower()
+                if not (host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com")):
+                    raise ValueError("AI endpoint host is not an approved Azure OpenAI host")
+                if self.ai_uami_client_id.lower() == self.azure_sql_uami_client_id.lower() or self.ai_uami_principal_id.lower() == self.azure_sql_uami_principal_id.lower():
+                    raise ValueError("AI and SQL managed identities must be separate")
+                if self.ai_max_context_items != 8 or self.ai_max_context_utf8_bytes != 16384 or self.ai_max_output_tokens != 6000:
+                    raise ValueError("D3 context/output bounds are frozen")
 
         if environment == "PROD":
             if self.synthetic_only:
