@@ -1,0 +1,341 @@
+name: SYN-T6-B remote SQL Server 2022 qualification
+
+on:
+  push:
+    branches:
+      - t6b-8d9-remote-sql-qualification-v1
+    paths:
+      - .github/workflows/t6b-remote-sql-qualification.yml
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      INPUT_TAG: t6b-8d9-remote-sql-inputs-20260907-v1
+      T6B_ARCHIVE_NAME: ProposalOps_SYN_T6B_FINAL_REMOTE_SQL_PROMOTION.tar.gz
+      T6B_SHA: 8d9e482e1f80317c0c1393bc14755920e064e08d8d28c24f8be86fd0b9f80249
+      T6B_BYTES: "15397"
+      T6A_NAME: ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz
+      T6A_SHA: 8f5f1b64091d3c9b943dc092773b12794eb5af3ee1a7bb7c5eab7e6475f7f6e2
+      T6A_BYTES: "92139101"
+      RETURN_NAME: T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz
+      RETURN_SHA: 933c43465e56d6c2a1b51a83692c4cba7038118c1c4f54b5dfce504bbba546cc
+      RETURN_BYTES: "1999"
+      PHASE5_COMMIT: c42e6c449483b0951de0f366d700dbaf7b9e5525
+      PHASE5_TREE: a497c6951064119453d175d1b93d4e59c9029fd0
+      IMAGE: mcr.microsoft.com/mssql/server@sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89
+      VALIDATION_BRANCH: t6b-8d9-remote-sql-qualification-v1
+      WORKFLOW_PATH: .github/workflows/t6b-remote-sql-qualification.yml
+
+    steps:
+      - name: Checkout exact workflow child
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify one-shot lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = "refs/heads/$VALIDATION_BRANCH"
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$PHASE5_COMMIT"
+          test "$(git diff --name-only "$PHASE5_COMMIT" HEAD)" = "$WORKFLOW_PATH"
+          test -z "$(git status --porcelain)"
+          mkdir -p "$RUNNER_TEMP/t6b-evidence"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          p=Path(os.environ['WORKFLOW_PATH'])
+          proof={
+              'run_id': int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'event': os.environ['GITHUB_EVENT_NAME'],
+              'branch': os.environ['VALIDATION_BRANCH'],
+              'head_sha': os.environ['GITHUB_SHA'],
+              'parent_sha': os.popen('git rev-parse HEAD^').read().strip(),
+              'workflow_path': os.environ['WORKFLOW_PATH'],
+              'workflow_blob_sha1': os.popen('git rev-parse HEAD:' + os.environ['WORKFLOW_PATH']).read().strip(),
+              'workflow_sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+              'workflow_bytes': p.stat().st_size,
+          }
+          out=Path(os.environ['RUNNER_TEMP'])/'t6b-evidence'/'T6B_WORKFLOW_IDENTITY.json'
+          out.write_text(json.dumps(proof,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Prove native x64 Linux runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          test "$RUNNER_ARCH" = X64
+          test "$(uname -m)" = x86_64
+          test "$(dpkg --print-architecture)" = amd64
+          test "$(docker info --format '{{.OSType}}')" = linux
+          test "$(docker info --format '{{.Architecture}}')" = x86_64
+          qemu_active=false
+          if [ -r /proc/sys/fs/binfmt_misc/qemu-x86_64 ] && grep -q '^enabled' /proc/sys/fs/binfmt_misc/qemu-x86_64; then qemu_active=true; fi
+          test "$qemu_active" = false
+          python - <<'PY'
+          import json, os, platform, subprocess
+          from pathlib import Path
+          qemu=Path('/proc/sys/fs/binfmt_misc/qemu-x86_64')
+          proof={'runner_os':os.environ['RUNNER_OS'],'runner_arch':os.environ['RUNNER_ARCH'],'uname_m':platform.machine(),'dpkg_arch':subprocess.check_output(['dpkg','--print-architecture'],text=True).strip(),'docker_os':subprocess.check_output(['docker','info','--format','{{.OSType}}'],text=True).strip(),'docker_arch':subprocess.check_output(['docker','info','--format','{{.Architecture}}'],text=True).strip(),'qemu_binfmt_active':bool(qemu.exists() and 'enabled' in qemu.read_text()),'emulation_used':False}
+          Path(os.environ['RUNNER_TEMP'],'T6B_NATIVE_X64_HOST_PROOF.json').write_text(json.dumps(proof,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ODBC and accepted Phase5 dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo dpkg -i "$RUNNER_TEMP/packages-microsoft-prod.deb"
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18 unixodbc-dev
+          python -m pip install --upgrade pip
+          python -m pip install -r "$GITHUB_WORKSPACE/backend/requirements.txt"
+          python -m pip check
+          python - <<'PY'
+          import alembic, pyodbc, sqlalchemy
+          assert 'ODBC Driver 18 for SQL Server' in pyodbc.drivers()
+          print('PYTHON_ODBC_DEPENDENCIES=PASS')
+          PY
+
+      - name: Download and verify exact transport release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          input_dir="$RUNNER_TEMP/t6b-inputs"
+          mkdir -p "$input_dir"
+          gh release download "$INPUT_TAG" --repo "$GITHUB_REPOSITORY" --dir "$input_dir"
+          test "$(find "$input_dir" -maxdepth 1 -type f | wc -l | tr -d ' ')" = 3
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$INPUT_TAG" > "$RUNNER_TEMP/input-release.json"
+          python - "$input_dir" "$RUNNER_TEMP/input-release.json" <<'PY'
+          import hashlib, json, os, sys
+          from pathlib import Path
+          d=Path(sys.argv[1]); meta=json.loads(Path(sys.argv[2]).read_text())
+          assert meta['target_commitish']==os.environ['PHASE5_COMMIT'] and meta['draft'] is False and meta['prerelease'] is True
+          expected={
+            os.environ['T6B_ARCHIVE_NAME']:(os.environ['T6B_SHA'],int(os.environ['T6B_BYTES'])),
+            os.environ['T6A_NAME']:(os.environ['T6A_SHA'],int(os.environ['T6A_BYTES'])),
+            os.environ['RETURN_NAME']:(os.environ['RETURN_SHA'],int(os.environ['RETURN_BYTES'])),
+          }
+          assert sorted(p.name for p in d.iterdir() if p.is_file())==sorted(expected)
+          assets={a['name']:a for a in meta['assets']}; assert set(assets)==set(expected) and len(assets)==3
+          proof={'release_id':meta['id'],'tag':meta['tag_name'],'target':meta['target_commitish'],'assets':[]}
+          for name,(want,size) in expected.items():
+              p=d/name; got=hashlib.sha256(p.read_bytes()).hexdigest()
+              assert got==want and p.stat().st_size==size
+              a=assets[name]; assert a['size']==size and a['state']=='uploaded' and a.get('digest')=='sha256:'+want
+              proof['assets'].append({'id':a['id'],'name':name,'size':size,'sha256':got,'digest':a['digest'],'state':a['state']})
+          Path(os.environ['RUNNER_TEMP'],'t6b-evidence','T6B_REMOTE_INPUT_IDENTITY.json').write_text(json.dumps(proof,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Verify exact frozen 8d9 without database access
+        shell: bash
+        run: |
+          set -euo pipefail
+          input_dir="$RUNNER_TEMP/t6b-inputs"
+          extract="$RUNNER_TEMP/t6b-frozen-extract"
+          mkdir -p "$extract"
+          python - "$input_dir/$T6B_ARCHIVE_NAME" "$extract" <<'PY'
+          import hashlib, json, os, pathlib, sys, tarfile
+          archive=pathlib.Path(sys.argv[1]); destination=pathlib.Path(sys.argv[2])
+          with tarfile.open(archive,'r:gz') as tf:
+              members=tf.getmembers(); unsafe=[]
+              for m in members:
+                  p=pathlib.PurePosixPath(m.name)
+                  if p.is_absolute() or '..' in p.parts or m.issym() or m.islnk() or not (m.isdir() or m.isfile()): unsafe.append(m.name)
+              roots={pathlib.PurePosixPath(m.name).parts[0] for m in members if m.name}
+              assert roots=={'ProposalOps_SYN_T6B_FINAL_REMOTE_SQL_PROMOTION'} and not unsafe
+              for m in members:
+                  target=destination/m.name
+                  if m.isdir(): target.mkdir(parents=True,exist_ok=True)
+                  else: target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(tf.extractfile(m).read())
+          root=destination/'ProposalOps_SYN_T6B_FINAL_REMOTE_SQL_PROMOTION'
+          expected={'t6b/README.md','t6b/__init__.py','t6b/consumer.py','t6b/contract.json','t6b/mssql_schema.py','t6b/qualification.py','t6b/sqlserver_gate.py'}
+          manifest=[]
+          for line in (root/'MANIFEST.sha256').read_text().splitlines():
+              if line.strip():
+                  want,name=line.split('  ',1); manifest.append(name); assert hashlib.sha256((root/name).read_bytes()).hexdigest()==want
+          assert set(manifest)==expected and len(manifest)==7
+          proof={'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'archive_bytes':archive.stat().st_size,'manifest_rows':len(manifest),'unsafe_member_count':len(unsafe),'manifest':'PASS'}
+          (Path(os.environ['RUNNER_TEMP'])/'T6B_FROZEN_INPUT_PROOF.json').write_text(json.dumps(proof,sort_keys=True,indent=2)+'\n')
+          PY
+          PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$extract/ProposalOps_SYN_T6B_FINAL_REMOTE_SQL_PROMOTION" python - <<'PY'
+          import ast, hashlib
+          from pathlib import Path
+          from t6b import qualification
+          root=Path(qualification.__file__).parent.parent
+          for name in ('consumer.py','qualification.py','mssql_schema.py','sqlserver_gate.py'):
+              ast.parse((root/'t6b'/name).read_text(),filename=name)
+              source=(root/'t6b'/name).read_text()
+              for token in ('sqlalchemy.inspect','inspect(connection)','get_columns(','get_table_names(','get_foreign_keys(','get_indexes(','get_pk_constraint(','get_unique_constraints('): assert token not in source,(name,token)
+          qualification._verify_frozen_implementation_binding()
+          print('T6B_8D9_FROZEN_BINDING=PASS')
+          print('SQLALCHEMY_INSPECT_CALL_COUNT=0')
+          print('GET_COLUMNS_CALL_COUNT=0')
+          print('GET_TABLE_NAMES_CALL_COUNT=0')
+          print('GET_FOREIGN_KEYS_CALL_COUNT=0')
+          print('GET_INDEXES_CALL_COUNT=0')
+          print('GET_PK_CONSTRAINT_CALL_COUNT=0')
+          print('GET_UNIQUE_CONSTRAINTS_CALL_COUNT=0')
+          PY
+          echo "T6B_FROZEN_ROOT=$extract/ProposalOps_SYN_T6B_FINAL_REMOTE_SQL_PROMOTION" >> "$GITHUB_ENV"
+
+      - name: Create detached accepted Phase5 worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          phase5="$RUNNER_TEMP/accepted-phase5"
+          git worktree add --detach "$phase5" "$PHASE5_COMMIT"
+          test "$(git -C "$phase5" rev-parse HEAD)" = "$PHASE5_COMMIT"
+          test "$(git -C "$phase5" rev-parse HEAD^{tree})" = "$PHASE5_TREE"
+          test -z "$(git -C "$phase5" status --porcelain)"
+          echo "T6B_PHASE5_ROOT=$phase5" >> "$GITHUB_ENV"
+
+      - name: Run one native x64 SQL Server qualification
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/t6b-evidence"
+          mkdir -p "$evidence"
+          container="t6b-8d9-${GITHUB_RUN_ID}"
+          database="t6b_8d9_${GITHUB_RUN_ID}"
+          [[ "$database" =~ ^[A-Za-z0-9_]+$ ]]
+          password="A$(python -c 'import secrets; print(secrets.token_urlsafe(36))')9!"
+          echo "::add-mask::$password"
+          export T6B_SA_PASSWORD="$password"
+          export MSSQL_SA_PASSWORD="$password"
+          cleanup() {
+            python - "$database" >/dev/null 2>&1 <<'PY' || true
+          import os,sys,pyodbc
+          db=sys.argv[1]; password=os.environ.get('T6B_SA_PASSWORD','')
+          try:
+              cs='DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=master;UID=sa;PWD='+password+';Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=5'
+              with pyodbc.connect(cs,autocommit=True) as c:
+                  if c.execute('SELECT COUNT(*) FROM sys.databases WHERE name=?',(db,)).fetchone()[0]:
+                      c.execute('ALTER DATABASE ['+db+'] SET SINGLE_USER WITH ROLLBACK IMMEDIATE')
+                      c.execute('DROP DATABASE ['+db+']')
+          except Exception: pass
+          PY
+            docker rm -fv "$container" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          docker pull --platform linux/amd64 "$IMAGE"
+          test "$(docker image inspect "$IMAGE" --format '{{.Os}}')" = linux
+          test "$(docker image inspect "$IMAGE" --format '{{.Architecture}}')" = amd64
+          test "$(docker image inspect "$IMAGE" --format '{{index .RepoDigests 0}}')" = "$IMAGE"
+          docker run -d --name "$container" --platform linux/amd64 --publish 127.0.0.1:1433:1433 --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD "$IMAGE" >/dev/null
+          python - "$evidence/T6B_SQLSERVER_PREMIGRATION_IDENTITY.json" <<'PY'
+          import json,os,sys,time,pyodbc
+          from pathlib import Path
+          out=Path(sys.argv[1]); password=os.environ['T6B_SA_PASSWORD']; cs='DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=master;UID=sa;PWD='+password+';Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=5'
+          props=None; last=None
+          for _ in range(60):
+              try:
+                  with pyodbc.connect(cs,autocommit=True) as c:
+                      assert int(c.execute('SELECT 1').fetchone()[0])==1
+                      props={'product_major_version':int(c.execute("SELECT CONVERT(varchar(32),SERVERPROPERTY('ProductMajorVersion'))").fetchone()[0]),'engine_edition':int(c.execute("SELECT CONVERT(varchar(32),SERVERPROPERTY('EngineEdition'))").fetchone()[0]),'product_version':str(c.execute("SELECT CONVERT(varchar(128),SERVERPROPERTY('ProductVersion'))").fetchone()[0]),'edition':str(c.execute("SELECT CONVERT(varchar(256),SERVERPROPERTY('Edition'))").fetchone()[0])}
+                      break
+              except Exception as exc: last=type(exc).__name__+':'+str(exc); time.sleep(2)
+          if props is None: raise RuntimeError('SQLSERVER_READINESS_FAILED:'+str(last))
+          assert props['product_major_version']==16 and props['engine_edition'] not in (5,8)
+          props.update({'select1':1,'observed_before_database_creation':True,'observed_before_alembic':True,'observed_before_t6b_persistence':True,'image_digest':os.environ['IMAGE'],'container_instance_count':1,'password_present':False})
+          out.write_text(json.dumps(props,sort_keys=True,indent=2)+'\n')
+          PY
+          python - "$database" <<'PY'
+          import os,sys,pyodbc
+          db=sys.argv[1]; password=os.environ['T6B_SA_PASSWORD']; cs='DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=master;UID=sa;PWD='+password+';Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=5'
+          with pyodbc.connect(cs,autocommit=True) as c:
+              assert c.execute('SELECT COUNT(*) FROM sys.databases WHERE name=?',(db,)).fetchone()[0]==0
+              c.execute('CREATE DATABASE ['+db+']')
+          PY
+          export PYTHONPATH="$T6B_FROZEN_ROOT"
+          set +e
+          python - "$evidence" "$RUNNER_TEMP/t6b-qualification.stdout" "$RUNNER_TEMP/t6b-qualification.stderr" <<'PY' >"$RUNNER_TEMP/t6b-qualification.callout" 2>&1
+          import json,os,sys
+          from pathlib import Path
+          from sqlalchemy.engine import URL
+          from t6b import qualification
+          out=Path(sys.argv[1]); password=os.environ['T6B_SA_PASSWORD']; database=os.environ['T6B_DATABASE'] if 'T6B_DATABASE' in os.environ else None
+          if database is None: database='t6b_8d9_'+os.environ['GITHUB_RUN_ID']
+          url=URL.create('mssql+pyodbc',username='sa',password=password,host='127.0.0.1',port=1433,database=database,query={'driver':'ODBC Driver 18 for SQL Server','Encrypt':'yes','TrustServerCertificate':'yes'}).render_as_string(hide_password=False)
+          result=qualification.run(url,candidate_archive=Path(os.environ['RUNNER_TEMP'])/'t6b-inputs'/os.environ['T6A_NAME'],return_archive=Path(os.environ['RUNNER_TEMP'])/'t6b-inputs'/os.environ['RETURN_NAME'],phase5_root=Path(os.environ['T6B_PHASE5_ROOT']),evidence_dir=out)
+          (out/'T6B_QUALIFICATION_RESULT_SHA256.json').write_text(json.dumps({'sha256':__import__('hashlib').sha256(json.dumps(result,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'runner_invocations':1},sort_keys=True,indent=2)+'\n')
+          print('QUALIFICATION=PASS')
+          PY
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            python - "$evidence" "$RUNNER_TEMP/t6b-qualification.callout" <<'PY'
+          import json,os,sys
+          from pathlib import Path
+          text=Path(sys.argv[2]).read_text(errors='replace')
+          for token in (os.environ.get('T6B_SA_PASSWORD',''),os.environ.get('T6B_DATABASE','')):
+              if token: text=text.replace(token,'[REDACTED]')
+          Path(sys.argv[1],'T6B_8D9_QUALIFICATION_FAILURE.json').write_text(json.dumps({'exception_type':'QUALIFICATION_PROCESS_FAILED','sanitized_exception':text[-12000:],'runner_invocations':1,'run_id':int(os.environ['GITHUB_RUN_ID']),'head_sha':os.environ['GITHUB_SHA'],'first_known_runtime_stage':'T6B_QUALIFICATION'},sort_keys=True,indent=2)+'\n')
+          PY
+            exit "$status"
+          fi
+          export T6B_DATABASE="$database"
+          python - "$evidence" <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          evidence=Path(__import__('sys').argv[1]); q=json.loads((evidence/'T6B_SQLSERVER_2022_QUALIFICATION.json').read_text()); pre=json.loads((evidence/'T6B_SQLSERVER_PREMIGRATION_IDENTITY.json').read_text())
+          inner=hashlib.sha256((evidence/'T6B_SQLSERVER_2022_QUALIFICATION.json').read_bytes()).hexdigest()
+          env={'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),'workflow_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),'workflow_head_sha':os.environ['GITHUB_SHA'],'workflow_path':os.environ['WORKFLOW_PATH'],'phase5_commit':os.environ['PHASE5_COMMIT'],'phase5_tree':os.environ['PHASE5_TREE'],'input_release_tag':os.environ['INPUT_TAG'],'t6b_sha256':os.environ['T6B_SHA'],'t6b_bytes':int(os.environ['T6B_BYTES']),'t6a_sha256':os.environ['T6A_SHA'],'t6a_bytes':int(os.environ['T6A_BYTES']),'return_sha256':os.environ['RETURN_SHA'],'return_bytes':int(os.environ['RETURN_BYTES']),'image_digest':os.environ['IMAGE'],'premigration_identity_file':'T6B_SQLSERVER_PREMIGRATION_IDENTITY.json','premigration_product_major_version':pre['product_major_version'],'premigration_engine_edition':pre['engine_edition'],'premigration_product_version':pre['product_version'],'inner_qualification_sha256':inner,'inner_before_migration_flag_observed':bool(q.get('server_identity',{}).get('before_migration')),'inner_before_migration_flag_used_for_acceptance':False,'governing_premigration_identity_source':'T6B_SQLSERVER_PREMIGRATION_IDENTITY.json','runner_invocations':1,'t6b_application_persistence_runtime':'PASS','t6b_independent_acceptance':'NOT_PERFORMED_BY_PRODUCER','dsm_contacts':0,'smb_connections':0,'real_amec_source_reads':0,'real_amec_source_bytes':0,'parser_executions':0,'real_content_llm_calls':0}
+          assert q['qualification']=='PASS' and q['runner_invocations']==1 and q['schema_version']=='PROPOSALSOPS_T6B_SQLSERVER_2022_REMOTE_QUALIFICATION_V3'
+          assert q['counts']=={'source_events':3,'evidence_envelopes':3,'classification_envelopes':3,'pending_review':3}
+          assert q['transaction']=={'rollback':'PASS','first_commit':'PASS','replay_commit':'IDEMPOTENT_NO_DUPLICATES'}
+          assert q['rollback_replay']['rollback_zero'] and q['rollback_replay']['replay_counts_unchanged'] and q['rollback_replay']['replay_table_map_unchanged']
+          assert q['schema_fingerprint']['equal'] and q['schema_delta']==0
+          assert q['verified_assertion_delta']==0 and q['typed_projection_delta']==0 and q['protected_action_delta']==0
+          assert q['required_test_skips']==0 and q['adversarial_mutation_misses']==0
+          assert q['dsm_contacts']==0 and q['smb_connections']==0 and q['real_amec_source_reads']==0 and q['real_amec_source_bytes']==0 and q['parser_executions']==0 and q['llm_calls']==0
+          (evidence/'T6B_8D9_REMOTE_RUNTIME_ENVELOPE.json').write_text(json.dumps(env,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Scan credential-free evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/t6b-evidence"
+          test -d "$evidence"
+          python - "$evidence" <<'PY'
+          import os,sys
+          from pathlib import Path
+          root=Path(sys.argv[1]); forbidden=[os.environ.get('T6B_SA_PASSWORD',''),'DATABASE_URL=','PWD=','MSSQL_SA_PASSWORD','proposalops_reader_ro.secret','.'.join(('192','168','8','149'))]
+          matches=[]
+          for p in root.rglob('*'):
+              if p.is_file():
+                  text=p.read_text(errors='replace')
+                  for token in forbidden:
+                      if token and token in text: matches.append((p.name,token if token not in ('PWD=','MSSQL_SA_PASSWORD') else token))
+          assert not matches,matches
+          (root/'T6B_EVIDENCE_SANITATION.json').write_text('{"credential_matches":0,"private_path_matches":0}\n')
+          PY
+
+      - name: Upload current-run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: t6b-8d9-remote-sql-${{ github.run_id }}
+          path: ${{ runner.temp }}/t6b-evidence
+          if-no-files-found: warn
