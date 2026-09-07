@@ -1,7 +1,7 @@
-"""AI-D1 context seam plus the single D3 interactive draft endpoint.
+"""AI-D1 context seam plus the gated D3 interactive application endpoint.
 
-There is intentionally no generation, chat, completion, agent, invoke-model,
-provider, task enqueue, or persistence endpoint in this tranche.
+Hosted inference remains an AI-D4 commissioning concern. TEST-only callers
+may inject the deterministic provider through the orchestration seam.
 """
 
 from __future__ import annotations

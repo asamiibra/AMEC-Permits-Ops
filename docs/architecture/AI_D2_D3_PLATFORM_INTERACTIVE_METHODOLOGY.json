@@ -3,11 +3,25 @@
   "artifact_type": "metadata_only",
   "d0_d1_source_sha": "11490d3844b80aeef23ff5a050dd504e94005a0a",
   "d0_d1_source_tree": "382b524d96017e1e9ebe694032155d07d219823f",
+  "d2_d3_original_sha": "dd81a23ed6eab8b5eee1a63a79ade946725584aa",
+  "d2_d3_zero_cost_sha": "RECORDED_IN_FINAL_MACHINE_BLOCK",
+  "d2_d3_zero_cost_tree": "RECORDED_IN_FINAL_MACHINE_BLOCK",
   "d2_d3_source_sha": "RECORDED_IN_FINAL_MACHINE_BLOCK",
   "d2_d3_source_tree": "RECORDED_IN_FINAL_MACHINE_BLOCK",
   "migration_id": "ai_d2_execution_ledger_v1",
   "migration_down_revision": "step5_content_azure_sql_v2",
-  "cloud_commissioning_status": "PENDING_READ_ONLY_GATE",
+  "cloud_commissioning_status": "DEFERRED_TO_AI_D4_ZERO_COST_CLOSE",
+  "ai_feature_enabled_default": false,
+  "ai_external_inference_enabled_default": false,
+  "ai_d4_commissioning_id_default": "",
+  "max_estimated_cost_usd_per_request_default": 0,
+  "max_estimated_cost_usd_per_day_default": 0,
+  "input_price_usd_per_1m_tokens_default": 0,
+  "output_price_usd_per_1m_tokens_default": 0,
+  "frontend_ai_feature_exposed": false,
+  "executable_ai_infrastructure_present": false,
+  "azure_mutations_performed": false,
+  "hosted_model_requests_performed": 0,
   "azure_resource_id": "UNCOMMISSIONED",
   "azure_region": "uaenorth",
   "ai_uami_resource_id": "UNCOMMISSIONED",
@@ -755,16 +769,16 @@
     {
       "id": "VR-105",
       "category": "cost limits",
-      "assertion": "request max 0.25",
+      "assertion": "test-only request budget arithmetic 0.25",
       "result": "PASS",
-      "mechanical_evidence": "source-freeze-check:cost limits:request max 0.25"
+      "mechanical_evidence": "source-freeze-check:cost limits:test-only request budget arithmetic 0.25"
     },
     {
       "id": "VR-106",
       "category": "cost limits",
-      "assertion": "daily max 5.00",
+      "assertion": "test-only daily budget arithmetic 5.00",
       "result": "PASS",
-      "mechanical_evidence": "source-freeze-check:cost limits:daily max 5.00"
+      "mechanical_evidence": "source-freeze-check:cost limits:test-only daily budget arithmetic 5.00"
     },
     {
       "id": "VR-107",

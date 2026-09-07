@@ -78,7 +78,9 @@ class Settings(BaseSettings):
     # AI-D2/D3 is disabled by default and fail-closed when enabled in
     # preproduction.  These values are deployment configuration, never
     # browser-selectable request fields.
-    ai_enabled: bool = False
+    ai_feature_enabled: bool = False
+    ai_external_inference_enabled: bool = False
+    ai_d4_commissioning_id: str = ""
     ai_real_content_allowed: bool = False
     ai_azure_openai_endpoint: str = ""
     ai_azure_openai_deployment: str = "proposalops-gpt51-methodology-v1"
@@ -101,8 +103,8 @@ class Settings(BaseSettings):
     ai_max_requests_per_user_per_hour: int = 20
     ai_max_requests_per_project_per_hour: int = 20
     ai_max_requests_global_per_hour: int = 60
-    ai_max_estimated_cost_usd_per_request: float = 0.25
-    ai_max_estimated_cost_usd_per_day: float = 5.0
+    ai_max_estimated_cost_usd_per_request: float = 0.0
+    ai_max_estimated_cost_usd_per_day: float = 0.0
     ai_input_price_usd_per_1m_tokens: float = 0.0
     ai_output_price_usd_per_1m_tokens: float = 0.0
     ai_pricing_source_reference: str = ""
@@ -333,9 +335,13 @@ class Settings(BaseSettings):
                     "connection configuration"
                 )
 
-            if self.ai_enabled:
+            if self.ai_external_inference_enabled:
+                if not self.ai_feature_enabled:
+                    raise ValueError("AI_EXTERNAL_INFERENCE_ENABLED requires AI_FEATURE_ENABLED")
                 if self.ai_real_content_allowed or not self.synthetic_only or self.real_data_allowed:
-                    raise ValueError("AI-D2/D3 preprod requires synthetic-only real-content gates")
+                    raise ValueError("AI-D4 external inference requires synthetic-only real-content gates")
+                if not self.ai_d4_commissioning_id.strip():
+                    raise ValueError("AI_D4_COMMISSIONING_ID is required for external inference")
                 if self.ai_azure_openai_deployment != "proposalops-gpt51-methodology-v1":
                     raise ValueError("AI deployment name is frozen")
                 if self.ai_azure_openai_expected_model != "gpt-5.1" or self.ai_azure_openai_expected_version != "2025-11-13":
@@ -348,7 +354,7 @@ class Settings(BaseSettings):
                     ("AI_AZURE_TENANT_ID", self.ai_azure_tenant_id),
                 ):
                     if not value:
-                        raise ValueError(f"AZURE-PREPROD requires {setting_name} when AI_ENABLED=true")
+                        raise ValueError(f"AZURE-PREPROD requires {setting_name} when AI_EXTERNAL_INFERENCE_ENABLED=true")
                     self._require_guid(value, setting_name)
                 for setting_name, value in (
                     ("AI_INPUT_PRICE_USD_PER_1M_TOKENS", self.ai_input_price_usd_per_1m_tokens),
@@ -359,7 +365,7 @@ class Settings(BaseSettings):
                 if not self.ai_pricing_source_reference.strip():
                     raise ValueError("AI_PRICING_SOURCE_REFERENCE is required")
                 if not self.ai_d3_project_ids:
-                    raise ValueError("AI_D3_SYNTHETIC_PROJECT_IDS is required")
+                    raise ValueError("AI_D3_SYNTHETIC_PROJECT_IDS is required for external inference")
                 if not self.ai_azure_openai_endpoint:
                     raise ValueError("AI_AZURE_OPENAI_ENDPOINT is required")
                 endpoint = urlsplit(self.ai_azure_openai_endpoint)
@@ -370,8 +376,8 @@ class Settings(BaseSettings):
                     raise ValueError("AI endpoint host is not an approved Azure OpenAI host")
                 if self.ai_uami_client_id.lower() == self.azure_sql_uami_client_id.lower() or self.ai_uami_principal_id.lower() == self.azure_sql_uami_principal_id.lower():
                     raise ValueError("AI and SQL managed identities must be separate")
-                if self.ai_max_context_items != 8 or self.ai_max_context_utf8_bytes != 16384 or self.ai_max_output_tokens != 6000:
-                    raise ValueError("D3 context/output bounds are frozen")
+                if self.ai_max_estimated_cost_usd_per_request <= 0 or self.ai_max_estimated_cost_usd_per_day <= 0:
+                    raise ValueError("AI-D4 external inference requires positive explicit budgets")
 
         if environment == "PROD":
             if self.synthetic_only:

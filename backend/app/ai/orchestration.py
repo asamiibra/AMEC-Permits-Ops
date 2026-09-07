@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Callable
-from uuid import uuid4
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -55,8 +52,34 @@ def _http_error(error: AIError) -> HTTPException:
 
 
 def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal, *, settings: Settings, project_id: str, client_request_id: str, correlation_id: str, provider: AIProvider | None = None) -> dict[str, object]:
-    if not settings.ai_enabled:
+    if not settings.ai_feature_enabled:
         raise _http_error(AIError("AI_FEATURE_DISABLED", status_code=503))
+    # The application seam can be exercised with an injected deterministic
+    # provider in DEV/TEST. Hosted inference is a separate D4 lock and must
+    # fail before reservation, token acquisition, client creation, or HTTP.
+    if not settings.ai_external_inference_enabled:
+        if settings.app_env.upper() == "AZURE-PREPROD" or provider is None:
+            raise _http_error(AIError("AI_EXTERNAL_INFERENCE_NOT_COMMISSIONED", status_code=503))
+    elif not (
+        settings.ai_d4_commissioning_id.strip()
+        and settings.ai_uami_client_id
+        and settings.ai_uami_principal_id
+        and settings.ai_azure_tenant_id
+        and settings.ai_azure_openai_endpoint
+        and settings.ai_azure_openai_deployment
+        and settings.ai_azure_openai_expected_model == "gpt-5.1"
+        and settings.ai_azure_openai_expected_version == "2025-11-13"
+        and settings.ai_azure_openai_region == "uaenorth"
+        and settings.ai_azure_openai_deployment_type == "Standard"
+        and settings.ai_uami_client_id.lower() != settings.azure_sql_uami_client_id.lower()
+        and settings.ai_uami_principal_id.lower() != settings.azure_sql_uami_principal_id.lower()
+        and settings.ai_input_price_usd_per_1m_tokens > 0
+        and settings.ai_output_price_usd_per_1m_tokens > 0
+        and settings.ai_pricing_source_reference.strip()
+        and settings.ai_max_estimated_cost_usd_per_request > 0
+        and settings.ai_max_estimated_cost_usd_per_day > 0
+    ):
+        raise _http_error(AIError("AI_EXTERNAL_INFERENCE_NOT_COMMISSIONED", status_code=503))
     if settings.app_env.upper() == "AZURE-PREPROD" and principal.auth_mode != "ENTRA":
         raise _http_error(AIError("AI_EXTERNAL_INFERENCE_REQUIRES_ENTRA", status_code=403))
     if project_id not in settings.ai_d3_project_ids:

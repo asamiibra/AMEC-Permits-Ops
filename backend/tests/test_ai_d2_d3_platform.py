@@ -1,7 +1,9 @@
 import json
-from types import SimpleNamespace
+from pathlib import Path
 from uuid import uuid4
+from urllib.parse import urlsplit
 
+import httpx
 import pytest
 from fastapi import HTTPException
 
@@ -12,15 +14,45 @@ from backend.app.ai.structured_output import PROVIDER_JSON_SCHEMA, validate_draf
 from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.config.settings import Settings
 from backend.app.db import SessionLocal
-from backend.app.models import AIExecutionLedger, Role
+from backend.app.models import Role
 from backend.app.services.governed_retrieval import RetrievalCitation
+
+
+@pytest.fixture(autouse=True)
+def azure_network_trap(monkeypatch):
+    original_get = httpx.get
+    original_client = httpx.Client
+
+    def guarded_get(url, *args, **kwargs):
+        host = urlsplit(str(url)).hostname or ""
+        if host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com"):
+            raise AssertionError("zero-cost tests must not call Azure identity endpoints")
+        return original_get(url, *args, **kwargs)
+
+    class GuardedClient:
+        def __init__(self, *args, **kwargs):
+            self._client = original_client(*args, **kwargs)
+        def __enter__(self):
+            self._client.__enter__()
+            return self
+        def __exit__(self, *args):
+            return self._client.__exit__(*args)
+        def post(self, url, *args, **kwargs):
+            host = urlsplit(str(url)).hostname or ""
+            if host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com"):
+                raise AssertionError("zero-cost tests must not call Azure provider endpoints")
+            return self._client.post(url, *args, **kwargs)
+
+    monkeypatch.setattr(httpx, "get", guarded_get)
+    monkeypatch.setattr(httpx, "Client", GuardedClient)
 
 
 def _settings() -> Settings:
     return Settings(
-        app_env="TEST", synthetic_only=True, real_data_allowed=False, ai_enabled=True,
+        app_env="TEST", synthetic_only=True, real_data_allowed=False, ai_feature_enabled=True, ai_external_inference_enabled=False,
         ai_d3_synthetic_project_ids="project-1", ai_input_price_usd_per_1m_tokens=1,
         ai_output_price_usd_per_1m_tokens=1, ai_pricing_source_reference="test-price-reference",
+        ai_max_estimated_cost_usd_per_request=0.25, ai_max_estimated_cost_usd_per_day=5,
         ai_azure_openai_endpoint="https://proposalops.openai.azure.com",
     )
 
@@ -38,6 +70,14 @@ def _manifest() -> AIContextManifest:
 
 def _payload():
     return {"draft_title": "Synthetic methodology", "sections": [{"heading": "Scope", "body": "The supplied engineering evidence defines the review scope.", "citation_keys": ["CIT-001"]}, {"heading": "Approach", "body": "Use the supplied evidence as the starting point for human review.", "citation_keys": ["CIT-002"]}], "assumptions": [{"statement": "The evidence is the complete commissioning sample.", "basis": "SOURCE_GROUNDED", "citation_keys": ["CIT-001"]}], "open_questions": ["Which discipline owner confirms the final methodology?"], "limitations": ["This is not professional approval."], "source_coverage_note": "Two synthetic governed items were supplied.", "draft_only": True}
+
+
+class DeterministicTestProvider:
+    calls = 0
+
+    def execute_structured(self, request: AIProviderRequest):
+        type(self).calls += 1
+        return AIProviderResult("deterministic-response", _payload(), AIProviderUsage(1000, 500, 1500))
 
 
 def test_provider_request_is_exact_v1_responses_without_tools_or_redirects():
@@ -82,15 +122,15 @@ def test_d3_provider_phase_has_no_active_request_session(monkeypatch):
     request_db = SessionLocal()
     observed = {}
 
-    class FakeProvider:
+    class BoundaryProvider(DeterministicTestProvider):
         def execute_structured(self, request: AIProviderRequest):
             observed["transaction"] = request_db.in_transaction()
-            return AIProviderResult("resp-test", _payload(), AIProviderUsage(10, 20, 30))
+            return super().execute_structured(request)
 
     monkeypatch.setattr(orchestration, "build_context_manifest", lambda *args, **kwargs: manifest)
     principal = AuthenticatedPrincipal(auth_mode="DEV_HEADER", role=Role.SYSTEM_ADMIN)
     try:
-        result = orchestration.execute_technical_methodology(request_db, principal, settings=settings, project_id="project-1", client_request_id=str(uuid4()), correlation_id="correlation-test", provider=FakeProvider())
+        result = orchestration.execute_technical_methodology(request_db, principal, settings=settings, project_id="project-1", client_request_id=str(uuid4()), correlation_id="correlation-test", provider=BoundaryProvider())
         assert result["status"] == "DRAFT_ONLY"
         assert observed["transaction"] is False
     finally:
@@ -116,3 +156,30 @@ def test_d3_insufficient_context_never_calls_provider(monkeypatch):
         assert called["value"] is False
     finally:
         db.close()
+
+
+def test_zero_cost_defaults_and_external_gate_block_hosted_provider_before_context(monkeypatch):
+    defaults = Settings(app_env="TEST")
+    assert defaults.ai_feature_enabled is False
+    assert defaults.ai_external_inference_enabled is False
+    assert defaults.ai_max_estimated_cost_usd_per_request == 0
+    assert defaults.ai_max_estimated_cost_usd_per_day == 0
+    assert defaults.ai_input_price_usd_per_1m_tokens == 0
+    assert defaults.ai_output_price_usd_per_1m_tokens == 0
+
+    settings = _settings()
+    db = SessionLocal()
+    monkeypatch.setattr(orchestration, "build_context_manifest", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("context must not be read before commissioning gate")))
+    monkeypatch.setattr(orchestration, "AzureOpenAIResponsesProvider", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("hosted provider must not be constructed")))
+    try:
+        with pytest.raises(HTTPException) as error:
+            orchestration.execute_technical_methodology(db, AuthenticatedPrincipal(auth_mode="DEV_HEADER", role=Role.SYSTEM_ADMIN), settings=settings, project_id="project-1", client_request_id=str(uuid4()), correlation_id="zero-cost-gate")
+        assert error.value.detail == {"code": "AI_EXTERNAL_INFERENCE_NOT_COMMISSIONED"}
+    finally:
+        db.close()
+
+
+def test_frontend_does_not_expose_uncommissioned_ai_button():
+    source = (Path(__file__).resolve().parents[2] / "frontend/src/ProjectEngineering.tsx").read_text(encoding="utf-8")
+    assert "Help me draft technical methodology" not in source
+    assert "/api/ai/interactive/technical-methodology" not in source
