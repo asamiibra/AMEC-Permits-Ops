@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { api } from "./api";
 import "./permit-authority-ux.css";
 
@@ -6,6 +6,8 @@ type Catalog = { id: string; code: string; name_en: string; name_ar?: string | n
 type Portfolio = { items: any[]; total: number; page: number; page_size: number; lanes: Record<string, number> };
 type Context = { projects: any[]; journeys: any[]; external_bodies: Catalog[]; jurisdictions: Catalog[]; service_types: Catalog[]; scope_note: string };
 const emptyPortfolio: Portfolio = { items: [], total: 0, page: 1, page_size: 25, lanes: { all: 0, need_action: 0, authority_review: 0, ready_close: 0 } };
+const STEP5_DOCUMENT_VERSION_ID = "e2faf9ce-09f7-4836-a870-62c6663b6f2e";
+const STEP5_MAPPING_RELEASE_ID = "2fd2f496-eac7-40c2-99cb-2c17c826139c";
 function normalizePortfolio(value: unknown): Portfolio | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Partial<Portfolio>;
@@ -55,10 +57,10 @@ export function NewPermitPage() {
 
 const tabs = ["overview", "project-details", "requirements", "documents", "drawings", "forms", "comments", "submission-history", "permit-license", "history"];
 export function PermitCasePage() {
-  const parts = window.location.pathname.split("/"); const caseId = parts[2] || ""; const [tab, setTab] = useState(parts[3] || "overview"); const [workspace, setWorkspace] = useState<any | null>(null); const [error, setError] = useState(""); const [assistForms, setAssistForms] = useState<any[] | null>(null); const [assistPreview, setAssistPreview] = useState<any | null>(null); const [assistError, setAssistError] = useState(""); const [assistBusy, setAssistBusy] = useState(false); const [assistTargetId, setAssistTargetId] = useState(""); const [assistSelection, setAssistSelection] = useState<string[]>([]); const [assistApplyResult, setAssistApplyResult] = useState<any | null>(null);
+  const parts = window.location.pathname.split("/"); const caseId = parts[2] || ""; const [tab, setTab] = useState(parts[3] || "overview"); const [workspace, setWorkspace] = useState<any | null>(null); const [error, setError] = useState(""); const [assistForms, setAssistForms] = useState<any[] | null>(null); const [assistPreview, setAssistPreview] = useState<any | null>(null); const [assistError, setAssistError] = useState(""); const [assistBusy, setAssistBusy] = useState(false); const [assistTargetId, setAssistTargetId] = useState(""); const [assistSelection, setAssistSelection] = useState<string[]>([]); const [assistApplyResult, setAssistApplyResult] = useState<any | null>(null); const previewAttempt = useRef(0);
   useEffect(() => { if (caseId) api<any>(`/api/permit-ux/cases/${caseId}`).then((value) => { setWorkspace(value); setAssistTargetId(value.forms.find((row: any) => row.form?.status === "DRAFT")?.form?.id || ""); }).catch((e) => setError(e instanceof Error ? e.message : "Permit workspace unavailable.")); }, [caseId]);
   const loadAssistForms = async () => { setAssistBusy(true); setAssistError(""); try { setAssistForms(await api<any[]>("/api/master-content?content_type=FORM&module=PERMIT&automation_readiness=AUTOMATED_USE_READY")); } catch (cause) { setAssistError(cause instanceof Error ? cause.message : "Eligible forms unavailable."); } finally { setAssistBusy(false); } };
-  const previewAssist = async (form: any) => { setAssistBusy(true); setAssistError(""); setAssistApplyResult(null); try { const result = await api<any>("/api/governed-prefill/preview", { method: "POST", body: JSON.stringify({ master_content_id: form.id, form_instance_id: assistTargetId || undefined, context_entity_type: "AuthorityCase", context_entity_id: caseId, purpose: "FORM_PREPARATION" }) }); setAssistPreview(result); setAssistSelection((result.fields || []).filter((field: any) => field.proposal_status === "READY" && field.write_eligibility === "READY").map((field: any) => field.logical_field_key)); } catch (cause) { setAssistPreview(null); setAssistError(cause instanceof Error ? cause.message : "Assist preview unavailable."); } finally { setAssistBusy(false); } };
+  const previewAssist = async (form: any) => { setAssistBusy(true); setAssistError(""); setAssistApplyResult(null); const attempt = ++previewAttempt.current; try { const result = await api<any>("/api/governed-prefill/preview", { method: "POST", headers: { "X-Correlation-ID": `step5-r8-preview-${attempt}` }, body: JSON.stringify({ master_content_id: form.id, form_instance_id: assistTargetId || undefined, context_entity_type: "AuthorityCase", context_entity_id: caseId, purpose: "FORM_PREPARATION", expected_document_version_id: STEP5_DOCUMENT_VERSION_ID, expected_mapping_release_id: STEP5_MAPPING_RELEASE_ID }) }); setAssistPreview(result); setAssistSelection((result.fields || []).filter((field: any) => field.proposal_status === "READY" && field.write_eligibility === "READY").map((field: any) => field.logical_field_key)); } catch (cause) { setAssistPreview(null); setAssistError(cause instanceof Error ? cause.message : "Assist preview unavailable."); } finally { setAssistBusy(false); } };
   const applyAssist = async () => {
     if (!assistPreview?.preview_fingerprint || !assistTargetId || !assistSelection.length) return;
     setAssistBusy(true);
@@ -113,7 +115,7 @@ export function PermitCasePage() {
             {draftForms.map((row: any) => <option key={row.form.id} value={row.form.id}>{row.form.id} · {pretty(row.form.status)} · revision {row.form.draft_revision ?? 0}</option>)}
           </select>
         </label>
-        <Rows items={workspace.forms} render={(x: any) => <><b>{x.form.context_type} form</b><small>{pretty(x.form.status)} · draft revision {x.form.draft_revision ?? 0} · generated artifacts {x.generated_artifacts.length} · signatures/stamps remain human gates</small></>} />
+        <Rows items={workspace.forms} render={(x: any) => <><b>{x.form.context_type} form</b><small>{pretty(x.form.status)} · draft revision {x.form.draft_revision ?? 0} · generated artifacts {x.generated_artifacts.length} · signatures/stamps remain human gates</small>{x.form.id === assistTargetId && <><small>Resolved values: {JSON.stringify(x.form.resolved_values || {})}</small><small>Resolved assertion IDs: {JSON.stringify(x.form.resolved_assertion_ids || [])}</small><small>Write metadata: {JSON.stringify(x.form.field_write_metadata_json || {})}</small><small>Provenance: {JSON.stringify(x.form.field_provenance_json || {})}</small><small>Citations: {JSON.stringify(x.form.field_citations_json || {})}</small></>}</>} />
         {assistError && <div className="error-banner" role="alert">{assistError}</div>}
         {assistForms && <div className="assist-panel">
           <h4>Eligible canonical forms</h4>

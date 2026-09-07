@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { Icon } from "./Icon";
+import { Step5CommissioningPanel } from "./Step5CommissioningPanel";
 
 type InputItem = {
   key: string;
@@ -451,6 +452,7 @@ export function DashboardInputsPage({
               </section>
             ))}
           </div>
+          <Step5CommissioningPanel role={role} />
         </>
       )}
     </div>
