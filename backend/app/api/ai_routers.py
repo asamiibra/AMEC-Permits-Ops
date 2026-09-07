@@ -1,4 +1,4 @@
-"""AI-D1 read-only authorization/context seam.
+"""AI-D1 context seam plus the single D3 interactive draft endpoint.
 
 There is intentionally no generation, chat, completion, agent, invoke-model,
 provider, task enqueue, or persistence endpoint in this tranche.
@@ -7,8 +7,9 @@ provider, task enqueue, or persistence endpoint in this tranche.
 from __future__ import annotations
 
 from typing import Annotated
+from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Header, Request
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
@@ -17,9 +18,18 @@ from ..ai.contracts import AIContextManifest
 from ..api.dependencies import AuthenticatedPrincipal, trusted_current_principal
 from ..db import get_db
 from ..services.governed_retrieval import RetrievalQuery
+from ..ai.orchestration import execute_technical_methodology
+from ..config.settings import get_settings
 
 
 router = APIRouter(prefix="/api/ai", tags=["ai-context"])
+
+
+class TechnicalMethodologyRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    project_id: UUID
+    client_request_id: UUID
 
 
 class AIContextRetrievalRequest(BaseModel):
@@ -81,3 +91,25 @@ def context_manifest(
         "manifest_fingerprint": manifest.manifest_fingerprint,
     }
     return manifest
+
+
+@router.post("/interactive/technical-methodology")
+def interactive_technical_methodology(
+    payload: TechnicalMethodologyRequest,
+    request: Request,
+    principal: Annotated[AuthenticatedPrincipal, Depends(trusted_current_principal)],
+    db: Session = Depends(get_db),
+    correlation_id: str | None = Header(default=None, alias="X-Correlation-ID"),
+) -> dict[str, object]:
+    request_id = str(payload.client_request_id)
+    correlation = correlation_id or str(uuid4())
+    if len(correlation) > 100:
+        correlation = correlation[:100]
+    return execute_technical_methodology(
+        db,
+        principal,
+        settings=get_settings(),
+        project_id=str(payload.project_id),
+        client_request_id=request_id,
+        correlation_id=correlation,
+    )

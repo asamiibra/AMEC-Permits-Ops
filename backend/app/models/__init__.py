@@ -33,3 +33,4 @@ from .handover_closeout_entities import *
 from .storage_entities import *
 from .source_intake_entities import *
 from .phase4_entities import *
+from .ai_entities import *

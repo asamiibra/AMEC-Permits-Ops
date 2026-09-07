@@ -132,8 +132,15 @@ def trusted_current_principal(
     principal: AuthenticatedPrincipal = Depends(
         current_principal
     ),
+    db: Session | None = Depends(get_db),
 ) -> AuthenticatedPrincipal:
     request.state.authenticated_principal = principal
+    # current_principal may have materialized an Entra User row in the
+    # request session.  Release that read transaction before a route is
+    # allowed to perform any external provider work.  The isinstance guard
+    # preserves direct unit-test calls that pass only request/principal.
+    if isinstance(db, Session):
+        db.rollback()
     return principal
 
 
@@ -157,4 +164,3 @@ def require_roles(*roles: Role):
         return role
 
     return dependency
-
