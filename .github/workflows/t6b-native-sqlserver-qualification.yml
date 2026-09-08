@@ -98,7 +98,7 @@ jobs:
           def conn(database):
               return pyodbc.connect("DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=%s;UID=sa;PWD=%s;Encrypt=no;TrustServerCertificate=yes;" % (database, os.environ["MSSQL_SA_PASSWORD"]), autocommit=True)
           password = os.environ["MSSQL_SA_PASSWORD"]
-          for _ in range(120):
+          for _ in range(300):
               try:
                   with conn("master") as c:
                       row = c.execute("SELECT 1, SERVERPROPERTY('ProductMajorVersion'), SERVERPROPERTY('EngineEdition'), SERVERPROPERTY('ProductVersion')").fetchone()
