@@ -29,6 +29,8 @@ def test_active_graph_and_legacy_archive_are_exact():
     assert 'down_revision = "baseline_r13_0059"' in phase4_source
     archived = sorted(ARCHIVE.glob("*.py"))
     assert len(archived) == 59
+    if subprocess.run(["git", "cat-file", "-e", f"{SOURCE_SHA}^{{commit}}"], cwd=ROOT, check=False).returncode != 0:
+        pytest.skip(f"historical migration source object unavailable in this checkout: {SOURCE_SHA}")
     for path in archived:
         source_path = f"{SOURCE_SHA}:backend/migrations/versions/{path.name}"
         expected = subprocess.check_output(["git", "rev-parse", source_path], cwd=ROOT, text=True).strip()

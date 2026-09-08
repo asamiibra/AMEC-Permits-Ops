@@ -652,6 +652,8 @@ AUDITED_BOOLEAN_ROOTS = ("backend/app", "scripts/db_azure_sql")
 def _tracked_python_paths(commit: str) -> set[str]:
     import subprocess
 
+    if subprocess.run(["git", "cat-file", "-e", f"{commit}^{{commit}}"], check=False).returncode != 0:
+        pytest.skip(f"historical boolean baseline object unavailable in this checkout: {commit}")
     output = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit, "--", *AUDITED_BOOLEAN_ROOTS], text=True)
     return {line.strip() for line in output.splitlines() if line.endswith(".py")}
 
