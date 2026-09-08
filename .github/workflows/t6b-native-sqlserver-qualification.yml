@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = c4c766e63dd4a9745c6bec281dfcdf7742346b20
+          test "$PARENT" = 064d692bdd719224ad12e40298a76f123ae0f239
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -98,6 +98,7 @@ jobs:
           def conn(database):
               return pyodbc.connect("DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=%s;UID=sa;PWD=%s;Encrypt=no;TrustServerCertificate=yes;" % (database, os.environ["MSSQL_SA_PASSWORD"]), autocommit=True)
           password = os.environ["MSSQL_SA_PASSWORD"]
+          last_error = None
           for _ in range(300):
               try:
                   with conn("master") as c:
@@ -108,8 +109,9 @@ jobs:
                   break
               except (pyodbc.Error, RuntimeError) as exc:
                   if isinstance(exc, RuntimeError): raise
+                  last_error = repr(exc)
                   time.sleep(1)
-          else: raise RuntimeError("SQLSERVER_NOT_READY")
+          else: raise RuntimeError("SQLSERVER_NOT_READY: %s" % last_error)
           sys.path.insert(0, "/opt/proposalops")
           from t6b.qualification import run
           url = "mssql+pyodbc://sa:%s@127.0.0.1:1433/t6b_qualification?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no&TrustServerCertificate=yes" % quote_plus(password)
