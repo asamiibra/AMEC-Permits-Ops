@@ -1,0 +1,534 @@
+name: T6-B Native SQL Server Final Closure
+
+on:
+  push:
+    branches:
+      - t6b-native-sqlserver-final-closure-r2-v1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: t6b-native-sqlserver-final-closure-r2-v1
+  cancel-in-progress: false
+
+jobs:
+  producer:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact validation commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12 for host checks
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Initialize durable evidence
+        id: init
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/t6b-final-closure"
+          EVIDENCE="$ROOT/evidence"
+          mkdir -p "$EVIDENCE"
+          printf '%s\n' "$ROOT" > "$RUNNER_TEMP/t6b-final-closure-root"
+          printf '%s\n' "$EVIDENCE" > "$RUNNER_TEMP/t6b-final-closure-evidence"
+          python3 - "$EVIDENCE/T6B_WORKFLOW_STATE.json" <<'PY'
+          import json, os, platform
+          from pathlib import Path
+          out = Path(os.sys.argv[1])
+          out.write_text(json.dumps({
+              "workflow_started": True,
+              "sqlserver_process_starts": 0,
+              "sql_connection_attempts": 0,
+              "sql_queries": 0,
+              "qualification_runner_invocations": 0,
+              "database_creations": 0,
+              "database_mutations": 0,
+              "sql_execution_performed": False,
+              "t6a_runtime_reruns": 0,
+              "dsm_contacts": 0,
+              "smb_connections": 0,
+              "real_amec_source_reads": 0,
+              "real_amec_source_bytes": 0,
+              "parser_executions": 0,
+              "llm_calls": 0,
+              "main_mutations": 0,
+              "azure_runtime_mutations": 0,
+              "phase5_commit": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+              "phase5_tree": "a497c6951064119453d175d1b93d4e59c9029fd0",
+              "selected_t6b_sha256": "cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035",
+              "selected_t6b_bytes": 17444,
+              "selected_t6a_sha256": "8f5f1b64091d3c9b943dc092773b12794eb5af3ee1a7bb7c5eab7e6475f7f6e2",
+              "selected_t6a_bytes": 92139101,
+              "producer_branch": os.environ["GITHUB_REF_NAME"],
+              "producer_sha": os.environ["GITHUB_SHA"],
+              "producer_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "host_os": platform.system(),
+              "host_arch": platform.machine(),
+          }, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+          PY
+
+      - name: Verify exact validation commit and frozen inputs
+        id: preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$(cat "$RUNNER_TEMP/t6b-final-closure-root")"
+          EVIDENCE="$(cat "$RUNNER_TEMP/t6b-final-closure-evidence")"
+          test "${GITHUB_RUN_ATTEMPT}" = 1 || { echo STOP_WORKFLOW_RERUN_REFUSED >&2; exit 1; }
+          test "$(uname -s)" = Linux
+          test "$(uname -m)" = x86_64
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          PARENT="$(git rev-parse HEAD^1)"
+          test "$PARENT" = c42e6c449483b0951de0f366d700dbaf7b9e5525
+          test "$(git rev-list --count HEAD^@)" = 1
+          ACTUAL="$(git diff --name-only "$PARENT" HEAD | LC_ALL=C sort)"
+          EXPECTED="$(printf '%s\n' \
+            '.github/workflows/t6b-native-sqlserver-final-closure.yml' \
+            '.t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz' \
+            '.t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz' \
+            '.t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz' \
+            | LC_ALL=C sort)"
+          test "$ACTUAL" = "$EXPECTED"
+          test "$(printf '%s\n' "$ACTUAL" | sed '/^$/d' | wc -l | tr -d ' ')" = 4
+          test "$(git status --porcelain)" = ""
+          printf '%s  %s\n' \
+            cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035 .t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz \
+            8f5f1b64091d3c9b943dc092773b12794eb5af3ee1a7bb7c5eab7e6475f7f6e2 .t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz \
+            933c43465e56d6c2a1b51a83692c4cba7038118c1c4f54b5dfce504bbba546cc .t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz \
+            | sha256sum --check
+          test "$(stat -c '%s' .t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz)" = 17444
+          test "$(stat -c '%s' .t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz)" = 92139101
+          test "$(stat -c '%s' .t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz)" = 1999
+          test "$(git rev-parse "${PARENT}^{tree}")" = a497c6951064119453d175d1b93d4e59c9029fd0
+          python3 - <<'PY'
+          import ast, pathlib
+          p = pathlib.Path('.github/workflows/t6b-native-sqlserver-final-closure.yml').read_text()
+          assert 'git diff --name-only "$PARENT" HEAD | LC_ALL=C sort' in p
+          assert 'SQLSERVER_2022_T6B_QUALIFICATION' in p
+          print('STATIC_WORKFLOW_PREFLIGHT=PASS')
+          PY
+
+      - name: Verify native Docker and resolve immutable SQL image
+        id: image
+        if: steps.preflight.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -s)" = Linux
+          test "$(uname -m)" = x86_64
+          docker info --format '{{.OSType}} {{.Architecture}}' | grep -Fx 'linux x86_64'
+          docker pull --platform linux/amd64 mcr.microsoft.com/mssql/server:2022-latest
+          DIGEST="$(docker image inspect --format '{{index .RepoDigests 0}}' mcr.microsoft.com/mssql/server:2022-latest)"
+          echo "$DIGEST" | grep -Eq '^mcr\.microsoft\.com/mssql/server@sha256:[0-9a-f]{64}$'
+          docker image inspect --format '{{.Os}} {{.Architecture}}' "$DIGEST" | grep -Fx 'linux amd64'
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Build qualification image before SQL starts
+        id: build
+        if: steps.image.outcome == 'success'
+        shell: bash
+        env:
+          SQL_IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: |
+          set -euo pipefail
+          ROOT="$(cat "$RUNNER_TEMP/t6b-final-closure-root")"
+          CONTEXT="$ROOT/context"
+          mkdir -p "$CONTEXT/consumer" "$CONTEXT/phase5"
+          git worktree add --detach "$CONTEXT/phase5" c42e6c449483b0951de0f366d700dbaf7b9e5525
+          test "$(git -C "$CONTEXT/phase5" rev-parse HEAD)" = c42e6c449483b0951de0f366d700dbaf7b9e5525
+          test "$(git -C "$CONTEXT/phase5" rev-parse HEAD^{tree})" = a497c6951064119453d175d1b93d4e59c9029fd0
+          EXTRACT="$ROOT/extract"
+          mkdir -p "$EXTRACT"
+          tar -xzf .t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz -C "$EXTRACT"
+          CROOT="$EXTRACT/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER"
+          (cd "$CROOT" && sha256sum -c MANIFEST.sha256)
+          test "$(sha256sum "$CROOT/t6b/consumer.py" | awk '{print $1}')" = 6689959f300461e2b7eba669728c59c02251362d36bba4e853bdcfbd9ef32778
+          test "$(stat -c '%s' "$CROOT/t6b/consumer.py")" = 18389
+          test "$(sha256sum "$CROOT/t6b/qualification.py" | awk '{print $1}')" = 6d35397556ca5e338ec928ec9f446e46d52c262eceacab4123952169657e5c4f
+          test "$(stat -c '%s' "$CROOT/t6b/qualification.py")" = 44577
+          test "$(sha256sum "$CROOT/t6b/sqlserver_gate.py" | awk '{print $1}')" = 0f3b7552445754cbb2af195be6e26848562a176756f63bc2ceee10681aff2834
+          cp -R "$CROOT/t6b" "$CONTEXT/consumer/"
+          cp .t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz "$CONTEXT/t6a_candidate.tar.gz"
+          cp .t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz "$CONTEXT/t6a_return.tar.gz"
+          cp "$CONTEXT/phase5/backend/requirements-runtime.txt" "$CONTEXT/phase5_requirements.txt"
+          git -C "$CONTEXT/phase5" bundle create "$CONTEXT/phase5.bundle" HEAD >/dev/null
+          cat > "$CONTEXT/run_qualification.py" <<'PY'
+          import json, os, sys, time
+          from pathlib import Path
+          from urllib.parse import quote_plus
+          import pyodbc
+
+          def connect(database):
+              return pyodbc.connect(
+                  "DRIVER={ODBC Driver 18 for SQL Server};SERVER=127.0.0.1,1433;DATABASE=%s;UID=sa;PWD=%s;Encrypt=no;TrustServerCertificate=yes;" %
+                  (database, os.environ["MSSQL_SA_PASSWORD"]), autocommit=True
+              )
+
+          password = os.environ["MSSQL_SA_PASSWORD"]
+          for _ in range(120):
+              try:
+                  with connect("master") as connection:
+                      row = connection.execute(
+                          "SELECT 1, SERVERPROPERTY('ProductMajorVersion'), SERVERPROPERTY('EngineEdition'), SERVERPROPERTY('ProductVersion')"
+                      ).fetchone()
+                      if int(row[0]) != 1 or int(row[1]) != 16 or int(row[2]) in (5, 8):
+                          raise RuntimeError("SQLSERVER_PROPERTY_GATE_FAILED")
+                      connection.execute("CREATE DATABASE [t6b_qualification]")
+                  break
+              except (pyodbc.Error, RuntimeError) as exc:
+                  if isinstance(exc, RuntimeError):
+                      raise
+                  time.sleep(1)
+          else:
+              raise RuntimeError("SQLSERVER_NOT_READY")
+
+          sys.path.insert(0, "/opt/proposalops")
+          from t6b.qualification import run
+          url = "mssql+pyodbc://sa:%s@127.0.0.1:1433/t6b_qualification?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no&TrustServerCertificate=yes" % quote_plus(password)
+          result = run(
+              url,
+              candidate_archive=Path("/opt/proposalops/t6a_candidate.tar.gz"),
+              return_archive=Path("/opt/proposalops/t6a_return.tar.gz"),
+              phase5_root=Path("/opt/proposalops/phase5"),
+              evidence_dir=Path("/evidence"),
+          )
+          Path("/evidence/T6B_SQLSERVER_2022_QUALIFICATION.json").write_text(
+              json.dumps(result, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(result, sort_keys=True))
+          PY
+          cat > "$CONTEXT/run_container.sh" <<'SH'
+          #!/bin/sh
+          set -eu
+          /opt/mssql/bin/sqlservr >/evidence/sqlserver.stdout.log 2>/evidence/sqlserver.stderr.log &
+          pid=$!
+          if ! kill -0 "$pid" 2>/dev/null; then exit 70; fi
+          printf '1\n' > /evidence/SQLSERVER_PROCESS_STARTED
+          trap 'kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true' EXIT INT TERM HUP
+          printf '1\n' > /evidence/QUALIFICATION_RUNNER_INVOKED
+          exec python3 /opt/proposalops/run_qualification.py
+          SH
+          chmod 0555 "$CONTEXT/run_container.sh"
+          cat > "$CONTEXT/Dockerfile" <<EOF
+          FROM $SQL_IMAGE_DIGEST
+          USER root
+          ENV PYTHONDONTWRITEBYTECODE=1 DEBIAN_FRONTEND=noninteractive
+          COPY phase5_requirements.txt /tmp/phase5_requirements.txt
+          RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip git unixodbc unixodbc-dev ca-certificates && python3 -m pip install --no-cache-dir -r /tmp/phase5_requirements.txt && rm -rf /var/lib/apt/lists/*
+          COPY consumer/ /opt/proposalops/t6b/
+          COPY t6a_candidate.tar.gz /opt/proposalops/t6a_candidate.tar.gz
+          COPY t6a_return.tar.gz /opt/proposalops/t6a_return.tar.gz
+          COPY phase5.bundle /opt/proposalops/phase5.bundle
+          COPY run_qualification.py /opt/proposalops/run_qualification.py
+          COPY run_container.sh /opt/proposalops/run_container.sh
+          RUN git clone /opt/proposalops/phase5.bundle /opt/proposalops/phase5 && cd /opt/proposalops/phase5 && test "\$(git rev-parse HEAD)" = c42e6c449483b0951de0f366d700dbaf7b9e5525 && test "\$(git rev-parse HEAD^{tree})" = a497c6951064119453d175d1b93d4e59c9029fd0
+          RUN odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server'
+          RUN chmod 0555 /opt/proposalops/run_container.sh
+          ENTRYPOINT ["/opt/proposalops/run_container.sh"]
+          EOF
+          docker build --platform linux/amd64 -t "t6b-qualification:${GITHUB_SHA}" "$CONTEXT"
+          docker image inspect --format '{{.Os}} {{.Architecture}}' "t6b-qualification:${GITHUB_SHA}" | grep -Fx 'linux amd64'
+
+      - name: Run frozen SQL qualification exactly once
+        id: sql
+        if: steps.build.outcome == 'success'
+        shell: bash
+        env:
+          SQL_IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: |
+          set -euo pipefail
+          ROOT="$(cat "$RUNNER_TEMP/t6b-final-closure-root")"
+          EVIDENCE="$(cat "$RUNNER_TEMP/t6b-final-closure-evidence")"
+          SQL_PASSWORD="$(openssl rand -hex 32)"
+          echo "::add-mask::$SQL_PASSWORD"
+          CID="$(docker create --platform linux/amd64 --network none -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$SQL_PASSWORD" -v "$EVIDENCE:/evidence" "t6b-qualification:${GITHUB_SHA}")"
+          printf '%s\n' "$CID" > "$ROOT/container-id"
+          set +e
+          docker start "$CID" >/dev/null
+          START_STATUS=$?
+          if [ "$START_STATUS" -eq 0 ]; then
+            python3 - "$EVIDENCE/T6B_WORKFLOW_STATE.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          p=Path(sys.argv[1]); d=json.loads(p.read_text())
+          d["sqlserver_process_starts"] = 1
+          d["sql_execution_performed"] = True
+          p.write_text(json.dumps(d, sort_keys=True, indent=2) + "\n")
+          PY
+          fi
+          docker wait "$CID" > "$ROOT/container-status" 2> "$ROOT/container-wait.stderr"
+          STATUS="$(cat "$ROOT/container-status" 2>/dev/null || printf '125')"
+          docker logs "$CID" > "$EVIDENCE/qualification.stdout.log" 2> "$EVIDENCE/qualification.stderr.log"
+          docker cp "$CID:/evidence/." "$EVIDENCE/" >/dev/null 2>&1
+          docker rm "$CID" >/dev/null 2>&1
+          if [ -f "$EVIDENCE/QUALIFICATION_RUNNER_INVOKED" ]; then
+            python3 - "$EVIDENCE/T6B_WORKFLOW_STATE.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          p=Path(sys.argv[1]); d=json.loads(p.read_text())
+          d["qualification_runner_invocations"] = 1
+          d["sql_connection_attempts"] = 1
+          d["sql_queries"] = 1
+          d["database_creations"] = 1
+          d["database_mutations"] = 1
+          p.write_text(json.dumps(d, sort_keys=True, indent=2) + "\n")
+          PY
+          fi
+          if [ -n "${SQL_PASSWORD:-}" ]; then
+            if grep -R -F -- "$SQL_PASSWORD" "$EVIDENCE" >/dev/null 2>&1; then printf '1\n' > "$EVIDENCE/EPHEMERAL_PASSWORD_MATCH_COUNT"; else printf '0\n' > "$EVIDENCE/EPHEMERAL_PASSWORD_MATCH_COUNT"; fi
+          fi
+          unset SQL_PASSWORD
+          set -e
+          test "$START_STATUS" = 0
+          test "$STATUS" = 0
+
+      - name: Finalize sanitized producer evidence
+        id: finalize
+        if: always() && steps.init.outcome == 'success'
+        shell: bash
+        env:
+          SQL_IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+          PREFLIGHT_OUTCOME: ${{ steps.preflight.outcome }}
+          IMAGE_OUTCOME: ${{ steps.image.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          SQL_OUTCOME: ${{ steps.sql.outcome }}
+        run: |
+          set -u
+          ROOT="$(cat "$RUNNER_TEMP/t6b-final-closure-root")"
+          EVIDENCE="$(cat "$RUNNER_TEMP/t6b-final-closure-evidence")"
+          mkdir -p "$EVIDENCE"
+          python3 - "$EVIDENCE" "$ROOT" <<'PY'
+          import hashlib, json, os, platform, re, sys
+          from pathlib import Path
+          evidence = Path(sys.argv[1]); root = Path(sys.argv[2])
+          state_path = evidence / "T6B_WORKFLOW_STATE.json"
+          state = json.loads(state_path.read_text()) if state_path.exists() else {}
+          def read_json(name, default):
+              p=evidence/name
+              if not p.exists(): return default
+              try: return json.loads(p.read_text())
+              except Exception: return default
+          result = read_json("T6B_SQLSERVER_2022_QUALIFICATION.json", {})
+          if (evidence / "SQLSERVER_PROCESS_STARTED").exists(): state["sqlserver_process_starts"] = 1
+          if (evidence / "QUALIFICATION_RUNNER_INVOKED").exists(): state["qualification_runner_invocations"] = 1
+          state["sql_connection_attempts"] = 1 if state.get("qualification_runner_invocations") else 0
+          state["sql_queries"] = 1 if state.get("qualification_runner_invocations") else 0
+          state["database_creations"] = 1 if state.get("qualification_runner_invocations") else 0
+          state["database_mutations"] = 1 if state.get("qualification_runner_invocations") else 0
+          state["sql_execution_performed"] = bool(state.get("sqlserver_process_starts"))
+          state["sql_runtime_budget_spent"] = bool(state.get("sqlserver_process_starts"))
+          state["sql_image_digest"] = os.environ.get("SQL_IMAGE_DIGEST", "")
+          state["stage_outcomes"] = {
+              "preflight": os.environ.get("PREFLIGHT_OUTCOME", "unknown"),
+              "image": os.environ.get("IMAGE_OUTCOME", "unknown"),
+              "build": os.environ.get("BUILD_OUTCOME", "unknown"),
+              "sql": os.environ.get("SQL_OUTCOME", "unknown"),
+          }
+          state["first_blocker"] = "" if result else "PRODUCER_STAGE_DID_NOT_COMPLETE"
+          state_path.write_text(json.dumps(state, sort_keys=True, indent=2) + "\n")
+          (evidence / "T6B_NATIVE_RUNNER_IDENTITY.json").write_text(json.dumps({
+              "os": platform.system(), "arch": platform.machine(), "native_x86_64": platform.system() == "Linux" and platform.machine() == "x86_64",
+              "github_run_id": os.environ.get("GITHUB_RUN_ID"), "github_run_attempt": int(os.environ.get("GITHUB_RUN_ATTEMPT", "0")),
+              "github_sha": os.environ.get("GITHUB_SHA"), "branch": os.environ.get("GITHUB_REF_NAME"),
+          }, sort_keys=True, indent=2) + "\n")
+          (evidence / "T6B_SQLSERVER_IMAGE_IDENTITY.json").write_text(json.dumps({
+              "repo_digest": os.environ.get("SQL_IMAGE_DIGEST", ""), "platform": "linux/amd64", "server_ostype": "linux", "server_architecture": "x86_64",
+              "network_mode": "none", "socket_exposed_to_consumer": False,
+          }, sort_keys=True, indent=2) + "\n")
+          server = result.get("server", {})
+          (evidence / "T6B_SQLSERVER_PRE_DB_PROPERTIES.json").write_text(json.dumps(server, sort_keys=True, indent=2) + "\n")
+          (evidence / "T6B_ALEMBIC_HEAD.json").write_text(json.dumps({"expected": "baseline_phase4_v36_azure_sql", "observed": result.get("alembic_head")}, sort_keys=True, indent=2) + "\n")
+          aliases = {
+              "T6B_SCHEMA_BEFORE_T6B.json": "SCHEMA_BEFORE_T6B.json",
+              "T6B_SCHEMA_AFTER_REPLAY.json": "SCHEMA_AFTER_REPLAY.json",
+          }
+          for dest, src in aliases.items():
+              if not (evidence/dest).exists():
+                  (evidence/dest).write_text((evidence/src).read_text() if (evidence/src).exists() else "{}\n")
+          (evidence / "T6B_SCHEMA_COMPARISON.json").write_text(json.dumps({"before_sha256": result.get("schema_before_sha256"), "after_replay_sha256": result.get("schema_after_sha256"), "schema_delta": result.get("schema_delta")}, sort_keys=True, indent=2) + "\n")
+          (evidence / "T6B_TABLE_DELTA_REPORT.json").write_text(json.dumps({k: result.get(k) for k in ("before_table_counts", "after_rollback_table_counts", "after_first_table_counts", "after_replay_table_counts", "first_commit_table_delta", "allowed_table_delta_count", "unexpected_table_delta_count", "replay_total_row_delta")}, sort_keys=True, indent=2) + "\n")
+          (evidence / "T6B_PROTECTED_SIDE_EFFECT_REPORT.json").write_text(json.dumps({k: result.get(k) for k in ("verified_assertion_delta", "typed_projection_delta", "protected_action_delta", "review_accept_delta", "review_correct_delta", "auto_promotion_delta")}, sort_keys=True, indent=2) + "\n")
+          (evidence / "T6B_REPLAY_REPORT.json").write_text(json.dumps({"replay_total_row_delta": result.get("replay_total_row_delta"), "audit_delta_after_replay_by_event_type": result.get("audit_delta_after_replay_by_event_type")}, sort_keys=True, indent=2) + "\n")
+          text_files = []
+          for p in evidence.rglob('*'):
+              if p.is_file() and p.name not in {"T6B_CREDENTIAL_SCAN.json", "T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_%s_%s.tar.gz" % (os.environ.get("GITHUB_RUN_ID"), os.environ.get("GITHUB_RUN_ATTEMPT"))}:
+                  try: text = p.read_text(encoding="utf-8")
+                  except Exception: continue
+                  text_files.append((str(p.relative_to(evidence)), text))
+          markers = ("MSSQL_SA_PASSWORD", "PWD=", "bearer ", "ghp_", "github_pat_")
+          matches = sorted({name + ":" + marker for name, text in text_files for marker in markers if marker.lower() in text.lower()})
+          ephemeral = 0
+          marker_path = evidence / "EPHEMERAL_PASSWORD_MATCH_COUNT"
+          if marker_path.exists():
+              try: ephemeral = int(marker_path.read_text().strip())
+              except Exception: ephemeral = 1
+          (evidence / "T6B_CREDENTIAL_SCAN.json").write_text(json.dumps({"credential_scan_matches": matches, "ephemeral_password_matches": ephemeral, "CREDENTIAL_SCAN_MATCHES": len(matches), "EPHEMERAL_PASSWORD_MATCHES": ephemeral}, sort_keys=True, indent=2) + "\n")
+          required = result.get("required_test_skips") == 0 and result.get("server", {}).get("product_major_version") == 16 and result.get("counts") == {"source_events":3,"evidence_envelopes":3,"classification_envelopes":3,"pending_review":3} and result.get("phase4_source_change_recorded_audit_delta") == 3 and result.get("after_first_audit_total_delta") == 3 and result.get("verified_assertion_delta") == 0 and result.get("typed_projection_delta") == 0 and result.get("protected_action_delta") == 0 and result.get("schema_delta") == 0 and result.get("unexpected_table_delta_count") == 0 and result.get("replay_total_row_delta") == 0 and result.get("network", {}).get("identical") is True and not matches and ephemeral == 0
+          (evidence / "T6B_PRODUCER_ADJUDICATION.json").write_text(json.dumps({"producer_pass": bool(required), "T6B_SQLSERVER_QUALIFICATION": "PASS" if required else "FAIL", "T6B_APPLICATION_PERSISTENCE_CLOSED": bool(required), "T6B_READY_FOR_INDEPENDENT_ACCEPTANCE": bool(required), "T6B_INDEPENDENT_ACCEPTANCE": "NOT_PERFORMED_BY_PRODUCER", "required_test_skips": result.get("required_test_skips"), "adjudication_recomputed": True}, sort_keys=True, indent=2) + "\n")
+          files = sorted(p.relative_to(evidence).as_posix() for p in evidence.rglob('*') if p.is_file() and not p.name.startswith('.t6b-') and not p.name.startswith('T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_'))
+          (evidence / ".archive_files").write_text("\n".join(files) + "\n")
+          lines=[]
+          for name in files:
+              data=(evidence/name).read_bytes(); lines.append(hashlib.sha256(data).hexdigest()+"  "+name)
+          (evidence / "MANIFEST.sha256").write_text("\n".join(lines)+"\n")
+          (evidence / ".archive_files").unlink()
+          print("PRODUCER_EVIDENCE_RECOMPUTED=%s" % required)
+          PY
+          ARCHIVE="$EVIDENCE/T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.tar.gz"
+          FILES="$EVIDENCE/.archive_files.final"
+          find "$EVIDENCE" -type f ! -name '.archive_files.final' ! -name 'T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_*.tar.gz' ! -name 'MANIFEST.sha256' -print | sed "s#^$EVIDENCE/##" | LC_ALL=C sort > "$FILES"
+          (cd "$EVIDENCE" && sha256sum $(cat "$FILES") > MANIFEST.sha256)
+          tar -cf "$EVIDENCE/.t6b-evidence.tar" --format=ustar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -C "$EVIDENCE" -T "$FILES" MANIFEST.sha256
+          gzip -n -c "$EVIDENCE/.t6b-evidence.tar" > "$ARCHIVE"
+          rm -f "$EVIDENCE/.t6b-evidence.tar" "$FILES"
+          test -f "$ARCHIVE"
+          python3 - "$EVIDENCE/T6B_PRODUCER_ADJUDICATION.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          assert json.loads(Path(sys.argv[1]).read_text())["producer_pass"] is True
+          PY
+
+      - name: Upload producer evidence on every outcome
+        if: always() && steps.init.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_${{ github.run_id }}_${{ github.run_attempt }}
+          path: ${{ runner.temp }}/t6b-final-closure/evidence/T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_${{ github.run_id }}_${{ github.run_attempt }}.tar.gz
+          if-no-files-found: error
+
+  independent_acceptance:
+    needs: producer
+    if: needs.producer.result == 'success'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact producer commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download immutable producer evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_${{ github.run_id }}_${{ github.run_attempt }}
+          path: ${{ runner.temp }}/producer-download
+
+      - name: Independently verify evidence and adversarial matrix
+        id: acceptance
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/t6b-independent-acceptance"
+          mkdir -p "$ROOT/evidence"
+          ARCHIVE="$(find "$RUNNER_TEMP/producer-download" -type f -name 'T6B_FINAL_SQLQUAL_PRODUCER_EVIDENCE_*.tar.gz' -print -quit)"
+          test -n "$ARCHIVE"
+          tar -xzf "$ARCHIVE" -C "$ROOT/evidence"
+          python3 - "$ROOT" <<'PY'
+          import copy, hashlib, json, os, re, sys, tarfile
+          from pathlib import Path
+          root=Path(sys.argv[1]); evidence=root/"evidence"
+          def load(name): return json.loads((evidence/name).read_text())
+          state=load("T6B_WORKFLOW_STATE.json")
+          result=load("T6B_SQLSERVER_2022_QUALIFICATION.json")
+          cred=load("T6B_CREDENTIAL_SCAN.json")
+          image=load("T6B_SQLSERVER_IMAGE_IDENTITY.json")
+          native=load("T6B_NATIVE_RUNNER_IDENTITY.json")
+          required_paths={
+              '.github/workflows/t6b-native-sqlserver-final-closure.yml',
+              '.t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz',
+              '.t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz',
+              '.t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz',
+          }
+          actual=set(__import__('subprocess').check_output(['git','diff','--name-only','c42e6c449483b0951de0f366d700dbaf7b9e5525','HEAD'],text=True).splitlines())
+          assert actual == required_paths
+          assert __import__('subprocess').check_output(['git','rev-parse','HEAD^1'],text=True).strip() == 'c42e6c449483b0951de0f366d700dbaf7b9e5525'
+          assert os.environ['GITHUB_RUN_ATTEMPT'] == '1'
+          assert os.environ['GITHUB_REF_NAME'].startswith('t6b-native-sqlserver-final-closure-r2-v')
+          def digest(path):
+              raw=Path(path).read_bytes(); return hashlib.sha256(raw).hexdigest(),len(raw)
+          assert digest('.t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz') == ('cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035',17444)
+          assert digest('.t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz') == ('8f5f1b64091d3c9b943dc092773b12794eb5af3ee1a7bb7c5eab7e6475f7f6e2',92139101)
+          assert digest('.t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz') == ('933c43465e56d6c2a1b51a83692c4cba7038118c1c4f54b5dfce504bbba546cc',1999)
+          assert state['sqlserver_process_starts']==1 and state['sql_execution_performed'] is True
+          assert state['qualification_runner_invocations']==1 and state['sql_connection_attempts']>=1 and state['sql_queries']>=1
+          assert state['database_creations']>=1 and state['database_mutations']>=1
+          assert native['native_x86_64'] is True
+          assert image['platform']=='linux/amd64' and image['server_ostype']=='linux' and image['server_architecture']=='x86_64' and image['network_mode']=='none'
+          assert re.fullmatch(r'mcr\.microsoft\.com/mssql/server@sha256:[0-9a-f]{64}', image['repo_digest'])
+          assert result['server']['product_major_version']==16 and result['server']['engine_edition'] not in (5,8)
+          assert result['counts']=={'source_events':3,'evidence_envelopes':3,'classification_envelopes':3,'pending_review':3}
+          assert result['phase4_source_change_recorded_audit_delta']==3 and result['after_first_audit_total_delta']==3
+          assert result['verified_assertion_delta']==0 and result['typed_projection_delta']==0 and result['protected_action_delta']==0
+          assert result['schema_delta']==0 and result['unexpected_table_delta_count']==0 and result['replay_total_row_delta']==0
+          assert result['network']['identical'] is True and result['required_test_skips']==0
+          assert cred['CREDENTIAL_SCAN_MATCHES']==0 and cred['EPHEMERAL_PASSWORD_MATCHES']==0
+          assert state.get('t6a_runtime_reruns',0)==0 and state.get('dsm_contacts',0)==0 and state.get('smb_connections',0)==0
+          assert state.get('real_amec_source_reads',0)==0 and state.get('real_amec_source_bytes',0)==0 and state.get('parser_executions',0)==0 and state.get('llm_calls',0)==0
+          manifest=(evidence/'MANIFEST.sha256').read_text().splitlines()
+          for line in manifest:
+              h,name=line.split('  ',1); assert (evidence/name).is_file(); assert hashlib.sha256((evidence/name).read_bytes()).hexdigest()==h
+          base={'state':state,'result':result,'cred':cred,'image':image,'native':native,'paths':sorted(actual)}
+          def accepts(s):
+              if s['state'].get('producer_sha') != os.environ['GITHUB_SHA']: return False
+              if s['state'].get('phase5_commit') != 'c42e6c449483b0951de0f366d700dbaf7b9e5525': return False
+              if s['state'].get('selected_t6b_sha256') != 'cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035': return False
+              if s['state'].get('selected_t6a_sha256') != '8f5f1b64091d3c9b943dc092773b12794eb5af3ee1a7bb7c5eab7e6475f7f6e2': return False
+              if re.fullmatch(r'mcr\.microsoft\.com/mssql/server@sha256:[0-9a-f]{64}', s['image'].get('repo_digest','')) is None: return False
+              return (s['state']['sqlserver_process_starts']==1 and s['state']['qualification_runner_invocations']==1 and s['result']['server']['product_major_version']==16 and s['result']['counts']=={'source_events':3,'evidence_envelopes':3,'classification_envelopes':3,'pending_review':3} and s['result']['phase4_source_change_recorded_audit_delta']==3 and s['result']['schema_delta']==0 and s['result']['replay_total_row_delta']==0 and s['result']['required_test_skips']==0 and s['cred']['CREDENTIAL_SCAN_MATCHES']==0 and s['cred']['EPHEMERAL_PASSWORD_MATCHES']==0 and s['image']['platform']=='linux/amd64' and s['paths']==sorted(required_paths))
+          assert accepts(base)
+          mutations=[]
+          def add(label, fn):
+              m=copy.deepcopy(base); fn(m); mutations.append((label,m))
+          add('wrong_producer_sha',lambda m:m['state'].__setitem__('producer_sha','0'*40))
+          add('wrong_phase5_parent',lambda m:m['state'].__setitem__('phase5_commit','0'*40))
+          add('extra_changed_path',lambda m:m['paths'].append('extra'))
+          add('wrong_t6b_hash',lambda m:m['state'].__setitem__('selected_t6b_sha256','0'*64))
+          add('wrong_t6a_hash',lambda m:m['state'].__setitem__('selected_t6a_sha256','0'*64))
+          add('wrong_sql_digest',lambda m:m['image'].__setitem__('repo_digest','mcr.microsoft.com/mssql/server:2022-latest'))
+          add('wrong_sql_major',lambda m:m['result']['server'].__setitem__('product_major_version',15))
+          add('invocation_zero',lambda m:m['state'].__setitem__('qualification_runner_invocations',0))
+          add('invocation_two',lambda m:m['state'].__setitem__('qualification_runner_invocations',2))
+          add('required_skip_one',lambda m:m['result'].__setitem__('required_test_skips',1))
+          add('schema_hash_mismatch',lambda m:m['result'].__setitem__('schema_delta',1))
+          add('unexpected_table_delta',lambda m:m['result'].__setitem__('unexpected_table_delta_count',1))
+          add('replay_delta',lambda m:m['result'].__setitem__('replay_total_row_delta',1))
+          add('verified_assertion_delta',lambda m:m['result'].__setitem__('verified_assertion_delta',1))
+          add('typed_projection_delta',lambda m:m['result'].__setitem__('typed_projection_delta',1))
+          add('protected_action_delta',lambda m:m['result'].__setitem__('protected_action_delta',1))
+          add('credential_match',lambda m:m['cred'].__setitem__('CREDENTIAL_SCAN_MATCHES',1))
+          add('dsm_counter',lambda m:m['state'].__setitem__('dsm_contacts',1))
+          add('smb_counter',lambda m:m['state'].__setitem__('smb_connections',1))
+          add('real_data_counter',lambda m:m['state'].__setitem__('real_amec_source_reads',1))
+          misses=[label for label,m in mutations if accepts(m)]
+          assert not misses, misses
+          (evidence/'T6B_ACCEPTANCE_RECOMPUTED_INVARIANTS.json').write_text(json.dumps({'producer_sha':os.environ['GITHUB_SHA'],'phase5_sha':'c42e6c449483b0951de0f366d700dbaf7b9e5525','counts':result['counts'],'audit_delta':result['phase4_source_change_recorded_audit_delta'],'schema_delta':result['schema_delta'],'replay_delta':result['replay_total_row_delta'],'credential_matches':cred['CREDENTIAL_SCAN_MATCHES'],'recomputed':True},sort_keys=True,indent=2)+'\n')
+          (evidence/'T6B_ACCEPTANCE_NEGATIVE_MATRIX.json').write_text(json.dumps({'mutation_count':len(mutations),'ADVERSARIAL_MUTATION_MISSES':len(misses),'cases':[label for label,_ in mutations]},sort_keys=True,indent=2)+'\n')
+          (evidence/'T6B_ACCEPTANCE_PROVENANCE.json').write_text(json.dumps({'producer_run_id':os.environ['GITHUB_RUN_ID'],'producer_attempt':1,'producer_sha':os.environ['GITHUB_SHA'],'producer_branch':os.environ['GITHUB_REF_NAME'],'producer_evidence_recomputed':True},sort_keys=True,indent=2)+'\n')
+          (evidence/'T6B_FINAL_INDEPENDENT_ACCEPTANCE.json').write_text(json.dumps({'T6B_INDEPENDENT_ACCEPTANCE':'PASS','T6B_APPLICATION_PERSISTENCE_CLOSED':True,'REQUIRED_TEST_SKIPS':0,'ADVERSARIAL_MUTATION_MISSES':0},sort_keys=True,indent=2)+'\n')
+          files=sorted(p.relative_to(evidence).as_posix() for p in evidence.rglob('*') if p.is_file() and p.name not in {'MANIFEST.sha256','.t6b-acceptance.tar'} and not p.name.startswith('T6B_FINAL_INDEPENDENT_ACCEPTANCE_'))
+          lines=[hashlib.sha256((evidence/name).read_bytes()).hexdigest()+'  '+name for name in files]
+          (evidence/'MANIFEST.sha256').write_text('\n'.join(lines)+'\n')
+          with tarfile.open(evidence/'.t6b-acceptance.tar','w',format=tarfile.USTAR_FORMAT) as tf:
+              for name in files+['MANIFEST.sha256']:
+                  p=evidence/name; info=tf.gettarinfo(str(p),arcname=name); info.uid=0; info.gid=0; info.uname=''; info.gname=''; info.mtime=0; tf.addfile(info,open(p,'rb') if info.isfile() else None)
+          out=evidence/('T6B_FINAL_INDEPENDENT_ACCEPTANCE_%s.tar.gz'%os.environ['GITHUB_RUN_ID'])
+          with open(evidence/'.t6b-acceptance.tar','rb') as src, open(out,'wb') as dst:
+              with __import__('gzip').GzipFile(fileobj=dst, mode='wb', mtime=0) as gz:
+                  gz.write(src.read())
+          (evidence/'.t6b-acceptance.tar').unlink()
+          print('INDEPENDENT_ACCEPTANCE=PASS')
+          PY
+
+      - name: Upload independent acceptance artifact
+        if: always() && steps.acceptance.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: T6B_FINAL_INDEPENDENT_ACCEPTANCE_${{ github.run_id }}
+          path: ${{ runner.temp }}/t6b-independent-acceptance/evidence/T6B_FINAL_INDEPENDENT_ACCEPTANCE_${{ github.run_id }}.tar.gz
+          if-no-files-found: error
