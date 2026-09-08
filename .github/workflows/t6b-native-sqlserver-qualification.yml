@@ -3,13 +3,13 @@ name: T6-B Native SQL Server Qualification
 on:
   push:
     branches:
-      - t6b-native-sqlserver-qualification-e928-v1
+      - t6b-native-sqlserver-qualification-e928-v2
 
 permissions:
   contents: read
 
 concurrency:
-  group: t6b-native-sqlserver-qualification-e928-v1
+  group: t6b-native-sqlserver-qualification-e928-v2
   cancel-in-progress: false
 
 jobs:
@@ -35,8 +35,8 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = c42e6c449483b0951de0f366d700dbaf7b9e5525
-          EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml\n.t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz\n.t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz\n.t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz'
+          test "$PARENT" = bd0a5c0c42b688f1813492b4c226a9506d7707b1
+          EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
             cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035 .t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz \
