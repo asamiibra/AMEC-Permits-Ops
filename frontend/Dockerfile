@@ -6,6 +6,7 @@ ARG VITE_ENTRA_TENANT_ID
 ARG VITE_ENTRA_WEB_CLIENT_ID
 ARG VITE_ENTRA_API_CLIENT_ID
 ARG VITE_API_URL
+ARG VITE_AI_D3_SYNTHETIC_PROJECT_IDS
 ARG RELEASE_SHA
 
 RUN set -eu; \
@@ -13,6 +14,7 @@ RUN set -eu; \
     test -n "$VITE_ENTRA_WEB_CLIENT_ID"; \
     test -n "$VITE_ENTRA_API_CLIENT_ID"; \
     test -n "$VITE_API_URL"; \
+    test -n "$VITE_AI_D3_SYNTHETIC_PROJECT_IDS"; \
     printf '%s\n' "$RELEASE_SHA" | grep -Eq '^[0-9a-f]{40}$'; \
     printf '%s\n' "$VITE_ENTRA_TENANT_ID" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'; \
     printf '%s\n' "$VITE_ENTRA_WEB_CLIENT_ID" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'; \
@@ -27,7 +29,8 @@ COPY . .
 ENV VITE_ENTRA_TENANT_ID="$VITE_ENTRA_TENANT_ID" \
     VITE_ENTRA_WEB_CLIENT_ID="$VITE_ENTRA_WEB_CLIENT_ID" \
     VITE_ENTRA_API_CLIENT_ID="$VITE_ENTRA_API_CLIENT_ID" \
-    VITE_API_URL="$VITE_API_URL"
+    VITE_API_URL="$VITE_API_URL" \
+    VITE_AI_D3_SYNTHETIC_PROJECT_IDS="$VITE_AI_D3_SYNTHETIC_PROJECT_IDS"
 
 RUN npm run build
 

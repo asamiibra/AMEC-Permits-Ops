@@ -32,6 +32,24 @@ class TechnicalMethodologyRequest(BaseModel):
     client_request_id: UUID
 
 
+@router.get("/runtime-status")
+def runtime_status(
+    principal: Annotated[
+        AuthenticatedPrincipal, Depends(trusted_current_principal)
+    ],
+) -> dict[str, object]:
+    settings = get_settings()
+    return {
+        "feature_present": True,
+        "external_inference_enabled": bool(settings.ai_enabled),
+        "commissioning_state": "COMMISSIONED" if settings.ai_enabled else "COMMISSIONING_PENDING",
+        "synthetic_only": settings.synthetic_only,
+        "real_data_allowed": settings.real_data_allowed,
+        "ai_real_content_allowed": settings.ai_real_content_allowed,
+        "authenticated_actor": principal.auth_mode,
+    }
+
+
 class AIContextRetrievalRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
