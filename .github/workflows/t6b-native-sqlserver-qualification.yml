@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = ead80b00d0ecb563d9744cab741bb167c0675e77
+          test "$PARENT" = 935017a7292e801c35693c3509b5d711f1b480fc
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -157,6 +157,10 @@ jobs:
           tail -200 "$EVIDENCE/sqlserver.stderr.log" 2>/dev/null || true
           echo '--- SQL Server stdout (tail) ---'
           tail -200 "$EVIDENCE/sqlserver.stdout.log" 2>/dev/null || true
+          echo '--- Qualification stderr (tail) ---'
+          tail -200 "$EVIDENCE/qualification.stderr.log" 2>/dev/null || true
+          echo '--- Qualification stdout (tail) ---'
+          tail -200 "$EVIDENCE/qualification.stdout.log" 2>/dev/null || true
           docker cp "$CID:/evidence/." "$EVIDENCE/" >/dev/null 2>&1
           docker rm "$CID" >/dev/null 2>&1
           set -e
