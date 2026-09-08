@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = e4f2134da9b8da508401b3c96bb5df7bcb774c4b
+          test "$PARENT" = 9e45e6b38618bcf426de4e415104237716dc89a5
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -150,6 +150,13 @@ jobs:
           docker start "$CID" >/dev/null
           STATUS=$(docker wait "$CID")
           docker logs "$CID" > "$EVIDENCE/qualification.stdout.log" 2> "$EVIDENCE/qualification.stderr.log"
+          docker cp "$CID:/tmp/sqlserver.stdout" "$EVIDENCE/sqlserver.stdout.log" >/dev/null 2>&1 || true
+          docker cp "$CID:/tmp/sqlserver.stderr" "$EVIDENCE/sqlserver.stderr.log" >/dev/null 2>&1 || true
+          echo "T6B_CONTAINER_EXIT_STATUS=$STATUS"
+          echo '--- SQL Server stderr (tail) ---'
+          tail -200 "$EVIDENCE/sqlserver.stderr.log" 2>/dev/null || true
+          echo '--- SQL Server stdout (tail) ---'
+          tail -200 "$EVIDENCE/sqlserver.stdout.log" 2>/dev/null || true
           docker cp "$CID:/evidence/." "$EVIDENCE/" >/dev/null 2>&1
           docker rm "$CID" >/dev/null 2>&1
           set -e
