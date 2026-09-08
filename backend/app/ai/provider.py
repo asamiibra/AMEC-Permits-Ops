@@ -11,7 +11,7 @@ import httpx
 
 from ..config.settings import Settings
 from .errors import AIError
-from .identity import acquire_ai_token
+from .identity import acquire_ai_token, acquire_foundry_project_token
 from .structured_output import PROVIDER_JSON_SCHEMA
 
 
@@ -33,6 +33,10 @@ class AIProviderResult:
     response_id: str
     payload: dict[str, Any]
     usage: AIProviderUsage
+    provider: str | None = None
+    model_name: str | None = None
+    model_version: str | None = None
+    access_mode: str | None = None
 
 
 class AIProvider(Protocol):
@@ -126,3 +130,106 @@ class AzureOpenAIResponsesProvider:
         if not isinstance(payload, dict) or not isinstance(raw.get("id"), str):
             raise AIError("AI_PROVIDER_RESPONSE_INVALID")
         return AIProviderResult(raw["id"], payload, _usage(raw.get("usage")))
+
+
+def _approved_foundry_project_endpoint(value: str) -> str:
+    parsed = urlsplit(value.rstrip("/"))
+    path_parts = parsed.path.split("/")
+    if (
+        parsed.scheme.lower() != "https"
+        or not parsed.hostname
+        or parsed.query
+        or parsed.fragment
+        or not parsed.hostname.lower().endswith(".services.ai.azure.com")
+        or len(path_parts) != 4
+        or path_parts[:3] != ["", "api", "projects"]
+        or not path_parts[3]
+    ):
+        raise AIError("AI_PROVIDER_REQUEST_REJECTED", status_code=503)
+    return value.rstrip("/")
+
+
+def _instant_model_parts(model_id: str, model_version: str) -> tuple[str, str]:
+    suffix = f"-{model_version}"
+    if model_id.endswith(suffix):
+        return model_id[: -len(suffix)], model_version
+    return model_id, model_version
+
+
+def _foundry_output_text(body: dict[str, Any]) -> str:
+    if not isinstance(body, dict) or body.get("status") == "incomplete" or body.get("incomplete_details"):
+        raise AIError("AI_PROVIDER_RESPONSE_INVALID")
+    top_level = body.get("output_text")
+    if isinstance(top_level, str) and top_level:
+        return top_level
+    for item in body.get("output", ()):
+        if not isinstance(item, dict) or item.get("type") != "message":
+            continue
+        for content in item.get("content", ()):
+            if not isinstance(content, dict) or content.get("type") not in {"output_text", "text"}:
+                continue
+            if content.get("refusal"):
+                raise AIError("AI_PROVIDER_RESPONSE_INVALID")
+            text = content.get("text")
+            if isinstance(text, str) and text:
+                return text
+    raise AIError("AI_PROVIDER_RESPONSE_INVALID")
+
+
+class FoundryProjectInstantResponsesProvider:
+    """Thin Microsoft Foundry Project Instant Access Responses provider."""
+
+    def __init__(self, settings: Settings, *, token_provider=acquire_foundry_project_token, http_client_factory=httpx.Client):
+        self.settings = settings
+        self.token_provider = token_provider
+        self.http_client_factory = http_client_factory
+
+    def execute_structured(self, request: AIProviderRequest) -> AIProviderResult:
+        endpoint = _approved_foundry_project_endpoint(self.settings.ai_foundry_project_endpoint)
+        model_name, model_version = _instant_model_parts(self.settings.ai_instant_model_id, self.settings.ai_instant_model_version)
+        if not model_name or not model_version:
+            raise AIError("AI_PROVIDER_REQUEST_REJECTED", status_code=503)
+        token = self.token_provider(self.settings)
+        body = {
+            "model": model_name,
+            "store": False,
+            "max_output_tokens": request.max_output_tokens,
+            "input": request.provider_input,
+            "tools": [],
+            "text": {"format": {"type": "json_schema", "name": "technical_methodology_draft", "strict": True, "schema": PROVIDER_JSON_SCHEMA}},
+        }
+        timeout = httpx.Timeout(connect=self.settings.ai_provider_connect_timeout_seconds, read=self.settings.ai_provider_read_timeout_seconds, write=self.settings.ai_provider_write_timeout_seconds, pool=self.settings.ai_provider_connect_timeout_seconds)
+        try:
+            with self.http_client_factory(timeout=timeout, follow_redirects=False) as client:
+                response = client.post(f"{endpoint}/openai/v1/responses", headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, json=body)
+        except httpx.TimeoutException as exc:
+            raise AIError("AI_PROVIDER_TIMEOUT", status_code=504) from exc
+        except httpx.HTTPError as exc:
+            raise AIError("AI_PROVIDER_UNAVAILABLE", status_code=503) from exc
+        if response.status_code == 429:
+            raise AIError("AI_PROVIDER_RATE_LIMITED", status_code=503)
+        if response.status_code in {400, 404, 422}:
+            raise AIError("AI_PROVIDER_INSTANT_MODEL_UNAVAILABLE", status_code=503)
+        if response.status_code >= 500:
+            raise AIError("AI_PROVIDER_UNAVAILABLE", status_code=503)
+        if response.status_code >= 400:
+            raise AIError("AI_PROVIDER_REQUEST_REJECTED", status_code=503)
+        try:
+            raw = response.json()
+            text = _foundry_output_text(raw)
+            payload = json.loads(text)
+        except AIError:
+            raise
+        except (ValueError, TypeError, json.JSONDecodeError) as exc:
+            raise AIError("AI_PROVIDER_RESPONSE_INVALID") from exc
+        if not isinstance(payload, dict) or not isinstance(raw.get("id"), str):
+            raise AIError("AI_PROVIDER_RESPONSE_INVALID")
+        response_model = raw.get("model")
+        response_version = raw.get("model_version")
+        if isinstance(response_model, str) and response_model.endswith(f"-{model_version}"):
+            response_model, response_version = response_model[: -len(f"-{model_version}")], model_version
+        if not isinstance(response_model, str) or not isinstance(response_version, str):
+            raise AIError("AI_PROVIDER_RESPONSE_MODEL_MISMATCH")
+        if response_model != model_name or response_version != model_version:
+            raise AIError("AI_PROVIDER_RESPONSE_MODEL_MISMATCH")
+        return AIProviderResult(raw["id"], payload, _usage(raw.get("usage")), "MICROSOFT_FOUNDRY", response_model, response_version, "INSTANT")

@@ -16,6 +16,7 @@ from ..services.governed_retrieval import RetrievalCitation
 
 
 ARCHITECTURE_CONTRACT_VERSION = "AI-D0-D1-ARCHITECTURE-1.0"
+SYNTHETIC_COMMISSIONING_CONTRACT_VERSION = "AI-D3-SYNTHETIC-INSTANT-1.0"
 MANIFEST_CONTRACT_VERSION = "AI-CONTEXT-MANIFEST-1.0"
 POLICY_VERSION = "ENGINEERING_TECHNICAL_DRAFT-1.0"
 MAX_CONTEXT_ITEMS = 20
@@ -66,6 +67,27 @@ class AIArchitectureContract(BaseModel):
     azure_ai_search: Literal[False] = False
     agent_framework: Literal[False] = False
     provider_global_readiness_dependency: Literal[False] = False
+
+
+class AISyntheticCommissioningContract(BaseModel):
+    """Explicit, synthetic-only contract for Microsoft Foundry Instant Access."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    commissioning_version: Literal[SYNTHETIC_COMMISSIONING_CONTRACT_VERSION] = SYNTHETIC_COMMISSIONING_CONTRACT_VERSION
+    provider: Literal["MICROSOFT_FOUNDRY"] = "MICROSOFT_FOUNDRY"
+    provider_mode: Literal["FOUNDRY_PROJECT_INSTANT_SYNTHETIC"] = "FOUNDRY_PROJECT_INSTANT_SYNTHETIC"
+    project_region: Literal["westus3"] = "westus3"
+    instant_access: Literal[True] = True
+    model_router: Literal[False] = False
+    provider_memory: Literal[False] = False
+    provider_threads: Literal[False] = False
+    tools: tuple[()] = ()
+    store: Literal[False] = False
+    real_content_allowed: Literal[False] = False
+    production_allowed: Literal[False] = False
+    canonical_write_authority: Literal["ZERO"] = "ZERO"
+    protected_action_authority: Literal["ZERO"] = "ZERO"
 
 
 class AIManifestPolicy(BaseModel):
@@ -133,3 +155,4 @@ class AIContextManifest(BaseModel):
 
 
 AI_ARCHITECTURE = AIArchitectureContract()
+AI_SYNTHETIC_COMMISSIONING = AISyntheticCommissioningContract()

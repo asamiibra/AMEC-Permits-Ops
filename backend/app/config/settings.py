@@ -80,12 +80,17 @@ class Settings(BaseSettings):
     # browser-selectable request fields.
     ai_enabled: bool = False
     ai_real_content_allowed: bool = False
+    ai_provider_mode: str = "REGIONAL_DEPLOYMENT"
     ai_azure_openai_endpoint: str = ""
     ai_azure_openai_deployment: str = "proposalops-gpt51-methodology-v1"
     ai_azure_openai_expected_model: str = "gpt-5.1"
     ai_azure_openai_expected_version: str = "2025-11-13"
     ai_azure_openai_region: str = "uaenorth"
     ai_azure_openai_deployment_type: str = "Standard"
+    ai_foundry_project_endpoint: str = ""
+    ai_foundry_project_region: str = "westus3"
+    ai_instant_model_id: str = "gpt-5-mini"
+    ai_instant_model_version: str = "2025-08-07"
     ai_uami_client_id: str = ""
     ai_uami_principal_id: str = ""
     ai_azure_tenant_id: str = ""
@@ -336,12 +341,33 @@ class Settings(BaseSettings):
             if self.ai_enabled:
                 if self.ai_real_content_allowed or not self.synthetic_only or self.real_data_allowed:
                     raise ValueError("AI-D2/D3 preprod requires synthetic-only real-content gates")
-                if self.ai_azure_openai_deployment != "proposalops-gpt51-methodology-v1":
-                    raise ValueError("AI deployment name is frozen")
-                if self.ai_azure_openai_expected_model != "gpt-5.1" or self.ai_azure_openai_expected_version != "2025-11-13":
-                    raise ValueError("AI model/version is frozen")
-                if self.ai_azure_openai_region != "uaenorth" or self.ai_azure_openai_deployment_type != "Standard":
-                    raise ValueError("AI region/deployment type is frozen")
+                if self.ai_provider_mode not in {"REGIONAL_DEPLOYMENT", "FOUNDRY_PROJECT_INSTANT_SYNTHETIC"}:
+                    raise ValueError("AI_PROVIDER_MODE must be REGIONAL_DEPLOYMENT or FOUNDRY_PROJECT_INSTANT_SYNTHETIC")
+                if self.ai_provider_mode == "REGIONAL_DEPLOYMENT":
+                    if self.ai_azure_openai_deployment != "proposalops-gpt51-methodology-v1":
+                        raise ValueError("AI deployment name is frozen")
+                    if self.ai_azure_openai_expected_model != "gpt-5.1" or self.ai_azure_openai_expected_version != "2025-11-13":
+                        raise ValueError("AI model/version is frozen")
+                    if self.ai_azure_openai_region != "uaenorth" or self.ai_azure_openai_deployment_type != "Standard":
+                        raise ValueError("AI region/deployment type is frozen")
+                else:
+                    if self.ai_foundry_project_region != "westus3":
+                        raise ValueError("AI_FOUNDRY_PROJECT_REGION is frozen to westus3")
+                    if not self.ai_instant_model_id or not self.ai_instant_model_version:
+                        raise ValueError("Foundry Instant model ID and version are required")
+                    project_endpoint = urlsplit(self.ai_foundry_project_endpoint.rstrip("/"))
+                    project_parts = project_endpoint.path.split("/")
+                    if (
+                        project_endpoint.scheme.lower() != "https"
+                        or not project_endpoint.hostname
+                        or project_endpoint.query
+                        or project_endpoint.fragment
+                        or not project_endpoint.hostname.lower().endswith(".services.ai.azure.com")
+                        or len(project_parts) != 4
+                        or project_parts[:3] != ["", "api", "projects"]
+                        or not project_parts[3]
+                    ):
+                        raise ValueError("AI_FOUNDRY_PROJECT_ENDPOINT must be an exact Foundry project endpoint")
                 for setting_name, value in (
                     ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
                     ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),
@@ -360,20 +386,23 @@ class Settings(BaseSettings):
                     raise ValueError("AI_PRICING_SOURCE_REFERENCE is required")
                 if not self.ai_d3_project_ids:
                     raise ValueError("AI_D3_SYNTHETIC_PROJECT_IDS is required")
-                if not self.ai_azure_openai_endpoint:
-                    raise ValueError("AI_AZURE_OPENAI_ENDPOINT is required")
-                endpoint = urlsplit(self.ai_azure_openai_endpoint)
-                if endpoint.scheme.lower() != "https" or not endpoint.hostname or endpoint.path.rstrip("/"):
-                    raise ValueError("AI endpoint must be an HTTPS Azure OpenAI resource origin")
-                host = endpoint.hostname.lower()
-                if not (host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com")):
-                    raise ValueError("AI endpoint host is not an approved Azure OpenAI host")
+                if self.ai_provider_mode == "REGIONAL_DEPLOYMENT":
+                    if not self.ai_azure_openai_endpoint:
+                        raise ValueError("AI_AZURE_OPENAI_ENDPOINT is required")
+                    endpoint = urlsplit(self.ai_azure_openai_endpoint)
+                    if endpoint.scheme.lower() != "https" or not endpoint.hostname or endpoint.path.rstrip("/"):
+                        raise ValueError("AI endpoint must be an HTTPS Azure OpenAI resource origin")
+                    host = endpoint.hostname.lower()
+                    if not (host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com")):
+                        raise ValueError("AI endpoint host is not an approved Azure OpenAI host")
                 if self.ai_uami_client_id.lower() == self.azure_sql_uami_client_id.lower() or self.ai_uami_principal_id.lower() == self.azure_sql_uami_principal_id.lower():
                     raise ValueError("AI and SQL managed identities must be separate")
                 if self.ai_max_context_items != 8 or self.ai_max_context_utf8_bytes != 16384 or self.ai_max_output_tokens != 6000:
                     raise ValueError("D3 context/output bounds are frozen")
 
         if environment == "PROD":
+            if self.ai_enabled or self.ai_provider_mode == "FOUNDRY_PROJECT_INSTANT_SYNTHETIC":
+                raise ValueError("PROD forbids AI-D3 Foundry Instant commissioning")
             if self.synthetic_only:
                 raise ValueError(
                     "PROD requires SYNTHETIC_ONLY=false"

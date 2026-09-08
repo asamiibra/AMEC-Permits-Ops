@@ -17,11 +17,11 @@ from ..models import DocumentVersion
 from ..services.governed_retrieval import RetrievalQuery
 from .citations import build_evidence, validate_citations
 from .context import build_context_manifest
-from .contracts import AI_ARCHITECTURE, AIExecutionMode, AIPurpose, AITargetEntityType
+from .contracts import AI_ARCHITECTURE, AI_SYNTHETIC_COMMISSIONING, AIExecutionMode, AIPurpose, AITargetEntityType
 from .errors import AIError
 from .ledger import finalize_failure, finalize_success, reserve_audit
 from .limits import reserve_execution
-from .provider import AIProvider, AIProviderRequest, AzureOpenAIResponsesProvider
+from .provider import AIProvider, AIProviderRequest, AzureOpenAIResponsesProvider, FoundryProjectInstantResponsesProvider
 from .structured_output import output_fingerprint, validate_draft
 
 
@@ -45,7 +45,7 @@ def _prove_synthetic(db: Session, manifest) -> None:
             continue
         version = db.get(DocumentVersion, item.document_version_id)
         metadata = version.metadata_json if version is not None else {}
-        proven = version is not None and (version.synthetic_content is not None or (metadata.get("synthetic_only") is True and str(version.source_system).upper() in {"SYNTHETIC", "MOCK"}))
+        proven = version is not None and (version.synthetic_content is not None or (metadata.get("synthetic_only") is True and str(version.source_system).upper() in {"SYNTHETIC", "MOCK", "SYNTHETIC_SYNOLOGY"}))
         if not proven:
             raise AIError("AI_D3_CONTEXT_SYNTHETIC_PROVENANCE_UNPROVEN", status_code=403)
 
@@ -88,7 +88,16 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     reservation_db = SessionLocal()
     reservation = None
     try:
-        reservation = reserve_execution(reservation_db, settings=settings, idempotency_key=client_request_id, correlation_id=correlation_id, actor_user_id=principal.user_id, auth_mode=principal.auth_mode, purpose=manifest.purpose.value, execution_mode=manifest.execution_mode.value, project_id=project_id, target_entity_type=manifest.scope.target_entity_type.value, target_entity_id=manifest.scope.target_entity_id, architecture_version=manifest.architecture_version, policy_version=manifest.policy_version, context_fingerprint=manifest.manifest_fingerprint, request_fingerprint=request_fingerprint, provider=AI_ARCHITECTURE.provider, provider_region=settings.ai_azure_openai_region, deployment_name=settings.ai_azure_openai_deployment, model_name=settings.ai_azure_openai_expected_model, model_version=settings.ai_azure_openai_expected_version, citation_count=len(manifest.items), provider_input=provider_input)
+        commissioning = settings.ai_provider_mode == "FOUNDRY_PROJECT_INSTANT_SYNTHETIC"
+        contract = AI_SYNTHETIC_COMMISSIONING if commissioning else AI_ARCHITECTURE
+        model_name = settings.ai_instant_model_id
+        model_version = settings.ai_instant_model_version
+        if commissioning and model_name.endswith(f"-{model_version}"):
+            model_name = model_name[: -len(f"-{model_version}")]
+        if not commissioning:
+            model_name = settings.ai_azure_openai_expected_model
+            model_version = settings.ai_azure_openai_expected_version
+        reservation = reserve_execution(reservation_db, settings=settings, idempotency_key=client_request_id, correlation_id=correlation_id, actor_user_id=principal.user_id, auth_mode=principal.auth_mode, purpose=manifest.purpose.value, execution_mode=manifest.execution_mode.value, project_id=project_id, target_entity_type=manifest.scope.target_entity_type.value, target_entity_id=manifest.scope.target_entity_id, architecture_version=manifest.architecture_version, policy_version=manifest.policy_version, context_fingerprint=manifest.manifest_fingerprint, request_fingerprint=request_fingerprint, provider=contract.provider, provider_region=settings.ai_foundry_project_region if commissioning else settings.ai_azure_openai_region, deployment_name="INSTANT_ACCESS" if commissioning else settings.ai_azure_openai_deployment, model_name=model_name, model_version=model_version, citation_count=len(manifest.items), provider_input=provider_input)
         reserve_audit(reservation_db, ledger=reservation.ledger, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER")
         reservation_db.commit()
     except AIError as exc:
@@ -104,7 +113,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
 
     # Phase C: no SQL session or SQL transaction is used below this line.
     try:
-        active_provider = provider or AzureOpenAIResponsesProvider(settings)
+        active_provider = provider or (FoundryProjectInstantResponsesProvider(settings) if settings.ai_provider_mode == "FOUNDRY_PROJECT_INSTANT_SYNTHETIC" else AzureOpenAIResponsesProvider(settings))
         result = active_provider.execute_structured(AIProviderRequest(provider_input=provider_input, max_output_tokens=settings.ai_max_output_tokens))
         draft = validate_draft(result.payload)
         citation_map = validate_citations(draft, manifest)
@@ -145,4 +154,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     finally:
         final_db.close()
 
-    return {"execution_id": reservation.ledger.id, "status": "DRAFT_ONLY", "draft": draft.model_dump(mode="json"), "citations": citation_map, "context_fingerprint": manifest.manifest_fingerprint, "request_fingerprint": request_fingerprint, "output_fingerprint": fingerprint, "model": {"provider": AI_ARCHITECTURE.provider, "model": settings.ai_azure_openai_expected_model, "version": settings.ai_azure_openai_expected_version}, "usage": {"input_tokens": result.usage.input_tokens, "output_tokens": result.usage.output_tokens, "total_tokens": result.usage.total_tokens, "estimated_cost_usd": estimated_cost}, "draft_only": True, "human_review_required": True, "canonical_state_mutated": False, "protected_action_count": 0, "background_task_count": 0}
+    response = {"execution_id": reservation.ledger.id, "status": "DRAFT_ONLY", "draft": draft.model_dump(mode="json"), "citations": citation_map, "context_fingerprint": manifest.manifest_fingerprint, "request_fingerprint": request_fingerprint, "output_fingerprint": fingerprint, "model": {"provider": result.provider or (AI_SYNTHETIC_COMMISSIONING.provider if settings.ai_provider_mode == "FOUNDRY_PROJECT_INSTANT_SYNTHETIC" else AI_ARCHITECTURE.provider), "model": result.model_name or (settings.ai_instant_model_id if settings.ai_provider_mode == "FOUNDRY_PROJECT_INSTANT_SYNTHETIC" else settings.ai_azure_openai_expected_model), "version": result.model_version or (settings.ai_instant_model_version if settings.ai_provider_mode == "FOUNDRY_PROJECT_INSTANT_SYNTHETIC" else settings.ai_azure_openai_expected_version)}, "usage": {"input_tokens": result.usage.input_tokens, "output_tokens": result.usage.output_tokens, "total_tokens": result.usage.total_tokens, "estimated_cost_usd": estimated_cost}, "draft_only": True, "human_review_required": True, "canonical_state_mutated": False, "protected_action_count": 0, "background_task_count": 0}
+    if settings.ai_provider_mode == "FOUNDRY_PROJECT_INSTANT_SYNTHETIC":
+        response["model"].update({"access_mode": result.access_mode or "INSTANT", "region": settings.ai_foundry_project_region})
+    return response
