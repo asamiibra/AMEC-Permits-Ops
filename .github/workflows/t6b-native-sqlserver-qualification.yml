@@ -3,7 +3,7 @@ name: T6-B Native SQL Server Qualification
 on:
   push:
     branches:
-      - t6b-native-sqlserver-qualification-e928-v2
+      - branch/t6b-native-sqlserver-qualification-e928-v2
 
 permissions:
   contents: read
