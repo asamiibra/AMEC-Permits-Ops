@@ -37,6 +37,10 @@ class AIProviderResult:
     model_name: str | None = None
     model_version: str | None = None
     access_mode: str | None = None
+    requested_model_name: str | None = None
+    requested_model_version: str | None = None
+    requested_model_id: str | None = None
+    observed_response_model: str | None = None
 
 
 class AIProvider(Protocol):
@@ -156,6 +160,11 @@ def _instant_model_parts(model_id: str, model_version: str) -> tuple[str, str]:
     return model_id, model_version
 
 
+def _instant_requested_model_id(model_id: str, model_version: str) -> str:
+    suffix = f"-{model_version}"
+    return model_id if model_id.endswith(suffix) else f"{model_id}{suffix}"
+
+
 def _foundry_output_text(body: dict[str, Any]) -> str:
     if not isinstance(body, dict) or body.get("status") == "incomplete" or body.get("incomplete_details"):
         raise AIError("AI_PROVIDER_RESPONSE_INVALID")
@@ -187,11 +196,12 @@ class FoundryProjectInstantResponsesProvider:
     def execute_structured(self, request: AIProviderRequest) -> AIProviderResult:
         endpoint = _approved_foundry_project_endpoint(self.settings.ai_foundry_project_endpoint)
         model_name, model_version = _instant_model_parts(self.settings.ai_instant_model_id, self.settings.ai_instant_model_version)
-        if not model_name or not model_version:
+        requested_model_id = _instant_requested_model_id(self.settings.ai_instant_model_id, model_version)
+        if not model_name or not model_version or not requested_model_id:
             raise AIError("AI_PROVIDER_REQUEST_REJECTED", status_code=503)
         token = self.token_provider(self.settings)
         body = {
-            "model": model_name,
+            "model": requested_model_id,
             "store": False,
             "max_output_tokens": request.max_output_tokens,
             "input": request.provider_input,
@@ -225,11 +235,20 @@ class FoundryProjectInstantResponsesProvider:
         if not isinstance(payload, dict) or not isinstance(raw.get("id"), str):
             raise AIError("AI_PROVIDER_RESPONSE_INVALID")
         response_model = raw.get("model")
-        response_version = raw.get("model_version")
-        if isinstance(response_model, str) and response_model.endswith(f"-{model_version}"):
-            response_model, response_version = response_model[: -len(f"-{model_version}")], model_version
-        if not isinstance(response_model, str) or not isinstance(response_version, str):
+        if not isinstance(response_model, str) or not response_model:
             raise AIError("AI_PROVIDER_RESPONSE_MODEL_MISMATCH")
-        if response_model != model_name or response_version != model_version:
+        if response_model not in {requested_model_id, model_name}:
             raise AIError("AI_PROVIDER_RESPONSE_MODEL_MISMATCH")
-        return AIProviderResult(raw["id"], payload, _usage(raw.get("usage")), "MICROSOFT_FOUNDRY", response_model, response_version, "INSTANT")
+        return AIProviderResult(
+            raw["id"],
+            payload,
+            _usage(raw.get("usage")),
+            "MICROSOFT_FOUNDRY",
+            model_name,
+            model_version,
+            "INSTANT",
+            model_name,
+            model_version,
+            requested_model_id,
+            response_model,
+        )

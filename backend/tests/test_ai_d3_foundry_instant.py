@@ -39,8 +39,8 @@ def _settings(**overrides):
         "ai_pricing_source_reference": "test-price-reference",
         "ai_foundry_project_endpoint": "https://resource.services.ai.azure.com/api/projects/project-1",
         "ai_foundry_project_region": "westus3",
-        "ai_instant_model_id": "gpt-5-mini-2025-08-07",
-        "ai_instant_model_version": "2025-08-07",
+        "ai_instant_model_id": "gpt-5.1",
+        "ai_instant_model_version": "2025-11-13",
         "ai_uami_client_id": "82c84649-7009-4cdd-bcb4-25f4c9d9d413",
         "ai_uami_principal_id": "a3e42c81-271a-4409-acdc-3e0881c7e1b5",
         "ai_azure_tenant_id": "2a82f16d-87fa-4036-97a9-17d94060eddd",
@@ -73,7 +73,7 @@ def test_foundry_provider_uses_exact_project_endpoint_and_request_contract():
             return {
                 "id": "resp-1",
                 "status": "completed",
-                "model": "gpt-5-mini-2025-08-07",
+                "model": "gpt-5.1-2025-11-13",
                 "output": [
                     {"type": "reasoning", "summary": [{"type": "summary_text", "text": "must not escape"}]},
                     {"type": "message", "content": [{"type": "output_text", "text": json.dumps(_payload())}]},
@@ -98,16 +98,105 @@ def test_foundry_provider_uses_exact_project_endpoint_and_request_contract():
 
     result = FoundryProjectInstantResponsesProvider(_settings(), token_provider=lambda _: "foundry-token", http_client_factory=Client).execute_structured(AIProviderRequest("synthetic-input", 6000))
     assert result.provider == "MICROSOFT_FOUNDRY"
-    assert result.model_name == "gpt-5-mini"
-    assert result.model_version == "2025-08-07"
+    assert result.model_name == "gpt-5.1"
+    assert result.model_version == "2025-11-13"
     assert result.access_mode == "INSTANT"
+    assert result.requested_model_name == "gpt-5.1"
+    assert result.requested_model_version == "2025-11-13"
+    assert result.requested_model_id == "gpt-5.1-2025-11-13"
+    assert result.observed_response_model == "gpt-5.1-2025-11-13"
     assert captured["url"] == "https://resource.services.ai.azure.com/api/projects/project-1/openai/v1/responses"
     assert captured["client"]["follow_redirects"] is False
     body = captured["request"]["json"]
-    assert body["model"] == "gpt-5-mini"
+    assert body["model"] == "gpt-5.1-2025-11-13"
     assert body["store"] is False
     assert body["tools"] == []
     assert body["text"]["format"]["strict"] is True
+
+
+@pytest.mark.parametrize("response_model", ["gpt-5.1", "gpt-5.1-2025-11-13"])
+def test_foundry_provider_accepts_logical_or_version_suffixed_response_model(response_model):
+    class Response:
+        status_code = 200
+
+        def json(self):
+            return {
+                "id": "resp-model-shape",
+                "status": "completed",
+                "model": response_model,
+                "output_text": json.dumps(_payload()),
+                "usage": {"input_tokens": 1, "output_tokens": 2, "total_tokens": 3},
+            }
+
+    class Client:
+        def __init__(self, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def post(self, url, **kwargs):
+            return Response()
+
+    result = FoundryProjectInstantResponsesProvider(_settings(), token_provider=lambda _: "token", http_client_factory=Client).execute_structured(AIProviderRequest("input", 100))
+    assert result.observed_response_model == response_model
+
+
+def test_foundry_provider_does_not_duplicate_version_suffix():
+    captured = {}
+
+    class Response:
+        status_code = 200
+
+        def json(self):
+            return {"id": "resp-suffix", "model": "gpt-5.1", "output_text": json.dumps(_payload()), "usage": {"input_tokens": 1, "output_tokens": 2, "total_tokens": 3}}
+
+    class Client:
+        def __init__(self, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def post(self, url, **kwargs):
+            captured["model"] = kwargs["json"]["model"]
+            return Response()
+
+    result = FoundryProjectInstantResponsesProvider(_settings(ai_instant_model_id="gpt-5.1-2025-11-13"), token_provider=lambda _: "token", http_client_factory=Client).execute_structured(AIProviderRequest("input", 100))
+    assert captured["model"] == "gpt-5.1-2025-11-13"
+    assert result.requested_model_id == "gpt-5.1-2025-11-13"
+
+
+def test_foundry_provider_rejects_empty_or_unrelated_response_model():
+    for response_model in ["", "model-router", "gpt-4.1"]:
+        class Response:
+            status_code = 200
+
+            def json(self):
+                return {"id": "resp-bad-model", "model": response_model, "output_text": json.dumps(_payload()), "usage": {"input_tokens": 1, "output_tokens": 2, "total_tokens": 3}}
+
+        class Client:
+            def __init__(self, **kwargs):
+                pass
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def post(self, url, **kwargs):
+                return Response()
+
+        with pytest.raises(AIError) as error:
+            FoundryProjectInstantResponsesProvider(_settings(), token_provider=lambda _: "token", http_client_factory=Client).execute_structured(AIProviderRequest("input", 100))
+        assert error.value.code == "AI_PROVIDER_RESPONSE_MODEL_MISMATCH"
 
 
 @pytest.mark.parametrize(
