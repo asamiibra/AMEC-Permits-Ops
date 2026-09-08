@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = 25c314c26338b7c7881182ff2debca4c94dccc30
+          test "$PARENT" = ead80b00d0ecb563d9744cab741bb167c0675e77
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -143,7 +143,7 @@ jobs:
           python3 /opt/proposalops/run_qualification.py
           SH
           docker build --platform linux/amd64 -t t6b-qualification:"${GITHUB_SHA}" "$CONTEXT"
-          SQL_PASSWORD="P$(openssl rand -hex 24)!a9"
+          SQL_PASSWORD="Aa9$(openssl rand -hex 24)"
           echo "::add-mask::$SQL_PASSWORD"
           CID=$(docker create --platform linux/amd64 --network none -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$SQL_PASSWORD" -v "$EVIDENCE:/evidence" t6b-qualification:"${GITHUB_SHA}")
           set +e
