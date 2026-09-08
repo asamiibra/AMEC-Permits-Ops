@@ -8,6 +8,16 @@ param openAiAccountName string
 param deploymentName string = 'proposalops-gpt51-methodology-v1'
 @description('The approved Entra tenant.')
 param tenantId string
+@description('The Azure region for the actual model account.')
+param modelRegion string = 'eastus'
+@description('The exact deployed model name.')
+param modelName string = 'gpt-5.4-mini'
+@description('The exact deployed model version.')
+param modelVersion string = '2026-03-17'
+@description('The synchronous deployment SKU.')
+param deploymentSku string = 'DataZoneStandard'
+@description('The capacity units allocated to the deployment.')
+param deploymentCapacity int = 10
 
 resource aiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: aiIdentityName
@@ -16,10 +26,13 @@ resource aiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31
 
 resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: openAiAccountName
-  location: 'uaenorth'
+  location: modelRegion
   kind: 'OpenAI'
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${aiIdentity.id}': {}
+    }
   }
   properties: {
     customSubDomainName: openAiAccountName
@@ -35,14 +48,14 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01
   parent: openAi
   name: deploymentName
   sku: {
-    name: 'Standard'
-    capacity: 1
+    name: deploymentSku
+    capacity: deploymentCapacity
   }
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-5.1'
-      version: '2025-11-13'
+      name: modelName
+      version: modelVersion
     }
     raiPolicyName: 'Microsoft.Default'
   }
