@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = a1779177caf72dfdc7c3f7181def0e7f073cb6a0
+          test "$PARENT" = c74a3d140ed8ddfc36cfeec7deeefd126e2fae13
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
