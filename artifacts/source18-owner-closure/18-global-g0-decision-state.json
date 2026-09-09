@@ -1,6 +1,6 @@
 {
   "artifact": "18-global-g0-decision-state",
-  "generated_at_utc": "2026-09-09T23:52:32.888080Z",
+  "generated_at_utc": "2026-09-09T23:56:53.492064Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "cd2ffa46c040957cf0cd6091ef2d51ce7c7db011",
+  "evidence_commit_sha": "88aa7a6db843495705204e26d11234efa2a6c867",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -178,5 +178,5 @@
     "Azure deployed source differs from closure branch",
     "real-data production deployment forbidden"
   ],
-  "artifact_sha256": "9a65da10fac2e9578d8973246a1c80ebfd0308a79fad59b077bffc3923ffa0f1"
+  "artifact_sha256": "e6ccbdf0ff90e06e348a1e059ba89274cbecb490280cc15b2f158996283805b8"
 }

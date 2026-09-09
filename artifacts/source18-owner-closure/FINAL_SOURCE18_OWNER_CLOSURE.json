@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-09T23:52:32.888080Z",
+  "generated_at_utc": "2026-09-09T23:56:53.492064Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "cd2ffa46c040957cf0cd6091ef2d51ce7c7db011",
+  "evidence_commit_sha": "88aa7a6db843495705204e26d11234efa2a6c867",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -4020,84 +4020,97 @@
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "1516a0ecd13fe850a71db96243ba9b5d1f51d73605f164834e3a34e945cecd1c"
+      "sha256": "582da666778e274c881bfe6a55dfe8662f9c1d05460fd2fa4f2ea51b4162c1d7"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "fa21d36831f01057c5ab3aa30fbe95b381be7f73d0d758ad752d4916a3b68fbc"
+      "sha256": "be627b1ad9ade24cad2398ffda53374370533d90b9642fb44baba82373f7858c"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "9e4e17ee48ee72b68ac333d5671108389a2c3f2c0e76062c4e68ecfaef6bffa5"
+      "sha256": "a3769addc35edffa3dc0b3f978269ef396f14918757e59b868768d1abca3f112"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "80d4580c7f3c2b454f26ad41a28beb7c6e77050084d1375f4d2c20fdfee6de3d"
+      "sha256": "70f136cb970bead2f2f071d99f3395970b37ee62da8c14ce38738ad86c113798"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "848a42752dc88db6a2bbe26e1fa68b277a66d728edc4a2c903947327870b3eb1"
+      "sha256": "ba824247d0d9e70355f8b0bd07fc876207ed442df851dca6cfb2be0648d110b4"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "79b6ac817915dd887ea350e8911138a4a77a314f0ae610af5d17989b2f05e8ff"
+      "sha256": "e94117ec4792330cec8d5ec73d53398631b2ffea800c7b988e615a78ec58614c"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "1abab284c848c51c9d3b942078b51ea199b9fb746f11e58c2d1308fefc8faac0"
+      "sha256": "63be2c2c8f50f7da5f106e8fd0921d955d682a9d288201449782fa3816d8c333"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "c4fb7c248f5db479a5636823774f77538de92eecfd62f9161001036e0250ed13"
+      "sha256": "23df8d6d8472984b7dc8458409edf8ce39b8632d81494fbff35cf4e85e327d4f"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "7eebcc93ffd73dd4132df736989015af12822365249a61949434dafc7975cc5e"
+      "sha256": "4eee77a96c76cf7d6266e6784162df2224122d7085247a5da3e76ec21252582d"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "abc5a98621e04dc34f1934fa5528ba835ee0c8f8b0e1c8fbb9a53e16428a1203"
+      "sha256": "1e416f6b8f5b1080fc477e705131461b21d074772491972c689409b5660d68a0"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "070a9b80f361f2eaf7c40ee54701f6710bf831d5ba70feadf33a6064ab1cfce3"
+      "sha256": "1f329e3e489876dd5be13992da9d06f161d9acc5805e7238b70a408fd207c176"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "c61b4db03664a2cab048a96c6d328a113d500f698eabf7b28c8dabb59fc7243b"
+      "sha256": "d3d4c693a10aa1859211473c1940c0f958b749cb9d798d74e93207ff47986c16"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "23ed084ca4d28d43cdb588037cac6352e069adb17e0219eb72fb9e2f4b23285d"
+      "sha256": "ddf95442c9a71bc05ead0d7cb4d5a9ff4d566d6d9721fb0b58955cd2d106e691"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "054d4737bfda99ec63b413de7f3c87cb7ff7f63745b08ac9234139f832469e3e"
+      "sha256": "bb2e548691b6be241ddb81f9baa9d35cdbd4f62d78f918d68c576335301bb4ba"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "ec80c1d30cd1dd684c4937bc190a68a6ce11b3f3dfa12e618a2acbcdbf2f8660"
+      "sha256": "f6c741af7435ab959fa14eeca4d1ada5b1fa9c18a151889a27e3267047d2731c"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "b8dbc8fd2862904c8f8a5ba9bf87b81891179578c2ebc793a223314b70fff2a3"
+      "sha256": "a2f92bb146f52e3c03d7489d43c62bc50ef12b0e4291fbe9afab1c5104a45133"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "da4ce14271fb089f6a6fc867917957dca1886d9b3a59ca281103ad2df491b740"
+      "sha256": "4e3dc63302c801fd8d6c49760761c7550657330abd851a803b441316d40594ed"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "f55183fae75b06af6f091c210a4268d3c80c4317bd10c65f2d772450270b5681"
+      "sha256": "a39132ef285d192226485daa37d59c886f44806b08a00eb64ee03c24cb086108"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "b5cc7c86c488d0eb25cd7f76f0b469ae957285f7737d7141683b69cf4b799aeb"
+      "sha256": "baf0af81dd60716dec556cbc598a830361b8c3618ad73bab7700460452282553"
     },
     {
       "artifact": "19-integration-reconciliation.json",
       "sha256": "a5a1fb115853a446c131b65a2954749dad36ef6e54691de4b4e3967a941216a4"
     }
   ],
-  "artifact_sha256": "785308022f10c67db21c18f54a31fc961746e430d63fec7d918766eef32d0142"
+  "artifact_sha256": "1e4f7e354257b8dfecaa5d57e2ec480f2269b8184d57d76a1af05839d9902a28",
+  "release_identity": {
+    "EXECUTABLE_RELEASE_SHA": "c01e893e06caae9a984b80aa53bffbf78b981551",
+    "EXECUTABLE_TREE_SHA": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
+    "EVIDENCE_COMMIT_SHA": "88aa7a6db843495705204e26d11234efa2a6c867",
+    "MERGE_SHA": null,
+    "IMAGE_DIGEST": null,
+    "AZURE_REVISION": null,
+    "DB_HEAD": null,
+    "observed_azure_release_sha": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7",
+    "observed_azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
+    "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
+    "observed_azure_db_head": null
+  }
 }
