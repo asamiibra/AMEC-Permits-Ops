@@ -1,4 +1,7 @@
 {
+  "checkpoint_scope": "SOURCE13_SOURCE14_INTERMEDIATE_RECONCILIATION",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
   "explicit_requirement_count": 196,
   "finance_revalidation_enumerated_count": 36,
   "finance_revalidation_requirements": [
@@ -543,7 +546,14 @@
       "traceability_key": "Source14-LOCAL-finance_revalidation-T7-R8"
     }
   ],
+  "g5_business_v1_code_frozen_current_contract": false,
+  "g5_current_contract_closed": false,
+  "g6_data_platform_qualified": false,
+  "g6_started": false,
+  "latest_governing_contract_source": "SOURCE15",
   "ledger": "BUSINESS_V1_CURRENT_CONTRACT_SOURCE14",
+  "merged_release_sha_recorded_after_merge": true,
+  "pr_reviewed_head_recorded_externally": true,
   "primary_requirement_count": 160,
   "primary_requirements": [
     {
@@ -2948,6 +2958,10 @@
     }
   ],
   "requirement_orphans": 0,
+  "source14_checkpoint_preserved": true,
+  "source15_implementation_not_claimed_in_pr15": true,
+  "source15_now_governs_current_g5": true,
+  "source15_reconciliation_required": true,
   "source_meta": {
     "actual_filename": "Invoice : Contract  2 Module Requiremnents .docx",
     "actual_path": "/Users/ahmedsami/Desktop/Video Requirements/Invoice : Contract  2 Module Requiremnents .docx",

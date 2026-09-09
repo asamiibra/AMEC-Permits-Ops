@@ -1,4 +1,11 @@
 {
+  "checkpoint_scope": "SOURCE13_SOURCE14_INTERMEDIATE_RECONCILIATION",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "g5_business_v1_code_frozen_current_contract": false,
+  "g5_current_contract_closed": false,
+  "g6_data_platform_qualified": false,
+  "g6_started": false,
   "gaps": [
     {
       "description": "Current official policy/form evidence for Source8 remains unproven.",
@@ -13,6 +20,13 @@
       "status": "MISSING"
     }
   ],
+  "latest_governing_contract_source": "SOURCE15",
+  "merged_release_sha_recorded_after_merge": true,
+  "pr_reviewed_head_recorded_externally": true,
   "register": "SOURCE14_CURRENT_CONTRACT_G5_GAPS",
-  "source14_requirement_orphans": 0
+  "source14_checkpoint_preserved": true,
+  "source14_requirement_orphans": 0,
+  "source15_implementation_not_claimed_in_pr15": true,
+  "source15_now_governs_current_g5": true,
+  "source15_reconciliation_required": true
 }

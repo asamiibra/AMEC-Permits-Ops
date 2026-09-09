@@ -1,11 +1,19 @@
 {
-  "current_release_sha": "98bb7a7c88f2407150f0b4796ebf1ed8bdde69fb",
-  "current_release_tree": "e7af0e31079b1021e8f15136c2089520f81644ee",
+  "checkpoint_scope": "SOURCE13_SOURCE14_INTERMEDIATE_RECONCILIATION",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
   "focused_executable_audit": "PARTIAL_FOCUSED_CONTROL_ONLY",
   "focused_tests": {
     "command": "PYTHONPATH=. pytest -q backend/tests/test_source14_contract_controls.py backend/tests/test_billing_invoice_full.py backend/tests/test_source12_project_finance_controls.py",
     "result": "55_PASS"
   },
+  "g5_business_v1_code_frozen_current_contract": false,
+  "g5_current_contract_closed": false,
+  "g6_data_platform_qualified": false,
+  "g6_started": false,
+  "latest_governing_contract_source": "SOURCE15",
+  "merged_release_sha_recorded_after_merge": true,
+  "pr_reviewed_head_recorded_externally": true,
   "real_amec_bytes_read": 0,
   "required_exit_controls": {
     "SOURCE13_AMEC_PRODUCTION_INVOICE_REFERENCE": "PARTIAL_FOCUSED_CONTROL_IMPLEMENTED",
@@ -21,6 +29,12 @@
   },
   "requirement_count": 116,
   "requirement_orphans": 0,
+  "source14_checkpoint_preserved": true,
+  "source15_implementation_not_claimed_in_pr15": true,
+  "source15_now_governs_current_g5": true,
+  "source15_reconciliation_required": true,
   "source_pinned": true,
+  "subject_source_sha": "98bb7a7c88f2407150f0b4796ebf1ed8bdde69fb",
+  "subject_source_tree": "e7af0e31079b1021e8f15136c2089520f81644ee",
   "synthetic_only": true
 }
