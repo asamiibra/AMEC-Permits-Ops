@@ -6,6 +6,10 @@
     "command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_source14_contract_controls.py backend/tests/test_billing_invoice_full.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
     "result": "67_PASS_1_WARNING"
   },
+  "full_backend_regression": {
+    "command": "PYTHONPATH=. pytest -q backend/tests --ignore=backend/tests/test_phase5_sqlserver_runtime.py",
+    "result": "843_PASS_17_SKIPPED_4_WARNINGS"
+  },
   "implementation_code_paths": [
     "backend/app/services/current_contract_controls.py",
     "backend/app/services/commercial_contract_controls.py",

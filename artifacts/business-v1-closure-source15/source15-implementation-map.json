@@ -46,6 +46,8 @@
   "implementation_evidence": {
     "focused_test_command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_source14_contract_controls.py backend/tests/test_billing_invoice_full.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
     "focused_test_result": "67_PASS_1_WARNING",
+    "full_backend_regression_command": "PYTHONPATH=. pytest -q backend/tests --ignore=backend/tests/test_phase5_sqlserver_runtime.py",
+    "full_backend_regression_result": "843_PASS_17_SKIPPED_4_WARNINGS",
     "project_gate_api_test": "backend/tests/test_shared_domain_foundations.py::test_shared_foundations_vertical_slice_and_safety_contracts",
     "protected_action_policy": "eligibility_and_preparation_only; no autonomous invoice, handover, closure, submission, professional approval, sign, or stamp",
     "pure_control_test": "backend/tests/test_source15_current_contract_controls.py"
