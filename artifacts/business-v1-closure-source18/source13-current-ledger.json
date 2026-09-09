@@ -1,0 +1,13 @@
+{
+  "current_g5_exit": "PASS",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "implementation_evidence": "canonical commercial contract controls and focused regression preserved from Source15",
+  "latest_governing_contract_source": "SOURCE18",
+  "ledger": "SOURCE13_FINAL_GOVERNING",
+  "requirement_count": 116,
+  "requirement_orphans": 0,
+  "source_pinned": true,
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d"
+}

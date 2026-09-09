@@ -1,0 +1,1658 @@
+{
+  "atomic_requirement_count": 179,
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "latest_governing_contract_source": "SOURCE18",
+  "ledger": "SOURCE17_FINAL_OFFICE_REGULATORY",
+  "requirement_orphans": 0,
+  "requirements": [
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 2",
+      "source_text": "1 | Engineers Acceptance Committee must be modeled as a critical regulator of AMEC | Generic Authority/Authority Case concepts exist | 🟨 | Add office-regulatory authority context",
+      "source_text_sha256": "df610a773c8f857e7eda22dd79be7d67db2b122662345e3688def57a88f145aa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 3",
+      "source_text": "2 | Track AMEC's official consultancy registration | No dedicated office-registration object recovered | ❌ | ConsultingOfficeRegistration",
+      "source_text_sha256": "eaeab97b36178b643bc46d2e4f3ee20ee57865c1ec5f5ecda3a3c4eb07fedf54",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 4",
+      "source_text": "3 | Preserve official registration certificate | Document/evidence architecture exists generically | 🟨 | First-class certificate record + DocumentVersion",
+      "source_text_sha256": "51b1d46c71559852becb5faae0cb69c847e21cf6e1c2c8e5e9ae54f4fb828683",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 5",
+      "source_text": "4 | Registration certificate must be versioned rather than overwritten | Generic immutable evidence/snapshots exist | 🟨 | OfficeRegistrationCertificateVersion",
+      "source_text_sha256": "2a8a54d70ed21edbfb69303fe3c8dd13bc1d2948765c41835c774a45894f5f59",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 6",
+      "source_text": "5 | Track office classification/category | No dedicated office-classification model recovered | ❌ | Add classification/version",
+      "source_text_sha256": "d0a7d9724b3c0548b4f68b8d76fb5a45c6b4c65d449031ea2be0e3db3f0f1164",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 7",
+      "source_text": "6 | Track qualified engineering disciplines independently | Project engineering has discipline concepts, but not office regulatory disciplines | 🟨 | Office-level discipline classifications",
+      "source_text_sha256": "02dd148bda49fa1457f79af01402409f96ff21cf8ea42ca65d5968b1277f74fe",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 8",
+      "source_text": "7 | Architectural/Civil/Electrical/Mechanical can each have regulatory status | No office-level regulatory status found | ❌ | Dedicated per-discipline status",
+      "source_text_sha256": "61d03b4d85edd14a3f9e58bc6d4c5e02276746640e6437371f85a23911524cf7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 9",
+      "source_text": "8 | Office classification depends on regulator-recognized engineers | Not implemented | ❌ | Compliance computation",
+      "source_text_sha256": "c63af140c558c0ec5bb075425e5e206d272a6a7a55d145d81e50faae8ebc1b99",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 10",
+      "source_text": "9 | Required engineer count varies by discipline/classification | Not implemented | ❌ | Versioned requirement policy",
+      "source_text_sha256": "ca28b7b9b11b4281fbe9926a3720c67c7a51ab09bcd0c03a2b0f35ff3f030061",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 11",
+      "source_text": "10 | Engineer grade/category must satisfy the office requirement | Professional credential hook exists, but no office counting rule | 🟨 | Grade/category eligibility rules",
+      "source_text_sha256": "d5a1a25f3dcdaf7c42ef9cc94955c116296e3e2d68f4cb67d58b7d48fc870639",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 12",
+      "source_text": "11 | HR employee count must not be used as regulatory headcount | No dedicated separation exists | ⚠️ | Explicit regulatory roster",
+      "source_text_sha256": "1a5da334f976c33139f74437f0c17fb0c723a493f9eabc1c3fcbb05a34e82cae",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 13",
+      "source_text": "12 | Surplus engineers above minimum should be allowed | Not modeled as compliance buffer | ❌ | Support required / counted / buffer",
+      "source_text_sha256": "131faf7da7c9b212d0348e55fca940bd4d9e9c5e5e483afc7eff2dae15a848ff",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 14",
+      "source_text": "13 | Extra engineers reduce risk when somebody leaves | Not implemented | ❌ | Coverage-buffer calculation",
+      "source_text_sha256": "b44bf08ae28555c58579e6e550bb03ad046ec92cab3508feae4e927033f742d5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 15",
+      "source_text": "14 | Departing engineer must reduce regulatory count when regulator record changes | No office roster workflow | ❌ | Effective-dated roster membership",
+      "source_text_sha256": "46c38503cf326b5d513117dcaff6a25b46b80658eb0346adafbf672abc1ae4cd",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 16",
+      "source_text": "15 | Historical engineer membership must not disappear | Existing app generally supports immutable evidence/history | 🟨 | End membership; never delete history",
+      "source_text_sha256": "5e450665280cee78a3aefca984be1c3473eab2a188219dc682465a608c6f7ccb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 17",
+      "source_text": "16 | Detect discipline shortage immediately | Missing | ❌ | Compliance engine",
+      "source_text_sha256": "149328ca9bc9d1fb7966bdfc2cd2a0c2c2e0d8d2b5e6c638b87a0fc792de26f1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 18",
+      "source_text": "17 | Show exact shortage quantity | Missing | ❌ | required - regulator_counted",
+      "source_text_sha256": "f2a03318aa5c4bb14fc6f6347062e470cefab805c311e68ba6f4383e0ba9bbe2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 19",
+      "source_text": "18 | Track grace/remediation deadline after shortage | Missing | ❌ | Compliance deadline/event",
+      "source_text_sha256": "c46cedd2e976cbcb47d6af43bf2e24ba5d336e184d043fef14cb9e94955aa92e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 20",
+      "source_text": "19 | Generate escalating attention before classification is lost | Missing | ❌ | Alerts/tasks/escalations",
+      "source_text_sha256": "d3b26f6c700aeaa956fbc3ded0bf2fff8e653d0e36496c14214b13426f03586d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 21",
+      "source_text": "20 | Distinguish normal, at-minimum, buffered, deficient and lost discipline | Missing | ❌ | Regulatory coverage state machine",
+      "source_text_sha256": "6208647a62a33228ae1bd6dd85e90e23e3be41468c641b3e7370c8868aa9520f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 22",
+      "source_text": "21 | Classification loss affects what work AMEC may undertake | Current project authority/rule structures exist, but not linked to office classification | 🟨/⚠️ | Gate applicable capabilities/scope",
+      "source_text_sha256": "2a7bf68e8563128a1ff952959d9db02c39fc1846cff656b7a59b8c5eebdaec65",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 23",
+      "source_text": "22 | Civil classification loss can affect supervision authority | No office→service-capability link | ❌ | Regulatory service entitlement mapping",
+      "source_text_sha256": "14f163b322929b9ad11fc832adec531aec69b8990b878c1724d9690a6c880ee5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 24",
+      "source_text": "23 | Mechanical/electrical classification affects applicable technical authority | Same | ❌ | Same entitlement mapping",
+      "source_text_sha256": "533bab6987585ad059024845ed2d0364f0e5eb063b6f7a6ab9cd94ba53e25169",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 25",
+      "source_text": "24 | Individual engineer has regulatory profile separate from Employee | Professional credential concept exists | 🟨 | Expand to dedicated regulator profile",
+      "source_text_sha256": "0383960e23a3540258bd8b1f72bed1fbd09b2059f74ae52c00fae598d8237244",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 26",
+      "source_text": "25 | Store engineer registration/certificate number | Credential seam exists conceptually | 🟨 | Dedicated structured field",
+      "source_text_sha256": "00b1d1295fb4194cd33137ee9621fd2968311be0017a00b617925cb5923cb15b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 27",
+      "source_text": "26 | Store discipline/specialization | Engineering records use discipline | 🟨 | Put discipline on regulatory credential",
+      "source_text_sha256": "470bd8d54ddec9a609d6d03bb27d52f6b5aea0ecca3241e0aaa1d5f134714954",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 28",
+      "source_text": "27 | Store grade/category | Not recovered in current credential implementation | ❌ | Add regulatory grade",
+      "source_text_sha256": "06a8c1905b3bb0f756fbc7c86816f0374d41799798777c72c986d772c2e4ca3c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 29",
+      "source_text": "28 | Store regulatory practice/scope such as supervision | Not recovered | ❌ | Add qualification/scope",
+      "source_text_sha256": "c1603d2d3713e7b812238272b66a0c56b39f2b26e1256632f5f1db3027585484",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 30",
+      "source_text": "29 | Track certificate validity/expiry | No complete Committee-specific expiry workflow recovered | ❌ | Add validity period + expiry monitoring",
+      "source_text_sha256": "7597d4ae0ffc3dfd6f829ec4852ba6c134488d21713efaa86bc890f201ff9afb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 31",
+      "source_text": "30 | Track current employer shown on regulator certificate | Missing as regulatory state | ❌ | regulatory_employer_party_id + evidence",
+      "source_text_sha256": "76f5d4fdb270b4c6fbaa865503cf02e857a8e3c83dddf4a9986b82ce8b1258eb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 32",
+      "source_text": "31 | Employment/sponsorship proof is separate evidence | Generic DocumentVersion evidence supports this structurally | 🟨 | Dedicated evidence type, PII controlled",
+      "source_text_sha256": "dc3a16fa5a98f2955b60a96d0c158b5c0ec01c85941aea60fe9bd0060e4a7a13",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 33",
+      "source_text": "32 | Sponsorship transfer to AMEC precedes regulator employer update | Missing workflow | ❌ | Regulatory onboarding state machine",
+      "source_text_sha256": "287a4350071c514083cc138083e04bd5c002f89daddf9edfcc8802b167f9b9e8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 34",
+      "source_text": "33 | Submit current employer/data update to Committee | Generic Authority Case foundation is reusable | 🟨 | Dedicated request type",
+      "source_text_sha256": "c2f6847a35656a9082108607a89fb0dc39a2831d0b962c1efad8f20ddd897195",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 35",
+      "source_text": "34 | Capture newly issued Engineer Registration Certificate | Generic documents supported | 🟨 | New credential version",
+      "source_text_sha256": "9c2d2e0523703b81ba88182237e602c501be321b2ed19e9c366951c4e7445a5d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 36",
+      "source_text": "35 | Updated certificate showing AMEC does not yet mean counted in office roster | No distinction currently modeled | ⚠️ Critical | Separate credential state from roster state",
+      "source_text_sha256": "ecac4840d87b2bc66dbcf87d3d1c4c5e262c8f52e5781105636df4bcc5de4554",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 37",
+      "source_text": "36 | Submit engineer for inclusion in office classification | Missing | ❌ | ENGINEER_ROSTER_ADD regulatory request",
+      "source_text_sha256": "75d207c70ecec3a2a7ae74c0c7ffbaed33a128e3b7dfc140efc57d9a301ba5bd",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 38",
+      "source_text": "37 | Only regulator-confirmed roster membership counts | Missing | ❌ | Fail-closed counting rule",
+      "source_text_sha256": "7d0f41c367037d1594f6efcf3ad0f19bcafa4cf7da84f09a831cc3815250b2b0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 39",
+      "source_text": "38 | Engineer roster changes must have effective dates/history | Missing | ❌ | Version/effective-period model",
+      "source_text_sha256": "fec94456e284bc3d8e79ab323f4327ac21b44d41795c1aaf9654f3dafe507d05",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 40",
+      "source_text": "39 | Engineer's next employer may trigger removal from AMEC regulator list | Missing | ❌ | External-status/end-membership handling",
+      "source_text_sha256": "57a26601442153ebec144d041de013fab3f1ca4dc47404366b215276b7f5c504",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 41",
+      "source_text": "40 | AMEC should be able to proactively register more engineers than minimum | Missing as business workflow | ❌ | “Add to classification roster” action",
+      "source_text_sha256": "557e67ce6db1a992668bff0254a6ed06df5e49b3d7a89c3b2986efb8d1b23be4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 42",
+      "source_text": "41 | Office registration certificate carries Responsible Engineer(s) | No dedicated office Responsible Engineer designation recovered | ❌ | ResponsibleEngineerDesignation",
+      "source_text_sha256": "c679c488530194da602e368dd125854843ea70e37dee46c4b0d2cf30dc2d1afa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 43",
+      "source_text": "42 | Responsible Engineer is not necessarily company owner | Party/role architecture can represent separate roles | 🟨 | Explicit regulatory role",
+      "source_text_sha256": "9e842fc9866e010ca1b8cac416063560da211cbb207408cf955c815e4c86033d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 44",
+      "source_text": "43 | Responsible Engineer is regulator-facing accountable representative | Missing dedicated semantics | ❌ | Authority scope",
+      "source_text_sha256": "f8037c54e6faf14156c64eab6c1a3a3e7700493a4d326319ed091b3fbd468f9d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 45",
+      "source_text": "44 | Responsible Engineer signs/stamps Committee submissions | Generic authorization/evidence exists, but no regulatory signature authority | 🟨 | Signature/stamp authorization model",
+      "source_text_sha256": "d4b27d1202f0d45db6cac643664be5d6ac736431ba959763de3969b48d7e9c5f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 46",
+      "source_text": "45 | More than one Responsible Engineer may be registered | Missing | ❌ | Support concurrent designations",
+      "source_text_sha256": "376495985feea71be4eaddc339e3f0a9ca6b108b09401c23a9bef30a3326f1c7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 47",
+      "source_text": "46 | Any currently authorized Responsible Engineer may sign applicable submissions | Missing | ❌ | Effective signature authorities",
+      "source_text_sha256": "b51b8e6077046c4bcbc5823cf121b3c9dab3e71bd5b2835931f3f5d2dcb43097",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 48",
+      "source_text": "47 | Multiple Responsible Engineers provide leave/travel resilience | Missing | ❌ | Coverage/status UX",
+      "source_text_sha256": "ccefe65230cd6577f4135f6176a3b37b9b12bc787eb338b3caa70668b7ac7ca4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 49",
+      "source_text": "48 | When Responsible Engineer leaves, official registration must be updated | Missing dedicated workflow | ❌ | RESPONSIBLE_ENGINEER_CHANGE",
+      "source_text_sha256": "33a8a2ae573df45d24eeb9f84fc0d0df37a29f9d906adc143d6fb625ebbe585d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 50",
+      "source_text": "49 | Removed Responsible Engineer signature authority must stop being valid | Generic authorization concepts can support this | 🟨 | Effective-date termination",
+      "source_text_sha256": "731b42a37f05f4b794590fa3c78cec8e2e51d455f889af5313ede6866bc5d242",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 51",
+      "source_text": "50 | Office registration data changes require formal regulator submission | Generic Authority Case can be reused | 🟨 | OFFICE_DATA_CHANGE workflow",
+      "source_text_sha256": "d73a73f9c60ffb6fb3869919c0888bd08dc037420308da9fd4d7dd6af7889ba8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 52",
+      "source_text": "51 | Office name change is regulated | Not modeled specifically | ❌ | Change-request field delta",
+      "source_text_sha256": "7e51343e5268e0a4908dfaa61872cec5ae1161a29bd528f98d40538a740f12cb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 53",
+      "source_text": "52 | Office address change is regulated | Same | ❌ | Same",
+      "source_text_sha256": "37b65c228c042758ac957ce087d32227fb19909b3f4b23f6258d7537d027fb23",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 54",
+      "source_text": "53 | Qatari partner change is regulated | Same | ❌ | Same",
+      "source_text_sha256": "6de557071acc135e218216ef3c37d47e2d86e176c5be499050a9bedc667c39e0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 55",
+      "source_text": "54 | Classification/category change is regulated | Same | ❌ | Same",
+      "source_text_sha256": "7f2ac73af2a64e76e97a18519cd21bfcc80d21433c2558ed0140a9b6ad4f448a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 56",
+      "source_text": "55 | Registration renewal is periodic | Missing dedicated workflow | ❌ | OFFICE_REGISTRATION_RENEWAL",
+      "source_text_sha256": "7487f60d52636023bc5d7dff2fb8a06757815719db04456d0db9889004585013",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 57",
+      "source_text": "56 | Owner states current office registration renews every two years | No configurable renewal rule recovered | ❌ | Policy-driven renewal interval",
+      "source_text_sha256": "4c5d169ec462a1e10b6e3760d371edc1dbde10753f9bb3d700084e78535c20fe",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 58",
+      "source_text": "57 | Renewal must start before expiry | Missing | ❌ | 180/120/90/60/30-day readiness timeline as configurable policy",
+      "source_text_sha256": "966a9c877236a15cdee5b20bda648604c87ef527630aaee1dad476d96a772a68",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 59",
+      "source_text": "58 | New government certificate supersedes, not destroys, old certificate | Generic immutable evidence philosophy fits | 🟦 | Implement explicit supersession",
+      "source_text_sha256": "08be3dde43123d010b2cdaed4b296fce07e66c6b11bbaa207acabaa7650c6320",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 60",
+      "source_text": "59 | Routine engineer update differs from office-registration modification | Generic current app doesn't encode this distinction | ❌ | Separate transaction types",
+      "source_text_sha256": "f40dc85ceb892cdac24d3db38c60cf4008de7fed2cd4bd51b8fad0e88f67b43f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 61",
+      "source_text": "60 | Routine engineer update is frequent/lightweight | Missing | ❌ | Reusable guided workflow",
+      "source_text_sha256": "43b8bac6b47fe04f415a2c868d53e202b968254fdf229f44488a7a1d576b60e5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 62",
+      "source_text": "61 | Responsible Engineer change is heavier | Missing | ❌ | Separate checklist/workflow",
+      "source_text_sha256": "5a25ee599ed56ac36adb2dd32e6dc1666c8f6b02b94205d510fae0b1f27fb1f4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 63",
+      "source_text": "62 | Registration renewal is substantially heavier | Missing | ❌ | Separate checklist/workflow",
+      "source_text_sha256": "de1b0f8c15af8d4d63425b806f3a153767f8b038e9e4bf0b387994fdd164a9d0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 64",
+      "source_text": "63 | Government forms are standardized and repeatable | Dashboard Forms/master-content architecture can be reused | 🟨 | Store exact forms as governed master content",
+      "source_text_sha256": "2420fe0ab5d7da59a0b85b87432966fc7edfc61c4683128e3c65e95faf38ed47",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 65",
+      "source_text": "64 | Prefill repeated information instead of retyping | Governed retrieval/prefill foundation exists elsewhere | 🟨 | Apply here with human review",
+      "source_text_sha256": "2a6a9f434048755b8ef3e6ad3f98afed008a80a377869061250e6da6e0341a5e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 66",
+      "source_text": "65 | Each request needs exact required attachments | Not specified fully by this video | ⏳ | Await subsequent Owner training before freezing schemas",
+      "source_text_sha256": "beb7944bc847da6fdd1072dd5656ec8fbf5063856a279dae897fd85b9e3119c8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 67",
+      "source_text": "66 | Responsible Engineer signature/stamp remains human | Existing protected-human authority architecture supports this direction | ✅/🟨 | Enforce in Committee workflow",
+      "source_text_sha256": "c26e04da55f16c0df9859362993d94469d9d752720e406494e03d748f3c8b89a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 68",
+      "source_text": "67 | Track submission date/reference | Generic authority-case/event architecture reusable | 🟨 | Dedicated fields/workflow",
+      "source_text_sha256": "126544bd8d0f5354167e1f495d6e27a91103ddb30eecc6ff4a1a36556462097f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 69",
+      "source_text": "68 | Track regulator review/pending/returned/approved/rejected | Generic regulatory case concepts reusable | 🟨 | Configure Committee lifecycle",
+      "source_text_sha256": "519e7b10b27b09c82b7458edbff37f5be7f1502b6b21a6bce4ce44790c79ebe3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 70",
+      "source_text": "69 | Committee may take weeks/months | No Committee-specific SLA/aging UX | ❌ | Request aging + overdue monitoring",
+      "source_text_sha256": "d349dc36be60407b03284a7cc37dff2378165b9d769841f94fd2f04500124ef0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 71",
+      "source_text": "70 | Owner says Committee sits Wednesdays | No schedule model found | ❌ | Store operational cadence/config; do not hard-code as eternal statute",
+      "source_text_sha256": "e043daeff47a4eb40b3b008b69e0e82f444faa5c57f212584b6f1167174cb0fe",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 72",
+      "source_text": "71 | Queue/backlog means requests need persistent follow-up | Generic workflow foundation exists | 🟨 | Work queue",
+      "source_text_sha256": "fcf6203a4b2861853da81a5ee7f8848ae1134e6db34508409675246c45f27ce0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 73",
+      "source_text": "72 | Technical violation/referral case is different from routine admin request | Current authority-case architecture could support it | 🟨 | Separate REGULATORY_ENFORCEMENT_CASE",
+      "source_text_sha256": "42870ab3fdfced53b22bf3028bba69a1a8a4f1cc18fecccdd1ebcfcd795c26c2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 74",
+      "source_text": "73 | Engineers lead technical defense; Admin may provide evidence/letters | No dedicated operating workflow | ❌ | Responsibility/capability separation",
+      "source_text_sha256": "12044fffed2ef27ab3493dfa482cb4401fe228f77a80c0e0aa7498c6914667e8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 75",
+      "source_text": "74 | Record regulator warnings/fines/sanctions | No dedicated office compliance incident model recovered | ❌ | Compliance incident register",
+      "source_text_sha256": "c91818c652114bfb6e52d97da2c598d3aa405dcc95317890670254f283ea31bc",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 76",
+      "source_text": "75 | Sanction/loss of discipline must immediately affect compliance dashboard | Missing | ❌ | Propagate regulatory state",
+      "source_text_sha256": "3823752b324e18513270ba275078b6f17e210ef5504a43775529a84859c0a7ad",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 2, row 77",
+      "source_text": "76 | One workspace should show office status, engineer coverage, expiries and pending requests | No dedicated UI recovered | ❌ Major UX gap | Build Office Regulatory Compliance workspace",
+      "source_text_sha256": "016e5501d0d7475b1c15228138d6713e91703c3f31607a358120d326944b3f6f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 2",
+      "source_text": "P0 | Consulting Office Registration master + versioned official certificate | Core licence-to-operate object is missing",
+      "source_text_sha256": "1c526b5d2b3e81107f3ce69043c6f8c44f340d11fc7dc82e84e55f70382197d1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 3",
+      "source_text": "P0 | Office discipline/classification model | Need regulatory status per Architecture/Civil/Electrical/Mechanical",
+      "source_text_sha256": "b6ba4aa3be3359814e32d97ea597ce58e5aab1ce86e9bdb69474e0f643084dc8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 4",
+      "source_text": "P0 | Individual Engineer Regulatory Profile / certificate versions | HR employee is insufficient",
+      "source_text_sha256": "a9826cfd9930faa08ec36f2d5d77159b4b2b01ddeb1ba46618ea23c6523fd6d5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 5",
+      "source_text": "P0 | Regulatory employer/sponsorship state separated from HR employment | Explicit Owner workflow",
+      "source_text_sha256": "ce763a2d5be61e62178caf47614abc3236b4dfba517391e5dd2b1d94bde6ad7e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 6",
+      "source_text": "P0 | Office Classification Roster Membership | Certificate updated to AMEC does not itself mean engineer counts",
+      "source_text_sha256": "dcfa90547723c4189175fd5bcc32e724f17c923a8d532e86db2923177da63112",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 7",
+      "source_text": "P0 | Discipline coverage compliance engine | Required vs regulator-counted vs buffer vs deficit",
+      "source_text_sha256": "5a9fc58cead75287474fbf8d1ebd1bebe903b07f5e1ab73c405822d1a19d40d8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 8",
+      "source_text": "P0 | Grade/category eligibility checking | Wrong-grade engineer cannot satisfy office requirement",
+      "source_text_sha256": "b49fad29df195c1b53d3f4e942e4bebc3cf1d07a3fc86f4e02628de49c238a3f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 9",
+      "source_text": "P0 | Expiry and deficit monitoring | Classification can be lost if ignored",
+      "source_text_sha256": "3576e301f661dc202ab4485a185d60838002062fbe1016f6173ec111b41cb289",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 10",
+      "source_text": "P0 | Responsible Engineer designation and signature authority | Regulator-facing protected professional role",
+      "source_text_sha256": "fbc96cbc14091bb3b405ada32bdfa433401c8e36c7535b7311cc2225be831999",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 11",
+      "source_text": "P0 | Office renewal / office-data-change workflows | Any governed certificate field change requires formal process",
+      "source_text_sha256": "d349a044b27efb1010712f58815b5bdb6ef6a68cc21a02eddb805bc05828f565",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 12",
+      "source_text": "P0 | Regulatory scope gating | Lost discipline must not leave app claiming AMEC is authorized for that work",
+      "source_text_sha256": "278f00dea806702e678ff77184e373127c6baf121009008150e70beba6410a45",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 13",
+      "source_text": "P1 | Engineer employer/data-update workflow | High-volume recurring admin process",
+      "source_text_sha256": "7b8341522af741d7220b6ebe764098224269c755390a345dd8895cf9903544e1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 14",
+      "source_text": "P1 | Engineer roster-add/remove workflow | Needed to actually close deficits",
+      "source_text_sha256": "6d8e3edbfd6456b073ec7bd4e5ff3ec686bea13b91673a08881dc3a41b16c9d5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 15",
+      "source_text": "P1 | Multiple Responsible Engineers | Resilience explicitly recommended by Owner",
+      "source_text_sha256": "ce343d7162519b04a728fe652452398aae10c259848ffd9546f3b680d61c0162",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 16",
+      "source_text": "P1 | Government request/checklist engine | Forms are standardized/repetitive",
+      "source_text_sha256": "5eb2c3bef15cdba164e8590a0d8175f8ecbfc0f118281049bd3b8e6f220e7e06",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 17",
+      "source_text": "P1 | Committee submission/status/aging tracker | Reviews can take weeks/months",
+      "source_text_sha256": "bde16edc9f997e10a891a8fecab49aab6b601bded174263a980f44fa995c7606",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 18",
+      "source_text": "P1 | Surplus/buffer staffing strategy | Prevents avoidable regulatory shortages",
+      "source_text_sha256": "ab5c76da72dc6e38a3ba3fae8cd0c0eab5cf27db94689c02dffd9596a7024644",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 19",
+      "source_text": "P1 | Regulatory warnings/fines/enforcement-case register | Committee is escalation authority",
+      "source_text_sha256": "bada13da729c7c967d227e1acafde4ec1fd87076b9d7657e4eb7590fa1f67e94",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 20",
+      "source_text": "P1 | PII-safe employment/QID evidence | Needed without exposing sensitive data broadly",
+      "source_text_sha256": "3457b9447facde6b7834986963b6eb3c86484d8aff23145ab27c8c89d6924283",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 21",
+      "source_text": "P1 | Dedicated Office Regulatory Compliance dashboard | Current model is too fragmented",
+      "source_text_sha256": "3a43ba0adc0664f0e12477d4fa3317a8e258a97274485c6b3607e72de42eff8d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 22",
+      "source_text": "P2 | HR → compliance change detection | Engineer hired/left should propose regulatory action",
+      "source_text_sha256": "ac533cb78282184cfa9812db30823f00ca27306cdcd161c62864aedea0df10ab",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 23",
+      "source_text": "P2 | Automated deadline/escalation notifications | Useful after core truth is reliable",
+      "source_text_sha256": "671e2fdfe665f274247157528bcbaf22fa60ab91af760357aade21f81a9856fa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 24",
+      "source_text": "P2 | Regulator portal integration | Only after exact workflow/authority is understood",
+      "source_text_sha256": "bec69372578a8c9db9debdbe0a67a4f0ef95620b7166361b177a650c961035ad",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 4, row 25",
+      "source_text": "Deferred | Exact form/attachment schemas | Owner explicitly says later training will cover them",
+      "source_text_sha256": "f4f65dab9def9db1559067ccb7461331eea4405b4f06aa821a51ec09430605d9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 2",
+      "source_text": "P0 | Engineers Acceptance Committee represented as governing external regulatory body | Generic foundation | Configure/domain-bind",
+      "source_text_sha256": "a3ecca81beb3176b125f9ad7447c8fafb6e178e87be6a78864535b45c88222da",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 3",
+      "source_text": "P0 | Versioned Consulting Office Enrolment/Registration | ❌ Dedicated domain not found | Build",
+      "source_text_sha256": "0ed731d4153742a044d061f8331d6fcee3b82c44686a1fce663fa016db76705e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 4",
+      "source_text": "P0 | Exact immutable official office certificate versions | Generic documents only | Build first-class model",
+      "source_text_sha256": "e972f0e1c641ec5fdef9e954bbddf79753355b8b368867a31c34a8316d9d2dac",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 5",
+      "source_text": "P0 | Structured governed fields from office certificate | ❌ | Build",
+      "source_text_sha256": "83d1b479642fc604cf0631a000ce3dcc1d156fc20b6b4351456ba8c1f6aff7c5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 6",
+      "source_text": "P0 | Field-level change detection on governed office data | ❌ | Build",
+      "source_text_sha256": "55ca68df4a1c5a6199eb546aa07377db3daaa347c8ccbe75014ac41f3257520d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 7",
+      "source_text": "P0 | Office category/classification | ❌ dedicated | Build",
+      "source_text_sha256": "7224d40be0cda2bbc47cc3e701a5d97ff13f37b05c18bf5f9b00092630668262",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 8",
+      "source_text": "P0 | Permitted practicing disciplines/scope | Generic service concepts only | Build office entitlement layer",
+      "source_text_sha256": "672c6c8148d27915dc4d4b9f9c23c9f590015b7a3b187993d887d4ed3f198a88",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 9",
+      "source_text": "P0 | Versioned minimum staffing/grade requirements | ❌ | Build policy model",
+      "source_text_sha256": "97e3379202078ca68620c6f4b8c18a2e1271432846bd576fc66afdf78a4713f6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 10",
+      "source_text": "P0 | Individual Engineer Regulatory Profile | Credential seam only | Expand substantially",
+      "source_text_sha256": "3e78ae8f07b8bd5c65a291bc6e5a3e3438b2f615738373be05eef73ee2021165",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 11",
+      "source_text": "P0 | Versioned Engineer Registration Certificates | Partial document foundation | Build",
+      "source_text_sha256": "5225ff926953aa4716ca45771c45ddbdcbbf7c264c5f7123bb25905e1e681186",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 12",
+      "source_text": "P0 | Sponsorship/employer regulatory evidence separate from HR | ❌ dedicated | Build",
+      "source_text_sha256": "69de644b80124b58c05671f9a2052547f84122f96455aab98c57d32f523ec1b8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 13",
+      "source_text": "P0 | Engineer employer/data-update workflow | ❌ dedicated | Build",
+      "source_text_sha256": "cb993b7b12c0c79a8e21146553c2a5e1ddd70f458e67dc81f1f16ce86a14d5b6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 14",
+      "source_text": "P0 | Office classification roster membership | ❌ | Build",
+      "source_text_sha256": "d431ef5f59343754347e3166bb7fe251f814a40fa5f849619fcd04977dd5051d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 15",
+      "source_text": "P0 | certificate updated ≠ rostered invariant | ❌ | Enforce",
+      "source_text_sha256": "4396966736fa3296c912525cc422aa8ef43e77a4a4aa25c06d021ac9c6c54b85",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 16",
+      "source_text": "P0 | Qualified regulator-counted staffing computation | ❌ | Build compliance engine",
+      "source_text_sha256": "05437e8e3288aa17f4858a46659466f10e659ae89d0de25656e95b86afa3886f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 17",
+      "source_text": "P0 | Surplus/buffer staffing | ❌ | Build",
+      "source_text_sha256": "2e0b54a3f496a1414d01b459742151110b25b90d2502038104d88cc9ed0a68aa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 18",
+      "source_text": "P0 | Shortage detection | ❌ | Build",
+      "source_text_sha256": "47f7875fd3ca55f3b5efbeeefec936fd91f50497eb87519dbcbc6574ed12d1ef",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 19",
+      "source_text": "P0 | Remediation/warning timeline | Generic dates possible | Build domain logic",
+      "source_text_sha256": "b838a084ff5d4c79b58b88fed0a9003b546ab2f1352c553076fbe616ba0148cb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 20",
+      "source_text": "P0 | Discipline removal state | ❌ | Build",
+      "source_text_sha256": "8bcb2ec7852b6678bfba0627f7b6b6f30ece00f865e781c308fdbc8451c8da3e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 21",
+      "source_text": "P0 | Discipline restoration restricted until eligible registration event | ❌ | New critical gap",
+      "source_text_sha256": "3d84e119ce469c5dccc692bdce38bee4d16d0f583a58629f16009f96c6e1a68d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 22",
+      "source_text": "P0 | Classification → project/service entitlement gating | Partial generic foundations | Build",
+      "source_text_sha256": "78371032a433d8a38770cd7ffc16153cac2c31ff013d5b1fcdaf9bcfedbb8008",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 23",
+      "source_text": "P0 | Responsible Engineer designation | ❌ dedicated | Build",
+      "source_text_sha256": "78df5e41d9554223f3128210321f6c435a48575211f6fe745073f7d05f48825d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 24",
+      "source_text": "P0 | Multiple simultaneous Responsible Engineers | ❌ | Build",
+      "source_text_sha256": "3d16724a7e15afca8f15ddbe7783a91ac4f5badad90890cd7c2854529be8fdbf",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 25",
+      "source_text": "P0 | Signature/stamp authority tied to effective designation | Generic authorization foundation | Specialize/enforce",
+      "source_text_sha256": "c55c1638d6d4ef8768585dfd529e8e2bc1b79561f9c9b9864e55602e82acaa35",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 26",
+      "source_text": "P0 | Remove signature authority when RE leaves | ❌ dedicated | Build",
+      "source_text_sha256": "ed65c0e8bb060ab47d459b4b484ac04c08d203a9a6c31791e0dcbbc8aaad3252",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 27",
+      "source_text": "P0 | Office registration renewal workflow | ❌ dedicated | Build",
+      "source_text_sha256": "c2993a3878400a0925b2922ea7e2560ac90c103d98b1ad4ea61a2d3b71aec10b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 28",
+      "source_text": "P0 | Office registration amendment workflow | ❌ dedicated | Build",
+      "source_text_sha256": "77736e9ad7ba752216075599b6cc0d17d08350e2a3df31daecad8d8a417f679f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 29",
+      "source_text": "P0 | Distinct office-review vs engineer-update processing lanes | ❌ | New explicit requirement",
+      "source_text_sha256": "40d1fa11414ea4613d2262d299f8009050bad10bc542a358392b4807867b8d29",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 30",
+      "source_text": "P0 | Government result creates new immutable regulatory state/version | Generic outcomes/documents | Specialize",
+      "source_text_sha256": "bd1c9fceef5552b1c4f057940ac6275d3a4467c1182604c867753f850b836e1e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 31",
+      "source_text": "P0 | Protected human signature/submission/approval | Existing product authority philosophy | Enforce here",
+      "source_text_sha256": "a879819c0534fdc1575bfdebf5b3eb3c610de2d5bb33bab7c8ca6a641d20ee86",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 32",
+      "source_text": "P1 | Committee submission queue/aging | Generic cases | Add domain UX",
+      "source_text_sha256": "e29e97c304b1a9f9cc8129d8617e1b5c4041d6d024b10c1ce534a5b46cb70714",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 33",
+      "source_text": "P1 | Configurable Committee meeting cadence | ❌ | Add",
+      "source_text_sha256": "81279efaefb5025f5331548d3c3074981c02c329712687c35214de00db851927",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 34",
+      "source_text": "P1 | Regulatory change-set bundling | ❌ | Add",
+      "source_text_sha256": "b09904fa06d219be72a9d19b11cfd236247acffafa1f37faa1c40f5622de4d28",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 35",
+      "source_text": "P1 | Engineer/office expiry monitoring | Generic date capability | Add domain logic",
+      "source_text_sha256": "63d431085ad1194ca1f60294765b78e5c7e4b9f685cca8e550cfaa5e629b462f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 36",
+      "source_text": "P1 | Regulatory incident/referral/enforcement register | Generic Authority Case | Configure/specialize",
+      "source_text_sha256": "ba45226cdeb73ea6c5599a1d57a3abaa0c802d1e678aef86ca64960ce66e7b87",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 37",
+      "source_text": "P1 | Admin paperwork vs Engineering technical-response responsibility | Generic capabilities | Implement assignments",
+      "source_text_sha256": "a929234d13286cd2931c31320a07dc7980e59f7321ef081e95cf3d77036a4d8e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 38",
+      "source_text": "P1 | Certificate authenticity/verification reference | Partial evidence foundation | Add",
+      "source_text_sha256": "00cb279e8e67e05861595f309c32d052025f16019e304bac133b80e30b78ce18",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 39",
+      "source_text": "P1 | PII-controlled QID/employment evidence | Generic documents | Add policy/access controls",
+      "source_text_sha256": "c2ef3ee0e826032db3e5dda6712521a9dbd2d1ddbacf4776d836704788e6d9b0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 40",
+      "source_text": "P1 | Dedicated Office Regulatory Compliance dashboard | ❌ | Build",
+      "source_text_sha256": "85d074eaae0c891696edbda8c6dd1cbc7f52fd13273394cec94b331d23c376a6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 41",
+      "source_text": "P1 | Statuses beyond red/green Excel highlighting | ❌ | Build explicit states",
+      "source_text_sha256": "d5dd6033b6ca09832763d2024f36355b516a11b226a003d46af09362f7565eb7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 42",
+      "source_text": "P1 | Governed reusable Committee forms | Forms foundation exists in model set | Populate after next Owner training",
+      "source_text_sha256": "5ee2294348ad69d4dfd75aca4dee77bed393c19efda791e21430bb69b0a661b2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 43",
+      "source_text": "P1 | Repeat-data prefill with human verification | Existing broader product architecture can support | Apply to Committee domain",
+      "source_text_sha256": "f0ec9d37176e08cbd55940afdfb1b52311bb89240f49449a2b3368f470f9a847",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 44",
+      "source_text": "P2 | HR event → proposed regulatory action | ❌ | Later automation",
+      "source_text_sha256": "f0bf80b0d8591cdc1926275295791c25755905acb98a7355a396b00ce7f84134",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 45",
+      "source_text": "P2 | Regulatory risk forecasting | ❌ | Later",
+      "source_text_sha256": "abc35fbad077d28d6b63fea43e08f1145100d55af4936361aea146d5fa7feb94",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 46",
+      "source_text": "P2 | Portal/system integrations | ❌ / not established | Later, after exact process",
+      "source_text_sha256": "5cfee3eb1e026bf5c9e4c24bf0dfb833b4607e8f0fa87d7e1f5017686c8030f9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_MATRIX_ROW",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "source": "Source17",
+      "source_locator": "table 7, row 47",
+      "source_text": "P2 | Staffing-buffer simulations | ❌ | Useful later",
+      "source_text_sha256": "2c501bc28e37309b214a673b35da322113dc5f690794e115ea203ab535a29dc1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 1,
+      "source": "Source17",
+      "source_locator": "paragraph 531",
+      "source_text": "1. Employment does not establish regulatory eligibility.",
+      "source_text_sha256": "9200194cbcd4df3d3d4a516688280937361187dda0f2731d5b5c0ab33b1899ec",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 2,
+      "source": "Source17",
+      "source_locator": "paragraph 532",
+      "source_text": "2. Individual Engineer Registration does not establish office-classification membership.",
+      "source_text_sha256": "a7bc6a41edb585892698a3630bd08ca230441fca69a28703d7c8737212485bbc",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 3,
+      "source": "Source17",
+      "source_locator": "paragraph 533",
+      "source_text": "3. Office-classification membership does not establish Responsible Engineer authority.",
+      "source_text_sha256": "3d2f3ed2dadcc24c53875b3106d7b682a727652766cf50f71b448714d8808583",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 4,
+      "source": "Source17",
+      "source_locator": "paragraph 534",
+      "source_text": "4. Only authority-recognized eligible engineers count toward discipline staffing.",
+      "source_text_sha256": "b0382822719ef3a51d83f008b678100c702a14bfa8630dfda9ab39c2a8db650f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 5,
+      "source": "Source17",
+      "source_locator": "paragraph 535",
+      "source_text": "5. Surplus recognized engineers are a deliberate compliance buffer.",
+      "source_text_sha256": "e2d44369c54c6f0fa4dcf607ffb34d318ddddb31becc81a6d9215c08ce8b0d89",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 6,
+      "source": "Source17",
+      "source_locator": "paragraph 536",
+      "source_text": "6. A staffing shortage can escalate into loss of a discipline.",
+      "source_text_sha256": "8ebd417986885a62561edfc2707427fd5833c01eae8bb6d9b918400cf0fbb52c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 7,
+      "source": "Source17",
+      "source_locator": "paragraph 537",
+      "source_text": "7. Replacing staff after discipline removal does not necessarily restore the discipline immediately.",
+      "source_text_sha256": "341d9937180263fdd9d4de0d66010dd41278854acce030e2d962603509805ac5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 8,
+      "source": "Source17",
+      "source_locator": "paragraph 538",
+      "source_text": "8. Office category + permitted discipline + scope determine what AMEC is entitled to perform.",
+      "source_text_sha256": "4aa4fb9fd61d596f9df0f999ee210a858c8dd8c8cbab2f7d325f2065e7511471",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 9,
+      "source": "Source17",
+      "source_locator": "paragraph 539",
+      "source_text": "9. Every governed field on the official office registration has regulatory significance.",
+      "source_text_sha256": "2398c36a9d3a58396702d81ad15f633b1b74a2d5a411ec7279d75338b6c8f578",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 10,
+      "source": "Source17",
+      "source_locator": "paragraph 540",
+      "source_text": "10. Office-registration changes and ordinary engineer-data updates are different regulatory workflows.",
+      "source_text_sha256": "12e8a787a4aaac7a37dfa15171aed0dab9329a102d1e7ec2cfcb4c37fc69a4b0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 11,
+      "source": "Source17",
+      "source_locator": "paragraph 541",
+      "source_text": "11. Responsible Engineer is a regulator-approved professional authority, not merely an organizational job title.",
+      "source_text_sha256": "6bbc338530187ae9d979e3afc441e5218938395b85a4b1cf02b4bf3ac62235c7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 12,
+      "source": "Source17",
+      "source_locator": "paragraph 542",
+      "source_text": "12. Multiple Responsible Engineers are allowed/used as operational resilience.",
+      "source_text_sha256": "d587ca110df823b886e9d93078849595775f09194b64a2358299827f1d74e620",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 13,
+      "source": "Source17",
+      "source_locator": "paragraph 543",
+      "source_text": "13. Removed Responsible Engineers must lose regulatory signature authority.",
+      "source_text_sha256": "6c03c46d6b04f928643c0bc31b83db9be90c8bc0636b936ff2f30a3adfb03398",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 14,
+      "source": "Source17",
+      "source_locator": "paragraph 544",
+      "source_text": "14. Official regulatory documents are superseded/versioned—not overwritten.",
+      "source_text_sha256": "f4513f9813baf8b621277d6344aa0703b32a7fa0a86e6e8a039a45c43e2ba929",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 15,
+      "source": "Source17",
+      "source_locator": "paragraph 545",
+      "source_text": "15. Government acceptance is separate from AMEC preparation/submission.",
+      "source_text_sha256": "dcc318d91bd2f0f65cec2e0257fe3550fef80aa93558b37859657649506d5fca",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 16,
+      "source": "Source17",
+      "source_locator": "paragraph 546",
+      "source_text": "16. Human signature, stamp, final submission and authority acceptance remain human/external-authority actions.",
+      "source_text_sha256": "a35d037c8b8e924346ddbdd02f0d7fcd82bfeb20eca90145d0b97c658b63d774",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 17,
+      "source": "Source17",
+      "source_locator": "paragraph 552",
+      "source_text": "discipline restoration/re-entry restrictions after formal removal;",
+      "source_text_sha256": "de4e6e1785c7af060f64a76e7f330d47570b1cbf52151627a911319f5cd368ca",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 18,
+      "source": "Source17",
+      "source_locator": "paragraph 553",
+      "source_text": "the full governed office-registration field model;",
+      "source_text_sha256": "7d214b9cd19614780f71192ec5ca23d4371ed556cd071a284d58e4024c048f0a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 19,
+      "source": "Source17",
+      "source_locator": "paragraph 554",
+      "source_text": "field-level change detection;",
+      "source_text_sha256": "a6d28627f796a6614413de64018945e30045e285d3b23c1417deb07cd41b574a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 20,
+      "source": "Source17",
+      "source_locator": "paragraph 555",
+      "source_text": "separate office-review and engineer-update regulator lanes;",
+      "source_text_sha256": "500628fb240a6c9bf13a11b91c05324ad7a33af955f880bb2fb557a39d808a8d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 21,
+      "source": "Source17",
+      "source_locator": "paragraph 556",
+      "source_text": "a richer Engineer Registration Certificate model;",
+      "source_text_sha256": "6a71d0d8dc7a90827a4a3c9d2acffbedeae1d85ab0b5cbe146670438bd4de2ed",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 22,
+      "source": "Source17",
+      "source_locator": "paragraph 557",
+      "source_text": "Responsible Engineer signature-authority termination;",
+      "source_text_sha256": "f54c2cd39bd321b62f59b7163eb0d58df827066eaf6d718905333b1243ab79c0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 23,
+      "source": "Source17",
+      "source_locator": "paragraph 558",
+      "source_text": "planned regulatory change-set bundling;",
+      "source_text_sha256": "540d7b50b6d980369ebe5a104ae01a145316eec823f45ddface09b33389a4f2d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 24,
+      "source": "Source17",
+      "source_locator": "paragraph 559",
+      "source_text": "source-backed rather than hard-coded regulatory rules.",
+      "source_text_sha256": "fab90f5eebae8dbe1836004c95458b11b820441854dd72e8fab0eba7ac775efa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 25,
+      "source": "Source17",
+      "source_locator": "paragraph 561",
+      "source_text": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_GENERAL_MODEL_V1 — REQUIREMENTS_BASELINE_COMPLETE_FOR_THIS_VIDEO",
+      "source_text_sha256": "4922c18be67f55f194829fe42c841a8a5b2a177c9ab3c28b34d7df7495258397",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "FINAL_RULE_OR_BASELINE",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 26,
+      "source": "Source17",
+      "source_locator": "paragraph 563",
+      "source_text": "DETAILED_COMMITTEE_FORMS_AND_TRANSACTION_PACKAGES = DEFERRED_TO_NEXT_OWNER_VIDEO",
+      "source_text_sha256": "ab301d05c02a74e856786acde4bac40289824180d6422128640be7e4a89053cc",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_EXCEPTION",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 1,
+      "source": "Source17",
+      "source_locator": "paragraph 209",
+      "source_text": "1. The biggest missed requirement: discipline loss has a recovery lock",
+      "source_text_sha256": "3a87ade1610cf5e317d2e3aebef7242a5cd390f9e42999e7c2c870ff6107e160",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_EXCEPTION",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 2,
+      "source": "Source17",
+      "source_locator": "paragraph 210",
+      "source_text": "This is the most important correction.",
+      "source_text_sha256": "df911a853e481dc24e0066e429f68f53b1d00848481ec79b93fbef69e751fde3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_EXCEPTION",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 3,
+      "source": "Source17",
+      "source_locator": "paragraph 213",
+      "source_text": "He says that if the discipline is actually removed from the official office registration, AMEC may only be able to add that discipline back when the office registration is renewed. He gives the example that losing it shortly before renewal is manageable, while losing it early in a two-year cycle could leave AMEC waiting a very long time.",
+      "source_text_sha256": "866af2d9c17a867e4ba9c227dd7f6f8e892ab74122ba5bf2e9b9db8595c7cc8c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_EXCEPTION",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 4,
+      "source": "Source17",
+      "source_locator": "paragraph 214",
+      "source_text": "That means our previous state model was incomplete.",
+      "source_text_sha256": "5a18e95520191485e56dadfd823e790f2d232adb2c0d88edeb2df50ce2880d90",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_EXCEPTION",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 5,
+      "source": "Source17",
+      "source_locator": "paragraph 215",
+      "source_text": "It cannot be just:",
+      "source_text_sha256": "6c19626eb2a9508487fc7d1fd3c9ece15ae5fb1202d3c0d4d0ba3c11daca9369",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_EXCEPTION",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 6,
+      "source": "Source17",
+      "source_locator": "paragraph 216",
+      "source_text": "SHORTAGE → REPLACEMENT FOUND → COMPLIANT",
+      "source_text_sha256": "38685952b065cf89c1bb9d520fc88d5cf3275c502dda414b6a948cc3efda0c72",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_EXCEPTION",
+      "normative_source_sha256": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+      "ordinal": 7,
+      "source": "Source17",
+      "source_locator": "paragraph 217",
+      "source_text": "It needs something closer to:",
+      "source_text_sha256": "90814e6ad112fb4e745fccafbdf80622ba4952c184bf65eeaf861bbb5e3cebf3",
+      "traceability_status": "SOURCE_BACKED"
+    }
+  ],
+  "requirements_traceability": "PASS",
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
+  "unsupported_guesses_implemented": 0
+}
