@@ -438,7 +438,7 @@ def accept_contract(contract_id: str, payload: AcceptContractPayload, request: R
     accepted_at = now()
     before = {"revision_status": revision.status, "contract_stage": contract.stage, "authority_state": contract.authority_state}
     revision.status = "FINALIZED"
-    revision.admin_input_snapshot = {**(revision.admin_input_snapshot or {}), "acceptance": {"accepted_by": actor_name(role), "accepted_at": accepted_at.isoformat(), "revision_id": revision.id, "idempotency_key": payload.idempotency_key}}
+    revision.admin_input_snapshot = {**(revision.admin_input_snapshot or {}), "maker_checker": {"preparer": (revision.admin_input_snapshot or {}).get("prepared_by") or "contract-preparer", "checker": actor_name(role), "proposal_reconciled": True, "checked_at": accepted_at.isoformat()}, "acceptance": {"accepted_by": actor_name(role), "accepted_at": accepted_at.isoformat(), "revision_id": revision.id, "idempotency_key": payload.idempotency_key}}
     contract.authority_state = "ACCEPTED_BY_OWNER"
     contract.stage = "READY"
     contract.status = "READY"
