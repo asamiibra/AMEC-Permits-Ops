@@ -1,0 +1,58 @@
+{
+  "artifact": "19-integration-reconciliation",
+  "integration_base": {
+    "name": "release/production-stabilization-v3",
+    "sha": "024b430402813f806528a97778b1eabcb81e6452"
+  },
+  "pr16": {
+    "head": "c6283f772e37ffdb2d42d2d9f4494c6ff5b66755",
+    "unique_required_changes": [
+      "Source18 models, migration, service/API, frontend, focused tests",
+      "PROD/Azure auth, dedicated migration authority, protected detailed health",
+      "Source18 closure evidence package"
+    ]
+  },
+  "pr17": {
+    "head": "68f751c881a0969a58008ea2576d8b93664c6d4f",
+    "unique_required_changes": [
+      "current regulatory and current contract controls",
+      "Source15–18 reconciliation artifacts and G5 behavior",
+      "canonical shared-domain and capability-policy seams"
+    ]
+  },
+  "semantic_overlaps": [
+    "backend/app/config/settings.py",
+    "backend/app/main.py",
+    "backend/app/migrate.py",
+    "backend/app/bootstrap_production.py",
+    "backend/app/services/backend_realignment.py",
+    "backend/app/services/source18.py"
+  ],
+  "conflicts": [
+    {
+      "area": "production bootstrap real-data posture",
+      "resolution": "Keep bridge intake and REAL_DATA_ALLOWED=false until explicit production canary authority; preserve dedicated migration URL and current contract checks."
+    },
+    {
+      "area": "authorization",
+      "resolution": "Register Source18 capabilities in backend_realignment canonical policy and delegate Source18 checks to that policy."
+    },
+    {
+      "area": "migration authority",
+      "resolution": "Require DATABASE_MIGRATION_URL in AZURE-PREPROD and PROD with no runtime fallback."
+    }
+  ],
+  "duplicate_controls": {
+    "SOURCE18_DUPLICATE_POLICY_ENGINES": 0,
+    "SOURCE18_DUPLICATE_AUTHORIZATION_ENGINES": 0,
+    "SOURCE18_DUPLICATE_CASE_MODELS": 0,
+    "SOURCE18_DUPLICATE_FORM_SYSTEMS": 0,
+    "SOURCE18_CONFLICTING_SOURCE18_STATE_MACHINES": 0
+  },
+  "superseded_changes": [
+    "PR16 evidence labels that treated Azure/browser/UAT absence as PASS",
+    "PR16 private Source18 capability map as an independent authorization authority"
+  ],
+  "integrated_branch": "source18/integrated-owner-closure-v3",
+  "result": "PASS"
+}
