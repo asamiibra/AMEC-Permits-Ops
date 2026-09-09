@@ -1,0 +1,52 @@
+{
+  "g5_status": "BLOCKED",
+  "gaps": [
+    {
+      "control": "OWNER_APPROVED_CLIENT_DELAY_COMMERCIAL_HANDOVER_THRESHOLD",
+      "id": "GAP-S6-CLIENT-DELAY-THRESHOLD",
+      "severity": "P0",
+      "source_qualified_ids": [
+        "Source6:O06",
+        "Source10:O07"
+      ],
+      "status": "EXTERNAL_INPUT_REQUIRED"
+    },
+    {
+      "control": "SOURCE8_CURRENT_AUTHORITY_POLICY_CURRENTNESS",
+      "id": "GAP-S8-AUTHORITY-CURRENTNESS",
+      "severity": "P0",
+      "source_qualified_ids": [
+        "Source8:EC-001",
+        "Source8:EC-125"
+      ],
+      "status": "EXTERNAL_INPUT_REQUIRED"
+    },
+    {
+      "control": "SOURCE8_CURRENT_COMMITTEE_FORMS_CURRENTNESS",
+      "id": "GAP-S8-COMMITTEE-FORMS",
+      "severity": "P0",
+      "source_qualified_ids": [
+        "Source8:EC-001",
+        "Source8:EC-125"
+      ],
+      "status": "EXTERNAL_INPUT_REQUIRED"
+    }
+  ],
+  "nonblocking_context": [
+    "Source4:DC2",
+    "Source7:R86",
+    "Source9:C10",
+    "Source9:E09",
+    "Source9:E10",
+    "Source9:E11",
+    "Source9:F09",
+    "Source9:F10",
+    "Source9:G05",
+    "Source9:G06",
+    "Source10:X04",
+    "Source10:X05",
+    "Source10:X06",
+    "Source10:X07"
+  ],
+  "register": "BUSINESS_V1_SOURCE1_SOURCE11_GAPS"
+}

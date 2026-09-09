@@ -1,0 +1,202 @@
+{
+  "controls": [
+    {
+      "control": "SOURCE10_TRAINING_RESPONSIBILITY_MODEL",
+      "evidence": "explicit assignment/read-only control contract; named staff are not global personas",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_INTAKE_SCOPE_MODEL",
+      "evidence": "canonical opportunity/project and scope separation",
+      "paths": [
+        "backend/app/models/expansion_entities.py",
+        "backend/app/services/business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_PROPOSAL_LPO_RECONCILIATION",
+      "evidence": "exact accepted commercial identity plus structured PO/LPO mismatch hard stop",
+      "paths": [
+        "backend/app/services/contract_workspace.py",
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_CONTRACT_MAKER_CHECKER",
+      "evidence": "explicit distinct preparer/checker record",
+      "paths": [
+        "backend/app/api/contract_workspace_routers.py",
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_OPERATIONS_CONTRACT_CONTROL",
+      "evidence": "single canonical read-only projection requires schedule, delay, extension, aged-document, invoice-due, and earned-not-invoiced states",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_ADVANCE_ADMIN_READINESS",
+      "evidence": "explicitly enabled activation gate fails closed without objective bank evidence",
+      "paths": [
+        "backend/app/services/contract_workspace.py",
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_ARCHITECTURE_FIRST_COORDINATION",
+      "evidence": "explicitly enabled baseline gate requires Architecture, Structure, MEP, Safety precoordination and unlock",
+      "paths": [
+        "backend/app/api/project_engineering_routers.py",
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_AUTHORITY_PERMIT_HANDOVER",
+      "evidence": "typed authority case, finding, outcome, and handover evidence models",
+      "paths": [
+        "backend/app/models/phase4_entities.py",
+        "backend/app/api/preparation_submission_routers.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_CONTEXTUAL_DEFERRED_BOUNDARY",
+      "evidence": "Source10 X04-X07 preserved as contextual/deferred and nonblocking",
+      "paths": [
+        "artifacts/business-v1-closure-source11/requirements-ledger.json"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE10_SOURCE9_APPENDIX_DEDUPLICATION",
+      "evidence": "only exact Source10 tables 3-11 parsed; later appendix tables excluded",
+      "paths": [
+        "scripts/contract_reconciliation/build_source11_reconciliation.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "OWNER_SOURCE_11_PROJECT_HISTORY_REQUIREMENT_COUNT",
+      "paths": [
+        "artifacts/business-v1-closure-source11/requirements-ledger.json"
+      ],
+      "status": "PASS",
+      "value": 61
+    },
+    {
+      "control": "OWNER_SOURCE_11_PROJECT_HISTORY_REQUIREMENT_ORPHANS",
+      "paths": [
+        "artifacts/business-v1-closure-source11/implementation-map.json"
+      ],
+      "status": "PASS",
+      "value": 0
+    },
+    {
+      "control": "SOURCE11_OWNER_PERSON_COMPANY_SEPARATION",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_OPERATIONAL_CONTACT_ROLE_ORGANIZATION",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_CONTRACT_PERIOD_AUTHORITY_TIME_SEPARATION",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_CASE_HISTORY_EVENT_EVIDENCE",
+      "paths": [
+        "backend/app/models/regulatory_context_entities.py",
+        "backend/app/services/business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_TECHNICAL_REPORT_EVIDENCE_LINKAGE",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_AUTHORIZATION_EVIDENCE_DISCOVERY",
+      "paths": [
+        "backend/app/models/regulatory_context_entities.py",
+        "backend/app/services/business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_MISSING_DOCUMENT_CONTACT_ROUTING",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_LOCATION_ORIENTATION_CONTEXT",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_ONBOARDING_COHORT_CONFIGURATION",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "SOURCE11_NON_ENGINEER_ENGINEERING_ESCALATION",
+      "paths": [
+        "backend/app/services/business_v1_controls.py",
+        "backend/tests/test_business_v1_controls.py"
+      ],
+      "status": "PASS"
+    },
+    {
+      "control": "G5_EXTERNAL_INPUTS_REMAIN",
+      "evidence": "three code-independent Owner/current-authority inputs remain",
+      "paths": [
+        "artifacts/business-v1-closure-source11/external-input-register.json"
+      ],
+      "status": "BLOCKED"
+    }
+  ],
+  "decision_independent_code_gaps_remaining": 0,
+  "map": "BUSINESS_V1_CURRENT_CONTRACT_SOURCE10_SOURCE11_IMPLEMENTATION"
+}
