@@ -1,6 +1,6 @@
 {
   "artifact": "05-atomic-traceability-ledger",
-  "generated_at_utc": "2026-09-09T23:58:20.789592Z",
+  "generated_at_utc": "2026-09-09T23:59:41.033419Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "b53cbbdfd31326b470df255b75923abe8f5e6809",
+  "evidence_commit_sha": "058c5082eac93e391ac7936fbec436a313361aa0",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -4347,5 +4347,5 @@
   "unverified_numeric_hardcodes": 0,
   "unverified_legal_hardcodes": 0,
   "unverified_form_hardcodes": 0,
-  "artifact_sha256": "ab07897d1084371967a8e80d6bd47553f8319566da93c19e4710f7519f5731cb"
+  "artifact_sha256": "e56b89159af9d04493f1c8583eb218c6957a9f91161044edb3a7c2843ea1cec9"
 }

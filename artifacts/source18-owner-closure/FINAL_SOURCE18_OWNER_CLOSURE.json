@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-09T23:58:20.789592Z",
+  "generated_at_utc": "2026-09-09T23:59:41.033419Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "b53cbbdfd31326b470df255b75923abe8f5e6809",
+  "evidence_commit_sha": "058c5082eac93e391ac7936fbec436a313361aa0",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -4020,90 +4020,90 @@
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "f376ac23be512e0c4f7841bf4d97479004fb55f1966982bd8614a3309836148b"
+      "sha256": "2feb54c68eb5929421d19aa36ab16c738de681b9207c0de8fc4cd2bcb82fac3e"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "da92d1b86a9cac58175a121437b5a4385bc60546f830f9ce1383f41a8ae8c00b"
+      "sha256": "a765b85dabc4dd275b0101f4fc34ef5df861e2c3ab16f3c8c17cdab0e1bef142"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "518ac8489949ab2047fa268caaa6ecdb9c1266531125fd77dfb8f1505a4d7fa9"
+      "sha256": "f1a5458db32f6c0c8f74590089e6814255e2732f77e133864364a13125e901b6"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "aa2631d64ec08a701d12c87daf156b2a719703da43794a83edb6710e99273d7d"
+      "sha256": "2857e6734367269120d86cfa4dd8b4c323d701a607a04136b0d4ab225f77d827"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "f830691a9e899ee82ca2cc2807376629e33e48ae20942aad9d38a0fdda81ee67"
+      "sha256": "dd1252a447022a2108452b9cfa0eb2120180ebdd56cb059460aac5e97f26aa7b"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "8493656718068dca82356902d7f44e9d52c5ece4bda0b9bf7dddd0f398d813c0"
+      "sha256": "736e1c270bd1993a0bc7a09efde91b1edacd9d4b68f18e8f033bbae7a5ad568b"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "16c6469309b2a0456afbf607e67f608c910db4b9e6dd7631fabbf96d189f290b"
+      "sha256": "6f41de237a26d9db9219cf9b1d44fd46cb4a11da066985ce8ea6f8ff1abacba5"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "2cbca2a8acc0880c3394d20ec7eeaefc00d67f4e806a62668d117ff2c4f623dc"
+      "sha256": "1790779265d4325ef2bc630188a789ab23e0548c8b2e33d176f5f2c1dbb14a75"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "c64490ade73206f27f75be079ec3fb1eaec223d817c63f0311384604ae480797"
+      "sha256": "18a9d0d87b66f7ee6fd954721eaa19d2878843feaef1b7360103233228acf173"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "7ce5bb719ee26d46f4587e7df345d5a1b1ef73e1a4c606f749e71320c3aad1cd"
+      "sha256": "da757c7acc50503000db19b6729f2fba71d09f90273e34547cd7a27ba585c190"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "f931e94e8de4c428fce449ba75ae08acafb8ce8392a02151d52a4c4d3b2a1595"
+      "sha256": "ca53d8e6f4a02a2af0edbcd9dc8ee268abbbeaa6ccff73a1462febb9b319f3e8"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "79c4e7aa8e05a1b5183aeb66f47b733a55ac530cea0dbf688c94337c942344f8"
+      "sha256": "86fcd006f56cc138f9fa51a08638d5628123d674cfc9f320a9707ce311907ea0"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "ac718e7edf40d9e02eebce133a4214b0e1ae9fc9bcdce76dbc623941524bf39d"
+      "sha256": "5cd8887995d3485de2e35216a117c8ff106125e15b8632134eb2f94269e91fc5"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "cfa1a0feb33f85cc330b4efbe2579012a33ad526060602c2373e86bcfeff71b8"
+      "sha256": "40f365dac07cfcacbb82dfff3671d76f1b101bcf916c4aa3abb2afc97ac52f89"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "caa82fd79d9341c7b953bcf8a13632082a530f0cc161a1606886c63d17a6dc4f"
+      "sha256": "aad3be1d36beda99bb9ed0bd525667e376e6a892ed0dd51f8088ef20b11917e5"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "5684cb52cd62fb447cb6cb7d397156841ac32dd5cfc078ece3b3ac4d29538058"
+      "sha256": "f01902039359da53e3914d85a56f133e504f722cc7657e3b9972c91783f98401"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "f4ac5313a3bf6206df099d1800e7b6ae323ffcca2893c3f00b7cc0510cb829c9"
+      "sha256": "2a4b659bcf0d917547389bc37f900ae153f8f268b34681bf1689462387a2b485"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "f9f7de3cf773cde835c8cdf4fd353f199bf39a34856ee3de06b60ffc3bf927e4"
+      "sha256": "da6a19fe9b0bd6243e2a94e2a4b6301fa562da176d54ea8639a3e8eca7fdb1fa"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "4d918a84e8004f35ff8eb8c4434322af7b1b8ffaf4b419d38f9d3b57501360f7"
+      "sha256": "e35607e12f0c2034f4187bfc3d2d50240eb2ae1fe22148f9851958ceb18a74a7"
     },
     {
       "artifact": "19-integration-reconciliation.json",
-      "sha256": "a5a1fb115853a446c131b65a2954749dad36ef6e54691de4b4e3967a941216a4"
+      "sha256": "7404e613faef95af1dff039048780e69e06968e7f1da28a98a1f782d3c701b8d"
     }
   ],
-  "artifact_sha256": "6b34471d0ae6443ba6fe6e7fbb8174346f03ad1ffac65163db6ebfebc0152e4e",
+  "artifact_sha256": "e7930a4072813a9ce314d55aab943f9a0619f6836640a2812b448b35abd8bad3",
   "release_identity": {
     "EXECUTABLE_RELEASE_SHA": "c01e893e06caae9a984b80aa53bffbf78b981551",
     "EXECUTABLE_TREE_SHA": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-    "EVIDENCE_COMMIT_SHA": "b53cbbdfd31326b470df255b75923abe8f5e6809",
+    "EVIDENCE_COMMIT_SHA": "058c5082eac93e391ac7936fbec436a313361aa0",
     "MERGE_SHA": null,
     "IMAGE_DIGEST": null,
     "AZURE_REVISION": null,

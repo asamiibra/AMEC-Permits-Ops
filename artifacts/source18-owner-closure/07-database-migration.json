@@ -1,6 +1,6 @@
 {
   "artifact": "07-database-migration",
-  "generated_at_utc": "2026-09-09T23:58:20.789592Z",
+  "generated_at_utc": "2026-09-09T23:59:41.033419Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "b53cbbdfd31326b470df255b75923abe8f5e6809",
+  "evidence_commit_sha": "058c5082eac93e391ac7936fbec436a313361aa0",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -171,5 +171,5 @@
   "clean_sqlite_alembic_upgrade": "NOT_APPLICABLE_REPOSITORY_BASELINE_USES_SQLITE_UNSUPPORTED_ALTER_FOREIGN_KEY",
   "azure_sql_upgrade": "NOT_RUN",
   "destructive_history_rewrite": false,
-  "artifact_sha256": "9c5365717f41e5d6ca0cb30a18af3449179e9145cddf44686555352085cb3dfa"
+  "artifact_sha256": "ed7b698d20cdc63b9db3b0b108f0e6021b0983016c336ecc4d7f6dca3e7f16ff"
 }
