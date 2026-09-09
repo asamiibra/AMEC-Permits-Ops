@@ -34,7 +34,7 @@ from ..models import (
 )
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
 from ..services.owner_decisions import runtime_decision_value
-from ..services.source14_contract_controls import compose_amec_invoice_reference
+from ..services.commercial_contract_controls import compose_amec_invoice_reference
 from ..services.week45 import stable_hash
 
 
