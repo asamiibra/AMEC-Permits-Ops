@@ -1,0 +1,38 @@
+{
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "gaps": [
+    {
+      "description": "Source8 current authority policy evidence does not identify a current policy/version/effective proof.",
+      "g5_blocking": true,
+      "id": "SOURCE15-G5-001",
+      "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED"
+    },
+    {
+      "description": "Source8 current Committee form identity/version/effective proof is not established.",
+      "g5_blocking": true,
+      "id": "SOURCE15-G5-002",
+      "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED"
+    },
+    {
+      "description": "Source13, Source14, and Source15 executable work-package evidence is not yet closed on this branch.",
+      "g5_blocking": true,
+      "id": "SOURCE15-G5-003",
+      "status": "MISSING"
+    },
+    {
+      "description": "Production INV-Form.docx version/hash and approved FinancialAccount version remain unpinned.",
+      "g5_blocking": true,
+      "id": "SOURCE15-G5-004",
+      "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED"
+    }
+  ],
+  "latest_governing_contract_source": "SOURCE15",
+  "merged_prs_recorded_externally": true,
+  "pr_reviewed_heads_recorded_externally": true,
+  "register": "SOURCE15_CURRENT_CONTRACT_G5_GAPS",
+  "source15_requirement_orphans": 0,
+  "source15_untraceable_atomic_requirements": 0,
+  "subject_source_sha": "024b430402813f806528a97778b1eabcb81e6452",
+  "subject_source_tree": "1648ccb602baec4eb9753e608a50ace138513858"
+}
