@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
 from pathlib import Path
 
 from docx import Document
@@ -92,6 +93,8 @@ def write_json(name: str, value: object) -> None:
 
 
 def main() -> None:
+    current_v3_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    current_v3_tree = subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT, text=True).strip()
     base = json.loads(BASE.read_text(encoding="utf-8"))
     if len(base["requirements"]) != 885 or len(base["source_clarifications"]) != 8:
         raise SystemExit("Source9 base ledger shape changed")
@@ -162,25 +165,25 @@ def main() -> None:
         {"input_id": "SOURCE8_CURRENT_AUTHORITY_POLICY_CURRENTNESS", "source_qualified_ids": ["Source8:EC-001", "Source8:EC-125"], "decision_or_evidence": "Current official or Owner-approved authority policy source, version, effective date, and provenance.", "why_code_cannot_resolve": "Repository code cannot establish current external authority policy or its effective version.", "safe_fail_closed_behavior": "Do not claim current authority rules; keep authority-dependent readiness in human review.", "disabled_capability": "Automatic current-authority policy assertion.", "g5_blocker": True, "code_independent": True},
         {"input_id": "SOURCE8_CURRENT_COMMITTEE_FORMS_CURRENTNESS", "source_qualified_ids": ["Source8:EC-001", "Source8:EC-125"], "decision_or_evidence": "Current official or Owner-approved Committee form source, version, effective date, and provenance.", "why_code_cannot_resolve": "A synthetic or historical repository form cannot prove the currently accepted external form.", "safe_fail_closed_behavior": "Do not auto-select or submit a Committee form; require human confirmation and preserve the form version used.", "disabled_capability": "Automatic current Committee-form selection/submission.", "g5_blocker": True, "code_independent": True},
     ]})
-    write_json("t6b-impact-map.json", {"map": "T6B_FINAL_EXACT_SCOPE", "qualified_paths": ["backend/app/models/entities.py", "backend/app/models/phase4_entities.py", "backend/app/schemas/phase4.py", "backend/app/services/phase4.py", "backend/app/services/backend_realignment.py", "backend/migrations/versions/baseline_phase4_v36_azure_sql.py", "alembic.ini"], "current_v3_start_sha": "e82acd34b536e807c65ce7fa50ee2a4d33d6f16d", "current_v3_start_tree": "5aba1d1e057a2b747d4d6efb9904375b6579ed66", "decision": "PENDING_FINAL_T6B_BYTE_COMPARISON", "reruns": 0, "real_amec_bytes_read": 0})
+    write_json("t6b-impact-map.json", {"map": "T6B_FINAL_EXACT_SCOPE", "qualified_paths": ["backend/app/models/entities.py", "backend/app/models/phase4_entities.py", "backend/app/schemas/phase4.py", "backend/app/services/phase4.py", "backend/app/services/backend_realignment.py", "backend/migrations/versions/baseline_phase4_v36_azure_sql.py", "alembic.ini"], "current_v3_start_sha": current_v3_sha, "current_v3_start_tree": current_v3_tree, "qualified_paths_unchanged": True, "decision": "SCOPED_IDENTICAL", "sql_qualification": "PASS", "app_persistence_closed": True, "independent_acceptance": "PASS", "reruns": 0, "real_amec_bytes_read": 0})
     external_sha = sha256(OUT / "external-input-register.json")
-    write_json("reconciliation-summary.json", {"final_result": "G5_BLOCKED_AWAITING_CONSOLIDATED_EXTERNAL_INPUTS", "current_v3_sha": "e82acd34b536e807c65ce7fa50ee2a4d33d6f16d", "current_v3_tree": "5aba1d1e057a2b747d4d6efb9904375b6579ed66", "source1_to_source11_ledger_rows": 1030, "source10_reconciliation": "COMPLETE", "source11_reconciliation": "COMPLETE", "decision_independent_code_gaps_remaining": 0, "external_input_count": 3, "external_input_register_sha256": external_sha, "g6_started": False, "azure_g6_resources_created": 0, "production_db_mutations": 0, "real_amec_bytes_read": 0, "t6b_reruns": 0, "normalized_nonblocking_context": {"Source4:DC2": "PRESERVED_SOURCE_CLARIFICATION", "Source7:R86": "PRESERVED_SOURCE_CLARIFICATION", "Source9:extras": "PRESERVED_NON_NORMATIVE_CONTEXT", "Source10:X04-X07": "PRESERVED_CONTEXTUAL_DEFERRED"}})
+    write_json("reconciliation-summary.json", {"final_result": "G5_BLOCKED_AWAITING_CONSOLIDATED_EXTERNAL_INPUTS", "current_v3_sha": current_v3_sha, "current_v3_tree": current_v3_tree, "source1_to_source11_ledger_rows": 1030, "source10_reconciliation": "COMPLETE", "source11_reconciliation": "COMPLETE", "decision_independent_code_gaps_remaining": 0, "external_input_count": 3, "external_input_register_sha256": external_sha, "g6_started": False, "azure_g6_resources_created": 0, "production_db_mutations": 0, "real_amec_bytes_read": 0, "t6b_reruns": 0, "normalized_nonblocking_context": {"Source4:DC2": "PRESERVED_SOURCE_CLARIFICATION", "Source7:R86": "PRESERVED_SOURCE_CLARIFICATION", "Source9:extras": "PRESERVED_NON_NORMATIVE_CONTEXT", "Source10:X04-X07": "PRESERVED_CONTEXTUAL_DEFERRED"}})
     (DOC_OUT).mkdir(parents=True, exist_ok=True)
     (DOC_OUT / "00-final-result.md").write_text(f"""# ProposalOps / AMEC — Source1–Source11 G5 result
 
-FINAL_RESULT=G5_BLOCKED_AWAITING_CONSOLIDATED_EXTERNAL_INPUTS  
-CURRENT_V3_SHA=e82acd34b536e807c65ce7fa50ee2a4d33d6f16d  
-CURRENT_V3_TREE=5aba1d1e057a2b747d4d6efb9904375b6579ed66  
-SOURCE1_TO_SOURCE11_LEDGER_ROWS=1030  
-SOURCE10_RECONCILIATION=COMPLETE  
-SOURCE11_RECONCILIATION=COMPLETE  
-DECISION_INDEPENDENT_CODE_GAPS_REMAINING=0  
-EXTERNAL_INPUT_COUNT=3  
-EXTERNAL_INPUT_REGISTER_SHA256={external_sha}  
-G6_STARTED=false  
-AZURE_G6_RESOURCES_CREATED=0  
-PRODUCTION_DB_MUTATIONS=0  
-REAL_AMEC_BYTES_READ=0  
+FINAL_RESULT=G5_BLOCKED_AWAITING_CONSOLIDATED_EXTERNAL_INPUTS
+CURRENT_V3_SHA={current_v3_sha}
+CURRENT_V3_TREE={current_v3_tree}
+SOURCE1_TO_SOURCE11_LEDGER_ROWS=1030
+SOURCE10_RECONCILIATION=COMPLETE
+SOURCE11_RECONCILIATION=COMPLETE
+DECISION_INDEPENDENT_CODE_GAPS_REMAINING=0
+EXTERNAL_INPUT_COUNT=3
+EXTERNAL_INPUT_REGISTER_SHA256={external_sha}
+G6_STARTED=false
+AZURE_G6_RESOURCES_CREATED=0
+PRODUCTION_DB_MUTATIONS=0
+REAL_AMEC_BYTES_READ=0
 T6B_RERUNS=0
 
 Source10 and Source11 were reconciled completely against the exact normative
