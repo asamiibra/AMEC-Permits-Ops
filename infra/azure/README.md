@@ -9,8 +9,11 @@ Key Vault, VNet/private endpoints, Log Analytics, Application Insights, and
 API-only HTTPS ingress. It requires exact image digests and deployment-time
 identity/secret inputs; no production resource is deployed by this repository
 change. The API is explicitly configured with
-`AZURE_DIRECT_SYNOLOGY_SMB=false`; Bridge source intake remains a separate
-owner-controlled boundary.
+`AZURE_DIRECT_SYNOLOGY_SMB=false` and `SOURCE_INTAKE_MODE=BRIDGE`. Bridge
+tokens use a dedicated Entra application identity/role and audience; no DSM
+endpoint, share, password, or authoritative-source SMB credential is carried
+by the Azure application. Bridge-observed source locators are provenance only
+and never authorize Azure to dereference DSM.
 
 The historical `main.bicep` and its App Service/PostgreSQL modules below are
 legacy preproduction evidence and are not a production deployment path.

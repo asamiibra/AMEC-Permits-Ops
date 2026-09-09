@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 from alembic import context
 from backend.app.db import create_database_engine
@@ -6,6 +7,8 @@ from backend.app.models import Base
 
 config = context.config
 settings = get_settings()
+if settings.app_env.upper() == "PROD" and os.getenv("PROPOSALOPS_GOVERNED_MIGRATION_RUNNER") != "1":
+    raise RuntimeError("PROD Alembic must run through the governed migration runner")
 config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
 if config.config_file_name:
     fileConfig(config.config_file_name)

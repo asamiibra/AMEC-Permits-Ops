@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     entra_required_scope: str = "access_as_user"
 
     synology_mode: str = "SYNTHETIC"
+    source_intake_mode: str = "LOCAL"
+    bridge_tenant_id: str = ""
+    bridge_client_id: str = ""
+    bridge_audience: str = ""
+    bridge_required_role: str = "proposalops.source-intake"
     synology_endpoint: str = ""
     synology_share: str = ""
     synology_secret_ref: str = ""
@@ -38,6 +43,7 @@ class Settings(BaseSettings):
     # Permanent document-binary provider. MOCK is test-only; production must
     # select SMB and obtain credentials from the deployment secret manager.
     storage_provider: str = "mock"
+    managed_artifact_store_required: bool = False
     smb_server: str = ""
     smb_port: int = 445
     smb_share: str = ""
@@ -153,6 +159,25 @@ class Settings(BaseSettings):
         if query.get("trustservercertificate", "").lower() != "no":
             raise ValueError(f"{setting_name} requires TrustServerCertificate=no")
 
+    @staticmethod
+    def _validate_credential_free_url(database_url: str, setting_name: str) -> None:
+        parsed = urlsplit(database_url)
+        forbidden_auth_keywords = (
+            "uid=",
+            "pwd=",
+            "authentication=",
+            "trusted_connection=",
+        )
+        if (
+            parsed.username
+            or parsed.password
+            or any(keyword in database_url.lower() for keyword in forbidden_auth_keywords)
+        ):
+            raise ValueError(
+                f"{setting_name} forbids URL credentials, UID, PWD, Authentication, "
+                "and Trusted_Connection"
+            )
+
     def _validate_ai_d4_lock(self) -> None:
         if self.ai_external_inference_enabled and not self.ai_feature_enabled:
             raise ValueError("AI_EXTERNAL_INFERENCE_ENABLED requires AI_FEATURE_ENABLED=true")
@@ -208,6 +233,55 @@ class Settings(BaseSettings):
         if self.ai_max_context_items != 8 or self.ai_max_context_utf8_bytes != 16384:
             raise ValueError("D4 context bounds are frozen")
 
+    @staticmethod
+    def _validate_exact_https_origin(origin: str, setting_name: str) -> None:
+        parsed_origin = urlsplit(origin)
+        if (
+            parsed_origin.scheme != "https"
+            or not parsed_origin.netloc
+            or parsed_origin.path not in {"", "/"}
+            or parsed_origin.query
+            or parsed_origin.fragment
+            or "*" in origin
+            or parsed_origin.hostname in {"localhost", "127.0.0.1", "::1"}
+        ):
+            raise ValueError(f"{setting_name} must be one exact HTTPS origin")
+
+    def _validate_bridge_contract(self) -> None:
+        if self.source_intake_mode.upper() != "BRIDGE":
+            raise ValueError("PROD requires SOURCE_INTAKE_MODE=BRIDGE")
+        if self.azure_direct_synology_smb:
+            raise ValueError("PROD bridge intake requires AZURE_DIRECT_SYNOLOGY_SMB=false")
+        for setting_name, value in (
+            ("BRIDGE_TENANT_ID", self.bridge_tenant_id),
+            ("BRIDGE_CLIENT_ID", self.bridge_client_id),
+        ):
+            if not value:
+                raise ValueError(f"{setting_name} is required for bridge intake")
+            self._require_guid(value, setting_name)
+        if not self.bridge_audience.strip():
+            raise ValueError("BRIDGE_AUDIENCE is required for bridge intake")
+        if self.bridge_audience.strip() != self.entra_api_client_id.strip():
+            raise ValueError("BRIDGE_AUDIENCE must equal ENTRA_API_CLIENT_ID")
+        if not self.bridge_required_role.strip():
+            raise ValueError("BRIDGE_REQUIRED_ROLE is required for bridge intake")
+
+        authoritative_source_fields = (
+            ("SYNOLOGY_ENDPOINT", self.synology_endpoint),
+            ("SYNOLOGY_SHARE", self.synology_share),
+            ("SYNOLOGY_SECRET_REF", self.synology_secret_ref),
+            ("SMB_EXTERNAL_SERVER", self.smb_external_server),
+            ("SMB_EXTERNAL_SHARE", self.smb_external_share),
+            ("SMB_EXTERNAL_USERNAME", self.smb_external_username),
+            ("SMB_EXTERNAL_PASSWORD", self.smb_external_password),
+        )
+        configured = [name for name, value in authoritative_source_fields if value]
+        if configured:
+            raise ValueError(
+                "PROD bridge intake forbids Azure-side authoritative source credentials: "
+                + ", ".join(configured)
+            )
+
     def validate_environment(self) -> None:
         environment = self.app_env.upper()
 
@@ -239,20 +313,7 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "AZURE-PREPROD requires exactly one FRONTEND_ORIGINS value"
                 )
-            origin = self.origins[0]
-            parsed_origin = urlsplit(origin)
-            if (
-                parsed_origin.scheme != "https"
-                or not parsed_origin.netloc
-                or parsed_origin.path not in {"", "/"}
-                or parsed_origin.query
-                or parsed_origin.fragment
-                or "*" in origin
-                or parsed_origin.hostname in {"localhost", "127.0.0.1", "::1"}
-            ):
-                raise ValueError(
-                    "AZURE-PREPROD FRONTEND_ORIGINS must be one exact HTTPS origin"
-                )
+            self._validate_exact_https_origin(self.origins[0], "AZURE-PREPROD FRONTEND_ORIGINS")
             if not self.synthetic_only:
                 raise ValueError(
                     "AZURE-PREPROD requires SYNTHETIC_ONLY=true"
@@ -331,22 +392,7 @@ class Settings(BaseSettings):
                 if not value:
                     raise ValueError(f"AZURE-PREPROD requires {setting_name}")
                 self._require_guid(value, setting_name)
-            forbidden_auth_keywords = (
-                "uid=",
-                "pwd=",
-                "authentication=",
-                "trusted_connection=",
-            )
-            parsed_database_url = urlsplit(self.database_url)
-            if (
-                parsed_database_url.username
-                or parsed_database_url.password
-                or any(keyword in self.database_url.lower() for keyword in forbidden_auth_keywords)
-            ):
-                raise ValueError(
-                    "AZURE-PREPROD token authentication forbids URL credentials, "
-                    "UID, PWD, Authentication, and Trusted_Connection"
-                )
+            self._validate_credential_free_url(self.database_url, "DATABASE_URL")
 
             if self.monitoring_mode.upper() not in {"DISABLED", "APPLICATION_INSIGHTS"}:
                 raise ValueError("MONITORING_MODE must be DISABLED or APPLICATION_INSIGHTS")
@@ -377,6 +423,9 @@ class Settings(BaseSettings):
                     "AZURE-PREPROD requires STORAGE_PROVIDER=mock"
                 )
 
+            if self.source_intake_mode.upper() not in {"SYNTHETIC", "LOCAL"}:
+                raise ValueError("AZURE-PREPROD requires synthetic source intake")
+
             if (
                 self.smb_server
                 or self.smb_share
@@ -399,82 +448,74 @@ class Settings(BaseSettings):
                 )
 
         if environment == "PROD":
-            if self.azure_direct_synology_smb:
-                raise ValueError("PROD requires AZURE_DIRECT_SYNOLOGY_SMB=false")
             if self.synthetic_only:
                 raise ValueError(
                     "PROD requires SYNTHETIC_ONLY=false"
                 )
 
-            if self.auth_mode.upper() == "DEV_HEADER":
-                raise ValueError(
-                    "PROD requires a configured non-development "
-                    "authentication mode"
-                )
-
-            if self.database_url.lower().startswith("sqlite"):
-                raise ValueError("PROD requires a server database, not SQLite")
-            if self.database_url.lower().startswith("mssql+"):
-                self._validate_mssql_url(self.database_url)
-
-            if self.synology_mode.upper() != "REAL":
-                raise ValueError(
-                    "PROD requires SYNOLOGY_MODE=REAL"
-                )
-
-            if (
-                not self.synology_endpoint
-                or not self.synology_share
-                or not self.synology_secret_ref
+            if self.auth_mode.upper() != "ENTRA":
+                raise ValueError("PROD requires AUTH_MODE=ENTRA")
+            if len(self.origins) != 1:
+                raise ValueError("PROD requires exactly one FRONTEND_ORIGINS value")
+            self._validate_exact_https_origin(self.origins[0], "PROD FRONTEND_ORIGINS")
+            for setting_name, value in (
+                ("ENTRA_TENANT_ID", self.entra_tenant_id),
+                ("ENTRA_API_CLIENT_ID", self.entra_api_client_id),
+                ("ENTRA_WEB_CLIENT_ID", self.entra_web_client_id),
             ):
-                raise ValueError(
-                    "PROD requires Synology endpoint, share, "
-                    "and secret reference"
-                )
+                if not value:
+                    raise ValueError(f"PROD requires {setting_name}")
+                self._require_guid(value, setting_name)
+            if self.entra_api_client_id.lower() == self.entra_web_client_id.lower():
+                raise ValueError("PROD requires separate Entra API and web client IDs")
+            if self.entra_required_scope != "access_as_user":
+                raise ValueError("PROD requires ENTRA_REQUIRED_SCOPE=access_as_user")
 
-            if self.storage_provider.lower() != "smb":
-                raise ValueError(
-                    "PROD requires STORAGE_PROVIDER=smb; "
-                    "mock fallback is forbidden"
-                )
+            self._validate_bridge_contract()
 
-            if (
-                not self.smb_server
-                or not self.smb_share
-                or not self.smb_username
+            if not self.database_url.lower().startswith("mssql+pyodbc://"):
+                raise ValueError("PROD requires mssql+pyodbc:// for Azure SQL")
+            self._validate_mssql_url(self.database_url)
+            if self.azure_sql_auth_mode.upper() != "MANAGED_IDENTITY_ACCESS_TOKEN":
+                raise ValueError("PROD requires AZURE_SQL_AUTH_MODE=MANAGED_IDENTITY_ACCESS_TOKEN")
+            for setting_name, value in (
+                ("AZURE_SQL_UAMI_CLIENT_ID", self.azure_sql_uami_client_id),
+                ("AZURE_SQL_UAMI_PRINCIPAL_ID", self.azure_sql_uami_principal_id),
             ):
-                raise ValueError(
-                    "PROD requires an SMB server, share and service identity"
-                )
+                if not value:
+                    raise ValueError(f"PROD requires {setting_name}")
+                self._require_guid(value, setting_name)
+            if not self.database_migration_url.strip():
+                raise ValueError("PROD requires DATABASE_MIGRATION_URL")
+            if not self.database_migration_url.lower().startswith("mssql+pyodbc://"):
+                raise ValueError("PROD DATABASE_MIGRATION_URL must use mssql+pyodbc://")
+            self._validate_mssql_url(self.database_migration_url, "DATABASE_MIGRATION_URL")
 
-            if self.smb_auth_mode.lower() not in {
-                "ntlm",
-                "kerberos",
-                "negotiate",
-            }:
-                raise ValueError(
-                    "PROD requires an explicit supported "
-                    "SMB authentication mode"
-                )
+            self._validate_credential_free_url(self.database_url, "DATABASE_URL")
+            self._validate_credential_free_url(self.database_migration_url, "DATABASE_MIGRATION_URL")
 
-            if (
-                self.smb_auth_mode.lower() == "negotiate"
-                and os.getenv(
-                    "SMB_ALLOW_NEGOTIATE",
-                    "false",
-                ).lower()
-                != "true"
-            ):
-                raise ValueError(
-                    "SMB negotiate fallback requires explicit "
-                    "SMB_ALLOW_NEGOTIATE=true"
-                )
+            if self.managed_artifact_store_required:
+                if self.storage_provider.lower() != "smb":
+                    raise ValueError(
+                        "PROD requires STORAGE_PROVIDER=smb when managed artifact storage is launch-required"
+                    )
 
-            if self.smb_server.replace(".", "").isdigit():
-                raise ValueError(
-                    "Kerberos-capable production SMB configuration "
-                    "must use an approved hostname"
-                )
+                if not self.smb_server or not self.smb_share or not self.smb_username:
+                    raise ValueError(
+                        "PROD requires an SMB server, share and service identity when managed artifact storage is launch-required"
+                    )
+
+                if self.smb_auth_mode.lower() not in {"ntlm", "kerberos", "negotiate"}:
+                    raise ValueError("PROD requires an explicit supported SMB authentication mode")
+
+                if (
+                    self.smb_auth_mode.lower() == "negotiate"
+                    and os.getenv("SMB_ALLOW_NEGOTIATE", "false").lower() != "true"
+                ):
+                    raise ValueError("SMB negotiate fallback requires explicit SMB_ALLOW_NEGOTIATE=true")
+
+                if self.smb_server.replace(".", "").isdigit():
+                    raise ValueError("Kerberos-capable production SMB configuration must use an approved hostname")
 
         if environment != "PROD" and any(
             token in self.database_url.lower()
