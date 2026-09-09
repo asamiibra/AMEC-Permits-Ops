@@ -1,0 +1,86 @@
+{
+  "manifest": "T6B_QUALIFIED_SCOPE_MANIFEST",
+  "reuse_decision": "PENDING_SOURCE8_G3_5_AND_SOURCE9_RECONCILIATION",
+  "producer": {
+    "run": "34295201328",
+    "attempt": 1,
+    "head": "7c3340001ad69e6681c65416d8492998b6a89661",
+    "artifact_id": 10082897476,
+    "artifact_zip_sha256": "73f97fd3633795f11c23791f2b85335d92bcd0417761e2a762d2dd6f28625fc5",
+    "artifact_zip_bytes": 209773,
+    "consumer_archive_sha256": "cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035",
+    "consumer_archive_bytes": 17444
+  },
+  "phase5_frozen_lineage": {
+    "commit": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+    "tree": "a497c6951064119453d175d1b93d4e59c9029fd0"
+  },
+  "scope_definition": "Only the application and persistence bytes imported or executed by the frozen T6B consumer are in the reusable qualified scope. Workflow, consumer archive, observability, frontend, IaC, documentation, and unrelated migration-environment changes are outside this scope.",
+  "qualified_application_paths": [
+    {
+      "path": "backend/app/models/__init__.py",
+      "phase5_sha256": "d229e5dd0f2302ef46602014f76830fdabf180b00c2bea5fdde363e942bfc5b1",
+      "current_release_sha256": "c3fef1437db801dcde289a6819c11c7899450be473c20f85e6ce365cf600e0ba",
+      "scope_equivalent": false,
+      "qualification_binding": "Not imported by the frozen consumer; retained as a comparison-only boundary because the current release contains a non-consumer module initializer change."
+    },
+    {
+      "path": "backend/app/models/entities.py",
+      "phase5_sha256": "221ee56823ada56c6b58ddfbabc4e2f60f5dce338f7878e72ac61754232a5e29",
+      "current_release_sha256": "221ee56823ada56c6b58ddfbabc4e2f60f5dce338f7878e72ac61754232a5e29",
+      "scope_equivalent": true,
+      "qualification_binding": "Phase4 persistence model."
+    },
+    {
+      "path": "backend/app/models/phase4_entities.py",
+      "phase5_sha256": "18462f46902479f522f8411abf8a8b33142d67c2d95d46deef0d3886e197294d",
+      "current_release_sha256": "18462f46902479f522f8411abf8a8b33142d67c2d95d46deef0d3886e197294d",
+      "scope_equivalent": true,
+      "qualification_binding": "Phase4 persistence model."
+    },
+    {
+      "path": "backend/app/schemas/phase4.py",
+      "phase5_sha256": "484d6cf09f859c4ccdf04d43bdddebc432811ab732999f36fb9d30d1754eb897",
+      "current_release_sha256": "484d6cf09f859c4ccdf04d43bdddebc432811ab732999f36fb9d30d1754eb897",
+      "scope_equivalent": true,
+      "qualification_binding": "Phase4 request/response contract."
+    },
+    {
+      "path": "backend/app/services/phase4.py",
+      "phase5_sha256": "38e1e7f2dc2c6a299196b6d8e671433dc813543fc28c7510a9f597a9294e1e83",
+      "current_release_sha256": "38e1e7f2dc2c6a299196b6d8e671433dc813543fc28c7510a9f597a9294e1e83",
+      "scope_equivalent": true,
+      "qualification_binding": "Phase4 persistence service."
+    },
+    {
+      "path": "backend/app/services/backend_realignment.py",
+      "phase5_sha256": "e83c893268a2b5a681f18f00174ac9ab44be3910dbcd24f169e42ef92d442728",
+      "current_release_sha256": "e83c893268a2b5a681f18f00174ac9ab44be3910dbcd24f169e42ef92d442728",
+      "scope_equivalent": true,
+      "qualification_binding": "Phase4 persistence/backend realignment service."
+    },
+    {
+      "path": "backend/migrations/versions/baseline_phase4_v36_azure_sql.py",
+      "phase5_sha256": "b705b19dac5666fef711d3627190f7b30d3e601746e414bcc782f0e80b2585f9",
+      "current_release_sha256": "b705b19dac5666fef711d3627190f7b30d3e601746e414bcc782f0e80b2585f9",
+      "scope_equivalent": true,
+      "qualification_binding": "Migration authority used by the frozen qualification."
+    },
+    {
+      "path": "alembic.ini",
+      "phase5_sha256": "50812957557787f0da5d002724031e0de4201f18b737516b01f9cfeea61fb330",
+      "current_release_sha256": "50812957557787f0da5d002724031e0de4201f18b737516b01f9cfeea61fb330",
+      "scope_equivalent": true,
+      "qualification_binding": "Migration runner configuration."
+    }
+  ],
+  "excluded_comparison_paths": [
+    {
+      "path": "backend/migrations/env.py",
+      "phase5_sha256": "6b248ac25d9f1251f95e41d1a85e480ffce7ba95f42d89f0b04cb575e415c502",
+      "current_release_sha256": "a54e47b2311b9467724098eef82d44bf52fd3d26d631fe9a5804d2f73623b4f5",
+      "reason": "The frozen T6B qualification invokes the exact Phase5 root and its env.py; this current-release authority-guard change was not executed by the accepted producer and is not part of reusable T6B application scope."
+    }
+  ],
+  "reuse_invalidation_rule": "Any future change to a qualified_application_paths entry, the frozen Phase5 lineage, or the frozen consumer archive invalidates reuse and requires a fresh independent T6B producer run."
+}

@@ -1,0 +1,27 @@
+{
+  "control": "G3.5_SOURCE8_PII_SECURITY_DELTA",
+  "status": "CLOSED",
+  "G3.5_GLOBAL_REDACTION_PATH": "PASS",
+  "G3.5_EXISTING_CREDENTIAL_REDACTION_REGRESSION": "PASS",
+  "SOURCE8_RAW_PII_IN_ORDINARY_LOGS": 0,
+  "SOURCE8_RAW_PII_IN_RELEASE_MANIFEST": 0,
+  "SOURCE8_G3.5_ADVERSARIAL_TESTS": "PASS",
+  "implementation": [
+    "backend/app/observability.py",
+    "backend/app/main.py"
+  ],
+  "tests": {
+    "path": "backend/tests/test_observability.py",
+    "result": "9 passed",
+    "coverage": [
+      "nested mappings and lists",
+      "QID/passport/residency/sponsorship/staff/regulatory field labels",
+      "provider and exception messages",
+      "HTTP validation diagnostics",
+      "database URLs, bearer/access tokens, JWTs, and secret controls",
+      "traceback removal"
+    ]
+  },
+  "ordinary_log_boundary": "Application logging is installed through the root-handler filter before the permitops logger is created; no raw PII fixture is part of a release manifest. Test sentinels are confined to the adversarial test module.",
+  "method": "Field-aware structured redaction plus narrowly scoped credential and labeled-identifier fallback patterns; arbitrary digit strings are not globally rewritten."
+}
