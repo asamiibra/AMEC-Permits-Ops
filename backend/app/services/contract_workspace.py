@@ -21,6 +21,7 @@ from ..models import (
 from .master_content import resolve_master_content_purpose
 from .proposal_workspace import stable_hash
 from .owner_decisions import runtime_decision_value
+from .business_v1_controls import advance_payment_gate, commercial_reconciliation, maker_checker_gate
 
 
 CONTRACT_STAGES = ("DRAFT", "NEEDS_ACTION", "AUTHORITY_REVIEW", "READY", "ACTIVE", "CLOSED")
@@ -385,6 +386,20 @@ def readiness(db: Session, contract: Contract) -> dict[str, Any]:
     required_evidence = set(effective_required_evidence(db))
     if "CONTRACT_TEMPLATE_SNAPSHOT" in required_evidence and not template: blockers.append({"code": "CONTRACT_TEMPLATE_REQUIRED", "label": "Canonical Dashboard Contract Template"})
     evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id)).all()
+    accepted = db.get(ProposalAcceptedRevision, contract.accepted_proposal_revision_id) if contract.accepted_proposal_revision_id else None
+    proposal_fields = dict((accepted.snapshot or {}).get("fields") or {}) if accepted else {}
+    current_revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    contract_fields = {
+        "amount": contract.amount_value,
+        "currency": contract.currency,
+        "duration": contract.duration,
+        "payment_terms": contract.payment_condition_text,
+        "scope": contract.contracted_scope_text,
+    }
+    structured_orders = [item.metadata_json.get("commercial_terms") for item in evidence if item.source_role in {"LPO", "PO", "CLIENT_DOCUMENT"} and isinstance(item.metadata_json, dict) and isinstance(item.metadata_json.get("commercial_terms"), dict)]
+    commercial_control = commercial_reconciliation(proposal_fields, contract_fields, structured_orders[-1] if structured_orders else None)
+    if commercial_control["status"] != "PASS":
+        blockers.append({"code": "CONTRACT_COMMERCIAL_RECONCILIATION_MISMATCH", "label": "Exact accepted Proposal / PO / LPO commercial reconciliation"})
     if "COMMERCIAL_OR_AWARD_EVIDENCE" in required_evidence and not any(item.evidence_type in {"COMMERCIAL", "AWARD", "COMMERCIAL_OR_AWARD_EVIDENCE"} for item in evidence):
         blockers.append({"code": "COMMERCIAL_OR_AWARD_EVIDENCE_REQUIRED", "label": "Commercial or award evidence"})
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
@@ -393,7 +408,11 @@ def readiness(db: Session, contract: Contract) -> dict[str, Any]:
     lpo_received = any(item.source_role == "LPO" and item.status in {"RECEIVED", "VERIFIED", "HUMAN_VERIFIED", "APPROVED"} for item in evidence)
     if lpo_policy == "REQUIRED" and not lpo_received:
         blockers.append({"code": "CONTRACT_LPO_REQUIRED", "label": "LPO DocumentVersion"})
-    return {"ready": not blockers, "blockers": blockers, "warnings": warnings, "activation_ready": bool(activation), "activation_blockers": activation_blockers, "authority_state": contract.authority_state, "template_snapshot": template, "effective_required_fields": sorted(required_fields), "effective_required_evidence": sorted(required_evidence), "authority_review_meaning": runtime_decision_value(db, "CONTRACT_AUTHORITY_REVIEW_MEANING", "OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION"), "ready_close_policy": runtime_decision_value(db, "CONTRACT_READY_CLOSE_POLICY", "REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION"), "lpo_requiredness_policy": lpo_policy, "lpo_received": lpo_received, "origin_policy": origin_policy, "origin_resolved": bool(contract.accepted_proposal_revision_id)}
+    advance_input = db.scalar(select(ContractAdminInput).where(ContractAdminInput.contract_id == contract.id, ContractAdminInput.input_key == "ADVANCE_PAYMENT_ACTIVATION_GATE"))
+    advance_control = advance_payment_gate(advance_input.value_json if advance_input else None, [{"source_role": item.source_role, "status": item.status, "metadata": item.metadata_json} for item in evidence])
+    if advance_control["status"] == "BLOCKED":
+        activation_blockers.extend({"code": code, "label": "Objective advance-payment evidence"} for code in advance_control["blockers"])
+    return {"ready": not blockers, "blockers": blockers, "warnings": warnings, "activation_ready": bool(activation) and not any(item["code"] == "OBJECTIVE_ADVANCE_PAYMENT_EVIDENCE_REQUIRED" for item in activation_blockers), "activation_blockers": activation_blockers, "authority_state": contract.authority_state, "template_snapshot": template, "effective_required_fields": sorted(required_fields), "effective_required_evidence": sorted(required_evidence), "authority_review_meaning": runtime_decision_value(db, "CONTRACT_AUTHORITY_REVIEW_MEANING", "OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION"), "ready_close_policy": runtime_decision_value(db, "CONTRACT_READY_CLOSE_POLICY", "REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION"), "lpo_requiredness_policy": lpo_policy, "lpo_received": lpo_received, "origin_policy": origin_policy, "origin_resolved": bool(contract.accepted_proposal_revision_id), "source10_controls": {"proposal_lpo_reconciliation": commercial_control, "advance_payment_gate": advance_control, "maker_checker": maker_checker_gate((current_revision.admin_input_snapshot if current_revision else None), enforce=False)}}
 
 
 def project_activation(db: Session, *, contract: Contract, project_code: str, start_date: date, actor: str, correlation_id: str, idempotency_key: str) -> tuple[Project, ProjectActivation, bool]:
@@ -404,6 +423,11 @@ def project_activation(db: Session, *, contract: Contract, project_code: str, st
         raise ValueError("ACCEPTED_PROPOSAL_REVISION_REQUIRED")
     if "CLIENT" in activation_fields and not contract.client_account_id:
         raise ValueError("CLIENT_CONTEXT_REQUIRED")
+    configured_gate = db.scalar(select(ContractAdminInput).where(ContractAdminInput.contract_id == contract.id, ContractAdminInput.input_key == "ADVANCE_PAYMENT_ACTIVATION_GATE"))
+    evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id)).all()
+    advance_control = advance_payment_gate(configured_gate.value_json if configured_gate else None, [{"source_role": item.source_role, "status": item.status, "metadata": item.metadata_json} for item in evidence])
+    if advance_control["status"] == "BLOCKED":
+        raise ValueError("OBJECTIVE_ADVANCE_PAYMENT_EVIDENCE_REQUIRED")
     assignment = runtime_decision_value(db, "PROJECT_CODE_ASSIGNMENT_METHOD", "OWNER_ENTERED_UNIQUE")
     if assignment == "OWNER_ENTERED_UNIQUE" and not project_code.strip():
         raise ValueError("PROJECT_CODE_REQUIRED")
@@ -446,7 +470,7 @@ def project_activation(db: Session, *, contract: Contract, project_code: str, st
     revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else db.scalar(select(ContractRevision).where(ContractRevision.contract_id == contract.id).order_by(ContractRevision.revision_number.desc()))
     if not revision:
         raise ValueError("CONTRACT_REVISION_REQUIRED")
-    activation = ProjectActivation(contract_id=contract.id, contract_revision_id=revision.id, accepted_proposal_revision_id=contract.accepted_proposal_revision_id, project_id=project.id, project_code=project_code, start_date=start_date, original_start_date=start_date, activated_by=actor, idempotency_key=idempotency_key, audit_metadata={"authority": "HUMAN_OWNER", "contract_reference": contract.contract_reference})
+    activation = ProjectActivation(contract_id=contract.id, contract_revision_id=revision.id, accepted_proposal_revision_id=contract.accepted_proposal_revision_id, project_id=project.id, project_code=project_code, start_date=start_date, original_start_date=start_date, activated_by=actor, idempotency_key=idempotency_key, audit_metadata={"authority": "HUMAN_OWNER", "contract_reference": contract.contract_reference, "advance_payment_gate": advance_control})
     db.add(activation)
     db.flush()
     for upstream_type, upstream_id, upstream_hash in (("Contract", contract.id, contract.contract_reference), ("ContractRevision", revision.id, revision.content_hash), ("ProposalAcceptedRevision", contract.accepted_proposal_revision_id, None)):

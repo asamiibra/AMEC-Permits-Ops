@@ -31,6 +31,7 @@ from ..models import (
     EngineeringAICommentArtifact, EngineeringAuthorityFindingLink, EngineeringCategoryAssignment, EngineeringInternalReviewComment, EngineeringReviewCategory, LineageEdge, ProfessionalCredential, Project, ProjectEngineeringReview, Role, TechnicalRule, TechnicalRuleSetVersion,
 )
 from ..services.backend_realignment import domain_error, require_capability
+from ..services.business_v1_controls import architecture_first_gate
 
 
 router = APIRouter(prefix="/api")
@@ -600,13 +601,16 @@ def professional_approval(project_id: str, revision_id: str, payload: dict[str, 
 @router.post("/projects/{project_id}/engineering/baselines")
 def create_baseline(project_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     project = _active_project(db, project_id); actor = _actor(request, payload); _authorized(db, project_id, role, actor, "ENGINEERING_PROJECT_EDIT")
-    item = ApprovedDesignBaseline(project_id=project.id, baseline_ref=str(payload.get("baseline_ref") or ""), purpose=str(payload.get("purpose") or "AMEC_APPROVED_DESIGN"), created_by=actor)
+    item = ApprovedDesignBaseline(project_id=project.id, baseline_ref=str(payload.get("baseline_ref") or ""), purpose=str(payload.get("purpose") or "AMEC_APPROVED_DESIGN"), validation_json={"architecture_first_control": payload.get("architecture_first_control") or {}}, created_by=actor)
     if not item.baseline_ref: raise domain_error(422, "ENGINEERING_BASELINE_REF_REQUIRED")
     db.add(item); db.flush(); audit(db, correlation_id=_corr(request), event_type="ENGINEERING_APPROVED_DESIGN_BASELINE_CANDIDATE_CREATED", entity_type="ApprovedDesignBaseline", entity_id=item.id, actor_id=actor, after=_row(item)); db.commit(); return _row(item)
 
 
 def _baseline_validation(db: Session, baseline: ApprovedDesignBaseline) -> dict[str, Any]:
     members = db.scalars(select(ApprovedDesignBaselineMember).where(ApprovedDesignBaselineMember.baseline_id == baseline.id)).all(); errors: list[dict[str, Any]] = []
+    architecture_control = architecture_first_gate((baseline.validation_json or {}).get("architecture_first_control"))
+    if architecture_control["status"] == "BLOCKED":
+        errors.extend({"code": code} for code in architecture_control["blockers"])
     if not members: errors.append({"code": "BASELINE_MEMBER_REQUIRED"})
     for member in members:
         revision = db.get(EngineeringDeliverableRevision, member.revision_id); rendition = db.get(EngineeringRendition, member.rendition_id)
@@ -616,7 +620,7 @@ def _baseline_validation(db: Session, baseline: ApprovedDesignBaseline) -> dict[
         if revision and _active_findings(db, revision.id): errors.append({"code": "BASELINE_MEMBER_OPEN_BLOCKING_FINDING", "revision_id": revision.id})
         if revision and any(x.result != "PASS" for x in db.scalars(select(EngineeringTechnicalCheck).where(EngineeringTechnicalCheck.revision_id == revision.id)).all()): errors.append({"code": "BASELINE_MEMBER_TECHNICAL_NOT_PASS", "revision_id": revision.id})
         if rendition and not db.get(DocumentVersion, rendition.document_version_id): errors.append({"code": "BASELINE_MEMBER_DOCUMENT_VERSION_MISSING", "rendition_id": rendition.id})
-    return {"valid": not errors, "errors": errors, "member_count": len(members)}
+    return {"valid": not errors, "errors": errors, "member_count": len(members), "architecture_first_control": architecture_control}
 
 
 @router.post("/projects/{project_id}/engineering/baselines/{baseline_id}/members")
