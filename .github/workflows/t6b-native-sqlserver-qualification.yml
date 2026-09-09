@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = 064d692bdd719224ad12e40298a76f123ae0f239
+          test "$PARENT" = 4ba6a5342bab216f9fc0b394f22b8914d4247915
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -102,7 +102,7 @@ jobs:
           for _ in range(300):
               try:
                   with conn("master") as c:
-                      row = c.execute("SELECT 1, SERVERPROPERTY('ProductMajorVersion'), SERVERPROPERTY('EngineEdition'), SERVERPROPERTY('ProductVersion')").fetchone()
+                      row = c.execute("SELECT CAST(1 AS int), CAST(SERVERPROPERTY('ProductMajorVersion') AS varchar(32)), CAST(SERVERPROPERTY('EngineEdition') AS int), CAST(SERVERPROPERTY('ProductVersion') AS varchar(128))").fetchone()
                       if int(row[0]) != 1 or int(row[1]) != 16 or int(row[2]) in (5, 8):
                           raise RuntimeError("SQLSERVER_PROPERTY_GATE_FAILED")
                       c.execute("CREATE DATABASE [t6b_qualification]")
