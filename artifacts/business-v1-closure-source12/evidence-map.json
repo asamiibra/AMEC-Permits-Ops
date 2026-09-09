@@ -1,0 +1,1895 @@
+{
+  "focused_test_count": 43,
+  "real_amec_bytes_read": 0,
+  "source12_rows": {
+    "S12-A001-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A002-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A003-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A004-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A005-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A006-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A007-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A008-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A009-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A010-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A011-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A012-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A013-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A014-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A015-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A016-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A017-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A018-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A019-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A020-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A021-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A022-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A023-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A024-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A025-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A026-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A027-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A028-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A029-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A030-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A031-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A032-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A033-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A034-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A035-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A036-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A037-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A038-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A039-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A040-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A041-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A042-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A043-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A044-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A045-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A046-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A047-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A048-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A049-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A050-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A051-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A052-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A053-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A054-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A055-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A056-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A057-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A058-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A059-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A060-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A061-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A062-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A063-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A064-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A065-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A066-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A067-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A068-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A069-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A070-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A071-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A072-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A073-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A074-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A075-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A076-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A077-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A078-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A079-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A080-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A081-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A082-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A083-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A084-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A085-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A086-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A087-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A088-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A089-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A090-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A091-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A092-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A093-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A094-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A095-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A096-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A097-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A098-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A099-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A100-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A101-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A102-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A103-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A104-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A105-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A106-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A107-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A108-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A109-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A110-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A111-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A112-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A113-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A114-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A115-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A116-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A117-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A118-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A119-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A120-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A121-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A122-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A123-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A124-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A125-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A126-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A127-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A128-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A129-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A130-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A131-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A132-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A133-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A134-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A135-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A136-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A137-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A138-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "DOWNSTREAM_G14_REAL_DATA_RECONCILIATION",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A139-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "DOWNSTREAM_G14_REAL_DATA_RECONCILIATION",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A140-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "DOWNSTREAM_G13_UAT",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A141-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A142-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A143-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A144-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A145-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A146-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A147-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A148-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A149-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A150-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A151-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A152-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A153-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A154-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A155-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A156-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A157-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A158-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A159-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A160-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A161-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A162-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A163-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A164-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A165-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A166-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A167-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A168-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A169-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A170-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A171-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A172-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A173-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A174-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A175-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A176-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A177-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A178-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A179-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A180-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A181-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A182-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A183-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A184-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A185-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A186-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A187-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    },
+    "S12-A188-NOT_AN_OWNER_REQUIREMENT_ID": {
+      "paths": [
+        "backend/app/services/source12_finance_controls.py",
+        "backend/tests/test_source12_project_finance_controls.py"
+      ],
+      "status": "IMPLEMENTED_AND_CURRENTLY_PROVEN",
+      "tests": [
+        "backend/tests/test_source12_project_finance_controls.py"
+      ]
+    }
+  },
+  "synthetic_only": true,
+  "v26": {
+    "numeric_enum_diffs_unresolved": 0,
+    "pass": true,
+    "requirement_count": 188,
+    "requirement_orphans": 0,
+    "ripple_conflicts": 0,
+    "state_collapse_violations": 0
+  }
+}
