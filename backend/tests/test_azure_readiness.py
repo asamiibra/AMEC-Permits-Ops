@@ -104,3 +104,11 @@ def test_ready_reports_invalid_configuration(monkeypatch):
     response = TestClient(main.app).get("/health/ready")
     assert response.status_code == 503
     assert response.json()["failure_class"] == "CONFIGURATION_INVALID"
+
+
+def test_prod_docs_are_disabled():
+    assert main._fastapi_docs_config("PROD") == {
+        "docs_url": None,
+        "redoc_url": None,
+        "openapi_url": None,
+    }

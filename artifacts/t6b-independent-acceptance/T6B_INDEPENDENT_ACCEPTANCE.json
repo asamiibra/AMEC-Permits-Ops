@@ -1,0 +1,21 @@
+{
+  "result": "T6B_INDEPENDENT_ACCEPTANCE=PASS",
+  "producer_run": "34295201328",
+  "producer_attempt": 1,
+  "producer_head": "7c3340001ad69e6681c65416d8492998b6a89661",
+  "producer_branch": "branch/t6b-native-sqlserver-qualification-e928-v2",
+  "producer_artifact_id": 10082897476,
+  "producer_artifact_name": "T6B_FINAL_SQLQUAL_EXECUTION_EVIDENCE",
+  "producer_artifact_zip_sha256": "73f97fd3633795f11c23791f2b85335d92bcd0417761e2a762d2dd6f28625fc5",
+  "producer_artifact_zip_bytes": 209773,
+  "producer_evidence_tar_sha256": "29f6f3f369ba9add2bc9bb60f781f74d95b76e24c7c1fa6573fcfc68a314a6cf",
+  "verifier": "tools/t6b_independent_verifier.py",
+  "verifier_sha256": "0a4ecf45a7687380ec640c6f5e126b8a6073920a74b14ed6a1588789d7bfb6e6",
+  "verifier_checkout": "7c3340001ad69e6681c65416d8492998b6a89661",
+  "real_amec_business_bytes": 0,
+  "protected_side_effect_deltas": 0,
+  "schema_replay_delta": 0,
+  "required_test_skips": 0,
+  "acceptance_boundary": "The producer asserted PASS and did not perform independent acceptance; this file records the separate stdlib-only read-only acceptance.",
+  "durable_evidence_url": "https://api.github.com/repos/asamiibra/AMEC-Permits-Ops/actions/artifacts/10082897476/zip"
+}

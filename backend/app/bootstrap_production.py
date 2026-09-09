@@ -1,0 +1,47 @@
+"""Fail-closed production bootstrap with zero synthetic writes.
+
+Production startup must never seed demo users, projects, documents, or
+authority fixtures. This command validates the already-provisioned database
+head and runtime storage contract, then records only a bounded status line.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+
+from .config.settings import get_settings
+from .db import verify_database_migration_head
+from .storage.factory import create_binary_store
+
+
+def run_production_bootstrap() -> str:
+    settings = get_settings()
+    if settings.app_env.upper() != "PROD":
+        raise RuntimeError("Production bootstrap requires APP_ENV=PROD.")
+    if settings.synthetic_only:
+        raise RuntimeError("Production bootstrap requires SYNTHETIC_ONLY=false.")
+    if not settings.real_data_allowed:
+        raise RuntimeError("Production bootstrap requires REAL_DATA_ALLOWED=true.")
+    if settings.storage_provider.lower() != "smb":
+        raise RuntimeError("Production bootstrap requires STORAGE_PROVIDER=smb.")
+    if settings.synology_mode.upper() != "REAL":
+        raise RuntimeError("Production bootstrap requires SYNOLOGY_MODE=REAL.")
+    verify_database_migration_head()
+    if create_binary_store().health().state != "HEALTHY":
+        raise RuntimeError("Production bootstrap requires healthy durable storage.")
+    return "PRODUCTION_BOOTSTRAP_ZERO_SYNTHETIC_PASS"
+
+
+def main() -> int:
+    try:
+        status = run_production_bootstrap()
+    except Exception as exc:
+        print(json.dumps({"event": "proposalops_production_bootstrap", "status": "FAILED", "error_class": type(exc).__name__}, sort_keys=True), file=sys.stderr)
+        return 1
+    print(json.dumps({"event": "proposalops_production_bootstrap", "status": status, "synthetic_writes": 0}, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

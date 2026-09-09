@@ -1,6 +1,23 @@
-# ProposalOps Azure A1 Step 3A.4A
+# ProposalOps Azure deployment graphs
 
-This directory is a static, subscription-scope Bicep graph for the Qatar
+## Canonical production graph
+
+`canonical/main.bicep` is the only production topology. It targets UAE North
+and declares Azure Container Apps for the API and worker, a manual Container
+Apps migration job, ACR, Azure SQL with managed identity and private access,
+Key Vault, VNet/private endpoints, Log Analytics, Application Insights, and
+API-only HTTPS ingress. It requires exact image digests and deployment-time
+identity/secret inputs; no production resource is deployed by this repository
+change. The API is explicitly configured with
+`AZURE_DIRECT_SYNOLOGY_SMB=false`; Bridge source intake remains a separate
+owner-controlled boundary.
+
+The historical `main.bicep` and its App Service/PostgreSQL modules below are
+legacy preproduction evidence and are not a production deployment path.
+
+# ProposalOps Azure legacy preproduction graph
+
+This legacy graph is a static, subscription-scope Bicep graph for the Qatar
 Central F1 preproduction architecture. It is intentionally foundation-only
 by default:
 

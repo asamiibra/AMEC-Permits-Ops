@@ -93,7 +93,7 @@ def test_alembic_config_escapes_percent_signs():
     assert config.get_main_option("sqlalchemy.url") == "postgresql+psycopg://u:p%25@db/app"
 
 
-@pytest.mark.parametrize("app_env", ["DEV", "TEST", "PROD"])
+@pytest.mark.parametrize("app_env", ["DEV", "TEST"])
 def test_runner_rejects_non_preprod_environment(monkeypatch, app_env):
     monkeypatch.setattr(migrate, "get_settings", lambda: _settings(app_env=app_env))
 

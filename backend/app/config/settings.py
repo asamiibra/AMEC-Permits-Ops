@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     synology_endpoint: str = ""
     synology_share: str = ""
     synology_secret_ref: str = ""
+    # Source intake is bridge-owned; the Azure application never reaches
+    # Synology directly, including during production canary operation.
+    azure_direct_synology_smb: bool = False
 
     # Permanent document-binary provider. MOCK is test-only; production must
     # select SMB and obtain credentials from the deployment secret manager.
@@ -75,17 +78,19 @@ class Settings(BaseSettings):
     monitoring_mode: str = "DISABLED"
     applicationinsights_connection_string: str = ""
 
-    # AI-D2/D3 is disabled by default and fail-closed when enabled in
-    # preproduction.  These values are deployment configuration, never
-    # browser-selectable request fields.
-    ai_enabled: bool = False
+    # AI-D2/D3 has two independent deployment gates. The feature may be
+    # present in the product while external inference remains disabled until
+    # the separately governed D4 commissioning record is present.
+    ai_feature_enabled: bool = False
+    ai_external_inference_enabled: bool = False
+    ai_d4_commissioning_id: str = ""
     ai_real_content_allowed: bool = False
     ai_azure_openai_endpoint: str = ""
-    ai_azure_openai_deployment: str = "proposalops-gpt51-methodology-v1"
-    ai_azure_openai_expected_model: str = "gpt-5.1"
-    ai_azure_openai_expected_version: str = "2025-11-13"
-    ai_azure_openai_region: str = "uaenorth"
-    ai_azure_openai_deployment_type: str = "Standard"
+    ai_azure_openai_deployment: str = "d3-gpt54mini-20260317"
+    ai_azure_openai_expected_model: str = "gpt-5.4-mini"
+    ai_azure_openai_expected_version: str = "2026-03-17"
+    ai_azure_openai_region: str = "eastus"
+    ai_azure_openai_deployment_type: str = "DataZoneStandard"
     ai_uami_client_id: str = ""
     ai_uami_principal_id: str = ""
     ai_azure_tenant_id: str = ""
@@ -95,14 +100,14 @@ class Settings(BaseSettings):
     ai_provider_write_timeout_seconds: float = 10
     ai_max_context_items: int = 8
     ai_max_context_utf8_bytes: int = 16384
-    ai_max_input_token_upper_bound: int = 24000
-    ai_max_output_tokens: int = 6000
-    ai_max_requests_per_user_per_minute: int = 3
-    ai_max_requests_per_user_per_hour: int = 20
-    ai_max_requests_per_project_per_hour: int = 20
-    ai_max_requests_global_per_hour: int = 60
-    ai_max_estimated_cost_usd_per_request: float = 0.25
-    ai_max_estimated_cost_usd_per_day: float = 5.0
+    ai_max_input_token_upper_bound: int = 0
+    ai_max_output_tokens: int = 0
+    ai_max_requests_per_user_per_minute: int = 0
+    ai_max_requests_per_user_per_hour: int = 0
+    ai_max_requests_per_project_per_hour: int = 0
+    ai_max_requests_global_per_hour: int = 0
+    ai_max_estimated_cost_usd_per_request: float = 0.0
+    ai_max_estimated_cost_usd_per_day: float = 0.0
     ai_input_price_usd_per_1m_tokens: float = 0.0
     ai_output_price_usd_per_1m_tokens: float = 0.0
     ai_pricing_source_reference: str = ""
@@ -148,8 +153,65 @@ class Settings(BaseSettings):
         if query.get("trustservercertificate", "").lower() != "no":
             raise ValueError(f"{setting_name} requires TrustServerCertificate=no")
 
+    def _validate_ai_d4_lock(self) -> None:
+        if self.ai_external_inference_enabled and not self.ai_feature_enabled:
+            raise ValueError("AI_EXTERNAL_INFERENCE_ENABLED requires AI_FEATURE_ENABLED=true")
+        if not self.ai_external_inference_enabled:
+            return
+        if not self.ai_d4_commissioning_id.strip():
+            raise ValueError("AI_D4_COMMISSIONING_ID is required when external inference is enabled")
+        if not self.synthetic_only or self.real_data_allowed or self.ai_real_content_allowed:
+            raise ValueError("D4 external inference requires synthetic-only and real-content=false")
+        for setting_name, value in (
+            ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
+            ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),
+            ("AI_AZURE_TENANT_ID", self.ai_azure_tenant_id),
+        ):
+            if not value:
+                raise ValueError(f"{setting_name} is required when external inference is enabled")
+            self._require_guid(value, setting_name)
+        expected_binding = {
+            "AI_AZURE_OPENAI_DEPLOYMENT": "d3-gpt54mini-20260317",
+            "AI_AZURE_OPENAI_EXPECTED_MODEL": "gpt-5.4-mini",
+            "AI_AZURE_OPENAI_EXPECTED_VERSION": "2026-03-17",
+            "AI_AZURE_OPENAI_REGION": "eastus",
+            "AI_AZURE_OPENAI_DEPLOYMENT_TYPE": "DataZoneStandard",
+        }
+        for setting_name, expected in expected_binding.items():
+            if getattr(self, setting_name.lower()) != expected:
+                raise ValueError(f"{setting_name} must equal the D4 commissioned binding {expected}")
+        from ..ai.runtime_binding import AIRuntimeBinding
+
+        AIRuntimeBinding.from_settings(self).validate()
+        for setting_name, value in (
+            ("AI_MAX_INPUT_TOKEN_UPPER_BOUND", self.ai_max_input_token_upper_bound),
+            ("AI_MAX_OUTPUT_TOKENS", self.ai_max_output_tokens),
+            ("AI_MAX_REQUESTS_PER_USER_PER_MINUTE", self.ai_max_requests_per_user_per_minute),
+            ("AI_MAX_REQUESTS_PER_USER_PER_HOUR", self.ai_max_requests_per_user_per_hour),
+            ("AI_MAX_REQUESTS_PER_PROJECT_PER_HOUR", self.ai_max_requests_per_project_per_hour),
+            ("AI_MAX_REQUESTS_GLOBAL_PER_HOUR", self.ai_max_requests_global_per_hour),
+            ("AI_MAX_ESTIMATED_COST_USD_PER_REQUEST", self.ai_max_estimated_cost_usd_per_request),
+            ("AI_MAX_ESTIMATED_COST_USD_PER_DAY", self.ai_max_estimated_cost_usd_per_day),
+            ("AI_INPUT_PRICE_USD_PER_1M_TOKENS", self.ai_input_price_usd_per_1m_tokens),
+            ("AI_OUTPUT_PRICE_USD_PER_1M_TOKENS", self.ai_output_price_usd_per_1m_tokens),
+        ):
+            if value <= 0:
+                raise ValueError(f"{setting_name} must be greater than zero for D4")
+        if not self.ai_pricing_source_reference.strip():
+            raise ValueError("AI_PRICING_SOURCE_REFERENCE is required for D4")
+        if not self.ai_d3_project_ids:
+            raise ValueError("AI_D3_SYNTHETIC_PROJECT_IDS is required for D4")
+        if self.ai_uami_client_id.lower() == self.azure_sql_uami_client_id.lower() and self.azure_sql_uami_client_id:
+            raise ValueError("AI and SQL managed identities must be separate")
+        if self.ai_uami_principal_id.lower() == self.azure_sql_uami_principal_id.lower() and self.azure_sql_uami_principal_id:
+            raise ValueError("AI and SQL managed identities must be separate")
+        if self.ai_max_context_items != 8 or self.ai_max_context_utf8_bytes != 16384:
+            raise ValueError("D4 context bounds are frozen")
+
     def validate_environment(self) -> None:
         environment = self.app_env.upper()
+
+        self._validate_ai_d4_lock()
 
         allowed_environments = {
             "DEV",
@@ -298,6 +360,9 @@ class Settings(BaseSettings):
                     "AZURE-PREPROD requires SYNOLOGY_MODE=SYNTHETIC"
                 )
 
+            if self.azure_direct_synology_smb:
+                raise ValueError("AZURE-PREPROD requires AZURE_DIRECT_SYNOLOGY_SMB=false")
+
             if (
                 self.synology_endpoint
                 or self.synology_share
@@ -333,36 +398,9 @@ class Settings(BaseSettings):
                     "connection configuration"
                 )
 
-            if self.ai_enabled:
-                if self.ai_real_content_allowed or not self.synthetic_only or self.real_data_allowed:
-                    raise ValueError("AI-D2/D3 preprod requires synthetic-only real-content gates")
-                from ..ai.runtime_binding import AIRuntimeBinding
-
-                AIRuntimeBinding.from_settings(self).validate()
-                for setting_name, value in (
-                    ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
-                    ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),
-                    ("AI_AZURE_TENANT_ID", self.ai_azure_tenant_id),
-                ):
-                    if not value:
-                        raise ValueError(f"AZURE-PREPROD requires {setting_name} when AI_ENABLED=true")
-                    self._require_guid(value, setting_name)
-                for setting_name, value in (
-                    ("AI_INPUT_PRICE_USD_PER_1M_TOKENS", self.ai_input_price_usd_per_1m_tokens),
-                    ("AI_OUTPUT_PRICE_USD_PER_1M_TOKENS", self.ai_output_price_usd_per_1m_tokens),
-                ):
-                    if value <= 0:
-                        raise ValueError(f"{setting_name} must be authoritative and greater than zero")
-                if not self.ai_pricing_source_reference.strip():
-                    raise ValueError("AI_PRICING_SOURCE_REFERENCE is required")
-                if not self.ai_d3_project_ids:
-                    raise ValueError("AI_D3_SYNTHETIC_PROJECT_IDS is required")
-                if self.ai_uami_client_id.lower() == self.azure_sql_uami_client_id.lower() or self.ai_uami_principal_id.lower() == self.azure_sql_uami_principal_id.lower():
-                    raise ValueError("AI and SQL managed identities must be separate")
-                if self.ai_max_context_items != 8 or self.ai_max_context_utf8_bytes != 16384 or self.ai_max_output_tokens != 6000:
-                    raise ValueError("D3 context/output bounds are frozen")
-
         if environment == "PROD":
+            if self.azure_direct_synology_smb:
+                raise ValueError("PROD requires AZURE_DIRECT_SYNOLOGY_SMB=false")
             if self.synthetic_only:
                 raise ValueError(
                     "PROD requires SYNTHETIC_ONLY=false"

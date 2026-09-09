@@ -1,0 +1,53 @@
+{
+  "manifest": "T6B_QUALIFIED_SCOPE_MANIFEST",
+  "producer_head": "7c3340001ad69e6681c65416d8492998b6a89661",
+  "phase5_frozen_lineage": {
+    "commit": "c42e6c449483b0951de0f366d700dbaf7b9e5525",
+    "tree": "a497c6951064119453d175d1b93d4e59c9029fd0"
+  },
+  "qualified_scope_hash": "sha256:cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035",
+  "files": [
+    {
+      "path": ".github/workflows/t6b-native-sqlserver-qualification.yml",
+      "sha256": "e0408ca1601ea1c7d10a47fddae35d204ed45451e1a8d4065282944db6136abc",
+      "role": "single-run producer and evidence packaging workflow"
+    },
+    {
+      "path": ".t6b-validation/ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER.tar.gz",
+      "sha256": "cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035",
+      "bytes": 17444,
+      "role": "frozen T6B application persistence consumer archive"
+    },
+    {
+      "path": "ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER/t6b/consumer.py",
+      "sha256": "6689959f300461e2b7eba669728c59c02251362d36bba4e853bdcfbd9ef32778",
+      "role": "archive member"
+    },
+    {
+      "path": "ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER/t6b/qualification.py",
+      "sha256": "6d35397556ca5e338ec928ec9f446e46d52c262eceacab4123952169657e5c4f",
+      "role": "archive member"
+    },
+    {
+      "path": "ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER/t6b/sqlserver_gate.py",
+      "sha256": "0f3b7552445754cbb2af195be6e26848562a176756f63bc2ceee10681aff2834",
+      "role": "archive member"
+    },
+    {
+      "path": "ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER/t6b/contract.json",
+      "sha256": "bd29875c0cef2d9db764652c1c5fe79ee2161067372c8fac52259c0df692fefc",
+      "role": "archive member"
+    },
+    {
+      "path": "ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER/t6b/README.md",
+      "sha256": "ab95b8bb2bb538b014595f9b9f3f3c660979d0e8f4239eba0fcff45109e996ed",
+      "role": "archive member"
+    },
+    {
+      "path": "ProposalOps_SYN_T6B_APPLICATION_PERSISTENCE_CONSUMER/t6b/__init__.py",
+      "sha256": "93270c7ddc33f1bff3adeb3eb37b506968b0d11d73a38a176aa0e0b69e8c88ce",
+      "role": "archive member"
+    }
+  ],
+  "scope_equivalence_rule": "Any G7 candidate that changes any listed path, the frozen Phase5 lineage, or the frozen consumer archive must invalidate reuse and require a fresh qualified T6B producer run."
+}

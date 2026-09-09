@@ -3,7 +3,7 @@
 from backend.app.db import SessionLocal
 from backend.app.models import ContractTemplateSnapshot
 
-from test_admin_contract_owner_session import ensure_contract_template, headers, make_accepted_proposal
+from backend.tests.test_admin_contract_owner_session import ensure_contract_template, headers, make_accepted_proposal
 
 
 def test_owner_capture_is_exactly_once_and_non_owner_denied(client):

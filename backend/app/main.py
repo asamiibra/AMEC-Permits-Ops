@@ -159,7 +159,7 @@ def _fastapi_docs_config(
 ) -> dict[str, str | None]:
     # Azure preprod is Internet-facing and does not need a public
     # interactive API schema surface. DEV/TEST retain developer docs.
-    if app_env.upper() == "AZURE-PREPROD":
+    if app_env.upper() in {"AZURE-PREPROD", "PROD"}:
         return {
             "docs_url": None,
             "redoc_url": None,
@@ -474,10 +474,7 @@ def health():
         "database_dialect": (
             database_dialect
         ),
-        "database_durable": (
-            database_dialect
-            == "postgresql"
-        ),
+        "database_durable": database_dialect in {"postgresql", "mssql"},
         "sqlite_fallback_active": (
             not database_configured
             and database_dialect
