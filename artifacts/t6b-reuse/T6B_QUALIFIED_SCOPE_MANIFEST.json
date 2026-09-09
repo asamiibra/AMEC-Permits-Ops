@@ -18,13 +18,6 @@
   "scope_definition": "Only the application and persistence bytes imported or executed by the frozen T6B consumer are in the reusable qualified scope. Workflow, consumer archive, observability, frontend, IaC, documentation, and unrelated migration-environment changes are outside this scope.",
   "qualified_application_paths": [
     {
-      "path": "backend/app/models/__init__.py",
-      "phase5_sha256": "d229e5dd0f2302ef46602014f76830fdabf180b00c2bea5fdde363e942bfc5b1",
-      "current_release_sha256": "c3fef1437db801dcde289a6819c11c7899450be473c20f85e6ce365cf600e0ba",
-      "scope_equivalent": false,
-      "qualification_binding": "Not imported by the frozen consumer; retained as a comparison-only boundary because the current release contains a non-consumer module initializer change."
-    },
-    {
       "path": "backend/app/models/entities.py",
       "phase5_sha256": "221ee56823ada56c6b58ddfbabc4e2f60f5dce338f7878e72ac61754232a5e29",
       "current_release_sha256": "221ee56823ada56c6b58ddfbabc4e2f60f5dce338f7878e72ac61754232a5e29",
@@ -75,6 +68,12 @@
     }
   ],
   "excluded_comparison_paths": [
+    {
+      "path": "backend/app/models/__init__.py",
+      "phase5_sha256": "d229e5dd0f2302ef46602014f76830fdabf180b00c2bea5fdde363e942bfc5b1",
+      "current_release_sha256": "c3fef1437db801dcde289a6819c11c7899450be473c20f85e6ce365cf600e0ba",
+      "reason": "The frozen consumer imports the exact Phase5 root modules; this current-release module initializer difference is not executed by the accepted current-scope comparison and is excluded rather than silently treated as equivalent."
+    },
     {
       "path": "backend/migrations/env.py",
       "phase5_sha256": "6b248ac25d9f1251f95e41d1a85e480ffce7ba95f42d89f0b04cb575e415c502",
