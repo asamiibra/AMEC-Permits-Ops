@@ -1,6 +1,6 @@
 {
   "artifact": "08-positive-lifecycle-tests",
-  "generated_at_utc": "2026-09-09T23:37:23.394665Z",
+  "generated_at_utc": "2026-09-09T23:51:59.692576Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "6ba86dd5b431e4fa9d87204a3c673ce144f620be",
+  "evidence_commit_sha": "746fc3d66c51897bda439c7bea9b6a7dbaa43cbb",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -166,11 +166,26 @@
   "python_test_runtime": "PASS",
   "pytest_collection": "PASS",
   "focused_source18_tests": {
-    "command": "PYTHONPATH=backend .source18-venv/bin/pytest -q backend/tests/test_source18_committee.py",
-    "passed": 3,
+    "command": "PYTHONPATH=. .source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py",
+    "passed": 6,
     "failed": 0
   },
+  "full_backend_execution": {
+    "command": "PYTHONPATH=. .source18-venv/bin/python -m pytest -q backend/tests --disable-warnings",
+    "passed": 856,
+    "failed": 0,
+    "skipped": 33,
+    "result": "PASS"
+  },
+  "skipped_tests": {
+    "count": 33,
+    "launch_critical": [
+      "native SQL Server qualification gates"
+    ],
+    "reason": "No explicitly provisioned mssql+pyodbc DATABASE_URL was available in this local run.",
+    "replacement_evidence": "856-test backend execution plus focused migration, Source18, policy, and auth tests; native Azure SQL qualification remains a separate closure blocker."
+  },
   "api_smoke": "PASS: policy/form/case/transition/overview returned 200 on fresh TEST DB",
-  "complete_90_atom_positive_suite": "NOT_RUN",
-  "artifact_sha256": "8b07e8cb235e8d56ff1ddffaf86ea279d1c8eff11a24b8f25b44f7078a08519c"
+  "complete_90_atom_positive_suite": "FAIL: runtime and UAT proof is not established",
+  "artifact_sha256": "4c4efb4f35b46f28347ca0bacc4893f5f0fcbaa42e056cf3dcb1b2cb24632b67"
 }

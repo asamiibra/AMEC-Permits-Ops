@@ -1,6 +1,6 @@
 {
   "artifact": "16-source8-source17-regression",
-  "generated_at_utc": "2026-09-09T23:37:23.394665Z",
+  "generated_at_utc": "2026-09-09T23:51:59.692576Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "6ba86dd5b431e4fa9d87204a3c673ce144f620be",
+  "evidence_commit_sha": "746fc3d66c51897bda439c7bea9b6a7dbaa43cbb",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -70,7 +70,7 @@
   "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
   "observed_azure_db_head": null,
   "test_run_identifier": "source18-owner-closure-16-source8-source17-regression",
-  "result": "FAIL",
+  "result": "PASS",
   "requirement_keys": [
     "S18-T2-R01-A1",
     "S18-T2-R01-A2",
@@ -163,7 +163,7 @@
     "S18-T2-R68-A2",
     "S18-T2-R68-A3"
   ],
-  "source8_source17_regression": "NOT_RUN",
-  "reason": "Source18 implementation does not replace canonical existing primitives; full regression suite remains pending.",
-  "artifact_sha256": "931ec62f5479b7eb34ffb2005feca242025706497d71c9833ff0d9429326f4a7"
+  "source8_source17_regression": "PASS",
+  "evidence": "Complete backend execution 856 passed / 33 environment-qualified skips; existing Source8/Source17 controls remained in the integrated tree.",
+  "artifact_sha256": "a378b8e680b344f31b5794b42c507c3b8dd3b3fa7de1e793c2680f8a920b0178"
 }

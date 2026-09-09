@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-09T23:37:23.394665Z",
+  "generated_at_utc": "2026-09-09T23:51:59.692576Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "6ba86dd5b431e4fa9d87204a3c673ce144f620be",
+  "evidence_commit_sha": "746fc3d66c51897bda439c7bea9b6a7dbaa43cbb",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -4010,85 +4010,90 @@
     "SOURCE18_SOURCE17_REGRESSION": "FAIL",
     "SOURCE18_INDEPENDENT_REVIEW": "FAIL",
     "SOURCE18_PREPROD_CLOSURE": "FAIL",
-    "SOURCE18_PRODUCTION_CANARY": "PENDING_EXPLICIT_AUTHORITY"
+    "SOURCE18_PRODUCTION_CANARY": "PENDING_EXPLICIT_AUTHORITY",
+    "SOURCE18_FULL_BACKEND_EXECUTION": "PASS",
+    "SOURCE18_FULL_FRONTEND_EXECUTION": "PASS",
+    "SOURCE18_CURRENT_CONTRACT_RECONCILIATION": "PASS",
+    "SOURCE18_MIGRATION_ROUNDTRIP": "FAIL",
+    "SOURCE18_AZURE_SQL_QUALIFICATION": "FAIL"
   },
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "a1c7ad810e63cb9ac0c85c0f5e5ca3405205e7f8d9c2b4313b6faf3a0fd71c9e"
+      "sha256": "7e6f6e49713c45844f8c66e5d4c1a91a72b6cbb5e23882bfcf6c4ce7abb83d30"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "4cb0c25ef2af8e9ed2d66233d2b8eb2fcf3d321c20c73353ac4086dc31415838"
+      "sha256": "86c706f8d7561844caba962728ac99798f4755247d7fe2f2b1f08e76f0f51942"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "f2d6e445d32f4000ec405ab2a7e1b89320cf37d3e73a27c0d2d04b2456bd27c5"
+      "sha256": "f2d964febedde9e3251744aa7e72e3849a85515a3cb1626eca5b69bca37ed05c"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "3e59aa8704b7e41f92909309b8b9441a87baabe6ce26cc5f93c9d373ba52baa6"
+      "sha256": "68fa412b2f10a3a7f947131c1511759efd3c4546b7484f1481c85dbc6b34499a"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "59a573ce1485cbdc108303e06dcf4d8fc482270263436438e3962423c39e84b1"
+      "sha256": "fe8cae56690b8dd29c1db789f1abbd3af5ba9bcb257e6fcd141e946029cca269"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "068a4ce0954b51bb682b13ab2ccb2048a9c2a68d69b6850c47a2dfcdabb9a165"
+      "sha256": "3b960c853f1b078e567cf8262e79eb6b8b9350bc2b21d9ea35068525ee09e0c1"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "1ad7a6420c14c955cd4a02614e17ba05d6037d0b8c89136b6383b10f278b2c13"
+      "sha256": "b17d6357959088d33ed965413eb222d9166e89451e2ac35dc786c8fd6eac33d9"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "d89e434922f1b43f6e4dd30f5be95e52710fe29808a584e61196fcab46b85265"
+      "sha256": "1bb233b2130fed9a75485bc9280e92779f404b84122c3742bf79061cc6ff854c"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "4925c0521cbd7e46847d76724f9aed0b50556b20eb99711e5ce2653f0d40d8c4"
+      "sha256": "ea85b4252570d4518f8189586b02291bbeb50c0a4ec03fac6329158addbf8367"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "119a75cbd3d181bc5dbe38ba1345fec044b891d463e805bbff71421b2a9b3fa6"
+      "sha256": "116622013742f0c94859799c349edbeed16785f6f7f6af86c370749c906e26a8"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "db642095774372f31727c1a375f2910a07a6134d5d6e01ea06530cf6b88bb206"
+      "sha256": "6512667ae446fc2756e6015e31aa6558ff8963f7eaa622c816a6a41f971d3626"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "4934753615f66f80a06606e42c078b79948e7c732e57434e5d8c790fd4cb4d12"
+      "sha256": "2e7538b9bd3ad1781263548002f3a4f170bc7f690bddec13cb957ba71c6abb5e"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "695306e5d4a6dcce86193192d870f26c29e203f18dcdf0dcf146707a2fb077c5"
+      "sha256": "93058769d875cc0dd30a724a41df945cf49b2af97523df68b0ab551de9464516"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "2184446fc7c1f94c7478f82e19751da7836209dc93e55a3802ff23d7bd9dd3d9"
+      "sha256": "9263a45db4b5e92390b2643a424522dc1bb6135e309d61b7e0bff34d103e29c5"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "7a700e65aeda9c5a1ec88c77105651c0da217828a8d0c5dc5fe26446fb12bf9a"
+      "sha256": "3750aedc02f1a21d619e688cc3da4e7d79a4a63b8d519a6f1ff0df46514c92e4"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "d718e972f8f541200324f7cacdb2845dc273d4e55b3f5c212a73c510c3611360"
+      "sha256": "753e5c353afd8133a7ce13b1f2592ea7f91c3bbb10b540664322d9b437765208"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "0626aa6710c3187816726ec4949ef3745f811798ccf631b31848a11154c9af41"
+      "sha256": "39c98a863580efedf6132dc50f58412875755d2071709370ec32d21655ac1267"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "d04c97c45e057fee800198798e575b54a78c108fd959c29929238f80f8818cd9"
+      "sha256": "00cdd928c4ca80b83c9c7ea0859e91dec514946a6b753c56fe7351ec25972f05"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "190ae1be024e61fb30874c4c3df6283fbb828c429e3d90b0cf0364681485b4c2"
+      "sha256": "039638750ef621c39dedfbf69248d1a8293079a222f57fee3598a612e4815d00"
     }
   ],
-  "artifact_sha256": "ab8c30f33c13ea9c4fabcf00f091027ddf470e4aa12a1415e6a9a88975111c05"
+  "artifact_sha256": "f4b29d1a23f1259341d4685902bf634192f3a3851388eb3be8f38fe2819fceab"
 }
