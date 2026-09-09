@@ -1,0 +1,26 @@
+{
+  "current_release_sha": "678cae4d10b244def36fe1d9377ce13d242bfdde",
+  "current_release_tree": "a6bd57cdd81d8ed386d5ad4c288a999ddd19df4d",
+  "focused_executable_audit": "PARTIAL_FOCUSED_CONTROL_ONLY",
+  "focused_tests": {
+    "command": "PYTHONPATH=. pytest -q backend/tests/test_source14_contract_controls.py backend/tests/test_billing_invoice_full.py backend/tests/test_source12_project_finance_controls.py",
+    "result": "55_PASS"
+  },
+  "real_amec_bytes_read": 0,
+  "required_exit_controls": {
+    "SOURCE13_AMEC_PRODUCTION_INVOICE_REFERENCE": "PARTIAL_FOCUSED_CONTROL_IMPLEMENTED",
+    "SOURCE13_COMMERCIAL_TERM_DERIVATION": "PENDING",
+    "SOURCE13_FINANCE_EVIDENCE_FOLLOWUP_UX": "PENDING",
+    "SOURCE13_FORECAST_BILLING_READINESS": "PENDING",
+    "SOURCE13_INVOICE_REGISTER": "PENDING",
+    "SOURCE13_OFFICIAL_AMEC_INVOICE_RENDERER": "PENDING",
+    "SOURCE13_OPEN_RECEIVABLES": "PENDING",
+    "SOURCE13_PROJECT_COMMERCIAL_CASHFLOW_MASTER": "PENDING",
+    "SOURCE13_SIGNED_ARTIFACT_CUSTODY": "PENDING",
+    "SOURCE13_SUPERVISION_MONTHLY_PROFILE": "PENDING"
+  },
+  "requirement_count": 116,
+  "requirement_orphans": 0,
+  "source_pinned": true,
+  "synthetic_only": true
+}

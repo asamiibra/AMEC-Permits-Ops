@@ -1,0 +1,70 @@
+{
+  "current_release_sha": "678cae4d10b244def36fe1d9377ce13d242bfdde",
+  "current_release_tree": "a6bd57cdd81d8ed386d5ad4c288a999ddd19df4d",
+  "focused_code_paths": [
+    "backend/app/api/billing_invoice_routers.py",
+    "backend/app/services/source14_contract_controls.py",
+    "backend/tests/test_source14_contract_controls.py"
+  ],
+  "map": "SOURCE13_STANDARD_INVOICE_CURRENT_HEAD_RECONCILIATION",
+  "open_work_packages": 7,
+  "source12_reuse_required": true,
+  "work_packages": [
+    {
+      "id": "G1",
+      "priority": "P0",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Exact Commercial-Term Derivation"
+    },
+    {
+      "id": "G2",
+      "priority": "P0",
+      "reuse_source12": true,
+      "status": "FOCUSED_CONTROL_IMPLEMENTED",
+      "title": "AMEC Production Invoice Reference"
+    },
+    {
+      "id": "G3",
+      "priority": "P0",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Official AMEC Invoice Rendering + Signed Artifact"
+    },
+    {
+      "id": "G4",
+      "priority": "P0/P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Project Commercial / Cashflow Master Projection"
+    },
+    {
+      "id": "G5",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Open Receivables + Invoice Register UX"
+    },
+    {
+      "id": "G6",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Forecast + Billing-Readiness Workflow"
+    },
+    {
+      "id": "G7",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Supervision Monthly Billing Profile"
+    },
+    {
+      "id": "G8",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Finance Evidence/Follow-up Owner UX"
+    }
+  ]
+}

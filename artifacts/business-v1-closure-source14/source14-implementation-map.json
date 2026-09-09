@@ -1,0 +1,114 @@
+{
+  "admin_operating_model": "SCOPED_CAPABILITY_AND_WORK_QUEUE_WITHIN_EXISTING_PERSONA_MODEL",
+  "final_work_package_count": 15,
+  "map": "SOURCE14_REGULATORY_INTAKE_CURRENT_HEAD_RECONCILIATION",
+  "open_work_packages": 15,
+  "visible_global_persona_created": false,
+  "work_packages": [
+    {
+      "id": "P0-1",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Office Regulatory Master"
+    },
+    {
+      "id": "P0-2",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Engineer Regulatory Master"
+    },
+    {
+      "id": "P0-3",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Regulated Roster + Assignments"
+    },
+    {
+      "id": "P0-4",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Compliance Rules Engine"
+    },
+    {
+      "id": "P0-5",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Office/Engineer Authority Cases"
+    },
+    {
+      "id": "P0-6",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Governed Committee Forms"
+    },
+    {
+      "id": "P0-7",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Renewal Qualification + Evidence"
+    },
+    {
+      "id": "P0-8",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Authority Outcome Projection"
+    },
+    {
+      "id": "P0-9",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Sensitive-Person Data Controls"
+    },
+    {
+      "id": "P1-10",
+      "priority": "P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Workforce Reconciliation"
+    },
+    {
+      "id": "P1-11",
+      "priority": "P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Compliance Command Center"
+    },
+    {
+      "id": "P1-12",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Dynamic Project Requirement Set"
+    },
+    {
+      "id": "P1-13",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Evidence Verification and State Separation"
+    },
+    {
+      "id": "P1-14",
+      "priority": "P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Engineering, Submission, Handover and Tender Seams"
+    },
+    {
+      "id": "P1-15",
+      "priority": "P0/P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Admin Capability Mapping and Protected-Human Boundaries"
+    }
+  ]
+}

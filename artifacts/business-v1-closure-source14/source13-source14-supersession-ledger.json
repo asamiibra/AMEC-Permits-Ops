@@ -1,0 +1,21 @@
+{
+  "relationships": [
+    {
+      "from": "Source12",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source13"
+    },
+    {
+      "from": "Source13",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source14 finance revalidation"
+    }
+  ],
+  "rules": [
+    "Source1–Source12 accepted rows remain append-only and are not deduplicated.",
+    "Source13 is later same-scope authority for the standard AMEC Invoice profile and refines Source12 finance behavior without deleting it.",
+    "Source14 primary regulatory rows remain distinct from its 36 finance revalidation rows.",
+    "No absence in a later source is treated as supersession.",
+    "Unresolved source-quality or Owner decisions remain explicit rather than converted into code."
+  ]
+}

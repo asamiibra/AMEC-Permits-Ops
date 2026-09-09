@@ -1,0 +1,18 @@
+{
+  "gaps": [
+    {
+      "description": "Current official policy/form evidence for Source8 remains unproven.",
+      "g5_blocking": true,
+      "id": "SOURCE14-G5-001",
+      "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED"
+    },
+    {
+      "description": "Source14 current-head executable audit and the 15 regulatory work packages remain open.",
+      "g5_blocking": true,
+      "id": "SOURCE14-G5-002",
+      "status": "MISSING"
+    }
+  ],
+  "register": "SOURCE14_CURRENT_CONTRACT_G5_GAPS",
+  "source14_requirement_orphans": 0
+}
