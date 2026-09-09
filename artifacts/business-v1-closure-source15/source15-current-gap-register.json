@@ -15,7 +15,7 @@
       "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED"
     },
     {
-      "description": "Source13, Source14, and Source15 executable work-package evidence is not yet closed on this branch.",
+      "description": "Source13 and Source14 predecessor work-package closure evidence remains open; Source15 controls are separately implemented and proven.",
       "g5_blocking": true,
       "id": "SOURCE15-G5-003",
       "status": "MISSING"
@@ -33,6 +33,6 @@
   "register": "SOURCE15_CURRENT_CONTRACT_G5_GAPS",
   "source15_requirement_orphans": 0,
   "source15_untraceable_atomic_requirements": 0,
-  "subject_source_sha": "024b430402813f806528a97778b1eabcb81e6452",
-  "subject_source_tree": "1648ccb602baec4eb9753e608a50ace138513858"
+  "subject_source_sha": "d33450d0210df03c6b2366654ec25dc39d4b7c8d",
+  "subject_source_tree": "a1974634caa095463f2eb9a6199b0a7204a2f7f7"
 }

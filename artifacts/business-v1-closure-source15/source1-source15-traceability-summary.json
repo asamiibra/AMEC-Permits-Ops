@@ -7,7 +7,7 @@
   "g5_business_v1_code_frozen": false,
   "g5_current_source15_contract_reconciliation": "BLOCKED",
   "g6_started": false,
-  "generated_at_utc": "2026-09-09T20:40:00.256064+00:00",
+  "generated_at_utc": "2026-09-09T21:01:01.916770+00:00",
   "latest_governing_contract_source": "SOURCE15",
   "merged_prs_recorded_externally": true,
   "owner_approved_client_delay_threshold": {
@@ -22,6 +22,7 @@
   "real_amec_source_bytes": 0,
   "real_amec_source_reads": 0,
   "source13_requirement_orphans": 0,
+  "source14_regulatory_work_packages_open": 15,
   "source14_requirement_orphans": 0,
   "source15_finance_revalidation_atomic_rows": 143,
   "source15_primary_rows": 100,
@@ -35,7 +36,7 @@
   "source1_to_source15_atomic_traceability_rows": 1773,
   "source8_current_authority_policy_currentness": "BLOCKED",
   "source8_current_committee_forms_currentness": "BLOCKED",
-  "subject_source_sha": "024b430402813f806528a97778b1eabcb81e6452",
-  "subject_source_tree": "1648ccb602baec4eb9753e608a50ace138513858",
+  "subject_source_sha": "d33450d0210df03c6b2366654ec25dc39d4b7c8d",
+  "subject_source_tree": "a1974634caa095463f2eb9a6199b0a7204a2f7f7",
   "traceability_cross_check": true
 }

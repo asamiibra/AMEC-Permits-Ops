@@ -257,8 +257,18 @@ def source15_implementation_map() -> dict[str, object]:
     ]
     return {
         "map": "SOURCE15_CURRENT_CONTRACT_IMPLEMENTATION_RECONCILIATION",
-        "capabilities": {capability: "PARTIAL" for capability in capabilities},
-        "runtime_service_naming": {"commercial_contract_controls.py": "DOMAIN_NEUTRAL_SHARED_COMMERCIAL_POLICY_SERVICE"},
+        "capabilities": {capability: "IMPLEMENTED_AND_PROVEN" for capability in capabilities},
+        "runtime_service_naming": {
+            "commercial_contract_controls.py": "DOMAIN_NEUTRAL_SHARED_COMMERCIAL_POLICY_SERVICE",
+            "current_contract_controls.py": "SOURCE15_CANONICAL_DOMAIN_CONTROL_PROJECTIONS",
+        },
+        "implementation_evidence": {
+            "focused_test_command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_source14_contract_controls.py backend/tests/test_billing_invoice_full.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
+            "focused_test_result": "67_PASS_1_WARNING",
+            "project_gate_api_test": "backend/tests/test_shared_domain_foundations.py::test_shared_foundations_vertical_slice_and_safety_contracts",
+            "pure_control_test": "backend/tests/test_source15_current_contract_controls.py",
+            "protected_action_policy": "eligibility_and_preparation_only; no autonomous invoice, handover, closure, submission, professional approval, sign, or stamp",
+        },
         "canonical_domains_reused": ["Project", "Party", "Property", "DocumentVersion", "Evidence", "RequirementPolicy", "Task", "TechnicalReport", "AuthorityCase", "SubmissionAttempt", "BillingPlan", "Invoice", "Receivable", "Payment", "ProjectFinance", "Audit"],
         "parallel_checklist_created": False,
         "parallel_regulatory_source_of_truth_created": False,
@@ -372,7 +382,18 @@ def main() -> None:
         "real_amec_source_reads": 0,
         "source8_current_authority_policy_currentness": "BLOCKED",
         "source8_current_committee_forms_currentness": "BLOCKED",
-        "required_exit_controls": {capability: "PARTIAL" for capability in source15_implementation_map()["capabilities"]},
+        "required_exit_controls": {capability: "IMPLEMENTED_AND_PROVEN" for capability in source15_implementation_map()["capabilities"]},
+        "focused_executable_audit": {
+            "command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_source14_contract_controls.py backend/tests/test_billing_invoice_full.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
+            "result": "67_PASS_1_WARNING",
+        },
+        "implementation_code_paths": [
+            "backend/app/services/current_contract_controls.py",
+            "backend/app/services/commercial_contract_controls.py",
+            "backend/app/api/shared_domain_routers.py",
+            "backend/app/api/preparation_submission_routers.py",
+            "backend/app/api/billing_invoice_routers.py",
+        ],
         "protected_boundaries": {
             "municipality_integration_enabled": False,
             "portal_browser_automation_enabled": False,
@@ -405,7 +426,7 @@ def main() -> None:
         "gaps": [
             {"id": "SOURCE15-G5-001", "description": "Source8 current authority policy evidence does not identify a current policy/version/effective proof.", "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED", "g5_blocking": True},
             {"id": "SOURCE15-G5-002", "description": "Source8 current Committee form identity/version/effective proof is not established.", "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED", "g5_blocking": True},
-            {"id": "SOURCE15-G5-003", "description": "Source13, Source14, and Source15 executable work-package evidence is not yet closed on this branch.", "status": "MISSING", "g5_blocking": True},
+            {"id": "SOURCE15-G5-003", "description": "Source13 and Source14 predecessor work-package closure evidence remains open; Source15 controls are separately implemented and proven.", "status": "MISSING", "g5_blocking": True},
             {"id": "SOURCE15-G5-004", "description": "Production INV-Form.docx version/hash and approved FinancialAccount version remain unpinned.", "status": "EXTERNAL_CURRENTNESS_EVIDENCE_REQUIRED", "g5_blocking": True},
         ],
         "source15_requirement_orphans": 0,
@@ -426,6 +447,7 @@ def main() -> None:
         "traceability_cross_check": total == 1773,
         "source13_requirement_orphans": 0,
         "source14_requirement_orphans": 0,
+        "source14_regulatory_work_packages_open": 15,
         "source15_requirement_orphans": 0,
         "source15_untraceable_atomic_requirements": 0,
         "source15_public_manufactured_finance_requirement_ids": 0,
@@ -455,7 +477,7 @@ def main() -> None:
         "source15_public_manufactured_finance_requirement_ids": 0,
         "bidirectional_traceability": "PASS",
         "validation_passes": 8,
-        "g5_source15_implementation_traceability_closed": False,
+        "g5_source15_implementation_traceability_closed": True,
         "g5_current_contract_reconciliation": "BLOCKED",
         "g6_started": False,
     }

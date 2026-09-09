@@ -23,26 +23,33 @@
     "Audit"
   ],
   "capabilities": {
-    "SOURCE15_COMMENT_REJECTION_SEPARATION": "PARTIAL",
-    "SOURCE15_CONTRACT_FINANCE_CONTEXT": "PARTIAL",
-    "SOURCE15_CORRECTION_WORK_ITEM_FANOUT": "PARTIAL",
-    "SOURCE15_DYNAMIC_CHECKLIST": "PARTIAL",
-    "SOURCE15_ESTATE_HEIRS_EVIDENCE": "PARTIAL",
-    "SOURCE15_FINANCE_REVALIDATION": "PARTIAL",
-    "SOURCE15_FINANCE_WORKSPACE": "PARTIAL",
-    "SOURCE15_FINANCIAL_SECURITY": "PARTIAL",
-    "SOURCE15_IMMEDIATE_VERIFIED_DOCUMENT_FILING": "PARTIAL",
-    "SOURCE15_INDUSTRIAL_AREA_VARIANT": "PARTIAL",
-    "SOURCE15_INVOICE_QUANTITY_UNIT_PRICE_STRUCTURE": "PARTIAL",
-    "SOURCE15_KROKY_PROVENANCE": "PARTIAL",
-    "SOURCE15_MULTI_INVOICE_PAYMENT_ALLOCATION": "PARTIAL",
-    "SOURCE15_PARTIAL_PACKAGE_CONTINUITY": "PARTIAL",
-    "SOURCE15_PROJECT_OPERATING_SCALE_50_ACCEPTANCE": "PARTIAL",
-    "SOURCE15_RESPONSIBILITY_ROUTING": "PARTIAL",
-    "SOURCE15_TECHNICAL_REPORT": "PARTIAL"
+    "SOURCE15_COMMENT_REJECTION_SEPARATION": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_CONTRACT_FINANCE_CONTEXT": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_CORRECTION_WORK_ITEM_FANOUT": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_DYNAMIC_CHECKLIST": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_ESTATE_HEIRS_EVIDENCE": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_FINANCE_REVALIDATION": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_FINANCE_WORKSPACE": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_FINANCIAL_SECURITY": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_IMMEDIATE_VERIFIED_DOCUMENT_FILING": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_INDUSTRIAL_AREA_VARIANT": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_INVOICE_QUANTITY_UNIT_PRICE_STRUCTURE": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_KROKY_PROVENANCE": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_MULTI_INVOICE_PAYMENT_ALLOCATION": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_PARTIAL_PACKAGE_CONTINUITY": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_PROJECT_OPERATING_SCALE_50_ACCEPTANCE": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_RESPONSIBILITY_ROUTING": "IMPLEMENTED_AND_PROVEN",
+    "SOURCE15_TECHNICAL_REPORT": "IMPLEMENTED_AND_PROVEN"
   },
   "evidence_container_commit": null,
   "evidence_container_commit_recorded_externally": true,
+  "implementation_evidence": {
+    "focused_test_command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_source14_contract_controls.py backend/tests/test_billing_invoice_full.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
+    "focused_test_result": "67_PASS_1_WARNING",
+    "project_gate_api_test": "backend/tests/test_shared_domain_foundations.py::test_shared_foundations_vertical_slice_and_safety_contracts",
+    "protected_action_policy": "eligibility_and_preparation_only; no autonomous invoice, handover, closure, submission, professional approval, sign, or stamp",
+    "pure_control_test": "backend/tests/test_source15_current_contract_controls.py"
+  },
   "latest_governing_contract_source": "SOURCE15",
   "map": "SOURCE15_CURRENT_CONTRACT_IMPLEMENTATION_RECONCILIATION",
   "merged_prs_recorded_externally": true,
@@ -53,8 +60,9 @@
   "portal_browser_automation_enabled": false,
   "pr_reviewed_heads_recorded_externally": true,
   "runtime_service_naming": {
-    "source14_contract_controls.py": "REFACTOR_TO_DOMAIN_NEUTRAL_SERVICE_REQUIRED"
+    "commercial_contract_controls.py": "DOMAIN_NEUTRAL_SHARED_COMMERCIAL_POLICY_SERVICE",
+    "current_contract_controls.py": "SOURCE15_CANONICAL_DOMAIN_CONTROL_PROJECTIONS"
   },
-  "subject_source_sha": "024b430402813f806528a97778b1eabcb81e6452",
-  "subject_source_tree": "1648ccb602baec4eb9753e608a50ace138513858"
+  "subject_source_sha": "d33450d0210df03c6b2366654ec25dc39d4b7c8d",
+  "subject_source_tree": "a1974634caa095463f2eb9a6199b0a7204a2f7f7"
 }

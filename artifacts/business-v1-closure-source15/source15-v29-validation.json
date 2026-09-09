@@ -3,7 +3,7 @@
   "evidence_container_commit": null,
   "evidence_container_commit_recorded_externally": true,
   "g5_current_contract_reconciliation": "BLOCKED",
-  "g5_source15_implementation_traceability_closed": false,
+  "g5_source15_implementation_traceability_closed": true,
   "g6_started": false,
   "latest_governing_contract_source": "SOURCE15",
   "merged_prs_recorded_externally": true,
@@ -15,8 +15,8 @@
   "source15_untraceable_atomic_requirements": 0,
   "source1_to_source15_total_atomic_requirement_count": 1773,
   "source_bytes_verified": true,
-  "subject_source_sha": "024b430402813f806528a97778b1eabcb81e6452",
-  "subject_source_tree": "1648ccb602baec4eb9753e608a50ace138513858",
+  "subject_source_sha": "d33450d0210df03c6b2366654ec25dc39d4b7c8d",
+  "subject_source_tree": "a1974634caa095463f2eb9a6199b0a7204a2f7f7",
   "validation": "SOURCE15_V29_PRE_G6_TRACEABILITY",
   "validation_passes": 8
 }
