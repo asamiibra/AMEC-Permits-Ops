@@ -1,6 +1,6 @@
 {
   "artifact": "11-browser-uat",
-  "generated_at_utc": "2026-09-09T23:56:53.492064Z",
+  "generated_at_utc": "2026-09-09T23:58:20.789592Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "88aa7a6db843495705204e26d11234efa2a6c867",
+  "evidence_commit_sha": "b53cbbdfd31326b470df255b75923abe8f5e6809",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -168,5 +168,5 @@
   "browser_run": "NOT_RUN",
   "synthetic_pii": true,
   "reason": "Frontend build passed; real browser workflow evidence is not present.",
-  "artifact_sha256": "2f3a091e4efc52a2f78c319ee00e332b171a83d71998ca843b9532301485b9c2"
+  "artifact_sha256": "a013822ac4e448475dcc40ee53e14859f95e57ec7e2ddd33ea14e54061eb5bd1"
 }

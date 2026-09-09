@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-09T23:56:53.492064Z",
+  "generated_at_utc": "2026-09-09T23:58:20.789592Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -60,7 +60,7 @@
   "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
   "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
   "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "88aa7a6db843495705204e26d11234efa2a6c867",
+  "evidence_commit_sha": "b53cbbdfd31326b470df255b75923abe8f5e6809",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -218,7 +218,7 @@
         "10-authorization-pii.json",
         "11-browser-uat.json"
       ],
-      "FIRST_BLOCKER": "Implemented canonical Source-18 surface with direct focused test/evidence coverage.",
+      "FIRST_BLOCKER": "AZURE_PROOF_MISSING",
       "SOURCE_TEXT_SHA256": "0e7aa76b85d1c61bea2d869f8d67bae1589a054661e2eda098d14ef17438e31c",
       "SOURCE_SHA256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
     },
@@ -2012,7 +2012,7 @@
         "10-authorization-pii.json",
         "11-browser-uat.json"
       ],
-      "FIRST_BLOCKER": "Implemented canonical Source-18 surface with direct focused test/evidence coverage.",
+      "FIRST_BLOCKER": "AZURE_PROOF_MISSING",
       "SOURCE_TEXT_SHA256": "1a8bdcbfdae14a1100ca8a69b5701712da551e127a042a884fb9b01228f1e447",
       "SOURCE_SHA256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
     },
@@ -4020,90 +4020,90 @@
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "582da666778e274c881bfe6a55dfe8662f9c1d05460fd2fa4f2ea51b4162c1d7"
+      "sha256": "f376ac23be512e0c4f7841bf4d97479004fb55f1966982bd8614a3309836148b"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "be627b1ad9ade24cad2398ffda53374370533d90b9642fb44baba82373f7858c"
+      "sha256": "da92d1b86a9cac58175a121437b5a4385bc60546f830f9ce1383f41a8ae8c00b"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "a3769addc35edffa3dc0b3f978269ef396f14918757e59b868768d1abca3f112"
+      "sha256": "518ac8489949ab2047fa268caaa6ecdb9c1266531125fd77dfb8f1505a4d7fa9"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "70f136cb970bead2f2f071d99f3395970b37ee62da8c14ce38738ad86c113798"
+      "sha256": "aa2631d64ec08a701d12c87daf156b2a719703da43794a83edb6710e99273d7d"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "ba824247d0d9e70355f8b0bd07fc876207ed442df851dca6cfb2be0648d110b4"
+      "sha256": "f830691a9e899ee82ca2cc2807376629e33e48ae20942aad9d38a0fdda81ee67"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "e94117ec4792330cec8d5ec73d53398631b2ffea800c7b988e615a78ec58614c"
+      "sha256": "8493656718068dca82356902d7f44e9d52c5ece4bda0b9bf7dddd0f398d813c0"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "63be2c2c8f50f7da5f106e8fd0921d955d682a9d288201449782fa3816d8c333"
+      "sha256": "16c6469309b2a0456afbf607e67f608c910db4b9e6dd7631fabbf96d189f290b"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "23df8d6d8472984b7dc8458409edf8ce39b8632d81494fbff35cf4e85e327d4f"
+      "sha256": "2cbca2a8acc0880c3394d20ec7eeaefc00d67f4e806a62668d117ff2c4f623dc"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "4eee77a96c76cf7d6266e6784162df2224122d7085247a5da3e76ec21252582d"
+      "sha256": "c64490ade73206f27f75be079ec3fb1eaec223d817c63f0311384604ae480797"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "1e416f6b8f5b1080fc477e705131461b21d074772491972c689409b5660d68a0"
+      "sha256": "7ce5bb719ee26d46f4587e7df345d5a1b1ef73e1a4c606f749e71320c3aad1cd"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "1f329e3e489876dd5be13992da9d06f161d9acc5805e7238b70a408fd207c176"
+      "sha256": "f931e94e8de4c428fce449ba75ae08acafb8ce8392a02151d52a4c4d3b2a1595"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "d3d4c693a10aa1859211473c1940c0f958b749cb9d798d74e93207ff47986c16"
+      "sha256": "79c4e7aa8e05a1b5183aeb66f47b733a55ac530cea0dbf688c94337c942344f8"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "ddf95442c9a71bc05ead0d7cb4d5a9ff4d566d6d9721fb0b58955cd2d106e691"
+      "sha256": "ac718e7edf40d9e02eebce133a4214b0e1ae9fc9bcdce76dbc623941524bf39d"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "bb2e548691b6be241ddb81f9baa9d35cdbd4f62d78f918d68c576335301bb4ba"
+      "sha256": "cfa1a0feb33f85cc330b4efbe2579012a33ad526060602c2373e86bcfeff71b8"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "f6c741af7435ab959fa14eeca4d1ada5b1fa9c18a151889a27e3267047d2731c"
+      "sha256": "caa82fd79d9341c7b953bcf8a13632082a530f0cc161a1606886c63d17a6dc4f"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "a2f92bb146f52e3c03d7489d43c62bc50ef12b0e4291fbe9afab1c5104a45133"
+      "sha256": "5684cb52cd62fb447cb6cb7d397156841ac32dd5cfc078ece3b3ac4d29538058"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "4e3dc63302c801fd8d6c49760761c7550657330abd851a803b441316d40594ed"
+      "sha256": "f4ac5313a3bf6206df099d1800e7b6ae323ffcca2893c3f00b7cc0510cb829c9"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "a39132ef285d192226485daa37d59c886f44806b08a00eb64ee03c24cb086108"
+      "sha256": "f9f7de3cf773cde835c8cdf4fd353f199bf39a34856ee3de06b60ffc3bf927e4"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "baf0af81dd60716dec556cbc598a830361b8c3618ad73bab7700460452282553"
+      "sha256": "4d918a84e8004f35ff8eb8c4434322af7b1b8ffaf4b419d38f9d3b57501360f7"
     },
     {
       "artifact": "19-integration-reconciliation.json",
       "sha256": "a5a1fb115853a446c131b65a2954749dad36ef6e54691de4b4e3967a941216a4"
     }
   ],
-  "artifact_sha256": "1e4f7e354257b8dfecaa5d57e2ec480f2269b8184d57d76a1af05839d9902a28",
+  "artifact_sha256": "6b34471d0ae6443ba6fe6e7fbb8174346f03ad1ffac65163db6ebfebc0152e4e",
   "release_identity": {
     "EXECUTABLE_RELEASE_SHA": "c01e893e06caae9a984b80aa53bffbf78b981551",
     "EXECUTABLE_TREE_SHA": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-    "EVIDENCE_COMMIT_SHA": "88aa7a6db843495705204e26d11234efa2a6c867",
+    "EVIDENCE_COMMIT_SHA": "b53cbbdfd31326b470df255b75923abe8f5e6809",
     "MERGE_SHA": null,
     "IMAGE_DIGEST": null,
     "AZURE_REVISION": null,
