@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = 4ba6a5342bab216f9fc0b394f22b8914d4247915
+          test "$PARENT" = 4fc83c6e77660f848825443ce405b1d16948dad6
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -85,7 +85,7 @@ jobs:
           test "$(sha256sum "$CROOT/t6b/sqlserver_gate.py" | awk '{print $1}')" = 0f3b7552445754cbb2af195be6e26848562a176756f63bc2ceee10681aff2834
           test "$(sha256sum "$CROOT/t6b/qualification.py" | awk '{print $1}')" = 6d35397556ca5e338ec928ec9f446e46d52c262eceacab4123952169657e5c4f
           test "$(stat -c '%s' "$CROOT/t6b/qualification.py")" = 44577
-          cp -R "$CROOT/t6b" "$CONTEXT/consumer/"
+          cp -R "$CROOT/t6b/." "$CONTEXT/consumer/"
           cp .t6b-validation/ProposalOps_SYN_T6A_RECOVERY_R4_CANDIDATE.tar.gz "$CONTEXT/t6a_candidate.tar.gz"
           cp .t6b-validation/T6A_ATTEMPT3_SANITIZED_RETURN.tar.gz "$CONTEXT/t6a_return.tar.gz"
           cp "$RUNNER_TEMP/phase5/backend/requirements-runtime.txt" "$CONTEXT/phase5_requirements.txt"
