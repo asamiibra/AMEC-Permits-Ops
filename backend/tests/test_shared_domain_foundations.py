@@ -127,6 +127,13 @@ def test_shared_foundations_vertical_slice_and_safety_contracts(client):
     _post(client, f"/api/regulatory/service-types/{service['id']}/versions", {"version": "1", "status": "ACTIVE", "effective_from": "2026-01-01", "provenance_json": {"synthetic": True}})
     phase = _post(client, "/api/regulatory/lifecycle-phases", {"code": f"SYN-APPLICATION-{suffix}", "name_en": "Synthetic Application", "sort_order": 20})
     journey = _post(client, "/api/regulatory/journeys", {"journey_code": f"SYN-JOURNEY-{suffix}", "service_type_id": service["id"], "jurisdiction_id": jurisdiction["id"], "external_body_id": body["id"]})
+    governed_without_project = client.post(
+        "/api/regulatory/cases",
+        json={"case_reference": f"SYN-GOVERNED-NO-PROJECT-{suffix}", "regulatory_journey_id": journey["id"], "external_body_id": body["id"], "service_type_id": service["id"], "jurisdiction_id": jurisdiction["id"], "engagement_type": "MAINTENANCE_PERMIT"},
+        headers=OWNER,
+    )
+    assert governed_without_project.status_code == 422
+    assert governed_without_project.json()["detail"]["code"] == "CANONICAL_PROJECT_REQUIRED_FOR_GOVERNED_AUTHORITY_CASE"
     case = _post(client, "/api/regulatory/cases", {"case_reference": f"SYN-CASE-{suffix}", "regulatory_journey_id": journey["id"], "external_body_id": body["id"], "service_type_id": service["id"], "jurisdiction_id": jurisdiction["id"], "subject_type": "PROJECT", "subject_id": "synthetic-project-a"})
     identifier = _post(client, f"/api/regulatory/cases/{case['id']}/identifiers", {"identifier_type": "OFFICIAL_APPLICATION", "value": f"SYN-OFFICIAL-{suffix}"})
     assert identifier["authority_case_id"] == case["id"]
