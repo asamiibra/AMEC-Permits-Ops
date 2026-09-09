@@ -1,6 +1,6 @@
 {
   "artifact": "15-azure-runtime-acceptance",
-  "generated_at_utc": "2026-09-09T22:41:37.693408Z",
+  "generated_at_utc": "2026-09-09T22:43:11.794242Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -56,8 +56,8 @@
     }
   ],
   "contract_part_count": 10,
-  "release_sha": "d90ceef0d3a65d1a4ecfaa6127e2ddcc0c1c62f8",
-  "tree_sha": "3ee6402a679ee15d2c6fd2c1f60da2b488d80a5f",
+  "release_sha": "c68e5561bf2f599913eb38bf39af81c976c1ace4",
+  "tree_sha": "116eb2f96dd22bc3f2e5f12ffbcee253c190c2be",
   "branch": "source18/committee-implementation-closure",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -164,15 +164,18 @@
     "status": 200,
     "environment": "AZURE-PREPROD",
     "synthetic_only": true,
-    "real_data_allowed": false,
+    "real_data_allowed": null,
     "database_dialect": "mssql",
-    "database_connection_valid": true,
-    "migration_head": "ai_d2_execution_ledger_v1"
+    "database_connection_valid": false,
+    "alembic_versions": [],
+    "runtime_release_sha": null,
+    "migration_head": null
   },
   "health_live": "NOT_REQUERIED_IN_THIS_BRANCH_RUN",
   "health_ready": "NOT_REQUERIED_IN_THIS_BRANCH_RUN",
   "source18_runtime": "NOT_DEPLOYED",
   "repo_azure_identity_equal": false,
   "production_canary": "PENDING_EXPLICIT_AUTHORITY",
-  "artifact_sha256": "58daf3c5912510fc4e4c45534ea1ae2e08eb5e474e1e893cb380b670b14e6a26"
+  "artifact_sha256": "7c30ddf608810aa474051acb6dc3875fb520d321babeb66d265a629cd4fd861b",
+  "current_read_only_observation": "Fresh GET /health returned HTTP 200 with database_connection_valid=false and no migration versions/runtime release SHA."
 }
