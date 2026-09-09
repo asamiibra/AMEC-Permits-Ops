@@ -1,6 +1,6 @@
 {
   "artifact": "11-browser-uat",
-  "generated_at_utc": "2026-09-09T22:40:54.181924Z",
+  "generated_at_utc": "2026-09-09T23:36:04.090302Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -56,16 +56,19 @@
     }
   ],
   "contract_part_count": 10,
-  "release_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "tree_sha": "178183b151f6bd0b388fdf5f90392b72d023883d",
-  "branch": "source18/committee-implementation-closure",
+  "evidence_generated_from_sha": "63a8fdcd89facf39fa4c8f6615129cfc01a3e83f",
+  "evidence_generated_from_tree": "a18fb4abf0397e7993b6a9bef168314d8264a3a9",
+  "executable_release_sha": "63a8fdcd89facf39fa4c8f6615129cfc01a3e83f",
+  "executable_tree_sha": "a18fb4abf0397e7993b6a9bef168314d8264a3a9",
+  "evidence_commit_sha": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
+  "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
   "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / AZURE-PREPROD_READ_ONLY_OBSERVED",
-  "azure_release_sha": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7",
-  "azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
-  "azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
-  "azure_db_head": "ai_d2_execution_ledger_v1",
+  "observed_azure_release_sha": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7",
+  "observed_azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
+  "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
+  "observed_azure_db_head": null,
   "test_run_identifier": "source18-owner-closure-11-browser-uat",
   "result": "FAIL",
   "requirement_keys": [
@@ -165,5 +168,5 @@
   "browser_run": "NOT_RUN",
   "synthetic_pii": true,
   "reason": "Frontend build passed; real browser workflow evidence is not present.",
-  "artifact_sha256": "1cdf821fca2a332cafb2d47cc8f446c2922563a1ecbe91e3b8712d99dc489e1f"
+  "artifact_sha256": "7a9921077534b1c29b6be02199f79ddca3dcee726fec06652ed5d3ff518a415c"
 }
