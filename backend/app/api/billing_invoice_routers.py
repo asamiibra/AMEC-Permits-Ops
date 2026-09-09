@@ -35,6 +35,8 @@ from ..models import (
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
 from ..services.owner_decisions import runtime_decision_value
 from ..services.commercial_contract_controls import compose_amec_invoice_reference
+from ..services.source12_finance_controls import production_numbering_gate
+from ..config.settings import get_settings
 from ..services.week45 import stable_hash
 
 
@@ -810,6 +812,14 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
 
 def _allocate_invoice_ref(db: Session, issue_date: date, actor: str, *, contract: Contract, revision: InvoiceRevision) -> str:
     policy = db.scalar(select(InvoiceNumberingPolicy).where(InvoiceNumberingPolicy.policy_key == "INVOICE" ).with_for_update())
+    if not get_settings().synthetic_only:
+        gate = production_numbering_gate(
+            legacy_finance_reconciled=bool(runtime_decision_value(db, "SOURCE12_LEGACY_FINANCE_RECONCILIATION_CAPABILITY", False)),
+            historical_global_sequence_reconciled=bool(runtime_decision_value(db, "HISTORICAL_GLOBAL_SEQUENCE_RECONCILED", False)),
+            next_global_sequence_exactly_derived=bool(runtime_decision_value(db, "NEXT_GLOBAL_SEQUENCE_EXACTLY_DERIVED", False)),
+        )
+        if not gate["ready"]:
+            raise HTTPException(409, {"code": "LEGACY_FINANCE_RECONCILIATION_REQUIRED_BEFORE_PRODUCTION_NUMBERING", "required_controls": gate["controls"]})
     if not policy:
         policy = InvoiceNumberingPolicy(policy_key="INVOICE", prefix="INV-AMEC", padding=6, next_number=1, version="V1", status="ACTIVE", no_reuse=True, updated_by=actor); db.add(policy); db.flush()
     if policy.status != "ACTIVE": raise HTTPException(409, {"code": "INVOICE_NUMBERING_POLICY_INACTIVE"})

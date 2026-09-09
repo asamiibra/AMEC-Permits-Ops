@@ -148,6 +148,17 @@ class CollisionSafeNumberAllocator:
                 n += 1
 
 
+def production_numbering_gate(*, legacy_finance_reconciled: bool, historical_global_sequence_reconciled: bool, next_global_sequence_exactly_derived: bool) -> dict[str, object]:
+    """Fail closed until the production global sequence has an owner-backed proof."""
+
+    controls = {
+        "legacy_finance_reconciliation_capability": bool(legacy_finance_reconciled),
+        "historical_global_sequence_reconciled": bool(historical_global_sequence_reconciled),
+        "next_global_sequence_exactly_derived": bool(next_global_sequence_exactly_derived),
+    }
+    return {"ready": all(controls.values()), "controls": controls}
+
+
 @dataclass
 class ProjectOrdinalAllocator:
     ordinals: dict[str, int] = field(default_factory=dict)
