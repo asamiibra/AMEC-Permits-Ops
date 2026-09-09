@@ -1,6 +1,6 @@
 {
   "artifact": "04-contract-integrity",
-  "generated_at_utc": "2026-09-09T22:40:54.181924Z",
+  "generated_at_utc": "2026-09-09T22:41:37.693408Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -56,8 +56,8 @@
     }
   ],
   "contract_part_count": 10,
-  "release_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "tree_sha": "178183b151f6bd0b388fdf5f90392b72d023883d",
+  "release_sha": "d90ceef0d3a65d1a4ecfaa6127e2ddcc0c1c62f8",
+  "tree_sha": "3ee6402a679ee15d2c6fd2c1f60da2b488d80a5f",
   "branch": "source18/committee-implementation-closure",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -169,5 +169,5 @@
   "defect_status": "REPAIRED_IN_AUTHORITATIVE_CONTRACT",
   "ordered_contract_sha256": "94183df3ba0a031c9df904b7079e33a30d00f467c64218ce88483ea196518401",
   "heading_duplicate_scan": "NOT_RUN_AS_ACCEPTANCE_GATE",
-  "artifact_sha256": "4e5f0d5c59f715c62cd54d63789741f4e59727d5b5f04e05500992f95a48be95"
+  "artifact_sha256": "23008cc519daedc9bbf993ba24392983bf1c459102ba70f5af399fb7ba7a1c4d"
 }

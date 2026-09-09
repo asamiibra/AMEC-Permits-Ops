@@ -1,6 +1,6 @@
 {
   "artifact": "07-database-migration",
-  "generated_at_utc": "2026-09-09T22:40:54.181924Z",
+  "generated_at_utc": "2026-09-09T22:41:37.693408Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -56,8 +56,8 @@
     }
   ],
   "contract_part_count": 10,
-  "release_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "tree_sha": "178183b151f6bd0b388fdf5f90392b72d023883d",
+  "release_sha": "d90ceef0d3a65d1a4ecfaa6127e2ddcc0c1c62f8",
+  "tree_sha": "3ee6402a679ee15d2c6fd2c1f60da2b488d80a5f",
   "branch": "source18/committee-implementation-closure",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -168,5 +168,5 @@
   "clean_sqlite_alembic_upgrade": "NOT_APPLICABLE_REPOSITORY_BASELINE_USES_SQLITE_UNSUPPORTED_ALTER_FOREIGN_KEY",
   "azure_sql_upgrade": "NOT_RUN",
   "destructive_history_rewrite": false,
-  "artifact_sha256": "8efec98acebb6f78e303e296d2fe545b0a585b9735defea3ccb7cc8a09add797"
+  "artifact_sha256": "d793dd6ebde2f60cd608c5bd096aa3193dc201059f68d0b0bb4c61fbd4510f95"
 }

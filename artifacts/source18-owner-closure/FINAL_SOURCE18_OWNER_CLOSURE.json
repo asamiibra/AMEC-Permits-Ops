@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-09T22:40:54.181924Z",
+  "generated_at_utc": "2026-09-09T22:41:37.693408Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -56,8 +56,8 @@
     }
   ],
   "contract_part_count": 10,
-  "release_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "tree_sha": "178183b151f6bd0b388fdf5f90392b72d023883d",
+  "release_sha": "d90ceef0d3a65d1a4ecfaa6127e2ddcc0c1c62f8",
+  "tree_sha": "3ee6402a679ee15d2c6fd2c1f60da2b488d80a5f",
   "branch": "source18/committee-implementation-closure",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -3440,80 +3440,80 @@
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "eb2ffdadfd0c2a8aee946e0fd100379782893e52db17e6a87f9dd98716ab7456"
+      "sha256": "e971b6d3deb69a920953ae94e887bf65a4ac0ab9c29645a29d3bdcbdffb692e1"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "740150f2b668f35fcf6f70d46288d48b628994924197a3607f2ae93269201ab9"
+      "sha256": "da6f7d0302a983f0b076dc267f1fca2ee93c4c0bda4a19568bc134f5b4415dd6"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "3750afa017a09c143b6cee68909ff98a9338ba4b1102a1b85ee2e5de6d133530"
+      "sha256": "1912a16d0b958f1773347ee4ec53088d641d9d3110de97f750bc5ab37bb03eea"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "62039fca3fe3b6fbcb8f99b64c7161a7a0ad28b8ff82db9b517681210d215ea4"
+      "sha256": "f45030d6357752007767388ac1de6d0a89707ee1da5f1d2664bd4fe32edbe3e5"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "67fc00323c5f2d00ef1784bb2ed204817071ab2c5c508751f6527067ac1705ef"
+      "sha256": "002fcfbd1a8133ec5000b5f5221c0173832992e4f792436c24236a17eb488a51"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "f2a7c24813267b2faaeb0227532366a403247d615d7a92c29c6fdab6fa463202"
+      "sha256": "b4af8d173e8e97cc350d2a5b85399893e17e36da4ea6724385f71d9cb7248207"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "46ea5ade18ed0ed90b4c39838f78f564c5f065ae0c873d284d79853f55d85559"
+      "sha256": "b48337233a5bda30345648a710b9eb01e2fa76c814354a09918cb69245d70133"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "f53d3dde85ab92517012f5f22d7b4ecb8d51fd65c0d5b9d7aabfda9f8e2114e6"
+      "sha256": "423057c471baf4b096ca0c51835ea20dfd17f0f12870650752971e22d72657e3"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "3991333f0b9f4a33ebc2c828df6b3518138240c3b7dd8748d7d78da1c4f34ca2"
+      "sha256": "0992af62306149004ade6b4bf7b7dc2e77270d8eb7a8bc890d5fa0a59165ff62"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "51c265d5b709f6cc7b3ff484ecbb54accc6e3551fde144ba1cd8fc6bd4627b5c"
+      "sha256": "ff4bce62e1fb2aa2e85d68cf969183c8df1e65ffaa06ea8e1ee3310ffa150e7a"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "20f18057902984fa8a01df834805cf493b328662f60c34bde3a65286c20b9441"
+      "sha256": "a4e49c6ac6193ede55b47df5fe5361219b9f4cad6c9a0948169b1e510c5a3f97"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "4f02d3d85d01c76fdaec2844f338c6d51f916d319e98848ffef99151c7261aec"
+      "sha256": "ac7ade881bf542670563f93eec9d5fce5318ced4c370b5ac5c71ee71278d874d"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "123ea14756f39c6e19ed6f5efb89850184e9fb0642a5b9af6d579aca9d93ebf9"
+      "sha256": "4a1eed1bcc6f34492a87bf1d412bf679ec3f388a6f34989313881c891acaf4eb"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "cc51425800159bafc8e60e7439f5678339e1b3fc9c7738188915456460358074"
+      "sha256": "5de39b94f6f21f1b0b5114766f68c00752a3fd5702779511fe8c02467916f3f9"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "b311f6d822b81017993d20e14a6420bd501ca013bcbbe9cc7c3708ed9c500082"
+      "sha256": "d5f66bc0184315c86b14d4e1a82e15e8b3fcf1c7e4feb1c983ceb0fa9798c32d"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "d7e3f69e35c8bf8ec9fafce5d50f976e8a3de3d0162ba9eb854d25fba74ca526"
+      "sha256": "50d0f2aa485c3001e283382ee36b2a9a3919bb3b5ca98737ecc53e5ea6c2412e"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "63340c01331f0f03768dbeb47ab6e7df6dbb3faeb2b91313f441fa73b4e3bb40"
+      "sha256": "3779f83a17183e39afa44ad32ffefe07eb6f3cfeb01461efe60662e7e79df61f"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "992a647cb46d8359100812a39084f03def99e92abbc235fc7fb224b4c11f1cc7"
+      "sha256": "625b5a67349dede2017e337513488c006a5acabdac8f6ef03693200c2885818c"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "b59783aaaf2d924adb4205edf60a8a0824c746d0647b9df69cfcc4e6cd4d556c"
+      "sha256": "aa7ffd0caa157d51b50de8ad20b1d211d0cc37d4ca2d90f7075b7016238ae15d"
     }
   ],
-  "artifact_sha256": "84e71839d25e4d5e08719d1b7b245609076b02601a2e25c64734b0a6f91c4d89"
+  "artifact_sha256": "ecd9e3733541c63e609292fb03de7922689322afc931347811f0afff54139f1f"
 }
