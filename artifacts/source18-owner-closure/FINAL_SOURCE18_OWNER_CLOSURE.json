@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-09T23:36:04.090302Z",
+  "generated_at_utc": "2026-09-09T23:37:23.394665Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -56,11 +56,11 @@
     }
   ],
   "contract_part_count": 10,
-  "evidence_generated_from_sha": "63a8fdcd89facf39fa4c8f6615129cfc01a3e83f",
-  "evidence_generated_from_tree": "a18fb4abf0397e7993b6a9bef168314d8264a3a9",
-  "executable_release_sha": "63a8fdcd89facf39fa4c8f6615129cfc01a3e83f",
-  "executable_tree_sha": "a18fb4abf0397e7993b6a9bef168314d8264a3a9",
-  "evidence_commit_sha": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
+  "evidence_generated_from_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
+  "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
+  "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
+  "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
+  "evidence_commit_sha": "6ba86dd5b431e4fa9d87204a3c673ce144f620be",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -4015,80 +4015,80 @@
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "4c2ef8b8c5f6b56fbb2807d2392142a856db0ec231d7c0a63dee66096c41ca6c"
+      "sha256": "a1c7ad810e63cb9ac0c85c0f5e5ca3405205e7f8d9c2b4313b6faf3a0fd71c9e"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "57a1f0b59411628ecd08f1763f50be68b3d06d17f7e6f19a7ff27b123e57e91c"
+      "sha256": "4cb0c25ef2af8e9ed2d66233d2b8eb2fcf3d321c20c73353ac4086dc31415838"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "f2cf8b0482450aeb85aa9acf38f139c98ce375812f46716f5c6b0532eca82be9"
+      "sha256": "f2d6e445d32f4000ec405ab2a7e1b89320cf37d3e73a27c0d2d04b2456bd27c5"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "ee39a96d4266d6022afd4118f281f66f9cf582a483e0274911c8e13c2fa57da2"
+      "sha256": "3e59aa8704b7e41f92909309b8b9441a87baabe6ce26cc5f93c9d373ba52baa6"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "6030def85bd3e95a8ae059f55dca77cd77d0bdc95871fb66e8529af7a93a6883"
+      "sha256": "59a573ce1485cbdc108303e06dcf4d8fc482270263436438e3962423c39e84b1"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "e2d2fc25d7bf1d37d43a42d65dfa3f4b06659619a67ce14d8e6a6afd69fdc007"
+      "sha256": "068a4ce0954b51bb682b13ab2ccb2048a9c2a68d69b6850c47a2dfcdabb9a165"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "b84de68c25d84b26563865080752ccb1fea0950a987300c3eaf1b4806c4fe0db"
+      "sha256": "1ad7a6420c14c955cd4a02614e17ba05d6037d0b8c89136b6383b10f278b2c13"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "86ac42d4a52377df34fa7512c00724bcf264708dcfe27b8db68a3691d895e058"
+      "sha256": "d89e434922f1b43f6e4dd30f5be95e52710fe29808a584e61196fcab46b85265"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "424a965a2c84f087a2dbea78ae5aeba3a8ef63d94baa1fe6319ac4c6b7ba5c53"
+      "sha256": "4925c0521cbd7e46847d76724f9aed0b50556b20eb99711e5ce2653f0d40d8c4"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "a7fbfa44ee920e581d12cc937bbb525d046772eda0f1866600500e6ad7ea63c0"
+      "sha256": "119a75cbd3d181bc5dbe38ba1345fec044b891d463e805bbff71421b2a9b3fa6"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "fd2112ef1f89b7ed5b051a1ebaa33a05d11f20a0e5736d1e7164c4795c4e918f"
+      "sha256": "db642095774372f31727c1a375f2910a07a6134d5d6e01ea06530cf6b88bb206"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "421a542a1800954b395d34824fcba42ad660b36ecebbec7c615749f4809d5adf"
+      "sha256": "4934753615f66f80a06606e42c078b79948e7c732e57434e5d8c790fd4cb4d12"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "e8265e181fd23891fba8369fea1347c4a63bd228cb10a0252e618ef9fa073ae1"
+      "sha256": "695306e5d4a6dcce86193192d870f26c29e203f18dcdf0dcf146707a2fb077c5"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "fb0137c8a9108739cb99de40895131ddb66924eaa80e7b9a1586c153f4aa3cd7"
+      "sha256": "2184446fc7c1f94c7478f82e19751da7836209dc93e55a3802ff23d7bd9dd3d9"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "796a4f79b6dc1cdf4f51a0d8abfbe7b936600063f0d44325c68ec0556677088d"
+      "sha256": "7a700e65aeda9c5a1ec88c77105651c0da217828a8d0c5dc5fe26446fb12bf9a"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "758e2eba7140c9146d5014ef52f168c52ba44c06b50b3a3b5aedcb52cd9fd8dd"
+      "sha256": "d718e972f8f541200324f7cacdb2845dc273d4e55b3f5c212a73c510c3611360"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "c2960832bc2bbc92128468eacfe81e02d066740d0746c854ed8d5071111e4bb7"
+      "sha256": "0626aa6710c3187816726ec4949ef3745f811798ccf631b31848a11154c9af41"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "24ac56b7d9779948934e95d4308f1f1fca7dffec80e8e05036b8e330f8a013d6"
+      "sha256": "d04c97c45e057fee800198798e575b54a78c108fd959c29929238f80f8818cd9"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "cefce2d3402a9562da4a5bb500c58fcaae9c1718986217c5c93bc0dcab598878"
+      "sha256": "190ae1be024e61fb30874c4c3df6283fbb828c429e3d90b0cf0364681485b4c2"
     }
   ],
-  "artifact_sha256": "6970c7f5a12ffdfc9a0f3af5902da0cb0a23faf18636abd8b644855536b505b4"
+  "artifact_sha256": "ab8c30f33c13ea9c4fabcf00f091027ddf470e4aa12a1415e6a9a88975111c05"
 }
