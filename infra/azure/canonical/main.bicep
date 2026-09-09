@@ -27,6 +27,32 @@ param sqlAdministratorObjectId string
 @description('Display name of the approved Entra administrator for Azure SQL.')
 param sqlAdministratorLogin string
 
+@description('Tenant ID used by the Qatar Source Intake Bridge machine identity.')
+param bridgeTenantId string
+
+@description('Client ID used by the Qatar Source Intake Bridge machine identity.')
+param bridgeClientId string
+
+@description('Audience accepted for Qatar Source Intake Bridge tokens; normally the API client ID.')
+param bridgeAudience string
+
+@description('Application role required on Qatar Source Intake Bridge tokens.')
+param bridgeRequiredRole string = 'proposalops.source-intake'
+
+@description('Entra API application client ID.')
+param entraApiClientId string
+
+@description('Entra web application client ID.')
+param entraWebClientId string
+
+@secure()
+@description('Runtime Azure SQL connection URL without inline credentials.')
+param databaseUrl string
+
+@secure()
+@description('Dedicated migration-authority Azure SQL connection URL without inline credentials.')
+param databaseMigrationUrl string
+
 @secure()
 @description('Required only by the Azure SQL resource API; local SQL authentication is disabled after provisioning.')
 param sqlAdministratorPassword string
@@ -239,12 +265,25 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
         env: [
           { name: 'APP_ENV', value: 'PROD' }
           { name: 'AUTH_MODE', value: 'ENTRA' }
+          { name: 'ENTRA_TENANT_ID', value: tenantId }
+          { name: 'ENTRA_API_CLIENT_ID', value: entraApiClientId }
+          { name: 'ENTRA_WEB_CLIENT_ID', value: entraWebClientId }
+          { name: 'ENTRA_REQUIRED_SCOPE', value: 'access_as_user' }
           { name: 'SYNTHETIC_ONLY', value: 'false' }
-          { name: 'REAL_DATA_ALLOWED', value: 'true' }
+          { name: 'REAL_DATA_ALLOWED', value: 'false' }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
+          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: sqlIdentity.properties.clientId }
+          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: sqlIdentity.properties.principalId }
+          { name: 'DATABASE_URL', value: databaseUrl }
+          { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
           { name: 'STORAGE_PROVIDER', value: 'smb' }
-          { name: 'SYNOLOGY_MODE', value: 'REAL' }
+          { name: 'SYNOLOGY_MODE', value: 'BRIDGE' }
+          { name: 'SOURCE_INTAKE_MODE', value: 'BRIDGE' }
+          { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
+          { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
+          { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
+          { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: 'false' }
           { name: 'AI_D4_COMMISSIONING_ID', value: '' }
           { name: 'AI_FEATURE_ENABLED', value: 'true' }
@@ -284,11 +323,25 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
         env: [
           { name: 'APP_ENV', value: 'PROD' }
           { name: 'AUTH_MODE', value: 'ENTRA' }
+          { name: 'ENTRA_TENANT_ID', value: tenantId }
+          { name: 'ENTRA_API_CLIENT_ID', value: entraApiClientId }
+          { name: 'ENTRA_WEB_CLIENT_ID', value: entraWebClientId }
+          { name: 'ENTRA_REQUIRED_SCOPE', value: 'access_as_user' }
           { name: 'SYNTHETIC_ONLY', value: 'false' }
-          { name: 'REAL_DATA_ALLOWED', value: 'true' }
+          { name: 'REAL_DATA_ALLOWED', value: 'false' }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
+          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: sqlIdentity.properties.clientId }
+          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: sqlIdentity.properties.principalId }
+          { name: 'DATABASE_URL', value: databaseUrl }
+          { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
+          { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
           { name: 'STORAGE_PROVIDER', value: 'smb' }
-          { name: 'SYNOLOGY_MODE', value: 'REAL' }
+          { name: 'SYNOLOGY_MODE', value: 'BRIDGE' }
+          { name: 'SOURCE_INTAKE_MODE', value: 'BRIDGE' }
+          { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
+          { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
+          { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
+          { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
         ]
         resources: {
           cpu: 1
@@ -324,9 +377,23 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
         env: [
           { name: 'APP_ENV', value: 'PROD' }
           { name: 'AUTH_MODE', value: 'ENTRA' }
+          { name: 'ENTRA_TENANT_ID', value: tenantId }
+          { name: 'ENTRA_API_CLIENT_ID', value: entraApiClientId }
+          { name: 'ENTRA_WEB_CLIENT_ID', value: entraWebClientId }
+          { name: 'ENTRA_REQUIRED_SCOPE', value: 'access_as_user' }
           { name: 'SYNTHETIC_ONLY', value: 'false' }
-          { name: 'REAL_DATA_ALLOWED', value: 'true' }
+          { name: 'REAL_DATA_ALLOWED', value: 'false' }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
+          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: sqlIdentity.properties.clientId }
+          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: sqlIdentity.properties.principalId }
+          { name: 'DATABASE_URL', value: databaseUrl }
+          { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
+          { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
+          { name: 'SOURCE_INTAKE_MODE', value: 'BRIDGE' }
+          { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
+          { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
+          { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
+          { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
         ]
         resources: {
           cpu: 1

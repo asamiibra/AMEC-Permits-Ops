@@ -19,7 +19,7 @@ def test_production_requires_real_storage_configuration():
         synology_mode="SYNTHETIC",
     )
 
-    with pytest.raises(ValueError, match="SYNOLOGY_MODE=REAL"):
+    with pytest.raises(ValueError, match="AUTH_MODE=ENTRA"):
         settings.validate_environment()
 
 

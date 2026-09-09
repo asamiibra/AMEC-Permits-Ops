@@ -78,9 +78,10 @@ from .db import (
 from .models import ConsultancyOffice
 from .runtime_provenance import get_runtime_provenance
 from .db import verify_database_migration_head
-from .observability import initialize_observability
+from .observability import initialize_observability, install_log_redaction_filter
 from .api.governed_prefill_routers import router as governed_prefill_router
 from .api.ai_routers import router as ai_router
+from .api.bridge_intake_routers import router as bridge_intake_router
 
 settings = get_settings()
 initialize_observability(settings)
@@ -93,6 +94,7 @@ logging.basicConfig(
     ),
     format="%(message)s",
 )
+install_log_redaction_filter()
 logger = logging.getLogger("permitops")
 
 
@@ -200,7 +202,16 @@ app.add_middleware(
         "PATCH",
         "PUT",
     ],
-    allow_headers=["*"],
+    allow_headers=[
+        "Accept",
+        "Authorization",
+        "Content-Type",
+        "X-Correlation-ID",
+        "X-Dev-Actor",
+        "X-Dev-Role",
+        "X-Dev-User",
+        "X-Source-Surface",
+    ],
 )
 
 
@@ -252,6 +263,7 @@ def _trusted_request_actor(
 
 app.include_router(governed_prefill_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(ai_router, dependencies=API_AUTH_DEPENDENCIES)
+app.include_router(bridge_intake_router)
 
 
 @app.middleware("http")
@@ -276,6 +288,14 @@ async def correlation_middleware(
     response.headers[
         "X-Correlation-ID"
     ] = correlation_id
+
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+    if settings.app_env.upper() in {"AZURE-PREPROD", "PROD"} or request.url.scheme == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
     # API projections include mutable operational state. Vercel must not
     # serve a cached GET after an Owner writes the same configuration.

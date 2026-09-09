@@ -62,9 +62,15 @@ def _alembic_config(database_url: str) -> Config:
 def _migration_authority_scope(database_url: str):
     had_database_url = "DATABASE_URL" in os.environ
     original_database_url = os.environ.get("DATABASE_URL")
+    had_migration_url = "DATABASE_MIGRATION_URL" in os.environ
+    original_migration_url = os.environ.get("DATABASE_MIGRATION_URL")
+    had_runner_marker = "PROPOSALOPS_GOVERNED_MIGRATION_RUNNER" in os.environ
+    original_runner_marker = os.environ.get("PROPOSALOPS_GOVERNED_MIGRATION_RUNNER")
     clear_settings_cache = getattr(get_settings, "cache_clear", None)
     try:
         os.environ["DATABASE_URL"] = database_url
+        os.environ["DATABASE_MIGRATION_URL"] = database_url
+        os.environ["PROPOSALOPS_GOVERNED_MIGRATION_RUNNER"] = "1"
         if clear_settings_cache is not None:
             clear_settings_cache()
         yield
@@ -73,6 +79,14 @@ def _migration_authority_scope(database_url: str):
             os.environ["DATABASE_URL"] = original_database_url or ""
         else:
             os.environ.pop("DATABASE_URL", None)
+        if had_migration_url:
+            os.environ["DATABASE_MIGRATION_URL"] = original_migration_url or ""
+        else:
+            os.environ.pop("DATABASE_MIGRATION_URL", None)
+        if had_runner_marker:
+            os.environ["PROPOSALOPS_GOVERNED_MIGRATION_RUNNER"] = original_runner_marker or ""
+        else:
+            os.environ.pop("PROPOSALOPS_GOVERNED_MIGRATION_RUNNER", None)
         if clear_settings_cache is not None:
             clear_settings_cache()
 
@@ -202,6 +216,8 @@ def run_migrations() -> str:
 
     expected_head = repository_migration_head()
     configured_migration_url = getattr(settings, "database_migration_url", "")
+    if environment == "PROD" and not configured_migration_url:
+        raise RuntimeError("PROD migrations require DATABASE_MIGRATION_URL and the dedicated migration identity.")
     migration_url = configured_migration_url or settings.database_url
     if configured_migration_url:
         if migration_url.lower().startswith("mssql+"):
