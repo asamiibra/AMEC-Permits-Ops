@@ -19,6 +19,7 @@ from ..models import (
     ExternalBody,
     Jurisdiction,
     RegulatoryJourney,
+    Project,
     ServiceType,
     Source18EngineerProfile,
     Source18ExternalComment,
@@ -28,6 +29,7 @@ from ..models import (
     Source18RosterMembership,
     Source18SubmissionCycle,
     Source18WorkflowTransaction,
+    RequirementPolicyVersion,
     Role,
 )
 from ..services.source18 import (
@@ -39,7 +41,9 @@ from ..services.source18 import (
     enforce_staffing_gate,
     packet_manifest,
     packet_row,
+    refresh_packet_hash,
     require_capability,
+    staffing_readiness,
     transition,
     transaction_states,
     validate_source_currentness,
@@ -80,8 +84,13 @@ def office_overview(office_id: str, role: Role = Depends(current_user_role), db:
     memberships = db.scalars(select(Source18RosterMembership).where(Source18RosterMembership.office_id == office_id, Source18RosterMembership.status == "ACTIVE")).all()
     policies = db.scalars(select(Source18PolicyVersion).where(Source18PolicyVersion.policy_code == "OFFICE_STAFFING").order_by(Source18PolicyVersion.created_at.desc())).all()
     current_policy = next((item for item in policies if item.status == "CURRENT"), None)
-    rules = current_policy.rules_json if current_policy else {}
-    return {"office": {"id": office.id, "office_code": office.office_code, "name_en": office.name_en, "name_ar": office.name_ar}, "engineers": [_public_engineer(item) for item in engineers], "readiness": {"required_count": rules.get("required_count"), "regulator_counted": rules.get("regulator_counted"), "buffer_or_gap": (rules.get("regulator_counted", 0) - rules.get("required_count", 0)) if current_policy else None, "at_risk_engineers": [], "expired_or_expiring_engineers": [], "pending_replacements": [], "pending_roster_additions": [], "current_regulatory_entitlement": rules.get("current_regulatory_entitlement"), "source_policy_version": current_policy.version if current_policy else None, "assessment_time": _now().isoformat(), "currentness": current_policy.status if current_policy else "UNKNOWN"}, "roster_count": len(memberships), "source18": True}
+    try:
+        readiness = staffing_readiness(db, office_id)
+    except HTTPException as exc:
+        if exc.detail.get("code") != "STAFFING_POLICY_UNKNOWN_FAIL_CLOSED":
+            raise
+        readiness = {"required_count": None, "regulator_counted": None, "buffer_or_gap": None, "at_risk_engineers": [], "expired_or_expiring_engineers": [], "pending_replacements": [], "pending_roster_additions": [], "current_regulatory_entitlement": None, "source_policy_version": current_policy.version if current_policy else None, "assessment_time": _now().isoformat(), "currentness": "UNKNOWN"}
+    return {"office": {"id": office.id, "office_code": office.office_code, "name_en": office.name_en, "name_ar": office.name_ar}, "engineers": [_public_engineer(item) for item in engineers], "readiness": readiness, "roster_count": len(memberships), "source18": True}
 
 
 @router.post("/offices/{office_id}/policies")
@@ -144,11 +153,9 @@ def create_case(payload: dict[str, Any], request: Request, role: Role = Depends(
         raise HTTPException(422, {"code": "SOURCE18_TRANSACTION_TYPE_REQUIRED"})
     if processing_mode != TRANSACTION_MODES[transaction_type]:
         raise HTTPException(409, {"code": "SOURCE18_PROCESSING_MODE_MISMATCH", "expected": TRANSACTION_MODES[transaction_type]})
-    if transaction_type != "ENGINEER_UPDATE" and payload.get("project_id"):
-        raise HTTPException(409, {"code": "PROJECT_NOT_REQUIRED_FOR_OFFICE_ENGINEER_COMMITTEE_CASE"})
     subject_type = str(payload.get("subject_type") or "OFFICE").upper()
-    if subject_type == "PROJECT":
-        raise HTTPException(409, {"code": "PROJECT_NOT_REQUIRED_FOR_OFFICE_ENGINEER_COMMITTEE_CASE"})
+    if subject_type not in {"OFFICE", "ENGINEER", "PROJECT"}:
+        raise HTTPException(422, {"code": "SOURCE18_SUBJECT_TYPE_UNSUPPORTED"})
     service = db.get(ServiceType, payload.get("service_type_id")) if payload.get("service_type_id") else db.scalar(select(ServiceType).order_by(ServiceType.created_at))
     jurisdiction = db.get(Jurisdiction, payload.get("jurisdiction_id")) if payload.get("jurisdiction_id") else db.scalar(select(Jurisdiction).order_by(Jurisdiction.created_at))
     body = db.get(ExternalBody, payload.get("external_body_id")) if payload.get("external_body_id") else db.scalar(select(ExternalBody).order_by(ExternalBody.created_at))
@@ -160,11 +167,25 @@ def create_case(payload: dict[str, Any], request: Request, role: Role = Depends(
     existing_tx = db.scalar(select(Source18WorkflowTransaction).where(Source18WorkflowTransaction.idempotency_key == idem))
     if existing_tx:
         return {"case": case_row(db.get(AuthorityCase, existing_tx.authority_case_id)), "transaction": _public_transaction(existing_tx), "idempotent_replay": True}
-    case = AuthorityCase(case_reference=str(payload.get("case_reference") or f"S18-{uuid4().hex[:12].upper()}"), regulatory_journey_id=None, external_body_id=body.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="DRAFT", subject_type="OFFICE", subject_id=office_id, created_by=_actor(request, role))
-    db.add(case); db.flush()
     profile = db.get(Source18EngineerProfile, payload.get("engineer_profile_id")) if payload.get("engineer_profile_id") else None
     if payload.get("engineer_profile_id") and (not profile or profile.office_id != office_id):
         raise HTTPException(422, {"code": "ENGINEER_PROFILE_NOT_IN_OFFICE"})
+    project_id = payload.get("project_id")
+    project = db.get(Project, project_id) if project_id else None
+    if project_id and (not project or project.office_id != office_id):
+        raise HTTPException(422, {"code": "PROJECT_NOT_IN_OFFICE"})
+    if subject_type == "PROJECT" and not project:
+        raise HTTPException(422, {"code": "PROJECT_REQUIRED_FOR_PROJECT_SUBJECT"})
+    if subject_type == "ENGINEER" and not profile:
+        raise HTTPException(422, {"code": "ENGINEER_PROFILE_REQUIRED_FOR_ENGINEER_SUBJECT"})
+    if project and subject_type != "PROJECT":
+        raise HTTPException(409, {"code": "PROJECT_SUBJECT_REQUIRED_FOR_PROJECT_SCOPED_CASE"})
+    journey = None
+    if project:
+        journey = RegulatoryJourney(journey_code=f"S18-{uuid4().hex[:12].upper()}", project_id=project.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, external_body_id=body.id, status="DRAFT", created_by=_actor(request, role))
+        db.add(journey); db.flush()
+    case = AuthorityCase(case_reference=str(payload.get("case_reference") or f"S18-{uuid4().hex[:12].upper()}"), regulatory_journey_id=journey.id if journey else None, external_body_id=body.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="DRAFT", subject_type=subject_type, subject_id=project.id if project else (profile.id if profile else office_id), created_by=_actor(request, role))
+    db.add(case); db.flush()
     requested = [str(value) for value in (payload.get("requested_disciplines") or [])]
     current = [str(value) for value in (payload.get("current_disciplines") or [])]
     tx = Source18WorkflowTransaction(authority_case_id=case.id, office_id=office_id, transaction_type=transaction_type, processing_mode=processing_mode, state=transaction_states(transaction_type)[0], engineer_profile_id=profile.id if profile else None, current_policy_version_id=payload.get("policy_version_id"), official_form_version_id=payload.get("official_form_version_id"), requirement_version_id=payload.get("requirement_version_id"), currentness_state=str(payload.get("currentness_state") or "UNKNOWN").upper(), remediation_exception=bool(payload.get("remediation_exception", False)), requested_disciplines_json=requested, current_disciplines_json=current, idempotency_key=idem, actor_ref=_actor(request, role), source_snapshot_json={"source_class": payload.get("source_class", "OWNER_SOURCE_18"), "captured_at": _now().isoformat()})
@@ -185,6 +206,54 @@ def get_transaction(transaction_id: str, role: Role = Depends(current_user_role)
     return {"transaction": _public_transaction(tx), "packets": [packet_row(item) for item in packets], "submission_cycles": [{key: value for key, value in item.__dict__.items() if not key.startswith("_") and key != "external_outcome_json"} for item in cycles]}
 
 
+@router.post("/offices/{office_id}/roster-memberships")
+def add_roster_membership(office_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
+    require_capability(role, "MANAGE_ROSTER_UPDATE")
+    engineer_id = str(payload.get("engineer_profile_id") or "")
+    engineer = db.get(Source18EngineerProfile, engineer_id)
+    if not db.get(ConsultancyOffice, office_id) or not engineer or engineer.office_id != office_id:
+        raise HTTPException(422, {"code": "ENGINEER_PROFILE_NOT_IN_OFFICE"})
+    membership = Source18RosterMembership(
+        office_id=office_id, engineer_profile_id=engineer.id,
+        discipline=str(payload.get("discipline") or engineer.discipline),
+        regulator_counted_state="NOT_COUNTED", classified_engineer=bool(payload.get("classified_engineer", False)),
+        inside_qatar=payload.get("inside_qatar"), status="PENDING_ADD",
+        source_policy_version_id=payload.get("policy_version_id"), source_document_version_id=payload.get("source_document_version_id"),
+    )
+    db.add(membership); db.flush()
+    audit(db, correlation_id=_corr(request), event_type="SOURCE18_ROSTER_ADD_PENDING", entity_type="Source18RosterMembership", entity_id=membership.id, actor_id=_actor(request, role), after={"regulator_counted_state": membership.regulator_counted_state})
+    db.commit(); db.refresh(membership)
+    return {key: value for key, value in membership.__dict__.items() if not key.startswith("_")}
+
+
+@router.post("/transactions/{transaction_id}/responsible-engineer")
+def designate_responsible_engineer(transaction_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
+    require_capability(role, "MANAGE_RESPONSIBLE_ENGINEER_CHANGE")
+    tx = db.get(Source18WorkflowTransaction, transaction_id)
+    engineer = db.get(Source18EngineerProfile, payload.get("engineer_profile_id")) if payload.get("engineer_profile_id") else None
+    change_type = str(payload.get("change_type") or "").upper()
+    if not tx or tx.transaction_type != "RESPONSIBLE_ENGINEER_CHANGE":
+        raise HTTPException(404, {"code": "SOURCE18_TRANSACTION_NOT_FOUND"})
+    if not engineer or engineer.office_id != tx.office_id:
+        raise HTTPException(422, {"code": "ENGINEER_PROFILE_NOT_IN_OFFICE"})
+    if change_type not in {"ADD", "REPLACE"}:
+        raise HTTPException(422, {"code": "RESPONSIBLE_ENGINEER_CHANGE_TYPE_REQUIRED"})
+    if change_type == "ADD" and tx.responsible_engineer_profile_id:
+        raise HTTPException(409, {"code": "RESPONSIBLE_ENGINEER_ALREADY_DESIGNATED_USE_REPLACE"})
+    if change_type == "REPLACE" and not tx.responsible_engineer_profile_id:
+        raise HTTPException(409, {"code": "RESPONSIBLE_ENGINEER_REPLACE_REQUIRES_EXISTING_DESIGNATION"})
+    effective_from = payload.get("effective_from")
+    if not effective_from:
+        raise HTTPException(422, {"code": "RESPONSIBLE_ENGINEER_EFFECTIVE_DATE_REQUIRED"})
+    validate_source_currentness(db, tx)
+    tx.responsible_engineer_profile_id = engineer.id
+    tx.responsible_engineer_effective_from = date.fromisoformat(str(effective_from))
+    tx.responsible_engineer_change_type = change_type
+    audit(db, correlation_id=_corr(request), event_type="SOURCE18_RESPONSIBLE_ENGINEER_DESIGNATED", entity_type="Source18WorkflowTransaction", entity_id=tx.id, actor_id=_actor(request, role), after={"engineer_profile_id": engineer.id, "change_type": change_type, "effective_from": str(effective_from)})
+    db.commit(); db.refresh(tx)
+    return {"transaction": _public_transaction(tx)}
+
+
 @router.post("/transactions/{transaction_id}/transitions")
 def transition_transaction(transaction_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "EDIT_REGULATORY_CASE")
@@ -203,12 +272,16 @@ def create_packet(transaction_id: str, payload: dict[str, Any], request: Request
     if not tx:
         raise HTTPException(404, {"code": "SOURCE18_TRANSACTION_NOT_FOUND"})
     validate_source_currentness(db, tx); enforce_staffing_gate(db, tx)
+    if tx.requirement_version_id:
+        requirement = db.get(RequirementPolicyVersion, tx.requirement_version_id)
+        if not requirement or requirement.status != "CURRENT":
+            raise HTTPException(409, {"code": "SOURCE18_REQUIREMENT_VERSION_NOT_CURRENT"})
     manifest = packet_manifest(tx, payload)
     latest = db.scalar(select(Source18PacketRevision).where(Source18PacketRevision.transaction_id == tx.id).order_by(Source18PacketRevision.revision_number.desc()))
-    if latest and latest.status not in {"RETURNED", "DRAFT"}:
-        raise HTTPException(409, {"code": "SUBMITTED_PACKET_IMMUTABLE_CREATE_NEW_REVISION"})
+    if latest and latest.status != "RETURNED":
+        raise HTTPException(409, {"code": "PACKET_REVISION_ALREADY_EXISTS_OR_NOT_RETURNED"})
     revision_number = (latest.revision_number + 1) if latest else 1
-    packet = Source18PacketRevision(transaction_id=tx.id, revision_number=revision_number, status="DRAFT", packet_hash=_hash(manifest), manifest_json=manifest, required_signers_json=payload.get("required_signers") or [], signature_state="NOT_STARTED", stamp_state="NOT_STARTED", custody_state="DIGITAL_SCAN", internal_release_state="NOT_RELEASED", supersedes_id=latest.id if latest and latest.status == "RETURNED" else None, created_by=_actor(request, role))
+    packet = Source18PacketRevision(transaction_id=tx.id, revision_number=revision_number, status="DRAFT", packet_hash=_hash({"manifest": manifest, "required_signers": payload.get("required_signers") or []}), manifest_json=manifest, required_signers_json=payload.get("required_signers") or [], signature_state="NOT_STARTED", stamp_state="NOT_STARTED", custody_state="DIGITAL_SCAN", internal_release_state="NOT_RELEASED", supersedes_id=latest.id if latest and latest.status == "RETURNED" else None, created_by=_actor(request, role))
     db.add(packet); db.flush(); tx.state = "PACKET_PREPARED" if tx.transaction_type == "RESPONSIBLE_ENGINEER_CHANGE" and tx.state == "PACKET_PREPARED" else tx.state; audit(db, correlation_id=_corr(request), event_type="SOURCE18_PACKET_REVISION_CREATED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"revision_number": revision_number, "packet_hash": packet.packet_hash}); db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
@@ -219,9 +292,9 @@ def release_packet(packet_id: str, request: Request, role: Role = Depends(curren
     packet = db.get(Source18PacketRevision, packet_id)
     if not packet:
         raise HTTPException(404, {"code": "SOURCE18_PACKET_NOT_FOUND"})
-    if packet.status != "DRAFT" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE":
+    if packet.status != "DRAFT" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE" or packet.packet_hash != _hash({"manifest": packet.manifest_json, "required_signers": packet.required_signers_json}):
         raise HTTPException(409, {"code": "PACKET_SIGNATURE_AND_STAMP_REQUIRED"})
-    packet.internal_release_state = "RELEASED"; packet.status = "RELEASED"; db.commit(); db.refresh(packet)
+    packet.internal_release_state = "RELEASED"; packet.status = "RELEASED"; audit(db, correlation_id=_corr(request), event_type="SOURCE18_OWNER_INTERNAL_RELEASED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"packet_hash": packet.packet_hash}); db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
 
@@ -229,7 +302,7 @@ def release_packet(packet_id: str, request: Request, role: Role = Depends(curren
 def capture_signatures(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "CAPTURE_SIGNATURE_EVIDENCE")
     packet = db.get(Source18PacketRevision, packet_id)
-    if not packet or packet.status not in {"DRAFT", "RETURNED"}:
+    if not packet or packet.status != "DRAFT":
         raise HTTPException(409, {"code": "PACKET_NOT_EDITABLE"})
     required = packet.required_signers_json
     supplied = payload.get("signatures") or []
@@ -237,7 +310,9 @@ def capture_signatures(packet_id: str, payload: dict[str, Any], request: Request
     supplied_refs = {str(item.get("signer_ref")) for item in supplied}
     if required_refs - supplied_refs:
         raise HTTPException(409, {"code": "REQUIRED_SIGNER_MISSING", "signers": sorted(required_refs - supplied_refs)})
-    packet.signature_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "signature_evidence": [{"signer_ref": item.get("signer_ref"), "evidence_ref": item.get("evidence_ref")} for item in supplied]}; db.commit(); db.refresh(packet)
+    if any(not item.get("evidence_ref") for item in supplied if str(item.get("signer_ref")) in required_refs):
+        raise HTTPException(422, {"code": "SIGNATURE_EVIDENCE_REQUIRED"})
+    packet.signature_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "signature_evidence": [{"signer_ref": item.get("signer_ref"), "evidence_ref": item.get("evidence_ref")} for item in supplied]}; refresh_packet_hash(packet); audit(db, correlation_id=_corr(request), event_type="SOURCE18_SIGNATURES_CAPTURED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"signature_state": packet.signature_state}); db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
 
@@ -247,7 +322,26 @@ def capture_stamp(packet_id: str, payload: dict[str, Any], request: Request, rol
     packet = db.get(Source18PacketRevision, packet_id)
     if not packet or not payload.get("evidence_ref"):
         raise HTTPException(422, {"code": "STAMP_EVIDENCE_REQUIRED"})
-    packet.stamp_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "stamp_evidence_ref": str(payload["evidence_ref"])}; db.commit(); db.refresh(packet)
+    if packet.status != "DRAFT":
+        raise HTTPException(409, {"code": "PACKET_NOT_EDITABLE"})
+    packet.stamp_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "stamp_evidence_ref": str(payload["evidence_ref"])}; refresh_packet_hash(packet); audit(db, correlation_id=_corr(request), event_type="SOURCE18_STAMP_CAPTURED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"stamp_state": packet.stamp_state}); db.commit(); db.refresh(packet)
+    return {"packet": packet_row(packet)}
+
+
+@router.post("/packets/{packet_id}/custody")
+def record_physical_original_custody(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
+    require_capability(role, "PREPARE_PACKET")
+    packet = db.get(Source18PacketRevision, packet_id)
+    custody_ref = str(payload.get("custody_ref") or "").strip()
+    if not packet or packet.status != "DRAFT":
+        raise HTTPException(409, {"code": "PACKET_NOT_EDITABLE"})
+    if not custody_ref:
+        raise HTTPException(422, {"code": "PHYSICAL_CUSTODY_REFERENCE_REQUIRED"})
+    packet.custody_state = "PHYSICAL_ORIGINAL_CUSTODY"
+    packet.manifest_json = {**packet.manifest_json, "physical_original_custody_ref": custody_ref}
+    refresh_packet_hash(packet)
+    audit(db, correlation_id=_corr(request), event_type="SOURCE18_PHYSICAL_ORIGINAL_CUSTODY_RECORDED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"custody_state": packet.custody_state})
+    db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
 
@@ -260,9 +354,15 @@ def submit_packet(packet_id: str, payload: dict[str, Any], request: Request, rol
     if packet.status != "RELEASED" or packet.internal_release_state != "RELEASED" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE":
         raise HTTPException(409, {"code": "OWNER_INTERNAL_RELEASE_SIGNATURE_STAMP_REQUIRED"})
     tx = db.get(Source18WorkflowTransaction, packet.transaction_id)
+    idempotency_key = str(payload.get("idempotency_key") or "").strip()
+    if not idempotency_key:
+        raise HTTPException(422, {"code": "IDEMPOTENCY_KEY_REQUIRED"})
+    existing_cycle = db.scalar(select(Source18SubmissionCycle).where(Source18SubmissionCycle.transaction_id == tx.id, Source18SubmissionCycle.idempotency_key == idempotency_key))
+    if existing_cycle:
+        return {"packet": packet_row(packet), "submission_cycle": {key: value for key, value in existing_cycle.__dict__.items() if not key.startswith("_")}, "idempotent_replay": True}
     cycle_count = db.scalar(select(func.count(Source18SubmissionCycle.id)).where(Source18SubmissionCycle.transaction_id == tx.id)) or 0
-    packet.status = "SUBMITTED"; packet.submitted_at = _now(); cycle = Source18SubmissionCycle(transaction_id=tx.id, packet_revision_id=packet.id, cycle_number=int(cycle_count) + 1, status="SUBMITTED", external_reference=payload.get("external_reference"), external_outcome_json={"source": "HUMAN_EXTERNAL_WORKFLOW", "portal_api": False}, recorded_by=_actor(request, role)); db.add(cycle); tx.state = "SUBMITTED"; db.commit(); db.refresh(packet); db.refresh(cycle)
-    return {"packet": packet_row(packet), "submission_cycle": {key: value for key, value in cycle.__dict__.items() if not key.startswith("_")}}
+    packet.status = "SUBMITTED"; packet.submitted_at = _now(); cycle = Source18SubmissionCycle(transaction_id=tx.id, packet_revision_id=packet.id, cycle_number=int(cycle_count) + 1, idempotency_key=idempotency_key, status="SUBMITTED", external_reference=payload.get("external_reference"), external_outcome_json={"source": "HUMAN_EXTERNAL_WORKFLOW", "portal_api": False}, recorded_by=_actor(request, role)); db.add(cycle); tx.state = "SUBMITTED"; audit(db, correlation_id=_corr(request), event_type="SOURCE18_EXTERNAL_SUBMISSION_RECORDED", entity_type="Source18SubmissionCycle", entity_id=cycle.id, actor_id=_actor(request, role), after={"packet_id": packet.id, "portal_api": False}); db.commit(); db.refresh(packet); db.refresh(cycle)
+    return {"packet": packet_row(packet), "submission_cycle": {key: value for key, value in cycle.__dict__.items() if not key.startswith("_")}, "idempotent_replay": False}
 
 
 @router.post("/submissions/{cycle_id}/comments")
@@ -271,8 +371,29 @@ def add_comment(cycle_id: str, payload: dict[str, Any], request: Request, role: 
     cycle = db.get(Source18SubmissionCycle, cycle_id)
     if not cycle or not str(payload.get("comment_text") or "").strip():
         raise HTTPException(422, {"code": "EXTERNAL_COMMENT_REQUIRED"})
-    comment = Source18ExternalComment(submission_cycle_id=cycle.id, comment_text=str(payload["comment_text"]).strip(), status="OPEN", source_document_version_id=payload.get("source_document_version_id"), recorded_by=_actor(request, role)); db.add(comment); cycle.status = "RETURNED_WITH_COMMENTS"; tx = db.get(Source18WorkflowTransaction, cycle.transaction_id); tx.state = "RETURNED"; db.commit(); db.refresh(comment)
+    comment = Source18ExternalComment(submission_cycle_id=cycle.id, comment_text=str(payload["comment_text"]).strip(), status="OPEN", source_document_version_id=payload.get("source_document_version_id"), recorded_by=_actor(request, role)); db.add(comment); cycle.status = "RETURNED_WITH_COMMENTS"; tx = db.get(Source18WorkflowTransaction, cycle.transaction_id); tx.state = "RETURNED"; audit(db, correlation_id=_corr(request), event_type="SOURCE18_EXTERNAL_COMMENT_RECORDED", entity_type="Source18ExternalComment", entity_id=comment.id, actor_id=_actor(request, role), after={"cycle_id": cycle.id, "status": cycle.status}); db.commit(); db.refresh(comment)
     return {"comment_id": comment.id, "status": comment.status, "cycle_status": cycle.status}
+
+
+@router.post("/submissions/{cycle_id}/outcome")
+def record_external_outcome(cycle_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
+    require_capability(role, "CAPTURE_EXTERNAL_OUTCOME")
+    cycle = db.get(Source18SubmissionCycle, cycle_id)
+    if not cycle:
+        raise HTTPException(404, {"code": "SUBMISSION_CYCLE_NOT_FOUND"})
+    if payload.get("authority_only_values"):
+        raise HTTPException(422, {"code": "AUTHORITY_ONLY_FIELD_WRITE_FORBIDDEN"})
+    outcome = str(payload.get("outcome") or "").upper()
+    if outcome not in {"APPROVED", "REJECTED", "RETURNED"}:
+        raise HTTPException(422, {"code": "EXTERNAL_OUTCOME_REQUIRED"})
+    tx = db.get(Source18WorkflowTransaction, cycle.transaction_id)
+    cycle.status = outcome
+    cycle.external_outcome_json = {"source": "HUMAN_EXTERNAL_WORKFLOW", "portal_api": False, "outcome": outcome, "reference": payload.get("external_reference")}
+    if outcome in {"APPROVED", "REJECTED"}:
+        tx.state = outcome
+    audit(db, correlation_id=_corr(request), event_type="SOURCE18_EXTERNAL_OUTCOME_RECORDED", entity_type="Source18SubmissionCycle", entity_id=cycle.id, actor_id=_actor(request, role), after={"outcome": outcome, "portal_api": False})
+    db.commit(); db.refresh(cycle)
+    return {"cycle_id": cycle.id, "status": cycle.status, "portal_api": False}
 
 
 @router.post("/submissions/{cycle_id}/resubmit")

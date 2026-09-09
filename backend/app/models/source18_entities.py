@@ -150,6 +150,9 @@ class Source18WorkflowTransaction(Base, TimestampMixin):
     processing_mode: Mapped[str] = mapped_column(String(40), nullable=False)
     state: Mapped[str] = mapped_column(String(60), nullable=False)
     engineer_profile_id: Mapped[str | None] = mapped_column(ForeignKey("source18_engineer_profiles.id"), index=True)
+    responsible_engineer_profile_id: Mapped[str | None] = mapped_column(ForeignKey("source18_engineer_profiles.id"), index=True)
+    responsible_engineer_effective_from: Mapped[date | None] = mapped_column(Date)
+    responsible_engineer_change_type: Mapped[str | None] = mapped_column(String(30))
     current_policy_version_id: Mapped[str | None] = mapped_column(ForeignKey("source18_policy_versions.id"), index=True)
     official_form_version_id: Mapped[str | None] = mapped_column(ForeignKey("source18_official_form_versions.id"), index=True)
     requirement_version_id: Mapped[str | None] = mapped_column(ForeignKey("requirement_policy_versions.id"), index=True)
@@ -186,12 +189,13 @@ class Source18PacketRevision(Base):
 
 class Source18SubmissionCycle(Base, TimestampMixin):
     __tablename__ = "source18_submission_cycles"
-    __table_args__ = (UniqueConstraint("transaction_id", "cycle_number", name="uq_source18_submission_cycle"),)
+    __table_args__ = (UniqueConstraint("transaction_id", "cycle_number", name="uq_source18_submission_cycle"), UniqueConstraint("transaction_id", "idempotency_key", name="uq_source18_submission_idempotency"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     transaction_id: Mapped[str] = mapped_column(ForeignKey("source18_workflow_transactions.id"), nullable=False, index=True)
     packet_revision_id: Mapped[str] = mapped_column(ForeignKey("source18_packet_revisions.id"), nullable=False)
     cycle_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="SUBMITTED")
     external_reference: Mapped[str | None] = mapped_column(String(200))
     external_outcome_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)

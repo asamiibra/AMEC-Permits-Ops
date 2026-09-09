@@ -13,13 +13,13 @@ MIGRATION_DATABASE_URL = "postgresql+psycopg://migration:p@localhost/app"
 MIGRATION_HEAD = "0059_entra_user_identity"
 
 
-def _install_cached_settings(monkeypatch, migration_url=MIGRATION_DATABASE_URL):
+def _install_cached_settings(monkeypatch, migration_url=MIGRATION_DATABASE_URL, app_env="AZURE-PREPROD"):
     cache = {}
 
     def fake_get_settings():
         if "settings" not in cache:
             cache["settings"] = SimpleNamespace(
-                app_env="AZURE-PREPROD",
+                app_env=app_env,
                 synthetic_only=True,
                 real_data_allowed=False,
                 database_url=os.environ["DATABASE_URL"],
@@ -171,7 +171,7 @@ def test_migration_authority_scope_restores_after_failure(monkeypatch):
 
 
 def test_production_migration_runner_without_migration_url_fails_closed(monkeypatch):
-    _install_cached_settings(monkeypatch, migration_url="")
+    _install_cached_settings(monkeypatch, migration_url="", app_env="PROD")
     _stub_migration_verification(monkeypatch)
     observed_database_urls = []
 
@@ -186,6 +186,15 @@ def test_production_migration_runner_without_migration_url_fails_closed(monkeypa
         migrate.run_migrations()
     assert observed_database_urls == []
     assert os.environ["DATABASE_URL"] == RUNTIME_DATABASE_URL
+
+
+def test_azure_preprod_migration_runner_without_migration_url_fails_before_ddl(monkeypatch):
+    _install_cached_settings(monkeypatch, migration_url="")
+    _stub_migration_verification(monkeypatch)
+    monkeypatch.setattr(migrate.command, "upgrade", lambda *_: pytest.fail("DDL must not run"))
+
+    with pytest.raises(RuntimeError, match="DATABASE_MIGRATION_URL"):
+        migrate.run_migrations()
 
 
 @pytest.mark.parametrize("query", ["", "sslmode=require", "sslmode=disable", "sslmode=prefer"])

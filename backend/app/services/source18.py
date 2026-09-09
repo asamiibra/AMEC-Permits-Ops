@@ -12,6 +12,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..audit.service import audit
+from .backend_realignment import CAPABILITY_MATRIX as CANONICAL_CAPABILITY_MATRIX
+from .backend_realignment import persona_for_role
+from .backend_realignment import require_capability as canonical_require_capability
 from ..models import (
     AuthorityCase,
     ConsultancyOffice,
@@ -23,6 +26,7 @@ from ..models import (
     Source18RosterMembership,
     Source18SubmissionCycle,
     Source18WorkflowTransaction,
+    RequirementPolicyVersion,
 )
 
 
@@ -75,26 +79,21 @@ RENEWAL_STATES = [
 ]
 
 CAPABILITIES = {
-    "OWNER_SPONSOR": {
-        "VIEW_REGULATORY_CASE", "EDIT_REGULATORY_CASE", "VIEW_RAW_REGULATORY_PII",
-        "EDIT_REGULATORY_PII", "PREPARE_PACKET", "VERIFY_PACKET", "OWNER_INTERNAL_PACKET_RELEASE",
-        "CAPTURE_SIGNATURE_EVIDENCE", "CAPTURE_STAMP_EVIDENCE", "AUTHORIZE_EXTERNAL_SUBMISSION",
-        "CAPTURE_EXTERNAL_OUTCOME", "MANAGE_RESPONSIBLE_ENGINEER_CHANGE", "MANAGE_OFFICE_RENEWAL",
-        "MANAGE_ROSTER_UPDATE", "MANAGE_REGULATORY_POLICY",
-    },
-    "SYSTEM_ADMIN": {"*"},
-    "RESPONSIBLE_ENGINEER": {"VIEW_REGULATORY_CASE", "EDIT_REGULATORY_CASE", "PREPARE_PACKET", "VERIFY_PACKET", "MANAGE_ROSTER_UPDATE"},
-    "PERMIT_PREPARER": {"VIEW_REGULATORY_CASE", "EDIT_REGULATORY_CASE", "PREPARE_PACKET", "VERIFY_PACKET"},
-    "FINAL_SUBMITTER": {"VIEW_REGULATORY_CASE", "VERIFY_PACKET", "AUTHORIZE_EXTERNAL_SUBMISSION", "CAPTURE_EXTERNAL_OUTCOME"},
-    "REQUIREMENT_STEWARD": {"VIEW_REGULATORY_CASE", "MANAGE_REGULATORY_POLICY"},
-    "PROCESS_CHAMPION": {"VIEW_REGULATORY_CASE"},
+    role: set(CANONICAL_CAPABILITY_MATRIX.get(persona_for_role(role), set()))
+    for role in {
+        "OWNER_SPONSOR", "SYSTEM_ADMIN", "RESPONSIBLE_ENGINEER", "PERMIT_PREPARER",
+        "FINAL_SUBMITTER", "REQUIREMENT_STEWARD", "PROCESS_CHAMPION",
+    }
 }
 
 
 def require_capability(role: Any, capability: str) -> None:
-    role_name = getattr(role, "value", role)
-    if capability not in CAPABILITIES.get(str(role_name), set()) and "*" not in CAPABILITIES.get(str(role_name), set()):
-        raise HTTPException(403, {"code": "CAPABILITY_DENIED", "capability": capability})
+    try:
+        canonical_require_capability(role, capability)
+    except HTTPException as exc:
+        if isinstance(exc.detail, dict):
+            exc.detail = {"code": "CAPABILITY_DENIED", **exc.detail}
+        raise
 
 
 def _now() -> datetime:
@@ -119,23 +118,88 @@ def transaction_states(transaction_type: str) -> list[str]:
 def validate_source_currentness(db: Session, transaction: Source18WorkflowTransaction) -> None:
     if transaction.currentness_state != "CURRENT":
         raise HTTPException(409, {"code": "SOURCE18_SOURCE_NOT_CURRENT", "currentness_state": transaction.currentness_state})
+    if transaction.current_policy_version_id:
+        policy = db.get(Source18PolicyVersion, transaction.current_policy_version_id)
+        if not policy or policy.status != "CURRENT":
+            raise HTTPException(409, {"code": "SOURCE18_POLICY_VERSION_NOT_CURRENT"})
     if transaction.official_form_version_id:
         form = db.get(Source18OfficialFormVersion, transaction.official_form_version_id)
         if not form or form.currentness_state != "CURRENT":
             raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_CURRENT"})
 
 
+def staffing_readiness(db: Session, office_id: str, *, at: datetime | None = None) -> dict[str, Any]:
+    """Derive live staffing from effective roster state, never policy counters."""
+    assessment_time = at or _now()
+    policy = db.scalar(select(Source18PolicyVersion).where(
+        Source18PolicyVersion.policy_code == "OFFICE_STAFFING",
+        Source18PolicyVersion.status == "CURRENT",
+    ).order_by(Source18PolicyVersion.created_at.desc()))
+    rules = policy.rules_json if policy else {}
+    required = rules.get("required_count") if policy else None
+    eligible_disciplines = {str(value).upper() for value in (rules.get("eligible_disciplines") or [])}
+    eligible_categories = {str(value).upper() for value in (rules.get("eligible_categories") or [])}
+    if not policy or required is None or not policy.source_reference:
+        raise HTTPException(409, {"code": "STAFFING_POLICY_UNKNOWN_FAIL_CLOSED"})
+
+    memberships = db.scalars(select(Source18RosterMembership).where(Source18RosterMembership.office_id == office_id)).all()
+    profiles = {item.id: item for item in db.scalars(select(Source18EngineerProfile).where(Source18EngineerProfile.office_id == office_id)).all()}
+    counted: list[dict[str, Any]] = []
+    at_risk: list[dict[str, Any]] = []
+    expired: list[dict[str, Any]] = []
+    pending_additions: list[str] = []
+    for membership in memberships:
+        profile = profiles.get(membership.engineer_profile_id)
+        if membership.status.upper() in {"PENDING", "PENDING_ADD", "ROSTER_ADD_PENDING"}:
+            pending_additions.append(membership.engineer_profile_id)
+            continue
+        if membership.status.upper() != "ACTIVE" or not profile:
+            continue
+        reasons: list[str] = []
+        if membership.valid_from and membership.valid_from > assessment_time.date():
+            reasons.append("NOT_YET_EFFECTIVE")
+        if membership.valid_until and membership.valid_until < assessment_time.date():
+            reasons.append("MEMBERSHIP_EXPIRED")
+            expired.append({"engineer_id": profile.id, "reason": "MEMBERSHIP_EXPIRED"})
+        if profile.evidence_currentness.upper() != "CURRENT":
+            reasons.append("EVIDENCE_NOT_CURRENT")
+        if profile.regulatory_profile_state.upper() == "UPDATED_CREDENTIAL_VERIFIED":
+            reasons.append("CREDENTIAL_VERIFIED_NOT_REGULATOR_COUNTED")
+        if membership.regulator_counted_state.upper() not in {"COUNTED", "CURRENT", "YES"}:
+            reasons.append("ROSTER_NOT_REGULATOR_COUNTED")
+        if not membership.classified_engineer:
+            reasons.append("NOT_CLASSIFIED_ENGINEER")
+        if eligible_disciplines and membership.discipline.upper() not in eligible_disciplines:
+            reasons.append("DISCIPLINE_NOT_ELIGIBLE")
+        if eligible_categories and (profile.grade_category or "").upper() not in eligible_categories:
+            reasons.append("CATEGORY_NOT_ELIGIBLE")
+        if reasons:
+            at_risk.append({"engineer_id": profile.id, "reasons": reasons})
+        else:
+            counted.append({"engineer_id": profile.id, "discipline": membership.discipline})
+    regulator_counted = len(counted)
+    required_count = int(required)
+    return {
+        "required_count": required_count,
+        "regulator_counted": regulator_counted,
+        "buffer_or_gap": regulator_counted - required_count,
+        "at_risk_engineers": at_risk,
+        "expired_or_expiring_engineers": expired,
+        "pending_replacements": [item["engineer_id"] for item in at_risk if "MEMBERSHIP_EXPIRED" in item["reasons"]],
+        "pending_roster_additions": pending_additions,
+        "current_regulatory_entitlement": regulator_counted,
+        "source_policy_version": policy.version,
+        "assessment_time": assessment_time.isoformat(),
+        "currentness": "CURRENT",
+    }
+
+
 def enforce_staffing_gate(db: Session, transaction: Source18WorkflowTransaction) -> None:
     if transaction.transaction_type not in {"RESPONSIBLE_ENGINEER_CHANGE", "OFFICE_RENEWAL"}:
         return
-    policy = db.get(Source18PolicyVersion, transaction.current_policy_version_id) if transaction.current_policy_version_id else None
-    rules = policy.rules_json if policy else {}
-    required = int(rules.get("required_count", 0)) if rules.get("required_count") is not None else None
-    counted = int(rules.get("regulator_counted", 0)) if rules.get("regulator_counted") is not None else None
-    if not policy or policy.status != "CURRENT" or required is None or counted is None:
-        raise HTTPException(409, {"code": "STAFFING_POLICY_UNKNOWN_FAIL_CLOSED"})
-    if counted < required and not transaction.remediation_exception:
-        raise HTTPException(409, {"code": "STAFFING_DEFICIENT_ORDINARY_PANEL_BLOCKED", "required_count": required, "regulator_counted": counted})
+    readiness = staffing_readiness(db, transaction.office_id)
+    if readiness["regulator_counted"] < readiness["required_count"] and not transaction.remediation_exception:
+        raise HTTPException(409, {"code": "STAFFING_DEFICIENT_ORDINARY_PANEL_BLOCKED", "required_count": readiness["required_count"], "regulator_counted": readiness["regulator_counted"]})
 
 
 def transition(db: Session, transaction: Source18WorkflowTransaction, next_state: str, *, actor: str, correlation_id: str) -> Source18WorkflowTransaction:
@@ -180,10 +244,18 @@ def packet_manifest(transaction: Source18WorkflowTransaction, payload: dict[str,
     }
 
 
+def packet_hash_payload(packet: Source18PacketRevision) -> dict[str, Any]:
+    return {"manifest": packet.manifest_json, "required_signers": packet.required_signers_json}
+
+
+def refresh_packet_hash(packet: Source18PacketRevision) -> str:
+    packet.packet_hash = _hash(packet_hash_payload(packet))
+    return packet.packet_hash
+
+
 def packet_row(packet: Source18PacketRevision) -> dict[str, Any]:
     return {key: value for key, value in packet.__dict__.items() if not key.startswith("_")}
 
 
 def case_row(case: AuthorityCase) -> dict[str, Any]:
     return {key: value for key, value in case.__dict__.items() if not key.startswith("_")}
-

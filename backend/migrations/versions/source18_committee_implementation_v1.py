@@ -138,6 +138,9 @@ def upgrade() -> None:
         sa.Column("processing_mode", sa.String(40), nullable=False),
         sa.Column("state", sa.String(60), nullable=False),
         sa.Column("engineer_profile_id", sa.String(36), sa.ForeignKey("source18_engineer_profiles.id")),
+        sa.Column("responsible_engineer_profile_id", sa.String(36), sa.ForeignKey("source18_engineer_profiles.id")),
+        sa.Column("responsible_engineer_effective_from", sa.Date()),
+        sa.Column("responsible_engineer_change_type", sa.String(30)),
         sa.Column("current_policy_version_id", sa.String(36), sa.ForeignKey("source18_policy_versions.id")),
         sa.Column("official_form_version_id", sa.String(36), sa.ForeignKey("source18_official_form_versions.id")),
         sa.Column("requirement_version_id", sa.String(36), sa.ForeignKey("requirement_policy_versions.id")),
@@ -177,6 +180,7 @@ def upgrade() -> None:
         sa.Column("transaction_id", sa.String(36), sa.ForeignKey("source18_workflow_transactions.id"), nullable=False),
         sa.Column("packet_revision_id", sa.String(36), sa.ForeignKey("source18_packet_revisions.id"), nullable=False),
         sa.Column("cycle_number", sa.Integer(), nullable=False),
+        sa.Column("idempotency_key", sa.String(200), nullable=False),
         sa.Column("status", sa.String(40), nullable=False),
         sa.Column("external_reference", sa.String(200)),
         sa.Column("external_outcome_json", sa.JSON(), nullable=False),
@@ -184,6 +188,7 @@ def upgrade() -> None:
         sa.Column("recorded_by", sa.String(200), nullable=False),
         *_common("source18_submission_cycles"),
         sa.UniqueConstraint("transaction_id", "cycle_number", name="uq_source18_submission_cycle"),
+        sa.UniqueConstraint("transaction_id", "idempotency_key", name="uq_source18_submission_idempotency"),
     )
     op.create_table(
         "source18_external_comments",
