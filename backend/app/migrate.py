@@ -202,6 +202,11 @@ def run_migrations() -> str:
 
     expected_head = repository_migration_head()
     configured_migration_url = getattr(settings, "database_migration_url", "")
+    if environment in {"AZURE-PREPROD", "PROD"} and not configured_migration_url.strip():
+        raise RuntimeError(
+            "Deployment environments require DATABASE_MIGRATION_URL; migration authority must "
+            "not fall back to the runtime database authority."
+        )
     migration_url = configured_migration_url or settings.database_url
     if configured_migration_url:
         if migration_url.lower().startswith("mssql+"):

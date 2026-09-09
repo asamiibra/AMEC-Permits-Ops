@@ -406,16 +406,17 @@ class Settings(BaseSettings):
                     "PROD requires SYNTHETIC_ONLY=false"
                 )
 
-            if self.auth_mode.upper() == "DEV_HEADER":
+            if self.auth_mode.upper() != "ENTRA":
                 raise ValueError(
-                    "PROD requires a configured non-development "
-                    "authentication mode"
+                    "PROD requires AUTH_MODE=ENTRA"
                 )
 
             if self.database_url.lower().startswith("sqlite"):
                 raise ValueError("PROD requires a server database, not SQLite")
             if self.database_url.lower().startswith("mssql+"):
                 self._validate_mssql_url(self.database_url)
+                if self.azure_sql_auth_mode.upper() != "MANAGED_IDENTITY_ACCESS_TOKEN":
+                    raise ValueError("PROD Azure SQL requires AZURE_SQL_AUTH_MODE=MANAGED_IDENTITY_ACCESS_TOKEN")
 
             if self.synology_mode.upper() != "REAL":
                 raise ValueError(

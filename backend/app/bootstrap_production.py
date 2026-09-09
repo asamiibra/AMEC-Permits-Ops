@@ -23,6 +23,8 @@ def run_production_bootstrap() -> str:
         raise RuntimeError("Production bootstrap requires SYNTHETIC_ONLY=false.")
     if not settings.real_data_allowed:
         raise RuntimeError("Production bootstrap requires REAL_DATA_ALLOWED=true.")
+    if not settings.database_migration_url.strip():
+        raise RuntimeError("Production bootstrap requires DATABASE_MIGRATION_URL.")
     if settings.storage_provider.lower() != "smb":
         raise RuntimeError("Production bootstrap requires STORAGE_PROVIDER=smb.")
     if settings.synology_mode.upper() != "REAL":

@@ -1,0 +1,645 @@
+{
+  "artifact": "01-owner-source-census-a",
+  "generated_at_utc": "2026-09-09T22:40:54.181924Z",
+  "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
+  "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
+  "contract_part_hashes": [
+    {
+      "part": 1,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_01_of_10_Foundations_Corrections_Authority_Baseline_Protocol_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "98e78d4ea6fbde5e535bc38e789ca789f0cf0f327fd669db66ec35d417406fea"
+    },
+    {
+      "part": 2,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_02_of_10_G0-G2_Scope_Inventory_Release_Guardrails_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "1079011573ca3383f60363eb717862e04cb40a20ceb497ecce0fb01fe16d6152"
+    },
+    {
+      "part": 3,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_03_of_10_G3-G4_Runtime_Correctness_and_Production_Topology_SOURCE16_PERMIT_BILLING_COLLECTION_OWNER_DECISIONS_RESOLVED.md",
+      "sha256": "aec77b884d82c9b21c157bd34fbdef6083addd4d94bfd5e0be3ab02d1855fa0f"
+    },
+    {
+      "part": 4,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_04_of_10_G5_Owner_Operating_Flow_and_Business_V1_Closure_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "c91000c9804a86ca3d42e003b9ebf234ad371589a4cc2d325b182c126e46b850"
+    },
+    {
+      "part": 5,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_05_of_10_G6-G8_Data_Qualification_Release_Freeze_Preprod.md",
+      "sha256": "fcee445ff3c3b4f54be709602524e8dcd8a6b385c2f73b74961e0da9ffbf1a9e"
+    },
+    {
+      "part": 6,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_06_of_10_G9-G10_Synthetic_E2E_and_Source_Intake_Readiness_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "8d5d221dcdf9cac3ac9042a78352c38b18c1178e6777c38837ddb2d07dbbfeb0"
+    },
+    {
+      "part": 7,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_07_of_10_G11-G12_Operations_Security_DR_and_AI_Commissioning_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "ec135e0d5d82010ea9582abf83b7112878411a6f50c39d4b39e65d3681e3e105"
+    },
+    {
+      "part": 8,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_08_of_10_G13_Independent_UAT_Training_and_Go_NoGo_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "1cdd420df36029d121d9019c71760b24beead38392016df1563e8e79fc909393"
+    },
+    {
+      "part": 9,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_09_of_10_G14-G15_Production_Cutover_Canary_and_Hypercare_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "1670191f41fa5600ac574b3406ecb15a7ca9a92d077fc9087b2f55eaa489495c"
+    },
+    {
+      "part": 10,
+      "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_10_of_10_Cross_Cutting_Controls_Manifest_Coverage_Terminal_State_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
+      "sha256": "0021aaff9fdf45491152a81e0865f563c2c7dba8a6e5755abbbc96b33c8e45fe"
+    }
+  ],
+  "contract_part_count": 10,
+  "release_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "tree_sha": "178183b151f6bd0b388fdf5f90392b72d023883d",
+  "branch": "source18/committee-implementation-closure",
+  "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
+  "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / AZURE-PREPROD_READ_ONLY_OBSERVED",
+  "azure_release_sha": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7",
+  "azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
+  "azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
+  "azure_db_head": "ai_d2_execution_ledger_v1",
+  "test_run_identifier": "source18-owner-closure-01-owner-source-census-a",
+  "result": "PASS",
+  "requirement_keys": [
+    "S18-T2-R01-A1",
+    "S18-T2-R01-A2",
+    "S18-T2-R02-A1",
+    "S18-T2-R03-A1",
+    "S18-T2-R04-A1",
+    "S18-T2-R05-A1",
+    "S18-T2-R06-A1",
+    "S18-T2-R07-A1",
+    "S18-T2-R08-A1",
+    "S18-T2-R09-A1",
+    "S18-T2-R10-A1",
+    "S18-T2-R10-A2",
+    "S18-T2-R11-A1",
+    "S18-T2-R11-A2",
+    "S18-T2-R12-A1",
+    "S18-T2-R12-A2",
+    "S18-T2-R13-A1",
+    "S18-T2-R14-A1",
+    "S18-T2-R15-A1",
+    "S18-T2-R16-A1",
+    "S18-T2-R16-A2",
+    "S18-T2-R17-A1",
+    "S18-T2-R18-A1",
+    "S18-T2-R19-A1",
+    "S18-T2-R20-A1",
+    "S18-T2-R21-A1",
+    "S18-T2-R22-A1",
+    "S18-T2-R23-A1",
+    "S18-T2-R24-A1",
+    "S18-T2-R24-A2",
+    "S18-T2-R25-A1",
+    "S18-T2-R26-A1",
+    "S18-T2-R27-A1",
+    "S18-T2-R28-A1",
+    "S18-T2-R29-A1",
+    "S18-T2-R30-A1",
+    "S18-T2-R31-A1",
+    "S18-T2-R31-A2",
+    "S18-T2-R32-A1",
+    "S18-T2-R33-A1",
+    "S18-T2-R33-A2",
+    "S18-T2-R34-A1",
+    "S18-T2-R35-A1",
+    "S18-T2-R36-A1",
+    "S18-T2-R37-A1",
+    "S18-T2-R38-A1",
+    "S18-T2-R39-A1",
+    "S18-T2-R39-A2",
+    "S18-T2-R40-A1",
+    "S18-T2-R41-A1",
+    "S18-T2-R42-A1",
+    "S18-T2-R43-A1",
+    "S18-T2-R44-A1",
+    "S18-T2-R45-A1",
+    "S18-T2-R45-A2",
+    "S18-T2-R45-A3",
+    "S18-T2-R46-A1",
+    "S18-T2-R47-A1",
+    "S18-T2-R48-A1",
+    "S18-T2-R48-A2",
+    "S18-T2-R49-A1",
+    "S18-T2-R50-A1",
+    "S18-T2-R50-A2",
+    "S18-T2-R51-A1",
+    "S18-T2-R52-A1",
+    "S18-T2-R53-A1",
+    "S18-T2-R53-A2",
+    "S18-T2-R53-A3",
+    "S18-T2-R54-A1",
+    "S18-T2-R55-A1",
+    "S18-T2-R56-A1",
+    "S18-T2-R56-A2",
+    "S18-T2-R57-A1",
+    "S18-T2-R57-A2",
+    "S18-T2-R58-A1",
+    "S18-T2-R59-A1",
+    "S18-T2-R59-A2",
+    "S18-T2-R60-A1",
+    "S18-T2-R61-A1",
+    "S18-T2-R61-A2",
+    "S18-T2-R62-A1",
+    "S18-T2-R63-A1",
+    "S18-T2-R63-A2",
+    "S18-T2-R64-A1",
+    "S18-T2-R65-A1",
+    "S18-T2-R66-A1",
+    "S18-T2-R67-A1",
+    "S18-T2-R68-A1",
+    "S18-T2-R68-A2",
+    "S18-T2-R68-A3"
+  ],
+  "method": "DOCX final Table 2 row extraction plus W2 compound split",
+  "rows": [
+    {
+      "row": 1,
+      "priority": "P0",
+      "text": "Office/Engineer Authority Cases without mandatory Project",
+      "current_app": "⚠️ backend case subject is generic; current UI is project-centric",
+      "gap": "Extend canonical Authority Case scope"
+    },
+    {
+      "row": 2,
+      "priority": "P0",
+      "text": "Committee configured as canonical ExternalBody + services",
+      "current_app": "🟨",
+      "gap": "Configure real Committee domain"
+    },
+    {
+      "row": 3,
+      "priority": "P0",
+      "text": "COUNTER_PROCESS vs COMMITTEE_PANEL processing mode",
+      "current_app": "❌",
+      "gap": "Add"
+    },
+    {
+      "row": 4,
+      "priority": "P0",
+      "text": "Separate Office Enrolment Certificate and Document",
+      "current_app": "❌ dedicated",
+      "gap": "Add separate versioned semantic records"
+    },
+    {
+      "row": 5,
+      "priority": "P0",
+      "text": "Exact authoritative office-document version",
+      "current_app": "🟨 DocumentVersion",
+      "gap": "Specialize"
+    },
+    {
+      "row": 6,
+      "priority": "P0",
+      "text": "One active authority-stamped physical original",
+      "current_app": "❌",
+      "gap": "Physical custody model"
+    },
+    {
+      "row": 7,
+      "priority": "P0",
+      "text": "Current official Ministry form version pinned per transaction",
+      "current_app": "🟨 strong Master Content governance",
+      "gap": "Configure/use it"
+    },
+    {
+      "row": 8,
+      "priority": "P0",
+      "text": "Official form currentness before preparing live case",
+      "current_app": "🟨 currentness fields exist",
+      "gap": "Enforce transaction-time binding"
+    },
+    {
+      "row": 9,
+      "priority": "P0",
+      "text": "Engineer Data/Contact Update case",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 10,
+      "priority": "P0",
+      "text": "QID valid/current + AMEC sponsorship prerequisite",
+      "current_app": "❌ domain gate",
+      "gap": "Build"
+    },
+    {
+      "row": 11,
+      "priority": "P0",
+      "text": "Engineer credential valid + eligible grade/category",
+      "current_app": "🟨 credential seam only",
+      "gap": "Build regulatory credential lifecycle"
+    },
+    {
+      "row": 12,
+      "priority": "P0",
+      "text": "Engineer signs their applicable update form",
+      "current_app": "❌ explicit signer policy",
+      "gap": "Add"
+    },
+    {
+      "row": 13,
+      "priority": "P0",
+      "text": "Updated engineer certificate retrieved and verified",
+      "current_app": "❌",
+      "gap": "Add post-authority evidence gate"
+    },
+    {
+      "row": 14,
+      "priority": "P0",
+      "text": "Separate office-classification roster-add transaction",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 15,
+      "priority": "P0",
+      "text": "credential_updated ≠ regulator_counted",
+      "current_app": "❌",
+      "gap": "Enforce"
+    },
+    {
+      "row": 16,
+      "priority": "P0",
+      "text": "Office classified-engineer roster",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 17,
+      "priority": "P0",
+      "text": "Discipline minimum/buffer/shortage rules",
+      "current_app": "❌",
+      "gap": "Build versioned policy"
+    },
+    {
+      "row": 18,
+      "priority": "P0",
+      "text": "Global staffing readiness gate for panel-level office changes",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 19,
+      "priority": "P0",
+      "text": "Remediation transaction exception while staffing deficient",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 20,
+      "priority": "P0",
+      "text": "Responsible Engineer regulator-approved designation",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 21,
+      "priority": "P0",
+      "text": "ADD vs REPLACE semantics",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 22,
+      "priority": "P0",
+      "text": "Multiple Responsible Engineers",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 23,
+      "priority": "P0",
+      "text": "Management regulatory signatory designation",
+      "current_app": "❌",
+      "gap": "Add where form/policy requires"
+    },
+    {
+      "row": 24,
+      "priority": "P0",
+      "text": "Transaction-specific signer resolver",
+      "current_app": "🟨 AuthorizationGrant foundation",
+      "gap": "Specialize"
+    },
+    {
+      "row": 25,
+      "priority": "P0",
+      "text": "Legal-capacity / representation validation",
+      "current_app": "🟨 party/authorization foundation",
+      "gap": "Extend"
+    },
+    {
+      "row": 26,
+      "priority": "P0",
+      "text": "RE home-country professional licence evidence when applicable",
+      "current_app": "❌ dedicated",
+      "gap": "Add version-bound requirement"
+    },
+    {
+      "row": 27,
+      "priority": "P0",
+      "text": "RE valid residency / first-category evidence",
+      "current_app": "🟨 generic docs",
+      "gap": "Make readiness requirement"
+    },
+    {
+      "row": 28,
+      "priority": "P0",
+      "text": "RE undertaking",
+      "current_app": "❌ typed domain object",
+      "gap": "Build"
+    },
+    {
+      "row": 29,
+      "priority": "P0",
+      "text": "Owner authorization/declaration",
+      "current_app": "🟨 generic authorization",
+      "gap": "Exact form-bound implementation"
+    },
+    {
+      "row": 30,
+      "priority": "P0",
+      "text": "Owner/Partners legal acknowledgement on renewal",
+      "current_app": "❌ typed declaration",
+      "gap": "Build"
+    },
+    {
+      "row": 31,
+      "priority": "P0",
+      "text": "Owner internal packet release review",
+      "current_app": "❌ dedicated",
+      "gap": "Build protected action"
+    },
+    {
+      "row": 32,
+      "priority": "P0",
+      "text": "Explicit NA vs blank form validation",
+      "current_app": "❌",
+      "gap": "Build deterministic validator"
+    },
+    {
+      "row": 33,
+      "priority": "P0",
+      "text": "AUTHORITY_ONLY fields protected from AMEC editing",
+      "current_app": "🟨 generic form governance",
+      "gap": "Enforce"
+    },
+    {
+      "row": 34,
+      "priority": "P0",
+      "text": "Immutable packet revision before signature/submission",
+      "current_app": "🟨 Authority Case preparation/package foundation",
+      "gap": "Extend/configure"
+    },
+    {
+      "row": 35,
+      "priority": "P0",
+      "text": "Returned packet creates new revision",
+      "current_app": "🟨 current workspace supports findings/revisions conceptually",
+      "gap": "Make Committee workflow concrete"
+    },
+    {
+      "row": 36,
+      "priority": "P0",
+      "text": "Linked RE-change + renewal, independent outcomes",
+      "current_app": "❌ linked-case construct",
+      "gap": "Build"
+    },
+    {
+      "row": 37,
+      "priority": "P0",
+      "text": "Human signature/stamp",
+      "current_app": "🟨 product authority architecture",
+      "gap": "Enforce here"
+    },
+    {
+      "row": 38,
+      "priority": "P0",
+      "text": "Human final external submission",
+      "current_app": "✅ generic Authority Case UX states human submission",
+      "gap": "Preserve"
+    },
+    {
+      "row": 39,
+      "priority": "P0",
+      "text": "PII controls around QID/residency/identity",
+      "current_app": "🟨 form governance marks PII",
+      "gap": "Add access enforcement"
+    },
+    {
+      "row": 40,
+      "priority": "P1",
+      "text": "Renewal case/workflow",
+      "current_app": "❌ Committee-specific",
+      "gap": "Build"
+    },
+    {
+      "row": 41,
+      "priority": "P1",
+      "text": "Current permitted disciplines vs requested renewal disciplines",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 42,
+      "priority": "P1",
+      "text": "Versioned renewal checklist",
+      "current_app": "🟨 requirements/form infrastructure",
+      "gap": "Populate"
+    },
+    {
+      "row": 43,
+      "priority": "P1",
+      "text": "Owner/licence/corporate evidence package",
+      "current_app": "🟨 generic docs",
+      "gap": "Map exact evidence types"
+    },
+    {
+      "row": 44,
+      "priority": "P1",
+      "text": "Two-year activity/project list",
+      "current_app": "❌ renewal projection",
+      "gap": "Build"
+    },
+    {
+      "row": 45,
+      "priority": "P1",
+      "text": "Current financial evidence",
+      "current_app": "🟨 financial foundations",
+      "gap": "Add controlled renewal projection"
+    },
+    {
+      "row": 46,
+      "priority": "P1",
+      "text": "Insurance / office property / lease evidence",
+      "current_app": "🟨 generic docs/property",
+      "gap": "Add checklist applicability"
+    },
+    {
+      "row": 47,
+      "priority": "P1",
+      "text": "Labor roster snapshot",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 48,
+      "priority": "P1",
+      "text": "Inside/outside Qatar status as-of snapshot",
+      "current_app": "❌",
+      "gap": "Add"
+    },
+    {
+      "row": 49,
+      "priority": "P1",
+      "text": "Classified engineer fields in workforce list",
+      "current_app": "❌",
+      "gap": "Add"
+    },
+    {
+      "row": 50,
+      "priority": "P1",
+      "text": "Fresh engineer-evidence collection tasks",
+      "current_app": "🟨 generic task foundation",
+      "gap": "Build renewal workflow"
+    },
+    {
+      "row": 51,
+      "priority": "P1",
+      "text": "Requirement drift across form versions",
+      "current_app": "🟨 strong Master Content governance",
+      "gap": "Enforce in Committee workflow"
+    },
+    {
+      "row": 52,
+      "priority": "P1",
+      "text": "Multiple human signer tasks per packet",
+      "current_app": "❌ domain workflow",
+      "gap": "Build"
+    },
+    {
+      "row": 53,
+      "priority": "P1",
+      "text": "Signed-packet return/review before office stamp",
+      "current_app": "❌",
+      "gap": "Add"
+    },
+    {
+      "row": 54,
+      "priority": "P1",
+      "text": "Messenger handoff + physical-submission trace",
+      "current_app": "❌",
+      "gap": "Build"
+    },
+    {
+      "row": 55,
+      "priority": "P1",
+      "text": "Case owner remains accountable while messenger executes",
+      "current_app": "❌ explicit semantics",
+      "gap": "Add"
+    },
+    {
+      "row": 56,
+      "priority": "P1",
+      "text": "Committee meeting/quorum operational metadata",
+      "current_app": "❌",
+      "gap": "Configurable"
+    },
+    {
+      "row": 57,
+      "priority": "P1",
+      "text": "Thursday/current follow-up cadence",
+      "current_app": "❌",
+      "gap": "Configurable, never hard-code"
+    },
+    {
+      "row": 58,
+      "priority": "P1",
+      "text": "External comments + resubmission history",
+      "current_app": "🟨 findings/outcomes foundation",
+      "gap": "Specialize"
+    },
+    {
+      "row": 59,
+      "priority": "P1",
+      "text": "Authority-only office-inspection result capture",
+      "current_app": "🟨 AuthorityOutcome can help",
+      "gap": "Add result mapping"
+    },
+    {
+      "row": 60,
+      "priority": "P1",
+      "text": "Version-specific packaging such as CD",
+      "current_app": "❌",
+      "gap": "SubmissionPackagingRequirement"
+    },
+    {
+      "row": 61,
+      "priority": "P1",
+      "text": "Official authority form vs internal AMEC template distinction",
+      "current_app": "🟨 Master Content ownership/provenance",
+      "gap": "Enforce"
+    },
+    {
+      "row": 62,
+      "priority": "P1",
+      "text": "Temporary staging → final Admin filing with lineage",
+      "current_app": "🟨 storage foundations",
+      "gap": "Add workflow policy"
+    },
+    {
+      "row": 63,
+      "priority": "P1",
+      "text": "Inherited open municipality-case handoff",
+      "current_app": "🟨 generic cases/tasks",
+      "gap": "Add handoff semantics"
+    },
+    {
+      "row": 64,
+      "priority": "P2",
+      "text": "AI-assisted prefill",
+      "current_app": "🟨 architecture supports",
+      "gap": "Human verification only"
+    },
+    {
+      "row": 65,
+      "priority": "P2",
+      "text": "AI/deterministic packet completeness checking",
+      "current_app": "🟨 generic requirement framework",
+      "gap": "Implement once rules frozen"
+    },
+    {
+      "row": 66,
+      "priority": "P2",
+      "text": "Automatic stale-document chasing/reminders",
+      "current_app": "🟨",
+      "gap": "Later"
+    },
+    {
+      "row": 67,
+      "priority": "P2",
+      "text": "Portal integration",
+      "current_app": "Not established",
+      "gap": "Defer"
+    },
+    {
+      "row": 68,
+      "priority": "PROHIBITED",
+      "text": "AI autonomously sign/stamp/final-submit",
+      "current_app": "No authority",
+      "gap": "Keep HUMAN_ONLY"
+    }
+  ],
+  "matrix_rows": 68,
+  "atomic_requirements": 90,
+  "artifact_sha256": "511db164f414d9065f4bf07b40ac018f73198cb361827f51cfc7eb1929fbd2b9"
+}

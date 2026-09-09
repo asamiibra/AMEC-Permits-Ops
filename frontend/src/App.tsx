@@ -73,6 +73,7 @@ import { ConstructionPage } from "./Construction";
 import { CompletionPage } from "./Completion";
 import { HandoverPage } from "./Handover";
 import { HomeCommandCenter } from "./HomeCommandCenter";
+import { Source18CommitteePage } from "./Source18Committee";
 import { Icon, type IconName } from "./Icon";
 import "./dashboard.css";
 import "./billing-invoice.css";
@@ -118,6 +119,7 @@ const businessNav: BusinessNavItem[] = [
   { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
   { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
   { id: "regulatory-submissions", page: "permit-portfolio", label: "Regulatory & Submissions", icon: "authority", path: "/permits", group: "BUSINESS FLOW" },
+  { id: "source18-committee", page: "source18-committee", label: "Engineers Committee", icon: "authority", path: "/source18/committee", group: "BUSINESS FLOW" },
   { id: "construction-post-approval", page: "construction", label: "Construction & Post-Approval", icon: "construction", path: "/construction", group: "BUSINESS FLOW" },
   { id: "completion-as-built", page: "completion", label: "Completion & As-Built", icon: "completion", path: "/completion", group: "BUSINESS FLOW" },
   { id: "handover-closeout", page: "handover", label: "Handover & Closeout", icon: "handover", path: "/handover", group: "BUSINESS FLOW" },
@@ -182,6 +184,7 @@ const pageFromPath = () => {
   if (path === "/handover" || path.startsWith("/handover/")) return "handover";
   if (path === "/engineering/drawing-review") return "engineering-drawing-review";
   if (path === "/permit") return "permit-portfolio";
+  if (path === "/source18/committee") return "source18-committee";
   if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
   if (path === "/work") return "my-work";
   if (path === "/permits" || path === "/projects") return "permit-portfolio";
@@ -497,6 +500,7 @@ function App() {
         "intake-opportunity",
         "contract-mobilization",
         "regulatory-submissions",
+        "source18-committee",
         "completion-as-built",
       ].includes(item.id);
     if (role === "RESPONSIBLE_ENGINEER")
@@ -506,6 +510,7 @@ function App() {
         "phase5-review",
         "design-delivery",
         "regulatory-submissions",
+        "source18-committee",
         "construction-post-approval",
         "completion-as-built",
         "handover-closeout",
@@ -739,6 +744,7 @@ function App() {
           {page === "home" && <HomeCommandCenter role={role} />}{" "}
           {page === "phase4-review" && <Phase4ReviewPage role={role} />}
           {page === "phase5-review" && <Phase5ReviewPage role={role} />}
+          {page === "source18-committee" && <Source18CommitteePage />}
           {page === "my-work" && (
             <MyWorkPage
               projects={projects}
