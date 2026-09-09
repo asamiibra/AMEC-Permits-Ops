@@ -170,7 +170,7 @@ def test_migration_authority_scope_restores_after_failure(monkeypatch):
     assert migrate.get_settings().database_url == RUNTIME_DATABASE_URL
 
 
-def test_migration_runner_without_migration_url_preserves_fallback(monkeypatch):
+def test_production_migration_runner_without_migration_url_fails_closed(monkeypatch):
     _install_cached_settings(monkeypatch, migration_url="")
     _stub_migration_verification(monkeypatch)
     observed_database_urls = []
@@ -182,8 +182,9 @@ def test_migration_runner_without_migration_url_preserves_fallback(monkeypatch):
 
     monkeypatch.setattr(migrate.command, "upgrade", upgrade)
 
-    assert migrate.run_migrations() == MIGRATION_HEAD
-    assert observed_database_urls == [RUNTIME_DATABASE_URL]
+    with pytest.raises(RuntimeError, match="DATABASE_MIGRATION_URL"):
+        migrate.run_migrations()
+    assert observed_database_urls == []
     assert os.environ["DATABASE_URL"] == RUNTIME_DATABASE_URL
 
 
