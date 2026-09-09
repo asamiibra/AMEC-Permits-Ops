@@ -40,10 +40,14 @@ class Settings(BaseSettings):
     # Synology directly, including during production canary operation.
     azure_direct_synology_smb: bool = False
 
-    # Permanent document-binary provider. MOCK is test-only; production must
-    # select SMB and obtain credentials from the deployment secret manager.
+    # Permanent document-binary provider. MOCK is test-only; production uses
+    # the private Azure Blob managed-artifact provider or an explicitly
+    # approved future provider.
     storage_provider: str = "mock"
     managed_artifact_store_required: bool = False
+    azure_blob_account_url: str = ""
+    azure_blob_container: str = "managed-artifacts"
+    azure_blob_uami_client_id: str = ""
     smb_server: str = ""
     smb_port: int = 445
     smb_share: str = ""
@@ -495,27 +499,27 @@ class Settings(BaseSettings):
             self._validate_credential_free_url(self.database_migration_url, "DATABASE_MIGRATION_URL")
 
             if self.managed_artifact_store_required:
-                if self.storage_provider.lower() != "smb":
+                if self.storage_provider.lower() != "azure_blob":
                     raise ValueError(
-                        "PROD requires STORAGE_PROVIDER=smb when managed artifact storage is launch-required"
+                        "PROD requires STORAGE_PROVIDER=azure_blob when managed artifact storage is launch-required"
                     )
-
-                if not self.smb_server or not self.smb_share or not self.smb_username:
-                    raise ValueError(
-                        "PROD requires an SMB server, share and service identity when managed artifact storage is launch-required"
-                    )
-
-                if self.smb_auth_mode.lower() not in {"ntlm", "kerberos", "negotiate"}:
-                    raise ValueError("PROD requires an explicit supported SMB authentication mode")
-
+                blob_url = urlsplit(self.azure_blob_account_url)
                 if (
-                    self.smb_auth_mode.lower() == "negotiate"
-                    and os.getenv("SMB_ALLOW_NEGOTIATE", "false").lower() != "true"
+                    blob_url.scheme != "https"
+                    or not blob_url.hostname
+                    or not blob_url.hostname.endswith(".blob.core.windows.net")
+                    or blob_url.path not in {"", "/"}
+                    or blob_url.query
+                    or blob_url.fragment
                 ):
-                    raise ValueError("SMB negotiate fallback requires explicit SMB_ALLOW_NEGOTIATE=true")
-
-                if self.smb_server.replace(".", "").isdigit():
-                    raise ValueError("Kerberos-capable production SMB configuration must use an approved hostname")
+                    raise ValueError(
+                        "PROD requires an exact HTTPS Azure Blob account URL when managed artifact storage is launch-required"
+                    )
+                if not self.azure_blob_container.strip():
+                    raise ValueError("PROD requires AZURE_BLOB_CONTAINER when managed artifact storage is launch-required")
+                if not self.azure_blob_uami_client_id:
+                    raise ValueError("PROD requires AZURE_BLOB_UAMI_CLIENT_ID when managed artifact storage is launch-required")
+                self._require_guid(self.azure_blob_uami_client_id, "AZURE_BLOB_UAMI_CLIENT_ID")
 
         if environment != "PROD" and any(
             token in self.database_url.lower()
