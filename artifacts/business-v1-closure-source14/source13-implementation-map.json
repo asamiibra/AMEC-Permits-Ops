@@ -1,0 +1,84 @@
+{
+  "checkpoint_scope": "SOURCE13_SOURCE14_INTERMEDIATE_RECONCILIATION",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "focused_code_paths": [
+    "backend/app/api/billing_invoice_routers.py",
+    "backend/app/services/source14_contract_controls.py",
+    "backend/tests/test_source14_contract_controls.py"
+  ],
+  "g5_business_v1_code_frozen_current_contract": false,
+  "g5_current_contract_closed": false,
+  "g6_data_platform_qualified": false,
+  "g6_started": false,
+  "latest_governing_contract_source": "SOURCE15",
+  "map": "SOURCE13_STANDARD_INVOICE_CHECKPOINT_RAW_INVENTORY",
+  "merged_release_sha_recorded_after_merge": true,
+  "open_work_packages": 7,
+  "pr_reviewed_head_recorded_externally": true,
+  "source12_reuse_required": true,
+  "source14_checkpoint_preserved": true,
+  "source15_implementation_not_claimed_in_pr15": true,
+  "source15_now_governs_current_g5": true,
+  "source15_reconciliation_required": true,
+  "subject_source_sha": "98bb7a7c88f2407150f0b4796ebf1ed8bdde69fb",
+  "subject_source_tree": "e7af0e31079b1021e8f15136c2089520f81644ee",
+  "work_packages": [
+    {
+      "id": "G1",
+      "priority": "P0",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Exact Commercial-Term Derivation"
+    },
+    {
+      "id": "G2",
+      "priority": "P0",
+      "reuse_source12": true,
+      "status": "FOCUSED_CONTROL_IMPLEMENTED",
+      "title": "AMEC Production Invoice Reference"
+    },
+    {
+      "id": "G3",
+      "priority": "P0",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Official AMEC Invoice Rendering + Signed Artifact"
+    },
+    {
+      "id": "G4",
+      "priority": "P0/P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Project Commercial / Cashflow Master Projection"
+    },
+    {
+      "id": "G5",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Open Receivables + Invoice Register UX"
+    },
+    {
+      "id": "G6",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Forecast + Billing-Readiness Workflow"
+    },
+    {
+      "id": "G7",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Supervision Monthly Billing Profile"
+    },
+    {
+      "id": "G8",
+      "priority": "P1",
+      "reuse_source12": true,
+      "status": "OPEN",
+      "title": "Finance Evidence/Follow-up Owner UX"
+    }
+  ]
+}
