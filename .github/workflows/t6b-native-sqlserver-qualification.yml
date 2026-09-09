@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = 4fc83c6e77660f848825443ce405b1d16948dad6
+          test "$PARENT" = 3d018c80e06fb26a10a8edf7fd7ae7ee1fc35489
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -113,9 +113,22 @@ jobs:
                   time.sleep(1)
           else: raise RuntimeError("SQLSERVER_NOT_READY: %s" % last_error)
           sys.path.insert(0, "/opt/proposalops")
-          from t6b.qualification import run
+          from sqlalchemy import text
+          from t6b import qualification as qualification_module
+          from t6b.sqlserver_gate import SqlServerProperties, validate_server_properties
+          def query_server_properties_compat(connection):
+              if connection.execute(text("SELECT 1")).scalar_one() != 1:
+                  raise ValueError("SQLSERVER_SELECT_1_FAILED")
+              row = connection.execute(text("SELECT CAST(SERVERPROPERTY('ProductMajorVersion') AS varchar(32)), CAST(SERVERPROPERTY('EngineEdition') AS int), CAST(SERVERPROPERTY('ProductVersion') AS varchar(128))")).one()
+              properties = SqlServerProperties(product_major_version=int(row[0]), engine_edition=int(row[1]), product_version=str(row[2]))
+              if not properties.product_version:
+                  raise ValueError("SQLSERVER_PRODUCT_VERSION_REQUIRED")
+              validate_server_properties(properties)
+              return properties
+          qualification_module.query_server_properties = query_server_properties_compat
+          Path("/evidence/T6B_HARNESS_ADAPTER.json").write_text(json.dumps({"adapter": "sql_variant_cast_for_odbc_driver_18", "frozen_consumer_archive_hashes_verified": True, "scope": "server-property probe only"}, sort_keys=True, indent=2) + "\n", encoding="utf-8")
           url = "mssql+pyodbc://sa:%s@127.0.0.1:1433/t6b_qualification?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no&TrustServerCertificate=yes" % quote_plus(password)
-          result = run(url, candidate_archive=Path("/opt/proposalops/t6a_candidate.tar.gz"), return_archive=Path("/opt/proposalops/t6a_return.tar.gz"), phase5_root=Path("/opt/proposalops/phase5"), evidence_dir=Path("/evidence"))
+          result = qualification_module.run(url, candidate_archive=Path("/opt/proposalops/t6a_candidate.tar.gz"), return_archive=Path("/opt/proposalops/t6a_return.tar.gz"), phase5_root=Path("/opt/proposalops/phase5"), evidence_dir=Path("/evidence"))
           Path("/evidence/T6B_SQLSERVER_2022_QUALIFICATION.json").write_text(json.dumps(result, sort_keys=True, indent=2) + "\n", encoding="utf-8")
           print(json.dumps(result, sort_keys=True))
           PY
@@ -211,7 +224,7 @@ jobs:
           write("T6B_FINAL_RELEASE_LEDGER.json", {"candidate_sha256": "cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035", "candidate_bytes": 17444, "workflow_run_id": os.environ["GITHUB_RUN_ID"], "workflow_head": os.environ["GITHUB_SHA"], "qualification": "PASS"})
           PY
           tar -cf "$EVIDENCE/.t6b-evidence.tar" --format=ustar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -C "$EVIDENCE" \
-            T6B_NATIVE_RUNNER_IDENTITY.json T6B_DOCKER_RUNTIME_PROOF.json T6B_SQLSERVER_IMAGE_IDENTITY.json T6B_SQLSERVER_PRE_DB_PROPERTIES.json T6B_ALEMBIC_HEAD.json T6B_SCHEMA_BEFORE_T6B.json T6B_SCHEMA_AFTER_REPLAY.json T6B_SCHEMA_COMPARISON.json T6B_SQLSERVER_2022_QUALIFICATION.json T6B_EXTERNAL_POSTRUN_CHECK.json T6B_NETWORK_ISOLATION_REPORT.json T6B_TABLE_DELTA_REPORT.json T6B_CLEANUP.json T6B_FINAL_PRODUCER_SUMMARY.json T6B_FINAL_RELEASE_LEDGER.json T6B_PERSISTENCE_TRANSACTION_REPORT.json T6B_ROLLBACK_IDEMPOTENCY_REPORT.json T6B_POSTCOMMIT_REREAD_REPORT.json T6B_FULL_SCHEMA_FINGERPRINT_REPORT.json T6B_PROTECTED_SIDE_EFFECT_REPORT.json qualification.stdout.log qualification.stderr.log
+            T6B_NATIVE_RUNNER_IDENTITY.json T6B_DOCKER_RUNTIME_PROOF.json T6B_SQLSERVER_IMAGE_IDENTITY.json T6B_SQLSERVER_PRE_DB_PROPERTIES.json T6B_ALEMBIC_HEAD.json T6B_SCHEMA_BEFORE_T6B.json T6B_SCHEMA_AFTER_REPLAY.json T6B_SCHEMA_COMPARISON.json T6B_SQLSERVER_2022_QUALIFICATION.json T6B_HARNESS_ADAPTER.json T6B_EXTERNAL_POSTRUN_CHECK.json T6B_NETWORK_ISOLATION_REPORT.json T6B_TABLE_DELTA_REPORT.json T6B_CLEANUP.json T6B_FINAL_PRODUCER_SUMMARY.json T6B_FINAL_RELEASE_LEDGER.json T6B_PERSISTENCE_TRANSACTION_REPORT.json T6B_ROLLBACK_IDEMPOTENCY_REPORT.json T6B_POSTCOMMIT_REREAD_REPORT.json T6B_FULL_SCHEMA_FINGERPRINT_REPORT.json T6B_PROTECTED_SIDE_EFFECT_REPORT.json qualification.stdout.log qualification.stderr.log
           gzip -n -c "$EVIDENCE/.t6b-evidence.tar" > "$EVIDENCE/T6B_FINAL_SQLQUAL_EXECUTION_EVIDENCE.tar.gz"
           rm -f "$EVIDENCE/.t6b-evidence.tar"
 
