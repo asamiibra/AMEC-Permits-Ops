@@ -35,7 +35,7 @@ jobs:
           test "$(uname -s)" = Linux
           test "$(uname -m)" = x86_64
           PARENT=$(git rev-parse HEAD^)
-          test "$PARENT" = 5920c81913aebbfc018e28ee02847e20f24ab9aa
+          test "$PARENT" = 474e1c626f300baae65b6d6eebc2540d133e9e00
           EXPECTED=$'.github/workflows/t6b-native-sqlserver-qualification.yml'
           test "$(git diff --name-only "$PARENT" HEAD)" = "$EXPECTED"
           sha256sum --check <(printf '%s  %s\n' \
@@ -129,6 +129,7 @@ jobs:
           qualification_module.query_server_properties = query_server_properties_compat
           qualification_module.consumer.query_server_properties = query_server_properties_compat
           sqlserver_gate_module.query_server_properties = query_server_properties_compat
+          qualification_module.SELECTORS = qualification_module.consumer.SELECTORS
           Path("/evidence/T6B_HARNESS_ADAPTER.json").write_text(json.dumps({"adapter": "sql_variant_cast_for_odbc_driver_18", "frozen_consumer_archive_hashes_verified": True, "scope": "server-property probe only"}, sort_keys=True, indent=2) + "\n", encoding="utf-8")
           url = "mssql+pyodbc://sa:%s@127.0.0.1:1433/t6b_qualification?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=no&TrustServerCertificate=yes" % quote_plus(password)
           result = qualification_module.run(url, candidate_archive=Path("/opt/proposalops/t6a_candidate.tar.gz"), return_archive=Path("/opt/proposalops/t6a_return.tar.gz"), phase5_root=Path("/opt/proposalops/phase5"), evidence_dir=Path("/evidence"))
