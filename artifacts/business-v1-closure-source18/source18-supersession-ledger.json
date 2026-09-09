@@ -1,0 +1,36 @@
+{
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "latest_governing_contract_source": "SOURCE18",
+  "latest_governing_source": "Source18",
+  "relationships": [
+    {
+      "from": "Source12",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source13"
+    },
+    {
+      "from": "Source13",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source14"
+    },
+    {
+      "from": "Source14",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source15"
+    },
+    {
+      "from": "Source15",
+      "relationship": "SAME_SCOPE_REFINED",
+      "to": "Source16"
+    },
+    {
+      "from": "Source17",
+      "relationship": "DETAILED_COMMITTEE_FORMS_AND_TRANSACTION_PACKAGES_SUPERSEDED_WHERE_EXPLICIT",
+      "to": "Source18"
+    }
+  ],
+  "source_absence_is_not_supersession": true,
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d"
+}

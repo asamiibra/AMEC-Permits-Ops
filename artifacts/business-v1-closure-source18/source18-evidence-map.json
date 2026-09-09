@@ -1,0 +1,49 @@
+{
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "external_current_policy_and_form_verification": "UNKNOWN_AND_FAIL_CLOSED_WHERE_UNVERIFIED",
+  "focused_tests": {
+    "command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
+    "result": "61_PASS_1_WARNING"
+  },
+  "historical_numeric_policy_promoted": 0,
+  "latest_governing_contract_source": "SOURCE18",
+  "owner_approved_client_delay_threshold": {
+    "effective_date": "2026-09-09",
+    "semantics": "ELIGIBILITY_TRIGGER_REQUIRING_HUMAN_AUTHORIZATION",
+    "unit": "CALENDAR_DAYS",
+    "value": 30
+  },
+  "protected_boundaries": {
+    "accounting_erp_integration": false,
+    "autonomous_acceptance": false,
+    "autonomous_handover": false,
+    "autonomous_invoice": false,
+    "autonomous_signature_or_stamp": false,
+    "autonomous_submission": false,
+    "municipality_portal_integration": false
+  },
+  "source13_requirement_orphans": 0,
+  "source14_final_regulatory_work_packages_open": 0,
+  "source14_requirement_orphans": 0,
+  "source15_atomic_requirement_count": 232,
+  "source15_finance_revalidation_atomic_requirement_count": 132,
+  "source15_primary_requirement_count": 100,
+  "source15_requirement_orphans": 0,
+  "source15_untraceable_atomic_requirements": 0,
+  "source16_atomic_requirement_count": 150,
+  "source16_requirement_orphans": 0,
+  "source17_atomic_requirement_count": 179,
+  "source17_requirement_orphans": 0,
+  "source17_requirements_traceability": "PASS",
+  "source18_atomic_requirement_count": 90,
+  "source18_final_matrix_row_count": 68,
+  "source18_requirement_orphans": 0,
+  "source18_requirements_traceability": "PASS",
+  "source1_to_source12_accepted_ledger_preserved": true,
+  "source1_to_source12_rows": 1218,
+  "source_bytes_pinned": true,
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
+  "system_currentness_control": "PASS"
+}

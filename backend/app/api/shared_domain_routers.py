@@ -35,6 +35,7 @@ from ..models import (
     GeneratedArtifact,
     Jurisdiction,
     MasterContentItem,
+    Project,
     RegulatoryJourney,
     RegulatoryLifecyclePhase,
     RegulatoryRelation,
@@ -77,6 +78,10 @@ from ..services.shared_domains import (
     resolve_assertions,
     resolve_requirement_policy,
     resolve_rule_set,
+)
+from ..services.current_contract_controls import (
+    CurrentContractControlError,
+    require_canonical_project_for_authority_case,
 )
 from ..services.master_content import exact_master_content_binding_check
 
@@ -223,6 +228,25 @@ def list_regulatory_journeys(db: Session = Depends(get_db), _role: Role = Depend
 @router.post("/regulatory/cases")
 def create_authority_case(payload: dict[str, Any] = Body(default={}), request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_role(role, CASE_ROLES)
+    journey = db.get(RegulatoryJourney, payload["regulatory_journey_id"]) if payload.get("regulatory_journey_id") else None
+    service = db.get(ServiceType, payload["service_type_id"]) if payload.get("service_type_id") else None
+    governed_payload = {
+        **payload,
+        "service_type_code": service.code if service else payload.get("service_type_code"),
+    }
+    try:
+        canonical_project_id = require_canonical_project_for_authority_case(
+            governed_payload,
+            journey_project_id=journey.project_id if journey else None,
+        )
+    except CurrentContractControlError as exc:
+        raise HTTPException(status_code=422, detail={"code": exc.code}) from exc
+    if canonical_project_id:
+        if not db.get(Project, canonical_project_id):
+            raise HTTPException(status_code=404, detail={"code": "CANONICAL_PROJECT_NOT_FOUND"})
+        payload = {**payload}
+        payload.setdefault("subject_type", "PROJECT")
+        payload.setdefault("subject_id", canonical_project_id)
     item = create_record(db, AuthorityCase, payload, defaults={"created_by": actor(role), "status": "DRAFT"})
     return _commit(db, item, request, event="AUTHORITY_CASE_CREATED", role=role)
 
