@@ -177,15 +177,15 @@ def _connect_with_bounded_attempts(engine):
 def run_migrations() -> str:
     settings = get_settings()
     environment = settings.app_env.upper()
-    if environment != "AZURE-PREPROD":
+    if environment not in {"AZURE-PREPROD", "PROD"}:
         raise RuntimeError(
-            "The deployment migration runner is restricted to AZURE-PREPROD."
+            "The deployment migration runner is restricted to AZURE-PREPROD or PROD."
         )
-    if not settings.synthetic_only:
+    if environment == "AZURE-PREPROD" and not settings.synthetic_only:
         raise RuntimeError(
             "AZURE-PREPROD migration execution requires SYNTHETIC_ONLY=true."
         )
-    if settings.real_data_allowed:
+    if environment == "AZURE-PREPROD" and settings.real_data_allowed:
         raise RuntimeError(
             "AZURE-PREPROD migration execution requires REAL_DATA_ALLOWED=false."
         )
@@ -196,7 +196,7 @@ def run_migrations() -> str:
         or database_url.startswith("mssql+pyodbc://")
     ):
         raise RuntimeError(
-            "AZURE-PREPROD migrations require PostgreSQL via "
+            "Deployment migrations require PostgreSQL via "
             "postgresql+psycopg:// or Azure SQL via mssql+pyodbc://."
         )
 

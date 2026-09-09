@@ -27,3 +27,18 @@ def test_azure_provenance_is_explicit(monkeypatch):
     assert result["provider"] == "azure-app-service"
     assert result["release_sha"] == "b" * 40
     assert result["image_digest"].startswith("sha256:")
+
+
+def test_container_apps_provenance_is_native(monkeypatch):
+    for key in ("WEBSITE_SITE_NAME", "WEBSITE_INSTANCE_ID", "WEBSITE_HOSTNAME"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("CONTAINER_APP_NAME", "proposalops-api")
+    monkeypatch.setenv("CONTAINER_APP_REVISION", "proposalops-api--abc123")
+    monkeypatch.setenv("CONTAINER_APP_REPLICA_NAME", "proposalops-api--abc123-xyz")
+    monkeypatch.setenv("REGION_NAME", "uaenorth")
+    monkeypatch.setenv("RELEASE_SHA", "d" * 40)
+    monkeypatch.setenv("IMAGE_DIGEST", "sha256:" + "e" * 64)
+    result = get_runtime_provenance()
+    assert result["provider"] == "azure-container-apps"
+    assert result["container_app_revision"] == "proposalops-api--abc123"
+    assert result["release_sha"] == "d" * 40

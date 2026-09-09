@@ -14,6 +14,10 @@ def get_runtime_provenance() -> dict[str, object]:
     provider's deployment identity when provider metadata is available.
     """
 
+    container_app_present = any(
+        os.getenv(name)
+        for name in ("CONTAINER_APP_NAME", "CONTAINER_APP_REVISION", "CONTAINER_APP_REPLICA_NAME")
+    )
     azure_present = any(os.getenv(name) for name in ("WEBSITE_SITE_NAME", "WEBSITE_INSTANCE_ID", "WEBSITE_HOSTNAME"))
     provider_commit_sha = os.getenv("VERCEL_GIT_COMMIT_SHA") or None
     provider_deployment_id = os.getenv("VERCEL_DEPLOYMENT_ID") or None
@@ -29,6 +33,29 @@ def get_runtime_provenance() -> dict[str, object]:
             provider_environment,
         )
     )
+
+    if container_app_present:
+        release_sha = application_release_sha
+        provider_commit_sha = os.getenv("RELEASE_SHA") or None
+        return {
+            "provider": "azure-container-apps",
+            "application_release_sha": application_release_sha,
+            "release_sha": release_sha or "UNSET",
+            "image_digest": os.getenv("IMAGE_DIGEST") or "UNSET",
+            "build_id": os.getenv("BUILD_ID") or "UNSET",
+            "container_app_name": os.getenv("CONTAINER_APP_NAME") or None,
+            "container_app_revision": os.getenv("CONTAINER_APP_REVISION") or None,
+            "container_app_replica_name": os.getenv("CONTAINER_APP_REPLICA_NAME") or None,
+            "region": os.getenv("REGION_NAME") or None,
+            "resource_group": os.getenv("AZURE_RESOURCE_GROUP") or None,
+            "resource_id": os.getenv("AZURE_RESOURCE_ID") or None,
+            "instance_id": os.getenv("CONTAINER_APP_REPLICA_NAME") or None,
+            "hostname": os.getenv("CONTAINER_APP_HOSTNAME") or None,
+            "provider_commit_sha": provider_commit_sha,
+            "provider_deployment_id": os.getenv("CONTAINER_APP_REVISION") or None,
+            "provider_environment": "azure-container-apps",
+            "sha_parity": None,
+        }
 
     if azure_present:
         release_sha = application_release_sha

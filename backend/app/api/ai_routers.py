@@ -41,8 +41,9 @@ def runtime_status(
     settings = get_settings()
     return {
         "feature_present": True,
-        "external_inference_enabled": bool(settings.ai_enabled),
-        "commissioning_state": "COMMISSIONED" if settings.ai_enabled else "COMMISSIONING_PENDING",
+        "feature_enabled": bool(settings.ai_feature_enabled),
+        "external_inference_enabled": bool(settings.ai_external_inference_enabled),
+        "commissioning_state": "COMMISSIONED" if settings.ai_external_inference_enabled else "COMMISSIONING_PENDING",
         "synthetic_only": settings.synthetic_only,
         "real_data_allowed": settings.real_data_allowed,
         "ai_real_content_allowed": settings.ai_real_content_allowed,

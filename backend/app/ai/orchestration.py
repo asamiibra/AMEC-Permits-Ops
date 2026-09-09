@@ -56,8 +56,12 @@ def _http_error(error: AIError) -> HTTPException:
 
 
 def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal, *, settings: Settings, project_id: str, client_request_id: str, correlation_id: str, provider: AIProvider | None = None) -> dict[str, object]:
-    if not settings.ai_enabled:
+    if not settings.ai_feature_enabled:
         raise _http_error(AIError("AI_FEATURE_DISABLED", status_code=503))
+    if not settings.ai_external_inference_enabled:
+        # Feature presence is not commissioning approval. Stop before
+        # retrieval, ledger reservation, token acquisition, or network I/O.
+        raise _http_error(AIError("AI_EXTERNAL_INFERENCE_DISABLED", status_code=503))
     if settings.app_env.upper() == "AZURE-PREPROD" and principal.auth_mode != "ENTRA":
         raise _http_error(AIError("AI_EXTERNAL_INFERENCE_REQUIRES_ENTRA", status_code=403))
     if project_id not in settings.ai_d3_project_ids:

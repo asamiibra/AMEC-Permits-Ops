@@ -10,5 +10,8 @@ exact account resource.
 
 The module is a source-of-truth contract, not evidence that the deployment is
 commissioned. Commissioning must record the resolved resource, client,
-principal, tenant, endpoint, model/version, capacity, and role assignment in
-the tranche verification record before `AI_ENABLED=true` is accepted.
+principal, tenant, endpoint, model/version, capacity, pricing, budgets, and
+role assignment in the tranche verification record before
+`AI_EXTERNAL_INFERENCE_ENABLED=true` is accepted. `AI_FEATURE_ENABLED=true`
+may expose the bounded UI while external inference remains disabled and
+commissioning is pending.
