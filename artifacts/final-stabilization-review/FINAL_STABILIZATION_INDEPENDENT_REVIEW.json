@@ -1,0 +1,24 @@
+{
+  "result": "FINAL_STABILIZATION_INDEPENDENT_REVIEW=PASS",
+  "reviewed_head": "85b7c3ac6585f49b37c2e0df8a22e9ce641ddb6a",
+  "reviewer": "stdlib-read-only-pr5-v1",
+  "reviewer_sha256": "d4ebb69faf4f509002c448ab9f016441ddf8342452a0c120f2fd2b4f2e540b33",
+  "scope": "PR5 adjacent release gate; G3-G5 live deployment acceptance remains separate",
+  "t6b_acceptance": "T6B_INDEPENDENT_ACCEPTANCE=PASS",
+  "required_checks_at_review": {
+    "backend-regression": "SUCCESS",
+    "frontend-regression": "SUCCESS",
+    "migration-head": "SUCCESS",
+    "policy-and-security": "SUCCESS",
+    "samba-contract": "SUCCESS"
+  },
+  "reviewed_files": {
+    "backend/app/config/settings.py": "3ffcec991e7292d611a3d6ea4351f6cd0b097ea10918a6489af1b484b985405e",
+    "backend/app/ai/orchestration.py": "40fc35e74efb51ccd02ebbc469305c17975da3d9a22f111c98b1072d164d8642",
+    "backend/app/main.py": "129c1b536b440c653a0c9fab7b3d19e59172990ba3a224a380663573ec202c13",
+    "backend/app/runtime_provenance.py": "7685adc453c6b84a9037a2af344334f25b387993ac32d6331d924ea7833453ab",
+    "infra/azure/canonical/main.bicep": "a789c6c62a1f146d590906e7d07ebd84b086c95b92b57fcf64e940ae7d78c02d",
+    ".github/workflows/release-critical-gates.yml": "7ea7af147e768be537c95f3c28e08c2ff5ab54db5f2b4d379ddf0091412bf95d"
+  },
+  "live_deployment_boundary": "Existing Azure resources remain preproduction and are not G7 evidence; no production cutover was performed."
+}
