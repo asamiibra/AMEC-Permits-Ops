@@ -4,6 +4,7 @@ from pathlib import Path
 
 from ..config.settings import get_settings, repo_root
 from .errors import StorageError, StorageErrorCode
+from .azure_blob import AzureBlobConfig, AzureBlobBinaryStore
 from .mock import MockBinaryStore
 from .port import BinaryStorePort
 from .smb import SMBConfig, SMBBinaryStore
@@ -33,6 +34,12 @@ def create_binary_store() -> BinaryStorePort:
             connect_timeout_seconds=settings.smb_connect_timeout_seconds,
             operation_timeout_seconds=settings.smb_operation_timeout_seconds,
             environment=settings.app_env,
+        ))
+    if provider == "azure_blob":
+        return AzureBlobBinaryStore(AzureBlobConfig(
+            account_url=settings.azure_blob_account_url,
+            container=settings.azure_blob_container,
+            managed_identity_client_id=settings.azure_blob_uami_client_id,
         ))
     raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "Unsupported STORAGE_PROVIDER")
 
