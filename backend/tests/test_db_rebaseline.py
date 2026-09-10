@@ -23,6 +23,7 @@ def test_active_graph_and_legacy_archive_are_exact():
         "ai_d2_execution_ledger_v1.py",
         "baseline_phase4_v36_azure_sql.py",
         "source18_committee_implementation_v1.py",
+        "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
     ]
     phase4_source = PHASE4.read_text(encoding="utf-8")

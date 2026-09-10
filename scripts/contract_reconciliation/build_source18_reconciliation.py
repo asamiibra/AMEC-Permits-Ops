@@ -242,27 +242,18 @@ def main() -> None:
     write_json(out, "source17-current-ledger.json", add_common({"ledger": "SOURCE17_FINAL_OFFICE_REGULATORY", "atomic_requirement_count": 179, "requirement_orphans": 0, "requirements_traceability": "PASS", "unsupported_guesses_implemented": 0, "requirements": atomic17}, **subject))
     write_json(out, "source18-current-ledger.json", add_common({"ledger": "SOURCE18_FINAL_COMMITTEE_TRANSACTION_RENEWAL", "final_matrix_row_count": 68, "atomic_requirement_count": 90, "validation_perspectives": 8, "final_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3", "business_process_context_capture": "COMPLETE_FOR_THIS_VIDEO", "legal_regulatory_source_verification": "SEPARATE_WHERE_NOT_PROVEN_BY_SOURCE", "requirement_orphans": 0, "requirements_traceability": "PASS", "unsupported_guesses_implemented": 0, "requirements": atomic18}, **subject))
 
-    source16_controls = {
-        "SOURCE16_CLIENT_REQUIREMENT_REQUEST": "PASS",
-        "SOURCE16_IMMEDIATE_VERIFIED_EVIDENCE_FILING": "PASS",
-        "SOURCE16_DECEASED_HEIR_REQUIREMENT_ROUTING": "PASS",
-        "SOURCE16_PERMIT_TYPE_REQUIREMENT_BINDING": "PASS",
-        "SOURCE16_COMMENT_REJECTION_SEPARATION": "PASS",
-        "SOURCE16_PLANNED_DUE_ACTUAL_DATE_SEPARATION": "PASS",
-        "SOURCE16_BILLING_REQUEST_VERIFICATION": "PASS",
-        "SOURCE16_MILESTONE_SEQUENCE_VS_COLLECTION_SEPARATION": "PASS",
-        "SOURCE16_SAME_PROJECT_NEXT_INVOICE": "PASS",
-        "SOURCE16_CANONICAL_ISSUED_ARTIFACT_POLICY": "PASS",
-        "SOURCE16_CHANNEL_SPECIFIC_DELIVERY_EVIDENCE": "PASS",
-        "SOURCE16_PAYMENT_EVIDENCE_BEFORE_VERIFICATION": "PASS",
-        "SOURCE16_PAYMENT_REVERSAL": "PASS",
-        "SOURCE16_NON_CASH_RECEIVABLE_RESOLUTION": "PASS",
-        "SOURCE16_BILLING_COMPLETION_SEPARATION": "PASS",
-        "SOURCE16_INTERNAL_FINANCIAL_REPORTING_BOUNDARY": "PASS",
-        "SOURCE16_SYNTHETIC_E2E": "PASS",
-        "SOURCE16_NEGATIVE_TESTS": "PASS",
-    }
-    source17_controls = {key: "PASS" for key in (
+    source16_controls = {key: "PARTIAL_POLICY_HELPER_ONLY" for key in (
+        "SOURCE16_CLIENT_REQUIREMENT_REQUEST", "SOURCE16_IMMEDIATE_VERIFIED_EVIDENCE_FILING",
+        "SOURCE16_DECEASED_HEIR_REQUIREMENT_ROUTING", "SOURCE16_PERMIT_TYPE_REQUIREMENT_BINDING",
+        "SOURCE16_COMMENT_REJECTION_SEPARATION", "SOURCE16_PLANNED_DUE_ACTUAL_DATE_SEPARATION",
+        "SOURCE16_BILLING_REQUEST_VERIFICATION", "SOURCE16_MILESTONE_SEQUENCE_VS_COLLECTION_SEPARATION",
+        "SOURCE16_SAME_PROJECT_NEXT_INVOICE", "SOURCE16_CANONICAL_ISSUED_ARTIFACT_POLICY",
+        "SOURCE16_CHANNEL_SPECIFIC_DELIVERY_EVIDENCE", "SOURCE16_PAYMENT_EVIDENCE_BEFORE_VERIFICATION",
+        "SOURCE16_PAYMENT_REVERSAL", "SOURCE16_NON_CASH_RECEIVABLE_RESOLUTION",
+        "SOURCE16_BILLING_COMPLETION_SEPARATION", "SOURCE16_INTERNAL_FINANCIAL_REPORTING_BOUNDARY",
+    )}
+    source16_controls.update({"SOURCE16_SYNTHETIC_E2E": "MISSING_PERSISTED_PRODUCT_FLOW", "SOURCE16_NEGATIVE_TESTS": "PARTIAL_UNIT_AND_API_COVERAGE"})
+    source17_controls = {key: "PARTIAL_POLICY_HELPER_ONLY" for key in (
         "SOURCE17_OFFICE_REGISTRATION_VERSION_MODEL", "SOURCE17_FIELD_LEVEL_REGULATED_CHANGE_DETECTION",
         "SOURCE17_ENGINEER_REGULATORY_CREDENTIAL_VERSION_MODEL", "SOURCE17_EMPLOYMENT_SPONSORSHIP_CREDENTIAL_ROSTER_NON_COLLAPSE",
         "SOURCE17_REGULATOR_COUNTED_DISCIPLINE_COVERAGE", "SOURCE17_SURPLUS_BUFFER_AND_SHORTAGE_MODEL",
@@ -272,7 +263,7 @@ def main() -> None:
         "SOURCE17_COMMITTEE_QUEUE_AGING_AND_OUTCOME", "SOURCE17_REGULATORY_ENFORCEMENT_CASE",
         "SOURCE17_OFFICE_REGULATORY_COMPLIANCE_WORKSPACE", "SOURCE17_SOURCE_BACKED_POLICY_CURRENTNESS",
     )}
-    source18_controls = {key: "PASS" for key in (
+    source18_controls = {key: "PARTIAL_POLICY_HELPER_ONLY" for key in (
         "SOURCE18_NONPROJECT_AUTHORITY_CASE_SUBJECTS", "SOURCE18_PROCESSING_MODE_MODEL",
         "SOURCE18_OFFICE_CERTIFICATE_DOCUMENT_SEPARATION", "SOURCE18_OFFICIAL_FORM_VERSION_BINDING",
         "SOURCE18_ENGINEER_UPDATE_AND_ROSTER_ADD", "SOURCE18_GLOBAL_STAFFING_READINESS_GATE",
@@ -285,6 +276,16 @@ def main() -> None:
         "SOURCE18_LABOR_ROSTER_SNAPSHOT", "SOURCE18_VERSIONED_PACKAGING_REQUIREMENTS",
         "SOURCE18_INHERITED_OPEN_CASE_HANDOFF", "SOURCE18_PII_ACCESS_POLICY",
     )}
+    source18_persisted_api_controls = {
+        "SOURCE18_NONPROJECT_AUTHORITY_CASE_SUBJECTS", "SOURCE18_PROCESSING_MODE_MODEL",
+        "SOURCE18_OFFICIAL_FORM_VERSION_BINDING", "SOURCE18_OWNER_INTERNAL_PACKET_RELEASE",
+        "SOURCE18_SIGNED_PACKET_RETURN_VERIFICATION", "SOURCE18_FORM_FIELD_AUTHORITY",
+        "SOURCE18_EXPLICIT_NA_VALIDATION", "SOURCE18_PACKET_REVISION_AND_RESUBMISSION",
+        "SOURCE18_PHYSICAL_ORIGINAL_CUSTODY", "SOURCE18_LINKED_INDEPENDENT_RENEWAL_RE_CASES",
+    }
+    for key in source18_persisted_api_controls:
+        source18_controls[key] = "PASS_PERSISTED_API_SYNTHETIC"
+    source18_controls.update({"SOURCE18_SYNTHETIC_E2E": "PARTIAL_PERSISTED_API_NOT_FULL_NATIVE_E2E", "SOURCE18_INDEPENDENT_ACCEPTANCE": "NOT_ACCEPTED"})
     implementation_map = {
         "canonical_domains_reused": ["Project", "Party", "Property", "DocumentVersion", "Evidence", "RequirementPolicy", "Task", "TechnicalReport", "AuthorityCase", "SubmissionAttempt", "BillingPlan", "Invoice", "Receivable", "Payment", "ProjectFinance", "Audit"],
         "parallel_billing_system_created": False,
@@ -298,9 +299,10 @@ def main() -> None:
         "source16_controls": source16_controls,
         "source17_controls": source17_controls,
         "source18_controls": source18_controls,
-        "control_code_paths": ["backend/app/services/current_contract_controls.py", "backend/app/services/commercial_contract_controls.py", "backend/app/services/current_regulatory_controls.py", "backend/app/api/shared_domain_routers.py", "backend/app/api/billing_invoice_routers.py"],
-        "focused_test_command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
-        "focused_test_result": "61_PASS_1_WARNING",
+        "control_code_paths": ["backend/app/services/current_contract_controls.py", "backend/app/services/commercial_contract_controls.py", "backend/app/services/current_regulatory_controls.py", "backend/app/api/shared_domain_routers.py", "backend/app/api/billing_invoice_routers.py", "backend/app/api/preparation_submission_routers.py", "backend/app/models/shared_domain_entities.py", "backend/app/models/regulatory_current_entities.py", "backend/migrations/versions/source18_regulatory_current_state_v1.py", "frontend/src/AuthorityCaseWorkspace.tsx"],
+        "proof_chain": {"source_truth": "source18-current-ledger.json", "durable_state": ["AuthorityCase", "RegulatoryStateVersion", "CommitteePacketRevision", "PhysicalOriginalCustodyEvent"], "producer": "backend/app/api/preparation_submission_routers.py", "server_side_authority": "currentness, project-scope, processing-mode and packet-release gates", "read_model": "GET /api/authority-cases/{case_id}", "frontend": "frontend/src/AuthorityCaseWorkspace.tsx", "positive_negative_tests": "backend/tests/test_source18_persisted_authority_controls.py", "persisted_e2e": "PARTIAL_PERSISTED_API_NOT_FULL_NATIVE_E2E", "independent_review": "NOT_ACCEPTED"},
+        "focused_test_command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py backend/tests/test_source18_persisted_authority_controls.py",
+        "focused_test_result": "22_PASS_1_WARNING_CURRENT_RUN",
     }
     write_json(out, "source18-implementation-map.json", add_common(implementation_map, **subject))
     write_json(out, "source18-evidence-map.json", add_common({
@@ -324,12 +326,13 @@ def main() -> None:
         "source18_atomic_requirement_count": 90,
         "source18_requirement_orphans": 0,
         "source18_requirements_traceability": "PASS",
-        "system_currentness_control": "PASS",
+        "system_currentness_control": "PASS_FAIL_CLOSED_MECHANISM",
         "external_current_policy_and_form_verification": "UNKNOWN_AND_FAIL_CLOSED_WHERE_UNVERIFIED",
         "historical_numeric_policy_promoted": 0,
         "owner_approved_client_delay_threshold": {"value": 30, "unit": "CALENDAR_DAYS", "effective_date": "2026-09-09", "semantics": "ELIGIBILITY_TRIGGER_REQUIRING_HUMAN_AUTHORIZATION"},
         "protected_boundaries": {"autonomous_invoice": False, "autonomous_handover": False, "autonomous_acceptance": False, "autonomous_submission": False, "autonomous_signature_or_stamp": False, "municipality_portal_integration": False, "accounting_erp_integration": False},
-        "focused_tests": {"command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py", "result": "61_PASS_1_WARNING"},
+        "focused_tests": {"command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py backend/tests/test_source18_persisted_authority_controls.py", "result": "22_PASS_1_WARNING_CURRENT_RUN"},
+        "proof_type_vocabulary": ["PURE_POLICY_HELPER", "DURABLE_MODEL", "PERSISTED_PRODUCER", "API_ENFORCEMENT", "READ_MODEL", "FRONTEND", "UNIT_TEST", "DB_TRANSACTION_TEST", "API_TEST", "BROWSER_E2E", "INDEPENDENT_REVIEW"],
     }, **subject))
     write_json(out, "source18-supersession-ledger.json", add_common({"relationships": [
         {"from": "Source12", "to": "Source13", "relationship": "REFINED_BY_LATER_SOURCE"},
@@ -339,9 +342,11 @@ def main() -> None:
         {"from": "Source17", "to": "Source18", "relationship": "DETAILED_COMMITTEE_FORMS_AND_TRANSACTION_PACKAGES_SUPERSEDED_WHERE_EXPLICIT"},
     ], "source_absence_is_not_supersession": True, "latest_governing_source": "Source18"}, **subject))
     write_json(out, "source18-current-gap-register.json", add_common({"gaps": [
-        {"id": "G5-EXTERNAL-CURRENTNESS", "status": "EXTERNAL_CURRENTNESS_REQUIRED_BUT_SYSTEM_FAILS_CLOSED", "g5_blocking": False, "description": "Unverified external policy/form facts remain UNKNOWN and block affected live actions."},
+        {"id": "G5-EXTERNAL-CURRENTNESS", "status": "EXTERNAL_CURRENTNESS_REQUIRED_BUT_SYSTEM_FAILS_CLOSED", "g5_blocking": True, "description": "Required current authority policy and OfficialFormVersion evidence remain UNKNOWN; protected live actions are blocked."},
+        {"id": "G5-PERSISTED-E2E", "status": "PARTIAL", "g5_blocking": True, "description": "The new product/API flow is persisted and tested synthetically, but the complete Source16 plus Source17/18 persisted synthetic acceptance suite is not yet closed."},
+        {"id": "G5-INDEPENDENT-REVIEW", "status": "NOT_ACCEPTED", "g5_blocking": True, "description": "No independent exact-head product review has accepted the current PR head."},
         {"id": "G6-QUALIFICATION", "status": "NOT_STARTED", "g5_blocking": False, "description": "Disposable SQL/Azure qualification is a later gate and has not been claimed here."},
-    ], "current_applicable_requirement_orphans": 0, "current_applicable_p0_unresolved": 0, "same_scope_precedence_ambiguities": 0, "source_incomplete_promoted_without_owner_source": 0}, **subject))
+    ], "current_applicable_requirement_orphans": 0, "current_applicable_p0_unresolved": 1, "same_scope_precedence_ambiguities": 0, "source_incomplete_promoted_without_owner_source": 0}, **subject))
     write_json(out, "source1-source18-traceability-summary.json", add_common({
         "source1_to_source12_accepted_ledger_preserved": True,
         "source1_to_source12_rows": 1218,
@@ -356,8 +361,8 @@ def main() -> None:
         "source18_atomic_rows": 90,
         "current_applicable_requirement_orphans": 0,
         "bidirectional_traceability": "PASS",
-        "g5_current_source18_contract_reconciliation": "PASS",
-        "g5_business_v1_code_frozen": True,
+        "g5_current_source18_contract_reconciliation": "BLOCKED_CURRENTNESS_AND_PRODUCT_ACCEPTANCE",
+        "g5_business_v1_code_frozen": False,
         "g6_started": False,
         "production_db_mutations": 0,
         "real_amec_source_reads": 0,
@@ -378,10 +383,10 @@ def main() -> None:
         "requirement_orphans": 0,
         "unsupported_guesses_implemented": 0,
         "unverified_numeric_policy_hardcode_count": 0,
-        "system_currentness_control": "PASS",
+        "system_currentness_control": "PASS_FAIL_CLOSED_MECHANISM",
         "external_currentness": "UNKNOWN_FAIL_CLOSED",
-        "g5_current_source18_contract_reconciliation": "PASS",
-        "g5_business_v1_code_frozen": True,
+        "g5_current_source18_contract_reconciliation": "BLOCKED_CURRENTNESS_AND_PRODUCT_ACCEPTANCE",
+        "g5_business_v1_code_frozen": False,
         "g6_started": False,
     }, **subject))
 

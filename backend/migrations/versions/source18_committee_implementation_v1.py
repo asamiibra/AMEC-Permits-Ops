@@ -5,7 +5,7 @@ import sqlalchemy as sa
 
 
 revision = "source18_committee_implementation_v1"
-down_revision = "ai_d2_execution_ledger_v1"
+down_revision = "source18_regulatory_current_state_v1"
 branch_labels = None
 depends_on = None
 

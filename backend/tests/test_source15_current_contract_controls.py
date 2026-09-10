@@ -7,6 +7,7 @@ import pytest
 from backend.app.services.current_contract_controls import (
     ChecklistItem,
     CurrentContractControlError,
+    CIVIL_DEFENSE_AUTHORITY_CASE_PROJECT_MODEL,
     TechnicalReportRevision,
     allocate_payment_to_invoices,
     build_invoice_lines,
@@ -43,6 +44,7 @@ def test_responsibility_routing_keeps_client_and_engineering_queues_separate():
 
 
 def test_governed_amec_authority_case_requires_a_canonical_project():
+    assert CIVIL_DEFENSE_AUTHORITY_CASE_PROJECT_MODEL == "CANONICAL_PROJECT_REQUIRED"
     assert require_canonical_project_for_authority_case({"engagement_type": "OTHER"}) is None
     assert require_canonical_project_for_authority_case(
         {"engagement_type": "MAINTENANCE_PERMIT"}, journey_project_id="project-1"
@@ -56,6 +58,10 @@ def test_governed_amec_authority_case_requires_a_canonical_project():
             journey_project_id="project-1",
         )
     assert mismatch.value.code == "GOVERNED_AUTHORITY_CASE_PROJECT_MISMATCH"
+
+    with pytest.raises(CurrentContractControlError) as civil_defense_missing:
+        require_canonical_project_for_authority_case({"transaction_type": "CIVIL_DEFENSE"})
+    assert civil_defense_missing.value.code == "CANONICAL_PROJECT_REQUIRED_FOR_GOVERNED_AUTHORITY_CASE"
 
 
 def test_estate_creates_per_heir_evidence_requirements_without_legal_determination():

@@ -25,6 +25,11 @@ GOVERNED_AMEC_AUTHORITY_ENGAGEMENTS = frozenset({
     "MAINTENANCE_PERMIT",
 })
 
+# G0.12 owner decision: every contracted AMEC Civil Defense / Maintenance
+# Permit engagement is rooted in a canonical Project before an AuthorityCase
+# is created. This does not make every Project workflow stage mandatory.
+CIVIL_DEFENSE_AUTHORITY_CASE_PROJECT_MODEL = "CANONICAL_PROJECT_REQUIRED"
+
 
 def require_canonical_project_for_authority_case(
     payload: Mapping[str, Any], *, journey_project_id: str | None = None
@@ -39,7 +44,7 @@ def require_canonical_project_for_authority_case(
 
     engagement_values = {
         str(payload.get(key) or "").strip().upper()
-        for key in ("engagement_type", "engagement_kind", "service_type_code", "service_type")
+        for key in ("engagement_type", "engagement_kind", "service_type_code", "service_type", "transaction_type")
     }
     governed = bool(
         payload.get("contracted_amec")

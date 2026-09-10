@@ -13,6 +13,8 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any, Iterable, Mapping
 
+from .current_contract_controls import GOVERNED_AMEC_AUTHORITY_ENGAGEMENTS
+
 
 class CurrentRegulatoryControlError(ValueError):
     def __init__(self, code: str):
@@ -54,7 +56,34 @@ def bind_verified_form_version(*, form_version_id: str, form_identity: str, vers
     return VerifiedFormVersionBinding(form_version_id, form_identity, version, sha256, policy_source)
 
 
-SUPPORTED_CASE_SUBJECT_TYPES = frozenset({"PROJECT", "PROPERTY", "OFFICE", "ENGINEER"})
+# These are the Source18 subject families.  PROJECT/PROPERTY remain accepted
+# aliases for the older shared AuthorityCase surface; the resolver below is
+# the only place that decides whether a Project is actually applicable.
+SUPPORTED_CASE_SUBJECT_TYPES = frozenset({
+    "PROJECT",
+    "PROPERTY",
+    "CONSULTANCY_OFFICE",
+    "ENGINEER",
+    "OFFICE_REGISTRATION",
+    "RESPONSIBLE_ENGINEER_DESIGNATION",
+    "OFFICE_CLASSIFICATION_ROSTER",
+    "OFFICE",
+})
+
+PROJECT_REQUIRED_TRANSACTION_TYPES = frozenset({
+    "PERMIT",
+    "REGULATORY_PERMIT",
+    "CIVIL_DEFENSE_PERMIT",
+    "MAINTENANCE_PERMIT",
+    "PROJECT_REGULATORY_CASE",
+}) | GOVERNED_AMEC_AUTHORITY_ENGAGEMENTS
+
+PROCESSING_MODE_BY_TRANSACTION = {
+    "ENGINEER_DATA_UPDATE": "COUNTER_PROCESS",
+    "OFFICE_REGISTRATION_CHANGE": "COMMITTEE_PANEL",
+    "OFFICE_REGISTRATION_RENEWAL": "COMMITTEE_PANEL",
+    "RESPONSIBLE_ENGINEER_REPLACE": "COMMITTEE_PANEL",
+}
 
 
 @dataclass(frozen=True)
@@ -72,6 +101,52 @@ def bind_authority_case_subject(*, subject_type: str, subject_id: str, project_i
     if project_required and not project_id:
         raise CurrentRegulatoryControlError("CANONICAL_PROJECT_REQUIRED_FOR_AUTHORITY_CASE")
     return AuthorityCaseSubjectBinding(kind, str(subject_id), project_id, project_required)
+
+
+def resolve_authority_case_scope(*, subject_type: str, subject_id: str, transaction_type: str | None = None, project_id: str | None = None) -> AuthorityCaseSubjectBinding:
+    """Resolve Source18 applicability without letting the browser choose it."""
+
+    kind = str(subject_type or "").strip().upper()
+    transaction = str(transaction_type or "").strip().upper()
+    project_required = kind in {"PROJECT", "PROPERTY"} or transaction in PROJECT_REQUIRED_TRANSACTION_TYPES
+    if kind in {"OFFICE", "OFFICE_REGISTRATION", "CONSULTANCY_OFFICE", "RESPONSIBLE_ENGINEER_DESIGNATION", "OFFICE_CLASSIFICATION_ROSTER", "ENGINEER"} and transaction in PROJECT_REQUIRED_TRANSACTION_TYPES:
+        project_required = True
+    return bind_authority_case_subject(
+        subject_type=kind,
+        subject_id=subject_id,
+        project_id=project_id,
+        project_required=project_required,
+    )
+
+
+def governed_processing_mode(*, transaction_type: str | None, caller_supplied_mode: str | None = None) -> dict[str, Any]:
+    """Return the governed mode; a caller cannot override the mapping."""
+
+    transaction = str(transaction_type or "").strip().upper()
+    governed = PROCESSING_MODE_BY_TRANSACTION.get(transaction)
+    if not governed:
+        return {"transaction_type": transaction or None, "processing_mode": "UNKNOWN", "live_action_blocked": True, "caller_override_ignored": bool(caller_supplied_mode)}
+    return {"transaction_type": transaction, "processing_mode": governed, "live_action_blocked": False, "caller_override_ignored": caller_supplied_mode is not None and str(caller_supplied_mode).upper() != governed}
+
+
+def currentness_projection(*, control_implemented: bool, authority_policy_verified: bool | None, official_form_verified: bool | None, action_required: bool) -> dict[str, Any]:
+    """Keep mechanism truth separate from current external-fact truth."""
+
+    def value(item: bool | None) -> str:
+        if item is None:
+            return "NOT_APPLICABLE" if not action_required else "UNKNOWN"
+        return "true" if item else "false"
+
+    authority = value(authority_policy_verified)
+    form = value(official_form_verified)
+    blocking = bool(action_required and (authority == "UNKNOWN" or form == "UNKNOWN"))
+    return {
+        "currentness_control_implemented": bool(control_implemented),
+        "current_authority_policy_verified": authority,
+        "current_official_form_verified": form,
+        "live_action_eligibility": "BLOCKED_UNKNOWN" if blocking else "ALLOWED",
+        "g5_blocking_currentness_gap": blocking,
+    }
 
 
 def resolve_processing_mode(mode: str) -> str:
