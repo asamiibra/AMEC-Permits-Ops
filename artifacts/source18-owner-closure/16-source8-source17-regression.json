@@ -1,6 +1,6 @@
 {
   "artifact": "16-source8-source17-regression",
-  "generated_at_utc": "2026-09-10T07:38:23.010271Z",
+  "generated_at_utc": "2026-09-10T07:44:04.929961Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -77,8 +77,8 @@
     "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
     "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
   },
-  "evidence_generated_from_sha": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
-  "evidence_generated_from_tree": "a8d8c622e673957729f925f6bbab5d38e2fafd8d",
+  "evidence_generated_from_sha": "5e7938e2bfaed380a6f2c44a337122f05a0af290",
+  "evidence_generated_from_tree": "a6eb332f60c6d72d69b288398bbdcf64a31f3db7",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / READ_ONLY_EXTERNAL_RUNTIME",
@@ -181,8 +181,8 @@
     "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
     "passed": true,
     "returncode": 0,
-    "summary": "25 passed, 2 warnings in 6.15s",
-    "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+    "summary": "25 passed, 2 warnings in 3.72s",
+    "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
   },
-  "artifact_sha256": "286d6a6235f57ad0d0da003af68cd0da8d269518f2f22f9f0dbd9a48d9576322"
+  "artifact_sha256": "f87e65d49c28283b2f9ac18d4e166988c2a70685ac18983025db7403039a797f"
 }

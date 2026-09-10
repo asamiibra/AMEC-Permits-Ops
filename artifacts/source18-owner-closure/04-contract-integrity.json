@@ -1,6 +1,6 @@
 {
   "artifact": "04-contract-integrity",
-  "generated_at_utc": "2026-09-10T07:38:23.010271Z",
+  "generated_at_utc": "2026-09-10T07:44:04.929961Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -77,8 +77,8 @@
     "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
     "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
   },
-  "evidence_generated_from_sha": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
-  "evidence_generated_from_tree": "a8d8c622e673957729f925f6bbab5d38e2fafd8d",
+  "evidence_generated_from_sha": "5e7938e2bfaed380a6f2c44a337122f05a0af290",
+  "evidence_generated_from_tree": "a6eb332f60c6d72d69b288398bbdcf64a31f3db7",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / READ_ONLY_EXTERNAL_RUNTIME",
@@ -196,5 +196,5 @@
   "source18_hash_matches_owner_docx": true,
   "historical_seventeen_matches": false,
   "ordered_contract_sha256": "803800779771ca820eb56f7e225379b1fef3c22da0c26d915889baeeb7154380",
-  "artifact_sha256": "ab5dc719591f9783636cafb914f0b439ab23e746674dfe14e3273e1dfad8fde3"
+  "artifact_sha256": "18ecfb7e424db29eb92cbff6cf5c1227349c757e734bacbd2e824b8212706bd0"
 }

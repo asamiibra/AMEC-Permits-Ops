@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-10T07:38:23.010271Z",
+  "generated_at_utc": "2026-09-10T07:44:04.929961Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -77,8 +77,8 @@
     "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
     "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
   },
-  "evidence_generated_from_sha": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
-  "evidence_generated_from_tree": "a8d8c622e673957729f925f6bbab5d38e2fafd8d",
+  "evidence_generated_from_sha": "5e7938e2bfaed380a6f2c44a337122f05a0af290",
+  "evidence_generated_from_tree": "a6eb332f60c6d72d69b288398bbdcf64a31f3db7",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / READ_ONLY_EXTERNAL_RUNTIME",
@@ -290,8 +290,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:106::resolve_authority_case_scope",
@@ -406,8 +406,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:106::resolve_authority_case_scope",
@@ -522,8 +522,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:106::resolve_authority_case_scope",
@@ -635,8 +635,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:81::PROCESSING_MODE_BY_TRANSACTION",
@@ -750,8 +750,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/models/source18_entities.py:55::Source18OfficeCertificate",
@@ -870,8 +870,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/models/source18_entities.py:55::Source18OfficeCertificate",
@@ -978,8 +978,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:294::PhysicalOriginalCustodyEvent",
@@ -1096,8 +1096,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:118::validate_source_currentness",
@@ -1219,8 +1219,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:118::validate_source_currentness",
@@ -1337,8 +1337,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -1455,8 +1455,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -1572,8 +1572,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -1689,8 +1689,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -1806,8 +1806,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -1923,8 +1923,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -2040,8 +2040,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -2157,8 +2157,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -2274,8 +2274,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -2392,8 +2392,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -2510,8 +2510,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -2628,8 +2628,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:39::ENGINEER_STATES",
@@ -2733,8 +2733,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:132::staffing_readiness",
@@ -2836,8 +2836,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:132::staffing_readiness",
@@ -2939,8 +2939,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:132::staffing_readiness",
@@ -3045,8 +3045,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3149,8 +3149,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3253,8 +3253,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3357,8 +3357,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3461,8 +3461,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3565,8 +3565,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3669,8 +3669,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3773,8 +3773,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3877,8 +3877,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -3981,8 +3981,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -4085,8 +4085,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -4189,8 +4189,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:250::ResponsibleEngineerDesignation",
@@ -4306,8 +4306,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -4430,8 +4430,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -4554,8 +4554,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -4678,8 +4678,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -4802,8 +4802,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -4926,8 +4926,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -5050,8 +5050,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -5164,8 +5164,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:309::link_independent_case_outcomes",
@@ -5279,8 +5279,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -5403,8 +5403,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:379::create_committee_packet",
@@ -5520,8 +5520,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/source18_routers.py:179::get_engineer_pii",
@@ -5631,8 +5631,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/source18_routers.py:179::get_engineer_pii",
@@ -5737,8 +5737,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -5843,8 +5843,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -5949,8 +5949,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6055,8 +6055,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6161,8 +6161,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6267,8 +6267,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6373,8 +6373,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6479,8 +6479,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6585,8 +6585,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6691,8 +6691,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6797,8 +6797,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -6903,8 +6903,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7009,8 +7009,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7115,8 +7115,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7221,8 +7221,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7327,8 +7327,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7433,8 +7433,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7539,8 +7539,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7645,8 +7645,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7751,8 +7751,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7857,8 +7857,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -7963,8 +7963,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8069,8 +8069,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8175,8 +8175,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8281,8 +8281,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8387,8 +8387,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8493,8 +8493,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8599,8 +8599,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8705,8 +8705,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8811,8 +8811,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -8917,8 +8917,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -9023,8 +9023,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -9129,8 +9129,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -9235,8 +9235,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -9341,8 +9341,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/source18.py:64::RENEWAL_STATES",
@@ -9444,8 +9444,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/governed_prefill_routers.py:42::governed_prefill_preview",
@@ -9538,8 +9538,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/preparation_submission_routers.py:695::run_precheck",
@@ -9588,8 +9588,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [],
       "MISSING_EVIDENCE": {},
@@ -9684,8 +9684,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/services/current_regulatory_controls.py:19::CurrentRegulatoryControlError",
@@ -9793,8 +9793,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/source18_routers.py:408::HUMAN_EXTERNAL_WORKFLOW",
@@ -9905,8 +9905,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/source18_routers.py:408::HUMAN_EXTERNAL_WORKFLOW",
@@ -10017,8 +10017,8 @@
         "command": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/proposalops-source18-integrated/.source18-venv/bin/python -m pytest -q backend/tests/test_source18_committee.py backend/tests/test_source18_persisted_authority_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source15_current_contract_controls.py",
         "passed": true,
         "returncode": 0,
-        "summary": "25 passed, 2 warnings in 6.15s",
-        "output_sha256": "49de9a964228a6baa9e9abe30437bba80234a14515abcdeeaa9142fb5bf424db"
+        "summary": "25 passed, 2 warnings in 3.72s",
+        "output_sha256": "e59eba10d5e5d3e82e3644048e8e0058ab8b94649935353ae8e4ce1840b0363f"
       },
       "EXACT_IMPLEMENTATION_EVIDENCE": [
         "backend/app/api/source18_routers.py:408::HUMAN_EXTERNAL_WORKFLOW",
@@ -10050,8 +10050,8 @@
     }
   ],
   "release_identity": {
-    "PR18_HEAD": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
-    "PR18_TREE": "a8d8c622e673957729f925f6bbab5d38e2fafd8d",
+    "PR18_HEAD": "5e7938e2bfaed380a6f2c44a337122f05a0af290",
+    "PR18_TREE": "a6eb332f60c6d72d69b288398bbdcf64a31f3db7",
     "MERGE_SHA": null,
     "AZURE_PREPROD_STATUS": "LATER_GATE_G8",
     "BROWSER_FINAL_STATUS": "LATER_GATE_G9",
@@ -10066,92 +10066,92 @@
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "e4ce5e06af274463f18963cc713777f842b4010a7ecf620050010e29a53186d2"
+      "sha256": "fedee511f4f61fb66c800267b7ee05b30316902751f71fd9e784f0cd8850a831"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "a59b297c78a30ef6b889aaf85dda22d6b151782f0f2e25c44f45896187366d63"
+      "sha256": "a53d05961e722df8097c81d506ddb6a09cdc6829be2976977806db0937b0461e"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "5048b67386c8ac7dd14a57ebf4f7d062791d251a3fe2e3e940f36bd482c56fb9"
+      "sha256": "e0429a536a5c2486fcb4982642e305ed8127a375d170c23d95d197e17558d7cb"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "85849267ca143c29c5e2bc2ecf5cd085e824759aa6da5bb4bca137bd7198b480"
+      "sha256": "e3368f060651799823c7924a115f97bf92c915972c1ad87026e1bdd0d2525fb9"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "fb5a9bb903d58b8a7cc87aa7c3dd2b6a098a8378ef50bc9dfe3bebc307d832ee"
+      "sha256": "a644fc6f4a9735552c90e9ec2e74a7863856115a69415d139212448e2eecd705"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "48809c933be399186a20798f7d32ab951c21b36836d3f2f8b484599685a76992"
+      "sha256": "f6576f97f3c3b996d6011288099d96183682ead32ea0ea40e4ceefa59e6e5b42"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "93095f28a1c66ab01143859ce9794a8c0ae8ee49bc36bbae9e93cd1f41391c85"
+      "sha256": "5481e7d221981c068aefa921835c261525f381d85942c6c44c7be4e3dcb703c5"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "3fe4db3df687aa85e96a81e1a27ce0393cb6f057b814dcf81b4c76e6ffb480da"
+      "sha256": "7a80fbe03167e20dcc17422113f377865f0531d4965e7024152c8e9374aacde6"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "2eafd0618f9181309dd38c2aaefd95c29225891c8d84e018a6f2a34ebe2778ba"
+      "sha256": "3aedbacabfcc86fc1df43237713c9c871f3005c63736f0e5ddeb16c62d42b9bb"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "0bffc77bbe42fb0f11ddf17ba4cc464b4940ba4d0e6f7f95869c6841d0931cac"
+      "sha256": "11ab6fe3aaaad34e1fb95ad9b973e759f50c6bb5587d97ba0c6628d6288f1251"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "0fdd5e28599d3bafd487605586b32828a6ecde7b8028236b60df84d0248da38d"
+      "sha256": "8e2a4fa8120b3b4a10a8c0dd4f2a2d62c0febb7157c44b7f7c630bdbd3cecb18"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "ae10ea4d37dc3f325314e4f8fbbd5a9032d1e080c94499256230096ea643168f"
+      "sha256": "85af885ef038738a195bc075eef1e87f866317bba2e2b21dda2440b1678e0794"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "61fdcc147ec887d193e763392dd840d66cb969c22f6178d88e3e354ebed4ee8b"
+      "sha256": "04a7e4f1d47f0d78933c1a61a715decd2390581a8ef1f5d8baa2180fc412d98e"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "6a3b2ce56b3dfa1ea9d84cbdeddd10e5d08e9ee97cea031af6d02a863aa92856"
+      "sha256": "4db76f2d09e767ccd8638369d93ba3fbcd1ca18b4152b53de86a69e17b576221"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "3129458ac84d9588c3519ec756c5cf21ad4963a475a915feabc0cbf17399682a"
+      "sha256": "4f86d29e3447f5dc5e37032767154ba77459bd93310b259ba795c29bf0647fd0"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "7f2dcf6663c3496c335d956a1be707df56ceab65f9132860ca3a2267eed0c745"
+      "sha256": "aee71530475f8ed118b66ecb1059ad9d145f1c5d4fc3993d802cb99a2752cb41"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "9393a87ae7dd86c37e7f94291b92085966dba7bc338b82595ca578dc47b1a169"
+      "sha256": "a127330f1d49e2acae46175a5ae0a8fa199563262ae34585c8b09fd897bc3a9c"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "c38d3814a156d17b9ef7cadd4c4691010bc6feafb6ea1f221f93d6c1352f4fd0"
+      "sha256": "46172e87c399e2bd71a36cd5d9d63b367231fc37a1d0e638ab0f4e58f648aa66"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "b089ed1ab69398b774accd44fed8844a7026f6cdfb456012ace4c25b6483f35d"
+      "sha256": "fbeff70dc1c548fda50820f592a1189765086fce1111f89b75bb73a065261693"
     },
     {
       "artifact": "19-integration-reconciliation.json",
-      "sha256": "424b08d77b74d1cd992d1c9b5809cacb62ec91c7e4793077ea00b23fcbdee163"
+      "sha256": "ce373d7cba9db836b51f63038b804f8fa3393ce442b5fca4ae024e6c7ea2ae06"
     },
     {
       "artifact": "20-g5-delta-revalidation.json",
-      "sha256": "d1f532076ba838350c0ea3b006e4c5aa4fd2db7c1cb9c49b0195a3ad758d1e7a"
+      "sha256": "6caf3b64b2af06a27221e464d9c521ab022913e706049745fad33256056a4d98"
     },
     {
       "artifact": "21-t6b-scope-adjudication.json",
-      "sha256": "28af463b80dedb27d3160ea2e9be4436a322474702f3c5c5c5bfe4882ece774f"
+      "sha256": "b27f197a7623b747211f2d2a5fbc52e26846368781445793e49fcb69b59b52dc"
     }
   ],
-  "artifact_sha256": "fe30135e7e94f088770dde4e94405b62ba7e48d72b6a8979b7f6fdf21cec7246"
+  "artifact_sha256": "d80bbdb5c5d78bd93afcd637bddd98d52f8fcb85353b1c3d4bf28266e19ecfb5"
 }
