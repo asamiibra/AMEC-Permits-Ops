@@ -1,6 +1,6 @@
 {
   "artifact": "FINAL_SOURCE18_OWNER_CLOSURE",
-  "generated_at_utc": "2026-09-09T23:59:41.033419Z",
+  "generated_at_utc": "2026-09-10T06:40:51.444600Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -12,7 +12,7 @@
     {
       "part": 2,
       "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_02_of_10_G0-G2_Scope_Inventory_Release_Guardrails_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
-      "sha256": "1079011573ca3383f60363eb717862e04cb40a20ceb497ecce0fb01fe16d6152"
+      "sha256": "fc20595be41a2a9d813e830679ee93ee727008daf8060458c68328294eda7f51"
     },
     {
       "part": 3,
@@ -56,11 +56,32 @@
     }
   ],
   "contract_part_count": 10,
-  "evidence_generated_from_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
-  "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
-  "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "058c5082eac93e391ac7936fbec436a313361aa0",
+  "contract_source_hash_count": 18,
+  "contract_source_hashes": {
+    "1": "c8b61073eb3d6db0842fd6e48496ce0e812bb722653b9dcf6ee0b73a31361c3c",
+    "2": "26c325ecb2ffc92c0fa09494496b4eac8cacb1b2dbd512c771aa12f0bf44eb39",
+    "3": "83b8e04ff59c225e18113ef6568a7450bdb07b1de081dd2aaa1d33d8679a1b79",
+    "4": "8c62362b601636165a1bb4d3fdbb50f3c33c6fe5eb3b30f878ef1e5d3b9b89b7",
+    "5": "0ea65c15591e85858e61b0d5e05f729ea2bdfeb2b5a392f09ca1b121cb241d6e",
+    "6": "2936b2109b3bd64142a26c98617f74612a77577068bf76fb95db2de67f72bfdd",
+    "7": "d6328834b1280b1ee1c9e25951d4b313651b5caa8fe3556190c2e53ec0f82f29",
+    "8": "5d3b082904a1320225f8f91d46feae4a0638268b274c794248b52509e21938db",
+    "9": "284543033e3a20c9b64d51e182a2d2f4016def66a85ec818a37bc52440f5318e",
+    "10": "55d6d2d7dde4a265a55042413d4aa842d8f6b0cb8102e3821265cfdc0c64acdf",
+    "11": "2b0279ade661581cebc98ddc5971bd45ac7c80eef1212a15faf1210a091c1aa9",
+    "12": "40c51771d644248d46c86b9f29a8f9233e3c68d81cea3201e67b6ab7e6803bcd",
+    "13": "3a4614dfc515fd455abcdded3e17f9974002211e4012bf08e7862a00cc71518a",
+    "14": "82d5017f04d8dae124a1d139c6a64b756e94b7d1cc65a319807b810430446a20",
+    "15": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+    "16": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+    "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+    "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
+  },
+  "evidence_generated_from_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
+  "evidence_generated_from_tree": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
+  "executable_release_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
+  "executable_tree_sha": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
+  "evidence_commit_sha": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -170,9 +191,13 @@
     "SOURCE18_NOT_APPLICABLE": 1,
     "SOURCE18_FAIL": 79,
     "SOURCE18_UNRESOLVED_REMAINING": 0,
-    "SOURCE18_OWNER_DECISIONS_REQUIRED": 4,
+    "SOURCE18_OWNER_DECISIONS_REQUIRED": 2,
     "GLOBAL_G0_BLOCKERS": 1,
-    "PRODUCTION_AUTHORITY_BLOCKERS": 3
+    "PRODUCTION_AUTHORITY_BLOCKERS": 3,
+    "G0_12_DECISION_RECORDED": true,
+    "CIVIL_DEFENSE_AUTHORITY_CASE_PROJECT_MODEL": "CANONICAL_PROJECT_REQUIRED",
+    "G0_12_STOP": false,
+    "G0_STOP": true
   },
   "exact_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "requirements_not_passing": [
@@ -187,7 +212,7 @@
       "STATE_PRODUCER": "Source18 API/service",
       "STATE_CONSUMER": "Source18 overview, workflow, packet, submission, or audit projection",
       "DB_ENTITY": "source18_* entities",
-      "MIGRATION": "source18_committee_implementation_v1",
+      "MIGRATION": "source18_regulatory_current_state_v1 -> source18_committee_implementation_v1",
       "BACKEND_IMPLEMENTATION": "backend/app/services/source18.py and backend/app/api/source18_routers.py",
       "API_SURFACE": "/api/source18/*",
       "AUTHORIZATION_RULE": "Canonical server-side capability policy; raw PII requires VIEW_RAW_REGULATORY_PII.",
@@ -969,7 +994,7 @@
       "STATE_PRODUCER": "Source18 API/service",
       "STATE_CONSUMER": "Source18 overview, workflow, packet, submission, or audit projection",
       "DB_ENTITY": "source18_* entities",
-      "MIGRATION": "source18_committee_implementation_v1",
+      "MIGRATION": "source18_regulatory_current_state_v1 -> source18_committee_implementation_v1",
       "BACKEND_IMPLEMENTATION": "backend/app/services/source18.py and backend/app/api/source18_routers.py",
       "API_SURFACE": "/api/source18/*",
       "AUTHORIZATION_RULE": "Canonical server-side capability policy; raw PII requires VIEW_RAW_REGULATORY_PII.",
@@ -1981,7 +2006,7 @@
       "STATE_PRODUCER": "Source18 API/service",
       "STATE_CONSUMER": "Source18 overview, workflow, packet, submission, or audit projection",
       "DB_ENTITY": "source18_* entities",
-      "MIGRATION": "source18_committee_implementation_v1",
+      "MIGRATION": "source18_regulatory_current_state_v1 -> source18_committee_implementation_v1",
       "BACKEND_IMPLEMENTATION": "backend/app/services/source18.py and backend/app/api/source18_routers.py",
       "API_SURFACE": "/api/source18/*",
       "AUTHORIZATION_RULE": "Canonical server-side capability policy; raw PII requires VIEW_RAW_REGULATORY_PII.",
@@ -3315,7 +3340,7 @@
       "STATE_PRODUCER": "Source18 API/service",
       "STATE_CONSUMER": "Source18 overview, workflow, packet, submission, or audit projection",
       "DB_ENTITY": "source18_* entities",
-      "MIGRATION": "source18_committee_implementation_v1",
+      "MIGRATION": "source18_regulatory_current_state_v1 -> source18_committee_implementation_v1",
       "BACKEND_IMPLEMENTATION": "backend/app/services/source18.py and backend/app/api/source18_routers.py",
       "API_SURFACE": "/api/source18/*",
       "AUTHORIZATION_RULE": "Canonical server-side capability policy; raw PII requires VIEW_RAW_REGULATORY_PII.",
@@ -3821,7 +3846,7 @@
       "STATE_PRODUCER": "Source18 API/service",
       "STATE_CONSUMER": "Source18 overview, workflow, packet, submission, or audit projection",
       "DB_ENTITY": "source18_* entities",
-      "MIGRATION": "source18_committee_implementation_v1",
+      "MIGRATION": "source18_regulatory_current_state_v1 -> source18_committee_implementation_v1",
       "BACKEND_IMPLEMENTATION": "backend/app/services/source18.py and backend/app/api/source18_routers.py",
       "API_SURFACE": "/api/source18/*",
       "AUTHORIZATION_RULE": "Canonical server-side capability policy; raw PII requires VIEW_RAW_REGULATORY_PII.",
@@ -3950,8 +3975,9 @@
     }
   ],
   "repairs_completed": [
-    "Implemented Source18 canonical domain/API/service/UI layer on isolated branch.",
-    "Added source18_committee_implementation_v1 migration with one Alembic head.",
+    "Integrated the latest PR17 persisted currentness/official-form/projectless-subject behavior into PR18.",
+    "Applied the final G0.12 canonical Project decision to contracted Civil Defense/Maintenance Permit cases.",
+    "Added a linear Source18 regulatory-current-state → committee migration graph with one Alembic head.",
     "Repaired contract Part 02 exact-file count from seventeen to eighteen.",
     "Hardened PROD auth, SQL migration authority, and detailed health access."
   ],
@@ -3996,6 +4022,9 @@
     "SOURCE18_UNVERIFIED_NUMERIC_HARDCODES": 0,
     "SOURCE18_UNVERIFIED_LEGAL_HARDCODES": 0,
     "SOURCE18_UNVERIFIED_FORM_HARDCODES": 0,
+    "G0_12_DECISION_RECORDED": true,
+    "CIVIL_DEFENSE_PROJECT_GATE_TEST": "PASS",
+    "SOURCE18_PROJECTLESS_REGULATORY_CASE_REGRESSION": "PASS",
     "SOURCE18_DATABASE_STATE_MODEL": "PASS",
     "SOURCE18_MIGRATION_INTEGRITY": "PASS",
     "SOURCE18_BACKEND": "FAIL",
@@ -4015,95 +4044,111 @@
     "SOURCE18_FULL_FRONTEND_EXECUTION": "PASS",
     "SOURCE18_CURRENT_CONTRACT_RECONCILIATION": "PASS",
     "SOURCE18_MIGRATION_ROUNDTRIP": "FAIL",
-    "SOURCE18_AZURE_SQL_QUALIFICATION": "FAIL"
+    "SOURCE18_AZURE_SQL_QUALIFICATION": "FAIL",
+    "G3_DELTA_REVALIDATION": "PASS",
+    "G4_DELTA_REVALIDATION": "PASS",
+    "T6B_FINAL_SCOPE_ADJUDICATED": "PASS",
+    "T6B_RERUNS": 0,
+    "PR16_REQUIRED_FUNCTIONAL_CHANGE_UNACCOUNTED": 0,
+    "PR17_REQUIRED_FUNCTIONAL_CHANGE_UNACCOUNTED": 0,
+    "G5_INDEPENDENT_EXACT_HEAD_REVIEW": "FAIL",
+    "G5_BUSINESS_V1_CODE_FROZEN": false
   },
   "artifact_index": [
     {
       "artifact": "00-authoritative-baseline.json",
-      "sha256": "2feb54c68eb5929421d19aa36ab16c738de681b9207c0de8fc4cd2bcb82fac3e"
+      "sha256": "698f65487152ea8c344af075f53b78cd33663ff0872622b6c210ea3c24135f17"
     },
     {
       "artifact": "01-owner-source-census-a.json",
-      "sha256": "a765b85dabc4dd275b0101f4fc34ef5df861e2c3ab16f3c8c17cdab0e1bef142"
+      "sha256": "9671fa83fe3d79bda5e35fb556873c95cb779c635ef43e2e12073f1eb87233ac"
     },
     {
       "artifact": "02-owner-source-census-b.json",
-      "sha256": "f1a5458db32f6c0c8f74590089e6814255e2732f77e133864364a13125e901b6"
+      "sha256": "8eefea3da4f9ddd100d618b82ef2fac16b354227d8cca0bd27e1df6b5b85ff12"
     },
     {
       "artifact": "03-census-reconciliation.json",
-      "sha256": "2857e6734367269120d86cfa4dd8b4c323d701a607a04136b0d4ab225f77d827"
+      "sha256": "81c316de48be4d7d0c22196b67b498fb39cd34c7489e04336832b61a24ca920e"
     },
     {
       "artifact": "04-contract-integrity.json",
-      "sha256": "dd1252a447022a2108452b9cfa0eb2120180ebdd56cb059460aac5e97f26aa7b"
+      "sha256": "c5d5f3c803553356cd127aaae91e25d6ca33675cc3a615b2152ce94855b6fb3a"
     },
     {
       "artifact": "05-atomic-traceability-ledger.json",
-      "sha256": "736e1c270bd1993a0bc7a09efde91b1edacd9d4b68f18e8f033bbae7a5ad568b"
+      "sha256": "cf99c81b50c9c398724b78ab5012445695b7e4d706880aefc96a6221f1e6f0ad"
     },
     {
       "artifact": "06-repository-implementation.json",
-      "sha256": "6f41de237a26d9db9219cf9b1d44fd46cb4a11da066985ce8ea6f8ff1abacba5"
+      "sha256": "c2d9d2d01ddbd8725fcbf4513ea6881ed74e7faf9f3cfba8da2901d7ae49157d"
     },
     {
       "artifact": "07-database-migration.json",
-      "sha256": "1790779265d4325ef2bc630188a789ab23e0548c8b2e33d176f5f2c1dbb14a75"
+      "sha256": "98dd06d99a6cb35b77e482cbf129cd9d58a75c94b6199e98120eb1a5b099d554"
     },
     {
       "artifact": "08-positive-lifecycle-tests.json",
-      "sha256": "18a9d0d87b66f7ee6fd954721eaa19d2878843feaef1b7360103233228acf173"
+      "sha256": "cebcc79efd9e5eb2918b879cdba92abac980e732a4bdea106910d67d946967c1"
     },
     {
       "artifact": "09-negative-adversarial-tests.json",
-      "sha256": "da757c7acc50503000db19b6729f2fba71d09f90273e34547cd7a27ba585c190"
+      "sha256": "f0da6103be839776593b7bc626d734e28ee4d71c9622f58ac1619dbe0b53be8e"
     },
     {
       "artifact": "10-authorization-pii.json",
-      "sha256": "ca53d8e6f4a02a2af0edbcd9dc8ee268abbbeaa6ccff73a1462febb9b319f3e8"
+      "sha256": "0de5ede464c7644bf1e68185cb0a84dadeeb6f59024efcd98712f94f6d239aee"
     },
     {
       "artifact": "11-browser-uat.json",
-      "sha256": "86fcd006f56cc138f9fa51a08638d5628123d674cfc9f320a9707ce311907ea0"
+      "sha256": "e4d7105401dba2efbc1fad5b5f5925939873786a79f851c5067269ca0bf4cee7"
     },
     {
       "artifact": "12-g3-runtime-closure.json",
-      "sha256": "5cd8887995d3485de2e35216a117c8ff106125e15b8632134eb2f94269e91fc5"
+      "sha256": "54c3b28c9de11b00960ef2f2bf46163039cfb50a3e869dc5b25bf8c764ec4f85"
     },
     {
       "artifact": "13-g4-iac-closure.json",
-      "sha256": "40f365dac07cfcacbb82dfff3671d76f1b101bcf916c4aa3abb2afc97ac52f89"
+      "sha256": "23fcac7fd6227100e54d782f629b7fd8e05e83bce04f65418048573341293172"
     },
     {
       "artifact": "14-azure-live-inventory.json",
-      "sha256": "aad3be1d36beda99bb9ed0bd525667e376e6a892ed0dd51f8088ef20b11917e5"
+      "sha256": "92a54b293a8d48ae2f42bf2dc318d886d277f6ff1cd3ea11818363c102dc6063"
     },
     {
       "artifact": "15-azure-runtime-acceptance.json",
-      "sha256": "f01902039359da53e3914d85a56f133e504f722cc7657e3b9972c91783f98401"
+      "sha256": "1d674d2a347b3ffef0a94527eb928960b88f4e8ae7ed7ff7ff685961283e21da"
     },
     {
       "artifact": "16-source8-source17-regression.json",
-      "sha256": "2a4b659bcf0d917547389bc37f900ae153f8f268b34681bf1689462387a2b485"
+      "sha256": "68746baeb2d7140cbc5e3b3d29dfdeb1650acd1da0490f58f23134fb3e1a2c00"
     },
     {
       "artifact": "17-independent-review.json",
-      "sha256": "da6a19fe9b0bd6243e2a94e2a4b6301fa562da176d54ea8639a3e8eca7fdb1fa"
+      "sha256": "5d17446aa0dba5e2a5bc3c18fc36a7f1bfdc472e22887d82bd2f15862bdc68c4"
     },
     {
       "artifact": "18-global-g0-decision-state.json",
-      "sha256": "e35607e12f0c2034f4187bfc3d2d50240eb2ae1fe22148f9851958ceb18a74a7"
+      "sha256": "6c5357f90e445bab05dd882b14780ef34110450565dfb380fe0a8be063d8a6c8"
     },
     {
       "artifact": "19-integration-reconciliation.json",
-      "sha256": "7404e613faef95af1dff039048780e69e06968e7f1da28a98a1f782d3c701b8d"
+      "sha256": "2813d2a263f0be9fcbdd7a349b15d9e0550fe41a83e710e56d1546ae6d32150c"
+    },
+    {
+      "artifact": "20-g5-delta-revalidation.json",
+      "sha256": "4bbdfad1b6e166c7223df9d2fa788a469a98b774faadaf6a0689cc41a62f25c6"
+    },
+    {
+      "artifact": "21-t6b-scope-adjudication.json",
+      "sha256": "7c2eb74579a6c15f565b61629c04ff0adb947a287c66e7a704f6bbc6b00712f9"
     }
   ],
-  "artifact_sha256": "e7930a4072813a9ce314d55aab943f9a0619f6836640a2812b448b35abd8bad3",
+  "artifact_sha256": "03000d664f0a90e8f246721aedf910602da31a94766d5d59716ba9849789999e",
   "release_identity": {
-    "EXECUTABLE_RELEASE_SHA": "c01e893e06caae9a984b80aa53bffbf78b981551",
-    "EXECUTABLE_TREE_SHA": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-    "EVIDENCE_COMMIT_SHA": "058c5082eac93e391ac7936fbec436a313361aa0",
+    "EXECUTABLE_RELEASE_SHA": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
+    "EXECUTABLE_TREE_SHA": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
+    "EVIDENCE_COMMIT_SHA": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
     "MERGE_SHA": null,
     "IMAGE_DIGEST": null,
     "AZURE_REVISION": null,

@@ -1,5 +1,5 @@
 {
-  "artifact": "17-independent-review",
+  "artifact": "21-t6b-scope-adjudication",
   "generated_at_utc": "2026-09-10T06:40:51.444600Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
@@ -90,8 +90,8 @@
   "observed_azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
   "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
   "observed_azure_db_head": null,
-  "test_run_identifier": "source18-owner-closure-17-independent-review",
-  "result": "FAIL",
+  "test_run_identifier": "source18-owner-closure-21-t6b-scope-adjudication",
+  "result": "PASS",
   "requirement_keys": [
     "S18-T2-R01-A1",
     "S18-T2-R01-A2",
@@ -184,9 +184,16 @@
     "S18-T2-R68-A2",
     "S18-T2-R68-A3"
   ],
-  "review_method": "Cold re-read of source, repaired contract, implementation branch, test outputs, and Azure read-only inventory",
-  "independent_reviewer_verdict": "FAIL",
-  "disagreement_count": "NOT_RUN_AS_SEPARATE_ACTOR",
-  "implementation_verdicts_accepted_before_review": false,
-  "artifact_sha256": "b27479905f5a9ab1e54e177cd3ea56e31a958dcaa9ba9109ec9d310fca9b402a"
+  "qualified_scope_manifest": "artifacts/t6b-independent-acceptance/T6B_QUALIFIED_SCOPE_MANIFEST.json",
+  "qualified_scope_hash": "sha256:cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035",
+  "qualified_consumer_code_changed": false,
+  "qualified_orm_behavior_changed": false,
+  "qualified_shared_audit_outbox_persistence_changed": false,
+  "qualified_baseline_table_semantics_changed": false,
+  "qualified_migration_dependency_changed": false,
+  "T6B_BEHAVIORAL_SCOPE_IDENTICAL": true,
+  "T6B_SCOPED_BYTES_IDENTICAL": true,
+  "T6B_RERUNS": 0,
+  "T6B_FINAL_SCOPE_ADJUDICATED": true,
+  "artifact_sha256": "13082f273d0015cf4f5043f4e0966aea7a71403ae1f1b389dc6bdae4c52bafd0"
 }

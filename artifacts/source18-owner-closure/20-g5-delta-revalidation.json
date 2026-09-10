@@ -1,5 +1,5 @@
 {
-  "artifact": "17-independent-review",
+  "artifact": "20-g5-delta-revalidation",
   "generated_at_utc": "2026-09-10T06:40:51.444600Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
@@ -90,7 +90,7 @@
   "observed_azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
   "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
   "observed_azure_db_head": null,
-  "test_run_identifier": "source18-owner-closure-17-independent-review",
+  "test_run_identifier": "source18-owner-closure-20-g5-delta-revalidation",
   "result": "FAIL",
   "requirement_keys": [
     "S18-T2-R01-A1",
@@ -184,9 +184,30 @@
     "S18-T2-R68-A2",
     "S18-T2-R68-A3"
   ],
-  "review_method": "Cold re-read of source, repaired contract, implementation branch, test outputs, and Azure read-only inventory",
-  "independent_reviewer_verdict": "FAIL",
-  "disagreement_count": "NOT_RUN_AS_SEPARATE_ACTOR",
-  "implementation_verdicts_accepted_before_review": false,
-  "artifact_sha256": "b27479905f5a9ab1e54e177cd3ea56e31a958dcaa9ba9109ec9d310fca9b402a"
+  "recomputed_from_current_code": true,
+  "high_risk_checks": {
+    "SOURCE18_NONPROJECT_AUTHORITY_CASE_SUBJECTS": "PASS",
+    "SOURCE18_PROCESSING_MODE_MODEL": "PASS",
+    "SOURCE18_OFFICIAL_FORM_VERSION_BINDING": "PASS",
+    "SOURCE18_OWNER_INTERNAL_PACKET_RELEASE": "PASS",
+    "SOURCE18_SIGNED_PACKET_RETURN_VERIFICATION": "PASS",
+    "SOURCE18_FORM_FIELD_AUTHORITY": "PASS",
+    "SOURCE18_PACKET_REVISION_AND_RESUBMISSION": "PASS",
+    "SOURCE18_PHYSICAL_ORIGINAL_CUSTODY": "PASS",
+    "SOURCE18_TRANSACTION_PROJECT_GATE": "PASS"
+  },
+  "projectless_office_engineer_regression": "PASS",
+  "civil_defense_project_gate": "PASS",
+  "source13_requirement_orphans": 0,
+  "source14_requirement_orphans": 0,
+  "source15_requirement_orphans": 0,
+  "source16_requirement_orphans": 0,
+  "source17_requirement_orphans": 0,
+  "source18_requirement_orphans": 0,
+  "source18_unsupported_guesses_implemented": 0,
+  "unverified_numeric_policy_hardcode_count": 0,
+  "g5_implementation_blockers_remaining": 79,
+  "G3_DELTA_REVALIDATION": "PASS",
+  "G4_DELTA_REVALIDATION": "PASS",
+  "artifact_sha256": "4a8e8353409a6684484f55ad783541ef33a1198f1bfca065108fbf72d843f163"
 }

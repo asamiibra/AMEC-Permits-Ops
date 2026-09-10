@@ -1,6 +1,6 @@
 {
   "artifact": "07-database-migration",
-  "generated_at_utc": "2026-09-09T23:59:41.033419Z",
+  "generated_at_utc": "2026-09-10T06:40:51.444600Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -12,7 +12,7 @@
     {
       "part": 2,
       "path": "/Users/ahmedsami/Desktop/Qatar Permitting Tool/Execution Contract/ProposalOps_AMEC_Execution_Contract_v2.1_Part_02_of_10_G0-G2_Scope_Inventory_Release_Guardrails_SOURCE18_ENGINEERS_ACCEPTANCE_COMMITTEE_TRANSACTION_RENEWAL_REVALIDATED.md",
-      "sha256": "1079011573ca3383f60363eb717862e04cb40a20ceb497ecce0fb01fe16d6152"
+      "sha256": "fc20595be41a2a9d813e830679ee93ee727008daf8060458c68328294eda7f51"
     },
     {
       "part": 3,
@@ -56,11 +56,32 @@
     }
   ],
   "contract_part_count": 10,
-  "evidence_generated_from_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
-  "evidence_generated_from_tree": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "executable_release_sha": "c01e893e06caae9a984b80aa53bffbf78b981551",
-  "executable_tree_sha": "5a21748f5d455bf70e66aa1ae4027ac5550579f9",
-  "evidence_commit_sha": "058c5082eac93e391ac7936fbec436a313361aa0",
+  "contract_source_hash_count": 18,
+  "contract_source_hashes": {
+    "1": "c8b61073eb3d6db0842fd6e48496ce0e812bb722653b9dcf6ee0b73a31361c3c",
+    "2": "26c325ecb2ffc92c0fa09494496b4eac8cacb1b2dbd512c771aa12f0bf44eb39",
+    "3": "83b8e04ff59c225e18113ef6568a7450bdb07b1de081dd2aaa1d33d8679a1b79",
+    "4": "8c62362b601636165a1bb4d3fdbb50f3c33c6fe5eb3b30f878ef1e5d3b9b89b7",
+    "5": "0ea65c15591e85858e61b0d5e05f729ea2bdfeb2b5a392f09ca1b121cb241d6e",
+    "6": "2936b2109b3bd64142a26c98617f74612a77577068bf76fb95db2de67f72bfdd",
+    "7": "d6328834b1280b1ee1c9e25951d4b313651b5caa8fe3556190c2e53ec0f82f29",
+    "8": "5d3b082904a1320225f8f91d46feae4a0638268b274c794248b52509e21938db",
+    "9": "284543033e3a20c9b64d51e182a2d2f4016def66a85ec818a37bc52440f5318e",
+    "10": "55d6d2d7dde4a265a55042413d4aa842d8f6b0cb8102e3821265cfdc0c64acdf",
+    "11": "2b0279ade661581cebc98ddc5971bd45ac7c80eef1212a15faf1210a091c1aa9",
+    "12": "40c51771d644248d46c86b9f29a8f9233e3c68d81cea3201e67b6ab7e6803bcd",
+    "13": "3a4614dfc515fd455abcdded3e17f9974002211e4012bf08e7862a00cc71518a",
+    "14": "82d5017f04d8dae124a1d139c6a64b756e94b7d1cc65a319807b810430446a20",
+    "15": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+    "16": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+    "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
+    "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
+  },
+  "evidence_generated_from_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
+  "evidence_generated_from_tree": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
+  "executable_release_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
+  "executable_tree_sha": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
+  "evidence_commit_sha": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
   "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
@@ -163,13 +184,19 @@
     "S18-T2-R68-A2",
     "S18-T2-R68-A3"
   ],
-  "migration": "source18_committee_implementation_v1",
-  "down_revision": "ai_d2_execution_ledger_v1",
+  "migration": [
+    "source18_regulatory_current_state_v1",
+    "source18_committee_implementation_v1"
+  ],
+  "down_revision": {
+    "source18_regulatory_current_state_v1": "ai_d2_execution_ledger_v1",
+    "source18_committee_implementation_v1": "source18_regulatory_current_state_v1"
+  },
   "exactly_one_head": true,
   "head": "source18_committee_implementation_v1",
   "metadata_bootstrap": "PASS",
   "clean_sqlite_alembic_upgrade": "NOT_APPLICABLE_REPOSITORY_BASELINE_USES_SQLITE_UNSUPPORTED_ALTER_FOREIGN_KEY",
   "azure_sql_upgrade": "NOT_RUN",
   "destructive_history_rewrite": false,
-  "artifact_sha256": "ed7b698d20cdc63b9db3b0b108f0e6021b0983016c336ecc4d7f6dca3e7f16ff"
+  "artifact_sha256": "4587f8d4fe9ba6688631c5cb40ec0e2af0596d06467e3514e5c80709b3c2e144"
 }
