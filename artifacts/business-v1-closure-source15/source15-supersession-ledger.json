@@ -1,0 +1,33 @@
+{
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "latest_governing_contract_source": "SOURCE15",
+  "merged_prs_recorded_externally": true,
+  "pr_reviewed_heads_recorded_externally": true,
+  "relationships": [
+    {
+      "from": "Source12",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source13"
+    },
+    {
+      "from": "Source13",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source14"
+    },
+    {
+      "from": "Source14",
+      "relationship": "REFINED_BY_LATER_SOURCE_CURRENT_G5_AUTHORITY",
+      "to": "Source15"
+    }
+  ],
+  "rules": [
+    "Source1–Source12 accepted rows remain append-only and are not deduplicated.",
+    "Source13 raw provisional rows are rebuilt here as final governing adjudication; accepted Contract is required for production standard Invoice billing and quotation-only billing is unsupported.",
+    "Source14 primary regulatory rows remain distinct from its 36 finance revalidation rows.",
+    "Source15 is the latest governing source for current G5 and refines same-scope municipality-preparation and Finance behavior.",
+    "Source absence is not treated as supersession."
+  ],
+  "subject_source_sha": "d33450d0210df03c6b2366654ec25dc39d4b7c8d",
+  "subject_source_tree": "a1974634caa095463f2eb9a6199b0a7204a2f7f7"
+}

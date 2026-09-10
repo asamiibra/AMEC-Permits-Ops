@@ -1,0 +1,25 @@
+{
+  "current_applicable_p0_unresolved": 0,
+  "current_applicable_requirement_orphans": 0,
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "gaps": [
+    {
+      "description": "Unverified external policy/form facts remain UNKNOWN and block affected live actions.",
+      "g5_blocking": false,
+      "id": "G5-EXTERNAL-CURRENTNESS",
+      "status": "EXTERNAL_CURRENTNESS_REQUIRED_BUT_SYSTEM_FAILS_CLOSED"
+    },
+    {
+      "description": "Disposable SQL/Azure qualification is a later gate and has not been claimed here.",
+      "g5_blocking": false,
+      "id": "G6-QUALIFICATION",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "latest_governing_contract_source": "SOURCE18",
+  "same_scope_precedence_ambiguities": 0,
+  "source_incomplete_promoted_without_owner_source": 0,
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d"
+}

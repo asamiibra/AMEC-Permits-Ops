@@ -82,6 +82,7 @@ from .observability import initialize_observability, install_log_redaction_filte
 from .api.governed_prefill_routers import router as governed_prefill_router
 from .api.ai_routers import router as ai_router
 from .api.bridge_intake_routers import router as bridge_intake_router
+from .api.source18_routers import router as source18_router
 
 settings = get_settings()
 initialize_observability(settings)
@@ -376,8 +377,15 @@ async def safe_error_handler(
     )
 
 
-@app.get("/health")
-def health():
+HEALTH_DEPENDENCIES = (
+    [Depends(trusted_current_principal)]
+    if settings.app_env.upper() in {"AZURE-PREPROD", "PROD"}
+    else []
+)
+
+
+@app.get("/health", dependencies=HEALTH_DEPENDENCIES)
+def health(request: Request):
     database_configured = bool(
         os.getenv("DATABASE_URL")
     )
@@ -1204,5 +1212,10 @@ app.include_router(
 
 app.include_router(
     phase5_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+
+app.include_router(
+    source18_router,
     dependencies=API_AUTH_DEPENDENCIES,
 )

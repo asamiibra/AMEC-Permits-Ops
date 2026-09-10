@@ -14,11 +14,12 @@ def _settings(
     database_url: str = "postgresql+psycopg://user:pass@db/proposalops",
     synthetic_only: bool = True,
     real_data_allowed: bool = False,
+    database_migration_url: str = "postgresql+psycopg://migration:pass@migration-db/proposalops",
 ):
     return SimpleNamespace(
         app_env=app_env,
         database_url=database_url,
-        database_migration_url="",
+        database_migration_url=database_migration_url,
         synthetic_only=synthetic_only,
         real_data_allowed=real_data_allowed,
     )

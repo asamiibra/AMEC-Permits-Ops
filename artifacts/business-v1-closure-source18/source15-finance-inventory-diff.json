@@ -1,0 +1,114 @@
+{
+  "current_count": 132,
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "excluded_context_only_rows": [
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only recurring supervision label",
+      "source_locator": "paragraph 568",
+      "source_text": "Supervision for August",
+      "source_text_sha256": "41196720c1686ac0b4f022399f467a105ff5c512dce2a4a7ac956a7f31e4b102"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only invoice label",
+      "source_locator": "paragraph 570",
+      "source_text": "Invoice",
+      "source_text_sha256": "b832002da297545ff2c6cc36303a5f9b9779a2d7e47ba81c07ef86aca92181c0"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only previous-invoice label",
+      "source_locator": "paragraph 615",
+      "source_text": "Previous invoice",
+      "source_text_sha256": "03d4568d7d63884013aede199d7b421828af7b03b3c01835aa21524351576b97"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only create-new-invoice label",
+      "source_locator": "paragraph 617",
+      "source_text": "Create New Invoice",
+      "source_text_sha256": "6b99fd2d0443154e0019e9f8533da97ca19831480e3c74899873de4905b9b63d"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only payment-terms example",
+      "source_locator": "paragraph 629",
+      "source_text": "Payment terms: 5 days",
+      "source_text_sha256": "cb6f1d1a75a680e119dc08dddf4cafc143ddb1b63c17d70f20849aa1044e894e"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only due-date example",
+      "source_locator": "paragraph 630",
+      "source_text": "Due date: Sep 7",
+      "source_text_sha256": "2ea22787086f1b82684c7052b09d1fba8b3ae383bacf2f8fa72c27ed45b98be1"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only finance-state label; substantive invoice-history rule is separately retained",
+      "source_locator": "paragraph 639",
+      "source_text": "Original invoice",
+      "source_text_sha256": "65d929ebee82340f0b7daf33e0d98c192a44597efc6ef204e0083aee0fe9b14e"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only acknowledgment label; channel evidence rule is separately retained",
+      "source_locator": "paragraph 643",
+      "source_text": "Returned acknowledgement",
+      "source_text_sha256": "a84f30e6bb66ce9358fc7651b978c10a1ebdfe99c487720a5069cf701cf5fbda"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only payment-evidence label; evidence-before-verification rule is separately retained",
+      "source_locator": "paragraph 647",
+      "source_text": "Payment evidence",
+      "source_text_sha256": "3fccfaf8d181298d506f47464fc277f8d667a56e3a1d4060b99b4aa2c2c5dc0f"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only project-value example",
+      "source_locator": "paragraph 698",
+      "source_text": "Project Value 20,000",
+      "source_text_sha256": "d16a073a0166c8bdca6615a7288eabeaabe251e1b540dcf9ef4481d265b47354"
+    },
+    {
+      "classification": "CONTEXTUAL_ONLY_NOT_CURRENT_ATOMIC_OBLIGATION",
+      "current_inventory_excluded": true,
+      "historical_inventory_preserved": true,
+      "reason": "diagram/example-only first-payment example",
+      "source_locator": "paragraph 702",
+      "source_text": "First payment 10,000",
+      "source_text_sha256": "680da4b938e9b27a9792845ddfbc00bac6fdf9d7d27200d944da7e250f00231f"
+    }
+  ],
+  "excluded_count": 11,
+  "historical_count": 143,
+  "historical_rows_preserved": true,
+  "inventory_diff": 0,
+  "latest_governing_contract_source": "SOURCE18",
+  "real_obligations_deleted": 0,
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d"
+}

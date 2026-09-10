@@ -26,6 +26,8 @@ def run_production_bootstrap() -> str:
         raise RuntimeError("Production bootstrap requires SOURCE_INTAKE_MODE=BRIDGE.")
     if settings.azure_direct_synology_smb:
         raise RuntimeError("Production bootstrap forbids direct Azure Synology SMB.")
+    if not settings.database_migration_url.strip():
+        raise RuntimeError("Production bootstrap requires DATABASE_MIGRATION_URL.")
     verify_database_migration_head()
     return "PRODUCTION_BOOTSTRAP_ZERO_SYNTHETIC_PASS"
 

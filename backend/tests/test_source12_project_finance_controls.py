@@ -18,6 +18,7 @@ from backend.app.services.source12_finance_controls import (
     clone_previous_invoice,
     qar_amount,
     reconcile_legacy_finance_capability,
+    production_numbering_gate,
     request_design_billable_stage,
     rollup_finance,
     source12_v26_falsification,
@@ -228,6 +229,13 @@ def test_34_milestone_actual_collected_has_no_manual_override():
 def test_35_accepted_contract_source_is_pinned_by_allocator_boundary():
     allocator = CollisionSafeNumberAllocator(historical_refs={"INV-AMEC-2026-000001"}, historical_reconciled=False)
     assert allocator.reserve(year=2026) == "INV-AMEC-2026-000002"
+
+
+def test_36_production_numbering_requires_all_legacy_sequence_controls():
+    blocked = production_numbering_gate(legacy_finance_reconciled=True, historical_global_sequence_reconciled=True, next_global_sequence_exactly_derived=False)
+    assert blocked["ready"] is False
+    ready = production_numbering_gate(legacy_finance_reconciled=True, historical_global_sequence_reconciled=True, next_global_sequence_exactly_derived=True)
+    assert ready["ready"] is True
 
 
 def test_36_contract_payment_terms_must_be_verified_before_projection():

@@ -23,6 +23,11 @@ GATES = [
     "out_of_scope_no_projection", "secret_exclude_no_projection", "protected_action_denial",
 ]
 
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("DATABASE_URL", "").lower().startswith("mssql+pyodbc"),
+    reason="launch-critical native SQL Server qualification requires an explicitly provisioned mssql+pyodbc DATABASE_URL",
+)
+
 
 def _connection():
     url = os.environ.get("DATABASE_URL", "")

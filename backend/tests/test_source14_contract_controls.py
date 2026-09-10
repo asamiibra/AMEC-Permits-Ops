@@ -4,9 +4,9 @@ from datetime import date
 
 import pytest
 
-from backend.app.services.source14_contract_controls import (
+from backend.app.services.commercial_contract_controls import (
     ClientBlockingDelayEvent,
-    Source14ControlError,
+    CommercialContractControlError,
     compose_amec_invoice_reference,
     evaluate_client_delay_commercial_handover_eligibility,
 )
@@ -53,7 +53,7 @@ def test_29_calendar_days_is_not_eligible():
     ],
 )
 def test_delay_event_requirements_fail_closed(field, code):
-    with pytest.raises(Source14ControlError) as exc:
+    with pytest.raises(CommercialContractControlError) as exc:
         evaluate_client_delay_commercial_handover_eligibility(_event(**{field: None if field in {"blocked_since", "evidence_ref"} else False}), as_of=date(2026, 9, 9))
     assert exc.value.code == code
 
@@ -71,9 +71,9 @@ def test_invoice_reference_preserves_commercial_segment_and_global_sequence():
 
 
 def test_invoice_reference_rejects_missing_or_unsafe_commercial_segment():
-    with pytest.raises(Source14ControlError) as exc:
+    with pytest.raises(CommercialContractControlError) as exc:
         compose_amec_invoice_reference(issue_year=2026, project_reference_segment="", global_sequence=1)
     assert exc.value.code == "INVOICE_PROJECT_REFERENCE_SEGMENT_REQUIRED"
-    with pytest.raises(Source14ControlError) as exc:
+    with pytest.raises(CommercialContractControlError) as exc:
         compose_amec_invoice_reference(issue_year=2026, project_reference_segment="P/457", global_sequence=1)
     assert exc.value.code == "INVOICE_PROJECT_REFERENCE_SEGMENT_REQUIRED"
