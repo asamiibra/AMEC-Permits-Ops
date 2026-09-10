@@ -126,19 +126,6 @@ class Source18RosterMembership(Base, TimestampMixin):
     source_order: Mapped[int | None] = mapped_column(Integer)
 
 
-class Source18OfficialFormVersion(Base, TimestampMixin):
-    __tablename__ = "source18_official_form_versions"
-    __table_args__ = (UniqueConstraint("form_code", "version", name="uq_source18_official_form_version"),)
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    form_code: Mapped[str] = mapped_column(String(100), nullable=False)
-    version: Mapped[str] = mapped_column(String(60), nullable=False)
-    status: Mapped[str] = mapped_column(String(30), nullable=False, default="UNKNOWN")
-    currentness_state: Mapped[str] = mapped_column(String(30), nullable=False, default="UNKNOWN")
-    source_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
-    provenance_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
-
-
 class Source18WorkflowTransaction(Base, TimestampMixin):
     __tablename__ = "source18_workflow_transactions"
     __table_args__ = (UniqueConstraint("idempotency_key", name="uq_source18_transaction_idempotency"), Index("ix_source18_transaction_case", "authority_case_id", "transaction_type", "state"))
@@ -154,7 +141,9 @@ class Source18WorkflowTransaction(Base, TimestampMixin):
     responsible_engineer_effective_from: Mapped[date | None] = mapped_column(Date)
     responsible_engineer_change_type: Mapped[str | None] = mapped_column(String(30))
     current_policy_version_id: Mapped[str | None] = mapped_column(ForeignKey("source18_policy_versions.id"), index=True)
-    official_form_version_id: Mapped[str | None] = mapped_column(ForeignKey("source18_official_form_versions.id"), index=True)
+    # Official forms are canonical DocumentVersions.  Source18 stores only the
+    # transaction link; it does not own a second form-version registry.
+    official_form_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
     requirement_version_id: Mapped[str | None] = mapped_column(ForeignKey("requirement_policy_versions.id"), index=True)
     currentness_state: Mapped[str] = mapped_column(String(30), nullable=False, default="UNKNOWN")
     remediation_exception: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -166,34 +155,13 @@ class Source18WorkflowTransaction(Base, TimestampMixin):
     last_transition_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
 
-class Source18PacketRevision(Base):
-    __tablename__ = "source18_packet_revisions"
-    __table_args__ = (UniqueConstraint("transaction_id", "revision_number", name="uq_source18_packet_revision"), Index("ix_source18_packet_transaction", "transaction_id", "status"))
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    transaction_id: Mapped[str] = mapped_column(ForeignKey("source18_workflow_transactions.id"), nullable=False, index=True)
-    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    status: Mapped[str] = mapped_column(String(40), nullable=False, default="DRAFT")
-    packet_hash: Mapped[str] = mapped_column(String(64), nullable=False)
-    manifest_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
-    required_signers_json: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
-    signature_state: Mapped[str] = mapped_column(String(40), nullable=False, default="NOT_STARTED")
-    stamp_state: Mapped[str] = mapped_column(String(40), nullable=False, default="NOT_STARTED")
-    custody_state: Mapped[str] = mapped_column(String(50), nullable=False, default="DIGITAL_SCAN")
-    internal_release_state: Mapped[str] = mapped_column(String(40), nullable=False, default="NOT_RELEASED")
-    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    supersedes_id: Mapped[str | None] = mapped_column(ForeignKey("source18_packet_revisions.id"), index=True)
-    created_by: Mapped[str] = mapped_column(String(200), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-
-
 class Source18SubmissionCycle(Base, TimestampMixin):
     __tablename__ = "source18_submission_cycles"
     __table_args__ = (UniqueConstraint("transaction_id", "cycle_number", name="uq_source18_submission_cycle"), UniqueConstraint("transaction_id", "idempotency_key", name="uq_source18_submission_idempotency"))
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     transaction_id: Mapped[str] = mapped_column(ForeignKey("source18_workflow_transactions.id"), nullable=False, index=True)
-    packet_revision_id: Mapped[str] = mapped_column(ForeignKey("source18_packet_revisions.id"), nullable=False)
+    packet_revision_id: Mapped[str] = mapped_column(ForeignKey("committee_packet_revisions.id"), nullable=False)
     cycle_number: Mapped[int] = mapped_column(Integer, nullable=False)
     idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="SUBMITTED")

@@ -13,6 +13,7 @@ from backend.app.models import (
     Source18WorkflowTransaction,
 )
 from backend.app.services.source18 import (
+    enforce_staffing_gate,
     packet_manifest,
     require_capability,
     staffing_readiness,
@@ -144,3 +145,28 @@ def test_unknown_staffing_policy_fails_closed(db):
     with pytest.raises(HTTPException) as error:
         staffing_readiness(db, "missing-policy-office")
     assert error.value.detail["code"] == "STAFFING_POLICY_UNKNOWN_FAIL_CLOSED"
+
+
+def test_staffing_deficiency_blocks_panel_but_allows_remediation(db):
+    db.add(Source18PolicyVersion(
+        policy_code="OFFICE_STAFFING", version="policy-gate", status="CURRENT",
+        source_class="OWNER_CONFIRMED", source_reference="synthetic-policy",
+        rules_json={"required_count": 1}, created_by="owner",
+    ))
+    ordinary = Source18WorkflowTransaction(
+        authority_case_id="case-gate", office_id="office-gate", transaction_type="OFFICE_RENEWAL",
+        processing_mode="COMMITTEE_PANEL", state="RENEWAL_DUE", currentness_state="CURRENT",
+        remediation_exception=False, requested_disciplines_json=[], current_disciplines_json=[],
+        idempotency_key="gate-ordinary", actor_ref="tester", source_snapshot_json={},
+    )
+    remediation = Source18WorkflowTransaction(
+        authority_case_id="case-gate-2", office_id="office-gate", transaction_type="OFFICE_RENEWAL",
+        processing_mode="COMMITTEE_PANEL", state="RENEWAL_DUE", currentness_state="CURRENT",
+        remediation_exception=True, requested_disciplines_json=[], current_disciplines_json=[],
+        idempotency_key="gate-remediation", actor_ref="tester", source_snapshot_json={},
+    )
+    db.add_all([ordinary, remediation]); db.commit()
+    with pytest.raises(HTTPException) as error:
+        enforce_staffing_gate(db, ordinary)
+    assert error.value.detail["code"] == "STAFFING_DEFICIENT_ORDINARY_PANEL_BLOCKED"
+    enforce_staffing_gate(db, remediation)

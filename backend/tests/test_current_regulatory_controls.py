@@ -5,6 +5,8 @@ from decimal import Decimal
 
 import pytest
 
+import pytest
+
 from backend.app.services import current_regulatory_controls as controls
 
 
@@ -78,6 +80,8 @@ def test_signer_resolution_packet_revision_field_authority_and_custody():
         management_signatory_id=None, owner_authorization_id=None, as_of=date(2026, 9, 10),
     )
     assert signer["signer_type"] == "RESPONSIBLE_ENGINEER" and signer["human_only"] is True
+
+
     packet = controls.create_committee_packet_revision(
         None, packet_id="packet-1", case_id="case-1", form_binding=binding,
         required_fields={"authority_field": "N/A", "applicant_field": "ok"},
@@ -100,6 +104,16 @@ def test_signer_resolution_packet_revision_field_authority_and_custody():
     assert controls.link_independent_case_outcomes(
         case_ids=("case-1", "case-2"), outcomes={"case-1": "APPROVED", "case-2": "PENDING"},
     )["merged_outcome"] is False
+
+
+def test_linked_replacement_and_renewal_outcomes_cannot_merge():
+    linked = controls.link_independent_case_outcomes(
+        case_ids=("replacement-case", "renewal-case"),
+        outcomes={"replacement-case": "APPROVED", "renewal-case": "RETURNED"},
+    )
+    assert linked["merged_outcome"] is False
+    with pytest.raises(controls.CurrentRegulatoryControlError, match="LINKED_CASE_OUTCOMES_MUST_REMAIN_INDEPENDENT"):
+        controls.link_independent_case_outcomes(case_ids=("replacement-case", "renewal-case"), outcomes={"replacement-case": "APPROVED"})
 
 
 def test_billing_refinements_preserve_state_separation_and_evidence_boundaries():

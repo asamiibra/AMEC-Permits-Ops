@@ -1,6 +1,6 @@
 {
   "artifact": "00-authoritative-baseline",
-  "generated_at_utc": "2026-09-10T06:40:51.444600Z",
+  "generated_at_utc": "2026-09-10T07:38:23.010271Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -77,21 +77,13 @@
     "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
     "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
   },
-  "evidence_generated_from_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
-  "evidence_generated_from_tree": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
-  "executable_release_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
-  "executable_tree_sha": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
-  "evidence_commit_sha": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
+  "evidence_generated_from_sha": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
+  "evidence_generated_from_tree": "a8d8c622e673957729f925f6bbab5d38e2fafd8d",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
-  "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / AZURE-PREPROD_READ_ONLY_OBSERVED",
-  "observed_azure_release_sha": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7",
-  "observed_azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
-  "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
-  "observed_azure_db_head": null,
+  "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / READ_ONLY_EXTERNAL_RUNTIME",
   "test_run_identifier": "source18-owner-closure-00-authoritative-baseline",
-  "result": "FAIL",
+  "result": "PASS",
   "requirement_keys": [
     "S18-T2-R01-A1",
     "S18-T2-R01-A2",
@@ -188,13 +180,11 @@
   "source18_final_matrix_rows": 68,
   "source18_atomic_requirements": 90,
   "source18_validation_perspectives": 8,
-  "identity_separation": {
-    "EXECUTABLE_CANDIDATE": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
-    "REMOTE_MAIN": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-    "OBSERVED_AZURE_RELEASE": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7"
+  "legacy_79_count_disposition": "UNVERIFIED_LEGACY_LEDGER_COUNT_NOT_USED_AS_VERDICT",
+  "static_verdict_structures": {
+    "SOURCE18_STATIC_PASS_VERDICTS": 0,
+    "SOURCE18_STATIC_FAIL_VERDICTS": 0,
+    "SOURCE18_STATIC_IMPLEMENTATION_BLOCKER_VERDICTS": 0
   },
-  "user_work_preserved": true,
-  "source18_branch_base_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "source18_branch_base_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
-  "artifact_sha256": "a21b6b04905b98e8adfe0017071f213ee3fe4c26b2c97858dee7a5da5e05cc3b"
+  "artifact_sha256": "27f4c25be050fc80458200ebbf753c87ee2b05f356825a7b544bff73939e8097"
 }

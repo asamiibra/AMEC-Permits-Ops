@@ -17,11 +17,11 @@ from .backend_realignment import persona_for_role
 from .backend_realignment import require_capability as canonical_require_capability
 from ..models import (
     AuthorityCase,
+    CommitteePacketRevision,
     ConsultancyOffice,
+    DocumentVersion,
     Source18EngineerProfile,
     Source18ExternalComment,
-    Source18OfficialFormVersion,
-    Source18PacketRevision,
     Source18PolicyVersion,
     Source18RosterMembership,
     Source18SubmissionCycle,
@@ -123,8 +123,9 @@ def validate_source_currentness(db: Session, transaction: Source18WorkflowTransa
         if not policy or policy.status != "CURRENT":
             raise HTTPException(409, {"code": "SOURCE18_POLICY_VERSION_NOT_CURRENT"})
     if transaction.official_form_version_id:
-        form = db.get(Source18OfficialFormVersion, transaction.official_form_version_id)
-        if not form or form.currentness_state != "CURRENT":
+        form = db.get(DocumentVersion, transaction.official_form_version_id)
+        form_state = str((form.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper() if form else "UNKNOWN"
+        if not form or form_state != "CURRENT":
             raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_CURRENT"})
 
 
@@ -244,16 +245,16 @@ def packet_manifest(transaction: Source18WorkflowTransaction, payload: dict[str,
     }
 
 
-def packet_hash_payload(packet: Source18PacketRevision) -> dict[str, Any]:
+def packet_hash_payload(packet: CommitteePacketRevision) -> dict[str, Any]:
     return {"manifest": packet.manifest_json, "required_signers": packet.required_signers_json}
 
 
-def refresh_packet_hash(packet: Source18PacketRevision) -> str:
+def refresh_packet_hash(packet: CommitteePacketRevision) -> str:
     packet.packet_hash = _hash(packet_hash_payload(packet))
     return packet.packet_hash
 
 
-def packet_row(packet: Source18PacketRevision) -> dict[str, Any]:
+def packet_row(packet: CommitteePacketRevision) -> dict[str, Any]:
     return {key: value for key, value in packet.__dict__.items() if not key.startswith("_")}
 
 

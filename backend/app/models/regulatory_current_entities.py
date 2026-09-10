@@ -59,6 +59,18 @@ class CommitteePacketRevision(Base, TimestampMixin):
     field_values_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     authority_only_fields_json: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     validation_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    # Shared packet lifecycle fields used by both canonical preparation and
+    # Source18 committee transactions.  Keeping them here prevents a second
+    # packet-revision engine for the Source18 routes.
+    source18_transaction_id: Mapped[str | None] = mapped_column(ForeignKey("source18_workflow_transactions.id"), index=True)
+    packet_hash: Mapped[str | None] = mapped_column(String(64))
+    manifest_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    required_signers_json: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
+    signature_state: Mapped[str] = mapped_column(String(40), nullable=False, default="NOT_STARTED")
+    stamp_state: Mapped[str] = mapped_column(String(40), nullable=False, default="NOT_STARTED")
+    custody_state: Mapped[str] = mapped_column(String(50), nullable=False, default="DIGITAL_SCAN")
+    internal_release_state: Mapped[str] = mapped_column(String(40), nullable=False, default="NOT_RELEASED")
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="DRAFT")
     owner_release_by: Mapped[str | None] = mapped_column(String(200))
     owner_release_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -86,3 +98,18 @@ class PhysicalOriginalCustodyEvent(Base):
     evidence_reference: Mapped[str] = mapped_column(String(500), nullable=False)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class LinkedSubmissionGroup(Base, TimestampMixin):
+    """Coordination link for independent replacement and renewal cases."""
+
+    __tablename__ = "linked_submission_groups"
+    __table_args__ = (UniqueConstraint("group_ref", name="uq_linked_submission_group_ref"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    group_ref: Mapped[str] = mapped_column(String(120), nullable=False)
+    replacement_case_id: Mapped[str] = mapped_column(ForeignKey("authority_cases.id"), nullable=False, index=True)
+    renewal_case_id: Mapped[str] = mapped_column(ForeignKey("authority_cases.id"), nullable=False, index=True)
+    coordination_context_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    independent_outcomes_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    created_by: Mapped[str] = mapped_column(String(200), nullable=False)

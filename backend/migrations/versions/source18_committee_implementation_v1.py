@@ -117,18 +117,8 @@ def upgrade() -> None:
         sa.Column("source_order", sa.Integer()),
         *_common("source18_roster_memberships"),
     )
-    op.create_table(
-        "source18_official_form_versions",
-        sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("form_code", sa.String(100), nullable=False),
-        sa.Column("version", sa.String(60), nullable=False),
-        sa.Column("status", sa.String(30), nullable=False),
-        sa.Column("currentness_state", sa.String(30), nullable=False),
-        sa.Column("source_document_version_id", sa.String(36), sa.ForeignKey("document_versions.id")),
-        sa.Column("provenance_json", sa.JSON(), nullable=False),
-        *_common("source18_official_form_versions"),
-        sa.UniqueConstraint("form_code", "version", name="uq_source18_official_form_version"),
-    )
+    # Official form versions are canonical DocumentVersions.  Source18 adds
+    # no parallel form registry.
     op.create_table(
         "source18_workflow_transactions",
         sa.Column("id", sa.String(36), primary_key=True),
@@ -142,7 +132,7 @@ def upgrade() -> None:
         sa.Column("responsible_engineer_effective_from", sa.Date()),
         sa.Column("responsible_engineer_change_type", sa.String(30)),
         sa.Column("current_policy_version_id", sa.String(36), sa.ForeignKey("source18_policy_versions.id")),
-        sa.Column("official_form_version_id", sa.String(36), sa.ForeignKey("source18_official_form_versions.id")),
+        sa.Column("official_form_version_id", sa.String(36), sa.ForeignKey("document_versions.id")),
         sa.Column("requirement_version_id", sa.String(36), sa.ForeignKey("requirement_policy_versions.id")),
         sa.Column("currentness_state", sa.String(30), nullable=False),
         sa.Column("remediation_exception", sa.Boolean(), nullable=False),
@@ -155,30 +145,27 @@ def upgrade() -> None:
         *_common("source18_workflow_transactions"),
         sa.UniqueConstraint("idempotency_key", name="uq_source18_transaction_idempotency"),
     )
-    op.create_table(
-        "source18_packet_revisions",
-        sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("transaction_id", sa.String(36), sa.ForeignKey("source18_workflow_transactions.id"), nullable=False),
-        sa.Column("revision_number", sa.Integer(), nullable=False),
-        sa.Column("status", sa.String(40), nullable=False),
-        sa.Column("packet_hash", sa.String(64), nullable=False),
-        sa.Column("manifest_json", sa.JSON(), nullable=False),
-        sa.Column("required_signers_json", sa.JSON(), nullable=False),
-        sa.Column("signature_state", sa.String(40), nullable=False),
-        sa.Column("stamp_state", sa.String(40), nullable=False),
-        sa.Column("custody_state", sa.String(50), nullable=False),
-        sa.Column("internal_release_state", sa.String(40), nullable=False),
+    # Source18 committee packets use the canonical committee_packet_revisions
+    # table created by source18_regulatory_current_state_v1.
+    for column in (
+        sa.Column("source18_transaction_id", sa.String(36), sa.ForeignKey("source18_workflow_transactions.id")),
+        sa.Column("packet_hash", sa.String(64)),
+        sa.Column("manifest_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'")),
+        sa.Column("required_signers_json", sa.JSON(), nullable=False, server_default=sa.text("'[]'")),
+        sa.Column("signature_state", sa.String(40), nullable=False, server_default="NOT_STARTED"),
+        sa.Column("stamp_state", sa.String(40), nullable=False, server_default="NOT_STARTED"),
+        sa.Column("custody_state", sa.String(50), nullable=False, server_default="DIGITAL_SCAN"),
+        sa.Column("internal_release_state", sa.String(40), nullable=False, server_default="NOT_RELEASED"),
         sa.Column("submitted_at", sa.DateTime(timezone=True)),
-        sa.Column("supersedes_id", sa.String(36), sa.ForeignKey("source18_packet_revisions.id")),
-        sa.Column("created_by", sa.String(200), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.UniqueConstraint("transaction_id", "revision_number", name="uq_source18_packet_revision"),
-    )
+    ):
+        op.add_column("committee_packet_revisions", column)
+    op.create_index("ix_committee_packet_source18_transaction_id", "committee_packet_revisions", ["source18_transaction_id"], unique=False)
+    op.create_unique_constraint("uq_document_version_number", "document_versions", "document_id", "version_number")
     op.create_table(
         "source18_submission_cycles",
         sa.Column("id", sa.String(36), primary_key=True),
         sa.Column("transaction_id", sa.String(36), sa.ForeignKey("source18_workflow_transactions.id"), nullable=False),
-        sa.Column("packet_revision_id", sa.String(36), sa.ForeignKey("source18_packet_revisions.id"), nullable=False),
+        sa.Column("packet_revision_id", sa.String(36), sa.ForeignKey("committee_packet_revisions.id"), nullable=False),
         sa.Column("cycle_number", sa.Integer(), nullable=False),
         sa.Column("idempotency_key", sa.String(200), nullable=False),
         sa.Column("status", sa.String(40), nullable=False),
@@ -213,16 +200,41 @@ def upgrade() -> None:
         sa.Column("captured_by", sa.String(200), nullable=False),
         sa.UniqueConstraint("office_id", "snapshot_hash", name="uq_source18_roster_snapshot_hash"),
     )
+    op.create_table(
+        "linked_submission_groups",
+        sa.Column("id", sa.String(36), primary_key=True),
+        sa.Column("group_ref", sa.String(120), nullable=False),
+        sa.Column("replacement_case_id", sa.String(36), sa.ForeignKey("authority_cases.id"), nullable=False),
+        sa.Column("renewal_case_id", sa.String(36), sa.ForeignKey("authority_cases.id"), nullable=False),
+        sa.Column("coordination_context_json", sa.JSON(), nullable=False),
+        sa.Column("independent_outcomes_json", sa.JSON(), nullable=False),
+        sa.Column("created_by", sa.String(200), nullable=False),
+        *_common("linked_submission_groups"),
+        sa.UniqueConstraint("group_ref", name="uq_linked_submission_group_ref"),
+    )
 
 
 def downgrade() -> None:
+    op.drop_constraint("uq_document_version_number", "document_versions", type_="unique")
+    op.drop_index("ix_committee_packet_source18_transaction_id", table_name="committee_packet_revisions")
+    for column in (
+        "submitted_at",
+        "internal_release_state",
+        "custody_state",
+        "stamp_state",
+        "signature_state",
+        "required_signers_json",
+        "manifest_json",
+        "packet_hash",
+        "source18_transaction_id",
+    ):
+        op.drop_column("committee_packet_revisions", column)
     for table in (
+        "linked_submission_groups",
         "source18_labor_roster_snapshots",
         "source18_external_comments",
         "source18_submission_cycles",
-        "source18_packet_revisions",
         "source18_workflow_transactions",
-        "source18_official_form_versions",
         "source18_roster_memberships",
         "source18_engineer_profiles",
         "source18_office_documents",

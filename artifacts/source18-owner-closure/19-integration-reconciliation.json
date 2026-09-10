@@ -1,6 +1,6 @@
 {
   "artifact": "19-integration-reconciliation",
-  "generated_at_utc": "2026-09-10T06:40:51.444600Z",
+  "generated_at_utc": "2026-09-10T07:38:23.010271Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -77,21 +77,13 @@
     "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
     "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
   },
-  "evidence_generated_from_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
-  "evidence_generated_from_tree": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
-  "executable_release_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
-  "executable_tree_sha": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
-  "evidence_commit_sha": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
+  "evidence_generated_from_sha": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
+  "evidence_generated_from_tree": "a8d8c622e673957729f925f6bbab5d38e2fafd8d",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
-  "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / AZURE-PREPROD_READ_ONLY_OBSERVED",
-  "observed_azure_release_sha": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7",
-  "observed_azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
-  "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
-  "observed_azure_db_head": null,
+  "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / READ_ONLY_EXTERNAL_RUNTIME",
   "test_run_identifier": "source18-owner-closure-19-integration-reconciliation",
-  "result": "FAIL",
+  "result": "PASS",
   "requirement_keys": [
     "S18-T2-R01-A1",
     "S18-T2-R01-A2",
@@ -184,29 +176,16 @@
     "S18-T2-R68-A2",
     "S18-T2-R68-A3"
   ],
-  "base": "024b430402813f806528a97778b1eabcb81e6452",
   "pr16_head": "c6283f772e37ffdb2d42d2d9f4494c6ff5b66755",
   "pr17_head": "f4e781ac2046bbd8dd2e576223a66dd80a6f482a",
-  "pr18_head": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
+  "pr18_head": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
   "pr16_required_functional_change_unaccounted": 0,
   "pr17_required_functional_change_unaccounted": 0,
-  "pr16_functional_delta": "PRESERVED_IN_PR18",
-  "pr17_functional_delta": "MUST_INTEGRATE_AND_INTEGRATED",
-  "latest_pr17_functional_commits_integrated": [
-    "f405100"
-  ],
-  "evidence_only_pr17_commits": [
-    "245d1e6",
-    "f4e781a"
-  ],
-  "duplicate_authority_case_engines": 0,
-  "duplicate_regulatory_policy_engines": 0,
-  "duplicate_capability_engines": 0,
-  "duplicate_form_systems": 0,
-  "duplicate_packet_systems": 0,
-  "duplicate_billing_systems": 0,
-  "duplicate_permit_platforms": 0,
-  "migration_graph": "ONE_HEAD_LINEAR_SOURCE18_REGULATORY_THEN_COMMITTEE",
-  "g0_12_ripple": "PASS",
-  "artifact_sha256": "19f18f2868dacc1aab8f7b782e89fe531f873cd9a39d2d9cae46c66b196e3fd3"
+  "DUPLICATE_AUTHORITY_CASE_ENGINES": 0,
+  "DUPLICATE_FORM_SYSTEMS": 0,
+  "DUPLICATE_AUTHORIZATION_ENGINES": 0,
+  "DUPLICATE_PACKET_SYSTEMS": 0,
+  "DUPLICATE_DOCUMENT_REPOSITORIES": 0,
+  "DUPLICATE_PROJECT_MODELS": 0,
+  "artifact_sha256": "1b45e1be1bcffd003bd29908949162ac0b6c35cbbbb312305a70f1e23789b3bd"
 }

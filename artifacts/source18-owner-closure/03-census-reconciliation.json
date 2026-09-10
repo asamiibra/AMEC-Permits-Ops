@@ -1,6 +1,6 @@
 {
   "artifact": "03-census-reconciliation",
-  "generated_at_utc": "2026-09-10T06:40:51.444600Z",
+  "generated_at_utc": "2026-09-10T07:38:23.010271Z",
   "source_sha256": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c",
   "source_baseline": "OWNER_VIDEO_ENGINEERS_ACCEPTANCE_COMMITTEE_02_FINAL_VALIDATED_REQUIREMENTS_BASELINE_V3",
   "contract_part_hashes": [
@@ -77,19 +77,11 @@
     "17": "954b7560a3aa5d828b2c931ab155d0f459b1e562a175c9e99a25cd1e5fb617d1",
     "18": "125619b91efdf80a5b76d08053ee242c929621334eda4f0c8b5f1fefb2504c4c"
   },
-  "evidence_generated_from_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
-  "evidence_generated_from_tree": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
-  "executable_release_sha": "e860dd8071c63a4e07677c921fb610b8ee3e1183",
-  "executable_tree_sha": "09ee8867298fb9a5f5727a200ccfedd71b6212aa",
-  "evidence_commit_sha": "EVIDENCE_COMMIT_CREATED_AFTER_EXECUTABLE",
+  "evidence_generated_from_sha": "d7f73acd22bfb0eda16137bc47143add5e4ddb7d",
+  "evidence_generated_from_tree": "a8d8c622e673957729f925f6bbab5d38e2fafd8d",
   "branch": "source18/integrated-owner-closure-v3",
   "remote_main_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "remote_main_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
-  "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / AZURE-PREPROD_READ_ONLY_OBSERVED",
-  "observed_azure_release_sha": "4952f9a1b297f0d96fdb86b5394dc60ea550f8f7",
-  "observed_azure_image_digest": "sha256:a5a0dbd770d8728fdc30397ab1afa7c0270af2180c7c2a933d77487689df4a19",
-  "observed_azure_revision": "proposalops-api-preprod--step5-r8-1-4952f9a1b297",
-  "observed_azure_db_head": null,
+  "environment": "LOCAL_SOURCE18_CLOSURE_BRANCH / READ_ONLY_EXTERNAL_RUNTIME",
   "test_run_identifier": "source18-owner-closure-03-census-reconciliation",
   "result": "PASS",
   "requirement_keys": [
@@ -184,16 +176,8 @@
     "S18-T2-R68-A2",
     "S18-T2-R68-A3"
   ],
-  "census_a": {
-    "rows": 68,
-    "atoms": 90
-  },
-  "census_b": {
-    "rows": 68,
-    "atoms": 90
-  },
   "orphans": 0,
   "duplicates": 0,
   "unmapped": 0,
-  "artifact_sha256": "72a94f733cf7f26bb3e4864e1666fd581e9155ba5cb8c760eaa0d8e43a1ccddc"
+  "artifact_sha256": "b1344b4b388de4589ca3ae5209fce8f90f59cbb06aec55057ed594e4e73e56ad"
 }

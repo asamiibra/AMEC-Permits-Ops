@@ -33,6 +33,7 @@ from ..models import (
     SubmissionPrecheckCheck, SubmissionPrecheckRun,
     CasePartySnapshot, ConsultancyOffice, Party, RegulatoryStateVersion, CommitteePacketRevision,
     PhysicalOriginalCustodyEvent,
+    LinkedSubmissionGroup,
 )
 from ..services.regulatory_context import build_case_party_snapshot, case_party_context
 from ..services.current_regulatory_controls import (
@@ -82,6 +83,28 @@ def _runtime_role(role: Role, action: str) -> None:
         raise _http(403, "CAPABILITY_DENIED", capability=action)
 
 
+@router.post("/authority-cases/linked-submission-groups")
+def create_linked_submission_group(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _runtime_role(role, "CASE_CREATE")
+    group_ref = str(payload.get("group_ref") or "").strip()
+    replacement_id = str(payload.get("replacement_case_id") or "").strip()
+    renewal_id = str(payload.get("renewal_case_id") or "").strip()
+    if not group_ref or not replacement_id or not renewal_id or replacement_id == renewal_id:
+        raise _http(422, "LINKED_SUBMISSION_GROUP_CASES_REQUIRED")
+    replacement = _case(db, replacement_id)
+    renewal = _case(db, renewal_id)
+    if replacement.id == renewal.id:
+        raise _http(422, "LINKED_SUBMISSION_GROUP_CASES_MUST_BE_DISTINCT")
+    existing = db.scalar(select(LinkedSubmissionGroup).where(LinkedSubmissionGroup.group_ref == group_ref))
+    if existing:
+        return _row(existing)
+    group = LinkedSubmissionGroup(group_ref=group_ref, replacement_case_id=replacement.id, renewal_case_id=renewal.id, coordination_context_json=payload.get("coordination_context") or {}, independent_outcomes_json={"replacement_case_id": "PENDING", "renewal_case_id": "PENDING"}, created_by=_actor(request, payload))
+    db.add(group); db.flush()
+    for case_id in (replacement.id, renewal.id):
+        db.add(RegulatoryRelation(source_type="AuthorityCase", source_id=group.id, relation_type="LINKED_SUBMISSION_CASE", target_type="AuthorityCase", target_id=case_id))
+    audit(db, correlation_id=_corr(request), event_type="LINKED_SUBMISSION_GROUP_CREATED", entity_type="LinkedSubmissionGroup", entity_id=group.id, actor_id=group.created_by, after={"replacement_case_id": replacement.id, "renewal_case_id": renewal.id, "independent_outcomes": True})
+    db.commit(); db.refresh(group)
+    return _row(group)
 def _case(db: Session, case_id: str) -> AuthorityCase:
     item = db.get(AuthorityCase, case_id)
     if not item:

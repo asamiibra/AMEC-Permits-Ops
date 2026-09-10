@@ -15,7 +15,9 @@ from ..audit.service import audit
 from ..db import get_db
 from ..models import (
     AuthorityCase,
+    CommitteePacketRevision,
     ConsultancyOffice,
+    DocumentVersion,
     ExternalBody,
     Jurisdiction,
     RegulatoryJourney,
@@ -23,8 +25,9 @@ from ..models import (
     ServiceType,
     Source18EngineerProfile,
     Source18ExternalComment,
-    Source18OfficialFormVersion,
-    Source18PacketRevision,
+    Source18OfficeCertificate,
+    Source18OfficeDocument,
+    OfficeRegistration,
     Source18PolicyVersion,
     Source18RosterMembership,
     Source18SubmissionCycle,
@@ -90,7 +93,31 @@ def office_overview(office_id: str, role: Role = Depends(current_user_role), db:
         if exc.detail.get("code") != "STAFFING_POLICY_UNKNOWN_FAIL_CLOSED":
             raise
         readiness = {"required_count": None, "regulator_counted": None, "buffer_or_gap": None, "at_risk_engineers": [], "expired_or_expiring_engineers": [], "pending_replacements": [], "pending_roster_additions": [], "current_regulatory_entitlement": None, "source_policy_version": current_policy.version if current_policy else None, "assessment_time": _now().isoformat(), "currentness": "UNKNOWN"}
-    return {"office": {"id": office.id, "office_code": office.office_code, "name_en": office.name_en, "name_ar": office.name_ar}, "engineers": [_public_engineer(item) for item in engineers], "readiness": readiness, "roster_count": len(memberships), "source18": True}
+    registration_ids = select(OfficeRegistration.id).where(OfficeRegistration.office_id == office_id)
+    certificates = db.scalars(select(Source18OfficeCertificate).where(Source18OfficeCertificate.office_registration_id.in_(registration_ids))).all()
+    documents = db.scalars(select(Source18OfficeDocument).where(Source18OfficeDocument.office_registration_id.in_(select(OfficeRegistration.id).where(OfficeRegistration.office_id == office_id)))).all()
+    return {"office": {"id": office.id, "office_code": office.office_code, "name_en": office.name_en, "name_ar": office.name_ar}, "engineers": [_public_engineer(item) for item in engineers], "readiness": readiness, "roster_count": len(memberships), "registration_artifacts": [{"artifact_type": "CERTIFICATE", "id": item.id, "version_number": item.version_number, "status": item.status, "source_document_version_id": item.source_document_version_id} for item in certificates] + [{"artifact_type": "DOCUMENT", "id": item.id, "version_number": item.version_number, "status": item.status, "source_document_version_id": item.source_document_version_id} for item in documents], "source18": True}
+
+
+@router.post("/offices/{office_id}/registration-artifacts")
+def create_registration_artifact(office_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
+    require_capability(role, "MANAGE_REGULATORY_POLICY")
+    if not db.get(ConsultancyOffice, office_id):
+        raise HTTPException(404, {"code": "OFFICE_NOT_FOUND"})
+    registration_id = str(payload.get("office_registration_id") or "").strip()
+    registration = db.get(OfficeRegistration, registration_id)
+    if not registration or registration.office_id != office_id:
+        raise HTTPException(422, {"code": "OFFICE_REGISTRATION_REQUIRED"})
+    artifact_type = str(payload.get("artifact_type") or "").upper()
+    version = int(payload.get("version_number") or 0)
+    if artifact_type not in {"CERTIFICATE", "DOCUMENT"} or version < 1 or not payload.get("source_document_version_id"):
+        raise HTTPException(422, {"code": "OFFICE_CERTIFICATE_OR_DOCUMENT_VERSION_REQUIRED"})
+    common = {"office_registration_id": registration.id, "version_number": version, "status": str(payload.get("status") or "DRAFT").upper(), "source_document_version_id": payload["source_document_version_id"], "custody_state": str(payload.get("custody_state") or "DIGITAL_SCAN").upper(), "effective_from": payload.get("effective_from"), "effective_to": payload.get("effective_to"), "provenance_json": payload.get("provenance") or {}}
+    item = Source18OfficeCertificate(**common) if artifact_type == "CERTIFICATE" else Source18OfficeDocument(document_type=str(payload.get("document_type") or "OFFICE_ENROLMENT_DOCUMENT"), **common)
+    db.add(item); db.flush()
+    audit(db, correlation_id=_corr(request), event_type="SOURCE18_OFFICE_REGISTRATION_ARTIFACT_CREATED", entity_type=artifact_type, entity_id=item.id, actor_id=_actor(request, role), after={"office_registration_id": registration.id, "artifact_type": artifact_type, "version_number": version, "source_document_version_id": payload["source_document_version_id"]})
+    db.commit(); db.refresh(item)
+    return {key: value for key, value in item.__dict__.items() if not key.startswith("_")}
 
 
 @router.post("/offices/{office_id}/policies")
@@ -110,13 +137,30 @@ def create_policy(office_id: str, payload: dict[str, Any], request: Request, rol
 @router.post("/official-form-versions")
 def create_official_form_version(payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "MANAGE_REGULATORY_POLICY")
-    item = Source18OfficialFormVersion(form_code=str(payload.get("form_code") or "").strip(), version=str(payload.get("version") or "").strip(), status=str(payload.get("status") or "UNKNOWN").upper(), currentness_state=str(payload.get("currentness_state") or "UNKNOWN").upper(), source_document_version_id=payload.get("source_document_version_id"), provenance_json=payload.get("provenance") or {})
-    if not item.form_code or not item.version:
+    form_code = str(payload.get("form_code") or "").strip()
+    form_version = str(payload.get("version") or "").strip()
+    source_id = str(payload.get("source_document_version_id") or "").strip()
+    item = db.get(DocumentVersion, source_id)
+    if not form_code or not form_version or not item:
         raise HTTPException(422, {"code": "OFFICIAL_FORM_VERSION_REQUIRED"})
-    if item.currentness_state == "CURRENT":
-        db.query(Source18OfficialFormVersion).filter(Source18OfficialFormVersion.form_code == item.form_code, Source18OfficialFormVersion.currentness_state == "CURRENT").update({"currentness_state": "SUPERSEDED", "status": "SUPERSEDED"})
-    db.add(item); db.commit(); db.refresh(item)
-    return {key: value for key, value in item.__dict__.items() if not key.startswith("_")}
+    currentness = str(payload.get("currentness_state") or "UNKNOWN").upper()
+    status = str(payload.get("status") or "UNKNOWN").upper()
+    for candidate in db.scalars(select(DocumentVersion)).all():
+        metadata = dict(candidate.metadata_json or {})
+        if metadata.get("official_form_code") == form_code and metadata.get("official_form_currentness") == "CURRENT":
+            metadata["official_form_currentness"] = "SUPERSEDED"
+            metadata["official_form_status"] = "SUPERSEDED"
+            candidate.metadata_json = metadata
+    item.metadata_json = {
+        **(item.metadata_json or {}),
+        "official_form_code": form_code,
+        "official_form_version": form_version,
+        "official_form_currentness": currentness,
+        "official_form_status": status,
+        "official_form_provenance": payload.get("provenance") or {},
+    }
+    db.commit(); db.refresh(item)
+    return {**{key: value for key, value in item.__dict__.items() if not key.startswith("_")}, "form_code": form_code, "version": form_version, "currentness_state": currentness, "status": status}
 
 
 @router.post("/offices/{office_id}/engineers")
@@ -201,7 +245,7 @@ def get_transaction(transaction_id: str, role: Role = Depends(current_user_role)
     tx = db.get(Source18WorkflowTransaction, transaction_id)
     if not tx:
         raise HTTPException(404, {"code": "SOURCE18_TRANSACTION_NOT_FOUND"})
-    packets = db.scalars(select(Source18PacketRevision).where(Source18PacketRevision.transaction_id == tx.id).order_by(Source18PacketRevision.revision_number.desc())).all()
+    packets = db.scalars(select(CommitteePacketRevision).where(CommitteePacketRevision.source18_transaction_id == tx.id).order_by(CommitteePacketRevision.revision_number.desc())).all()
     cycles = db.scalars(select(Source18SubmissionCycle).where(Source18SubmissionCycle.transaction_id == tx.id).order_by(Source18SubmissionCycle.cycle_number.desc())).all()
     return {"transaction": _public_transaction(tx), "packets": [packet_row(item) for item in packets], "submission_cycles": [{key: value for key, value in item.__dict__.items() if not key.startswith("_") and key != "external_outcome_json"} for item in cycles]}
 
@@ -277,32 +321,32 @@ def create_packet(transaction_id: str, payload: dict[str, Any], request: Request
         if not requirement or requirement.status != "CURRENT":
             raise HTTPException(409, {"code": "SOURCE18_REQUIREMENT_VERSION_NOT_CURRENT"})
     manifest = packet_manifest(tx, payload)
-    latest = db.scalar(select(Source18PacketRevision).where(Source18PacketRevision.transaction_id == tx.id).order_by(Source18PacketRevision.revision_number.desc()))
+    latest = db.scalar(select(CommitteePacketRevision).where(CommitteePacketRevision.source18_transaction_id == tx.id).order_by(CommitteePacketRevision.revision_number.desc()))
     if latest and latest.status != "RETURNED":
         raise HTTPException(409, {"code": "PACKET_REVISION_ALREADY_EXISTS_OR_NOT_RETURNED"})
     revision_number = (latest.revision_number + 1) if latest else 1
-    packet = Source18PacketRevision(transaction_id=tx.id, revision_number=revision_number, status="DRAFT", packet_hash=_hash({"manifest": manifest, "required_signers": payload.get("required_signers") or []}), manifest_json=manifest, required_signers_json=payload.get("required_signers") or [], signature_state="NOT_STARTED", stamp_state="NOT_STARTED", custody_state="DIGITAL_SCAN", internal_release_state="NOT_RELEASED", supersedes_id=latest.id if latest and latest.status == "RETURNED" else None, created_by=_actor(request, role))
-    db.add(packet); db.flush(); tx.state = "PACKET_PREPARED" if tx.transaction_type == "RESPONSIBLE_ENGINEER_CHANGE" and tx.state == "PACKET_PREPARED" else tx.state; audit(db, correlation_id=_corr(request), event_type="SOURCE18_PACKET_REVISION_CREATED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"revision_number": revision_number, "packet_hash": packet.packet_hash}); db.commit(); db.refresh(packet)
+    packet = CommitteePacketRevision(authority_case_id=tx.authority_case_id, source18_transaction_id=tx.id, revision_number=revision_number, status="DRAFT", packet_hash=_hash({"manifest": manifest, "required_signers": payload.get("required_signers") or []}), manifest_json=manifest, form_binding_json={"source18": True, "transaction_id": tx.id}, field_values_json={}, authority_only_fields_json=[], validation_json={"valid": True, "source18": True}, required_signers_json=payload.get("required_signers") or [], signature_state="NOT_STARTED", stamp_state="NOT_STARTED", custody_state="DIGITAL_SCAN", internal_release_state="NOT_RELEASED", supersedes_id=latest.id if latest and latest.status == "RETURNED" else None, created_by=_actor(request, role))
+    db.add(packet); db.flush(); tx.state = "PACKET_PREPARED" if tx.transaction_type == "RESPONSIBLE_ENGINEER_CHANGE" and tx.state == "PACKET_PREPARED" else tx.state; audit(db, correlation_id=_corr(request), event_type="SOURCE18_PACKET_REVISION_CREATED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"revision_number": revision_number, "packet_hash": packet.packet_hash}); db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
 
 @router.post("/packets/{packet_id}/release")
 def release_packet(packet_id: str, request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "OWNER_INTERNAL_PACKET_RELEASE")
-    packet = db.get(Source18PacketRevision, packet_id)
-    if not packet:
+    packet = db.get(CommitteePacketRevision, packet_id)
+    if not packet or not packet.source18_transaction_id:
         raise HTTPException(404, {"code": "SOURCE18_PACKET_NOT_FOUND"})
     if packet.status != "DRAFT" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE" or packet.packet_hash != _hash({"manifest": packet.manifest_json, "required_signers": packet.required_signers_json}):
         raise HTTPException(409, {"code": "PACKET_SIGNATURE_AND_STAMP_REQUIRED"})
-    packet.internal_release_state = "RELEASED"; packet.status = "RELEASED"; audit(db, correlation_id=_corr(request), event_type="SOURCE18_OWNER_INTERNAL_RELEASED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"packet_hash": packet.packet_hash}); db.commit(); db.refresh(packet)
+    packet.internal_release_state = "RELEASED"; packet.status = "RELEASED"; audit(db, correlation_id=_corr(request), event_type="SOURCE18_OWNER_INTERNAL_RELEASED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"packet_hash": packet.packet_hash}); db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
 
 @router.post("/packets/{packet_id}/signatures")
 def capture_signatures(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "CAPTURE_SIGNATURE_EVIDENCE")
-    packet = db.get(Source18PacketRevision, packet_id)
-    if not packet or packet.status != "DRAFT":
+    packet = db.get(CommitteePacketRevision, packet_id)
+    if not packet or not packet.source18_transaction_id or packet.status != "DRAFT":
         raise HTTPException(409, {"code": "PACKET_NOT_EDITABLE"})
     required = packet.required_signers_json
     supplied = payload.get("signatures") or []
@@ -312,35 +356,35 @@ def capture_signatures(packet_id: str, payload: dict[str, Any], request: Request
         raise HTTPException(409, {"code": "REQUIRED_SIGNER_MISSING", "signers": sorted(required_refs - supplied_refs)})
     if any(not item.get("evidence_ref") for item in supplied if str(item.get("signer_ref")) in required_refs):
         raise HTTPException(422, {"code": "SIGNATURE_EVIDENCE_REQUIRED"})
-    packet.signature_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "signature_evidence": [{"signer_ref": item.get("signer_ref"), "evidence_ref": item.get("evidence_ref")} for item in supplied]}; refresh_packet_hash(packet); audit(db, correlation_id=_corr(request), event_type="SOURCE18_SIGNATURES_CAPTURED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"signature_state": packet.signature_state}); db.commit(); db.refresh(packet)
+    packet.signature_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "signature_evidence": [{"signer_ref": item.get("signer_ref"), "evidence_ref": item.get("evidence_ref")} for item in supplied]}; refresh_packet_hash(packet); audit(db, correlation_id=_corr(request), event_type="SOURCE18_SIGNATURES_CAPTURED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"signature_state": packet.signature_state}); db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
 
 @router.post("/packets/{packet_id}/stamp")
 def capture_stamp(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "CAPTURE_STAMP_EVIDENCE")
-    packet = db.get(Source18PacketRevision, packet_id)
-    if not packet or not payload.get("evidence_ref"):
+    packet = db.get(CommitteePacketRevision, packet_id)
+    if not packet or not packet.source18_transaction_id or not payload.get("evidence_ref"):
         raise HTTPException(422, {"code": "STAMP_EVIDENCE_REQUIRED"})
     if packet.status != "DRAFT":
         raise HTTPException(409, {"code": "PACKET_NOT_EDITABLE"})
-    packet.stamp_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "stamp_evidence_ref": str(payload["evidence_ref"])}; refresh_packet_hash(packet); audit(db, correlation_id=_corr(request), event_type="SOURCE18_STAMP_CAPTURED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"stamp_state": packet.stamp_state}); db.commit(); db.refresh(packet)
+    packet.stamp_state = "COMPLETE"; packet.manifest_json = {**packet.manifest_json, "stamp_evidence_ref": str(payload["evidence_ref"])}; refresh_packet_hash(packet); audit(db, correlation_id=_corr(request), event_type="SOURCE18_STAMP_CAPTURED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"stamp_state": packet.stamp_state}); db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
 
 @router.post("/packets/{packet_id}/custody")
 def record_physical_original_custody(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "PREPARE_PACKET")
-    packet = db.get(Source18PacketRevision, packet_id)
+    packet = db.get(CommitteePacketRevision, packet_id)
     custody_ref = str(payload.get("custody_ref") or "").strip()
-    if not packet or packet.status != "DRAFT":
+    if not packet or not packet.source18_transaction_id or packet.status != "DRAFT":
         raise HTTPException(409, {"code": "PACKET_NOT_EDITABLE"})
     if not custody_ref:
         raise HTTPException(422, {"code": "PHYSICAL_CUSTODY_REFERENCE_REQUIRED"})
     packet.custody_state = "PHYSICAL_ORIGINAL_CUSTODY"
     packet.manifest_json = {**packet.manifest_json, "physical_original_custody_ref": custody_ref}
     refresh_packet_hash(packet)
-    audit(db, correlation_id=_corr(request), event_type="SOURCE18_PHYSICAL_ORIGINAL_CUSTODY_RECORDED", entity_type="Source18PacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"custody_state": packet.custody_state})
+    audit(db, correlation_id=_corr(request), event_type="SOURCE18_PHYSICAL_ORIGINAL_CUSTODY_RECORDED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=_actor(request, role), after={"custody_state": packet.custody_state})
     db.commit(); db.refresh(packet)
     return {"packet": packet_row(packet)}
 
@@ -348,12 +392,12 @@ def record_physical_original_custody(packet_id: str, payload: dict[str, Any], re
 @router.post("/packets/{packet_id}/submit")
 def submit_packet(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "AUTHORIZE_EXTERNAL_SUBMISSION")
-    packet = db.get(Source18PacketRevision, packet_id)
+    packet = db.get(CommitteePacketRevision, packet_id)
     if not packet:
         raise HTTPException(404, {"code": "SOURCE18_PACKET_NOT_FOUND"})
     if packet.status != "RELEASED" or packet.internal_release_state != "RELEASED" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE":
         raise HTTPException(409, {"code": "OWNER_INTERNAL_RELEASE_SIGNATURE_STAMP_REQUIRED"})
-    tx = db.get(Source18WorkflowTransaction, packet.transaction_id)
+    tx = db.get(Source18WorkflowTransaction, packet.source18_transaction_id)
     idempotency_key = str(payload.get("idempotency_key") or "").strip()
     if not idempotency_key:
         raise HTTPException(422, {"code": "IDEMPOTENCY_KEY_REQUIRED"})
@@ -402,6 +446,6 @@ def resubmit(cycle_id: str, payload: dict[str, Any], request: Request, role: Rol
     cycle = db.get(Source18SubmissionCycle, cycle_id)
     if not cycle or cycle.status != "RETURNED_WITH_COMMENTS":
         raise HTTPException(409, {"code": "SUBMISSION_NOT_RETURNED"})
-    packet = db.get(Source18PacketRevision, cycle.packet_revision_id); tx = db.get(Source18WorkflowTransaction, cycle.transaction_id)
+    packet = db.get(CommitteePacketRevision, cycle.packet_revision_id); tx = db.get(Source18WorkflowTransaction, cycle.transaction_id)
     packet.status = "RETURNED"; tx.state = "REVISION_IN_PREPARATION" if tx.transaction_type == "ENGINEER_UPDATE" else tx.state; db.commit()
     return {"transaction_id": tx.id, "previous_cycle_id": cycle.id, "new_revision_required": True, "history_preserved": True}
