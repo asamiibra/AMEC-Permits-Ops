@@ -24,12 +24,47 @@ from ..services.permit_workflow import ensure_project_sources_task
 from ..services.proposals_sor import ACTION_CONFIG, ingest_project_artifact
 
 
-def _delete_seed_models(db, models, *, enabled: bool) -> None:
+def _delete_seed_models(
+    db,
+    models,
+    *,
+    enabled: bool,
+    disable_constraints: bool = False,
+) -> None:
     """Execute the legacy destructive reset only when the caller explicitly allows it."""
     if not enabled:
         return
-    for model in models:
-        db.execute(delete(model))
+    if not disable_constraints:
+        for model in models:
+            db.execute(delete(model))
+        return
+
+    # SQL Server does not support PostgreSQL's disposable-test TRUNCATE ...
+    # CASCADE path.  This branch is restricted to synthetic TEST resets and
+    # makes the existing complete reset list independent of manual FK order.
+    table_names = tuple(Base.metadata.tables)
+    for table_name in table_names:
+        db.execute(text(f"ALTER TABLE [{table_name}] NOCHECK CONSTRAINT ALL"))
+    try:
+        # The PostgreSQL TEST path truncates the complete application schema.
+        # Mirror that behavior here so newly added tables cannot be left as
+        # orphaned rows merely because the legacy manual list missed a model.
+        for table_name in table_names:
+            db.execute(delete(Base.metadata.tables[table_name]))
+    except Exception:
+        db.rollback()
+        raise
+    try:
+        for table_name in table_names:
+            db.execute(
+                text(
+                    f"ALTER TABLE [{table_name}] WITH CHECK "
+                    "CHECK CONSTRAINT ALL"
+                )
+            )
+    except Exception:
+        db.rollback()
+        raise
 
 
 PREPROD_MIGRATION_BASELINE_SEQUENCE = {
@@ -133,8 +168,19 @@ def seed(
             TechnicalRuleEvaluation, TechnicalRuleLineage, TechnicalRule, TechnicalRuleSetVersion,
             RequirementDecision, RequirementEvidenceEvaluation, RequirementEvaluation, RequirementApplicabilityDecision,
             RequirementPolicyLineage, RequirementEvidenceConstraint, RequirementPolicyItem, RequirementGroup, RequirementPolicyVersion, RequirementDefinition,
+            # Source18/current-regulatory children must be removed before the
+            # AuthorityCase parent during a disposable SQL Server reseed.
+            Source18ExternalComment, Source18SubmissionCycle, CommitteePacketRevision,
+            PhysicalOriginalCustodyEvent, RegulatoryStateVersion, LinkedSubmissionGroup,
+            Source18WorkflowTransaction, Source18RosterMembership, Source18LaborRosterSnapshot,
+            Source18EngineerProfile, Source18OfficeDocument, Source18OfficeCertificate,
+            OfficeRegistration, Source18PolicyVersion,
+            AuthorityCaseSubject, PartyRoleAssignment, AuthorizationGrant, ContactPoint, CasePartySnapshot,
             AuthorityOutcome, ExternalInteractionProfile, AuthorityCaseWorkPeriod, AuthorityCaseIdentifier, AuthorityCase,
             RegulatoryJourney, RegulatoryLifecyclePhase, ServiceTypeVersion, ServiceType, ExternalBodyUnit, ExternalBody, Jurisdiction,
+            # Finding rows reference Contract; remove them before the
+            # expansion reset reaches the Contract parent.
+            AssistantHandoff, NotificationEvent, WorkflowTask, Finding, PermitApplication,
             *EXPANSION_RESET_MODELS,
             ProductionModeDecision, G10EvidenceItem, RoleReadinessMatrix, PilotWorkflowApproval, ShadowDefectDisposition, AcceptanceMetric, AcceptanceRehearsalRun,
             RoleTrainingChecklist, KillSwitchReadiness, RestoreRehearsal, RecoveryManifest, IncidentImpactAssessment, WorkflowSafetyHold, IntegrityIncident, SupportCase,
@@ -144,13 +190,13 @@ def seed(
             AuthorityCommentObservation, AuthorityStatusObservation, PortalContractValidationRun, PortalDriftEvent, PortalReadContract,
             MonitoringCheck, MonitoringExecutionDecision, MonitoringRun, MonitoringPolicy,
             GridFieldDiff, GridRowReconciliationResult, GridReconciliationRun, GridPersistenceEvidence, PortalGridRowObservation, PortalDerivedFieldReconciliation, PortalStructureFingerprint, AttachmentReconciliationResult, AttachmentPersistenceEvidence, AttachmentAssociationIntent, AttachmentManifestItem, AttachmentCategoryRule, FieldMatrixCoverage, RequirementMatrixCoverage, RuleCandidate, ControlRun, ControlDefinition, ResubmissionReadinessEvaluation, ApprovalApplicabilityEvaluation, SubmittedSnapshot, PrecheckClearanceEvaluation, FindingHistoryLink, FindingReopenEvent, FindingDispute, FindingClosureEvaluation, FindingResolutionEvidence, FindingResolution, CorpusCaseResult, CorpusCase, CorpusRun, ShadowCorrection, StaleReason, MaterialChangeEvent, LineageEdge, ConfigurationChangeImpactPolicy, AuthorityApprovalValidity, DocumentValidity,
-            NotificationReadState, NotificationEvent, WorkflowTask, Finding, AuthorityEvent, SubmissionCycle, PortalValidationFindingRule, FindingRoutingRule, FindingSlaPolicy, FindingCode,
+            NotificationReadState, AuthorityEvent, SubmissionCycle, PortalValidationFindingRule, FindingRoutingRule, FindingSlaPolicy, FindingCode,
             OperatorExerciseEvidence, SubmissionConfirmation, MunicipalityPreparationException, SubmissionHandoff, AttendedSession, AuthorityPrecheckItem, AuthorityPrecheckRun, HumanPortalVerification, PortalReconciliationResult, PortalSnapshot, PortalIntendedState, PortalGridRowIntent, PreparationSnapshot, PreparationRevision, Approval, ExcelProjection, RenderedForm, FormTemplateVersion, FormTemplate, AttachmentManifest, PackageItem, Package, ReadinessResultItem, PackageReadinessEvaluation, MinimumPackageDefinition, OfficeCredential, ProfessionalCredential, ApplicableRuleSet, ConfigurationBundle, ConfigurationArtifact,
             AuditEvent, StorageOutboxEvent, StorageOperation,
             SignoffCProposal, Stage2ReviewAcknowledgement, Stage2Baseline, DeliveryAuthorityStatus, Phase0Decision, PilotCohort, PrecheckDecision, MunicipalityOperationDecision, DeliveryScenario, BusinessKpiTarget, BusinessBaseline, Tier2BacklogItem, Tier1Decision, AcceptanceCorpusDefinition, ThresholdDefinition, AdjudicationHistory, AdjudicationCase, PhaseBaseline,
             Representation, Authorization, PropertyOwnership, ExcelProjectionRule, ExcelProjectRow, SynologyProjectBootstrap, ProjectNumberReservation, ProjectInitiation, TargetRenderingRule, Party, Property, LegacyFixtureAlias, SyntheticFixtureSet,
             SpikeFieldResult, SpikeDocumentResult, ExtractionSpikeRun, GoldFieldLabel, GoldDocumentLabel, RealDocumentTestGate, MunicipalityDraft, MunicipalityConfig, Conflict, DrawingMetadataControl, AttachmentCategoryConfig, ApprovalDependency, RequirementConfig, FieldAuthorityRule, VerifiedAssertion, FieldObservation, DocumentClassification, DocumentVersion, Document, FieldDefinition, ScenarioConfig,
-            ExternalSystemLink, PermitApplication, Project, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
+            ExternalSystemLink, Project, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
         ]
 
         if reset_existing:
@@ -158,7 +204,16 @@ def seed(
                 tables = ", ".join(f'"{name}"' for name in Base.metadata.tables)
                 db.execute(text(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
             else:
-                _delete_seed_models(db, reset_order, enabled=True)
+                _delete_seed_models(
+                    db,
+                    reset_order,
+                    enabled=True,
+                    disable_constraints=(
+                        db.bind.dialect.name == "mssql"
+                        and environment == "TEST"
+                        and settings.synthetic_only
+                    ),
+                )
         else:
             validate_preprod_migration_baseline(db)
 
