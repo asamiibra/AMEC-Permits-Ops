@@ -1,0 +1,41 @@
+{
+  "result": "SOURCE18_G5_INDEPENDENT_ACCEPTANCE=NOT_ACCEPTED",
+  "independent_reviewer": "read_only_exact_head_verifier",
+  "head_sha": "245d1e6998f9bd5e145733bcd6bf3155eeacdecf",
+  "head_tree": "0a00e086db6583ee8e3b29accc3bbf99d9ca508e",
+  "source_hashes": {
+    "Source16": true,
+    "Source17": true,
+    "Source18": true
+  },
+  "recomputed_counts": {
+    "Source15_primary": 100,
+    "Source15_finance": 132,
+    "Source15_atomic": 232,
+    "Source16_atomic": 150,
+    "Source17_atomic": 179,
+    "Source18_atomic": 90
+  },
+  "requirement_orphans": {
+    "Source16": 0,
+    "Source17": 0,
+    "Source18": 0
+  },
+  "server_wiring_recomputed": {
+    "non_project_subject_route": true,
+    "project_required_gate": true,
+    "governed_processing_mode": true,
+    "currentness_protected_action_gate": true,
+    "owner_packet_release_gate": true
+  },
+  "migration_head": "source18_regulatory_current_state_v1",
+  "manifest_recomputed": true,
+  "working_tree_clean": true,
+  "blocking_findings": [
+    "Required current authority policy and OfficialFormVersion evidence remain UNKNOWN and protected live actions are correctly blocked.",
+    "Complete Source16 plus Source17/18 persisted synthetic acceptance is not closed; current persisted proof is focused API coverage only.",
+    "No independent exact-head product review has accepted this head.",
+    "Protected CI checks for this newly pushed head are still in progress; PR review is required."
+  ],
+  "merge_decision": "DO_NOT_MERGE"
+}

@@ -1,0 +1,37 @@
+{
+  "current_applicable_p0_unresolved": 1,
+  "current_applicable_requirement_orphans": 0,
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "gaps": [
+    {
+      "description": "Required current authority policy and OfficialFormVersion evidence remain UNKNOWN; protected live actions are blocked.",
+      "g5_blocking": true,
+      "id": "G5-EXTERNAL-CURRENTNESS",
+      "status": "EXTERNAL_CURRENTNESS_REQUIRED_BUT_SYSTEM_FAILS_CLOSED"
+    },
+    {
+      "description": "The new product/API flow is persisted and tested synthetically, but the complete Source16 plus Source17/18 persisted synthetic acceptance suite is not yet closed.",
+      "g5_blocking": true,
+      "id": "G5-PERSISTED-E2E",
+      "status": "PARTIAL"
+    },
+    {
+      "description": "No independent exact-head product review has accepted the current PR head.",
+      "g5_blocking": true,
+      "id": "G5-INDEPENDENT-REVIEW",
+      "status": "NOT_ACCEPTED"
+    },
+    {
+      "description": "Disposable SQL/Azure qualification is a later gate and has not been claimed here.",
+      "g5_blocking": false,
+      "id": "G6-QUALIFICATION",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "latest_governing_contract_source": "SOURCE18",
+  "same_scope_precedence_ambiguities": 0,
+  "source_incomplete_promoted_without_owner_source": 0,
+  "subject_source_sha": "f405100",
+  "subject_source_tree": "6bc4e91e9c454c7e7b0ea85942372de2aac46625"
+}

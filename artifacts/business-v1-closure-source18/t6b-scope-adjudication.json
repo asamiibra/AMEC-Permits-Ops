@@ -1,0 +1,24 @@
+{
+  "scope_manifest": "artifacts/t6b-independent-acceptance/T6B_QUALIFIED_SCOPE_MANIFEST.json",
+  "qualified_scope_hash": "sha256:cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035",
+  "qualified_application_persistence_bytes_changed": false,
+  "unqualified_persistence_bytes_changed": true,
+  "changed_qualified_paths": [],
+  "scoped_bytes_identical": true,
+  "t6b_sqlserver_qualification": "PASS_REUSED",
+  "application_persistence_closed": true,
+  "independent_acceptance": "PASS_REUSED",
+  "reruns": 0,
+  "behavioral_scope_identical": true,
+  "scoped_schema_identical": true,
+  "qualified_dependency_comparison": {
+    "qualified_consumer_runtime_code_identical": true,
+    "qualified_orm_model_code_identical": true,
+    "qualified_shared_audit_outbox_persistence_code_identical": true,
+    "qualified_migration_baseline_identical": true,
+    "new_migration_touches_qualified_tables": false,
+    "new_migration_tables": ["authority_cases", "regulatory_state_versions", "committee_packet_revisions", "physical_original_custody_events"],
+    "qualified_tables": "Phase5/T6B consumer schema subset only; no overlap with Source18 regulatory tables"
+  },
+  "basis": "The additive Source18 migration changes only AuthorityCase/regulatory packet/custody tables, which are outside the frozen T6B consumer dependency surface. Qualified consumer/model/shared audit persistence bytes and the baseline migration remain identical; T6B is preserved with zero reruns."
+}

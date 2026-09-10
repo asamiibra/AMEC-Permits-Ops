@@ -1,0 +1,1337 @@
+{
+  "current_finance_atomic_count": 132,
+  "current_total_atomic_count": 232,
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "historical_finance_atomic_count": 143,
+  "historical_total_atomic_count": 243,
+  "latest_governing_contract_source": "SOURCE18",
+  "ledger": "SOURCE15_CURRENT_FINANCE_REVALIDATION",
+  "manufactured_owner_ids": 0,
+  "requirement_orphans": 0,
+  "requirements": [
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 540",
+      "source_text": "Contract / Project Value",
+      "source_text_sha256": "0c738559dbdd7fc2590a0d1f71b58009c46a27ea963ad9e2aacd069f3a81507a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 542",
+      "source_text": "Total Invoiced",
+      "source_text_sha256": "4a9c2909429f0487fdb9269719745a970a3b00167b2a019a9f5cc7e631663002",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 544",
+      "source_text": "Total Collected",
+      "source_text_sha256": "fdf3e5c5cff9193f31fff2b82cf3a377bd74b42cfa1d6bee327409b0de7a496a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 546",
+      "source_text": "Outstanding",
+      "source_text_sha256": "e681b89952c4a88c10b47757b2766c222f8e40de1af8518581658319cd4e9af4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 548",
+      "source_text": "Project Balance",
+      "source_text_sha256": "981f0d688ebcff6b850e80ab185b03193fabe241177e437040912b15dcc8358f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 553",
+      "source_text": "billing type;",
+      "source_text_sha256": "94a43890f2876f6fa989dc296b71aeb2a98ee16afdd74132c9cb729e5fc21dca",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 554",
+      "source_text": "billing amount/percentage;",
+      "source_text_sha256": "be3cc7e36b5d220433b56454f59d2d986c327c8952236dc748413c71eb2e5ae4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 555",
+      "source_text": "billing milestone;",
+      "source_text_sha256": "bd6ef6352776447d253ed6a8ef328b10e0085143ed3e1754f61aa0104c3b98df",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 556",
+      "source_text": "billing trigger;",
+      "source_text_sha256": "3e24806d7dfeb6199ebafcd00632b0ed679efb6473f34f82be80939b25878074",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 557",
+      "source_text": "service period where applicable;",
+      "source_text_sha256": "1a3689468922b22eccd6fe60f96ff334ac6f7bf96440f128dd6dc7fc9c0a95fa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 558",
+      "source_text": "eligibility;",
+      "source_text_sha256": "d50a5ad1e7d2b4a8f9f594fa72d4c769f207e3bc4ae304c86949cebad1727a8d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 559",
+      "source_text": "invoice generated/issued state.",
+      "source_text_sha256": "54f5495f0139efdbe991a265b4f7215c8a234f780194d1989ea26782482694da",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 560",
+      "source_text": "Contract payment terms must remain distinct from the operational Billing Plan.",
+      "source_text_sha256": "70e3491df78632dea8040f782a180444ef23e908f2deb82a502fd3d7b1352f9a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 564",
+      "source_text": "first of month → identify active supervision projects → prepare previous month's invoice.",
+      "source_text_sha256": "c1a93d129b31de0442bfd1284f21111cf2bb6725d3c40c38d425d238d305a2f9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 571",
+      "source_text": "Late creation is permitted operationally, but the service period must remain August 2026, not the date the employee happened to create it.",
+      "source_text_sha256": "d6531e5bfbb7bff543ec99fb73053c344ce34d6c2ed39e9bd3efb16adeee495d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 574",
+      "source_text": "Design invoices are triggered by the responsible project/engineering person identifying that a contractual milestone has occurred.",
+      "source_text_sha256": "a2fb6dd309c0dc6692ceb0d913131cea88593415ee2be5dd88ab0084a38d1260",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 576",
+      "source_text": "license;",
+      "source_text_sha256": "bf4acea99d599d567c880866785fa8a119e91513f840abbfe77273710bb4827b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 577",
+      "source_text": "D/C/design stage;",
+      "source_text_sha256": "1b79a2782331b0d603449d46c34d115eb6a660ceeecc0e1f4ac7855905a16407",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 578",
+      "source_text": "completion/building completion;",
+      "source_text_sha256": "201e5c0e55e163e4185d1d6e3e6a8f4d7d8d53f79116b17e12ea2d1885d8977d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 579",
+      "source_text": "other project-specific payment milestones.",
+      "source_text_sha256": "f462d2f666ce085a64781b5b99892e74f4865696f999f123287c10c5bd8cd900",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 580",
+      "source_text": "The system should therefore support milestone eligibility, not hard-code only “monthly invoice.”",
+      "source_text_sha256": "bef15aba33720642a4c93b14a44b14a17b57ade17aa01ad997cbbb8e7593ca93",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 584",
+      "source_text": "project;",
+      "source_text_sha256": "94bb4a3f59358b21840861e2edc05cb1efb13b27546bead980beaee31d8229f5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 586",
+      "source_text": "invoice date;",
+      "source_text_sha256": "cd9e5400526a65bd253969ea8e8a07ef868b1a7fad38535c27a7aedc89b4faf9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 587",
+      "source_text": "due date;",
+      "source_text_sha256": "875527e98feb1fa4b8b8501d804f6fe597b0ee26fcbd844373399c0968c1498e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 589",
+      "source_text": "billing type;",
+      "source_text_sha256": "94a43890f2876f6fa989dc296b71aeb2a98ee16afdd74132c9cb729e5fc21dca",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 590",
+      "source_text": "line items;",
+      "source_text_sha256": "a8ba4cec2a4b0350f15755282a656865321246f09ede8fb411f7b3f5ffc37102",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 592",
+      "source_text": "quantity;",
+      "source_text_sha256": "d8e23c8476b6ed71286b2d37025339ca8856e3fa95e72e8a30030499eb3ca459",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 593",
+      "source_text": "unit price;",
+      "source_text_sha256": "6fe902a098446d1358cbecd8dcda53f69921ecdef9830024d1d98ccfb04704b5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 594",
+      "source_text": "total;",
+      "source_text_sha256": "eedf714c8e2f049958e91f5eb4ed3f7b9416ac654bcc9d61ea90fe0fb03e1ece",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 597",
+      "source_text": "bank/payment instructions;",
+      "source_text_sha256": "d3ee73abdb880e9f7c2fbd6b24b80e685c94aead683efd4bbb3373b704ccee8d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 598",
+      "source_text": "responsible/signatory information.",
+      "source_text_sha256": "b0b19ac1e42117da5432241204778479130fefc7303baa5febf2f1067e9cb039",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 602",
+      "source_text": "Persist:",
+      "source_text_sha256": "6f348aa4967abaf5fbd42dea3b2d66b69c2e2b53f8a993f043e0cd542f00b9eb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 603",
+      "source_text": "Company Invoice Reference",
+      "source_text_sha256": "43b73d5a96dfca12e3bf5377445cd14f960001cf016a5a0fda4e7ca4d1745824",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 605",
+      "source_text": "Project Invoice Sequence",
+      "source_text_sha256": "ae343356d70cd846553b69be370e3855015b203d7ccd0d9fe30fac6d650784e4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 606",
+      "source_text": "Do not infer one from the other.",
+      "source_text_sha256": "58019a1a5e4e074be49ea74aa907a3b3cc336f14d8920c1bee19a6e710592c2f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 608",
+      "source_text": "duplicate official references;",
+      "source_text_sha256": "5360ea775e39406de4107b8cf68116a8033776988006ef686ed2d4436233a580",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 610",
+      "source_text": "modification of an issued invoice's reference.",
+      "source_text_sha256": "80252d84e8f5934b93f3ac2711bc89ba3304b58bd04bf3ade6e7971bacd669df",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 619",
+      "source_text": "copy stable project/client/template data",
+      "source_text_sha256": "126d501e5114363720742d394e33dab6bd5c759f76863fd606bd555cdf29b179",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 621",
+      "source_text": "new invoice identity",
+      "source_text_sha256": "b15771713b53bb135181116d4b49f1e89ea73c5f098e4fa87ec99b38ccd2d9b0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 624",
+      "source_text": "Never edit the historical issued invoice.",
+      "source_text_sha256": "75c8c65655f2cd3af3a279b34bf173640e32bceb74c63b19a1578a54502b29e6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 627",
+      "source_text": "The Owner demonstrates:",
+      "source_text_sha256": "08ef93222a58742645a6f879eabdeba65ffde6f492939164da901c8a7e5f53bf",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 631",
+      "source_text": "But the system must not hard-code “5 days” universally.",
+      "source_text_sha256": "92b2f45c3dc76d6e62c2ab0397f20d0105d0c531c80dee1f614db40ab551696c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 632",
+      "source_text": "The canonical design correctly allows due dates to derive from invoice date, issue date, delivery, acknowledgement, approval, fixed dates or verified events.",
+      "source_text_sha256": "c16961a778072cea3942d4e35b21c50110d612dee50e438c289155f1976e2576",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 634",
+      "source_text": "Owner's five-day example = concrete current business rule/example, not necessarily universal domain law.",
+      "source_text_sha256": "0af4ae63ee4cdb543ce722782277cd206ecaf99d17aa9aabd7209600c280df24",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 651",
+      "source_text": "Payment evidence may include:",
+      "source_text_sha256": "2bce979856a07903f0090733f23b970110e3b21e04534199261db565bfee8f95",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 655",
+      "source_text": "other accepted evidence.",
+      "source_text_sha256": "acc74be45c824bc0055498598d70c15bb4810396bc8ffe647ce6c8ac700272bf",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 656",
+      "source_text": "The Owner explicitly demonstrates the returned signed invoice and subsequent cheque/transfer evidence being retained against the same reference.",
+      "source_text_sha256": "ee9a4fd89d15b792f73202a156c2da895fed0389ca8daca269b50a01eddd8c0b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 659",
+      "source_text": "Receivable is not just Invoice.status.",
+      "source_text_sha256": "e284ec042472d6ca144c4904be1fe4d66fa575cc877b63db82b321bb0d056d7a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 661",
+      "source_text": "Gross Invoice Amount",
+      "source_text_sha256": "cf3458cbe6bb9154421bd181575545d99e29c585ce941a72dadd4749893f0282",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 662",
+      "source_text": "Allocated Amount",
+      "source_text_sha256": "12d13ec017a15ab80fcdb1b0ec7b4cfc8d13c258fea773a2fea01bbe08d5502c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 663",
+      "source_text": "Outstanding Amount",
+      "source_text_sha256": "d1fb9edefdf8517262fcb25015b212c730b90284fc9d153729525c0d59852cb6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 664",
+      "source_text": "Due State",
+      "source_text_sha256": "e05759b40247a9980128952c30fca8c2f02c513ac438d00ab5d044f2fe63015e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 665",
+      "source_text": "Follow-Up State",
+      "source_text_sha256": "634c0ac1fe364b551c31640fb83a65db499039a318cf2294d46ca8d889fc29ea",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 670",
+      "source_text": "Payment Receipt",
+      "source_text_sha256": "7e677ab8c7f34797bd3ceebab100a9225f68f65643c1c01f6a85b911d7d59659",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 671",
+      "source_text": "Payment Evidence",
+      "source_text_sha256": "53010390a13c34c76720dfbdd40a231492ac69527c18b824cad7567e98af8f11",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 672",
+      "source_text": "Verification",
+      "source_text_sha256": "7140f4f19dec525960aabacb5741a125876c7d85f8cfa9c899cc8880651ddf61",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 673",
+      "source_text": "Allocation",
+      "source_text_sha256": "5bcc7d3bcde669f19c2df15d95f6fa2ddc73e04eb734e727decd97610ff84883",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 674",
+      "source_text": "Allocation History",
+      "source_text_sha256": "790b17d76dd31dc19e807344245bbeb8e9302968803e6266af515d2ebd623c03",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 676",
+      "source_text": "partial payment;",
+      "source_text_sha256": "0cdb07db33811ebfaa7c123216e95256e65ffa86371468f562b2220224459ca5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 679",
+      "source_text": "one payment → multiple invoices where applicable;",
+      "source_text_sha256": "ab204688f20bb5b77b5f2b3ebbdba6d0014aa546f85cf032e23fdd1e7bddb639",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 680",
+      "source_text": "auditable allocation history.",
+      "source_text_sha256": "78884feaebdabed38bfc0afe2c0837a4ba9071d27c2239b231933ff4ee52e955",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 685",
+      "source_text": "When a valid payment allocation occurs:",
+      "source_text_sha256": "58f933eae8598191b986e00f5d1b75714f5d62663cc2eee6cb6f52bd9d02abac",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 686",
+      "source_text": "Invoice Outstanding",
+      "source_text_sha256": "8cbbd811505fe78b34a4f803162614953f2ec4f19741b0d0434fb08fbc84c7c8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 688",
+      "source_text": "changes",
+      "source_text_sha256": "d0b4ba2311b3e84977dc4bb320fe72cd85426f5cf14b487a4c5352ae3ad8cb37",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 690",
+      "source_text": "Project Total Receipts",
+      "source_text_sha256": "25e2b7140217963d2577452e5adb7ab2dfd65dcc9a964b496102152c0ef70390",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 692",
+      "source_text": "changes",
+      "source_text_sha256": "d0b4ba2311b3e84977dc4bb320fe72cd85426f5cf14b487a4c5352ae3ad8cb37",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 694",
+      "source_text": "Project Balance",
+      "source_text_sha256": "981f0d688ebcff6b850e80ab185b03193fabe241177e437040912b15dcc8358f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 696",
+      "source_text": "changes",
+      "source_text_sha256": "d0b4ba2311b3e84977dc4bb320fe72cd85426f5cf14b487a4c5352ae3ad8cb37",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 709",
+      "source_text": "The Owner should never have to manually calculate this.",
+      "source_text_sha256": "53182efc24eca862c59528383fd887af50a181571cdb9287625249d11af8656a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 713",
+      "source_text": "Finance",
+      "source_text_sha256": "b696d75511dc16f2b52563e3113a498311a79866f4672862197aa9a8c5c0da12",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 714",
+      "source_text": "├── Overview",
+      "source_text_sha256": "8321764fe58df431ee58db981fe4071ab5abf0cd4cf20b45620285fb1b7d5252",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 715",
+      "source_text": "├── Billing Plans",
+      "source_text_sha256": "cf5f331aa6741e4df79e8e6ca71f1e9e172d9992b64ac4114c7ed9bfefedbc8b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 716",
+      "source_text": "├── Milestones",
+      "source_text_sha256": "66d39606a36ee29f158045076f8eb5e52eeea852fea3922ebb5ac42905700ed5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 717",
+      "source_text": "├── Invoices",
+      "source_text_sha256": "ce12c50f8b5a5ed44bcc7539b49205fc59e2cacbbb9259da505eb4b92943c518",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 718",
+      "source_text": "├── Receivables",
+      "source_text_sha256": "45429ab0c3a290c3889c78c6a14fc5a65b71d87cbab7923c9258e628d496d162",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 719",
+      "source_text": "├── Payments",
+      "source_text_sha256": "43ed176e4c0a743d770f5150ecb057e945c64d8048697388c60f693d442170d3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 720",
+      "source_text": "└── Settlement",
+      "source_text_sha256": "86c72e9b6eb1def324009f9b96aa317a9529c62a30b2c8226ab198c64b9297ac",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 723",
+      "source_text": "Invoice;",
+      "source_text_sha256": "be1c86abfbef4ec9e4984e632c5bf018b17e1bb6a210ac136657641020a02920",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 724",
+      "source_text": "Invoice Ref;",
+      "source_text_sha256": "35125fcec6be07b92d6bab2cb6088edf796948b9f7b79bbc4db5b99674faa522",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 725",
+      "source_text": "Contract/Project;",
+      "source_text_sha256": "825695fa5fea24c0ea0229923f938465153ee63f7bdb5dbab138d23a88b04049",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 726",
+      "source_text": "Stage;",
+      "source_text_sha256": "2bcac467dd273943163dce5ebcc9fe115a46545d1aa32c0edc4291f1f1c0761f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 727",
+      "source_text": "Amount;",
+      "source_text_sha256": "05eb0dc2359cc9b349943c3753b8ee1292849c468ae974874030f55c24899782",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 728",
+      "source_text": "Due Date;",
+      "source_text_sha256": "ceb9501173e98508a266562138254e1e264d42124279393a2938b61db353c6f3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 729",
+      "source_text": "Open/outstanding state;",
+      "source_text_sha256": "f39bf246dbec432302422b752ee12adf89715b723ddd7d78a575620d77feb2c9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 730",
+      "source_text": "Billing Plan;",
+      "source_text_sha256": "9bbec006a60c3e4f3ddcbb8de2798bcb13399edaa52e349c96461d0c03106540",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 731",
+      "source_text": "Billing Milestone;",
+      "source_text_sha256": "a9490f0c46dd400d9f10c05847197726f5ddd52254b0b6f2e5c5a6df2d93216b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 732",
+      "source_text": "receivable;",
+      "source_text_sha256": "65f524e94f1905906169d628a41d10252764bf8997973aa4dedc74230f9fbcc7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 740",
+      "source_text": "overdue;",
+      "source_text_sha256": "38566c6f3de62fba82de81d1046c6cb330515c209ca76b27c004d453edd1980b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 741",
+      "source_text": "outstanding;",
+      "source_text_sha256": "21c46f9e00d030d36ca49544b5d2c649715d263aa30241ed5a9c569a21990989",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 742",
+      "source_text": "due soon;",
+      "source_text_sha256": "636fd25098a003ed0e9db863ac2852f08482e27ea8b2ef5a96863438b658129e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 743",
+      "source_text": "partially paid;",
+      "source_text_sha256": "46ec0110a2b35fd79b7a2a6e6c61f664f9f78fbb45ee2f0b272b779889b9ac92",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 744",
+      "source_text": "payment follow-up required.",
+      "source_text_sha256": "2c1f2555d9d94f42be6047100a6682f1254580b7de5c8473528e4ada03c33c02",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 746",
+      "source_text": "Follow-up ≠ payment verification.",
+      "source_text_sha256": "9fdefcb25fdc4990afb901261da5e3b0df923d1bdbfa9a840594721fb141b9fa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 750",
+      "source_text": "Contract/Mobilization should expose a lightweight financial summary:",
+      "source_text_sha256": "a7e1f798fe21149ad5b1d206085acfe3df702288d836cd82fd0ad66707618ac9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 751",
+      "source_text": "Billing Plan: ...",
+      "source_text_sha256": "950e1752c6a7c60df7ab98ce630c0689bd5925ae4bc3cabe92ed240730720bb6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 752",
+      "source_text": "Invoices: ...",
+      "source_text_sha256": "075e65862474e0968c1950a55122dc78c51fe3d60fc811d3c6859951daf2586e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 753",
+      "source_text": "Outstanding: ...",
+      "source_text_sha256": "cb81416f5cca92e277f051908c1f3dd7ffbec73a7e943f3d1ba2b53650cc80bb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 754",
+      "source_text": "Open Finance →",
+      "source_text_sha256": "4d79664897581409a60c1c27e47c97734324fabab7dedc2aaedbb29e003985f7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 755",
+      "source_text": "But it should not duplicate the Finance workspace.",
+      "source_text_sha256": "3f28482f856d34a96c0f59325910177a9a45a2c5501c77250f165b05903188b8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 758",
+      "source_text": "Because the Owner's workflow introduces sensitive financial material, the implementation must protect:",
+      "source_text_sha256": "121cf41c4d6c5848f5d6048564c281b724a3fbb7edba5e9a68383c01cbfb907d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 759",
+      "source_text": "bank details;",
+      "source_text_sha256": "6a2b77e451f1455b65b1201cec925d1ee2ca4d31f9123e70dd34afb4864eff2f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 760",
+      "source_text": "IBAN;",
+      "source_text_sha256": "b16614a9d9491c05c39e444cace66fac1db7cb9bca0965b3fcb107dbb579162a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 761",
+      "source_text": "account information;",
+      "source_text_sha256": "40b76131fbb11b3bb32a1dbab5d70859427f27652d302b70039ea36bbb51793b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 762",
+      "source_text": "invoice amounts;",
+      "source_text_sha256": "5765c12c3811c0e2bc984574e45e2f47c66818c6fbef062f959f7c1035283feb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 763",
+      "source_text": "client identity;",
+      "source_text_sha256": "8e6bd46b27872c1b49fdafd5f1ef0b5bd4c53e81a96842fb6179ef5b0bfbb632",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 764",
+      "source_text": "payment evidence;",
+      "source_text_sha256": "3af96e383bef9dc76e8605f5d77db8474fd4189cfde394a95ccccbf29b74d948",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 765",
+      "source_text": "approval references;",
+      "source_text_sha256": "eb894ed364cda4e9b9fb9a19a1dbbe1602d6aef97365b077b9bcb238d666c6b1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 766",
+      "source_text": "issued invoice artifacts.",
+      "source_text_sha256": "a0553413840052e4b6e508563e781b27f068544a41a01f122c01308a7bee9324",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 767",
+      "source_text": "No raw IBAN/bank information or payment-evidence contents should leak into ordinary logs or broad search indexes.",
+      "source_text_sha256": "35f7b6c36a4e6bfa1abdd01bed0a0aef31f6e9e2e50baf6c203e6640a674cfd3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 771",
+      "source_text": "AI/system may:",
+      "source_text_sha256": "1e547ba6df2d1eb21be1d8db8a02e9add8490ec3197eddc0b938fec91a32270c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 772",
+      "source_text": "identify eligible billing;",
+      "source_text_sha256": "5d9547f5c9584ba22d189d5b194cfa5b77d27407de8e1b3edf4d15ec47436ad0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 773",
+      "source_text": "prepare a draft;",
+      "source_text_sha256": "57ea28644a80b7a1f20f76178edfd10e0c8e4397096ade35fee3c966129d6c9e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 774",
+      "source_text": "carry forward information;",
+      "source_text_sha256": "3f034e5dfc287406137a418b071efbcf9f7fb9cbad17e1776323123295d9d8ba",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 775",
+      "source_text": "calculate;",
+      "source_text_sha256": "2724afdc1e865327bea8de4e6fd43cdca89bba2aef8d48d83a23b0fa78c10b18",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 776",
+      "source_text": "retrieve;",
+      "source_text_sha256": "a6bca5b9f6e6c05ae33ea2b9e8e7210ec320e8f62f709f114972304f4b41eada",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 777",
+      "source_text": "suggest.",
+      "source_text_sha256": "6af5f99f98408935b53abd64fb8eb28e8e9f0de7a633df5d4334cc2ede5f7070",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 778",
+      "source_text": "AI/system must not silently:",
+      "source_text_sha256": "66f12267664c6d5d07cd5be29e2ffc73aec4174d45a90436c677c60325992729",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 779",
+      "source_text": "accept invoice;",
+      "source_text_sha256": "909b3126194a68615f29dc7d96cdadc482040a32e8fc4aac7b5063d3125636a5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 780",
+      "source_text": "issue invoice;",
+      "source_text_sha256": "2ee179e90faaed3b3cd78735a9fe490d112de495b92fa24dbc8f6225c31aabbf",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 781",
+      "source_text": "sign;",
+      "source_text_sha256": "1850d54444afeb79f16990c9477e9d6c9bbbb7bafce522956b75d49542d86bae",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 782",
+      "source_text": "send externally;",
+      "source_text_sha256": "fdb51bc5d148907fb4046b238c9093673fa7fcb09ed2aa4f4988c0fcbeecb59c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 783",
+      "source_text": "approve on behalf of client;",
+      "source_text_sha256": "a75be04916d1ee6ce9453a4a79a2068ac111a2d92a94b31241582258dcb9a329",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 784",
+      "source_text": "verify payment;",
+      "source_text_sha256": "f890e76da17f17d9e190517155b8b71307bcd95cb34e9a0d27d50fba934ab69f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 785",
+      "source_text": "mark payment verified;",
+      "source_text_sha256": "67a5b5b54f6e7ba706373ca3520a9b5cd52a2a1e42faa8d6aaa70da44f2587ff",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 786",
+      "source_text": "financially settle.",
+      "source_text_sha256": "a2bfd776cf071376d68aebdcf30a6323f66d4fe7b88a404eac80b9179394ae5d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 794",
+      "source_text": "ContractBillingContext → BillingPlan → BillingPlanRevision → BillingMilestone → Invoice → InvoiceRevision → InvoiceLineItem → Issue → Delivery → Acknowledgment → Client Approval → Receivable → Follow-Up → Payment Evidence → Payment Verification → Payment Allocation.",
+      "source_text_sha256": "4c297ebec5bceda54fce1541695efd429b6175f3765d77f45ad2628d7c0a99b1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 798",
+      "source_text": "And the remaining implementation work should therefore focus on closing the seam between the existing canonical Billing domain and the Owner's actual day-to-day workflow, especially:",
+      "source_text_sha256": "eac5116972846cd89a959102f13fd3205a3c91bd9488da7c21c30ecba6d2ffbc",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 799",
+      "source_text": "Finance workspace UX;",
+      "source_text_sha256": "7cfb89d7b455c08d57e302a25b078cfc1946b00ce88beb046eab0ce1c772f462",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 800",
+      "source_text": "recurring supervision billing;",
+      "source_text_sha256": "8d8628cd621bf6f9abea86173be709bcff1744c64fcfd783a781b9358c5b17c9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 801",
+      "source_text": "milestone-triggered billing;",
+      "source_text_sha256": "62cea866e6f93869b73d1c4f1d69f1962927191fd9c02e329265f5ce057b0502",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 802",
+      "source_text": "invoice cloning;",
+      "source_text_sha256": "895d1e4292f7c0f1f836bcb3b6e3e2f2af774f682e82f3b4b94d4d346dbeb759",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "current_inventory": true,
+      "historical_inventory": false,
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "paragraph 803",
+      "source_text": "dual numbering;",
+      "source_text_sha256": "f61f57e5423f40e8d5bdc22e359d2b0d88579d9c1c29d90fc6ec929f1d6fa2df",
+      "traceability_status": "SOURCE_BACKED"
+    }
+  ],
+  "subject_source_sha": "f405100",
+  "subject_source_tree": "6bc4e91e9c454c7e7b0ea85942372de2aac46625",
+  "untraceable_atomic_requirements": 0
+}

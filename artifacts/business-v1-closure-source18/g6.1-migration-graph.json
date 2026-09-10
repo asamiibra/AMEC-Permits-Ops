@@ -1,0 +1,23 @@
+{
+  "status": "PASS_GRAPH_ONLY_NOT_RELEASE_ACCEPTANCE",
+  "repository_head": "source18_regulatory_current_state_v1",
+  "heads": ["source18_regulatory_current_state_v1"],
+  "head_count": 1,
+  "migration_chain": [
+    "baseline_phase4_v36_azure_sql",
+    "step5_content_azure_sql_v2",
+    "ai_d2_execution_ledger_v1",
+    "source18_regulatory_current_state_v1"
+  ],
+  "classifications": {
+    "source18_regulatory_current_state_v1": "EXPAND_COMPATIBLE",
+    "backfill": "NOT_APPLICABLE",
+    "old_revision_drain": "NOT_APPLICABLE"
+  },
+  "production_migration_executed": false,
+  "qualification_migration_executed_against_final_source": false,
+  "synthetic_only": true,
+  "production_db_mutations": 0,
+  "real_amec_source_reads": 0,
+  "real_amec_source_bytes": 0
+}

@@ -1,0 +1,1012 @@
+{
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "latest_governing_contract_source": "SOURCE18",
+  "ledger": "SOURCE15_CURRENT_PRIMARY",
+  "requirement_count": 100,
+  "requirement_orphans": 0,
+  "requirements": [
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 2",
+      "source_public_requirement_id": 1,
+      "source_text": "1 | Every project has a municipality/document requirements checklist | 🟡 | Implement/complete",
+      "source_text_sha256": "89a154b77086aa295cb53f2598975ef3c7c7b15820413678a62d83b8f5711509",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 3",
+      "source_public_requirement_id": 2,
+      "source_text": "2 | Checklist is transaction/type-specific | 🟡 | Implement",
+      "source_text_sha256": "4b71e4e4ef9c0bceecfb1a0ae0e944760918a1bb53c6dcb601bf059441581d50",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 4",
+      "source_public_requirement_id": 3,
+      "source_text": "3 | Checklist can differ by municipality/authority | 🟡 | Implement/complete",
+      "source_text_sha256": "f07c05068da12076ddac6fb2aa5410a12a69d7762a66984d56a448c2ddd8b307",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 5",
+      "source_public_requirement_id": 4,
+      "source_text": "4 | Checklist requirements can have conditional alternatives | 🟡 | Implement",
+      "source_text_sha256": "d1d6175f355a53c9391354ca23913e06deebff5b635261d04afcead67019a8b2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 6",
+      "source_public_requirement_id": 5,
+      "source_text": "5 | Each requirement has an explicit status | 🟡 | Implement",
+      "source_text_sha256": "537fc7320b04dcf741d1832adb7151cc848f8b97dcdf2ab3a2ba9272b3aa19ae",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 7",
+      "source_public_requirement_id": 6,
+      "source_text": "6 | Operator checks documents one-by-one | 🟢/🟡 | Strengthen with explicit verification state",
+      "source_text_sha256": "19cba36e22c3b93f1d374a92a2b525336446d0c0d1f462b4b06e23830fa87fd9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 8",
+      "source_public_requirement_id": 7,
+      "source_text": "7 | ID checked against ownership/lease document | 🟡 | Implement cross-document verification",
+      "source_text_sha256": "a206646e0d3c6249730472ba9fce618af79534eaae3beda87d77b7ae6bdf8fc1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 9",
+      "source_public_requirement_id": 8,
+      "source_text": "8 | Ownership evidence can be title deed | 🟢 | Foundation exists",
+      "source_text_sha256": "0a4a96ad819f161a2a479fe6ec2cce90da6bb4ad8d9cea6e28710b8c435ecccc",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 10",
+      "source_public_requirement_id": 9,
+      "source_text": "9 | Ownership evidence can be lease | 🟢 | Foundation exists",
+      "source_text_sha256": "ea26c006b4b961b3e849c2c94da577f326e6f071b6349f33b692e838aebe1ed8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 11",
+      "source_public_requirement_id": 10,
+      "source_text": "10 | Ownership evidence can be usufruct/possession/allocation etc. | 🟡 | Complete configurable alternatives",
+      "source_text_sha256": "62c95f3639d0ca4665a4fc372efe572ff58b4d53b06a6f7d2ca8de7a3796482c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 12",
+      "source_public_requirement_id": 11,
+      "source_text": "11 | Ownership/property facts are structured, not just files | 🟢 | Existing property/ownership model",
+      "source_text_sha256": "058911929aa4166694e107520f4e6d8f74fb5db164ef8df9e87ae3c6a615ad8e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 13",
+      "source_public_requirement_id": 12,
+      "source_text": "12 | Owner identity verified | 🟢/🟡 | Existing identity/party foundation; workflow needed",
+      "source_text_sha256": "93e7f9f2b01ca21d46e1247efd01fbaeb3bdc1f21fda7d0808f031ede5308908",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 14",
+      "source_public_requirement_id": 13,
+      "source_text": "13 | Multiple owners supported | 🟢 | Existing relational model supports this",
+      "source_text_sha256": "2e05ffb467fbdae67af8826d387827787c4011a27985382e925ffe0d94085be7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 15",
+      "source_public_requirement_id": 14,
+      "source_text": "14 | Owner may be company + individual | 🟢 | Important — preserve",
+      "source_text_sha256": "80ba020514a5ce4d020ed351533399442b483098578d4993fee4ac35dbf976cd",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 16",
+      "source_public_requirement_id": 15,
+      "source_text": "15 | Company representatives/signatories supported | 🟢/🟡 | Existing representation/authorization foundation; workflow needs completion",
+      "source_text_sha256": "4ea9c98c5f1fd027d496af785a451f1b0f2859d052b7c8e3a722181b472db44b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 17",
+      "source_public_requirement_id": 16,
+      "source_text": "16 | Multiple heirs supported | 🟡 | Explicit heirs workflow required",
+      "source_text_sha256": "33a93c6942dec9f9f8b461e17ea015e66cd53b2bea3d3f5994d54e0a450a3d15",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 18",
+      "source_public_requirement_id": 17,
+      "source_text": "17 | Death/estate ownership recognized | 🟡 | Implement estate case",
+      "source_text_sha256": "38271f6a101a232ab7e131d7a33f1f1f0d278fd82e648b3ae97b52490573169c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 19",
+      "source_public_requirement_id": 18,
+      "source_text": "18 | Heirs certificate determines heirs | 🔴 | Implement evidence + relationship logic",
+      "source_text_sha256": "a554db4645e007505af766e686d5f73e85c03ac4b52b266717dffaf5b143b186",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 20",
+      "source_public_requirement_id": 19,
+      "source_text": "19 | IDs of heirs collected individually | 🟡 | Implement per-party checklist",
+      "source_text_sha256": "f342b97d57e811d1c73d4e1ef3e95923d70e1ccf8aff772e1e823227963839cf",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 21",
+      "source_public_requirement_id": 20,
+      "source_text": "20 | Mobile/contact information for relevant owners/heirs | 🟡 | Implement structured contact requirement",
+      "source_text_sha256": "41f3c6843fe80216d449df282ab13f9a632b37b24c0ebe5fa6d2a6c67361668b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 22",
+      "source_public_requirement_id": 21,
+      "source_text": "21 | Expired ID can be identified independently | 🟢/🟡 | Validity foundation exists; checklist behavior needed",
+      "source_text_sha256": "47d75a787ddb5bbacd994c871fa0650b5fa053264c493d07a6b5374eca900924",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 23",
+      "source_public_requirement_id": 22,
+      "source_text": "22 | Correct documents saved immediately | 🟡 | Critical workflow gap",
+      "source_text_sha256": "df9504577792e066dfdc8d5598e6207f761785a226617e344e62851c7839e9b4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 24",
+      "source_public_requirement_id": 23,
+      "source_text": "23 | Incorrect document does not enter authoritative evidence set | 🟢/🟡 | Align with existing evidence model",
+      "source_text_sha256": "44a3ba89728c33260c8b5b22ddc4e2c8eb4b95192dd7cd7df6d1e8025339fc84",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 25",
+      "source_public_requirement_id": 24,
+      "source_text": "24 | Missing document can remain outstanding | 🟡 | Implement partial-completion state",
+      "source_text_sha256": "eba589f3929f066169cf0ee93bc3ee76c65767b8c03dc831dd8239808d13a041",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 26",
+      "source_public_requirement_id": 25,
+      "source_text": "25 | Operator does NOT wait for full package before filing correct docs | 🔴 | Explicit requirement",
+      "source_text_sha256": "caf7eef2d0dd2948124fd2898e45392059859d213657ddb8bcc98d50c8d2c413",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 27",
+      "source_public_requirement_id": 26,
+      "source_text": "26 | Checklist records complete/missing/invalid per item | 🟡 | Implement",
+      "source_text_sha256": "56abe126247563d60a4ce38cb9ee55117bb7e7394ef98c523ec33569f36ac4b7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 28",
+      "source_public_requirement_id": 27,
+      "source_text": "27 | Server/project repository is operational working memory | 🟡 | Need first-class document workspace",
+      "source_text_sha256": "17c6904f90b9920bf1fa99ad0e53be1d2773d430c2c15fbdccbfc6cad346182c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 29",
+      "source_public_requirement_id": 28,
+      "source_text": "28 | Documents remain tied to project | 🟢 | Existing project/document foundation",
+      "source_text_sha256": "187b7c06c43a35a2a3cce20cdd2dd19e7cc557da928da85a177ef86a643055d0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 30",
+      "source_public_requirement_id": 29,
+      "source_text": "29 | Documents remain available months later | 🟢/🟡 | Persistence foundation; operational UX needed",
+      "source_text_sha256": "b0b16b6b726b075c93a853faae4e4a5b43d0bea974cf73955cd3991553f41b5f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 31",
+      "source_public_requirement_id": 30,
+      "source_text": "30 | Avoid reconstructing documents from email/WhatsApp later | 🔴 | Major requirement",
+      "source_text_sha256": "c94ba0f0e5e6305b6c17a0ffdb06d138010d9e359b4b1da875aa88d5723e3b41",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 32",
+      "source_public_requirement_id": 31,
+      "source_text": "31 | Missing-document follow-up remains an active task | 🟡 | Existing task foundation; connect to checklist",
+      "source_text_sha256": "67556013fd5255bca02b291a977ea82e435793c7836a8f746fb42625504db7df",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 33",
+      "source_public_requirement_id": 32,
+      "source_text": "32 | Missing client document goes to client/owner | 🔴 | Implement responsibility routing",
+      "source_text_sha256": "359e762cecdba9c6afaffd817ea948810933e806d74f5ce0459ea71a584413d9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 34",
+      "source_public_requirement_id": 33,
+      "source_text": "33 | Engineering document goes to Engineering/Marwa | 🟡 | Existing Engineering persona; explicit routing needed",
+      "source_text_sha256": "e100448a1c13861ffba10a40f9c6c4932371e09bbbaeea7b4f28eaa990df47e0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 35",
+      "source_public_requirement_id": 34,
+      "source_text": "34 | Don't send engineering corrections to client | 🔴 | Important workflow rule",
+      "source_text_sha256": "e1b1f9209674a5579041a0817f1f6dc4c8345667a9f627412bc0cad5af64978a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 36",
+      "source_public_requirement_id": 35,
+      "source_text": "35 | One case can have parallel client + engineering work | 🔴 | Explicit workflow model",
+      "source_text_sha256": "ba5f83642f61e979c299ee4a0c65accb76a95eeb342008635a60ddd8da9e24d0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 37",
+      "source_public_requirement_id": 36,
+      "source_text": "36 | Engineering may take days/months while documents accumulate | 🔴 | Partial package persistence required",
+      "source_text_sha256": "9a0ed742298df255f33f7cdcc823bd647bc14ab4584e850de0aa277df3676919",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 38",
+      "source_public_requirement_id": 37,
+      "source_text": "37 | Documents arriving during engineering remain attached | 🟡 | Implement",
+      "source_text_sha256": "ae132b8ab34d5bcbbb92c83c613b77c2478d0eda98cfcdefb6681ae55a04c9fa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 39",
+      "source_public_requirement_id": 38,
+      "source_text": "38 | Every project uses same overall operating pattern | 🟢/🟡 | Product foundation",
+      "source_text_sha256": "9de6b6ccf0aafa9f1eaec1482ac9ca841dd156c734b563520002f354612b174c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 40",
+      "source_public_requirement_id": 39,
+      "source_text": "39 | Project scale of 45–50 projects must remain manageable | 🔴 | Operational UX requirement",
+      "source_text_sha256": "96c8fabce160616619fc6e3297d2c2191cb1a88f9a08ff582bb324eda8d8d791",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 41",
+      "source_public_requirement_id": 40,
+      "source_text": "40 | Technical report required for project submission | 🔴 | Major gap",
+      "source_text_sha256": "49772ea80c5580819ef66eb862f0aa5662be20881ae1a10611acc38e8406f5fb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 42",
+      "source_public_requirement_id": 41,
+      "source_text": "41 | Technical report is generated/filled from project data | 🔴 | Implement form/template",
+      "source_text_sha256": "d6a960f17906e0c4915815dd4f1ae214bbeea58b26346abf6cc2cceef4faa99d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 43",
+      "source_public_requirement_id": 42,
+      "source_text": "42 | Municipality determined from property evidence | 🟡 | Data foundation; derive/display",
+      "source_text_sha256": "f3cc74a8e9bb083bce52a67c630099f75257df071532b423c52de6b63bdfee1f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 44",
+      "source_public_requirement_id": 43,
+      "source_text": "43 | Plot number sourced from ownership/property document | 🟡 | Implement provenance linkage",
+      "source_text_sha256": "188622b838b38bf7ba7c0ad36d256db420bf45eadc8886a6cc0ad2af88855ada",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 45",
+      "source_public_requirement_id": 44,
+      "source_text": "44 | Project description comes from Engineering | 🔴 | Implement Engineering input",
+      "source_text_sha256": "aa4da0466fa4d14ea4f9805f7fa680298d011a77288ae5c3a646799438844af7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 46",
+      "source_public_requirement_id": 45,
+      "source_text": "45 | Floor-by-floor work description | 🔴 | Implement structured technical-report sections",
+      "source_text_sha256": "2306368e70e6a4abc62d04d230a67cab8d73f307006d2528e48a65263d86508e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 47",
+      "source_public_requirement_id": 46,
+      "source_text": "46 | Consultant engineer name | 🟡 | Existing party/engineering foundation",
+      "source_text_sha256": "9a9bdd37e7b06a62f77bf2191a904d4e2bdae84f5d13fd4427caf1be1adc2e3a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 48",
+      "source_public_requirement_id": 47,
+      "source_text": "47 | Engineer ID | 🟡 | Existing identity foundation",
+      "source_text_sha256": "d89db417301ecccebb2ecb824da5699f6ddbaa0c7e997059ee00f3fec830d8e5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 49",
+      "source_public_requirement_id": 48,
+      "source_text": "48 | Engineering registration number | 🔴 | Add explicit field",
+      "source_text_sha256": "aad4cbe0511faab17975d6d785a4b3ae5222c102e07f0a2def7baef71db63153",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 50",
+      "source_public_requirement_id": 49,
+      "source_text": "49 | Engineer signature | ⚪ | Human-controlled evidence",
+      "source_text_sha256": "e44577ffe01c5c70ce531185ad7bd1811a7285dfb99f698359641a02a2741593",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 51",
+      "source_public_requirement_id": 50,
+      "source_text": "50 | Technical report versioning | 🟡 | Existing revision/lineage foundation; connect",
+      "source_text_sha256": "1480faade5cbaec823b45a4bb94dae34cd2e1b2804eaa0c5ac44432cd4ee9d09",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 52",
+      "source_public_requirement_id": 51,
+      "source_text": "51 | Technical report changes when municipality comments | 🔴 | Implement revision linkage",
+      "source_text_sha256": "2438fede636b0375c03a1df18d9724fbdace06fe01ad5684bed0a79884d274ba",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 53",
+      "source_public_requirement_id": 52,
+      "source_text": "52 | Drawings change alongside technical report | 🟡 | Existing package/revision foundation",
+      "source_text_sha256": "1c83f878f29b83533d895fda669b8d32f4188c9b0a5ba577a91e5a1c46854080",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 54",
+      "source_public_requirement_id": 53,
+      "source_text": "53 | Resubmit updated report + drawings | 🟡 | Preparation/revision foundation; actual workflow remains assisted",
+      "source_text_sha256": "86372eb4eada0bd8986a85d0d9f431afd4649688d6a93b2b3f17083b4ff30ded",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 55",
+      "source_public_requirement_id": 54,
+      "source_text": "54 | Municipality comment is NOT automatically rejection | 🔴 | Critical state model",
+      "source_text_sha256": "502f3e40181a4e99d084e4ed67a16ae74e5f2074ec4e5ba03dbad5c889ffa48d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 56",
+      "source_public_requirement_id": 55,
+      "source_text": "55 | Red/explicit rejection means actual rejection | 🔴 | Implement distinct status",
+      "source_text_sha256": "2153cb7d7a525484693ba395f223cdf7d24e29b462cf87f8dce5f3b97fa48aba",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 57",
+      "source_public_requirement_id": 56,
+      "source_text": "56 | Comment/request-for-correction has separate state | 🔴 | Implement",
+      "source_text_sha256": "3a41470b73ff876144637d508d126142d55638f833870bf05d595b40d3f33715",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 58",
+      "source_public_requirement_id": 57,
+      "source_text": "57 | Comment creates correction work | 🟡 | Existing Finding/task foundation can support",
+      "source_text_sha256": "9e24fdbd1dfca22f20b89ae2309a52e0fc58bb2e2d89bb1025e529ee24031484",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 59",
+      "source_public_requirement_id": 58,
+      "source_text": "58 | Engineering correction assigned to Engineering | 🟡 | Connect Finding → Engineering task",
+      "source_text_sha256": "ac87a93275279d60124fa03616365564581a2dcb1600cbed45e0b56597405c14",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 60",
+      "source_public_requirement_id": 59,
+      "source_text": "59 | Document correction assigned to document owner | 🟡 | Implement responsibility mapping",
+      "source_text_sha256": "1901a777172fe10d2cc5d2412cfee0a73ef504c5f1eb97f3871e5667a6fc3016",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 61",
+      "source_public_requirement_id": 60,
+      "source_text": "60 | Corrected package can be resubmitted | 🟡 | Existing assisted resubmission architecture",
+      "source_text_sha256": "ad6ef09a6ac6e645e43ca04922fb015a155f627498063dfac86309e8f98b549a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 62",
+      "source_public_requirement_id": 61,
+      "source_text": "61 | Previous submission remains historically preserved | 🟢 | Existing lineage/revision principles",
+      "source_text_sha256": "7126221cca8db6d3dce4560cbff80c373e51364a7e6bfdebea59736d6fac2785",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 63",
+      "source_public_requirement_id": 62,
+      "source_text": "62 | Municipality submission itself initially out of scope | 🟢 | Preserve boundary",
+      "source_text_sha256": "3f8c95ed2e525c5ec37b7c80515003cda3988022e51c987a8a298c8910bce3d5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 64",
+      "source_public_requirement_id": 63,
+      "source_text": "63 | ProposalOps prepares package before portal interaction | 🟢/🟡 | Core product direction",
+      "source_text_sha256": "f53d44ca394fdc9bb01df619a3a89202d1c25dc015951a17cbfea3d7723d2f9e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 65",
+      "source_public_requirement_id": 64,
+      "source_text": "64 | Forms are part of operator workload | 🟢 | Existing Forms concept",
+      "source_text_sha256": "b4372c7b1410247dba21e65691084ec26e519927380912a6ba397fed55d7690d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 66",
+      "source_public_requirement_id": 65,
+      "source_text": "65 | Undertakings are part of operator workload | 🟡 | Implement as form/document type",
+      "source_text_sha256": "6035da77d56269effd98d1dbf06cb5cd9504f392e92fe0ddd5e41a427d138a09",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 67",
+      "source_public_requirement_id": 66,
+      "source_text": "66 | Letters are part of operator workload | 🟡 | Implement",
+      "source_text_sha256": "cd9d3e988da445b1a539a0732f4508d7f3a848ce1e4cbbb3892a311c907ae8a1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 68",
+      "source_public_requirement_id": 67,
+      "source_text": "67 | Engineering drawings are part of package | 🟢 | Existing document/package foundation",
+      "source_text_sha256": "50ede2abf96d3a3e5b93f9f24f2249d885549d089dc4ab2376ad4166dc82f15e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 69",
+      "source_public_requirement_id": 68,
+      "source_text": "68 | Previous permit/completion/drawings can be required | 🟡 | Implement conditional requirement",
+      "source_text_sha256": "80d1f76c38bc0e3df45261b84fab050bae08d2ae9247bdebfc3da71cc9543d69",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 70",
+      "source_public_requirement_id": 69,
+      "source_text": "69 | Previous approvals required for additions/modifications/renewal | 🟡 | Implement conditional dependency",
+      "source_text_sha256": "e94e27833472580d8a0b243a33a4291ee61332554b8ad85adaa7f793101a58bf",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 71",
+      "source_public_requirement_id": 70,
+      "source_text": "70 | DXF can be required | 🟡 | Add explicit attachment category/rule",
+      "source_text_sha256": "22d331afc173d2a18ae74cb2197c129693dc9f6ba07735580c74c9c6898d21da",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 72",
+      "source_public_requirement_id": 71,
+      "source_text": "71 | Coordinate report can be required | 🟡 | Add explicit attachment category/rule",
+      "source_text_sha256": "9969798cf9d6b063178a473ef4fb05209c2b701abecd8742555feda03f7e1a9a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 73",
+      "source_public_requirement_id": 72,
+      "source_text": "72 | Site inspection evidence can be required | 🟡 | Add explicit requirement",
+      "source_text_sha256": "61960e2912fe510925d3f8cb32c51a46e9685973041930d2a7cf20fad5bd4e6d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 74",
+      "source_public_requirement_id": 73,
+      "source_text": "73 | Planning/regulatory approval can be required | 🟡 | Add explicit requirement",
+      "source_text_sha256": "0f44736bcadb60e645f9b55e54801e2a3c69232a1544740d628f4a82fe82b522",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 75",
+      "source_public_requirement_id": 74,
+      "source_text": "74 | Preliminary architectural plans can be required | 🟢/🟡 | Existing drawing/package foundation",
+      "source_text_sha256": "6f78c9f2cec3bc1f6e9fa5d614ed29014e2f7691ec924e30e6b8c9cbf63f8024",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 76",
+      "source_public_requirement_id": 75,
+      "source_text": "75 | Structural capacity certificate for added floors | 🔴 | Conditional requirement",
+      "source_text_sha256": "d833293b4d4b5bf31f47314621cd88ecf686f4e18209455473770cf9b1a03de8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 77",
+      "source_public_requirement_id": 76,
+      "source_text": "76 | Initial-approval service requirements | 🟡 | Model as dependency",
+      "source_text_sha256": "17f289b3ab7cbaa58a34f5505c578ccde32c82dc50698f8c0b9f5e5918644073",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 78",
+      "source_public_requirement_id": 77,
+      "source_text": "77 | License-delivery attachments | 🟡 | Model as stage-dependent requirement",
+      "source_text_sha256": "edfb7a6bb94e81ac493285879b658ffa1999392bb8d96593ba01ea8e1b39be10",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 79",
+      "source_public_requirement_id": 78,
+      "source_text": "78 | Lusail-specific architectural requirement | 🔴 | Authority/location configuration",
+      "source_text_sha256": "99725623e2c968e0b3dac832bb0ef30207c8b3f5c078d8bd72a20a0e501d1fd6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 80",
+      "source_public_requirement_id": 79,
+      "source_text": "79 | Industrial Area has special checklist | 🟡 | Implement rule-set variant",
+      "source_text_sha256": "d2b376d7f17be438d1422142c88da343bc875312f6767332599792084a92113c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 81",
+      "source_public_requirement_id": 80,
+      "source_text": "80 | Industrial Area may use lease rather than title deed | 🟡 | Conditional alternative",
+      "source_text_sha256": "048b3a38a14128560522fede84614a73f3afa9f5a7b4c36fcf85d260a553eb79",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 82",
+      "source_public_requirement_id": 81,
+      "source_text": "81 | Industrial Area requires approved area sketch/Kroky | 🔴 | Explicit requirement",
+      "source_text_sha256": "b572cd6f1ac44802f0332d6c1de2fb4097a4ddf0096c93540ba9f43535aabb4f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 83",
+      "source_public_requirement_id": 82,
+      "source_text": "82 | Kroky comes from Industrial Area authority | 🔴 | Source authority provenance",
+      "source_text_sha256": "bd7c87da49668e97676923bedf7ee40efcf3342ce5855e1e8a8057ce6f04cd38",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 84",
+      "source_public_requirement_id": 83,
+      "source_text": "83 | Industrial Area approval/letter may be required | 🔴 | Conditional requirement",
+      "source_text_sha256": "aa9673d15c5387381c83bd23a4e3eca7f126c6ead4b981a26c9eec6bc61cff38",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 85",
+      "source_public_requirement_id": 84,
+      "source_text": "84 | Owner IDs required for Industrial Area | 🟡 | Existing identity foundation",
+      "source_text_sha256": "4d41e850f68d9b775c698a60bab5c72a66fede3e203a5ce21775411c6a79bb9a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 86",
+      "source_public_requirement_id": 85,
+      "source_text": "85 | Owner mobile/contact required | 🟡 | Structured contact",
+      "source_text_sha256": "99e5020d2746de0f16d6f3b814bb60feb10efa9099c0260b8b3d3a1970b1c6fe",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 87",
+      "source_public_requirement_id": 86,
+      "source_text": "86 | Engineering-office authorization required | 🟡 | Existing authorization foundation",
+      "source_text_sha256": "2e0b0617c6de4bf33fb413ab9f139ad537c064f9168db55c86ec6c23c5724497",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 88",
+      "source_public_requirement_id": 87,
+      "source_text": "87 | Water/electricity approval may be required | 🔴 | Configurable service dependency",
+      "source_text_sha256": "c46307b504a3d0ca759dea8e2b73298af37d0515686af5096ab87a10ab54b482",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 89",
+      "source_public_requirement_id": 88,
+      "source_text": "88 | Site photos required | 🟡 | Attachment category",
+      "source_text_sha256": "b9473b7a120788362ab94e8472bec78c60b41688b1e48a1db9136e8938ae18db",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 90",
+      "source_public_requirement_id": 89,
+      "source_text": "89 | Previous permit required | 🟡 | Conditional document dependency",
+      "source_text_sha256": "d9020994fcf7d71a4fe7b22c4161e88510e594a2b2a7e824cbd28a27bd4b493e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 91",
+      "source_public_requirement_id": 90,
+      "source_text": "90 | Previous completion certificate required | 🟡 | Conditional document dependency",
+      "source_text_sha256": "d91f41e50d2d9cea0db5ef737e03026429fee214caf5a43e876d2a9cc1eca7e7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 92",
+      "source_public_requirement_id": 91,
+      "source_text": "91 | Previous drawings required | 🟡 | Conditional document dependency",
+      "source_text_sha256": "44017ed9a776219506e54ed104664279bb1f24cc691b316db401106c84353f2a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 93",
+      "source_public_requirement_id": 92,
+      "source_text": "92 | Industrial Area municipality checks site/misconduct/issues | 🟡 | External observation/evidence",
+      "source_text_sha256": "cb21dde7ba588fe19ae995b2d41217ea69d3388b74e08f0a4f100c3b3e00853a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 94",
+      "source_public_requirement_id": 93,
+      "source_text": "93 | Authority comments can contain mixed document + engineering requests | 🔴 | Critical classification requirement",
+      "source_text_sha256": "8a10dcb4ac2e9c95f916854434d6997791a5aa7ebd0d27ceafcdb0714a1046d3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 95",
+      "source_public_requirement_id": 94,
+      "source_text": "94 | One comment can produce multiple work items | 🟡 | Existing findings/tasks can support",
+      "source_text_sha256": "82646a7483da49f3c0a3e05e75c34c6efeaf52e9559959128f94f47a7de44122",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 96",
+      "source_public_requirement_id": 95,
+      "source_text": "95 | Correct document goes to repository immediately | 🔴 | P0 operational behavior",
+      "source_text_sha256": "e12024416ccd7a83b748e40b4a9ae4c1b6feb1a1c5cdb6aecd6c76d3afb7d57b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 97",
+      "source_public_requirement_id": 96,
+      "source_text": "96 | Missing document remains visible as outstanding | 🔴 | P0",
+      "source_text_sha256": "2f5a888744fb4b821268e9ce12ad1082f149b478408244af9e8db891907a8b33",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "MISSING",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 98",
+      "source_public_requirement_id": 97,
+      "source_text": "97 | Operator can see exactly what remains missing | 🔴 | P0 dashboard/checklist behavior",
+      "source_text_sha256": "d561c2715dc456d9c7542685a6e0cd7c99ac88662b884b7c7a1d8125c5711f05",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "PARTIAL",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 99",
+      "source_public_requirement_id": 98,
+      "source_text": "98 | Package readiness is not binary until all applicable requirements satisfied | 🟡 | Existing readiness foundation; connect",
+      "source_text_sha256": "eedd239d82195c7450d5d596190406d2e3d7d5dbf438a29a7f1ef9ae38040555",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 100",
+      "source_public_requirement_id": 99,
+      "source_text": "99 | Checklist must preserve evidence of verification | 🟢/🟡 | Strong existing document-intelligence foundation",
+      "source_text_sha256": "11630d9b1b9b4d41f67adac49e3bf74c4d4d41dabbe59aedac2a08ff8e2050e2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "implementation_status": "SOURCE_BACKED_REQUIREMENT",
+      "normative_source_sha256": "fa711cb24eb785bb8ca5e6c4b792338a2cd88ccd1535cb151148cfb334b6bc0f",
+      "source": "Source15",
+      "source_locator": "table 1, row 101",
+      "source_public_requirement_id": 100,
+      "source_text": "100 | Human remains accountable for document correctness | 🟢 | Preserve",
+      "source_text_sha256": "66cc12ce8f2c22519649942402ee4f613e90bc0bc69fb4866f47d03d5a6f7d93",
+      "traceability_status": "SOURCE_BACKED"
+    }
+  ],
+  "subject_source_sha": "f405100",
+  "subject_source_tree": "6bc4e91e9c454c7e7b0ea85942372de2aac46625"
+}
