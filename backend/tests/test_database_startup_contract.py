@@ -71,7 +71,7 @@ def _create_version_table(
 def test_repository_migration_head_is_current_phase4_successor_head():
     assert (
         database.repository_migration_head()
-        == "ai_d2_execution_ledger_v1"
+        == "source18_regulatory_current_state_v1"
     )
 
 
