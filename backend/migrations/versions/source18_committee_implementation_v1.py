@@ -17,7 +17,31 @@ def _common(table: str) -> list[sa.Column]:
     ]
 
 
+def _widen_alembic_version_table() -> None:
+    """Allow the active Source18 revision IDs to be recorded on SQL Server."""
+    bind = op.get_bind()
+    if bind.dialect.name == "sqlite":
+        with op.batch_alter_table("alembic_version") as batch:
+            batch.alter_column(
+                "version_num",
+                existing_type=sa.String(length=32),
+                type_=sa.String(length=128),
+                existing_nullable=False,
+            )
+    else:
+        op.alter_column(
+            "alembic_version",
+            "version_num",
+            existing_type=sa.String(length=32),
+            type_=sa.String(length=128),
+            existing_nullable=False,
+        )
+
+
 def upgrade() -> None:
+    # Keep upgrades from a database already at source18_regulatory_current_state_v1
+    # safe even when that database predates this compatibility fix.
+    _widen_alembic_version_table()
     op.create_table(
         "source18_policy_versions",
         sa.Column("id", sa.String(36), primary_key=True),
@@ -160,7 +184,11 @@ def upgrade() -> None:
     ):
         op.add_column("committee_packet_revisions", column)
     op.create_index("ix_committee_packet_source18_transaction_id", "committee_packet_revisions", ["source18_transaction_id"], unique=False)
-    op.create_unique_constraint("uq_document_version_number", "document_versions", "document_id", "version_number")
+    op.create_unique_constraint(
+        "uq_document_version_number",
+        "document_versions",
+        ["document_id", "version_number"],
+    )
     op.create_table(
         "source18_submission_cycles",
         sa.Column("id", sa.String(36), primary_key=True),

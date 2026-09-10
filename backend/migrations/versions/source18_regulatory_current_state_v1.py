@@ -35,7 +35,31 @@ AUTHORITY_CASE_COLUMNS = (
 )
 
 
+def _widen_alembic_version_table() -> None:
+    """Allow the active Source18 revision IDs to be recorded on SQL Server."""
+    bind = op.get_bind()
+    if bind.dialect.name == "sqlite":
+        with op.batch_alter_table("alembic_version") as batch:
+            batch.alter_column(
+                "version_num",
+                existing_type=sa.String(length=32),
+                type_=sa.String(length=128),
+                existing_nullable=False,
+            )
+    else:
+        op.alter_column(
+            "alembic_version",
+            "version_num",
+            existing_type=sa.String(length=32),
+            type_=sa.String(length=128),
+            existing_nullable=False,
+        )
+
+
 def upgrade() -> None:
+    # Alembic creates version_num as VARCHAR(32); this revision is longer.
+    # Widen it before Alembic records the revision after this upgrade returns.
+    _widen_alembic_version_table()
     bind = op.get_bind()
     inspector = sa.inspect(bind)
     existing = {column["name"] for column in inspector.get_columns("authority_cases")}
