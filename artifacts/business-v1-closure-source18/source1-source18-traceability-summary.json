@@ -4,10 +4,10 @@
   "dsm_contacts": 0,
   "evidence_container_commit": null,
   "evidence_container_commit_recorded_externally": true,
-  "g5_business_v1_code_frozen": true,
-  "g5_current_source18_contract_reconciliation": "PASS",
+  "g5_business_v1_code_frozen": false,
+  "g5_current_source18_contract_reconciliation": "BLOCKED_CURRENTNESS_AND_PRODUCT_ACCEPTANCE",
   "g6_started": false,
-  "generated_at_utc": "2026-09-09T22:50:15.089148+00:00",
+  "generated_at_utc": "2026-09-10T00:04:42.749998+00:00",
   "latest_governing_contract_source": "SOURCE18",
   "production_db_mutations": 0,
   "real_amec_source_bytes": 0,
@@ -23,6 +23,6 @@
   "source18_final_matrix_rows": 68,
   "source1_to_source12_accepted_ledger_preserved": true,
   "source1_to_source12_rows": 1218,
-  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d"
+  "subject_source_sha": "f405100",
+  "subject_source_tree": "6bc4e91e9c454c7e7b0ea85942372de2aac46625"
 }

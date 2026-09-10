@@ -3,8 +3,8 @@
   "evidence_container_commit_recorded_externally": true,
   "external_current_policy_and_form_verification": "UNKNOWN_AND_FAIL_CLOSED_WHERE_UNVERIFIED",
   "focused_tests": {
-    "command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py",
-    "result": "61_PASS_1_WARNING"
+    "command": "PYTHONPATH=. pytest -q backend/tests/test_source15_current_contract_controls.py backend/tests/test_current_regulatory_controls.py backend/tests/test_source12_project_finance_controls.py backend/tests/test_shared_domain_foundations.py backend/tests/test_source18_persisted_authority_controls.py",
+    "result": "22_PASS_1_WARNING_CURRENT_RUN"
   },
   "historical_numeric_policy_promoted": 0,
   "latest_governing_contract_source": "SOURCE18",
@@ -14,6 +14,19 @@
     "unit": "CALENDAR_DAYS",
     "value": 30
   },
+  "proof_type_vocabulary": [
+    "PURE_POLICY_HELPER",
+    "DURABLE_MODEL",
+    "PERSISTED_PRODUCER",
+    "API_ENFORCEMENT",
+    "READ_MODEL",
+    "FRONTEND",
+    "UNIT_TEST",
+    "DB_TRANSACTION_TEST",
+    "API_TEST",
+    "BROWSER_E2E",
+    "INDEPENDENT_REVIEW"
+  ],
   "protected_boundaries": {
     "accounting_erp_integration": false,
     "autonomous_acceptance": false,
@@ -43,7 +56,7 @@
   "source1_to_source12_accepted_ledger_preserved": true,
   "source1_to_source12_rows": 1218,
   "source_bytes_pinned": true,
-  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
-  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d",
-  "system_currentness_control": "PASS"
+  "subject_source_sha": "f405100",
+  "subject_source_tree": "6bc4e91e9c454c7e7b0ea85942372de2aac46625",
+  "system_currentness_control": "PASS_FAIL_CLOSED_MECHANISM"
 }

@@ -1,5 +1,5 @@
 {
-  "status": "PARTIAL_NOT_INDEPENDENTLY_ACCEPTED",
+  "status": "SUPERSEDED_BY_SOURCE18_SCHEMA_CHANGE",
   "purpose": "G6_QUALIFICATION_ONLY",
   "production": false,
   "real_data_allowed": false,
@@ -16,7 +16,10 @@
   "unicode_json_numeric_boolean_smoke": "PASS_ON_DB1_AND_DB2",
   "real_business_data_rows": 0,
   "migration_owned_control_rows": 1,
+  "final_source18_migration_added_after_this_run": "source18_regulatory_current_state_v1",
+  "final_repository_head_at_supersession": "f405100",
+  "final_repository_migration_head": "source18_regulatory_current_state_v1",
   "full_native_acceptance_gate_suite": "NOT_EXECUTED",
   "independent_read_only_acceptance": "PENDING",
-  "blocker": "G6.4 cannot be emitted PASS until the complete required native acceptance gate set and independent read-only acceptance are executed without seeding real/business rows."
+  "blocker": "This qualification used ai_d2_execution_ledger_v1 and is superseded because final Source18 added a persistence migration; G6.4 must be rerun from fresh disposable targets against the final source after G5 acceptance."
 }
