@@ -41,6 +41,12 @@ def _stub_migration_verification(monkeypatch):
         def exec_driver_sql(self, statement):
             assert statement == "SELECT 1"
 
+        def rollback(self):
+            return None
+
+        def commit(self):
+            return None
+
     class FakeEngine:
         def __init__(self):
             self.connection = FakeConnection()
