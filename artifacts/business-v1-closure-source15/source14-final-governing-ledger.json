@@ -1,0 +1,26 @@
+{
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "explicit_requirement_count": 196,
+  "finance_revalidation_enumerated_count": 36,
+  "latest_governing_contract_source": "SOURCE15",
+  "ledger": "BUSINESS_V1_CURRENT_CONTRACT_SOURCE14_FINAL",
+  "merged_prs_recorded_externally": true,
+  "pr_reviewed_heads_recorded_externally": true,
+  "primary_requirement_count": 160,
+  "regulatory_work_packages_open": 15,
+  "requirement_orphans": 0,
+  "source14_checkpoint_manifest_sha256": "72f1ccaf3af1da02a875dbc37324b8b7bcb81a9fe1b206eec82a6c4ad71d9686",
+  "source_meta": {
+    "actual_filename": "Invoice : Contract  2 Module Requiremnents .docx",
+    "actual_path": "/Users/ahmedsami/Desktop/Video Requirements/Invoice : Contract  2 Module Requiremnents .docx",
+    "bytes": 61848,
+    "canonical_filename": "Invoice : Contract  2 Module Requiremnents .docx",
+    "paragraphs": 362,
+    "sha256": "82d5017f04d8dae124a1d139c6a64b756e94b7d1cc65a319807b810430446a20",
+    "tables": 7
+  },
+  "source_pinned": true,
+  "subject_source_sha": "d33450d0210df03c6b2366654ec25dc39d4b7c8d",
+  "subject_source_tree": "a1974634caa095463f2eb9a6199b0a7204a2f7f7"
+}

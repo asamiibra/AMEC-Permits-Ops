@@ -14,11 +14,12 @@ def _settings(
     database_url: str = "postgresql+psycopg://user:pass@db/proposalops",
     synthetic_only: bool = True,
     real_data_allowed: bool = False,
+    database_migration_url: str = "postgresql+psycopg://migration:pass@migration-db/proposalops",
 ):
     return SimpleNamespace(
         app_env=app_env,
         database_url=database_url,
-        database_migration_url="",
+        database_migration_url=database_migration_url,
         synthetic_only=synthetic_only,
         real_data_allowed=real_data_allowed,
     )
@@ -27,10 +28,17 @@ def _settings(
 class _FakeConnection:
     def __init__(self):
         self.statements = []
+        self.transaction_calls = []
         self.closed = False
 
     def exec_driver_sql(self, statement):
         self.statements.append(statement)
+
+    def rollback(self):
+        self.transaction_calls.append("rollback")
+
+    def commit(self):
+        self.transaction_calls.append("commit")
 
     def close(self):
         self.closed = True
@@ -152,6 +160,7 @@ def test_runner_uses_one_connection_for_upgrade_and_verification(monkeypatch):
     assert calls == ["upgrade"]
     assert engine.connect_calls == 1
     assert connection.statements == ["SELECT 1"]
+    assert connection.transaction_calls == ["rollback", "commit"]
     assert connection.closed
     assert engine.disposed
 

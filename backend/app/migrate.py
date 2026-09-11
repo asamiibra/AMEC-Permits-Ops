@@ -62,9 +62,15 @@ def _alembic_config(database_url: str) -> Config:
 def _migration_authority_scope(database_url: str):
     had_database_url = "DATABASE_URL" in os.environ
     original_database_url = os.environ.get("DATABASE_URL")
+    had_migration_url = "DATABASE_MIGRATION_URL" in os.environ
+    original_migration_url = os.environ.get("DATABASE_MIGRATION_URL")
+    had_runner_marker = "PROPOSALOPS_GOVERNED_MIGRATION_RUNNER" in os.environ
+    original_runner_marker = os.environ.get("PROPOSALOPS_GOVERNED_MIGRATION_RUNNER")
     clear_settings_cache = getattr(get_settings, "cache_clear", None)
     try:
         os.environ["DATABASE_URL"] = database_url
+        os.environ["DATABASE_MIGRATION_URL"] = database_url
+        os.environ["PROPOSALOPS_GOVERNED_MIGRATION_RUNNER"] = "1"
         if clear_settings_cache is not None:
             clear_settings_cache()
         yield
@@ -73,6 +79,14 @@ def _migration_authority_scope(database_url: str):
             os.environ["DATABASE_URL"] = original_database_url or ""
         else:
             os.environ.pop("DATABASE_URL", None)
+        if had_migration_url:
+            os.environ["DATABASE_MIGRATION_URL"] = original_migration_url or ""
+        else:
+            os.environ.pop("DATABASE_MIGRATION_URL", None)
+        if had_runner_marker:
+            os.environ["PROPOSALOPS_GOVERNED_MIGRATION_RUNNER"] = original_runner_marker or ""
+        else:
+            os.environ.pop("PROPOSALOPS_GOVERNED_MIGRATION_RUNNER", None)
         if clear_settings_cache is not None:
             clear_settings_cache()
 
@@ -158,6 +172,10 @@ def _connect_with_bounded_attempts(engine):
         try:
             connection = engine.connect()
             connection.exec_driver_sql("SELECT 1")
+            # SQLAlchemy 2.x starts an implicit transaction for the preflight
+            # statement.  Clear it before handing the connection to Alembic so
+            # Alembic owns the migration transaction and can commit it.
+            connection.rollback()
             return connection, attempt
         except Exception as exc:
             last_error = exc
@@ -202,6 +220,11 @@ def run_migrations() -> str:
 
     expected_head = repository_migration_head()
     configured_migration_url = getattr(settings, "database_migration_url", "")
+    if environment in {"AZURE-PREPROD", "PROD"} and not configured_migration_url.strip():
+        raise RuntimeError(
+            "Deployment environments require DATABASE_MIGRATION_URL; migration authority must "
+            "not fall back to the runtime database authority."
+        )
     migration_url = configured_migration_url or settings.database_url
     if configured_migration_url:
         if migration_url.lower().startswith("mssql+"):
@@ -234,6 +257,11 @@ def run_migrations() -> str:
             config.attributes["connection"] = connection
             try:
                 command.upgrade(config, "head")
+                # The supplied connection may have entered an implicit
+                # transaction before Alembic's context transaction.  Commit
+                # explicitly after a successful upgrade so the head observed
+                # below is durable after this connection is closed.
+                connection.commit()
             except Exception as exc:
                 wrapped = MigrationExecutionError("alembic_upgrade", exc)
                 wrapped.expected_head = expected_head

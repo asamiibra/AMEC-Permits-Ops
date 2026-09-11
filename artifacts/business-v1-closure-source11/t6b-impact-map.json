@@ -1,0 +1,21 @@
+{
+  "app_persistence_closed": true,
+  "current_v3_start_sha": "78812908a9f249b673f36a8de17fe449195a1549",
+  "current_v3_start_tree": "0a690968ab746688d6bd00cdd29467d497c348ee",
+  "decision": "SCOPED_IDENTICAL",
+  "independent_acceptance": "PASS",
+  "map": "T6B_FINAL_EXACT_SCOPE",
+  "qualified_paths": [
+    "backend/app/models/entities.py",
+    "backend/app/models/phase4_entities.py",
+    "backend/app/schemas/phase4.py",
+    "backend/app/services/phase4.py",
+    "backend/app/services/backend_realignment.py",
+    "backend/migrations/versions/baseline_phase4_v36_azure_sql.py",
+    "alembic.ini"
+  ],
+  "qualified_paths_unchanged": true,
+  "real_amec_bytes_read": 0,
+  "reruns": 0,
+  "sql_qualification": "PASS"
+}

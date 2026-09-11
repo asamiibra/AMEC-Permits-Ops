@@ -1,0 +1,70 @@
+{
+  "g5_status": "BLOCKED",
+  "gaps": [
+    {
+      "control": "OWNER_APPROVED_CLIENT_DELAY_COMMERCIAL_HANDOVER_THRESHOLD",
+      "gate": "G5",
+      "id": "GAP-S6-CLIENT-DELAY-THRESHOLD",
+      "required_input": "exact Owner-approved threshold value and effective date",
+      "severity": "P0",
+      "status": "OWNER_DECISION_REQUIRED"
+    },
+    {
+      "control": "SOURCE8_CURRENT_AUTHORITY_POLICY_CURRENTNESS",
+      "gate": "G5",
+      "id": "GAP-S8-AUTHORITY-CURRENTNESS",
+      "required_input": "official/current authority source, version, effective date, and provenance",
+      "severity": "P0",
+      "status": "CURRENT_AUTHORITY_EVIDENCE_REQUIRED"
+    },
+    {
+      "control": "SOURCE8_CURRENT_COMMITTEE_FORMS_CURRENTNESS",
+      "gate": "G5",
+      "id": "GAP-S8-COMMITTEE-FORMS",
+      "required_input": "current official or Owner-approved Committee forms/version/effective date",
+      "severity": "P0",
+      "status": "CURRENT_AUTHORITY_EVIDENCE_REQUIRED"
+    },
+    {
+      "control": "SOURCE7_R86_RECORDED_ZOOM_MEETING_SEMANTICS",
+      "gate": "G5",
+      "id": "GAP-S7-R86",
+      "required_input": "recorded Zoom meeting semantics and applicability decision",
+      "severity": "P1",
+      "status": "SOURCE_CLARIFICATION_REQUIRED"
+    },
+    {
+      "control": "SOURCE9_CONTEXT_ROWS",
+      "gate": "G5",
+      "id": "GAP-S9-TABLE-EXTRAS",
+      "required_input": "normative/deferred classification for C10, E09-E11, F09-F10, G05-G06",
+      "severity": "P1",
+      "status": "SOURCE_CLARIFICATION_REQUIRED"
+    },
+    {
+      "control": "SOURCE4_DC2_OWNER_APPOINTED_PARTY_REPORT_REQUIREMENT",
+      "gate": "G5",
+      "id": "GAP-S4-DC2",
+      "required_input": "Owner-appointed party and report applicability",
+      "severity": "P1",
+      "status": "SOURCE_CLARIFICATION_REQUIRED"
+    },
+    {
+      "control": "production_invoice_issuance",
+      "gate": "downstream launch gate; not self-deferred",
+      "id": "GAP-BILLING-ISSUANCE",
+      "required_input": "approved template, financial account, numbering, and issue authority",
+      "severity": "P1",
+      "status": "CURRENT_AUTHORITY_EVIDENCE_REQUIRED"
+    },
+    {
+      "control": "real_synology_integration",
+      "gate": "G10/G14 only",
+      "id": "GAP-SYNOLOGY",
+      "required_input": "real DSM/SMB environment and exact downstream acceptance",
+      "severity": "P2",
+      "status": "DOWNSTREAM_EXACT_GATE"
+    }
+  ],
+  "register": "BUSINESS_V1_CURRENT_CONTRACT_GAPS"
+}

@@ -1,0 +1,22 @@
+{
+  "azure_g6_resources_created": 0,
+  "current_v3_sha": "78812908a9f249b673f36a8de17fe449195a1549",
+  "current_v3_tree": "0a690968ab746688d6bd00cdd29467d497c348ee",
+  "decision_independent_code_gaps_remaining": 0,
+  "external_input_count": 3,
+  "external_input_register_sha256": "b3450b15c44180674701b11ac6d416a313a3b96729b14e6e467e1dcdd90b0724",
+  "final_result": "G5_BLOCKED_AWAITING_CONSOLIDATED_EXTERNAL_INPUTS",
+  "g6_started": false,
+  "normalized_nonblocking_context": {
+    "Source10:X04-X07": "PRESERVED_CONTEXTUAL_DEFERRED",
+    "Source4:DC2": "PRESERVED_SOURCE_CLARIFICATION",
+    "Source7:R86": "PRESERVED_SOURCE_CLARIFICATION",
+    "Source9:extras": "PRESERVED_NON_NORMATIVE_CONTEXT"
+  },
+  "production_db_mutations": 0,
+  "real_amec_bytes_read": 0,
+  "source10_reconciliation": "COMPLETE",
+  "source11_reconciliation": "COMPLETE",
+  "source1_to_source11_ledger_rows": 1030,
+  "t6b_reruns": 0
+}

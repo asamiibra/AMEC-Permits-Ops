@@ -1,0 +1,12 @@
+{
+  "capability": "PASS",
+  "source12_legacy_finance_real_data_reconciliation": "PENDING_G14_REAL_DATA_AUTHORITY",
+  "source12_legacy_finance_reconciliation_capability": "PASS",
+  "source12_owner_real_data_finance_acceptance": "NOT_EXECUTED",
+  "source12_real_data_finance_reconciliation_executions": 0,
+  "synthetic_fixture": {
+    "duplicate_or_conflicting_identity": "FAIL_CLOSED",
+    "historical_identity_preserved": true,
+    "provenance_required": true
+  }
+}

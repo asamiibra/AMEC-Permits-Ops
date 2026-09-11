@@ -1,0 +1,133 @@
+{
+  "g5_open_code_gaps": 0,
+  "gaps": [
+    {
+      "description": "Owner-style Project Finance Master/cockpit | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-01",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Project Total Receipts, invoice count/billed, and Balance automatic projection | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-02",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Per-milestone Invoice / Receipt IDs / Actual Collected projection | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-03",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Company/YTD Invoiced vs Collected KPIs | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-04",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Exact recurring monthly supervision billing scheduler/work queue | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-05",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Structured billing/service period | 🟡",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-06",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Exact same-project Clone Previous Invoice workflow | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-07",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Exact AMEC global invoice numbering policy/format | 🟡",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-08",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Explicit project-local invoice sequence/ordinal | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-09",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Owner-exact Invoice Report columns/history | 🟡",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-10",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Owner-exact Open Invoice/receivable work queue | 🟡",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-11",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Full payment-entry/evidence/allocation UI and acceptance tests | 🟡",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-12",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Invoice fully-paid → project/milestone automatic rollup | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-13",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Per-project Payment Report/history | 🟡/🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-14",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Finance/secretary capability mapping | 🟡 — product/authority decision",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-15",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Engineering/PM billing-request UX | 🟡",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-16",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "QAR Amount conversion/provenance for non-QAR contracts | 🔴 rule not established",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-17",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Expected EXP % in Project Master | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-18",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Legacy finance/server migration + reconciliation | 🔴",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-19",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Real-data Owner acceptance | 🔴 separate future gate",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-20",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    },
+    {
+      "description": "Deployment/runtime acceptance of current-main Billing functionality | Not proven by this review",
+      "g5_code_gap": false,
+      "id": "SOURCE12-GAP-21",
+      "status": "CLOSED_IN_SOURCE12_CODE_OR_EXACT_DOWNSTREAM_GATE"
+    }
+  ],
+  "register": "SOURCE12_FINAL_21_GAP_ITEMS",
+  "source12_final_gap_items": 21
+}

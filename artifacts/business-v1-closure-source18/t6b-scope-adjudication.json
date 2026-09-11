@@ -1,0 +1,12 @@
+{
+  "scope_manifest": "artifacts/t6b-independent-acceptance/T6B_QUALIFIED_SCOPE_MANIFEST.json",
+  "qualified_scope_hash": "sha256:cb88dd82c8bd0541d736ec9f75bb16ef759faf466a8ddd26f1c495035acc4035",
+  "qualified_application_persistence_bytes_changed": false,
+  "changed_qualified_paths": [],
+  "scoped_bytes_identical": true,
+  "t6b_sqlserver_qualification": "PASS_REUSED",
+  "application_persistence_closed": true,
+  "independent_acceptance": "PASS_REUSED",
+  "reruns": 0,
+  "basis": "Source16-18 changes are pure domain controls, tests, and reconciliation evidence; no listed qualified consumer or migration path changed."
+}

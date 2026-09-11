@@ -1,0 +1,57 @@
+{
+  "ledger": "BUSINESS_V1_SOURCE_SUPERSESSION_AND_CLARIFICATION",
+  "precedence": [
+    {
+      "order": 1,
+      "role": "baseline workflow and amendments",
+      "source": "Source1"
+    },
+    {
+      "order": 2,
+      "role": "requirements refinement",
+      "source": "Source2"
+    },
+    {
+      "order": 3,
+      "role": "permit-module controls",
+      "source": "Source3"
+    },
+    {
+      "order": 4,
+      "role": "licensing and eligibility controls",
+      "source": "Source4"
+    },
+    {
+      "order": 5,
+      "role": "workflow v3 refinement",
+      "source": "Source5"
+    },
+    {
+      "order": 6,
+      "role": "commercial/operational closure contract",
+      "source": "Source6"
+    },
+    {
+      "order": 7,
+      "role": "current operating workflow; R86 remains clarification-required",
+      "source": "Source7"
+    },
+    {
+      "order": 8,
+      "role": "compliance workflow; 32 post-matrix additions refine the original EC matrix",
+      "source": "Source8"
+    },
+    {
+      "order": 9,
+      "role": "current reconciliation and closure contract",
+      "source": "Source9"
+    }
+  ],
+  "rules": [
+    "Later sources refine earlier requirements only where they are explicit; no earlier control is silently deleted.",
+    "Source8 EC-126..EC-157 are derived ledger IDs for the 32 post-matrix additions and are not claimed as source-native IDs.",
+    "Source9 C10, E09-E11, F09-F10, and G05-G06 are present in source tables but outside the current normative enumeration; they remain clarification rows.",
+    "No owner-approved client-delay commercial-handover threshold was present in the supplied source set; no day count is invented.",
+    "Current authority policy and current Committee-form status require current official or Owner-approved provenance; synthetic repository text is insufficient."
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "accepted_manifest_sha256": "91bd9d9199f6b335e00f42dbf43e937740374d196cdcafbc219fb2b6722e20d5",
+  "application_persistence_closed": true,
+  "current_v3_sha": "928d9ad45357b57bb0f5d226cb8586b7a536fdc3",
+  "current_v3_tree": "e05139c3689843c092023d751809924bba974338",
+  "independent_acceptance": "PASS",
+  "qualified_paths": [
+    {
+      "accepted_sha256": "221ee56823ada56c6b58ddfbabc4e2f60f5dce338f7878e72ac61754232a5e29",
+      "current_sha256": "221ee56823ada56c6b58ddfbabc4e2f60f5dce338f7878e72ac61754232a5e29",
+      "identical": true,
+      "path": "backend/app/models/entities.py"
+    },
+    {
+      "accepted_sha256": "18462f46902479f522f8411abf8a8b33142d67c2d95d46deef0d3886e197294d",
+      "current_sha256": "18462f46902479f522f8411abf8a8b33142d67c2d95d46deef0d3886e197294d",
+      "identical": true,
+      "path": "backend/app/models/phase4_entities.py"
+    },
+    {
+      "accepted_sha256": "484d6cf09f859c4ccdf04d43bdddebc432811ab732999f36fb9d30d1754eb897",
+      "current_sha256": "484d6cf09f859c4ccdf04d43bdddebc432811ab732999f36fb9d30d1754eb897",
+      "identical": true,
+      "path": "backend/app/schemas/phase4.py"
+    },
+    {
+      "accepted_sha256": "38e1e7f2dc2c6a299196b6d8e671433dc813543fc28c7510a9f597a9294e1e83",
+      "current_sha256": "38e1e7f2dc2c6a299196b6d8e671433dc813543fc28c7510a9f597a9294e1e83",
+      "identical": true,
+      "path": "backend/app/services/phase4.py"
+    },
+    {
+      "accepted_sha256": "e83c893268a2b5a681f18f00174ac9ab44be3910dbcd24f169e42ef92d442728",
+      "current_sha256": "e83c893268a2b5a681f18f00174ac9ab44be3910dbcd24f169e42ef92d442728",
+      "identical": true,
+      "path": "backend/app/services/backend_realignment.py"
+    },
+    {
+      "accepted_sha256": "b705b19dac5666fef711d3627190f7b30d3e601746e414bcc782f0e80b2585f9",
+      "current_sha256": "b705b19dac5666fef711d3627190f7b30d3e601746e414bcc782f0e80b2585f9",
+      "identical": true,
+      "path": "backend/migrations/versions/baseline_phase4_v36_azure_sql.py"
+    },
+    {
+      "accepted_sha256": "50812957557787f0da5d002724031e0de4201f18b737516b01f9cfeea61fb330",
+      "current_sha256": "50812957557787f0da5d002724031e0de4201f18b737516b01f9cfeea61fb330",
+      "identical": true,
+      "path": "alembic.ini"
+    }
+  ],
+  "reruns": 0,
+  "scoped_bytes_identical": true
+}

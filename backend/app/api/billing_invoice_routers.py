@@ -34,6 +34,9 @@ from ..models import (
 )
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
 from ..services.owner_decisions import runtime_decision_value
+from ..services.commercial_contract_controls import compose_amec_invoice_reference
+from ..services.source12_finance_controls import production_numbering_gate
+from ..config.settings import get_settings
 from ..services.week45 import stable_hash
 
 
@@ -796,7 +799,7 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
     _derive_due_date(revision, event_type="ISSUE", event_id=issue_event_id, event_at=issue_date)
     account = _resolve_account(db, revision.currency or plan_revision.currency, issue_date, payload.get("financial_account_version_id"))
     template = select_template(db, payload.get("template_version_id"), "INVOICE")
-    official_ref = _allocate_invoice_ref(db, issue_date, _actor(request, payload))
+    official_ref = _allocate_invoice_ref(db, issue_date, _actor(request, payload), contract=contract, revision=revision)
     artifact = render_artifact(db, artifact_type="INVOICE", context_type="INVOICE_REVISION", context_id=revision.id, payload={"invoice_reference": official_ref, "contract_reference": contract.contract_reference, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "project_context": revision.contract_project_context_snapshot or {}, "description": revision.description, "currency": revision.currency, "lines": [_row(x) for x in _lines(db, revision.id)], "gross_charge_total": str(revision.gross_charge_total), "payable_total": str(revision.payable_total), "amount_in_words": revision.amount_in_words, "invoice_date": issue_date.isoformat(), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "financial_account_version_id": account.id, "source_sample_policy": "REFERENCE_ONLY"}, source_revision_ids=[contract.id, revision.controlling_contract_revision_id, plan_revision.id if plan_revision else revision.id], template_version_id=template.id, actor=_actor(request, payload), correlation_id=_corr(request), project_id=project.id if project else None)
     event = InvoiceIssueEvent(id=issue_event_id, invoice_id=invoice.id, invoice_revision_id=revision.id, official_invoice_ref=official_ref, invoice_date=issue_date, issued_by=_actor(request, payload), idempotency_key=key, template_version_id=template.id, financial_account_version_id=account.id, rendered_artifact_id=artifact.id, source_snapshot={"contract_revision_id": revision.controlling_contract_revision_id, "billing_plan_revision_id": revision.billing_plan_revision_id, "financial_account_version_id": account.id, "template_version_id": template.id, "artifact_id": artifact.id})
     db.add(event); db.flush(); invoice.invoice_reference = official_ref; invoice.invoice_ref_status = "ALLOCATED"; invoice.status = "ISSUED"; revision.status = "ISSUED"
@@ -807,12 +810,26 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
     return {"invoice": _row(invoice), "revision": _row(revision), "issue": _row(event), "artifact": _row(artifact), "financial_account": _mask_account(account)}
 
 
-def _allocate_invoice_ref(db: Session, issue_date: date, actor: str) -> str:
+def _allocate_invoice_ref(db: Session, issue_date: date, actor: str, *, contract: Contract, revision: InvoiceRevision) -> str:
     policy = db.scalar(select(InvoiceNumberingPolicy).where(InvoiceNumberingPolicy.policy_key == "INVOICE" ).with_for_update())
+    if not get_settings().synthetic_only:
+        gate = production_numbering_gate(
+            legacy_finance_reconciled=bool(runtime_decision_value(db, "SOURCE12_LEGACY_FINANCE_RECONCILIATION_CAPABILITY", False)),
+            historical_global_sequence_reconciled=bool(runtime_decision_value(db, "HISTORICAL_GLOBAL_SEQUENCE_RECONCILED", False)),
+            next_global_sequence_exactly_derived=bool(runtime_decision_value(db, "NEXT_GLOBAL_SEQUENCE_EXACTLY_DERIVED", False)),
+        )
+        if not gate["ready"]:
+            raise HTTPException(409, {"code": "LEGACY_FINANCE_RECONCILIATION_REQUIRED_BEFORE_PRODUCTION_NUMBERING", "required_controls": gate["controls"]})
     if not policy:
         policy = InvoiceNumberingPolicy(policy_key="INVOICE", prefix="INV-AMEC", padding=6, next_number=1, version="V1", status="ACTIVE", no_reuse=True, updated_by=actor); db.add(policy); db.flush()
     if policy.status != "ACTIVE": raise HTTPException(409, {"code": "INVOICE_NUMBERING_POLICY_INACTIVE"})
-    value = f"{policy.prefix}-{issue_date.year}-{policy.next_number:0{policy.padding}d}"; policy.next_number += 1; policy.updated_by = actor; return value
+    context = revision.contract_project_context_snapshot or {}
+    project_reference_segment = contract.project_opportunity_ref or context.get("project_opportunity_ref") or context.get("project_reference")
+    try:
+        value = compose_amec_invoice_reference(issue_year=issue_date.year, project_reference_segment=str(project_reference_segment or ""), global_sequence=policy.next_number, sequence_padding=policy.padding)
+    except ValueError as exc:
+        raise HTTPException(409, {"code": "COMMERCIAL_PROJECT_REFERENCE_REQUIRED"}) from exc
+    policy.next_number += 1; policy.updated_by = actor; return value
 
 
 def _receivable(db: Session, invoice: Invoice, revision: InvoiceRevision | None) -> dict[str, Any]:

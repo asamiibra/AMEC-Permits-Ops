@@ -1,0 +1,28 @@
+{
+  "baseline": "artifacts/t6b-reuse/T6B_QUALIFIED_SCOPE_MANIFEST.json",
+  "changes": [
+    {
+      "path": "backend/app/observability.py",
+      "reason": "logging-only; not imported or executed by frozen T6B consumer",
+      "t6b_scope_intersection": false
+    },
+    {
+      "path": "backend/tests/test_observability.py",
+      "reason": "test-only",
+      "t6b_scope_intersection": false
+    },
+    {
+      "path": "artifacts/business-v1-closure-source9/*",
+      "reason": "evidence-only",
+      "t6b_scope_intersection": false
+    },
+    {
+      "path": "docs/business-v1-closure-source9/*",
+      "reason": "documentation-only",
+      "t6b_scope_intersection": false
+    }
+  ],
+  "decision": "PASS",
+  "decision_rule": "No qualified application/persistence path or frozen consumer/archive path changed; T6B reuse remains eligible pending final gate review.",
+  "map": "T6B_SCOPE_IMPACT"
+}

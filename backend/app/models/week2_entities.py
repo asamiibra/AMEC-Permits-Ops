@@ -2,7 +2,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
-from sqlalchemy import JSON, Boolean, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, Float, LargeBinary, String, Text
+from sqlalchemy import JSON, Boolean, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, Float, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, utcnow
 
@@ -64,6 +64,7 @@ class Document(Base):
 
 class DocumentVersion(Base):
     __tablename__ = "document_versions"
+    __table_args__ = (UniqueConstraint("document_id", "version_number", name="uq_document_version_number"),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), nullable=False, index=True)
     version_number: Mapped[int] = mapped_column(Integer, nullable=False)

@@ -1,0 +1,17 @@
+{
+  "admin_operating_model": "SCOPED_CAPABILITY_AND_WORK_QUEUE_WITHIN_EXISTING_PERSONA_MODEL",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "explicit_requirement_count": 196,
+  "final_regulatory_work_packages": 15,
+  "final_regulatory_work_packages_open": 0,
+  "finance_revalidation_enumerated_count": 36,
+  "latest_governing_contract_source": "SOURCE18",
+  "ledger": "SOURCE14_FINAL_GOVERNING",
+  "parallel_billing_system_created": false,
+  "parallel_regulatory_source_of_truth_created": false,
+  "primary_requirement_count": 160,
+  "requirement_orphans": 0,
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d"
+}
