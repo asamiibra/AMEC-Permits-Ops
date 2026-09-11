@@ -33,6 +33,10 @@ def _activated_contract(client, name: str = "Billing Lifecycle Fixture"):
     assert authority.status_code == 200, authority.text
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-billing-contract:{contract_id}"})
     assert accepted.status_code == 200, accepted.text
+    uploaded = client.post(f"/api/admin/contracts/{contract_id}/documents", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "billing-contract-authority"}, json={"source_role": "EXECUTED_CONTRACT", "source_filename": "billing-executed-contract.txt", "content": f"synthetic executed billing copy for {contract_id}", "reason": "Billing activation prerequisite"})
+    assert uploaded.status_code == 200, uploaded.text
+    executed = client.post(f"/api/admin/contracts/{contract_id}/executed-evidence", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "billing-contract-authority"}, json={"document_version_id": uploaded.json()["document_version_id"], "evidence_reference": f"synthetic://billing-executed/{contract_id}", "reason": "Billing activation prerequisite"})
+    assert executed.status_code == 200, executed.text
     activated = client.post(
         f"/api/admin/contracts/{contract_id}/activate-project",
         headers=headers("OWNER_SPONSOR"),
