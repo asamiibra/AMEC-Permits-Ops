@@ -326,7 +326,9 @@ resource sqlDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
   scope: sqlServer
   properties: {
     workspaceId: logAnalytics.id
-    logs: [{ categoryGroup: 'allLogs', enabled: true }]
+    // SQL diagnostic category groups are API-version/region specific. ACA
+    // environment logs capture the qualification execution; keep SQL metrics
+    // here and do not submit an unsupported category group.
     metrics: [{ category: 'AllMetrics', enabled: true }]
   }
 }

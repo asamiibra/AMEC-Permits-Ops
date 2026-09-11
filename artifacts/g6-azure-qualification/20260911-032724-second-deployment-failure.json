@@ -1,0 +1,35 @@
+{
+  "qualification_id": "g6-20260911-b478dcbf",
+  "resource_group": "rg-proposalops-g6-qual-20260911-b478dcbf",
+  "release_sha_before_followup": "6a492e86503dfffed36e1302a16bc5a62885b01b",
+  "release_tree_before_followup": "74ab59eb0c92af4939d7d6b75482cb93439b1c21",
+  "deployment_name": "g6-20260911-b478dcbf-topology-fix2",
+  "failure_evidence_durable": true,
+  "first_causal_blocker": {
+    "layer": "MONITORING_CONTROL_PLANE",
+    "resource": "g6-to-log-analytics",
+    "code": "BadRequest",
+    "message": "CategoryGroup: 'allLogs' is not supported, supported ones are: ''."
+  },
+  "proven_successful_layers": [
+    "ACR",
+    "QUAL_RUNTIME_UAMI",
+    "QUAL_MIGRATION_UAMI",
+    "VNET",
+    "SQL_PRIVATE_DNS_ZONE_AND_LINK",
+    "SQL_SERVER",
+    "SQL_DATABASE",
+    "SQL_PRIVATE_ENDPOINT",
+    "ACA_ENVIRONMENT",
+    "RUNTIME_JOB_DEFINITION",
+    "MIGRATION_JOB_DEFINITION"
+  ],
+  "image_digest": "sha256:4ff76a6533c6a1e66f10a460a8d6717439d33f5e477c6062cee44d717f518358",
+  "image_pull": "NOT_STARTED",
+  "container_start": "NOT_STARTED",
+  "managed_identity_token": "NOT_STARTED",
+  "sql_auth": "NOT_STARTED",
+  "migration": "NOT_STARTED",
+  "cleanup": "NOT_PERFORMED_EVIDENCE_PRESERVED",
+  "prior_g6_6_failure_causal_root": "NOT_FULLY_PROVEN_RESOURCE_ALREADY_DELETED"
+}
