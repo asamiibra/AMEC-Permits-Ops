@@ -84,7 +84,7 @@ test.describe("Owner Content Library product acceptance", () => {
       expect(retrievalRequested).toBe(false);
       await page.screenshot({ path: testInfo.outputPath(`owner-content-library-${name}.png`), fullPage: true });
 
-      await page.getByRole("button", { name: "Open" }).first().click();
+      await page.getByRole("button", { name: "Open", exact: true }).first().click();
       await expect(page.getByRole("heading", { name: /F-0001 · Permit application form/ })).toBeVisible();
       const formDetails = page.getByRole("dialog", { name: /F-0001 · Permit application form/ });
       await expect(page.getByText("Current source file")).toBeVisible();
