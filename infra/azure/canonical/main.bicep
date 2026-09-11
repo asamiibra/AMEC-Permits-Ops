@@ -129,7 +129,11 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   tags: tags
   properties: {
     adminUserEnabled: false
-    publicNetworkAccess: 'Disabled'
+    // G4 does not require a private-only registry.  Temporary Azure uses an
+    // authenticated public endpoint; image pulls remain managed-identity
+    // authenticated and anonymous pulls stay disabled.
+    anonymousPullEnabled: false
+    publicNetworkAccess: 'Enabled'
   }
 }
 
@@ -301,6 +305,9 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
 resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
   name: sqlServerName
   location: location
+  // SQL_SERVER_CONTROL_PLANE_IDENTITY: this UAMI is for the Azure SQL
+  // resource's control-plane operations only. It is not a client token
+  // selector for apiApp, workerApp, or migrationJob.
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: { '${sqlIdentity.id}': {} }
@@ -402,8 +409,9 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'SYNTHETIC_ONLY', value: 'false' }
           { name: 'REAL_DATA_ALLOWED', value: 'false' }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
-          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: sqlIdentity.properties.clientId }
-          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: sqlIdentity.properties.principalId }
+          // The API token selector must match the UAMI attached to apiApp.
+          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: apiIdentity.properties.clientId }
+          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: apiIdentity.properties.principalId }
           { name: 'DATABASE_URL', value: databaseUrl }
           { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
@@ -464,8 +472,9 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'SYNTHETIC_ONLY', value: 'false' }
           { name: 'REAL_DATA_ALLOWED', value: 'false' }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
-          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: sqlIdentity.properties.clientId }
-          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: sqlIdentity.properties.principalId }
+          // The worker token selector must match the UAMI attached to workerApp.
+          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: workerIdentity.properties.clientId }
+          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: workerIdentity.properties.principalId }
           { name: 'DATABASE_URL', value: databaseUrl }
           { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
@@ -522,8 +531,9 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
           { name: 'SYNTHETIC_ONLY', value: 'false' }
           { name: 'REAL_DATA_ALLOWED', value: 'false' }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
-          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: sqlIdentity.properties.clientId }
-          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: sqlIdentity.properties.principalId }
+          // The migration token selector must match the UAMI attached to migrationJob.
+          { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: migrationIdentity.properties.clientId }
+          { name: 'AZURE_SQL_UAMI_PRINCIPAL_ID', value: migrationIdentity.properties.principalId }
           { name: 'DATABASE_URL', value: databaseUrl }
           { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
