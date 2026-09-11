@@ -9,6 +9,10 @@
 - `ASSURANCE_PACKAGE_COMMIT=1f4f45b55ab4f3a308afc7ab6cdf9d8c5dd836bc`
 - `REVIEW_HEAD=external final report`
 - `CURRENT_ACCEPTED_RELEASE=release/production-stabilization-v3@96bb23378d3a78855a315ea751e2b3b66839cb02`
+- `ACCEPTED_RELEASE_ADVANCED_DURING_MODULE_RUN=true`
+- `LATEST_REMOTE_RELEASE_SHA=e6d214ee3af7ff4559d1d5234afaf59763f42924`
+- `LATEST_REMOTE_RELEASE_TREE=ef63c78696aac2224a2b71200b87d33c10e07fba`
+- `EXPECTED_FUTURE_BASE_SYNC_REQUIRED=true`
 - `INTEGRATION_TARGET=next/module-integration@96bb23378d3a78855a315ea751e2b3b66839cb02`
 - `CONTENT_LIBRARY_NEXT_RELEASE_READY=CONDITIONAL_PENDING_INTEGRATION_REVIEW`
 - `MIGRATION_CHANGED=false`
@@ -20,7 +24,7 @@
 - `HISTORICAL_CONTENT_LIBRARY_BRANCH_COUNT=18`
 - `HISTORICAL_UNIQUE_COMMITS=21`
 
-The Content Library-focused acceptance suite is green (`44 passed, 1 skipped`). Fresh BD, permit and final-hardening cross-module checks pass. The module is not represented as the platform-wide production-readiness decision.
+The Content Library-focused acceptance suite is green (`44 passed, 1 skipped`). Fresh BD, permit and final-hardening cross-module checks pass. The module is not represented as the platform-wide production-readiness decision. The release branch advanced externally after the frozen base was established; no synchronization was performed in this run.
 
 ## CL01–CL55 ledger
 
