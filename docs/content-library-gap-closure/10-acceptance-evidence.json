@@ -5,8 +5,9 @@
   "module_final_executable_tree": "c3257da1bdd1ffaa40df992fe7a03378741a451e",
   "module_base_sha": "96bb23378d3a78855a315ea751e2b3b66839cb02",
   "module_base_tree": "34350399d5a113f4d2a21f728b1220f9c39c48f3",
-  "release_sha": "e6d214ee3af7ff4559d1d5234afaf59763f42924",
-  "release_tree": "ef63c78696aac2224a2b71200b87d33c10e07fba",
+  "release_sha": "f7dd69c64a209cc91e65e1a41b49413ea0d13177",
+  "release_tree": "73a9464a530ace754969db2a5f01649975412938",
+  "release_delta_scope": "Contract & Mobilization only; no Content Library files",
   "release_advanced_during_run": true,
   "future_base_sync_required": true,
   "backend": {"result":"PASS","passed":869,"skipped":33,"failed":0,"warnings":4,"duration":"15:07"},
@@ -14,6 +15,6 @@
   "browser": {"result":"PASS","desktop":1,"mobile":1},
   "migration": {"result":"PASS","head":"source18_committee_implementation_v1","parallel_head_count":0,"schema_change":false},
   "safety": {"production":false,"preprod":false,"azure":false,"entra":false,"dns":false,"real_amec":false,"real_dsm":false,"protected_actions_by_ai":false},
-  "independent_review": "PENDING",
-  "module_assurance": "PENDING_INDEPENDENT_REVIEW"
+  "independent_review": "BLOCKED_NOT_AVAILABLE",
+  "module_assurance": "BLOCKED"
 }

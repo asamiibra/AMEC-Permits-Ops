@@ -43,9 +43,11 @@ CONTENT_LIBRARY_BOUNDARY_TESTS=PASS
 PROJECT_REQUIREMENT_BOUNDARY_TESTS=PASS
 MODULE_BROWSER_ACCEPTANCE=PASS
 
-INDEPENDENT_CONTENT_LIBRARY_REVIEW=PENDING
-CONTENT_LIBRARY_MODULE_ASSURANCE=PENDING_INDEPENDENT_REVIEW
+INDEPENDENT_CONTENT_LIBRARY_REVIEW=BLOCKED_NOT_AVAILABLE
+CONTENT_LIBRARY_MODULE_ASSURANCE=BLOCKED
 CONTENT_LIBRARY_NEXT_RELEASE_READY=false
 ```
 
-The release branch advanced externally from the frozen baseline to `e6d214ee3af7ff4559d1d5234afaf59763f42924` (tree `ef63c78696aac2224a2b71200b87d33c10e07fba`). This frozen-baseline module branch intentionally does not merge that later release tip; future integration must perform governed base synchronization first.
+The release branch advanced externally from the frozen baseline to `f7dd69c64a209cc91e65e1a41b49413ea0d13177` (tree `73a9464a530ace754969db2a5f01649975412938`). Its observed delta is Contract & Mobilization only; no Content Library files are in that delta. This frozen-baseline module branch intentionally does not merge that later release tip; future integration must perform governed base synchronization first.
+
+The independent exact-head cold review could not be obtained as a usable result through the review task channel. The candidate therefore remains blocked despite the completed local acceptance evidence; no self-certification is substituted for that required gate.
