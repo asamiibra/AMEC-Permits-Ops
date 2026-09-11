@@ -1,0 +1,56 @@
+CL_ID	ACCEPTANCE_CONTROL	STATUS	EVIDENCE_OR_BLOCKER
+CL01	Pinned Owner baseline SHA/tree exact	PASS	96bb23378d3a78855a315ea751e2b3b66839cb02 / 34350399d5a113f4d2a21f728b1220f9c39c48f3
+CL02	Authorized isolated implementation branch	PASS	module/content-library-gap-closure-v1 created directly from pinned SHA
+CL03	Integration target remains read-only	PASS	next/module-integration unchanged at pinned SHA
+CL04	Production/release branches remain read-only	PASS	No release/main mutation by this run
+CL05	Owner source manifest complete	PASS	6 sources; manifest record hash in 00-owner-source-manifest.md
+CL06	Atomic requirement ledger complete	PASS	81 atomic rows with required provenance/location fields
+CL07	Four-library architecture	PASS	Forms, Reports, Engineering Works, Definitions remain one projection
+CL08	Content Library is not operational system of record	PASS	Project/evidence/permit/engineering owning seams preserved
+CL09	Checklist is a Form	PASS	No parallel Checklist master library added
+CL10	Project checklist is requirement-item projection	PASS	Project Requirement ownership remains outside Content Library
+CL11	Official and AMEC-internal forms separated	PASS	Typed seam preserved; official authority remains Source18-owned
+CL12	Currentness fails closed	PASS	Current/reviewed version gates preserved
+CL13	AUTHORITY_ONLY protection	PASS	No AMEC/AI edit or prefill authority added
+CL14	Deterministic governed resolver	PASS	Purpose/module validation and canonical candidates enforced
+CL15	Requirements-engine boundary	PASS	No Content Library requirement engine added
+CL16	Dynamic requirement ownership boundary	NOT_APPLICABLE	Requirements/Project owns dynamic applicability
+CL17	Evidence/VerifiedAssertion boundary	PASS	No duplicate evidence truth added
+CL18	Verified prefill boundary	PASS	Governed prefill and adversarial tests pass
+CL19	Regulatory packet immutability boundary	PASS	AuthorityCase/SubmissionPackage remain owning-domain records
+CL20	Human release/sign/stamp/submit boundary	PASS	No automation authority added
+CL21	Report template vs Technical Report boundary	PASS	Project artifact path remains separate
+CL22	Engineering Work vs professional approval boundary	PASS	Engineering approval remains Engineering-owned
+CL23	Definitions lifecycle	PASS	Visibility, collision, revision, and history closure included
+CL24	Letterhead/correspondence boundary	BLOCKED	Dedicated adapter/evidence not proven; no correspondence redesign authorized
+CL25	Drawing approval boundary	NOT_APPLICABLE	Engineering/Project owns approved drawing baseline
+CL26	Handover boundary	NOT_APPLICABLE	Handover owns delivery state
+CL27	Proposal/BD consumer seam	PASS	Canonical resolver consumer tests pass
+CL28	Permit/authority consumer seam	PASS	Source18/Permit owns official context and packet
+CL29	Engineering consumer seam	PASS	Canonical current content consumed without approval bypass
+CL30	Finance/contract boundary	NOT_APPLICABLE	Finance/Contract remain transactional sources of truth
+CL31	Operations/My Work boundary	BLOCKED	Owner persona/workflow decision unavailable in source set
+CL32	AI boundary	PASS	Discover/retrieve/suggest only; protected actions remain denied
+CL33	Search/Used In discovery	PASS	Search is discovery; resolver remains selection authority
+CL34	RBAC capability enforcement	PASS	Content/dependency capabilities are server-enforced
+CL35	Audit/lineage	PASS	Actor, reason, versions, provenance, and dependency evidence preserved
+CL36	Dependency revalidation	PASS	Dedicated write/revalidate gates and tests pass
+CL37	Historical branch reconciliation	PASS	Historical refs classified; no wholesale merge
+CL38	Migration graph single head	PASS	source18_committee_implementation_v1; no migration added
+CL39	Isolated persistence verification	PASS	Synthetic SQLite focused suite reopens state/audit paths
+CL40	Focused backend regression	PASS	57 passed, 1 skipped, 1 warning
+CL41	Frontend unit regression	PASS	21 files, 113 tests passed
+CL42	Frontend production build	PASS	Vite build passed; existing chunk-size warning only
+CL43	Content Library browser acceptance	PASS	2 passed: desktop and mobile
+CL44	Module negative matrix	PASS	Gap-closure invalid-state and unauthorized-state tests pass
+CL45	Cross-domain negative matrix	BLOCKED	Full cross-domain matrix not independently completed in this run
+CL46	Positive synthetic scenarios A-F	BLOCKED	Full cross-module scenario evidence not independently completed in this run
+CL47	Complete backend regression	BLOCKED	Interrupted after 558 passed / 11 skipped at a long-running Phase 5 preflight; no final suite result
+CL48	Static hygiene	PASS	git diff --check and targeted source inspection clean
+CL49	Unsupported implementation guesses	PASS	0 recorded; only six proven gaps implemented
+CL50	Duplicate canonical systems	PASS	0 new engines/sources of truth
+CL51	Migration mutation discipline	PASS	No schema effect; one existing head
+CL52	Remote release delta classification	PASS	Bridge-only descendant delta; Content Library touch false
+CL53	Final branch push safety	PASS	Module-only branch, no force/reset/merge to protected refs
+CL54	Independent cold review	BLOCKED	No independent review context/provider available in this execution
+CL55	Final closure gate	BLOCKED	Applicable blocked controls remain; integration is prohibited
