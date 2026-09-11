@@ -23,6 +23,16 @@ def headers(role: str) -> dict[str, str]:
     return {"X-Dev-Role": role}
 
 
+def record_checker(client, contract_id: str, actor: str = "synthetic-contract-checker"):
+    response = client.post(
+        f"/api/admin/contracts/{contract_id}/checker",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": actor},
+        json={"reason": "Synthetic independent Contract reconciliation"},
+    )
+    assert response.status_code == 200, response.text
+    return response
+
+
 @pytest.fixture(autouse=True)
 def clean_owner_fixture():
     yield
@@ -262,6 +272,7 @@ def test_contract_manual_policy_permissions_and_explicit_project_activation(clie
     blocked_activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-DEMO-001", "start_date": "2026-08-12", "idempotency_key": "activation-before-accept"})
     assert blocked_activation.status_code == 409
     assert blocked_activation.json()["detail"]["code"] == "CONTRACT_ACCEPTANCE_REQUIRED"
+    record_checker(client, contract_id)
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-activation:{contract_id}"})
     assert accepted.status_code == 200, accepted.text
     activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-DEMO-001", "start_date": "2026-08-12", "idempotency_key": "activation-skyline-v1"})
@@ -306,6 +317,7 @@ def test_contract_reconciliation_read_model_and_billing_seam(client):
     assert body["client_inputs"][0]["title"] == "Signed LPO"
     before = client.get(f"/api/admin/contracts/{contract_id}/billing-context", headers=headers("OWNER_SPONSOR")).json()
     assert before["status"] == "NEEDS_CONTRACT_AUTHORITY"
+    record_checker(client, contract_id)
     authority = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR"), json={"decision": "APPROVE", "reason": "Owner authority review complete"})
     assert authority.status_code == 200, authority.text
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-reconciliation:{contract_id}"})
@@ -363,6 +375,7 @@ def test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptanc
     assert changed["client_fields"]["client_name"]["source"] == "CONTRACT_REVISION"
     assert changed["origin"]["accepted_revision_id"] == accepted_revision["id"]
 
+    record_checker(client, contract_id)
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept:{contract_id}"})
     assert accepted.status_code == 200, accepted.text
     assert accepted.json()["decision"] == "ACCEPTED"
@@ -393,3 +406,66 @@ def test_contract_origin_safe_default_blocks_legacy_acceptance_and_activation(cl
     activation = client.post(f"/api/admin/contracts/{legacy['id']}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-LEGACY-001", "start_date": "2026-08-15", "idempotency_key": "legacy-activation-blocked"})
     assert activation.status_code == 409
     assert activation.json()["detail"]["code"] == "CONTRACT_ACCEPTANCE_REQUIRED"
+
+
+def test_contract_authority_review_does_not_accept_or_activate_and_checker_is_explicit(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Authority Boundary Fixture")
+    created = client.post(
+        f"/api/admin/contracts/from-proposal/{proposal_id}",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "contract-maker"},
+        json={},
+    )
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+
+    direct_accept = client.post(
+        f"/api/admin/contracts/{contract_id}/accept",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "contract-maker"},
+        json={"idempotency_key": "boundary-direct-accept"},
+    )
+    assert direct_accept.status_code == 409
+    assert direct_accept.json()["detail"]["code"] == "CONTRACT_ACCEPT_BLOCKED"
+    assert "contract-preparer" not in str(direct_accept.json())
+
+    same_actor_checker = client.post(
+        f"/api/admin/contracts/{contract_id}/checker",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "contract-maker"},
+        json={},
+    )
+    assert same_actor_checker.status_code == 409
+    assert same_actor_checker.json()["detail"]["code"] == "MAKER_CHECKER_MUST_BE_DISTINCT"
+
+    checked = record_checker(client, contract_id, actor="independent-contract-checker")
+    assert checked.json()["maker_checker"]["preparer"] == "contract-maker"
+    assert checked.json()["maker_checker"]["checker"] == "independent-contract-checker"
+    assert checked.json()["maker_checker"]["proposal_reconciled"] is True
+
+    authority = client.post(
+        f"/api/admin/contracts/{contract_id}/authority",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "contract-authority"},
+        json={"decision": "APPROVE", "reason": "Synthetic authority review"},
+    )
+    assert authority.status_code == 200, authority.text
+    assert authority.json()["contract"]["current_revision"]["status"] == "APPROVED"
+    assert authority.json()["contract"]["current_revision"]["accepted"] is False
+
+    blocked_activation = client.post(
+        f"/api/admin/contracts/{contract_id}/activate-project",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "contract-authority"},
+        json={"project_code": "AMEC-2026-901", "start_date": "2026-08-20", "idempotency_key": "boundary-activation-before-accept"},
+    )
+    assert blocked_activation.status_code == 409
+    assert blocked_activation.json()["detail"]["code"] == "CONTRACT_ACCEPTANCE_REQUIRED"
+    with SessionLocal() as db:
+        assert db.query(ProjectActivation).filter(ProjectActivation.contract_id == contract_id).count() == 0
+
+    accepted = client.post(
+        f"/api/admin/contracts/{contract_id}/accept",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "contract-authority"},
+        json={"idempotency_key": "boundary-accept"},
+    )
+    assert accepted.status_code == 200, accepted.text
+    assert accepted.json()["contract"]["current_revision"]["status"] == "FINALIZED"
+    assert accepted.json()["contract"]["current_revision"]["accepted"] is True
+    assert accepted.json()["contract"]["current_revision"]["maker_checker"]["checker"] == "independent-contract-checker"

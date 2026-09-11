@@ -27,6 +27,8 @@ def _activated_contract(client, name: str = "Billing Lifecycle Fixture"):
     created = client.post("/api/admin/contracts/from-proposal/%s" % proposal_id, headers=headers("OWNER_SPONSOR"), json={})
     assert created.status_code == 200, created.text
     contract_id = created.json()["id"]
+    checked = client.post(f"/api/admin/contracts/{contract_id}/checker", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "billing-contract-checker"}, json={"reason": "Synthetic billing fixture independent check"})
+    assert checked.status_code == 200, checked.text
     authority = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR"), json={"decision": "APPROVE", "reason": "Billing fixture authority"})
     assert authority.status_code == 200, authority.text
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-billing-contract:{contract_id}"})
@@ -141,8 +143,12 @@ def test_external_agreement_type_is_not_amec_billing_authority(client):
     created = client.post(f"/api/admin/contracts/from-proposal/{proposal_id}", headers=headers("OWNER_SPONSOR"), json={})
     assert created.status_code == 200, created.text
     contract_id = created.json()["id"]
+    checked = client.post(f"/api/admin/contracts/{contract_id}/checker", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "external-boundary-checker"}, json={"reason": "Synthetic external-agreement boundary check"})
+    assert checked.status_code == 200, checked.text
     authority = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR"), json={"decision": "APPROVE", "reason": "Boundary fixture authority"})
     assert authority.status_code == 200, authority.text
+    accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-boundary:{contract_id}"})
+    assert accepted.status_code == 200, accepted.text
     with SessionLocal() as db:
         contract = db.get(Contract, contract_id)
         contract.agreement_type = "EXTERNAL_CONSTRUCTION_AGREEMENT"

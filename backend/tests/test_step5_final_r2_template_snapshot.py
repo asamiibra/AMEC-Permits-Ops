@@ -3,7 +3,7 @@
 from backend.app.db import SessionLocal
 from backend.app.models import ContractTemplateSnapshot
 
-from backend.tests.test_admin_contract_owner_session import ensure_contract_template, headers, make_accepted_proposal
+from backend.tests.test_admin_contract_owner_session import ensure_contract_template, headers, make_accepted_proposal, record_checker
 
 
 def test_owner_capture_is_exactly_once_and_non_owner_denied(client):
@@ -49,6 +49,7 @@ def test_finalized_contract_cannot_be_backfilled(client):
     assert created.status_code == 200, created.text
     contract_id = created.json()["id"]
     client.post("/api/admin/contracts/" + contract_id + "/template-snapshot", headers=headers("OWNER_SPONSOR"), json={"reason": "Owner captured the current canonical Contract Template", "idempotency_key": "r2-finalized-capture:" + contract_id})
+    record_checker(client, contract_id)
     accepted = client.post("/api/admin/contracts/" + contract_id + "/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": "r2-finalized-accept:" + contract_id})
     assert accepted.status_code == 200, accepted.text
     blocked = client.post("/api/admin/contracts/" + contract_id + "/template-snapshot", headers=headers("OWNER_SPONSOR"), json={"reason": "Owner attempted a prohibited finalized backfill", "idempotency_key": "r2-finalized-replay:" + contract_id})
