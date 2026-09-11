@@ -45,7 +45,7 @@ CL43	Content Library browser acceptance	PASS	2 passed: desktop and mobile
 CL44	Module negative matrix	PASS	Gap-closure invalid-state and unauthorized-state tests pass
 CL45	Cross-domain negative matrix	BLOCKED	Full cross-domain matrix not independently completed in this run
 CL46	Positive synthetic scenarios A-F	BLOCKED	Full cross-module scenario evidence not independently completed in this run
-CL47	Complete backend regression	BLOCKED	Interrupted after 558 passed / 11 skipped at a long-running Phase 5 preflight; no final suite result
+CL47	Complete backend regression	PASS	Canonical post-release-sync run completed on executable accepted head: 871 passed / 33 skipped / 0 failed / 4 warnings in 31:42
 CL48	Static hygiene	PASS	git diff --check and targeted source inspection clean
 CL49	Unsupported implementation guesses	PASS	0 recorded; only six proven gaps implemented
 CL50	Duplicate canonical systems	PASS	0 new engines/sources of truth
