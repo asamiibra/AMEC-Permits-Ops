@@ -8,9 +8,13 @@ final candidate still requires the post-push governed required checks before
 formal merge.
 
 PR27_START_HEAD_SHA=14a9104982ea4ca3994f0502af3bd5937c01fdd9
+PR27_FINAL_HEAD_SHA=c97e230e820168a093d20789da28145ce2b73a82
 PR27_BASE=release/production-stabilization-v3
 PR27_MERGED=false
 REQUIRED_CHECKS=backend-regression,frontend-regression,migration-head,policy-and-security,samba-contract
+REQUIRED_CHECK_RESULTS=PASS
+G5_OWNER_OPERATING_FLOW_IMPLEMENTATION=PASS
+G6_STATUS=PRESERVED_WITH_EXACT_SCOPE_JUSTIFICATION
 UNRESOLVED_REVIEW_THREADS=0
 VERCEL_BACKEND_STATUS=LEGACY_NON_GOVERNING
 VERCEL_BACKEND_FAILURE_BLOCKS_RELEASE=false

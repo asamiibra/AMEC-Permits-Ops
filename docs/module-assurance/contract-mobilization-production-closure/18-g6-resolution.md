@@ -4,3 +4,5 @@ No closure migration or database-head change was made. The existing G6 result
 is preserved with the exact scope justification in `14-migration-db-qualification.md`.
 
 G6_STATUS=PRESERVED_WITH_EXACT_SCOPE_JUSTIFICATION
+G6_TARGETED_PORTABILITY=PASS
+G6_SCHEMA_OR_MIGRATION_CHANGE=false
