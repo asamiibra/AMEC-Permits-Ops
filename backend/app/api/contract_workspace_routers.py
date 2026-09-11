@@ -19,7 +19,7 @@ from ..db import get_db
 from ..models import Contract, ContractAdminEvidence, ContractAdminInput, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, DashboardInputItem, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProjectActivation, Role
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.admin_contract_read_model import owner_contract_extensions
-from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, create_contract_from_proposal, effective_contract_stages, now, project_activation, readiness
+from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, now, project_activation, readiness
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
 from ..config.settings import get_settings
@@ -162,6 +162,12 @@ class AcceptContractPayload(BaseModel):
 class CaptureContractTemplatePayload(BaseModel):
     reason: str = Field(default="Owner captured the current canonical Contract Template", min_length=3, max_length=1000)
     idempotency_key: str | None = Field(default=None, max_length=200)
+
+
+class ContractHandoffEvidencePayload(BaseModel):
+    evidence_reference: str = Field(min_length=1, max_length=600)
+    metadata: dict[str, Any] = {}
+    reason: str = Field(min_length=3, max_length=1000)
 
 
 def _contract_or_404(db: Session, contract_id: str) -> Contract:
@@ -509,6 +515,18 @@ def get_readiness(contract_id: str, db: Session = Depends(get_db), role: Role = 
     return readiness(db, _contract_or_404(db, contract_id))
 
 
+@router.get("/{contract_id}/readiness-states")
+def get_readiness_states(contract_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_READ")
+    return contract_readiness_states(db, _contract_or_404(db, contract_id))
+
+
+@router.get("/{contract_id}/start-prerequisites")
+def get_start_prerequisites(contract_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_READ")
+    return contract_start_prerequisites(db, _contract_or_404(db, contract_id))
+
+
 @router.get("/{contract_id}/history")
 def get_history(contract_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_READ")
@@ -582,6 +600,43 @@ def record_executed_evidence(contract_id: str, payload: ExecutedEvidencePayload,
     db.commit()
     db.refresh(evidence)
     return {"decision": "RECORDED", "evidence": {"id": evidence.id, "contract_id": evidence.contract_id, "contract_revision_id": evidence.contract_revision_id, "document_version_id": evidence.document_version_id, "source_reference": evidence.source_reference, "content_hash": evidence.content_hash, "recorded_by": evidence.recorded_by, "recorded_at": evidence.recorded_at.isoformat(), "metadata": evidence.metadata_json}, "contract": contract_projection(db, contract)}
+
+
+def _record_contract_handoff_evidence(contract_id: str, *, source_role: str, payload: ContractHandoffEvidencePayload, request: Request, db: Session, role: Role) -> dict[str, Any]:
+    require_capability(role, "CONTRACT_AUTHORITY_ACTION")
+    contract = db.scalar(select(Contract).where(Contract.id == contract_id).with_for_update())
+    if not contract:
+        raise HTTPException(404, {"code": "CONTRACT_NOT_FOUND"})
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    if not revision or not contract_revision_is_accepted(revision):
+        raise domain_error(409, "CONTRACT_ACCEPTANCE_REQUIRED", contract_revision_id=contract.current_revision_id)
+    required_role = "EXECUTED_CONTRACT"
+    if not db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == revision.id, ContractAdminEvidence.source_role == required_role)):
+        raise domain_error(409, "EXECUTED_CONTRACT_EVIDENCE_REQUIRED", contract_revision_id=revision.id)
+    existing = db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == revision.id, ContractAdminEvidence.source_role == source_role))
+    if existing:
+        return {"decision": "ALREADY_RECORDED", "evidence": {"id": existing.id, "source_role": existing.source_role, "contract_revision_id": existing.contract_revision_id, "source_reference": existing.source_reference, "recorded_by": existing.recorded_by, "recorded_at": existing.recorded_at.isoformat()}}
+    actor = _request_actor(request, role)
+    recorded_at = now()
+    metadata = {**payload.metadata, "human_action": True, "recorded_by": actor, "recorded_at": recorded_at.isoformat(), "exact_contract_revision_id": revision.id, "synthetic_only": True}
+    evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision.id, evidence_type=source_role, source_role=source_role, source_reference=payload.evidence_reference, status="RECORDED", recorded_by=actor, recorded_at=recorded_at, metadata_json=metadata)
+    db.add(evidence)
+    audit(db, correlation_id=request.state.correlation_id, event_type=f"ADMIN_CONTRACT_{source_role}_RECORDED", entity_type="Contract", entity_id=contract.id, actor_id=actor, after={"evidence_id": evidence.id, "revision_id": revision.id, "source_role": source_role, "source_reference": payload.evidence_reference}, metadata={"reason": payload.reason, "human_action": True})
+    db.commit()
+    return {"decision": "RECORDED", "evidence": {"id": evidence.id, "source_role": source_role, "contract_revision_id": revision.id, "source_reference": evidence.source_reference, "recorded_by": actor, "recorded_at": recorded_at.isoformat(), "metadata": metadata}}
+
+
+@router.post("/{contract_id}/client-copy-distribution")
+def record_client_copy_distribution(contract_id: str, payload: ContractHandoffEvidencePayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    return _record_contract_handoff_evidence(contract_id, source_role="CLIENT_COPY_DISTRIBUTION", payload=payload, request=request, db=db, role=role)
+
+
+@router.post("/{contract_id}/operations-handoff")
+def record_operations_handoff(contract_id: str, payload: ContractHandoffEvidencePayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_AUTHORITY_ACTION")
+    if not db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract_id, ContractAdminEvidence.source_role == "CLIENT_COPY_DISTRIBUTION")):
+        raise domain_error(409, "CLIENT_COPY_DISTRIBUTION_REQUIRED", contract_id=contract_id)
+    return _record_contract_handoff_evidence(contract_id, source_role="OPERATIONS_HANDOFF", payload=payload, request=request, db=db, role=role)
 
 
 @router.post("/{contract_id}/documents")

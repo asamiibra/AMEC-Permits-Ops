@@ -17,6 +17,8 @@ from ..models import (
     ContractReferenceSequence, ContractRevision, ContractTemplateSnapshot, DocumentVersion,
     Finding, LineageEdge, NotificationEvent, Opportunity, Project, ProjectActivation,
     ProposalAcceptedRevision, Quotation, QuotationRevision, ServiceEngagement, WorkflowTask,
+    BillingMilestone, BillingPlan, BillingPlanRevision, Invoice, InvoicePaymentAllocation,
+    InvoiceRevision, PaymentReceipt,
 )
 from .master_content import resolve_master_content_purpose
 from .proposal_workspace import stable_hash
@@ -435,10 +437,102 @@ def readiness(db: Session, contract: Contract, *, enforce_maker_checker: bool = 
     return {"ready": not blockers, "blockers": blockers, "warnings": warnings, "activation_ready": bool(activation) and not any(item["code"] == "OBJECTIVE_ADVANCE_PAYMENT_EVIDENCE_REQUIRED" for item in activation_blockers), "activation_blockers": activation_blockers, "authority_state": contract.authority_state, "template_snapshot": template, "effective_required_fields": sorted(required_fields), "effective_required_evidence": sorted(required_evidence), "authority_review_meaning": runtime_decision_value(db, "CONTRACT_AUTHORITY_REVIEW_MEANING", "OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION"), "ready_close_policy": runtime_decision_value(db, "CONTRACT_READY_CLOSE_POLICY", "REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION"), "lpo_requiredness_policy": lpo_policy, "lpo_received": lpo_received, "origin_policy": origin_policy, "origin_resolved": bool(contract.accepted_proposal_revision_id), "accepted": contract_revision_is_accepted(current_revision), "authority_reviewed": contract_revision_is_authority_reviewed(current_revision), "source10_controls": {"proposal_lpo_reconciliation": commercial_control, "advance_payment_gate": advance_control, "maker_checker": maker_checker}}
 
 
+def _contract_evidence(db: Session, contract_id: str, revision_id: str | None = None) -> list[ContractAdminEvidence]:
+    query = select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract_id)
+    if revision_id:
+        query = query.where(ContractAdminEvidence.contract_revision_id == revision_id)
+    return db.scalars(query.order_by(ContractAdminEvidence.recorded_at)).all()
+
+
+def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, Any]:
+    """Evaluate start facts without changing any canonical state.
+
+    Payment facts are read from Billing's Invoice/Payment/Allocation records;
+    this service intentionally does not create a second payment state machine.
+    """
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    evidence = _contract_evidence(db, contract.id, revision.id if revision else None)
+    executed = next((item for item in evidence if item.source_role == "EXECUTED_CONTRACT"), None)
+    client_copy = next((item for item in evidence if item.source_role == "CLIENT_COPY_DISTRIBUTION"), None)
+    operations_handoff = next((item for item in evidence if item.source_role == "OPERATIONS_HANDOFF"), None)
+    advance_input = db.scalar(select(ContractAdminInput).where(ContractAdminInput.contract_id == contract.id, ContractAdminInput.input_key == "ADVANCE_PAYMENT_ACTIVATION_GATE"))
+    configured_advance = bool((advance_input.value_json or {}).get("required")) if advance_input else False
+    terms = db.scalars(select(ContractPaymentTerm).where(ContractPaymentTerm.contract_revision_id == (revision.id if revision else ""))).all() if revision else []
+    advance_terms = [item for item in terms if str(item.trigger_type or "").upper() in {"ADVANCE", "ADVANCE_PAYMENT", "PRE_ACTIVATION"} or bool((item.metadata_json or {}).get("advance_before_start"))]
+    advance_required = configured_advance or bool(advance_terms)
+    invoices = db.scalars(select(Invoice).where(Invoice.contract_id == contract.id)).all()
+    invoice_ids = [item.id for item in invoices]
+    invoice_revisions = db.scalars(select(InvoiceRevision).where(InvoiceRevision.invoice_id.in_(invoice_ids))) .all() if invoice_ids else []
+    advance_milestones = db.scalars(select(BillingMilestone).where(BillingMilestone.source_contract_payment_term_id.in_([item.id for item in advance_terms]))) .all() if advance_terms else []
+    advance_milestone_ids = {item.id for item in advance_milestones}
+    matching_revisions = [item for item in invoice_revisions if item.controlling_contract_revision_id == (revision.id if revision else None) and (item.controlling_milestone_id in advance_milestone_ids or not advance_milestone_ids)]
+    issued_invoice_ids = {item.invoice_id for item in matching_revisions if item.status in {"ISSUED", "ACCEPTED_INTERNAL"}}
+    payments = db.scalars(select(PaymentReceipt).where(PaymentReceipt.contract_id == contract.id)).all()
+    verified_payments = [item for item in payments if str(item.verification_status).upper() == "VERIFIED"]
+    allocations = db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id.in_(list(issued_invoice_ids)), InvoicePaymentAllocation.status == "ALLOCATED")) .all() if issued_invoice_ids else []
+    allocated_payment_ids = {item.payment_receipt_id for item in allocations}
+    advance_satisfied = not advance_required or bool(verified_payments and allocated_payment_ids.intersection({item.id for item in verified_payments}))
+    def fact(name: str, state: str, required: bool, detail: Any = None) -> dict[str, Any]:
+        return {"fact": name, "state": state, "required": required, "detail": detail}
+    facts = [
+        fact("CONTRACT_EXECUTED", "RECORDED" if executed else "MISSING", True, executed.id if executed else None),
+        fact("CLIENT_COPY_DISTRIBUTED", "RECORDED" if client_copy else "MISSING", True, client_copy.id if client_copy else None),
+        fact("OPERATIONS_HANDOFF", "RECORDED" if operations_handoff else "MISSING", True, operations_handoff.id if operations_handoff else None),
+        fact("ADVANCE_REQUIREMENT", "REQUIRED" if advance_required else "NOT_APPLICABLE", advance_required, [item.id for item in advance_terms]),
+        fact("ADVANCE_PAYMENT_RECEIVED", "RECORDED" if payments else "MISSING" if advance_required else "NOT_APPLICABLE", advance_required, [item.id for item in payments]),
+        fact("ADVANCE_PAYMENT_VERIFIED", "RECORDED" if verified_payments else "MISSING" if advance_required else "NOT_APPLICABLE", advance_required, [item.id for item in verified_payments]),
+        fact("ADVANCE_PAYMENT_ALLOCATED", "RECORDED" if allocations else "MISSING" if advance_required else "NOT_APPLICABLE", advance_required, [item.id for item in allocations]),
+        fact("REQUIRED_ADVANCE_SATISFIED", "SATISFIED" if advance_satisfied else "UNSATISFIED", advance_required),
+        fact("PROJECT_ACTIVATION", "RECORDED" if db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id)) else "MISSING", True),
+        fact("CONTRACT_DURATION_START", "RECORDED" if any((item.metadata_json or {}).get("duration_start_fact") for item in evidence) else "NOT_RECORDED", False),
+        fact("MUNICIPALITY_WORK_START", "NOT_RECORDED", False),
+    ]
+    blockers = [item["fact"] for item in facts if item["required"] and item["state"] in {"MISSING", "UNSATISFIED"}]
+    commercial_ready = not [item for item in facts if item["fact"] in {"CONTRACT_EXECUTED", "CLIENT_COPY_DISTRIBUTED", "OPERATIONS_HANDOFF", "REQUIRED_ADVANCE_SATISFIED"} and item["state"] not in {"RECORDED", "SATISFIED", "NOT_APPLICABLE"}]
+    return {"status": "COMMERCIAL_START_READY" if commercial_ready else "COMMERCIAL_START_BLOCKED", "facts": facts, "blockers": blockers, "required_advance": {"applicability": "REQUIRED" if advance_required else "NOT_APPLICABLE", "term_ids": [item.id for item in advance_terms], "invoice_revision_ids": [item.id for item in matching_revisions], "verified_payment_ids": [item.id for item in verified_payments], "allocation_ids": [item.id for item in allocations], "satisfied": advance_satisfied}, "policy_version": "CONTRACT_START_PREREQUISITES_V1"}
+
+
+def contract_readiness_states(db: Session, contract: Contract) -> dict[str, Any]:
+    """Return independent readiness states with their evidence boundaries."""
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    evidence = _contract_evidence(db, contract.id, revision.id if revision else None)
+    services = db.scalars(select(ServiceEngagement).where(ServiceEngagement.contract_id == contract.id)).all()
+    service_codes = {str(item.service_offering_code or "").upper() for item in services}
+    design_applicable = bool(service_codes & {"DESIGN", "DESIGN_PERMIT", "PERMIT"})
+    authority_applicable = bool(service_codes & {"PERMIT", "DESIGN_PERMIT", "AUTHORITY", "CIVIL_DEFENSE", "MAINTENANCE_PERMIT"})
+    required_inputs = db.scalars(select(ContractClientInputRequirement).where(ContractClientInputRequirement.contract_id == contract.id, ContractClientInputRequirement.required == true())).all()
+    def input_state(keys: set[str], *, all_required: bool = False) -> tuple[list[str], list[str]]:
+        rows = [item for item in required_inputs if str(item.input_code or "").upper() in keys]
+        required = [str(item.input_code or item.title) for item in rows] if rows else (sorted(keys) if all_required else [])
+        current = [str(item.input_code or item.title) for item in rows if str(item.status).upper() in {"RECEIVED", "VERIFIED", "CONFIRMED", "COMPLETE", "CLOSED"}]
+        return required, current
+    def evidence_state(roles: set[str]) -> tuple[list[str], list[str]]:
+        required = sorted(roles)
+        current = sorted({item.source_role for item in evidence if item.source_role in roles and str(item.status).upper() in {"RECORDED", "RECEIVED", "VERIFIED", "APPROVED"}})
+        return required, current
+    start = contract_start_prerequisites(db, contract)
+    executed_roles, current_roles = evidence_state({"EXECUTED_CONTRACT", "CLIENT_COPY_DISTRIBUTION", "OPERATIONS_HANDOFF"})
+    design_keys, design_current = input_state({"OLD_DRAWINGS", "EXISTING_DRAWINGS", "PROJECT_SKETCH", "TITLE_DEED", "ID", "IDENTITY"})
+    authority_roles, authority_current = evidence_state({"AUTHORITY_SUBMISSION", "AUTHORITY_APPROVAL", "FULL_SUBMISSION_DOSSIER"})
+    def state(name: str, applicable: bool, required: list[str], current: list[str], *, policy: str, extra_blockers: list[str] | None = None) -> dict[str, Any]:
+        missing = sorted(set(required) - set(current))
+        missing.extend(extra_blockers or [])
+        return {"name": name, "applicability": "APPLICABLE" if applicable else "NOT_APPLICABLE", "required_evidence": required, "current_evidence": current, "missing_evidence": sorted(set(missing)), "policy_version": policy, "evaluated_at": now().isoformat(), "result": "NOT_APPLICABLE" if not applicable else "READY" if not missing else "BLOCKED"}
+    design = state("DESIGN_START_READY", design_applicable, design_keys, design_current, policy="CONTRACT_DESIGN_START_MINIMUM_DOSSIER_V1", extra_blockers=[] if not design_applicable or db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id)) else ["PROJECT_ACTIVATION"])
+    authority = state("AUTHORITY_SUBMISSION_READY", authority_applicable, authority_roles, authority_current, policy="CONTRACT_AUTHORITY_SUBMISSION_DOSSIER_V1")
+    service = state("SERVICE_EXECUTION_READY", bool(services), executed_roles + (["PROJECT_ACTIVATION"] if services else []), current_roles + (["PROJECT_ACTIVATION"] if db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id)) else []), policy="CONTRACT_SERVICE_EXECUTION_GATE_V1")
+    commercial_blockers = [item for item in start["blockers"] if item != "PROJECT_ACTIVATION"]
+    commercial_current = ["CONTRACT_EXECUTED", "CLIENT_COPY_DISTRIBUTION", "OPERATIONS_HANDOFF", "REQUIRED_ADVANCE_SATISFIED"] if not commercial_blockers and start["required_advance"]["satisfied"] else []
+    commercial = state("COMMERCIAL_START_READY", True, ["CONTRACT_EXECUTED", "CLIENT_COPY_DISTRIBUTION", "OPERATIONS_HANDOFF", "REQUIRED_ADVANCE_SATISFIED"], commercial_current, policy="CONTRACT_COMMERCIAL_START_GATE_V1", extra_blockers=commercial_blockers)
+    return {"policy_version": "CONTRACT_READINESS_STATES_V1", "evaluated_at": now().isoformat(), "states": {"COMMERCIAL_START_READY": commercial, "DESIGN_START_READY": design, "AUTHORITY_SUBMISSION_READY": authority, "SERVICE_EXECUTION_READY": service}}
+
+
 def project_activation(db: Session, *, contract: Contract, project_code: str, start_date: date, actor: str, correlation_id: str, idempotency_key: str) -> tuple[Project, ProjectActivation, bool]:
     revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
     if not contract_revision_is_accepted(revision):
         raise ValueError("CONTRACT_ACCEPTANCE_REQUIRED")
+    if not db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == revision.id, ContractAdminEvidence.source_role == "EXECUTED_CONTRACT")):
+        raise ValueError("EXECUTED_CONTRACT_EVIDENCE_REQUIRED")
     activation_fields = set(effective_activation_fields(db))
     if "CONTRACT" in activation_fields and not contract.id:
         raise ValueError("CONTRACT_REQUIRED_FOR_PROJECT_ACTIVATION")
@@ -527,6 +621,8 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
     findings = db.scalars(findings_query.order_by(Finding.captured_at.desc())).all()
     notifications = db.scalars(select(NotificationEvent).where(NotificationEvent.contract_id == contract.id).order_by(NotificationEvent.created_at.desc())).all()
     evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id).order_by(ContractAdminEvidence.recorded_at.desc())).all()
+    start_prerequisites = contract_start_prerequisites(db, contract)
+    readiness_states = contract_readiness_states(db, contract)
     open_tasks = [item for item in tasks if str(item.status).upper() not in {"CLOSED", "COMPLETED", "CANCELLED"}]
     current_time = now()
     overdue_tasks = [item for item in open_tasks if item.due_at and item.due_at < (current_time.replace(tzinfo=None) if item.due_at.tzinfo is None else current_time)]
@@ -560,6 +656,21 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
         next_action = "No open Contract/Mobilization action"
         responsible_action = "OWNER"
     executed_evidence = [item for item in evidence if str(item.source_role).upper() == "EXECUTED_CONTRACT" and item.contract_revision_id == (revision.id if revision else None)]
+    duration_start = next(((item.metadata_json or {}).get("duration_start_fact") for item in evidence if (item.metadata_json or {}).get("duration_start_fact")), None)
+    expected_end = contract.expected_close_date or contract.end_date
+    days_remaining = (expected_end - current_time.date()).days if expected_end else None
+    extension_history = [item for item in evidence if str(item.source_role).upper() == "CONTRACT_EXTENSION"]
+    extension_state = "EXTENSION_REVIEW_REQUIRED" if expected_end and days_remaining is not None and days_remaining < 0 and str(contract.status).upper() not in {"CLOSED", "COMPLETE"} else "NO_EXTENSION_RISK_RECORDED"
+    if extension_history:
+        extension_state = "EXTENSION_RECORDED_PENDING_OWNER_REVIEW"
+    billing_plan = db.scalar(select(BillingPlan).where(BillingPlan.contract_id == contract.id, BillingPlan.status != "CANCELLED").order_by(BillingPlan.created_at.desc()))
+    billing_plan_revision = db.get(BillingPlanRevision, billing_plan.current_revision_id) if billing_plan and billing_plan.current_revision_id else None
+    milestones = db.scalars(select(BillingMilestone).where(BillingMilestone.billing_plan_revision_id == billing_plan_revision.id)).all() if billing_plan_revision else []
+    earned = [item for item in milestones if str(item.eligibility_state).upper() in {"ELIGIBLE", "EARNED", "MILESTONE_EARNED"} and (item.remaining_invoiceable_amount or 0) > 0]
+    invoice_revisions = db.scalars(select(InvoiceRevision).where(InvoiceRevision.controlling_contract_revision_id == (revision.id if revision else ""))).all() if revision else []
+    issued_milestones = {item.controlling_milestone_id for item in invoice_revisions if item.status == "ISSUED"}
+    billing_state = "READY_TO_INVOICE" if earned else "INVOICE_ISSUED" if any(item.status == "ISSUED" for item in invoice_revisions) else "NO_INVOICE_DUE_SIGNAL"
+    collection_state = "NOT_ISSUED" if not invoice_revisions else "ISSUED" if any(item.status == "ISSUED" for item in invoice_revisions) else "PREPARATION"
     return {
         "status": "BLOCKED" if blockers else "READY",
         "source_of_record": "CANONICAL_CONTRACT_PROJECT_MOBILIZATION_READ_MODEL",
@@ -567,12 +678,16 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
         "project": {"id": project.id, "reference": project.project_number, "code": project.project_code, "status": project.status, "start_date": project.start_date.isoformat() if project and project.start_date else None} if project else None,
         "dates": {"contract_end": (contract.expected_close_date or contract.end_date).isoformat() if (contract.expected_close_date or contract.end_date) else None, "project_start": activation.start_date.isoformat() if activation else None, "close_date_meaning": contract.close_date_meaning},
         "mobilization": {"project_activation": "ACTIVE" if activation and project and str(project.status).upper() == "ACTIVE" else "REQUIRED", "service_engagement_count": len(services), "service_engagements": [{"id": item.id, "service_ref": item.service_ref, "status": item.status, "project_id": item.project_id, "contract_revision_id": item.contract_revision_id} for item in services]},
-        "controls": {"blockers": blockers, "open_readiness_blockers": readiness_result["blockers"], "open_blocking_findings": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "assignee_role": item.assignee_role} for item in open_blocking_findings], "open_tasks": [{"id": item.id, "title": item.title, "status": item.status, "priority": item.priority, "owner_role": item.owner_role, "due_at": item.due_at.isoformat() if item.due_at else None, "next_action_code": item.next_action_code} for item in open_tasks], "overdue_task_count": len(overdue_tasks), "required_input_state": "OPEN_REQUIRED_INPUTS" if open_required_inputs else "NO_OPEN_REQUIRED_INPUTS", "required_input_count": len(open_required_inputs), "extension_state": "NOT_RECORDED", "invoice_due_state": "NO_INVOICE_DUE_SIGNAL", "earned_not_invoiced_state": "NO_EARNED_NOT_INVOICED_SIGNAL"},
+        "controls": {"blockers": blockers, "open_readiness_blockers": readiness_result["blockers"], "open_blocking_findings": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "assignee_role": item.assignee_role} for item in open_blocking_findings], "open_tasks": [{"id": item.id, "title": item.title, "status": item.status, "priority": item.priority, "owner_role": item.owner_role, "due_at": item.due_at.isoformat() if item.due_at else None, "next_action_code": item.next_action_code} for item in open_tasks], "overdue_task_count": len(overdue_tasks), "required_input_state": "OPEN_REQUIRED_INPUTS" if open_required_inputs else "NO_OPEN_REQUIRED_INPUTS", "required_input_count": len(open_required_inputs), "extension_state": extension_state, "invoice_due_state": billing_state, "earned_not_invoiced_state": "EARNED_BUT_NOT_INVOICED" if earned and not issued_milestones.intersection({item.id for item in earned}) else "NO_EARNED_NOT_INVOICED_SIGNAL", "collection_state": collection_state, "contact_state": "CONTACT_RESOLUTION_REQUIRED" if services and not db.scalars(select(ClientContact).where(ClientContact.client_account_id == contract.client_account_id, ClientContact.status == "ACTIVE")).first() else "PURPOSE_CONTACT_AVAILABLE"},
         "schedule_state": schedule_state,
         "delay_state": "OVERDUE" if overdue_tasks else "NO_OVERDUE_TASKS",
         "risk_state": "BLOCKED" if open_blocking_findings or readiness_result["blockers"] else "NO_BLOCKING_RISK_RECORDED",
         "responsible_action": responsible_action,
         "next_action": next_action,
+        "start_prerequisites": start_prerequisites,
+        "readiness_states": readiness_states,
+        "contract_clock": {"contract_date": revision.created_at.date().isoformat() if revision and revision.created_at else None, "period_or_duration": contract.duration, "duration_start_rule": "EXPLICIT_DURATION_START_FACT; PROJECT_ACTIVATION_NOT_IMPLIED", "duration_start_fact": duration_start, "original_expected_end": expected_end.isoformat() if expected_end else None, "current_expected_end": expected_end.isoformat() if expected_end else None, "days_remaining": days_remaining, "extension_history": [{"id": item.id, "recorded_at": item.recorded_at.isoformat(), "source_reference": item.source_reference, "metadata": item.metadata_json} for item in extension_history], "extension_state": extension_state},
+        "billing_readiness": {"state": billing_state, "milestone_ids": [item.id for item in earned], "invoice_revision_ids": [item.id for item in invoice_revisions], "invoice_issue_is_separate_human_action": True, "collection_state": collection_state},
         "executed_evidence": [{"id": item.id, "contract_id": item.contract_id, "contract_revision_id": item.contract_revision_id, "document_version_id": item.document_version_id, "source_reference": item.source_reference, "content_hash": item.content_hash, "recorded_by": item.recorded_by, "recorded_at": item.recorded_at.isoformat(), "metadata": item.metadata_json} for item in executed_evidence],
         "notification_count": len(notifications),
         "auditability": "AUDIT_EVENTS_AND_CANONICAL_ROWS",

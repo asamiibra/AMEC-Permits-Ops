@@ -33,6 +33,14 @@ def record_checker(client, contract_id: str, actor: str = "synthetic-contract-ch
     return response
 
 
+def record_executed_evidence(client, contract_id: str, actor: str = "synthetic-contract-authority"):
+    uploaded = client.post(f"/api/admin/contracts/{contract_id}/documents", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": actor}, json={"source_role": "EXECUTED_CONTRACT", "source_filename": "executed-contract.txt", "content": f"synthetic executed copy for {contract_id}", "reason": "Synthetic activation prerequisite"})
+    assert uploaded.status_code == 200, uploaded.text
+    recorded = client.post(f"/api/admin/contracts/{contract_id}/executed-evidence", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": actor}, json={"document_version_id": uploaded.json()["document_version_id"], "evidence_reference": f"synthetic://executed/{contract_id}", "reason": "Synthetic activation prerequisite"})
+    assert recorded.status_code == 200, recorded.text
+    return recorded
+
+
 @pytest.fixture(autouse=True)
 def clean_owner_fixture():
     yield
@@ -275,6 +283,7 @@ def test_contract_manual_policy_permissions_and_explicit_project_activation(clie
     record_checker(client, contract_id)
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-activation:{contract_id}"})
     assert accepted.status_code == 200, accepted.text
+    record_executed_evidence(client, contract_id)
     activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-DEMO-001", "start_date": "2026-08-12", "idempotency_key": "activation-skyline-v1"})
     assert activation.status_code == 200, activation.text
     first = activation.json()
@@ -322,6 +331,7 @@ def test_contract_reconciliation_read_model_and_billing_seam(client):
     assert authority.status_code == 200, authority.text
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-reconciliation:{contract_id}"})
     assert accepted.status_code == 200, accepted.text
+    record_executed_evidence(client, contract_id)
     activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-RECON-001", "start_date": "2026-08-13", "idempotency_key": "reconciliation-activation-v1"})
     assert activation.status_code == 200, activation.text
     billing = client.get(f"/api/admin/contracts/{contract_id}/billing-context", headers=headers("OWNER_SPONSOR")).json()
@@ -469,3 +479,46 @@ def test_contract_authority_review_does_not_accept_or_activate_and_checker_is_ex
     assert accepted.json()["contract"]["current_revision"]["status"] == "FINALIZED"
     assert accepted.json()["contract"]["current_revision"]["accepted"] is True
     assert accepted.json()["contract"]["current_revision"]["maker_checker"]["checker"] == "independent-contract-checker"
+
+
+def test_contract_execution_distribution_and_operations_handoff_are_distinct_and_persisted(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post(f"/api/admin/contracts/from-proposal/{proposal_id}", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-maker"}, json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    record_checker(client, contract_id, actor="closure-checker")
+    accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-authority"}, json={"idempotency_key": "closure-accept"})
+    assert accepted.status_code == 200, accepted.text
+
+    before = client.post(f"/api/admin/contracts/{contract_id}/operations-handoff", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-authority"}, json={"evidence_reference": "synthetic://handoff-before-distribution", "reason": "Negative ordering check"})
+    assert before.status_code == 409
+    assert before.json()["detail"]["code"] == "CLIENT_COPY_DISTRIBUTION_REQUIRED"
+    with SessionLocal() as db:
+        assert db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id == contract_id).count() == 0
+
+    uploaded = client.post(f"/api/admin/contracts/{contract_id}/documents", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-authority"}, json={"source_role": "EXECUTED_CONTRACT", "source_filename": "closure-executed.txt", "content": "synthetic executed contract", "reason": "Closure executed copy"})
+    assert uploaded.status_code == 200, uploaded.text
+    executed = client.post(f"/api/admin/contracts/{contract_id}/executed-evidence", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-authority"}, json={"document_version_id": uploaded.json()["document_version_id"], "evidence_reference": "synthetic://executed/closure", "reason": "Closure executed evidence"})
+    assert executed.status_code == 200, executed.text
+
+    distributed = client.post(f"/api/admin/contracts/{contract_id}/client-copy-distribution", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-authority"}, json={"evidence_reference": "synthetic://client-copy/closure", "reason": "Closure client-copy distribution"})
+    assert distributed.status_code == 200, distributed.text
+    handoff = client.post(f"/api/admin/contracts/{contract_id}/operations-handoff", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-authority"}, json={"evidence_reference": "synthetic://operations-handoff/closure", "reason": "Closure Operations handoff"})
+    assert handoff.status_code == 200, handoff.text
+
+    states = client.get(f"/api/admin/contracts/{contract_id}/readiness-states", headers=headers("OWNER_SPONSOR"))
+    assert states.status_code == 200, states.text
+    assert states.json()["states"]["COMMERCIAL_START_READY"]["result"] == "READY"
+    assert states.json()["states"]["SERVICE_EXECUTION_READY"]["result"] == "NOT_APPLICABLE"
+    prerequisites = client.get(f"/api/admin/contracts/{contract_id}/start-prerequisites", headers=headers("OWNER_SPONSOR"))
+    assert prerequisites.status_code == 200, prerequisites.text
+    assert prerequisites.json()["required_advance"]["applicability"] == "NOT_APPLICABLE"
+    assert any(item["fact"] == "PROJECT_ACTIVATION" and item["state"] == "MISSING" for item in prerequisites.json()["facts"])
+
+    with SessionLocal() as db:
+        rows = db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id == contract_id).all()
+        assert {row.source_role for row in rows} >= {"EXECUTED_CONTRACT", "CLIENT_COPY_DISTRIBUTION", "OPERATIONS_HANDOFF"}
+        assert len({row.recorded_by for row in rows if row.source_role != "EXECUTED_CONTRACT"}) == 1
+        assert all(row.contract_revision_id == accepted.json()["revision_id"] for row in rows)
+        assert db.query(AuditEvent).filter(AuditEvent.entity_id == contract_id, AuditEvent.event_type.in_(("ADMIN_CONTRACT_CLIENT_COPY_DISTRIBUTION_RECORDED", "ADMIN_CONTRACT_OPERATIONS_HANDOFF_RECORDED"))).count() == 2
