@@ -1,6 +1,7 @@
 """Post-implementation Handover bridge certification on authoritative PostgreSQL."""
 
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -70,8 +71,13 @@ def bridge_case():
         contract = Contract(client_account_id=source_contract.client_account_id, quotation_id=source_contract.quotation_id, contract_reference=f"BRIDGE-{suffix}-CONTRACT", status="ACTIVE", project_id=project.id, contract_name="Handover closure bridge synthetic contract")
         db.add(contract)
         db.flush()
-        contract_revision = ContractRevision(contract_id=contract.id, revision_number=1, controlling_quotation_revision_id=source_contract_revision.controlling_quotation_revision_id, status="ACCEPTED", contract_name="Handover closure bridge synthetic contract")
+        accepted_at = datetime.now(timezone.utc).isoformat()
+        contract_revision = ContractRevision(contract_id=contract.id, revision_number=1, controlling_quotation_revision_id=source_contract_revision.controlling_quotation_revision_id, status="FINALIZED", contract_name="Handover closure bridge synthetic contract", admin_input_snapshot={"acceptance": {"revision_id": "pending", "accepted_by": "synthetic-bridge-owner", "accepted_at": accepted_at}, "maker_checker": {"preparer": "synthetic-bridge-maker", "checker": "synthetic-bridge-checker", "proposal_reconciled": True}})
         db.add(contract_revision)
+        db.flush()
+        contract_revision.admin_input_snapshot = {**contract_revision.admin_input_snapshot, "acceptance": {**contract_revision.admin_input_snapshot["acceptance"], "revision_id": contract_revision.id}}
+        contract.current_revision_id = contract_revision.id
+        db.add(ProjectActivation(contract_id=contract.id, contract_revision_id=contract_revision.id, accepted_proposal_revision_id=contract.accepted_proposal_revision_id, project_id=project.id, project_code=f"SYN-BRIDGE-{suffix}", start_date=project.created_at.date(), original_start_date=project.created_at.date(), activated_by="synthetic-bridge-owner", idempotency_key=f"bridge-activation:{suffix}"))
         db.commit()
         context = {"suffix": suffix, "project_id": project.id, "contract_id": contract.id, "contract_revision_id": contract_revision.id, "document_version_id": source_document.id}
     yield context

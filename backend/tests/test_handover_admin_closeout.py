@@ -1,9 +1,10 @@
+from datetime import date, datetime, timezone
 from uuid import uuid4
 
 from sqlalchemy import select
 
 from backend.app.db import SessionLocal
-from backend.app.models import Contract, ContractRevision, Document, DocumentVersion, Project
+from backend.app.models import Contract, ContractRevision, Document, DocumentVersion, Project, ProjectActivation
 
 
 def _seed_refs():
@@ -13,6 +14,22 @@ def _seed_refs():
         revision = db.scalar(select(ContractRevision).where(ContractRevision.contract_id == contract.id))
         document = db.scalar(select(DocumentVersion).join(Document, Document.id == DocumentVersion.document_id).where(Document.project_id == project.id))
         assert project and contract and revision and document
+        accepted_at = datetime.now(timezone.utc).isoformat()
+        revision.status = "FINALIZED"
+        revision.admin_input_snapshot = {"acceptance": {"revision_id": revision.id, "accepted_by": "synthetic-handover-owner", "accepted_at": accepted_at}, "maker_checker": {"preparer": "synthetic-handover-maker", "checker": "synthetic-handover-checker", "proposal_reconciled": True}}
+        contract.current_revision_id = revision.id
+        contract.project_id = project.id
+        contract.status = "ACTIVE"
+        contract.stage = "ACTIVE"
+        project.status = "ACTIVE"
+        activation = db.scalar(select(ProjectActivation).where(ProjectActivation.project_id == project.id))
+        if activation:
+            activation.contract_id = contract.id
+            activation.contract_revision_id = revision.id
+            activation.accepted_proposal_revision_id = contract.accepted_proposal_revision_id
+        else:
+            db.add(ProjectActivation(contract_id=contract.id, contract_revision_id=revision.id, accepted_proposal_revision_id=contract.accepted_proposal_revision_id, project_id=project.id, project_code=f"SYN-HO-{uuid4().hex[:8].upper()}", start_date=project.start_date or date.today(), original_start_date=project.start_date or date.today(), activated_by="synthetic-handover-owner", idempotency_key=f"synthetic-handover-activation:{contract.id}"))
+        db.commit()
         return project.id, contract.id, revision.id, document.id
 
 
