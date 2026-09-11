@@ -71,6 +71,9 @@ var commonEnvironment = [
   { name: 'ENTRA_API_CLIENT_ID', value: entraApiClientId }
   { name: 'ENTRA_WEB_CLIENT_ID', value: entraWebClientId }
   { name: 'ENTRA_REQUIRED_SCOPE', value: 'access_as_user' }
+  // A non-routable HTTPS origin satisfies the explicit AZURE-PREPROD
+  // configuration contract without creating a frontend or enabling traffic.
+  { name: 'FRONTEND_ORIGINS', value: 'https://g6-qualification.invalid' }
   { name: 'SYNTHETIC_ONLY', value: 'true' }
   { name: 'REAL_DATA_ALLOWED', value: 'false' }
   { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
