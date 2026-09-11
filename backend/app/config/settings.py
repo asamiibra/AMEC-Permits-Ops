@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     bridge_client_id: str = ""
     bridge_audience: str = ""
     bridge_required_role: str = "proposalops.source-intake"
+    bridge_package_signing_public_key: str = ""
+    bridge_allowed_source_identities: str = "QATAR_SYNOLOGY_SYNTHETIC_FIXTURE"
+    bridge_allowed_source_path_prefixes: str = "synthetic://qatar-synology/"
+    bridge_max_payload_bytes: int = 1048576
     synology_endpoint: str = ""
     synology_share: str = ""
     synology_secret_ref: str = ""
