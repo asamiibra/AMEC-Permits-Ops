@@ -1,0 +1,10 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_MIGRATION_IMPACT_V1",
+  "module_schema_change": false,
+  "migration_base_head": "source18_committee_implementation_v1",
+  "migration_new_head": "source18_committee_implementation_v1",
+  "migration_scope": "none; behavioral/API authorization closure only",
+  "parallel_head_count": 0,
+  "isolated_migration_test_required": false,
+  "production_or_preprod_database_touched": false
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_TEST_EVIDENCE_V1",
+  "baseline_evidence_reused": true,
+  "focused_content_library_tests": {"result":"accepted historical evidence","passed":57,"skipped":1},
+  "frontend_tests": {"result":"accepted historical evidence","files":21,"passed":113},
+  "frontend_build": "accepted historical evidence: PASS",
+  "browser_acceptance": "accepted historical evidence: desktop PASS; mobile PASS",
+  "migration_qualification": "accepted historical evidence: one head; no module migration",
+  "required_post_implementation_regression": "pytest -q backend/tests",
+  "synthetic_only": true,
+  "external_targets": false
+}

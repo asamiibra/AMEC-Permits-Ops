@@ -1,0 +1,19 @@
+# Content Library module-run baseline
+
+```text
+REPOSITORY=asamiibra/AMEC-Permits-Ops
+MODULE_RUN_BASE_BRANCH_REFERENCE=release/production-stabilization-v3
+MODULE_RUN_BASE_SHA=96bb23378d3a78855a315ea751e2b3b66839cb02
+MODULE_RUN_BASE_TREE=34350399d5a113f4d2a21f728b1220f9c39c48f3
+MODULE_RUN_BASELINE_STATUS=OWNER_FROZEN_FOR_CONTENT_LIBRARY_MODULE_TRACK
+MODULE_BRANCH=module/content-library-owner-gap-closure-v3
+MODULE_BRANCH_BASE_SHA=96bb23378d3a78855a315ea751e2b3b66839cb02
+MODULE_BRANCH_BASE_TREE=34350399d5a113f4d2a21f728b1220f9c39c48f3
+MODULE_BRANCH_INITIAL_HEAD=96bb23378d3a78855a315ea751e2b3b66839cb02
+ISOLATED_MODULE_WORKSPACE=true
+WORKTREE_CLEAN_AT_MODULE_START=true
+ORIGINAL_WORKSPACE_MUTATED=false
+ORIGINAL_UNCOMMITTED_WORK_TOUCHED=false
+```
+
+The pinned commit exists with the pinned tree. The current repository release may advance after this frozen baseline; that is reported separately and does not silently change this module-run base.

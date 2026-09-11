@@ -1,0 +1,16 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_GAP_REGISTER_V1",
+  "baseline_sha": "96bb23378d3a78855a315ea751e2b3b66839cb02",
+  "true_application_gaps": [
+    {"gap_id":"CLG-001","requirement_id":"AT-061","priority":"P1","class":"CL_API_GAP","finding":"Category updates did not validate the four-library content-type taxonomy.","change":"Validate and deduplicate allowed content types."},
+    {"gap_id":"CLG-002","requirement_id":"AT-062","priority":"P1","class":"CL_API_GAP","finding":"Reference policy accepted unsafe prefixes.","change":"Validate bounded uppercase reference prefixes."},
+    {"gap_id":"CLG-003","requirement_id":"AT-063","priority":"P0","class":"CL_API_GAP","finding":"Bindings did not enforce content-type/module/purpose compatibility.","change":"Validate compatibility and duplicate bindings."},
+    {"gap_id":"CLG-004","requirement_id":"AT-064","priority":"P0","class":"CL_RESOLVER_GAP","finding":"Purpose resolver accepted unsupported values.","change":"Fail closed on unknown module/purpose values."},
+    {"gap_id":"CLG-005","requirement_id":"AT-067","priority":"P0","class":"CL_RBAC_GAP","finding":"Dependency writes/revalidation lacked dedicated capability gates.","change":"Require dependency write and revalidation capabilities."},
+    {"gap_id":"CLG-006","requirement_id":"AT-069","priority":"P1","class":"CL_API_GAP","finding":"PAGE_RANGE source sections accepted incomplete/reversed ranges.","change":"Require positive, complete, non-reversed ranges."}
+  ],
+  "p0_unresolved_at_audit": 3,
+  "p1_unresolved_at_audit": 3,
+  "unsupported_guesses_implemented": 0,
+  "product_redesign_authorized": false
+}
