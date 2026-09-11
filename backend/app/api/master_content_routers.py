@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import uuid
 import json
+import re
 from typing import Any
 
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import or_, select, true
+from sqlalchemy import func, or_, select, true
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import current_user_role
@@ -45,6 +46,7 @@ from ..services.master_content import (
     ENGINEERING_SOURCE_TYPES,
     ENGINEERING_DISCIPLINES,
     resolve_master_content_purpose,
+    validate_module_binding,
 )
 from ..services.forms_governance import (
     add_provenance,
@@ -279,7 +281,10 @@ def patch_category(category_id: str, payload: CategoryPatch, request: Request, d
     if payload.description is not None:
         category.description = payload.description
     if payload.allowed_content_types is not None:
-        category.allowed_content_types = [item.strip().upper() for item in payload.allowed_content_types]
+        types = [item.strip().upper() for item in payload.allowed_content_types]
+        if any(item not in {"FORM", "REPORT", "ENGINEERING_WORK", "DEFINITION"} for item in types):
+            raise HTTPException(422, {"code": "CATEGORY_CONTENT_TYPE_INVALID"})
+        category.allowed_content_types = list(dict.fromkeys(types))
     if payload.sort_order is not None:
         category.sort_order = payload.sort_order
     if payload.active is not None:
@@ -302,9 +307,12 @@ def put_reference_policy(content_type: str, payload: ReferencePolicyPayload, req
     content_type = content_type.strip().upper()
     if content_type not in {"FORM", "REPORT", "ENGINEERING_WORK", "DEFINITION"}:
         raise HTTPException(422, {"code": "REFERENCE_CONTENT_TYPE_INVALID"})
+    prefix = payload.prefix.strip().upper()
+    if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,19}", prefix):
+        raise HTTPException(422, {"code": "REFERENCE_PREFIX_INVALID"})
     seed_reference_sequences(db)
     row = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL"))
-    row.prefix = payload.prefix.strip().upper()
+    row.prefix = prefix
     row.padding = payload.padding
     audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_REFERENCE_POLICY_UPDATED", entity_type="MasterContentReferenceSequence", entity_id=row.id, actor_id=_actor(role), after={"content_type": content_type, "prefix": row.prefix, "padding": row.padding, "renumber_existing": False})
     db.commit()
@@ -314,6 +322,9 @@ def put_reference_policy(content_type: str, payload: ReferencePolicyPayload, req
 @router.get("/master-content/resolvers/{module}/{purpose}")
 def purpose_resolver(module: str, purpose: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     module = module.strip().upper()
+    purpose = purpose.strip().upper()
+    if module not in ALLOWED_MODULES or purpose not in ALLOWED_USAGE_TYPES:
+        raise HTTPException(422, {"code": "MASTER_CONTENT_PURPOSE_NOT_ALLOWED", "module": module, "purpose": purpose})
     if persona_for_role(role) == "BUSINESS_DEVELOPMENT" and module != "BD":
         raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE"})
     if persona_for_role(role) == "ENGINEERING" and module not in {"ENGINEERING", "PERMIT", "REPORTS"}:
@@ -341,7 +352,7 @@ def list_master_content(q: str = "", content_type: str | None = None, category_i
 
 @router.get("/master-content/eligible")
 def eligible(use: str = "ENGINEERING_AI", db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    return eligible_master_content(db, use=use)
+    return eligible_master_content(db, use=use, role=role)
 
 
 @router.post("/master-content/ai-assist")
@@ -482,11 +493,13 @@ def dependencies(item_id: str, db: Session = Depends(get_db), role: Role = Depen
 
 @router.post("/master-content/{item_id}/dependencies")
 def add_dependency(item_id: str, payload: DependencyCreate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_CONTENT_DEPENDENCY_WRITE")
     return register_dependency(db, item_id=item_id, downstream_type=payload.downstream_type, downstream_id=payload.downstream_id, project_id=payload.project_id, dependency_kind=payload.dependency_kind, actor=_actor(role), correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/dependencies/{dependency_id}/revalidate")
 def revalidate_dependency_route(dependency_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "MASTER_CONTENT_DEPENDENCY_REVALIDATE")
     return revalidate_dependency(db, dependency_id=dependency_id, actor=_actor(role), correlation_id=request.state.correlation_id)
 
 
@@ -530,7 +543,7 @@ def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: S
     if payload.description is not None:
         item.description = payload.description
     if payload.used_in is not None:
-        modules = _parse_modules(payload.used_in)
+        modules = _parse_modules(payload.used_in, item.content_type)
         item.used_in = modules
         _sync_module_bindings(db, item_id=item.id, modules=modules, actor=_actor(role))
     if payload.needs_review is not None:
@@ -560,23 +573,23 @@ def put_module_bindings(item_id: str, payload: list[BindingPayload], request: Re
     item = db.get(MasterContentItem, item_id)
     if not item:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
-    seen = set()
+    seen: dict[tuple[str, str], bool] = {}
     for row in payload:
-        module = row.module.strip().upper()
-        usage_type = row.usage_type.strip().upper()
-        if module not in ALLOWED_MODULES or usage_type not in ALLOWED_USAGE_TYPES:
-            raise HTTPException(422, {"code": "MODULE_BINDING_NOT_ALLOWED", "module": module, "usage_type": usage_type})
-        seen.add((module, usage_type))
+        module, usage_type = validate_module_binding(content_type=item.content_type, module=row.module, usage_type=row.usage_type)
+        key = (module, usage_type)
+        if key in seen:
+            raise HTTPException(422, {"code": "MODULE_BINDING_DUPLICATE", "module": module, "usage_type": usage_type})
+        seen[key] = row.active
     existing = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item_id)).all()
     for binding in existing:
-        binding.active = (binding.module, binding.usage_type) in seen
-    for module, usage_type in seen:
+        binding.active = seen.get((binding.module, binding.usage_type), False)
+    for (module, usage_type), active in seen.items():
         binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item_id, MasterContentModuleBinding.module == module, MasterContentModuleBinding.usage_type == usage_type))
         if binding:
-            binding.active = True
+            binding.active = active
         else:
-            db.add(MasterContentModuleBinding(master_content_id=item_id, module=module, usage_type=usage_type, active=True, created_by=_actor(role)))
-    item.used_in = sorted({module for module, _ in seen})
+            db.add(MasterContentModuleBinding(master_content_id=item_id, module=module, usage_type=usage_type, active=active, created_by=_actor(role)))
+    item.used_in = sorted({module for (module, _), active in seen.items() if active})
     # A frozen canonical consumer purpose is deterministic proof for these
     # AMEC templates; unrelated Forms remain unclassified until governed.
     if any(usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"} for _, usage_type in seen):
@@ -694,11 +707,14 @@ def list_definitions(q: str = "", category: str | None = None, status: str | Non
 @router.post("/definitions")
 def create_definition(payload: DefinitionCreate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "DEFINITION_WRITE")
-    if db.scalar(select(DefinitionEntry).where(DefinitionEntry.term == payload.term.strip())):
+    term = payload.term.strip()
+    if db.scalar(select(DefinitionEntry).where(func.lower(DefinitionEntry.term) == term.lower())):
         raise HTTPException(409, {"code": "DEFINITION_TERM_CONFLICT"})
     ref, generated = _allocate_reference(db, "DEFINITION", payload.ref)
-    modules = _parse_modules(payload.used_in)
-    definition = DefinitionEntry(ref=ref, term=payload.term.strip(), category=payload.category, used_in=modules, status="ACTIVE", created_by=_actor(role))
+    if ref and db.scalar(select(DefinitionEntry).where(DefinitionEntry.ref == ref)):
+        raise HTTPException(409, {"code": "DEFINITION_REF_CONFLICT"})
+    modules = _parse_modules(payload.used_in, "DEFINITION")
+    definition = DefinitionEntry(ref=ref, term=term, category=payload.category, used_in=modules, status="ACTIVE", created_by=_actor(role))
     db.add(definition)
     db.flush()
     revision = DefinitionRevision(definition_id=definition.id, revision_number=1, term=definition.term, category=payload.category, used_in=modules, description=payload.description, aliases=payload.aliases, notes=payload.notes, changed_by=_actor(role), change_reason=payload.change_reason or "Initial definition", status="CURRENT")
@@ -729,13 +745,20 @@ def definition_revisions(definition_id: str, db: Session = Depends(get_db), role
     definition = db.get(DefinitionEntry, definition_id)
     if not definition:
         raise HTTPException(404, {"code": "DEFINITION_NOT_FOUND"})
-    return definition_projection(db, definition, include_history=True)["revisions"]
+    projection = definition_projection(db, definition, include_history=True)
+    if not _definition_role_can_see(role, projection):
+        raise HTTPException(403, {"code": "DEFINITION_NOT_APPLICABLE", "persona": persona_for_role(role)})
+    return projection["revisions"]
 
 
 @router.get("/definitions/{definition_id}/module-bindings")
 def definition_module_bindings(definition_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    if not db.get(DefinitionEntry, definition_id):
+    definition = db.get(DefinitionEntry, definition_id)
+    if not definition:
         raise HTTPException(404, {"code": "DEFINITION_NOT_FOUND"})
+    projection = definition_projection(db, definition)
+    if not _definition_role_can_see(role, projection):
+        raise HTTPException(403, {"code": "DEFINITION_NOT_APPLICABLE", "persona": persona_for_role(role)})
     return [{"id": binding.id, "module": binding.module, "usage_type": binding.usage_type, "active": binding.active} for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.definition_id == definition_id).order_by(MasterContentModuleBinding.module)).all()]
 
 
@@ -745,23 +768,25 @@ def put_definition_module_bindings(definition_id: str, payload: list[BindingPayl
     definition = db.get(DefinitionEntry, definition_id)
     if not definition:
         raise HTTPException(404, {"code": "DEFINITION_NOT_FOUND"})
-    seen = set()
+    seen: dict[tuple[str, str], bool] = {}
     for row in payload:
         module = row.module.strip().upper()
         usage_type = row.usage_type.strip().upper()
-        if module not in ALLOWED_MODULES or usage_type not in ALLOWED_USAGE_TYPES:
-            raise HTTPException(422, {"code": "MODULE_BINDING_NOT_ALLOWED", "module": module, "usage_type": usage_type})
-        seen.add((module, usage_type))
+        module, usage_type = validate_module_binding(content_type="DEFINITION", module=module, usage_type=usage_type)
+        key = (module, usage_type)
+        if key in seen:
+            raise HTTPException(422, {"code": "MODULE_BINDING_DUPLICATE", "module": module, "usage_type": usage_type})
+        seen[key] = row.active
     existing = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.definition_id == definition_id)).all()
     for binding in existing:
-        binding.active = (binding.module, binding.usage_type) in seen
-    for module, usage_type in seen:
+        binding.active = seen.get((binding.module, binding.usage_type), False)
+    for (module, usage_type), active in seen.items():
         binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.definition_id == definition_id, MasterContentModuleBinding.module == module, MasterContentModuleBinding.usage_type == usage_type))
         if binding:
-            binding.active = True
+            binding.active = active
         else:
-            db.add(MasterContentModuleBinding(definition_id=definition_id, module=module, usage_type=usage_type, active=True, created_by=_actor(role)))
-    definition.used_in = sorted({module for module, _ in seen})
+            db.add(MasterContentModuleBinding(definition_id=definition_id, module=module, usage_type=usage_type, active=active, created_by=_actor(role)))
+    definition.used_in = sorted({module for (module, _), active in seen.items() if active})
     audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_MODULE_BINDINGS_UPDATED", entity_type="DefinitionEntry", entity_id=definition_id, actor_id=_actor(role), after={"used_in": definition.used_in})
     db.commit()
     return definition_projection(db, definition, include_history=True)
@@ -776,11 +801,14 @@ def revise_definition(definition_id: str, payload: DefinitionRevisionCreate, req
     current = db.get(DefinitionRevision, definition.current_revision_id) if definition.current_revision_id else None
     if not current or current.revision_number != payload.expected_revision:
         raise HTTPException(409, {"code": "DEFINITION_REVISION_CONFLICT", "current_revision": current.revision_number if current else None})
+    term = payload.term.strip()
+    if db.scalar(select(DefinitionEntry).where(func.lower(DefinitionEntry.term) == term.lower(), DefinitionEntry.id != definition.id)):
+        raise HTTPException(409, {"code": "DEFINITION_TERM_CONFLICT"})
     current.status = "SUPERSEDED"
-    modules = _parse_modules(payload.used_in) if payload.used_in is not None else definition.used_in or []
+    modules = _parse_modules(payload.used_in, "DEFINITION") if payload.used_in is not None else definition.used_in or []
     definition.category = payload.category if payload.category is not None else definition.category
     definition.used_in = modules
-    revision = DefinitionRevision(definition_id=definition.id, revision_number=current.revision_number + 1, term=payload.term.strip(), category=definition.category, used_in=modules, description=payload.description, aliases=payload.aliases, notes=payload.notes, changed_by=_actor(role), change_reason=payload.change_reason, status="CURRENT")
+    revision = DefinitionRevision(definition_id=definition.id, revision_number=current.revision_number + 1, term=term, category=definition.category, used_in=modules, description=payload.description, aliases=payload.aliases, notes=payload.notes, changed_by=_actor(role), change_reason=payload.change_reason, status="CURRENT")
     db.add(revision)
     db.flush()
     definition.term = revision.term
@@ -814,4 +842,6 @@ def lookup_definition(term: str, db: Session = Depends(get_db), role: Role = Dep
     result = definition_lookup(db, term)
     if not result:
         raise HTTPException(404, {"code": "DEFINITION_NOT_FOUND"})
+    if not _definition_role_can_see(role, result):
+        raise HTTPException(403, {"code": "DEFINITION_NOT_APPLICABLE", "persona": persona_for_role(role)})
     return result
