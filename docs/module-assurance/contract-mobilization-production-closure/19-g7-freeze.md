@@ -1,7 +1,10 @@
 # G7 freeze
 
-G7 is not sealed until governed CI and affected G5 are complete. The current
-working candidate is therefore not falsely presented as frozen.
+G7 is not sealed until governed CI and affected G5 are complete. CM-G16 is now
+implemented and the affected local scope is passing; the candidate is not
+presented as frozen until final PR27 checks and the governed release/main
+integration sequence complete.
 
-G7_STATUS=BLOCKED_PENDING_FORMAL_G5_AND_G13
+G13_IS_G7_PRECONDITION=false
+G7_STATUS=BLOCKED_PENDING_FINAL_PR27_ACCEPTANCE_AND_FORMAL_G5
 SOURCE_CHANGE_COUNT_AFTER_FREEZE=NOT_APPLICABLE

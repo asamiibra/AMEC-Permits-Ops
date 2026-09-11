@@ -17,8 +17,8 @@
 | CM-G13 | CLOSED_AND_PROVEN | Project activation is not used as duration start; clock/extension state is explicit. |
 | CM-G14 | CLOSED_AND_PROVEN | Existing Handover, Service close, and administrative close separation is preserved and tested. |
 | CM-G15 | CLOSED_AND_PROVEN | Existing authorization/Form package and capability controls are preserved. |
-| CM-G16 | PARTIAL | Contact absence is surfaced as `CONTACT_RESOLUTION_REQUIRED`; purpose-specific contact capture/UAT remains environment work. |
+| CM-G16 | CLOSED_AND_PROVEN | Purpose-specific Project ContactPoint routing is bound to the exact Contract revision with verified/current PartyRoleAssignment relationships, append-only history, actionable missing-document work, and no generic ClientContact fallback. |
 | CM-G17 | CLOSED_AND_PROVEN | Existing source-scope gates plus exact revision binding reject mismatched evidence paths. |
 
-CM_G_IMPLEMENTATION_RESULT=PARTIAL
+CM_G_IMPLEMENTATION_RESULT=CLOSED_AND_PROVEN
 CM_G_PRODUCTION_GATE_RESULT=BLOCKED_BY_GOVERNED_ENVIRONMENT_EVIDENCE

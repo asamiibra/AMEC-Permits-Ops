@@ -12,11 +12,11 @@ from sqlalchemy.orm import Session
 
 from ..audit.service import audit
 from ..models import (
-    AuditEvent, ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractAdminInput,
+    AuditEvent, AuthorityCase, ClientAccount, ClientContact, ContactPoint, Contract, ContractAdminEvidence, ContractAdminInput,
     ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm,
     ContractReferenceSequence, ContractRevision, ContractTemplateSnapshot, DocumentVersion,
     Finding, LineageEdge, NotificationEvent, Opportunity, Project, ProjectActivation,
-    ProposalAcceptedRevision, Quotation, QuotationRevision, ServiceEngagement, WorkflowTask,
+    Party, PartyRoleAssignment, ProposalAcceptedRevision, Quotation, QuotationRevision, RegulatoryJourney, ServiceEngagement, WorkflowTask,
     BillingMilestone, BillingPlan, BillingPlanRevision, Invoice, InvoicePaymentAllocation,
     InvoiceRevision, PaymentReceipt,
 )
@@ -39,6 +39,16 @@ DEFAULT_CONTRACT_INPUTS = {
     "contract_reopen_policy": {"value": "OWNER_DECISION_REQUIRED", "status": "SAFE_DEFAULT"},
 }
 CONTRACT_ORIGIN_POLICIES = {"REQUIRE_ACCEPTED_PROPOSAL", "ALLOW_AUTHORIZED_STANDALONE", "ALLOW_LEGACY_EXCEPTION"}
+OPERATIONAL_CONTACT_PURPOSES = frozenset({
+    "GENERAL_PROJECT_FOLLOWUP",
+    "MISSING_DOCUMENT_REQUEST",
+    "CONTRACT_COMMUNICATION",
+    "AUTHORITY_FOLLOWUP",
+    "HANDOVER_COORDINATION",
+    "BILLING_FOLLOWUP",
+})
+OPERATIONAL_CONTACT_ROLE = "OPERATIONAL_CONTACT"
+OPERATIONAL_CONTACT_ORGANIZATION_ROLE = "OPERATIONAL_CONTACT_ORGANIZATION"
 CONTRACT_GO_LIVE_SPECS = [
     ("CONTRACT_REFERENCE_POLICY", "Contract reference prefix, padding, uniqueness, and Owner override policy."),
     ("CONTRACT_STAGE_NAMES", "Stage names and business meanings for Draft, Needs Action, Authority Review, Ready / Close, Active, and Closed."),
@@ -444,6 +454,139 @@ def _contract_evidence(db: Session, contract_id: str, revision_id: str | None = 
     return db.scalars(query.order_by(ContractAdminEvidence.recorded_at)).all()
 
 
+def _contact_is_current(contact: ContactPoint, evaluated_on: date) -> tuple[bool, str | None]:
+    if not contact.verified or str(contact.status).upper() not in {"VERIFIED", "ACTIVE", "CURRENT"}:
+        return False, "PURPOSE_CONTACT_UNVERIFIED_OR_INACTIVE"
+    if contact.effective_from and contact.effective_from > evaluated_on:
+        return False, "PURPOSE_CONTACT_NOT_YET_EFFECTIVE"
+    if contact.effective_until and contact.effective_until < evaluated_on:
+        return False, "PURPOSE_CONTACT_EXPIRED"
+    return True, None
+
+
+def _party_summary(db: Session, party_id: str | None) -> dict[str, Any] | None:
+    party = db.get(Party, party_id) if party_id else None
+    if not party:
+        return None
+    return {"id": party.id, "name": party.name_en or party.name_ar, "party_type": str(getattr(party.party_type, "value", party.party_type))}
+
+
+def resolve_operational_contact(
+    db: Session,
+    *,
+    project: Project | None,
+    contract: Contract,
+    purpose: str,
+) -> dict[str, Any]:
+    """Resolve an exact, current, purpose-specific contact without fallback.
+
+    ContactPoint and PartyRoleAssignment remain the canonical party/contact
+    records.  The append-only ContractAdminEvidence binding supplies the
+    Contract boundary and preserves routing history without adding a contact
+    subsystem or allowing a generic ClientContact substitution.
+    """
+    normalized_purpose = str(purpose or "").strip().upper()
+    project_id = project.id if project else contract.project_id
+    base: dict[str, Any] = {
+        "status": "CONTACT_RESOLUTION_REQUIRED",
+        "contract_id": contract.id,
+        "project_id": project_id,
+        "purpose": normalized_purpose,
+        "generic_fallback_used": False,
+        "generic_fallback_policy": "DISALLOWED",
+        "missing": [],
+        "next_action": "Assign a verified purpose-specific operational contact and organization.",
+    }
+    if normalized_purpose not in OPERATIONAL_CONTACT_PURPOSES:
+        return {**base, "blocker_code": "OPERATIONAL_CONTACT_PURPOSE_UNSUPPORTED", "missing": ["SUPPORTED_CONTACT_PURPOSE"]}
+    if not project_id:
+        return {**base, "blocker_code": "PROJECT_CONTEXT_REQUIRED", "missing": ["PROJECT"]}
+
+    revision_id = contract.current_revision_id
+    bindings = [
+        item for item in _contract_evidence(db, contract.id, revision_id)
+        if item.source_role == "OPERATIONAL_CONTACT_ROUTING"
+        and str((item.metadata_json or {}).get("purpose") or "").upper() == normalized_purpose
+    ]
+    binding = max(bindings, key=lambda item: (int((item.metadata_json or {}).get("binding_sequence") or 0), item.recorded_at, item.id)) if bindings else None
+    if not binding:
+        return {**base, "blocker_code": "PURPOSE_SPECIFIC_CONTACT_MISSING", "missing": ["OPERATIONAL_CONTACT_ROUTING"]}
+
+    metadata = binding.metadata_json or {}
+    contact_point_id = str(metadata.get("contact_point_id") or "")
+    contact = db.scalar(select(ContactPoint).where(ContactPoint.id == contact_point_id, ContactPoint.project_id == project_id)) if contact_point_id else None
+    if not contact:
+        return {**base, "blocker_code": "CONTACT_SCOPE_MISMATCH", "missing": ["PROJECT_SCOPED_CONTACT_POINT"]}
+    if str(contact.purpose).upper() != normalized_purpose:
+        return {**base, "blocker_code": "CONTACT_PURPOSE_MISMATCH", "contact_point_id": contact.id, "missing": [normalized_purpose]}
+    current, current_error = _contact_is_current(contact, now().date())
+    if not current:
+        return {**base, "blocker_code": current_error, "contact_point_id": contact.id, "missing": ["CURRENT_VERIFIED_CONTACT_POINT"]}
+
+    operational_party_id = str(metadata.get("operational_contact_party_id") or contact.party_id or "")
+    organization_party_id = str(metadata.get("organization_party_id") or "")
+    practical_role = str(metadata.get("practical_role") or "").strip()
+    assignment_rows = db.scalars(select(PartyRoleAssignment).where(
+        PartyRoleAssignment.project_id == project_id,
+        PartyRoleAssignment.authority_case_id == contact.authority_case_id,
+        PartyRoleAssignment.status == "ACTIVE",
+    )).all()
+    active_on = now().date()
+    role_rows = [
+        item for item in assignment_rows
+        if (not item.valid_from or item.valid_from <= active_on)
+        and (not item.valid_until or item.valid_until >= active_on)
+    ]
+    contact_role = next((item for item in role_rows if item.role_code == OPERATIONAL_CONTACT_ROLE and item.party_id == operational_party_id), None)
+    organization_role = next((item for item in role_rows if item.role_code == OPERATIONAL_CONTACT_ORGANIZATION_ROLE and item.party_id == organization_party_id), None)
+    missing: list[str] = []
+    if not operational_party_id or not contact_role:
+        missing.append("OPERATIONAL_CONTACT_ROLE")
+    if not organization_party_id or not organization_role:
+        missing.append("OPERATIONAL_CONTACT_ORGANIZATION")
+    client = db.get(ClientAccount, contract.client_account_id) if contract.client_account_id else None
+    if client and client.canonical_party_id and organization_party_id != client.canonical_party_id:
+        missing.append("CLIENT_ORGANIZATION_MATCH")
+    if not practical_role:
+        missing.append("PRACTICAL_ROLE")
+    if missing:
+        return {**base, "blocker_code": "OPERATIONAL_CONTACT_RELATIONSHIP_INCOMPLETE", "contact_point_id": contact.id, "missing": sorted(set(missing)), "operational_contact_party_id": operational_party_id or None, "organization_party_id": organization_party_id or None, "practical_role": practical_role or None}
+
+    operational_party = _party_summary(db, operational_party_id)
+    organization_party = _party_summary(db, organization_party_id)
+    return {
+        **base,
+        "status": "RESOLVED",
+        "blocker_code": None,
+        "contact_point_id": contact.id,
+        "operational_contact_party_id": operational_party_id,
+        "operational_contact": operational_party,
+        "organization_party_id": organization_party_id,
+        "organization": organization_party,
+        "practical_role": practical_role,
+        "channel": contact.channel,
+        "value_present": bool(contact.value),
+        "verified": contact.verified,
+        "contact_status": contact.status,
+        "effective_from": contact.effective_from.isoformat() if contact.effective_from else None,
+        "effective_until": contact.effective_until.isoformat() if contact.effective_until else None,
+        "binding_evidence_id": binding.id,
+        "resolved_at": now().isoformat(),
+        "next_action": "Human review of the purpose-specific contact before communication.",
+    }
+
+
+def operational_contact_routing_projection(db: Session, contract: Contract, project: Project | None = None) -> dict[str, Any]:
+    routes = {purpose: resolve_operational_contact(db, project=project, contract=contract, purpose=purpose) for purpose in sorted(OPERATIONAL_CONTACT_PURPOSES)}
+    return {
+        "purposes": routes,
+        "generic_fallback_policy": "DISALLOWED",
+        "unresolved_purposes": [purpose for purpose, result in routes.items() if result["status"] != "RESOLVED"],
+        "source_of_record": "PROJECT_PARTY_ROLE_AND_CONTACT_POINT_BOUND_TO_CONTRACT_EVIDENCE",
+        "external_send": "HUMAN_CONTROLLED",
+    }
+
+
 def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, Any]:
     """Evaluate start facts without changing any canonical state.
 
@@ -623,6 +766,7 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
     evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id).order_by(ContractAdminEvidence.recorded_at.desc())).all()
     start_prerequisites = contract_start_prerequisites(db, contract)
     readiness_states = contract_readiness_states(db, contract)
+    operational_contact_routing = operational_contact_routing_projection(db, contract, project)
     open_tasks = [item for item in tasks if str(item.status).upper() not in {"CLOSED", "COMPLETED", "CANCELLED"}]
     current_time = now()
     overdue_tasks = [item for item in open_tasks if item.due_at and item.due_at < (current_time.replace(tzinfo=None) if item.due_at.tzinfo is None else current_time)]
@@ -678,7 +822,7 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
         "project": {"id": project.id, "reference": project.project_number, "code": project.project_code, "status": project.status, "start_date": project.start_date.isoformat() if project and project.start_date else None} if project else None,
         "dates": {"contract_end": (contract.expected_close_date or contract.end_date).isoformat() if (contract.expected_close_date or contract.end_date) else None, "project_start": activation.start_date.isoformat() if activation else None, "close_date_meaning": contract.close_date_meaning},
         "mobilization": {"project_activation": "ACTIVE" if activation and project and str(project.status).upper() == "ACTIVE" else "REQUIRED", "service_engagement_count": len(services), "service_engagements": [{"id": item.id, "service_ref": item.service_ref, "status": item.status, "project_id": item.project_id, "contract_revision_id": item.contract_revision_id} for item in services]},
-        "controls": {"blockers": blockers, "open_readiness_blockers": readiness_result["blockers"], "open_blocking_findings": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "assignee_role": item.assignee_role} for item in open_blocking_findings], "open_tasks": [{"id": item.id, "title": item.title, "status": item.status, "priority": item.priority, "owner_role": item.owner_role, "due_at": item.due_at.isoformat() if item.due_at else None, "next_action_code": item.next_action_code} for item in open_tasks], "overdue_task_count": len(overdue_tasks), "required_input_state": "OPEN_REQUIRED_INPUTS" if open_required_inputs else "NO_OPEN_REQUIRED_INPUTS", "required_input_count": len(open_required_inputs), "extension_state": extension_state, "invoice_due_state": billing_state, "earned_not_invoiced_state": "EARNED_BUT_NOT_INVOICED" if earned and not issued_milestones.intersection({item.id for item in earned}) else "NO_EARNED_NOT_INVOICED_SIGNAL", "collection_state": collection_state, "contact_state": "CONTACT_RESOLUTION_REQUIRED" if services and not db.scalars(select(ClientContact).where(ClientContact.client_account_id == contract.client_account_id, ClientContact.status == "ACTIVE")).first() else "PURPOSE_CONTACT_AVAILABLE"},
+        "controls": {"blockers": blockers, "open_readiness_blockers": readiness_result["blockers"], "open_blocking_findings": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "assignee_role": item.assignee_role} for item in open_blocking_findings], "open_tasks": [{"id": item.id, "title": item.title, "status": item.status, "priority": item.priority, "owner_role": item.owner_role, "due_at": item.due_at.isoformat() if item.due_at else None, "next_action_code": item.next_action_code} for item in open_tasks], "overdue_task_count": len(overdue_tasks), "required_input_state": "OPEN_REQUIRED_INPUTS" if open_required_inputs else "NO_OPEN_REQUIRED_INPUTS", "required_input_count": len(open_required_inputs), "extension_state": extension_state, "invoice_due_state": billing_state, "earned_not_invoiced_state": "EARNED_BUT_NOT_INVOICED" if earned and not issued_milestones.intersection({item.id for item in earned}) else "NO_EARNED_NOT_INVOICED_SIGNAL", "collection_state": collection_state, "contact_state": "CONTACT_RESOLUTION_REQUIRED" if services and operational_contact_routing["unresolved_purposes"] else "PURPOSE_CONTACT_AVAILABLE"},
         "schedule_state": schedule_state,
         "delay_state": "OVERDUE" if overdue_tasks else "NO_OVERDUE_TASKS",
         "risk_state": "BLOCKED" if open_blocking_findings or readiness_result["blockers"] else "NO_BLOCKING_RISK_RECORDED",
@@ -686,6 +830,7 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
         "next_action": next_action,
         "start_prerequisites": start_prerequisites,
         "readiness_states": readiness_states,
+        "operational_contact_routing": operational_contact_routing,
         "contract_clock": {"contract_date": revision.created_at.date().isoformat() if revision and revision.created_at else None, "period_or_duration": contract.duration, "duration_start_rule": "EXPLICIT_DURATION_START_FACT; PROJECT_ACTIVATION_NOT_IMPLIED", "duration_start_fact": duration_start, "original_expected_end": expected_end.isoformat() if expected_end else None, "current_expected_end": expected_end.isoformat() if expected_end else None, "days_remaining": days_remaining, "extension_history": [{"id": item.id, "recorded_at": item.recorded_at.isoformat(), "source_reference": item.source_reference, "metadata": item.metadata_json} for item in extension_history], "extension_state": extension_state},
         "billing_readiness": {"state": billing_state, "milestone_ids": [item.id for item in earned], "invoice_revision_ids": [item.id for item in invoice_revisions], "invoice_issue_is_separate_human_action": True, "collection_state": collection_state},
         "executed_evidence": [{"id": item.id, "contract_id": item.contract_id, "contract_revision_id": item.contract_revision_id, "document_version_id": item.document_version_id, "source_reference": item.source_reference, "content_hash": item.content_hash, "recorded_by": item.recorded_by, "recorded_at": item.recorded_at.isoformat(), "metadata": item.metadata_json} for item in executed_evidence],

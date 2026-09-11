@@ -16,10 +16,10 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import Contract, ContractAdminEvidence, ContractAdminInput, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, DashboardInputItem, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProjectActivation, Role
+from ..models import ClientAccount, ContactPoint, Contract, ContractAdminEvidence, ContractAdminInput, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, DashboardInputItem, Document, DocumentApprovalState, DocumentType, DocumentVersion, NotificationEvent, Opportunity, PartyRoleAssignment, ProposalAcceptedRevision, Project, ProjectActivation, Role, WorkflowTask
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.admin_contract_read_model import owner_contract_extensions
-from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, now, project_activation, readiness
+from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, OPERATIONAL_CONTACT_PURPOSES, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, now, operational_contact_routing_projection, project_activation, readiness, resolve_operational_contact
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
 from ..config.settings import get_settings
@@ -167,6 +167,21 @@ class CaptureContractTemplatePayload(BaseModel):
 class ContractHandoffEvidencePayload(BaseModel):
     evidence_reference: str = Field(min_length=1, max_length=600)
     metadata: dict[str, Any] = {}
+    reason: str = Field(min_length=3, max_length=1000)
+
+
+class OperationalContactRoutingPayload(BaseModel):
+    purpose: str = Field(min_length=1, max_length=80)
+    contact_point_id: str = Field(min_length=1, max_length=36)
+    organization_party_id: str = Field(min_length=1, max_length=36)
+    practical_role: str = Field(min_length=2, max_length=160)
+    reason: str = Field(min_length=3, max_length=1000)
+
+
+class MissingDocumentFollowupPayload(BaseModel):
+    purpose: str = Field(default="MISSING_DOCUMENT_REQUEST", min_length=1, max_length=80)
+    missing_requirement: str = Field(min_length=1, max_length=240)
+    next_action: str = Field(min_length=3, max_length=1000)
     reason: str = Field(min_length=3, max_length=1000)
 
 
@@ -600,6 +615,84 @@ def record_executed_evidence(contract_id: str, payload: ExecutedEvidencePayload,
     db.commit()
     db.refresh(evidence)
     return {"decision": "RECORDED", "evidence": {"id": evidence.id, "contract_id": evidence.contract_id, "contract_revision_id": evidence.contract_revision_id, "document_version_id": evidence.document_version_id, "source_reference": evidence.source_reference, "content_hash": evidence.content_hash, "recorded_by": evidence.recorded_by, "recorded_at": evidence.recorded_at.isoformat(), "metadata": evidence.metadata_json}, "contract": contract_projection(db, contract)}
+
+
+@router.post("/{contract_id}/operational-contact-routing")
+def bind_operational_contact(contract_id: str, payload: OperationalContactRoutingPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Bind a verified project contact to one Contract purpose, append-only."""
+    require_capability(role, "CONTRACT_EDIT")
+    contract = db.scalar(select(Contract).where(Contract.id == contract_id).with_for_update())
+    if not contract:
+        raise HTTPException(404, {"code": "CONTRACT_NOT_FOUND"})
+    project = db.get(Project, contract.project_id) if contract.project_id else None
+    if not project:
+        raise domain_error(409, "PROJECT_CONTEXT_REQUIRED", contract_id=contract.id)
+    purpose = payload.purpose.strip().upper()
+    contact = db.scalar(select(ContactPoint).where(ContactPoint.id == payload.contact_point_id, ContactPoint.project_id == project.id))
+    if not contact:
+        raise domain_error(409, "CONTACT_SCOPE_MISMATCH", project_id=project.id)
+    if str(contact.purpose).upper() != purpose:
+        raise domain_error(409, "CONTACT_PURPOSE_MISMATCH", expected=purpose, actual=contact.purpose)
+    if purpose not in OPERATIONAL_CONTACT_PURPOSES:
+        raise domain_error(409, "OPERATIONAL_CONTACT_PURPOSE_UNSUPPORTED", purpose=purpose)
+    if not contact.verified or str(contact.status).upper() not in {"VERIFIED", "ACTIVE", "CURRENT"}:
+        raise domain_error(409, "PURPOSE_CONTACT_UNVERIFIED_OR_INACTIVE", contact_point_id=contact.id)
+    evaluated_on = now().date()
+    if (contact.effective_from and contact.effective_from > evaluated_on) or (contact.effective_until and contact.effective_until < evaluated_on):
+        raise domain_error(409, "PURPOSE_CONTACT_NOT_CURRENT", contact_point_id=contact.id)
+    if not contact.party_id:
+        raise domain_error(409, "OPERATIONAL_CONTACT_PARTY_REQUIRED", contact_point_id=contact.id)
+    roles = db.scalars(select(PartyRoleAssignment).where(PartyRoleAssignment.project_id == project.id, PartyRoleAssignment.authority_case_id == contact.authority_case_id, PartyRoleAssignment.status == "ACTIVE")).all()
+    valid_roles = [item for item in roles if (not item.valid_from or item.valid_from <= evaluated_on) and (not item.valid_until or item.valid_until >= evaluated_on)]
+    if not any(item.role_code == "OPERATIONAL_CONTACT" and item.party_id == contact.party_id for item in valid_roles):
+        raise domain_error(409, "OPERATIONAL_CONTACT_ROLE_REQUIRED", party_id=contact.party_id)
+    if not any(item.role_code == "OPERATIONAL_CONTACT_ORGANIZATION" and item.party_id == payload.organization_party_id for item in valid_roles):
+        raise domain_error(409, "OPERATIONAL_CONTACT_ORGANIZATION_REQUIRED", party_id=payload.organization_party_id)
+    client = db.get(ClientAccount, contract.client_account_id) if contract.client_account_id else None
+    if client and client.canonical_party_id and client.canonical_party_id != payload.organization_party_id:
+        raise domain_error(409, "CLIENT_ORGANIZATION_MISMATCH", expected=client.canonical_party_id, actual=payload.organization_party_id)
+    revision_id = contract.current_revision_id
+    if not revision_id:
+        raise domain_error(409, "CONTRACT_REVISION_REQUIRED", contract_id=contract.id)
+    existing = db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == revision_id, ContractAdminEvidence.source_role == "OPERATIONAL_CONTACT_ROUTING").order_by(ContractAdminEvidence.recorded_at.desc()))
+    existing_metadata = (existing.metadata_json or {}) if existing else {}
+    if existing and str(existing_metadata.get("purpose") or "").upper() == purpose and existing_metadata.get("contact_point_id") == contact.id and existing_metadata.get("organization_party_id") == payload.organization_party_id:
+        return {"decision": "ALREADY_RECORDED", "routing": resolve_operational_contact(db, project=project, contract=contract, purpose=purpose), "evidence_id": existing.id}
+    actor = _request_actor(request, role)
+    recorded_at = now()
+    previous_bindings = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == revision_id, ContractAdminEvidence.source_role == "OPERATIONAL_CONTACT_ROUTING")).all()
+    binding_sequence = max([int((item.metadata_json or {}).get("binding_sequence") or 0) for item in previous_bindings] or [0]) + 1
+    metadata = {"purpose": purpose, "contact_point_id": contact.id, "operational_contact_party_id": contact.party_id, "organization_party_id": payload.organization_party_id, "practical_role": payload.practical_role.strip(), "binding_sequence": binding_sequence, "recorded_by": actor, "recorded_at": recorded_at.isoformat(), "project_id": project.id, "authority_case_id": contact.authority_case_id, "human_action": True, "synthetic_only": True}
+    evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision_id, evidence_type="OPERATIONAL_CONTACT_ROUTING", source_role="OPERATIONAL_CONTACT_ROUTING", source_reference=f"contact-point:{contact.id};purpose:{purpose}", status="RECORDED", recorded_by=actor, recorded_at=recorded_at, metadata_json=metadata)
+    db.add(evidence)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_OPERATIONAL_CONTACT_ROUTING_RECORDED", entity_type="Contract", entity_id=contract.id, actor_id=actor, before={"previous_binding_evidence_id": existing.id if existing else None, "previous_contact_point_id": existing_metadata.get("contact_point_id") if existing else None}, after={"evidence_id": evidence.id, "purpose": purpose, "contact_point_id": contact.id, "organization_party_id": payload.organization_party_id, "practical_role": payload.practical_role.strip()}, metadata={"reason": payload.reason, "external_send": False, "generic_contact_fallback": False})
+    db.commit()
+    return {"decision": "RECORDED", "routing": resolve_operational_contact(db, project=project, contract=contract, purpose=purpose), "evidence_id": evidence.id}
+
+
+@router.post("/{contract_id}/missing-document-follow-up")
+def create_missing_document_followup(contract_id: str, payload: MissingDocumentFollowupPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Create canonical AMEC work for a missing document, never autonomous send."""
+    require_capability(role, "CONTRACT_EDIT")
+    contract = _contract_or_404(db, contract_id)
+    project = db.get(Project, contract.project_id) if contract.project_id else None
+    routing = resolve_operational_contact(db, project=project, contract=contract, purpose=payload.purpose)
+    existing_tasks = db.scalars(select(WorkflowTask).where(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract.id, WorkflowTask.task_type == "MISSING_DOCUMENT_CONTACT_FOLLOWUP")).all()
+    for existing in existing_tasks:
+        if (existing.evidence_summary or {}).get("missing_requirement") == payload.missing_requirement and (existing.evidence_summary or {}).get("purpose") == routing["purpose"] and str(existing.status).upper() not in {"CLOSED", "COMPLETED", "CANCELLED"}:
+            return {"decision": "ALREADY_RECORDED", "routing": routing, "task": {"id": existing.id, "status": existing.status, "next_action_code": existing.next_action_code, "deep_link": existing.deep_link}}
+    actor = _request_actor(request, role)
+    task_status = "OPEN" if routing["status"] == "RESOLVED" else "BLOCKED"
+    next_action_code = "REVIEW_MISSING_DOCUMENT_CONTACT_FOLLOWUP" if routing["status"] == "RESOLVED" else "CONTACT_RESOLUTION_REQUIRED"
+    summary = {"contract_id": contract.id, "project_id": project.id if project else None, "missing_requirement": payload.missing_requirement, "purpose": routing["purpose"], "contact_point_id": routing.get("contact_point_id"), "operational_contact_party_id": routing.get("operational_contact_party_id"), "organization_party_id": routing.get("organization_party_id"), "contact_resolution_status": routing["status"], "generic_fallback_used": False, "external_send": "HUMAN_CONTROLLED"}
+    task = WorkflowTask(project_id=project.id if project else contract.project_id, task_type="MISSING_DOCUMENT_CONTACT_FOLLOWUP", title=f"Resolve missing document: {payload.missing_requirement}", description=payload.next_action, owner_role="ADMIN_PROJECT_COORDINATOR", status=task_status, priority="HIGH" if task_status == "BLOCKED" else "NORMAL", correlation_id=request.state.correlation_id, task_family="CONTRACTS", context_type="CONTRACT", context_id=contract.id, blocking=task_status == "BLOCKED", next_action_code=next_action_code, deep_link=f"/contracts/{contract.id}", evidence_summary=summary)
+    db.add(task)
+    db.flush()
+    db.add(NotificationEvent(workflow_task_id=task.id, recipient_role="ADMIN_PROJECT_COORDINATOR", channel="IN_APP", event_type="MISSING_DOCUMENT_CONTACT_FOLLOWUP_REQUIRED", status="PENDING", subject=task.title, body_preview="A missing-document follow-up requires human review; external communication was not sent.", correlation_id=request.state.correlation_id, domain="CONTRACT_WORKFLOW", contract_id=contract.id, proposal_id=contract.proposal_id, audience=["OWNER", "ADMIN_PROJECT_COORDINATOR"], actor=actor, deep_link=f"/contracts/{contract.id}"))
+    audit(db, correlation_id=request.state.correlation_id, event_type="CONTRACT_MISSING_DOCUMENT_FOLLOWUP_CREATED", entity_type="WorkflowTask", entity_id=task.id, actor_id=actor, after={"contract_id": contract.id, "missing_requirement": payload.missing_requirement, "routing_status": routing["status"], "next_action_code": next_action_code}, metadata={"external_send": False, "generic_contact_fallback": False, "reason": payload.reason})
+    db.commit()
+    return {"decision": "ROUTED" if routing["status"] == "RESOLVED" else "CONTACT_RESOLUTION_REQUIRED", "routing": routing, "task": {"id": task.id, "status": task.status, "blocking": task.blocking, "next_action_code": task.next_action_code, "deep_link": task.deep_link}, "notification_created": True}
 
 
 def _record_contract_handoff_evidence(contract_id: str, *, source_role: str, payload: ContractHandoffEvidencePayload, request: Request, db: Session, role: Role) -> dict[str, Any]:
