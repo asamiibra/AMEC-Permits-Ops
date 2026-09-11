@@ -172,6 +172,10 @@ def _connect_with_bounded_attempts(engine):
         try:
             connection = engine.connect()
             connection.exec_driver_sql("SELECT 1")
+            # SQLAlchemy 2.x starts an implicit transaction for the preflight
+            # statement.  Clear it before handing the connection to Alembic so
+            # Alembic owns the migration transaction and can commit it.
+            connection.rollback()
             return connection, attempt
         except Exception as exc:
             last_error = exc
@@ -253,6 +257,11 @@ def run_migrations() -> str:
             config.attributes["connection"] = connection
             try:
                 command.upgrade(config, "head")
+                # The supplied connection may have entered an implicit
+                # transaction before Alembic's context transaction.  Commit
+                # explicitly after a successful upgrade so the head observed
+                # below is durable after this connection is closed.
+                connection.commit()
             except Exception as exc:
                 wrapped = MigrationExecutionError("alembic_upgrade", exc)
                 wrapped.expected_head = expected_head
