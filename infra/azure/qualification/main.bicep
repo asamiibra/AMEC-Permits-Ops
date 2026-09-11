@@ -33,6 +33,9 @@ param sqlAdministratorObjectId string
 @description('Display name of the approved qualification-only SQL Entra administrator.')
 param sqlAdministratorLogin string
 
+@description('SQL login required by the control-plane API; must differ from the Entra administrator.')
+param sqlServerAdministratorLogin string = 'proposalops_g6_sqladmin'
+
 @secure()
 @description('Required by the Azure SQL control-plane API; application URLs remain credentialless.')
 param sqlAdministratorPassword string
@@ -84,7 +87,7 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   tags: tags
   properties: {
     sku: { name: 'PerGB2018' }
-    retentionInDays: 7
+    retentionInDays: 30
   }
 }
 
@@ -161,7 +164,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
   location: location
   tags: tags
   properties: {
-    administratorLogin: sqlAdministratorLogin
+    administratorLogin: sqlServerAdministratorLogin
     administratorLoginPassword: sqlAdministratorPassword
     publicNetworkAccess: 'Disabled'
     minimalTlsVersion: '1.2'
