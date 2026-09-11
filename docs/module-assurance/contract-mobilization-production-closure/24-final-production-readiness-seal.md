@@ -1,13 +1,18 @@
 # Final production-readiness seal
 
-This evidence package deliberately stops before production mutation. Governed
-CI, G8 exact deployment, fresh G9, and independent G13 remain required before
-the production-canary decision.
+This evidence package deliberately stops before production mutation. Governed CI
+is complete and passed. Exact G8 deployment qualification, fresh G9, formal
+G5/G11/G12 requalification, and independent G13 remain required before the
+production-canary decision.
 
 FINAL_RESULT=CONTRACT_MOBILIZATION_PRODUCTION_READINESS_BLOCKED
 CONTRACT_MOBILIZATION_PRODUCTION_READY=false
 READY_FOR_G14_PRODUCTION_CANARY=false
 PRODUCT_STABLE_IN_PRODUCTION=false
+GOVERNED_CI_STATUS=PASS
+G8_STATUS=BLOCKED_NOT_EXECUTED
+G9_STATUS=BLOCKED_PENDING_G8
+G13_STATUS=BLOCKED_NOT_EXECUTED
 PRODUCTION_DEPLOYMENT=NONE
 PRODUCTION_TRAFFIC_MUTATION=NONE
 PRODUCTION_DB_MUTATION=NONE

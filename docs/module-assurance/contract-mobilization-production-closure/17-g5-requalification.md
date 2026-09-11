@@ -5,4 +5,6 @@ maker/checker, acceptance/execution boundaries, executed evidence, Project
 Activation, ServiceEngagement, Operations, Billing seams, Handover, and
 negative controls.
 
-AFFECTED_G5_SCOPE=BLOCKED_PENDING_GOVERNED_RELEASE_CI_AND_UAT
+AFFECTED_G5_LOCAL_SCOPE=PASS
+AFFECTED_G5_SCOPE=BLOCKED_PENDING_FORMAL_RELEASE_REQUALIFICATION_AND_UAT
+GOVERNED_CI_PREREQUISITE=PASS
