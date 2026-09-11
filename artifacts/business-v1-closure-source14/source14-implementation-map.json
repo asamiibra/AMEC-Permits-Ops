@@ -1,0 +1,130 @@
+{
+  "admin_operating_model": "SCOPED_CAPABILITY_AND_WORK_QUEUE_WITHIN_EXISTING_PERSONA_MODEL",
+  "checkpoint_scope": "SOURCE13_SOURCE14_INTERMEDIATE_RECONCILIATION",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "final_work_package_count": 15,
+  "g5_business_v1_code_frozen_current_contract": false,
+  "g5_current_contract_closed": false,
+  "g6_data_platform_qualified": false,
+  "g6_started": false,
+  "latest_governing_contract_source": "SOURCE15",
+  "map": "SOURCE14_REGULATORY_INTAKE_CURRENT_HEAD_RECONCILIATION",
+  "merged_release_sha_recorded_after_merge": true,
+  "open_work_packages": 15,
+  "pr_reviewed_head_recorded_externally": true,
+  "source14_checkpoint_preserved": true,
+  "source15_implementation_not_claimed_in_pr15": true,
+  "source15_now_governs_current_g5": true,
+  "source15_reconciliation_required": true,
+  "subject_source_sha": "98bb7a7c88f2407150f0b4796ebf1ed8bdde69fb",
+  "subject_source_tree": "e7af0e31079b1021e8f15136c2089520f81644ee",
+  "visible_global_persona_created": false,
+  "work_packages": [
+    {
+      "id": "P0-1",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Office Regulatory Master"
+    },
+    {
+      "id": "P0-2",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Engineer Regulatory Master"
+    },
+    {
+      "id": "P0-3",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Regulated Roster + Assignments"
+    },
+    {
+      "id": "P0-4",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Compliance Rules Engine"
+    },
+    {
+      "id": "P0-5",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Office/Engineer Authority Cases"
+    },
+    {
+      "id": "P0-6",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Governed Committee Forms"
+    },
+    {
+      "id": "P0-7",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Renewal Qualification + Evidence"
+    },
+    {
+      "id": "P0-8",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Authority Outcome Projection"
+    },
+    {
+      "id": "P0-9",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Sensitive-Person Data Controls"
+    },
+    {
+      "id": "P1-10",
+      "priority": "P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Workforce Reconciliation"
+    },
+    {
+      "id": "P1-11",
+      "priority": "P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Compliance Command Center"
+    },
+    {
+      "id": "P1-12",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Dynamic Project Requirement Set"
+    },
+    {
+      "id": "P1-13",
+      "priority": "P0",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Evidence Verification and State Separation"
+    },
+    {
+      "id": "P1-14",
+      "priority": "P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Engineering, Submission, Handover and Tender Seams"
+    },
+    {
+      "id": "P1-15",
+      "priority": "P0/P1",
+      "requires_canonical_domain_reuse": true,
+      "status": "OPEN",
+      "title": "Admin Capability Mapping and Protected-Human Boundaries"
+    }
+  ]
+}

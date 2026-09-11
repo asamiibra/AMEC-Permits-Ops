@@ -1,0 +1,45 @@
+{
+  "artifact_type": "immutable_owner_decision_record",
+  "artifact_version": "1",
+  "recorded_at_utc": "2026-09-09T18:54:44Z",
+  "release_sha": "678cae4d10b244def36fe1d9377ce13d242bfdde",
+  "decisions": [
+    {
+      "decision_key": "CIVIL_DEFENSE_AUTHORITY_CASE_PROJECT_MODEL",
+      "effective_value": "CANONICAL_PROJECT_REQUIRED",
+      "owner_statement": "Every contracted AMEC Civil Defense / Maintenance Permit engagement must be represented by a canonical Project before governed AuthorityCases are created. Do not implement a projectless AuthorityCase subject/start model.",
+      "effective_date": "2026-09-09",
+      "status": "OWNER_CONFIRMED"
+    },
+    {
+      "decision_key": "OWNER_APPROVED_CLIENT_DELAY_COMMERCIAL_HANDOVER_THRESHOLD",
+      "effective_value": 30,
+      "unit": "CALENDAR_DAYS",
+      "effective_date": "2026-09-09",
+      "semantics": "ELIGIBILITY_TRIGGER_REQUIRING_HUMAN_AUTHORIZATION",
+      "clock_start": "A governed, evidenced client/external-party blocking-delay event with explicit responsibility attribution and recorded follow-up.",
+      "allowed_effects": [
+        "MAKE_ENGAGEMENT_ELIGIBLE_FOR_CLIENT_DELAY_COMMERCIAL_HANDOVER_WORKFLOW",
+        "EXPOSE_OR_ESCALATE_COMMERCIAL_WORK_ITEM",
+        "PREPARE_HANDOVER_PACKAGE",
+        "ROUTE_INVOICE_FOLLOWUP"
+      ],
+      "forbidden_autonomous_effects": [
+        "ISSUE_INVOICE",
+        "ISSUE_AMEC_HANDOVER_LETTER",
+        "MARK_HANDOVER_ACCEPTED",
+        "CLOSE_SERVICE_ENGAGEMENT_OR_PROJECT",
+        "EXECUTE_PROTECTED_HUMAN_ACTION"
+      ],
+      "preserve_event_history_and_evidence": true,
+      "do_not_infer_delay_start_date": true,
+      "status": "OWNER_CONFIRMED"
+    }
+  ],
+  "source": "Owner approval supplied in the governing execution conversation",
+  "source_hash": null,
+  "append_only": true,
+  "g6_started": false,
+  "production_or_preproduction_mutations": 0,
+  "real_amec_bytes_read": 0
+}

@@ -1,0 +1,39 @@
+{
+  "qualification_id": "g6-20260911-b478dcbf",
+  "resource_group": "rg-proposalops-g6-qual-20260911-b478dcbf",
+  "release_sha": "b478dcbf777960888b85d46ba2f832bdd167b4b3",
+  "release_tree": "0ab9c1625dfd248fdee3e9db857035fd38243c65",
+  "deployment_name": "g6-20260911-b478dcbf-topology",
+  "deployment_started_at_utc": "2026-09-11T03:11:16.941013+00:00",
+  "failure_evidence_durable": true,
+  "first_causal_blockers": [
+    {
+      "layer": "JOB_PROVISIONING_PREREQUISITE_SQL_CONTROL_PLANE",
+      "code": "ExternalAdministratorLoginSameAsSqlAdmin",
+      "message": "Azure SQL rejected identical Entra administrator and SQL server administrator names."
+    },
+    {
+      "layer": "MONITORING_CONTROL_PLANE",
+      "code": "InvalidParameter",
+      "message": "RetentionInDays=7 is incompatible with the PerGB2018 workspace SKU."
+    }
+  ],
+  "resource_operations": [
+    {"name": "g6acr3lw2hnvs6nz2", "type": "Microsoft.ContainerRegistry/registries", "state": "Succeeded"},
+    {"name": "g6-runtime-3lw2hnvs6nz2", "type": "Microsoft.ManagedIdentity/userAssignedIdentities", "state": "Succeeded"},
+    {"name": "g6-migration-3lw2hnvs6nz2", "type": "Microsoft.ManagedIdentity/userAssignedIdentities", "state": "Succeeded"},
+    {"name": "g6-vnet-3lw2hnvs6nz2", "type": "Microsoft.Network/virtualNetworks", "state": "Succeeded"},
+    {"name": "privatelink.database.windows.net", "type": "Microsoft.Network/privateDnsZones", "state": "Succeeded"},
+    {"name": "privatelink.database.windows.net/g6-vnet-link", "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks", "state": "Succeeded"},
+    {"name": "g6sql-3lw2hnvs6nz2", "type": "Microsoft.Sql/servers", "state": "Failed", "error": "ExternalAdministratorLoginSameAsSqlAdmin"},
+    {"name": "g6-law-3lw2hnvs6nz2", "type": "Microsoft.OperationalInsights/workspaces", "state": "Failed", "error": "InvalidParameter"}
+  ],
+  "image_pull": "NOT_STARTED",
+  "container_start": "NOT_STARTED",
+  "managed_identity_token": "NOT_STARTED",
+  "sql_private_network": "NOT_READY_SQL_SERVER_PROVISIONING_FAILED",
+  "sql_auth": "NOT_STARTED",
+  "migration": "NOT_STARTED",
+  "cleanup": "NOT_PERFORMED_EVIDENCE_PRESERVED",
+  "prior_g6_6_failure_causal_root": "NOT_FULLY_PROVEN_RESOURCE_ALREADY_DELETED"
+}

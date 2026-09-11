@@ -1,0 +1,1515 @@
+{
+  "atomic_requirement_count": 150,
+  "billing_requirement_row_count": 94,
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "latest_governing_contract_source": "SOURCE18",
+  "ledger": "SOURCE16_FINAL_PERMIT_BILLING",
+  "native_requirement_row_count": 124,
+  "permit_requirement_row_count": 30,
+  "requirement_orphans": 0,
+  "requirements": [
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 1,
+      "source": "Source16",
+      "source_locator": "paragraph 87",
+      "source_text": "1. Every permit/application has its own checklist",
+      "source_text_sha256": "03b245b1037ad901feb5e22bf1ec724cfdfd5eae65f46e8933e78f354094752f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 2,
+      "source": "Source16",
+      "source_locator": "paragraph 94",
+      "source_text": "2. Checklist is sent to the client",
+      "source_text_sha256": "af99c37762bdfa9a3fbd8763bfab6922914bfd8fe40f43a6fa027bf92f7af674",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 3,
+      "source": "Source16",
+      "source_locator": "paragraph 99",
+      "source_text": "3. Documents are validated individually",
+      "source_text_sha256": "eb727c48a7993279c88743ab0ff370d80b80a2feda232fbc60d06b1bcc542607",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 4,
+      "source": "Source16",
+      "source_locator": "paragraph 111",
+      "source_text": "4. Valid documents go to the server immediately",
+      "source_text_sha256": "32a7c56ad9f1729a9f3858800118e29ad0256a06460a9887960d26b85f1a698c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 5,
+      "source": "Source16",
+      "source_locator": "paragraph 121",
+      "source_text": "5. Missing documents are tracked independently",
+      "source_text_sha256": "f0998e6f2c0455c1577a96caead09cf997f28c5fe8da61de528bf1b0f23a86ab",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 6,
+      "source": "Source16",
+      "source_locator": "paragraph 131",
+      "source_text": "6. Incorrect documents are not silently accepted",
+      "source_text_sha256": "ae352c877af48cc881a6d9d1e566f6bdd2630434f02839eb903e0df2e4c5aace",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 7,
+      "source": "Source16",
+      "source_locator": "paragraph 141",
+      "source_text": "7. The server is the operational source of truth for collected documents",
+      "source_text_sha256": "37219b82fd5615105a1903e7f7053495d4203ce7074b7ed66c98eed8739e3eac",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 8,
+      "source": "Source16",
+      "source_locator": "paragraph 155",
+      "source_text": "8. Document collection and engineering must operate in parallel",
+      "source_text_sha256": "6b44bff921e35d7f1c058c016a2ef3cdc5c7c556cc50d5fa7dc3df0cbba05de7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 9,
+      "source": "Source16",
+      "source_locator": "paragraph 168",
+      "source_text": "9. Technical report is part of the submission package",
+      "source_text_sha256": "d5a4a3f9a9f7119af55009d890df55c9a8f8c37ea5dff5fbad5c1250219031a1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 10,
+      "source": "Source16",
+      "source_locator": "paragraph 178",
+      "source_text": "10. Engineering supplies the substantive project description",
+      "source_text_sha256": "f6ea29074e6388202d56a2c4f3ed8da44568b4d3f9c160ab72403327ce0ef728",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 11,
+      "source": "Source16",
+      "source_locator": "paragraph 188",
+      "source_text": "11. Technical report contains fixed identity fields",
+      "source_text_sha256": "3e9edd50bf7e492737f26b7ad4658e9c2eadf699dadbe1fcb72e2b7fa747ad4a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 12,
+      "source": "Source16",
+      "source_locator": "paragraph 201",
+      "source_text": "12. Municipality source determines municipality",
+      "source_text_sha256": "54f4cf1c771c0fc87aa201b16f3f4c6147fac251ca3162a32d52e20ea7491918",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 13,
+      "source": "Source16",
+      "source_locator": "paragraph 206",
+      "source_text": "13. Plot number comes from authoritative property documentation",
+      "source_text_sha256": "e025e3963a113383ef59ecbd27a945765a1d06a7762d495b6de93f7191721f8b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 14,
+      "source": "Source16",
+      "source_locator": "paragraph 212",
+      "source_text": "14. Municipality comments create a revision loop",
+      "source_text_sha256": "f7b0a3a0cb4e8977df490bc3e6c303137925d3d5292b1ba4a1ec94368da1f503",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 15,
+      "source": "Source16",
+      "source_locator": "paragraph 226",
+      "source_text": "15. Comments may require engineering + document/report revision",
+      "source_text_sha256": "a09d4a23b0bdaffb5b9482f674ecb38cef2597bf75680d5c9dc87a8f908f37f9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 16,
+      "source": "Source16",
+      "source_locator": "paragraph 236",
+      "source_text": "16. Municipality comment is not necessarily a full rejection",
+      "source_text_sha256": "ca180dc9a04f54a292e0c79bf67e91b773d98c55aa464edbf64b5c677fbe0436",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 17,
+      "source": "Source16",
+      "source_locator": "paragraph 241",
+      "source_text": "17. The system must preserve revision history",
+      "source_text_sha256": "00ace7743c1ca21716570b2f4973fc786cf3afe3a3ea4a4e942ab18e478a92ea",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 18,
+      "source": "Source16",
+      "source_locator": "paragraph 251",
+      "source_text": "18. Permit types matter",
+      "source_text_sha256": "b53da628f3f888cc7c4091f7ca8e0e4d964a684ed4569f6a7a32f4257f41aa8b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 19,
+      "source": "Source16",
+      "source_locator": "paragraph 261",
+      "source_text": "19. Industrial Area applications have special documents",
+      "source_text_sha256": "3d653a4f2096bbb14401e362ca2b8ecfde23c37b6e46aba6b367bdd3fadbf7cb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 20,
+      "source": "Source16",
+      "source_locator": "paragraph 276",
+      "source_text": "20. Industrial croqui has a specific authority meaning",
+      "source_text_sha256": "4d32d4976c3dcb2e7e6b56a03dc20be9c943cc14f806bfbb32053b72e34d3333",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 21,
+      "source": "Source16",
+      "source_locator": "paragraph 284",
+      "source_text": "21. Previous permits/completion/plans can be prerequisites",
+      "source_text_sha256": "a8c78fb11ecf061b0fbf091466e9eb45fb1280d0cc8297b54188821625bd9361",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 22,
+      "source": "Source16",
+      "source_locator": "paragraph 291",
+      "source_text": "22. Ownership can involve many parties",
+      "source_text_sha256": "a237c31c50d59e823a94787a43699e890f88811027ecc3174a7ed4c50eb51c88",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 23,
+      "source": "Source16",
+      "source_locator": "paragraph 310",
+      "source_text": "23. Company ownership requires company evidence",
+      "source_text_sha256": "783917f6a1d4840e23ce103d849a44a92ffb49cab7da696528f3147c80c01dd8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 24,
+      "source": "Source16",
+      "source_locator": "paragraph 313",
+      "source_text": "24. Authorized representative / power of attorney matters",
+      "source_text_sha256": "2fb64674b1429508cfb4e37290a2e4b6b5d6faa136b27cc43bf36220c35d18a2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 25,
+      "source": "Source16",
+      "source_locator": "paragraph 325",
+      "source_text": "25. Deceased owner ≠ request deceased owner's ID",
+      "source_text_sha256": "bcd604366bc6b76ea4a16aef1dae387204a81f6c65f69d6c8f69d791f8e51135",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 26,
+      "source": "Source16",
+      "source_locator": "paragraph 337",
+      "source_text": "26. Number of heirs can be large",
+      "source_text_sha256": "a5e6a966b9995466330f92b84367edd0f107a72f907d9af1fb456061c4f34b7d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 27,
+      "source": "Source16",
+      "source_locator": "paragraph 349",
+      "source_text": "27. Expired IDs must be detected and followed up",
+      "source_text_sha256": "04f3ee0fe0a48ebae20e8d256f94d6d10348a5d1a0e21361f9097b4045272c71",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 28,
+      "source": "Source16",
+      "source_locator": "paragraph 356",
+      "source_text": "28. Partial correction is required",
+      "source_text_sha256": "01d2c12aed44cd05780a248f6d2245bcef27e6182def5201432e1fc93bf1246a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 29,
+      "source": "Source16",
+      "source_locator": "paragraph 364",
+      "source_text": "29. Signature/stamp requirements depend on legal party type",
+      "source_text_sha256": "a091c754a87331cfa3ff97be961e8eee446f347936178415ff04cf85b56f2d36",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "PERMIT_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 30,
+      "source": "Source16",
+      "source_locator": "paragraph 373",
+      "source_text": "30. Municipality portal upload is deliberately NOT a current requirement",
+      "source_text_sha256": "6aee120cdf38ad07badc183e1a35c81fcaa90c737f15928db6875a7b88be89cc",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 1,
+      "source": "Source16",
+      "source_locator": "paragraph 655",
+      "source_text": "Every eligible project/contract has a governed Billing Plan.",
+      "source_text_sha256": "be95eb5d0a17a1a87bd43d6a41eb0b4d46115e87b36a6ee222734712792318d0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 2,
+      "source": "Source16",
+      "source_locator": "paragraph 656",
+      "source_text": "The Billing Plan comes from exact Contract/payment-condition truth.",
+      "source_text_sha256": "f310544b0cfc3c320f96bcb977f88352c1ecbe162f72bbc8ab506640248d7df8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 3,
+      "source": "Source16",
+      "source_locator": "paragraph 657",
+      "source_text": "Every installment has sequence, amount/percentage and trigger.",
+      "source_text_sha256": "52acfd1aee2929d35ce9af6f7c97a95f6af85281a031adf5a21397bd02af3a1b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 4,
+      "source": "Source16",
+      "source_locator": "paragraph 658",
+      "source_text": "Supervision supports a fixed recurring monthly billing plan.",
+      "source_text_sha256": "b24b75896b908293d9559af024f0e99704de04c2d54a0cf4e3b746f010558984",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 5,
+      "source": "Source16",
+      "source_locator": "paragraph 659",
+      "source_text": "Design supports event/milestone-driven billing.",
+      "source_text_sha256": "6129bf10c7f686354846985e230b754701f68c8a3f28b521438cc523db3cbc69",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 6,
+      "source": "Source16",
+      "source_locator": "paragraph 660",
+      "source_text": "Each installment can have a planned collection/forecast date.",
+      "source_text_sha256": "0fd1e86fb26cf5aca3d95c22fea1939871a9221eff88cfbc096dc32b96b51750",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 7,
+      "source": "Source16",
+      "source_locator": "paragraph 661",
+      "source_text": "Forecast collection date is distinct from invoice due date.",
+      "source_text_sha256": "167b9df5dd2bdffb88145e1b66526e977ac94845d1d757308e57352c87542a6e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 8,
+      "source": "Source16",
+      "source_locator": "paragraph 662",
+      "source_text": "Actual collection date is separately recorded.",
+      "source_text_sha256": "14635bc4f566eb54df76a88e5fe3e6d0efd570755186b76716b85ca949de03ef",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 9,
+      "source": "Source16",
+      "source_locator": "paragraph 663",
+      "source_text": "Management can compare planned vs actual collection.",
+      "source_text_sha256": "a5e9f17df1b2c559c8cd81f84f987ba109a481a13628f29505215286902d9eb8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 10,
+      "source": "Source16",
+      "source_locator": "paragraph 664",
+      "source_text": "Project financial balance/collected/remaining values are system-derived—not manually maintained.",
+      "source_text_sha256": "cbe4173cd09e93e1a48c288e2bdcc0b2219614989f9dd1d1dda06dfe97817fcb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 11,
+      "source": "Source16",
+      "source_locator": "paragraph 668",
+      "source_text": "Engineering/Project Manager initiates a Billing Request when the milestone is achieved.",
+      "source_text_sha256": "46c7f6e9935a20fda6b67f7463dcf94dbcbba0ca4ba3fa7281f45c10a8d124da",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 12,
+      "source": "Source16",
+      "source_locator": "paragraph 669",
+      "source_text": "Billing/Admin does not blindly trust the request.",
+      "source_text_sha256": "06adc9ede8308f639abf34673f59d510e29bd4ce845ce564576dd3ee630d918e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 13,
+      "source": "Source16",
+      "source_locator": "paragraph 670",
+      "source_text": "Billing/Admin checks the project's quotation/contract payment conditions.",
+      "source_text_sha256": "72dc5d4b8d636c8ded9713b4042db4eefa57c82ee4142d475bd378cf2f1fd13c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 14,
+      "source": "Source16",
+      "source_locator": "paragraph 671",
+      "source_text": "Billing/Admin verifies that the requested milestone exists.",
+      "source_text_sha256": "35a109045a3f269cf4896345fd0096335344983a029242b1c3829c42d059ccd1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 15,
+      "source": "Source16",
+      "source_locator": "paragraph 672",
+      "source_text": "Billing/Admin verifies the amount/percentage.",
+      "source_text_sha256": "697487d0ce22bd0b48935db8122adba182550667a9e5cb9f88067db3a69a9815",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 16,
+      "source": "Source16",
+      "source_locator": "paragraph 673",
+      "source_text": "Billing/Admin verifies correct milestone sequence.",
+      "source_text_sha256": "495a1f2a901444f44cf1fbb80c524e00cabf1c1f52b875860a51e5783c28fff8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 17,
+      "source": "Source16",
+      "source_locator": "paragraph 674",
+      "source_text": "Trigger evidence is attached/pinned.",
+      "source_text_sha256": "62452b75881d87f2799270d0f2b169800727be9af9a6a238a4c5c8fd20884595",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 18,
+      "source": "Source16",
+      "source_locator": "paragraph 675",
+      "source_text": "A later milestone cannot silently jump an earlier required project milestone.",
+      "source_text_sha256": "b8cf96a99111faa0d4554032df213874f3be90d509415f20d70e1c6f6f14d66a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 19,
+      "source": "Source16",
+      "source_locator": "paragraph 676",
+      "source_text": "Explicit exceptions must be governed rather than silently bypassing sequence.",
+      "source_text_sha256": "4bb85313f6b6adae73cdfd001af45b3774bb2f584f2bfa5031752787d6601390",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 20,
+      "source": "Source16",
+      "source_locator": "paragraph 680",
+      "source_text": "New project → use governed standard invoice template.",
+      "source_text_sha256": "6029323edb7bbce845e64552f28dc81968340c736cb943d91db3478f885b1790",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 21,
+      "source": "Source16",
+      "source_locator": "paragraph 681",
+      "source_text": "Existing project → “Create Next Invoice” from the same project's previous invoice/context.",
+      "source_text_sha256": "ed54db01b47343611c07a7997184cc1afae0a7576818c7c965cdbbbd190c511e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 22,
+      "source": "Source16",
+      "source_locator": "paragraph 682",
+      "source_text": "Do not copy an unrelated project's invoice and retype project information.",
+      "source_text_sha256": "9be3f3f91e27f1f80a78d535a3bfde4dd1ffb153fb6b2a9554a149acac1b93ef",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 23,
+      "source": "Source16",
+      "source_locator": "paragraph 683",
+      "source_text": "Allocate the next global AMEC invoice reference.",
+      "source_text_sha256": "80c0efca532422abf3c7fe4f45c6480beb5a96ce2d5741bb7aca4ce2c8aa38e3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 24,
+      "source": "Source16",
+      "source_locator": "paragraph 684",
+      "source_text": "Maintain a separate per-project installment number: 01, 02, 03...",
+      "source_text_sha256": "dc9b88860f30d94e007a0ad48263c173a97af3776ab0a343d170e4946f9148e1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 25,
+      "source": "Source16",
+      "source_locator": "paragraph 685",
+      "source_text": "Update invoice date.",
+      "source_text_sha256": "13d59066d75b26be7b6f405f349be5b9ca9341cf12b9e0ba10a46703aa280f4f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 26,
+      "source": "Source16",
+      "source_locator": "paragraph 686",
+      "source_text": "Update current milestone.",
+      "source_text_sha256": "7bd2f1b31ceb8e6bb479996f798ed115003549e389e1235379d83b405882b23b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 27,
+      "source": "Source16",
+      "source_locator": "paragraph 687",
+      "source_text": "Update current amount.",
+      "source_text_sha256": "8b2ecc9111464bb6b7487c06e3dd65b5044f0ddcd903bea35c0ffbd892321fc8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 28,
+      "source": "Source16",
+      "source_locator": "paragraph 688",
+      "source_text": "Preserve full contract amount.",
+      "source_text_sha256": "64118f58523c72597b5937cb059143294d310d48770df8229b148edfe35bf963",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 29,
+      "source": "Source16",
+      "source_locator": "paragraph 689",
+      "source_text": "Show prior installments/payment history.",
+      "source_text_sha256": "5776ffbcd3ccb2ce8473342248c4a88c8d513928ad85ff8d0ad3cb46ba3c09eb",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 30,
+      "source": "Source16",
+      "source_locator": "paragraph 690",
+      "source_text": "Clearly identify settled prior installments.",
+      "source_text_sha256": "c3827faedd4fb03a85cdc0d725a79475606f6a1d965cb94d983bff73760ca461",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 31,
+      "source": "Source16",
+      "source_locator": "paragraph 691",
+      "source_text": "Clearly highlight the currently requested installment.",
+      "source_text_sha256": "974f10c2fc5cde31a10cd098b9aeb7a3f84fcae8932cb4a396f981cbad6a6120",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 32,
+      "source": "Source16",
+      "source_locator": "paragraph 692",
+      "source_text": "Calculate remaining contract amount.",
+      "source_text_sha256": "251e3a042124b554531f8f56de74996013b153e0ab51cecef3c710adbe4cde38",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 33,
+      "source": "Source16",
+      "source_locator": "paragraph 693",
+      "source_text": "Produce the design evidence pack.",
+      "source_text_sha256": "6ea439936f96490faac1b16acda39990ddbec771c1afe60ac7d4e4adb5251c96",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 34,
+      "source": "Source16",
+      "source_locator": "paragraph 694",
+      "source_text": "Include the relevant payment-condition/quotation excerpt.",
+      "source_text_sha256": "309c57d599ec7548063f9bc858d864c358a67a3dba669df64e7aa250ce87964a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 35,
+      "source": "Source16",
+      "source_locator": "paragraph 695",
+      "source_text": "Highlight the current payment condition.",
+      "source_text_sha256": "9ff8b25be214dd51d9df898140031b96d633125dde366483b1bbeaae0a5e21e2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 36,
+      "source": "Source16",
+      "source_locator": "paragraph 696",
+      "source_text": "Include the authority/system proof supporting the milestone.",
+      "source_text_sha256": "e8233562c9d96c7e2a10faf81fef161284aec9e969effd97259c8ab55f2bad9e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 37,
+      "source": "Source16",
+      "source_locator": "paragraph 697",
+      "source_text": "Supervision invoice can remain simpler than design invoice.",
+      "source_text_sha256": "09fe07b4959d2f7a5c3be99998f2b9d9635331c8d7a15bd6c3e238070ee2192f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 38,
+      "source": "Source16",
+      "source_locator": "paragraph 698",
+      "source_text": "Preserve exact issued invoice immutability.",
+      "source_text_sha256": "f9f157673c0f089cd722844e7af30ec8319bfe69c46ce052ac5b2cb3ddba4ea8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 39,
+      "source": "Source16",
+      "source_locator": "paragraph 699",
+      "source_text": "Maintain governed Word/DOCX and PDF outputs if AMEC intends to retain today's dual-file operational requirement.",
+      "source_text_sha256": "60a0d4894e64239ac7785fbff6cfa913ba3a569ce464a224869b878c490a7ab4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 40,
+      "source": "Source16",
+      "source_locator": "paragraph 703",
+      "source_text": "Draft acceptance and actual issue are separate human actions.",
+      "source_text_sha256": "a5f6bb366abdd43a8e6de560692952fb81ff0e2b0963ba63fe0e3548aabc8af4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 41,
+      "source": "Source16",
+      "source_locator": "paragraph 704",
+      "source_text": "Issued invoice receives the official company number.",
+      "source_text_sha256": "d1f0c0b0d5378ab18c229c26db901619ac4ccabe300191aaa32525da124c3af0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 42,
+      "source": "Source16",
+      "source_locator": "paragraph 705",
+      "source_text": "Invoice delivery is a separate event from issuance.",
+      "source_text_sha256": "7615fce15784ae152886f5430f6175714d3ce634ab4d55d913207bad8af05c8c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 43,
+      "source": "Source16",
+      "source_locator": "paragraph 710",
+      "source_text": "Delivery evidence policy depends on channel.",
+      "source_text_sha256": "154fc4bf22b20749a49064288e330cd308e9227bc1b607dd322bc97e6501eeb0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 44,
+      "source": "Source16",
+      "source_locator": "paragraph 711",
+      "source_text": "Email delivery retains sent-email proof.",
+      "source_text_sha256": "27cc7cbf872bc42648d3af4a2b6529e30b30a0b55c64fc96397ecca1ccc58666",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 45,
+      "source": "Source16",
+      "source_locator": "paragraph 712",
+      "source_text": "WhatsApp requires retained acknowledgment/response evidence.",
+      "source_text_sha256": "c31e700e4e0a83c0e10c1b2d40b82ae5c7bf2e75b8a666f5b97d2ea020e7fd24",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 46,
+      "source": "Source16",
+      "source_locator": "paragraph 713",
+      "source_text": "Messenger delivery requires returned signed/received-invoice proof.",
+      "source_text_sha256": "d246b563c13386c921cfa8cae331f298afb9e3ae728ab8688dfec4e3f2215363",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 47,
+      "source": "Source16",
+      "source_locator": "paragraph 714",
+      "source_text": "Missing external proof generates an unresolved follow-up/task.",
+      "source_text_sha256": "9fa3559979b394aa3898deb24b92639288c3ee407304e300729fdb1adc3bf1e6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 48,
+      "source": "Source16",
+      "source_locator": "paragraph 715",
+      "source_text": "Invoice cannot be considered evidence-complete while mandatory delivery proof is missing.",
+      "source_text_sha256": "402e05ee07bc86a469230520f4d1a9254ba9beba2fea15a5ca1c35d46724294c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 49,
+      "source": "Source16",
+      "source_locator": "paragraph 719",
+      "source_text": "Receipt/payment is recorded against exact Contract/Project/Invoice context.",
+      "source_text_sha256": "f59bafa6d3b55761563732e2acd9d89815c6d573cc81a4c8289e112d1ea59721",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 50,
+      "source": "Source16",
+      "source_locator": "paragraph 720",
+      "source_text": "Record actual received date.",
+      "source_text_sha256": "bda0f4f7c3787b4231d500efd7ff6a4da1a7a41b53d1d7dc6b9d98cbf6af2671",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 51,
+      "source": "Source16",
+      "source_locator": "paragraph 721",
+      "source_text": "Record amount.",
+      "source_text_sha256": "010fa9cfa8ab72a184420f978a6bb4798664a2c35775ff51092098e7d939382a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 52,
+      "source": "Source16",
+      "source_locator": "paragraph 722",
+      "source_text": "Record currency.",
+      "source_text_sha256": "9b8b026148449527867a733412894beb990d1a25848f019475932db05ed32531",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 53,
+      "source": "Source16",
+      "source_locator": "paragraph 723",
+      "source_text": "Record payment method.",
+      "source_text_sha256": "49ae069eace9376071385d40463138dea2b589aab962c098c89feacc4813eea1",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 54,
+      "source": "Source16",
+      "source_locator": "paragraph 724",
+      "source_text": "Record payment reference.",
+      "source_text_sha256": "bfbe4a60592b0ea15d281d0dd0269988c953107d72f86b682f86238da18e19ee",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 55,
+      "source": "Source16",
+      "source_locator": "paragraph 725",
+      "source_text": "Record where/who actually received the money.",
+      "source_text_sha256": "2a52eeee6d22e17c39b571a12779a867885a69337272cefe168d4d75264229ce",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 56,
+      "source": "Source16",
+      "source_locator": "paragraph 726",
+      "source_text": "Support corporate-bank transfer.",
+      "source_text_sha256": "6625dc4e9077c23726c6cb50354828d4f719d8d02a8621f227b9fdb2737293d6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 57,
+      "source": "Source16",
+      "source_locator": "paragraph 727",
+      "source_text": "Support cheque.",
+      "source_text_sha256": "1afbba4151ef297f90ce55d39b845ec9534590f9540b3f289e7f36e948b7c37a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 58,
+      "source": "Source16",
+      "source_locator": "paragraph 728",
+      "source_text": "Support exceptional approved receipt through another custodian/account, such as the Engineer Mohammed example.",
+      "source_text_sha256": "c9e8ccdd28cb6277109f98dc3b93641d725cbecff3125a38b261b2e985132f57",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 59,
+      "source": "Source16",
+      "source_locator": "paragraph 729",
+      "source_text": "Payment evidence is mandatory before verification.",
+      "source_text_sha256": "a0cec3750f564a3e27be25d92d4c6b7a91d7152ffe7115663db95c2b59932c94",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 60,
+      "source": "Source16",
+      "source_locator": "paragraph 730",
+      "source_text": "Transfer requires transfer evidence.",
+      "source_text_sha256": "3d089d662d99e6924e3d2b2b3c91c7f2acb220beaacb57a581e53b71ae8c7bb6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 61,
+      "source": "Source16",
+      "source_locator": "paragraph 731",
+      "source_text": "Cheque requires the cheque image and AMEC receipt/voucher.",
+      "source_text_sha256": "d43ff582c26f4bc2bb08ffe99c235a9574ee289ab1e2ecc8d628c3ec3015a11f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 62,
+      "source": "Source16",
+      "source_locator": "paragraph 732",
+      "source_text": "Personal/alternate-recipient collection requires suitable receipt/transfer confirmation.",
+      "source_text_sha256": "d82ecc2fd00c89731a56797885d0cd429d1efb39cd2c8edc3cec091be3a2dd95",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 63,
+      "source": "Source16",
+      "source_locator": "paragraph 733",
+      "source_text": "Payment observation ≠ payment verification.",
+      "source_text_sha256": "31dfb09a390d1fa1facf82dd29b66f27168aa19d403b86d26ede38d40986d70b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 64,
+      "source": "Source16",
+      "source_locator": "paragraph 734",
+      "source_text": "Payment verification ≠ allocation.",
+      "source_text_sha256": "7e5083bdc07192572bac55665360d370eb61428fc448aa1bbb106468bb341f42",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 65,
+      "source": "Source16",
+      "source_locator": "paragraph 735",
+      "source_text": "Partial payment remains partial and leaves outstanding balance.",
+      "source_text_sha256": "af9426a535c5e9fd7886e14421d60cf0ac50aa57964131afb04f622e28b4a726",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 66,
+      "source": "Source16",
+      "source_locator": "paragraph 736",
+      "source_text": "Over-allocation must be blocked.",
+      "source_text_sha256": "72695ace4638b8393126be8bc11edd687be806ac788c60730d7a37888f54d63f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 67,
+      "source": "Source16",
+      "source_locator": "paragraph 737",
+      "source_text": "Wrong payment/collection must have a governed reversal/correction path.",
+      "source_text_sha256": "94d31c99e8cf84d8495495ed834038b0372a271491b7b6f2f133741242d146e5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 68,
+      "source": "Source16",
+      "source_locator": "paragraph 738",
+      "source_text": "Reversal must undo dependent receivable effects without deleting audit history.",
+      "source_text_sha256": "c0c929d2c83500feee4a319b2216cd8bf9f0e4fbcf7369a7bcec87dd80c0f834",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 69,
+      "source": "Source16",
+      "source_locator": "paragraph 743",
+      "source_text": "An issued invoice may remain unpaid.",
+      "source_text_sha256": "df40378070afeb733259235572d962a7dda2e3a3ea9df19ba029946774a07777",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 70,
+      "source": "Source16",
+      "source_locator": "paragraph 744",
+      "source_text": "An unpaid invoice can be disputed/problematic.",
+      "source_text_sha256": "06b78a031bdbd6d36452f113ce4842cb98fe1a7c2a3893895e13d34b8320e4fa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 71,
+      "source": "Source16",
+      "source_locator": "paragraph 745",
+      "source_text": "AMEC may deliberately waive/release/write off a receivable.",
+      "source_text_sha256": "5fe7312c168cdd8643cfa16a3fcceeffabdf435129122b73b2480809c89da33f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 72,
+      "source": "Source16",
+      "source_locator": "paragraph 746",
+      "source_text": "Waiver/write-off must be a separate protected human action.",
+      "source_text_sha256": "886c55729855c1588f784da908e1b3b8701548ad4dcfa47d7d6bd79e8027533f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 73,
+      "source": "Source16",
+      "source_locator": "paragraph 747",
+      "source_text": "It must not masquerade as PAID.",
+      "source_text_sha256": "42a84d9ff1a15128b48c8d4edcf403d408e8afa7eb4af66a6bbdd1fd1eefd64c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 74,
+      "source": "Source16",
+      "source_locator": "paragraph 748",
+      "source_text": "Original invoice remains in history.",
+      "source_text_sha256": "d45aaaf6cc8b498ac538527b10d3fc957a02486e132944f7691ecd2270bacb24",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 75,
+      "source": "Source16",
+      "source_locator": "paragraph 749",
+      "source_text": "Original outstanding amount remains historically visible.",
+      "source_text_sha256": "6688f1cc2db148af5d7626d430f55ba1d92f1b1c74ad96a3047e224c3e7589b5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 76,
+      "source": "Source16",
+      "source_locator": "paragraph 750",
+      "source_text": "Resolution reason/evidence/authority must be recorded.",
+      "source_text_sha256": "3fd7b66913af830395a653cb54ccbf68b4a7335a4f87755e4c5d5e91e01dbbe7",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 77,
+      "source": "Source16",
+      "source_locator": "paragraph 751",
+      "source_text": "Downstream balance/reporting must understand the waived amount.",
+      "source_text_sha256": "8ea58147e05cc362d4077b99c8374de3c87f772970bc952a5d8349766bda3dab",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 78,
+      "source": "Source16",
+      "source_locator": "paragraph 756",
+      "source_text": "Outstanding invoice can have collection follow-ups.",
+      "source_text_sha256": "9fc26728963929e824eb4dd494a80079d9614e447181f61a870dfcedc0dded4b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 79,
+      "source": "Source16",
+      "source_locator": "paragraph 757",
+      "source_text": "Missing delivery proof can have separate follow-ups.",
+      "source_text_sha256": "48cca00ad6a07a579639803a837f0b557eab9b5f24b57157df75c68cab85b08b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 80,
+      "source": "Source16",
+      "source_locator": "paragraph 758",
+      "source_text": "External dependencies such as Hisham must remain visible until fulfilled.",
+      "source_text_sha256": "68c710ae473ffa3107f364fd79d7ea2bb4d4b57573a6aa99f582b3f85aa1c562",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 81,
+      "source": "Source16",
+      "source_locator": "paragraph 759",
+      "source_text": "Every invoice needs an evidence-completeness state.",
+      "source_text_sha256": "124b5d238575c4dfa3ed05e178cea77287d2f1cf3921054444e9e2aa4234bdad",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 82,
+      "source": "Source16",
+      "source_locator": "paragraph 760",
+      "source_text": "Every invoice needs a receivable-resolution state.",
+      "source_text_sha256": "1324c0342ac5219c903c591140bc152081ca66f44cf10af62c5a2161087d3ca3",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 83,
+      "source": "Source16",
+      "source_locator": "paragraph 762",
+      "source_text": "paid;",
+      "source_text_sha256": "d4b905b171bd988e3f6c183fbbcf4410da0c648c472d1e70dc9d5429c3dc31c6",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 84,
+      "source": "Source16",
+      "source_locator": "paragraph 763",
+      "source_text": "appropriately waived/write-off;",
+      "source_text_sha256": "3efa0a25a14ce262a3d1f62d895e5dd1b01f6ba61e6223b1044e221e92610397",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 85,
+      "source": "Source16",
+      "source_locator": "paragraph 764",
+      "source_text": "another explicitly governed resolution.",
+      "source_text_sha256": "b81261f130c8968f7c55021a0da34378f5ccad85465fba8c79c8fce2f81c075d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 86,
+      "source": "Source16",
+      "source_locator": "paragraph 765",
+      "source_text": "All financially required project installments resolved → Billing Complete / Financially Collected.",
+      "source_text_sha256": "c654fcb913f1ffba74cefa9bf91329c3cd2dacffd7abcf096710f42d5f1197e5",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 87,
+      "source": "Source16",
+      "source_locator": "paragraph 766",
+      "source_text": "Billing Complete does not automatically mean Engineering/Project Completion.",
+      "source_text_sha256": "fed679d6519ac6895d51e4e8c52afb7fb13c2c3ac39953ee09fda8b7936aa22d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 88,
+      "source": "Source16",
+      "source_locator": "paragraph 767",
+      "source_text": "Project lifecycle completion remains its own protected human process.",
+      "source_text_sha256": "2b2aa3bd2b55a03be1ff6066bee40bda94d71c388df487f92f954b6ad14b06fd",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 89,
+      "source": "Source16",
+      "source_locator": "paragraph 768",
+      "source_text": "The Project workspace should visibly display its financial/billing completion condition.",
+      "source_text_sha256": "8ef37675ef52f4eb736f3b318feb08ef0eb6957c38a97def496b8a1caefe8a72",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 90,
+      "source": "Source16",
+      "source_locator": "paragraph 772",
+      "source_text": "Billing operator does not manually touch accounting/formula internals.",
+      "source_text_sha256": "7d70f2995a7aa2e688d9760ff3af43541fffb046e5d341de7250a933d9dec5d8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 91,
+      "source": "Source16",
+      "source_locator": "paragraph 773",
+      "source_text": "Verified collection/resolution should feed downstream financial reporting deterministically.",
+      "source_text_sha256": "110af57a7066cb2057ed728086351ee31eb1032fe0720178b041fca8450842ff",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 92,
+      "source": "Source16",
+      "source_locator": "paragraph 774",
+      "source_text": "Wrong/reversed collection must reverse those downstream effects.",
+      "source_text_sha256": "48f3bfe43443fd6beb0df23b1bc37e2491b11327e107022e48641c85fe60403a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 93,
+      "source": "Source16",
+      "source_locator": "paragraph 775",
+      "source_text": "Revenue, expense, profit and receivable reporting must therefore consume governed financial events.",
+      "source_text_sha256": "3fb36c488ba874b93dedc3b1e9ca4a47bdf52182fa45bbf2d58d237d02e380ba",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "BILLING_NATIVE_REQUIREMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 94,
+      "source": "Source16",
+      "source_locator": "paragraph 776",
+      "source_text": "ProposalOps Billing itself should not silently pretend to be the accounting journal if accounting remains a separate domain/system.",
+      "source_text_sha256": "e811ebc324d272f35a1c0c1e827ea4206f59da438136caa90703932c464fea0a",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 1,
+      "source": "Source16",
+      "source_locator": "paragraph 101",
+      "source_text": "ID checked directly;",
+      "source_text_sha256": "efa3db3267f0f4e0e39b7c991e858168240e60d752d02181ca3e985eb0de36f0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 2,
+      "source": "Source16",
+      "source_locator": "paragraph 102",
+      "source_text": "lease/title checked;",
+      "source_text_sha256": "f0d963fcafadb200414c268e2c1b9a5073e9066a8ffbf8d50b3003309664a208",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 3,
+      "source": "Source16",
+      "source_locator": "paragraph 103",
+      "source_text": "name consistency checked;",
+      "source_text_sha256": "d27806c590345b21ccb9476f34c94b6e06d19df12d6506b3cf6f6acf4323ed6e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 4,
+      "source": "Source16",
+      "source_locator": "paragraph 104",
+      "source_text": "ownership document checked;",
+      "source_text_sha256": "0f692147eeb25baebfdacf4980842ed76ed1cf592154785c11c2a2b790a0086c",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 5,
+      "source": "Source16",
+      "source_locator": "paragraph 105",
+      "source_text": "recent title print checked;",
+      "source_text_sha256": "e4a364994b8d24830a4e92df8273d97d7ed60739d213f353c3c0791893c88d9d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 6,
+      "source": "Source16",
+      "source_locator": "paragraph 106",
+      "source_text": "land plan checked.",
+      "source_text_sha256": "85fcd610ad6d116eac0da2bb1c6cf2ce1010b991bebf141e99b166072dbe97b0",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 7,
+      "source": "Source16",
+      "source_locator": "paragraph 118",
+      "source_text": "PARTIAL_DOCUMENT_PACKAGE",
+      "source_text_sha256": "4147ea0dcc6132baaec64bf95f63777ce78766b9429241e6f53cc8f211fb816e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 8,
+      "source": "Source16",
+      "source_locator": "paragraph 127",
+      "source_text": "OUTSTANDING",
+      "source_text_sha256": "6ba332d65aa706b7186114157c2ec3893c22b0e795c41b5aa530ce6febc193e8",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 9,
+      "source": "Source16",
+      "source_locator": "paragraph 134",
+      "source_text": "The corrected version is then saved.",
+      "source_text_sha256": "574211da97cb3612c595bc8c1b880cae31f3c54b85938b2ce50970c62672c0da",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 10,
+      "source": "Source16",
+      "source_locator": "paragraph 138",
+      "source_text": "Received Version 2 → Valid",
+      "source_text_sha256": "b916110ce140de8f43b998838df17ed2752a627bb5409eaad695212872bcabe2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 11,
+      "source": "Source16",
+      "source_locator": "paragraph 162",
+      "source_text": "Do not make the checklist a serial gate that blocks engineering.",
+      "source_text_sha256": "cffc4fbb71526f74143432f50e5e2072f78cc1c5c1356e54f61da98e4eb1279f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 12,
+      "source": "Source16",
+      "source_locator": "paragraph 183",
+      "source_text": "This is an important AI-assisted drafting opportunity, but not an AI-authority requirement.",
+      "source_text_sha256": "1ad75cf68836f001c247b0ca9fc336b3e9d98ac93c293a470df5f2194cb3f3aa",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 13,
+      "source": "Source16",
+      "source_locator": "paragraph 190",
+      "source_text": "municipality;",
+      "source_text_sha256": "eba7d6a203a741205c252e0930db4db1ebd3d6f2e2cf7eb4ce5ae0162709c5b2",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 14,
+      "source": "Source16",
+      "source_locator": "paragraph 204",
+      "source_text": "Municipality should be a structured project/application field, not merely free text typed into a report.",
+      "source_text_sha256": "f910d29d15fd37db2963a8977d024f59ac70e4c0155d4189611798147fc6f9bd",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 15,
+      "source": "Source16",
+      "source_locator": "paragraph 209",
+      "source_text": "Source Document → Property Identity → Plot Number",
+      "source_text_sha256": "d9ad295daf2991eb66d4884595668a6a8baa2ba5e48b3931e05a3ea60853f2f9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 16,
+      "source": "Source16",
+      "source_locator": "paragraph 220",
+      "source_text": "COMMENT / REVISION REQUIRED",
+      "source_text_sha256": "baa02ee5acbc1e909654d02a9ec33e1860a3b7135f82374b521af836e2e88a7d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 17,
+      "source": "Source16",
+      "source_locator": "paragraph 239",
+      "source_text": "COMMENT ≠ REJECTION",
+      "source_text_sha256": "fed137b8269c95a023a5f780667c374fc5c5f338730459a4347d0ff3dac9370f",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 18,
+      "source": "Source16",
+      "source_locator": "paragraph 259",
+      "source_text": "Permit Type must drive the checklist and workflow.",
+      "source_text_sha256": "830381ebd740dd7969f4849ade3ebcb9c05106917eeae2adf9da01c6deb783d4",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 19,
+      "source": "Source16",
+      "source_locator": "paragraph 274",
+      "source_text": "The exact checklist must therefore be configurable by application type.",
+      "source_text_sha256": "26e2ddcd42659e53d3c6dd845d93bc6158c3cbfc64112928d7614aae34cbf03b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 20,
+      "source": "Source16",
+      "source_locator": "paragraph 289",
+      "source_text": "These can become required evidence for a new application.",
+      "source_text_sha256": "b4a8ca13c14b5099be5014910f958b817afca1d442b5ccb0cceb3f4d71660b95",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 21,
+      "source": "Source16",
+      "source_locator": "paragraph 300",
+      "source_text": "as the only ownership structure.",
+      "source_text_sha256": "a61328d8144837fab60a89673bd3176e5387f2727fe8ad07419093605c6f3e4e",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 22,
+      "source": "Source16",
+      "source_locator": "paragraph 319",
+      "source_text": "Therefore authorization must be a first-class evidence relationship.",
+      "source_text_sha256": "11940a0a41332d62a6e3c3c837e6624916ebe20c740e0ec7807b3c323b612517",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 23,
+      "source": "Source16",
+      "source_locator": "paragraph 334",
+      "source_text": "→ collect relevant heirs' IDs.",
+      "source_text_sha256": "ff1f2af367dd393c79fb51d6abb330c308c49d5e732862995d70731fca447a8b",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 24,
+      "source": "Source16",
+      "source_locator": "paragraph 346",
+      "source_text": "field.",
+      "source_text_sha256": "db9c4870c1597f2c63fe0850c9dac2a8169c6bca2d2eacb32bfff8b7bdfb71d9",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 25,
+      "source": "Source16",
+      "source_locator": "paragraph 354",
+      "source_text": "NOT RECEIVED.",
+      "source_text_sha256": "07861a8d4788e529d23455ce7e717e737ea8b76abe663cabb42c860ec30a7e9d",
+      "traceability_status": "SOURCE_BACKED"
+    },
+    {
+      "kind": "ATOMIC_REFINEMENT",
+      "normative_source_sha256": "e786bab37fcff0f3d02e9b1b087b9d3fbe439a20af25609c36210ee79de2e214",
+      "ordinal": 26,
+      "source": "Source16",
+      "source_locator": "paragraph 360",
+      "source_text": "Request only the 3 replacements.",
+      "source_text_sha256": "f418b3431e4dae471e97997bbd6064fe5a3d7340150329a04ff8e40d4e61273a",
+      "traceability_status": "SOURCE_BACKED"
+    }
+  ],
+  "subject_source_sha": "f14fc0d2090af50c9f9e74aa4bc64d68499a941a",
+  "subject_source_tree": "178183b151f6bd0b388fdf5f90392b72d023883d"
+}

@@ -1,0 +1,42 @@
+{
+  "checkpoint_scope": "SOURCE13_SOURCE14_INTERMEDIATE_RECONCILIATION",
+  "evidence_container_commit": null,
+  "evidence_container_commit_recorded_externally": true,
+  "g5_business_v1_code_frozen_current_contract": false,
+  "g5_current_contract_closed": false,
+  "g6_data_platform_qualified": false,
+  "g6_started": false,
+  "latest_governing_contract_source": "SOURCE15",
+  "merged_release_sha_recorded_after_merge": true,
+  "pr_reviewed_head_recorded_externally": true,
+  "relationships": [
+    {
+      "from": "Source12",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source13"
+    },
+    {
+      "from": "Source13",
+      "relationship": "REFINED_BY_LATER_SOURCE",
+      "to": "Source14 finance revalidation"
+    },
+    {
+      "from": "Source14 checkpoint",
+      "relationship": "SUPERSEDED_FOR_CURRENT_G5_RECONCILIATION",
+      "to": "Source15"
+    }
+  ],
+  "rules": [
+    "Source1–Source12 accepted rows remain append-only and are not deduplicated.",
+    "Source13 raw 116-row inventory is preserved for provenance but is not the final governing ledger in this checkpoint.",
+    "Source13 final standard-Invoice adjudication must be rebuilt on the Source15 branch; accepted Contract is required in production and quotation-only billing is unsupported.",
+    "Source14 primary rows remain distinct from its 36 finance revalidation rows.",
+    "Source15 supersedes this checkpoint for current G5 reconciliation.",
+    "No absence in a later source is treated as supersession.",
+    "Unresolved source-quality or Owner decisions remain explicit rather than converted into code."
+  ],
+  "source14_checkpoint_preserved": true,
+  "source15_implementation_not_claimed_in_pr15": true,
+  "source15_now_governs_current_g5": true,
+  "source15_reconciliation_required": true
+}

@@ -1,0 +1,116 @@
+{
+  "purpose": "Preserved G6 native migration failure evidence before repair",
+  "synthetic_only": true,
+  "production_db_mutations": 0,
+  "real_amec_source_reads": 0,
+  "dsm_business_reads": 0,
+  "sqlserver_image": "mcr.microsoft.com/mssql/server@sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89",
+  "failures": [
+    {
+      "source_tree": "60639e081f9707714e784261ccfbcf262040fdef",
+      "targets": ["g6-final-db1-20260910", "g6-final-db2-20260910"],
+      "migration_path": "ai_d2_execution_ledger_v1 -> source18_regulatory_current_state_v1",
+      "error_class": "pyodbc.ProgrammingError",
+      "sqlstate": "42000",
+      "native_error": 2628,
+      "finding": "alembic_version.version_num was VARCHAR(32), shorter than source18_regulatory_current_state_v1"
+    },
+    {
+      "source_tree_after_first_repair": "GOVERNED_FIX_BRANCH_WORKTREE_BEFORE_SECOND_REPAIR",
+      "targets": ["g6-fix-db1-20260910", "g6-fix-db2-20260910"],
+      "migration_path": "source18_regulatory_current_state_v1 -> source18_committee_implementation_v1",
+      "error_class": "TypeError",
+      "finding": "create_unique_constraint received positional column arguments instead of one column-list argument",
+      "file": "backend/migrations/versions/source18_committee_implementation_v1.py",
+      "line": 187
+    },
+    {
+      "source_tree_after_second_repair": "GOVERNED_FIX_BRANCH_WORKTREE_BEFORE_SEED_RESET_REPAIR",
+      "targets": ["g6-fix2-db1-20260910", "g6-fix2-db2-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py fixture seed reset",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "finding": "synthetic reseed attempted to delete authority_cases before regulatory_state_versions; SQL Server FK FK__regulator__autho__3D1EF407 blocked the reset",
+      "file": "backend/app/seed/cli.py",
+      "line": 136
+    },
+    {
+      "source_tree_after_seed_reset_repair": "GOVERNED_FIX_BRANCH_WORKTREE_AFTER_REGULATORY_CHILD_ORDER_REPAIR",
+      "targets": ["g6resetfix_db1 on g6-fix2-db1-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py repeated fixture seed reset",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "native_error": 547,
+      "finding": "synthetic reseed attempted to delete contracts before findings; SQL Server FK findings_contract_id_fkey blocked the reset",
+      "file": "backend/app/seed/cli.py",
+      "line": 146
+    },
+    {
+      "source_tree_after_finding_order_repair": "GOVERNED_FIX_BRANCH_WORKTREE_AFTER_FINDING_BEFORE_CONTRACT_REPAIR",
+      "targets": ["g6resetfix_db1 on g6-fix2-db1-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py repeated fixture seed reset",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "native_error": 547,
+      "finding": "synthetic reseed attempted to delete findings before workflow_tasks; SQL Server FK workflow_tasks_finding_id_fkey blocked the reset",
+      "file": "backend/app/seed/cli.py",
+      "line": 149
+    },
+    {
+      "source_tree_after_workflow_task_order_repair": "GOVERNED_FIX_BRANCH_WORKTREE_AFTER_WORKFLOW_TASK_BEFORE_FINDING_REPAIR",
+      "targets": ["g6resetfix_db1 on g6-fix2-db1-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py repeated fixture seed reset",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "native_error": 547,
+      "finding": "synthetic reseed attempted to delete workflow_tasks before notification_events; SQL Server FK notification_events_workflow_task_id_fkey blocked the reset",
+      "file": "backend/app/seed/cli.py",
+      "line": 149
+    },
+    {
+      "source_tree_after_notification_order_repair": "GOVERNED_FIX_BRANCH_WORKTREE_AFTER_NOTIFICATION_BEFORE_WORKFLOW_TASK_REPAIR",
+      "targets": ["g6resetfix_db1 on g6-fix2-db1-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py repeated fixture seed reset",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "native_error": 547,
+      "finding": "synthetic reseed attempted to delete workflow_tasks before assistant_handoffs; SQL Server FK assistant_handoffs_workflow_task_id_fkey blocked the reset",
+      "file": "backend/app/seed/cli.py",
+      "line": 149
+    },
+    {
+      "source_tree_after_assistant_handoff_order_repair": "GOVERNED_FIX_BRANCH_WORKTREE_AFTER_ASSISTANT_HANDOFF_BEFORE_WORKFLOW_TASK_REPAIR",
+      "targets": ["g6resetfix_db1 on g6-fix2-db1-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py repeated fixture seed reset",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "native_error": 547,
+      "finding": "synthetic reseed attempted to delete contracts before permit_applications; SQL Server FK permit_applications_controlling_contract_id_fkey blocked the reset",
+      "file": "backend/app/seed/cli.py",
+      "line": 149
+    },
+    {
+      "source_tree_after_permit_application_order_repair": "GOVERNED_FIX_BRANCH_WORKTREE_BEFORE_SQLSERVER_CONSTRAINT_RESET_REPAIR",
+      "targets": ["g6resetfix_db1 on g6-fix2-db1-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py repeated fixture seed reset",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "native_error": 547,
+      "finding": "synthetic reseed attempted to delete permit_applications before monitoring_policies; SQL Server FK monitoring_policies_application_id_fkey blocked the reset",
+      "file": "backend/app/seed/cli.py",
+      "line": 148
+    },
+    {
+      "source_tree_after_constraint_reset_repair": "GOVERNED_FIX_BRANCH_WORKTREE_BEFORE_COMPLETE_SCHEMA_RESET_REPAIR",
+      "targets": ["g6resetfix_db1 on g6-fix2-db1-20260910"],
+      "check": "backend/tests/test_phase5_sqlserver_runtime.py repeated fixture seed reset constraint re-enable",
+      "error_class": "pyodbc.IntegrityError",
+      "sqlstate": "23000",
+      "native_error": 547,
+      "finding": "constraint re-enable detected an orphaned proposal_source_evidence row because the legacy manual reset list omitted that application table",
+      "file": "backend/app/seed/cli.py",
+      "line": 56
+    }
+  ],
+  "downstream_native_acceptance_executed": true
+}

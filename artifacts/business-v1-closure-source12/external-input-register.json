@@ -1,0 +1,52 @@
+{
+  "g5_blocking": true,
+  "items": [
+    {
+      "code_independent": true,
+      "decision_or_evidence": "Exact Owner-approved client-delay threshold, unit, effective date, and governing evidence for commercial handover/stop-clock behavior.",
+      "disabled_capability": "Automatic threshold-based commercial handover.",
+      "g5_blocker": true,
+      "input_id": "OWNER_APPROVED_CLIENT_DELAY_COMMERCIAL_HANDOVER_THRESHOLD",
+      "revalidation_result": "UNRESOLVED_EXTERNAL_INPUT_PRESERVED",
+      "safe_fail_closed_behavior": "Keep delay prediction/threshold handover disabled and show an explicit unresolved policy blocker.",
+      "source12_revalidated": true,
+      "source_qualified_ids": [
+        "Source6:O06",
+        "Source10:O07"
+      ],
+      "why_code_cannot_resolve": "The supplied sources describe the control but do not select an authoritative threshold; inventing a day count changes commercial policy."
+    },
+    {
+      "code_independent": true,
+      "decision_or_evidence": "Current official or Owner-approved authority policy source, version, effective date, and provenance.",
+      "disabled_capability": "Automatic current-authority policy assertion.",
+      "g5_blocker": true,
+      "input_id": "SOURCE8_CURRENT_AUTHORITY_POLICY_CURRENTNESS",
+      "revalidation_result": "UNRESOLVED_EXTERNAL_INPUT_PRESERVED",
+      "safe_fail_closed_behavior": "Do not claim current authority rules; keep authority-dependent readiness in human review.",
+      "source12_revalidated": true,
+      "source_qualified_ids": [
+        "Source8:EC-001",
+        "Source8:EC-125"
+      ],
+      "why_code_cannot_resolve": "Repository code cannot establish current external authority policy or its effective version."
+    },
+    {
+      "code_independent": true,
+      "decision_or_evidence": "Current official or Owner-approved Committee form source, version, effective date, and provenance.",
+      "disabled_capability": "Automatic current Committee-form selection/submission.",
+      "g5_blocker": true,
+      "input_id": "SOURCE8_CURRENT_COMMITTEE_FORMS_CURRENTNESS",
+      "revalidation_result": "UNRESOLVED_EXTERNAL_INPUT_PRESERVED",
+      "safe_fail_closed_behavior": "Do not auto-select or submit a Committee form; require human confirmation and preserve the form version used.",
+      "source12_revalidated": true,
+      "source_qualified_ids": [
+        "Source8:EC-001",
+        "Source8:EC-125"
+      ],
+      "why_code_cannot_resolve": "A synthetic or historical repository form cannot prove the currently accepted external form."
+    }
+  ],
+  "register": "BUSINESS_V1_CONSOLIDATED_EXTERNAL_INPUTS_SOURCE12",
+  "source12_sha256": "40c51771d644248d46c86b9f29a8f9233e3c68d81cea3201e67b6ab7e6803bcd"
+}

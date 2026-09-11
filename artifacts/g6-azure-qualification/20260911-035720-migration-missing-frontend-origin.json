@@ -1,0 +1,16 @@
+{
+  "qualificationId": "g6-20260911-b478dcbf",
+  "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+  "releaseSha": "fdc6ff417e6fd01460d5b4bc22a97d57995f5461",
+  "imageDigest": "sha256:e214b54191d573c59c3eced3ad4c303aa37ffa729d72a870e0dc771e079c71e7",
+  "stage": "G6.6-D-MIGRATION",
+  "status": "FAILED_BEFORE_DATABASE_CONNECTION",
+  "execution": "g6-migration-3lw2hnvs6nz2-s7gornf",
+  "errorClass": "APPLICATION_CONFIGURATION",
+  "error": "AZURE-PREPROD requires explicit FRONTEND_ORIGINS",
+  "databaseConnectionAttempted": false,
+  "productionImpact": false,
+  "realDataUsed": false,
+  "rootCause": "qualification Bicep commonEnvironment omitted the explicit synthetic HTTPS origin required by the application configuration contract",
+  "repair": "add FRONTEND_ORIGINS=https://g6-qualification.invalid to qualification-only commonEnvironment"
+}

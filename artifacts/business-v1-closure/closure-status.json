@@ -1,0 +1,132 @@
+{
+  "closure": "G5_BUSINESS_V1_CODE_FROZEN",
+  "status": "PASS_WITH_EXPLICIT_DEFERMENTS",
+  "source_sha": "d0df23f6603fc262401a10c3531d3a9c7809da75",
+  "source_tree": "db161f0e0179a17c8c7edbc24cec765f1a55adc2",
+  "tender": {
+    "client_rfp_path": "Opportunity -> Proposal",
+    "duplicate_tender_domain": false,
+    "procurement_tender_v1": "FORMALLY_DEFERRED_BY_THIS_MASTER_PROMPT",
+    "evidence": [
+      "frontend/src/App.tsx",
+      "frontend/src/Opportunities.tsx",
+      "frontend/src/ProposalWorkspaceStageAware.tsx"
+    ]
+  },
+  "billing": {
+    "implemented_core": true,
+    "invoice_and_receivable_regression": "PASS",
+    "tax": "BILLING_RESIDUAL_TAX=FORMALLY_DEFERRED_TO_OWNER_POLICY",
+    "credit_note": "BILLING_RESIDUAL_CREDIT_NOTE=FORMALLY_DEFERRED_TO_OWNER_POLICY",
+    "aging_collections": "DERIVED_RECEIVABLE_AGING_SUPPORTED; COLLECTION_ACTIONS_DEFERRED_TO_OWNER_POLICY",
+    "financial_settlement": "FINAL_FINANCIAL_SETTLEMENT_DEFERRED_TO_LATER_CLOSEOUT_WORKSTREAM",
+    "production_issuance": "BLOCKED_BY_TEMPLATE_NUMBERING_FINANCIAL_ACCOUNT_AND_ISSUE_AUTHORITY",
+    "sample_data_boundary": "NO_REAL_BANK_DATA_COPIED_OR_USED",
+    "evidence": [
+      "artifacts/billing-invoice/08-closure-status.json",
+      "docs/billing-invoice/25-financial-settlement-seam.md",
+      "docs/billing-invoice/38-final-result.md",
+      "docs/post-billing-v2-reconciliation/33-final-result.md",
+      "artifacts/expansion/e5-e6-regression-result.json"
+    ]
+  },
+  "billing_navigation": {
+    "discoverable": true,
+    "canonical_route": "/billing",
+    "legacy_invoice_route_redirects": [
+      "/admin/invoices",
+      "/admin/invoices/:id"
+    ],
+    "evidence": [
+      "frontend/src/App.tsx",
+      "frontend/src/Home.tsx",
+      "frontend/src/AdministrationOwner.tsx",
+      "frontend/src/domainOwnershipRoutes.ts"
+    ]
+  },
+  "minimum_v1_reporting": {
+    "accepted_surfaces": [
+      "proposal_pipeline",
+      "contract_and_project_status",
+      "regulatory_and_submission_status",
+      "billing_and_receivables_aging",
+      "construction_completion_closeout",
+      "work_and_exception_queue",
+      "audit_and_export"
+    ],
+    "speculative_analytics_added": false,
+    "evidence": [
+      "artifacts/universal-owner-audit/route-inventory.json",
+      "artifacts/production-readiness-ui/route-coverage.json",
+      "docs/production-readiness-ui/14-final-coverage-report.md"
+    ]
+  },
+  "integrations": {
+    "non_launch_integrations_deferred_owner_accepted": true,
+    "deferred": [
+      {"integration": "procurement_or_vendor_tendering", "DEFERRED_OWNER_ACCEPTED": true},
+      {"integration": "authority_portal_automation", "DEFERRED_OWNER_ACCEPTED": true},
+      {"integration": "real_synology_verification", "DEFERRED_OWNER_ACCEPTED": true},
+      {"integration": "external_email_delivery", "DEFERRED_OWNER_ACCEPTED": true},
+      {"integration": "bank_or_erp_gl_settlement", "DEFERRED_OWNER_ACCEPTED": true},
+      {"integration": "payment_verification_as_settlement", "DEFERRED_OWNER_ACCEPTED": true}
+    ],
+    "ui_claims_live_external_operation": false,
+    "evidence": [
+      "artifacts/universal-owner-audit/integration-inventory.json",
+      "docs/production-readiness-ui/04-data-sources-and-access.md",
+      "docs/post-billing-v2-reconciliation/33-final-result.md"
+    ]
+  },
+  "route_screen_classification": {
+    "source": "artifacts/universal-owner-audit/route-inventory.json",
+    "total_routes": 66,
+    "PRODUCTION": 21,
+    "ADMIN_INTERNAL": 24,
+    "TEST_ONLY": 0,
+    "HISTORICAL_REMOVE": 21,
+    "normal_users_see_prototype_or_test_surfaces": false,
+    "historical_route_ids": "LEGACY-01 through LEGACY-21",
+    "evidence": [
+      "artifacts/universal-owner-audit/route-inventory.json",
+      "artifacts/universal-owner-audit/route-browser-matrix.json",
+      "artifacts/universal-owner-audit/final-result.json"
+    ]
+  },
+  "terminology_and_source_authority": {
+    "azure_sql": "STRUCTURED_OPERATIONAL_TRUTH",
+    "synology": "AUTHORITATIVE_SOURCE_DOCUMENT_REPOSITORY",
+    "content_library": "GOVERNED_DISCOVERY_REUSE_PROJECTION_NOT_SYSTEM_OF_RECORD",
+    "lineage": "Source -> Observation -> Human Verification -> VerifiedAssertion -> typed projection",
+    "terminology_audit": "PASS_WITH_HISTORICAL_CLASSIFICATION",
+    "evidence": [
+      "artifacts/universal-owner-audit/terminology-audit.json",
+      "docs/production-readiness-ui/04-data-sources-and-access.md"
+    ]
+  },
+  "accessibility_browser_support": {
+    "supported_acceptance_target": "Chromium-based modern desktop browser",
+    "supported_responsive_device_targets": [
+      "desktop viewport 1280px",
+      "mobile viewport 390px"
+    ],
+    "not_certified_in_this_v1": [
+      "Firefox-specific behavior",
+      "WebKit/Safari-specific behavior",
+      "native mobile app shells"
+    ],
+    "accessibility_smoke": "PASS",
+    "axe_serious_or_critical": 0,
+    "mobile_horizontal_overflow": 0,
+    "browser_e2e": "PASS; readiness 5 passed, full frontend 108 passed with --workers=1",
+    "evidence": [
+      "artifacts/universal-owner-audit/accessibility-results.json",
+      "artifacts/universal-owner-audit/mobile-results.json",
+      "artifacts/production-readiness-ui/browser-result.json",
+      "artifacts/production-readiness-ui/final-result.json",
+      "docs/production-readiness-ui/13-browser-e2e-evidence.md"
+    ]
+  },
+  "billing_core_regression": "PASS",
+  "g5_business_v1_code_frozen": true
+}

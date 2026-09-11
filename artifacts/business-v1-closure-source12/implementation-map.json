@@ -1,0 +1,24 @@
+{
+  "capabilities": {
+    "SOURCE12_CLONE_PREVIOUS_INVOICE": "PASS",
+    "SOURCE12_DESIGN_BILLABLE_STAGE_REQUEST": "PASS",
+    "SOURCE12_DUAL_INVOICE_IDENTITY": "PASS",
+    "SOURCE12_INVOICE_REPORT": "PASS",
+    "SOURCE12_MILESTONE_FINANCIAL_LEDGER": "PASS",
+    "SOURCE12_OPEN_INVOICE_QUEUE": "PASS",
+    "SOURCE12_PAYMENT_EVIDENCE_VERIFICATION_ALLOCATION": "PASS",
+    "SOURCE12_PROJECT_FINANCE_MASTER": "PASS",
+    "SOURCE12_PROJECT_MILESTONE_FINANCIAL_ROLLUP": "PASS",
+    "SOURCE12_PROJECT_PAYMENT_HISTORY": "PASS",
+    "SOURCE12_STRUCTURED_SERVICE_PERIOD": "PASS",
+    "SOURCE12_SUPERVISION_MONTHLY_QUEUE": "PASS"
+  },
+  "decision_independent_code_gaps_remaining": 0,
+  "map": "SOURCE12_PROJECT_FINANCE_CONTROL_CLOSURE",
+  "paths": [
+    "backend/app/services/source12_finance_controls.py",
+    "backend/tests/test_source12_project_finance_controls.py",
+    "backend/app/models/billing_entities.py",
+    "backend/app/api/billing_invoice_routers.py"
+  ]
+}

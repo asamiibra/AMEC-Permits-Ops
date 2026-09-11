@@ -1,0 +1,8 @@
+{
+  "rules": [
+    "Source12 has zero native Owner requirement IDs; internal_trace_key is not an Owner ID.",
+    "Final Owner freeze A–L controls provisional matrix semantics without deleting matrix evidence.",
+    "Source1–11 rows remain append-only and are not rewritten."
+  ],
+  "source12_final_freeze": "A-L"
+}

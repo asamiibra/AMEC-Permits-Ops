@@ -1,0 +1,11 @@
+{
+  "ledger": "BUSINESS_V1_SOURCE1_SOURCE11_SUPERSESSION",
+  "rules": [
+    "Later explicit Owner rows refine earlier rows; no earlier row is silently deleted.",
+    "Source10 tables 3-11 are the exact 84 macro rows; Source10 later appendix material is not added.",
+    "Source11 tables 14-21 are the exact 61 final project-history rows; intermediate analysis is context only.",
+    "Source4 DC2, Source7 R86, and Source9 extras are preserved nonblocking context/clarification, not external-input rows.",
+    "Source10 X04-X07 remain contextual/deferred and do not remove existing Source5 services."
+  ],
+  "source_qualified_keys": true
+}

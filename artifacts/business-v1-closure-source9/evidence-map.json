@@ -1,0 +1,82 @@
+{
+  "evidence_policy": "A source statement or prior status file is not treated as current proof without a matching current artifact, test, or authoritative provenance.",
+  "map": "BUSINESS_V1_EVIDENCE_INDEX",
+  "repo_evidence": [
+    {
+      "path": "artifacts/t6b-independent-acceptance/T6B_INDEPENDENT_ACCEPTANCE.json",
+      "status": "accepted-independent-pass"
+    },
+    {
+      "path": "artifacts/t6b-reuse/T6B_QUALIFIED_SCOPE_MANIFEST.json",
+      "status": "current-scope-boundary-pass"
+    },
+    {
+      "path": "artifacts/business-v1-closure/closure-status.json",
+      "status": "prior-narrow-history-preserved"
+    },
+    {
+      "path": "backend/app/observability.py",
+      "status": "current-redaction-implementation"
+    },
+    {
+      "path": "backend/tests/test_observability.py",
+      "status": "adversarial-security-tests"
+    }
+  ],
+  "source_files": [
+    {
+      "bytes": 111491,
+      "filename": "overall flow.docx",
+      "sha256": "c8b61073eb3d6db0842fd6e48496ce0e812bb722653b9dcf6ee0b73a31361c3c",
+      "source": "Source1"
+    },
+    {
+      "bytes": 102158,
+      "filename": "overall flow 2.docx",
+      "sha256": "26c325ecb2ffc92c0fa09494496b4eac8cacb1b2dbd512c771aa12f0bf44eb39",
+      "source": "Source2"
+    },
+    {
+      "bytes": 74014,
+      "filename": "Permit Module Requiremnents .docx",
+      "sha256": "83b8e04ff59c225e18113ef6568a7450bdb07b1de081dd2aaa1d33d8679a1b79",
+      "source": "Source3"
+    },
+    {
+      "bytes": 117568,
+      "filename": "Permit Module 2  Requiremnents .docx",
+      "sha256": "8c62362b601636165a1bb4d3fdbb50f3c33c6fe5eb3b30f878ef1e5d3b9b89b7",
+      "source": "Source4"
+    },
+    {
+      "bytes": 122508,
+      "filename": "overall flow 3.docx",
+      "sha256": "0ea65c15591e85858e61b0d5e05f729ea2bdfeb2b5a392f09ca1b121cb241d6e",
+      "source": "Source5"
+    },
+    {
+      "bytes": 49904,
+      "filename": "overall flow 4.docx",
+      "sha256": "2936b2109b3bd64142a26c98617f74612a77577068bf76fb95db2de67f72bfdd",
+      "source": "Source6"
+    },
+    {
+      "bytes": 67947,
+      "filename": "overall flow 5.docx",
+      "sha256": "d6328834b1280b1ee1c9e25951d4b313651b5caa8fe3556190c2e53ec0f82f29",
+      "source": "Source7"
+    },
+    {
+      "bytes": 100180,
+      "filename": "Compliance Workflow - Overall .docx",
+      "sha256": "5d3b082904a1320225f8f91d46feae4a0638268b274c794248b52509e21938db",
+      "source": "Source8"
+    },
+    {
+      "bytes": 65526,
+      "filename": "overall flow 6.docx",
+      "sha256": "284543033e3a20c9b64d51e182a2d2f4016def66a85ec818a37bc52440f5318e",
+      "source": "Source9"
+    }
+  ]
+}

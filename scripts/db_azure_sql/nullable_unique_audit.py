@@ -39,6 +39,17 @@ def _literal(node: ast.AST):
     raise ValueError(f"non-literal migration argument at line {getattr(node, 'lineno', '?')}")
 
 
+def _key_columns(values: list[object]) -> list[object]:
+    """Normalize positional key arguments from either Alembic call form."""
+    columns: list[object] = []
+    for value in values:
+        if isinstance(value, list):
+            columns.extend(value)
+        else:
+            columns.append(value)
+    return columns
+
+
 def _model_source_path(table) -> str | None:
     for mapper in Base.registry.mappers:
         if mapper.local_table is not table:
@@ -117,7 +128,7 @@ def _migration_objects() -> list[dict[str, object]]:
               for child in node.args[1:]:
                   if not isinstance(child, ast.Call) or not isinstance(child.func, ast.Attribute) or child.func.attr != "UniqueConstraint":
                       continue
-                  key_columns = [_literal(argument) for argument in child.args]
+                  key_columns = _key_columns([_literal(argument) for argument in child.args])
                   name = next((_literal(keyword.value) for keyword in child.keywords if keyword.arg == "name"), None)
                   objects.append(
                       {
@@ -138,6 +149,7 @@ def _migration_objects() -> list[dict[str, object]]:
               if len(values) < 3:
                   continue
               name, table_name, key_columns = values[:3]
+              key_columns = _key_columns([key_columns])
               unique = next((_literal(keyword.value) for keyword in node.keywords if keyword.arg == "unique"), False)
               if unique is not True:
                   continue
@@ -146,7 +158,7 @@ def _migration_objects() -> list[dict[str, object]]:
               if len(values) < 2:
                   continue
               name, table_name = values[:2]
-              key_columns = values[2:]
+              key_columns = _key_columns(values[2:])
               kind = "UNIQUE_CONSTRAINT"
           filter_node = next((keyword.value for keyword in node.keywords if keyword.arg == "mssql_where"), None)
           filter_value = None

@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from ..audit.service import audit
 from ..db import get_db
 from ..models import *
+from ..services.contract_workspace import contract_revision_is_accepted
 from .dependencies import current_user_role
 
 
@@ -273,8 +274,20 @@ def list_handover(project_id: str | None = None, db: Session = Depends(get_db), 
 @router.post("/service-engagements")
 def create_service_engagement(payload: ServiceEngagementCreate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, OWNER_ROLES | ENGINEERING_ROLES, "SERVICE_SCOPE_CREATE")
-    if not db.get(Project, payload.project_id) or not db.get(Contract, payload.contract_id) or not db.get(ContractRevision, payload.contract_revision_id):
+    project = db.get(Project, payload.project_id)
+    contract = db.get(Contract, payload.contract_id)
+    revision = db.get(ContractRevision, payload.contract_revision_id)
+    if not project or not contract or not revision:
         raise HTTPException(404, "Project, Contract, or exact ContractRevision not found")
+    if contract.project_id != project.id:
+        raise HTTPException(409, {"code": "CONTRACT_PROJECT_MISMATCH", "contract_id": contract.id, "project_id": project.id})
+    if contract.current_revision_id != revision.id:
+        raise HTTPException(409, {"code": "STALE_CONTRACT_REVISION", "expected_revision_id": contract.current_revision_id, "provided_revision_id": revision.id})
+    if not contract_revision_is_accepted(revision):
+        raise HTTPException(409, {"code": "CONTRACT_ACCEPTANCE_REQUIRED", "contract_revision_id": revision.id})
+    activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id, ProjectActivation.project_id == project.id, ProjectActivation.contract_revision_id == revision.id, ProjectActivation.status == "ACTIVE"))
+    if not activation or str(project.status).upper() != "ACTIVE":
+        raise HTTPException(409, {"code": "PROJECT_ACTIVATION_REQUIRED", "contract_id": contract.id, "project_id": project.id, "contract_revision_id": revision.id})
     service = ServiceEngagement(created_by=role.value, **payload.model_dump())
     db.add(service)
     try:

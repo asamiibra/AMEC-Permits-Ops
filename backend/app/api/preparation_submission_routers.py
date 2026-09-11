@@ -14,7 +14,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, true
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import current_user_role
@@ -31,9 +31,19 @@ from ..models import (
     RequirementInstance, RequirementPolicyItem, RequirementPolicyVersion,
     RegulatoryJourney, Role, ServiceType, SubmissionAttempt, SubmissionPackage, SubmissionPackageItem,
     SubmissionPrecheckCheck, SubmissionPrecheckRun,
-    CasePartySnapshot,
+    CasePartySnapshot, ConsultancyOffice, Party, RegulatoryStateVersion, CommitteePacketRevision,
+    PhysicalOriginalCustodyEvent,
+    LinkedSubmissionGroup,
 )
 from ..services.regulatory_context import build_case_party_snapshot, case_party_context
+from ..services.current_regulatory_controls import (
+    CurrentRegulatoryControlError,
+    governed_processing_mode,
+    resolve_authority_case_scope,
+    validate_form_field_completion,
+    validate_single_active_original,
+    PhysicalOriginalCustodyEvent as PhysicalOriginalCustodyEvidence,
+)
 
 
 router = APIRouter(prefix="/api")
@@ -73,6 +83,28 @@ def _runtime_role(role: Role, action: str) -> None:
         raise _http(403, "CAPABILITY_DENIED", capability=action)
 
 
+@router.post("/authority-cases/linked-submission-groups")
+def create_linked_submission_group(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _runtime_role(role, "CASE_CREATE")
+    group_ref = str(payload.get("group_ref") or "").strip()
+    replacement_id = str(payload.get("replacement_case_id") or "").strip()
+    renewal_id = str(payload.get("renewal_case_id") or "").strip()
+    if not group_ref or not replacement_id or not renewal_id or replacement_id == renewal_id:
+        raise _http(422, "LINKED_SUBMISSION_GROUP_CASES_REQUIRED")
+    replacement = _case(db, replacement_id)
+    renewal = _case(db, renewal_id)
+    if replacement.id == renewal.id:
+        raise _http(422, "LINKED_SUBMISSION_GROUP_CASES_MUST_BE_DISTINCT")
+    existing = db.scalar(select(LinkedSubmissionGroup).where(LinkedSubmissionGroup.group_ref == group_ref))
+    if existing:
+        return _row(existing)
+    group = LinkedSubmissionGroup(group_ref=group_ref, replacement_case_id=replacement.id, renewal_case_id=renewal.id, coordination_context_json=payload.get("coordination_context") or {}, independent_outcomes_json={"replacement_case_id": "PENDING", "renewal_case_id": "PENDING"}, created_by=_actor(request, payload))
+    db.add(group); db.flush()
+    for case_id in (replacement.id, renewal.id):
+        db.add(RegulatoryRelation(source_type="AuthorityCase", source_id=group.id, relation_type="LINKED_SUBMISSION_CASE", target_type="AuthorityCase", target_id=case_id))
+    audit(db, correlation_id=_corr(request), event_type="LINKED_SUBMISSION_GROUP_CREATED", entity_type="LinkedSubmissionGroup", entity_id=group.id, actor_id=group.created_by, after={"replacement_case_id": replacement.id, "renewal_case_id": renewal.id, "independent_outcomes": True})
+    db.commit(); db.refresh(group)
+    return _row(group)
 def _case(db: Session, case_id: str) -> AuthorityCase:
     item = db.get(AuthorityCase, case_id)
     if not item:
@@ -97,8 +129,8 @@ def _case_project(db: Session, case: AuthorityCase) -> Project:
     raise _http(409, "AUTHORITY_CASE_PROJECT_CONTEXT_MISSING", case_id=case.id)
 
 
-def _canonical_context(db: Session, payload: dict[str, Any]) -> tuple[Project, ExternalBody, Jurisdiction, ServiceType]:
-    project = _project(db, str(payload.get("project_id") or ""))
+def _canonical_context(db: Session, payload: dict[str, Any]) -> tuple[Project | None, ExternalBody, Jurisdiction, ServiceType]:
+    project = _project(db, str(payload["project_id"])) if payload.get("project_id") else None
     body = db.get(ExternalBody, payload.get("external_body_id"))
     jurisdiction = db.get(Jurisdiction, payload.get("jurisdiction_id"))
     service = db.get(ServiceType, payload.get("service_type_id"))
@@ -112,7 +144,12 @@ def _canonical_context(db: Session, payload: dict[str, Any]) -> tuple[Project, E
 
 
 def _lineage(db: Session, case: AuthorityCase, downstream_type: str, downstream_id: str, request: Request, upstream_type: str = "AuthorityCase", upstream_id: str | None = None, kind: str = "CASE_EXECUTION") -> None:
-    project = _case_project(db, case)
+    journey = db.get(RegulatoryJourney, case.regulatory_journey_id) if case.regulatory_journey_id else None
+    if not journey or not journey.project_id:
+        return
+    project = db.get(Project, journey.project_id)
+    if not project:
+        return
     db.add(LineageEdge(project_id=project.id, upstream_type=upstream_type, upstream_id=upstream_id or case.id, downstream_type=downstream_type, downstream_id=downstream_id, dependency_kind=kind, correlation_id=_corr(request)))
 
 
@@ -132,6 +169,49 @@ def _policy_or_block(db: Session, case: AuthorityCase) -> RequirementPolicyVersi
 
 def _hash(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode()).hexdigest()
+
+
+def _subject_snapshot(db: Session, subject_type: str, subject_id: str, project: Project | None) -> dict[str, Any]:
+    if subject_type == "PROJECT":
+        if not project or subject_id != project.id:
+            raise _http(409, "CASE_SUBJECT_PROJECT_MISMATCH")
+        return {"project_id": project.id, "project_number": project.project_number, "project_name": project.project_name}
+    if subject_type == "PROPERTY":
+        property_record = db.get(Property, subject_id)
+        if not property_record or not project or property_record.project_id != project.id:
+            raise _http(404, "CASE_SUBJECT_PROPERTY_NOT_FOUND")
+        return _row(property_record)
+    if subject_type in {"CONSULTANCY_OFFICE", "OFFICE_REGISTRATION", "OFFICE_CLASSIFICATION_ROSTER", "OFFICE"}:
+        office = db.get(ConsultancyOffice, subject_id)
+        if not office:
+            raise _http(404, "CONSULTANCY_OFFICE_NOT_FOUND")
+        return {"office_id": office.id, "office_code": office.office_code, "name_en": office.name_en, "subject_type": subject_type}
+    if subject_type in {"ENGINEER", "RESPONSIBLE_ENGINEER_DESIGNATION"}:
+        party = db.get(Party, subject_id)
+        if not party:
+            raise _http(404, "ENGINEER_PARTY_NOT_FOUND")
+        return {"party_id": party.id, "party_type": party.party_type, "name_en": party.name_en, "name_ar": party.name_ar, "subject_type": subject_type}
+    raise _http(422, "CASE_SUBJECT_TYPE_NOT_CANONICAL", subject_type=subject_type)
+
+
+def _currentness_flag(value: Any) -> str:
+    raw = str(value or "UNKNOWN").strip().upper()
+    if raw in {"TRUE", "FALSE"}:
+        return raw.lower()
+    if raw in {"NOT_APPLICABLE", "UNKNOWN"}:
+        return raw
+    return "UNKNOWN"
+
+
+def _currentness_eligibility(case: AuthorityCase) -> tuple[str, bool]:
+    flags = {case.current_authority_policy_verified, case.current_official_form_verified}
+    if "UNKNOWN" in flags:
+        return "BLOCKED_UNKNOWN", True
+    if "false" in flags:
+        return "BLOCKED_NOT_ENTITLED", False
+    if case.processing_mode == "UNKNOWN":
+        return "BLOCKED_UNKNOWN", True
+    return "ALLOWED", False
 
 
 def _serialize_case(db: Session, case: AuthorityCase) -> dict[str, Any]:
@@ -168,30 +248,50 @@ def create_authority_case(payload: dict[str, Any], request: Request, db: Session
     journey_id = payload.get("regulatory_journey_id")
     if journey_id:
         journey = db.get(RegulatoryJourney, journey_id)
-        if not journey or journey.project_id != project.id or journey.external_body_id != body.id or journey.jurisdiction_id != jurisdiction.id or journey.service_type_id != service.id:
+        if not journey or journey.project_id != (project.id if project else None) or journey.external_body_id != body.id or journey.jurisdiction_id != jurisdiction.id or journey.service_type_id != service.id:
             raise _http(409, "REGULATORY_JOURNEY_CONTEXT_MISMATCH")
     else:
-        journey = RegulatoryJourney(journey_code=str(payload.get("journey_code") or f"JRN-{project.project_number}-{str(uuid4())[:8].upper()}"), project_id=project.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, external_body_id=body.id, status="OPEN", opened_at=datetime.now(timezone.utc), created_by=actor)
+        journey_label = project.project_number if project else str(payload.get("subject_type") or "AUTHORITY")
+        journey = RegulatoryJourney(journey_code=str(payload.get("journey_code") or f"JRN-{journey_label}-{str(uuid4())[:8].upper()}"), project_id=project.id if project else None, service_type_id=service.id, jurisdiction_id=jurisdiction.id, external_body_id=body.id, status="OPEN", opened_at=datetime.now(timezone.utc), created_by=actor)
         db.add(journey); db.flush()
-    subject_type = str(payload.get("subject_type") or "Project")
-    subject_id = str(payload.get("subject_id") or project.id)
-    if subject_type == "Project":
-        if subject_id != project.id:
-            raise _http(409, "CASE_SUBJECT_PROJECT_MISMATCH")
-        subject_snapshot = {"project_id": project.id, "project_number": project.project_number, "project_name": project.project_name}
-    elif subject_type == "Property":
-        property_record = db.get(Property, subject_id)
-        if not property_record or property_record.project_id != project.id:
-            raise _http(404, "CASE_SUBJECT_PROPERTY_NOT_FOUND")
-        subject_snapshot = _row(property_record)
-    else:
-        raise _http(422, "CASE_SUBJECT_TYPE_NOT_CANONICAL", subject_type=subject_type, supported=["Project", "Property"])
-    case_ref = str(payload.get("case_reference") or f"CASE-{project.project_number}-{str(uuid4())[:8].upper()}")
-    case = AuthorityCase(case_reference=case_ref, regulatory_journey_id=journey.id, external_body_id=body.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="PREPARING", subject_type=subject_type, subject_id=subject_id, opened_at=datetime.now(timezone.utc), created_by=actor)
-    db.add(case); db.flush(); subject = AuthorityCaseSubject(authority_case_id=case.id, subject_type=subject_type, subject_id=subject_id, subject_snapshot_json=subject_snapshot, created_by=actor); db.add(subject); db.flush(); _lineage(db, case, "AuthorityCaseSubject", subject.id, request, upstream_type="Project", upstream_id=project.id, kind="CASE_SUBJECT_SNAPSHOT"); audit(db, correlation_id=_corr(request), event_type="AUTHORITY_CASE_SUBJECT_SET", entity_type="AuthorityCaseSubject", entity_id=subject.id, actor_id=actor, after={"subject_type": subject_type, "subject_id": subject_id})
+    subject_type = str(payload.get("subject_type") or ("PROJECT" if project else "")).strip().upper()
+    subject_id = str(payload.get("subject_id") or (project.id if project else "")).strip()
+    transaction_type = str(payload.get("transaction_type") or "").strip().upper() or None
+    try:
+        scope = resolve_authority_case_scope(subject_type=subject_type, subject_id=subject_id, transaction_type=transaction_type, project_id=project.id if project else None)
+    except CurrentRegulatoryControlError as exc:
+        raise _http(409, exc.code, subject_type=subject_type, transaction_type=transaction_type) from exc
+    if scope.project_required and not project:
+        raise _http(409, "CANONICAL_PROJECT_REQUIRED_FOR_AUTHORITY_CASE", transaction_type=transaction_type, subject_type=subject_type)
+    subject_snapshot = _subject_snapshot(db, subject_type, subject_id, project)
+    mode = governed_processing_mode(transaction_type=transaction_type, caller_supplied_mode=payload.get("processing_mode"))
+    case_ref = str(payload.get("case_reference") or f"CASE-{project.project_number if project else subject_type}-{str(uuid4())[:8].upper()}")
+    case = AuthorityCase(
+        case_reference=case_ref, regulatory_journey_id=journey.id, external_body_id=body.id,
+        service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="PREPARING",
+        subject_type=subject_type, subject_id=subject_id, transaction_type=transaction_type,
+        processing_mode=mode["processing_mode"], project_required=scope.project_required,
+        currentness_control_implemented=True,
+        current_authority_policy_verified=_currentness_flag(payload.get("current_authority_policy_verified")),
+        current_official_form_verified=_currentness_flag(payload.get("current_official_form_verified")),
+        live_action_eligibility="BLOCKED_UNKNOWN",
+        g5_blocking_currentness_gap=True,
+        official_form_version_id=payload.get("official_form_version_id"),
+        official_form_publisher=payload.get("official_form_publisher"),
+        official_form_number=payload.get("official_form_number"),
+        official_form_revision=payload.get("official_form_revision"),
+        field_authority_schema_json=payload.get("field_authority_schema") or {},
+        packaging_requirements_json=payload.get("packaging_requirements") or {},
+        case_owner=payload.get("case_owner"), task_executor=payload.get("task_executor"),
+        required_signer=payload.get("required_signer"), internal_reviewer=payload.get("internal_reviewer"),
+        first_blocker="CURRENT_AUTHORITY_POLICY_OR_FORM_UNKNOWN",
+        next_accountable_action="Verify current authority policy and OfficialFormVersion before protected action",
+        opened_at=datetime.now(timezone.utc), created_by=actor,
+    )
+    db.add(case); db.flush(); subject = AuthorityCaseSubject(authority_case_id=case.id, subject_type=subject_type, subject_id=subject_id, subject_snapshot_json=subject_snapshot, created_by=actor); db.add(subject); db.flush(); _lineage(db, case, "AuthorityCaseSubject", subject.id, request, upstream_type="Project", upstream_id=project.id if project else None, kind="CASE_SUBJECT_SNAPSHOT"); audit(db, correlation_id=_corr(request), event_type="AUTHORITY_CASE_SUBJECT_SET", entity_type="AuthorityCaseSubject", entity_id=subject.id, actor_id=actor, after={"subject_type": subject_type, "subject_id": subject_id})
     db.add(AuthorityCaseCreateRequest(idempotency_key=key, authority_case_id=case.id, requested_by=actor))
-    _lineage(db, case, "AuthorityCase", case.id, request, upstream_type="Project", upstream_id=project.id, kind="EXPLICIT_CASE_START")
-    audit(db, correlation_id=_corr(request), event_type="AUTHORITY_CASE_CREATED", entity_type="AuthorityCase", entity_id=case.id, actor_id=actor, after={"case_reference": case.case_reference, "project_id": project.id, "external_body_id": body.id, "jurisdiction_id": jurisdiction.id, "service_type_id": service.id})
+    _lineage(db, case, "AuthorityCase", case.id, request, upstream_type="Project", upstream_id=project.id if project else None, kind="EXPLICIT_CASE_START")
+    audit(db, correlation_id=_corr(request), event_type="AUTHORITY_CASE_CREATED", entity_type="AuthorityCase", entity_id=case.id, actor_id=actor, after={"case_reference": case.case_reference, "project_id": project.id if project else None, "subject_type": subject_type, "processing_mode": case.processing_mode, "project_required": case.project_required, "currentness_blocked": case.g5_blocking_currentness_gap, "external_body_id": body.id, "jurisdiction_id": jurisdiction.id, "service_type_id": service.id})
     db.commit()
     return _serialize_case(db, case)
 
@@ -207,7 +307,144 @@ def authority_case_workspace(case_id: str, request: Request, db: Session = Depen
     cycles = db.scalars(select(AuthoritySubmissionCycle).where(AuthoritySubmissionCycle.authority_case_id == case.id).order_by(AuthoritySubmissionCycle.cycle_number)).all()
     findings = db.scalars(select(AuthorityCaseFinding).where(AuthorityCaseFinding.authority_case_id == case.id).order_by(AuthorityCaseFinding.created_at)).all()
     outcomes = db.scalars(select(AuthorityCaseOutcome).where(AuthorityCaseOutcome.authority_case_id == case.id).order_by(AuthorityCaseOutcome.created_at)).all()
-    return {**_serialize_case(db, case), "policy_binding": _row(binding) if binding else None, "requirements": [_row(x) for x in requirements], "preparations": [_row(x) for x in preparations], "packages": [_row(x) for x in packages], "cycles": [_row(x) for x in cycles], "findings": [_row(x) for x in findings], "outcomes": [_row(x) for x in outcomes], "state_separation": {"internal": case.status, "external": cycles[-1].status if cycles else "UNKNOWN"}}
+    states = db.scalars(select(RegulatoryStateVersion).where(RegulatoryStateVersion.authority_case_id == case.id).order_by(RegulatoryStateVersion.state_type, RegulatoryStateVersion.version_number)).all()
+    packets = db.scalars(select(CommitteePacketRevision).where(CommitteePacketRevision.authority_case_id == case.id).order_by(CommitteePacketRevision.revision_number)).all()
+    custody = db.scalars(select(PhysicalOriginalCustodyEvent).where(PhysicalOriginalCustodyEvent.authority_case_id == case.id).order_by(PhysicalOriginalCustodyEvent.event_at)).all()
+    eligibility, currentness_gap = _currentness_eligibility(case)
+    return {**_serialize_case(db, case), "policy_binding": _row(binding) if binding else None, "requirements": [_row(x) for x in requirements], "preparations": [_row(x) for x in preparations], "packages": [_row(x) for x in packages], "cycles": [_row(x) for x in cycles], "findings": [_row(x) for x in findings], "outcomes": [_row(x) for x in outcomes], "regulatory_state_versions": [_row(x) for x in states], "committee_packet_revisions": [_row(x) for x in packets], "physical_original_custody": [_row(x) for x in custody], "currentness": {"currentness_control_implemented": case.currentness_control_implemented, "current_authority_policy_verified": case.current_authority_policy_verified, "current_official_form_verified": case.current_official_form_verified, "live_action_eligibility": eligibility, "g5_blocking_currentness_gap": currentness_gap}, "state_separation": {"internal": case.status, "external": cycles[-1].status if cycles else "UNKNOWN"}}
+
+
+@router.post("/authority-cases/{case_id}/currentness")
+def record_case_currentness(case_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Record human-evidenced external currentness without fabricating it."""
+
+    _runtime_role(role, "CASE_CREATE")
+    case = _case(db, case_id)
+    authority = _currentness_flag(payload.get("current_authority_policy_verified"))
+    form = _currentness_flag(payload.get("current_official_form_verified"))
+    evidence = payload.get("evidence") or {}
+    if authority == "true" and not evidence.get("authority_policy_source"):
+        raise _http(422, "CURRENT_AUTHORITY_POLICY_EVIDENCE_REQUIRED")
+    if form == "true":
+        required = (payload.get("official_form_version_id"), evidence.get("official_form_source"), payload.get("official_form_publisher"), payload.get("official_form_number"), payload.get("official_form_revision"), payload.get("official_form_retrieved_at"))
+        if not all(str(item or "").strip() for item in required):
+            raise _http(422, "CURRENT_OFFICIAL_FORM_EVIDENCE_REQUIRED")
+        if not db.get(DocumentVersion, payload.get("official_form_version_id")):
+            raise _http(422, "OFFICIAL_FORM_DOCUMENT_VERSION_NOT_FOUND")
+    case.current_authority_policy_verified = authority
+    case.current_official_form_verified = form
+    case.official_form_version_id = payload.get("official_form_version_id")
+    case.official_form_publisher = payload.get("official_form_publisher")
+    case.official_form_number = payload.get("official_form_number")
+    case.official_form_revision = payload.get("official_form_revision")
+    case.official_form_retrieved_at = datetime.fromisoformat(payload["official_form_retrieved_at"]) if payload.get("official_form_retrieved_at") else None
+    case.field_authority_schema_json = {**(case.field_authority_schema_json or {}), "currentness_evidence": evidence}
+    eligibility, gap = _currentness_eligibility(case)
+    case.live_action_eligibility = eligibility
+    case.g5_blocking_currentness_gap = gap
+    case.first_blocker = None if eligibility == "ALLOWED" else "CURRENT_AUTHORITY_POLICY_OR_FORM_UNKNOWN" if eligibility == "BLOCKED_UNKNOWN" else "CURRENT_AUTHORITY_POLICY_OR_FORM_NOT_ENTITLED"
+    case.next_accountable_action = None if eligibility == "ALLOWED" else "Obtain exact current governed authority/form evidence"
+    audit(db, correlation_id=_corr(request), event_type="AUTHORITY_CASE_CURRENTNESS_RECORDED", entity_type="AuthorityCase", entity_id=case.id, actor_id=_actor(request, payload), after={"current_authority_policy_verified": authority, "current_official_form_verified": form, "live_action_eligibility": eligibility, "evidence": evidence})
+    db.commit()
+    return {"case": _row(case), "currentness": {"currentness_control_implemented": True, "current_authority_policy_verified": authority, "current_official_form_verified": form, "live_action_eligibility": eligibility, "g5_blocking_currentness_gap": gap}}
+
+
+@router.post("/authority-cases/{case_id}/regulatory-state")
+def record_regulatory_state(case_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _runtime_role(role, "REQUIREMENT_REVIEW")
+    case = _case(db, case_id)
+    state_type = str(payload.get("state_type") or "").strip().upper()
+    if not state_type:
+        raise _http(422, "REGULATORY_STATE_TYPE_REQUIRED")
+    status = str(payload.get("status") or "PENDING").strip().upper()
+    if status not in {"PENDING", "ACCEPTED", "RETURNED", "REJECTED"}:
+        raise _http(422, "REGULATORY_STATE_STATUS_INVALID")
+    subject_type = str(payload.get("subject_type") or case.subject_type or "").upper()
+    subject_id = str(payload.get("subject_id") or case.subject_id or "")
+    if not subject_type or not subject_id:
+        raise _http(422, "REGULATORY_STATE_SUBJECT_REQUIRED")
+    if status == "ACCEPTED" and not (payload.get("source_document_version_id") or payload.get("source_reference")):
+        raise _http(422, "ACCEPTED_OFFICIAL_STATE_EVIDENCE_REQUIRED")
+    previous = db.scalar(select(RegulatoryStateVersion).where(RegulatoryStateVersion.authority_case_id == case.id, RegulatoryStateVersion.state_type == state_type).order_by(RegulatoryStateVersion.version_number.desc()))
+    if status == "ACCEPTED":
+        for row in db.scalars(select(RegulatoryStateVersion).where(RegulatoryStateVersion.authority_case_id == case.id, RegulatoryStateVersion.state_type == state_type, RegulatoryStateVersion.is_current == true())).all():
+            row.is_current = False
+    state = RegulatoryStateVersion(authority_case_id=case.id, project_id=(db.get(RegulatoryJourney, case.regulatory_journey_id).project_id if case.regulatory_journey_id and db.get(RegulatoryJourney, case.regulatory_journey_id) else None), subject_type=subject_type, subject_id=subject_id, state_type=state_type, version_number=(previous.version_number + 1 if previous else 1), status=status, is_current=status == "ACCEPTED", effective_from=date.fromisoformat(payload["effective_from"]) if payload.get("effective_from") else None, source_document_version_id=payload.get("source_document_version_id"), source_reference=payload.get("source_reference"), state_json=payload.get("state") or {}, supersedes_id=previous.id if previous else None, accepted_by=_actor(request, payload) if status == "ACCEPTED" else None, accepted_at=datetime.now(timezone.utc) if status == "ACCEPTED" else None, rejection_reason=payload.get("reason"), synthetic_only=bool(payload.get("synthetic_only", True)))
+    db.add(state); db.flush(); audit(db, correlation_id=_corr(request), event_type="REGULATORY_STATE_VERSION_RECORDED", entity_type="RegulatoryStateVersion", entity_id=state.id, actor_id=_actor(request, payload), after={"state_type": state_type, "status": status, "is_current": state.is_current, "supersedes_id": state.supersedes_id})
+    db.commit()
+    return _row(state)
+
+
+@router.post("/authority-cases/{case_id}/committee-packets")
+def create_committee_packet(case_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _runtime_role(role, "PREPARATION_MANAGE")
+    case = _case(db, case_id)
+    if case.processing_mode != "COMMITTEE_PANEL":
+        raise _http(409, "COMMITTEE_PANEL_MODE_REQUIRED")
+    previous = db.scalar(select(CommitteePacketRevision).where(CommitteePacketRevision.authority_case_id == case.id).order_by(CommitteePacketRevision.revision_number.desc()))
+    fields = payload.get("field_values") or {}
+    validation = validate_form_field_completion(fields, required=payload.get("required_fields") or (), authority_only=payload.get("authority_only_fields") or ())
+    packet = CommitteePacketRevision(authority_case_id=case.id, revision_number=(previous.revision_number + 1 if previous else 1), supersedes_id=previous.id if previous else None, official_form_version_id=payload.get("official_form_version_id") or case.official_form_version_id, form_binding_json={"official_form": True, "publisher": case.official_form_publisher, "form_number": case.official_form_number, "revision": case.official_form_revision}, field_values_json=fields, authority_only_fields_json=list(payload.get("authority_only_fields") or ()), validation_json=validation, status="DRAFT", created_by=_actor(request, payload))
+    db.add(packet); db.flush(); audit(db, correlation_id=_corr(request), event_type="COMMITTEE_PACKET_REVISION_CREATED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=packet.created_by, after={"revision_number": packet.revision_number, "supersedes_id": packet.supersedes_id, "valid": validation["valid"]}); db.commit()
+    return _row(packet)
+
+
+@router.post("/authority-cases/{case_id}/committee-packets/{packet_id}/owner-release")
+def release_committee_packet(case_id: str, packet_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _runtime_role(role, "CASE_CREATE")
+    case = _case(db, case_id); packet = db.get(CommitteePacketRevision, packet_id)
+    if not packet or packet.authority_case_id != case.id:
+        raise _http(404, "COMMITTEE_PACKET_NOT_FOUND")
+    if packet.status != "DRAFT" or not packet.validation_json.get("valid"):
+        raise _http(409, "VALID_PACKET_REVISION_REQUIRED")
+    eligibility, gap = _currentness_eligibility(case)
+    if gap or eligibility != "ALLOWED":
+        raise _http(409, "CURRENTNESS_REQUIRED_FOR_OWNER_PACKET_RELEASE", live_action_eligibility=eligibility)
+    packet.status = "OWNER_RELEASED"; packet.owner_release_by = _actor(request); packet.owner_release_at = datetime.now(timezone.utc)
+    audit(db, correlation_id=_corr(request), event_type="COMMITTEE_PACKET_OWNER_RELEASED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=packet.owner_release_by, after={"status": packet.status})
+    db.commit(); return _row(packet)
+
+
+@router.post("/authority-cases/{case_id}/committee-packets/{packet_id}/signed-return")
+def verify_signed_packet_return(case_id: str, packet_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _runtime_role(role, "EVIDENCE_MANAGE")
+    case = _case(db, case_id); packet = db.get(CommitteePacketRevision, packet_id)
+    if not packet or packet.authority_case_id != case.id:
+        raise _http(404, "COMMITTEE_PACKET_NOT_FOUND")
+    if packet.status != "OWNER_RELEASED":
+        raise _http(409, "OWNER_RELEASED_PACKET_REQUIRED")
+    version_id = payload.get("signed_return_document_version_id")
+    if not version_id or not db.get(DocumentVersion, version_id):
+        raise _http(422, "SIGNED_RETURN_DOCUMENT_VERSION_REQUIRED")
+    packet.signed_return_document_version_id = version_id
+    packet.signed_return_verified_by = _actor(request, payload)
+    packet.signed_return_verified_at = datetime.now(timezone.utc)
+    packet.status = "SIGNED_RETURN_VERIFIED"
+    audit(db, correlation_id=_corr(request), event_type="COMMITTEE_PACKET_SIGNED_RETURN_VERIFIED", entity_type="CommitteePacketRevision", entity_id=packet.id, actor_id=packet.signed_return_verified_by, after={"status": packet.status, "signed_return_document_version_id": version_id})
+    db.commit(); return _row(packet)
+
+
+@router.post("/authority-cases/{case_id}/physical-original-custody")
+def record_physical_original_custody(case_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _runtime_role(role, "EVIDENCE_MANAGE")
+    case = _case(db, case_id)
+    event_type = str(payload.get("event_type") or "").strip().upper()
+    if event_type not in {"RECEIVED_ORIGINAL", "HELD_ORIGINAL", "SURRENDERED_ORIGINAL", "RETURNED_ORIGINAL", "REPLACED_ORIGINAL"}:
+        raise _http(422, "PHYSICAL_ORIGINAL_CUSTODY_EVENT_INVALID")
+    if not payload.get("document_version_id") or not payload.get("evidence_reference") or not payload.get("custodian"):
+        raise _http(422, "PHYSICAL_ORIGINAL_CUSTODY_EVIDENCE_REQUIRED")
+    if not db.get(DocumentVersion, payload["document_version_id"]):
+        raise _http(422, "PHYSICAL_ORIGINAL_DOCUMENT_VERSION_NOT_FOUND")
+    if payload.get("evidence_document_version_id") and not db.get(DocumentVersion, payload["evidence_document_version_id"]):
+        raise _http(422, "PHYSICAL_ORIGINAL_EVIDENCE_DOCUMENT_VERSION_NOT_FOUND")
+    event = PhysicalOriginalCustodyEvent(authority_case_id=case.id, document_version_id=str(payload["document_version_id"]), event_type=event_type, custodian=str(payload["custodian"]), event_at=datetime.fromisoformat(payload["event_at"]) if payload.get("event_at") else datetime.now(timezone.utc), evidence_document_version_id=payload.get("evidence_document_version_id"), evidence_reference=str(payload["evidence_reference"]), created_by=_actor(request, payload))
+    db.add(event); db.flush()
+    events = db.scalars(select(PhysicalOriginalCustodyEvent).where(PhysicalOriginalCustodyEvent.authority_case_id == case.id).order_by(PhysicalOriginalCustodyEvent.event_at)).all()
+    current = validate_single_active_original([PhysicalOriginalCustodyEvidence(x.document_version_id, x.event_type, x.custodian, x.event_at, x.evidence_reference) for x in events])
+    if not current["valid"]:
+        db.rollback(); raise _http(409, "MULTIPLE_ACTIVE_PHYSICAL_ORIGINALS")
+    audit(db, correlation_id=_corr(request), event_type="PHYSICAL_ORIGINAL_CUSTODY_RECORDED", entity_type="PhysicalOriginalCustodyEvent", entity_id=event.id, actor_id=event.created_by, after={"event_type": event_type, "active_original": current["active_original_document_version_id"]})
+    db.commit(); return {"event": _row(event), "custody_state": current}
 
 
 @router.post("/authority-cases/{case_id}/requirements/initialize")
@@ -469,6 +706,10 @@ def run_precheck(case_id: str, payload: dict[str, Any], request: Request, db: Se
 def authorize_submission(case_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _runtime_role(role, "SUBMIT_AUTHORIZE")
     case = _case(db, case_id); package = db.get(SubmissionPackage, payload.get("submission_package_id")); precheck = db.get(SubmissionPrecheckRun, payload.get("precheck_run_id"))
+    if case.transaction_type:
+        eligibility, gap = _currentness_eligibility(case)
+        if gap or eligibility != "ALLOWED":
+            raise _http(409, "CURRENTNESS_REQUIRED_FOR_PROTECTED_SUBMISSION", live_action_eligibility=eligibility)
     if not package or package.authority_case_id != case.id or package.state != "LOCKED": raise _http(409, "LOCKED_PACKAGE_REQUIRED")
     if not precheck or precheck.submission_package_id != package.id or precheck.result != "PASS" or precheck.package_hash != package.manifest_hash: raise _http(409, "CURRENT_PRECHECK_PASS_REQUIRED")
     key = str(payload.get("idempotency_key") or "").strip()

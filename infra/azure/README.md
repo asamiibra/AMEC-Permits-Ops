@@ -5,12 +5,44 @@
 `canonical/main.bicep` is the only production topology. It targets UAE North
 and declares Azure Container Apps for the API and worker, a manual Container
 Apps migration job, ACR, Azure SQL with managed identity and private access,
-Key Vault, VNet/private endpoints, Log Analytics, Application Insights, and
-API-only HTTPS ingress. It requires exact image digests and deployment-time
+Key Vault, VNet/private endpoints, Log Analytics, Application Insights, and an
+Azure Front Door Premium HTTPS edge with WAF prevention and managed TLS custom
+domain support. It also declares a private Azure Blob durable store for
+ProposalOps-generated artifacts with versioning, delete retention, lifecycle
+retention, and UAMI RBAC. It requires exact image digests and deployment-time
 identity/secret inputs; no production resource is deployed by this repository
 change. The API is explicitly configured with
-`AZURE_DIRECT_SYNOLOGY_SMB=false`; Bridge source intake remains a separate
-owner-controlled boundary.
+`AZURE_DIRECT_SYNOLOGY_SMB=false` and `SOURCE_INTAKE_MODE=BRIDGE`. Bridge
+tokens use a dedicated Entra application identity/role and audience; no DSM
+endpoint, share, password, or authoritative-source SMB credential is carried
+by the Azure application. Bridge-observed source locators are provenance only
+and never authorize Azure to dereference DSM.
+
+The production edge decision is
+`WAF_DECISION=REQUIRED_FOR_PUBLIC_PRODUCTION_INGRESS`. The Container Apps API
+is the HTTPS origin and must not be published as a customer-facing hostname;
+the Front Door endpoint is the governed public path. `edgeCustomDomainName` is
+an explicit deployment parameter. Supplying it requires DNS validation and
+managed certificate issuance at the authorized deployment boundary; this
+repository does not change DNS.
+
+Generated artifact classes are separate from authoritative source binaries:
+
+- authoritative source binary: Qatar Source Intake Bridge → Synology DSM;
+- ProposalOps-generated managed artifact: private Azure Blob container
+  `managed-artifacts`, OAuth/managed-identity only, ZRS, versioning, 30-day
+  delete retention, and a 10-year lifecycle retention rule;
+- temporary execution object: `.proposalops/tmp` prefix in the same private
+  container and removed after safe finalization.
+
+The canonical graph creates private DNS zones and VNet links for Azure SQL,
+Key Vault, and Blob Storage, private endpoints for each, Azure SQL
+geo-redundant backup/PITR retention settings, and Log Analytics diagnostic
+settings for API, worker, SQL, Key Vault, Blob, and edge resources. The bridge
+operational contract remains outside Azure authority: dedicated bridge host
+identity, DSM read-only identity, source allowlist, outbound TLS target,
+clock-synchronized tokens, redacted telemetry, monitored update path, and no
+Azure DSM route or mount.
 
 The historical `main.bicep` and its App Service/PostgreSQL modules below are
 legacy preproduction evidence and are not a production deployment path.
