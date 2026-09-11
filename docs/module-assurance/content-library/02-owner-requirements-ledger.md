@@ -1,41 +1,33 @@
-# Owner Requirements Ledger
+# Atomic Owner Requirements Ledger
 
-Statuses are `PASS_CURRENT`, `PARTIAL_CURRENT`, `MISSING_CURRENT`, `HISTORICAL_IMPLEMENTATION_ONLY`, `SUPERSEDED`, `OUT_OF_SCOPE`, `PRODUCT_DECISION_REQUIRED`, `UNKNOWN`.
+This is the reconciled rollup. The complete atomic ledger is [21-atomic-owner-requirements.tsv](21-atomic-owner-requirements.tsv); each row has the required source locator, bounded source text, ownership, implementation, API/UI/persistence/test evidence, status, gap, action, invariant, and acceptance evidence fields.
 
-| REQ_ID | OWNER_REQUIREMENT | SOURCE | DOMAIN_OWNER | CURRENT_MODEL | CURRENT_SERVICE | CURRENT_API | CURRENT_UI | CURRENT_PERSISTENCE | CURRENT_TEST | STATUS | GAP | IMPLEMENTATION_ACTION | CROSS_MODULE_IMPACT | NEGATIVE_INVARIANT | ACCEPTANCE_TEST |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| CL-R01 | Governed discovery/reuse projection | owner brief | Content Library | MasterContentItem | master_content | `/api/master-content` | Dashboard content views | master_content_* | owner dashboard | PASS_CURRENT | none | retained | all consumers | no project truth | gap-closure suite |
-| CL-R02 | Forms are reusable definitions | architecture rule | Forms | MasterContentItem/Form | forms_governance | master-content routes | Forms UI | Document/DocumentVersion | dashboard tests | PASS_CURRENT | none | retained | BD/Permit | no operational checklist state | forms tests |
-| CL-R03 | Reports remain distinct from Forms | architecture rule | Reports | content_type=REPORT | master_content | content type validation | content type filter | item/version | gap-closure | PASS_CURRENT | none | retained | Engineering | report cannot bind as Form purpose | type mismatch test |
-| CL-R04 | Engineering Works remain distinct | architecture rule | Engineering | content_type=ENGINEERING_WORK | master_content | eligible/resolver routes | Engineering filters | item/version | consumer convergence | PASS_CURRENT | none | retained | Engineering | BD cannot consume Engineering Work as template | persona test |
-| CL-R05 | Definitions have revision authority | architecture rule | Definitions | DefinitionEntry/Revision | master_content | definition routes | Definitions UI | definition tables | shared foundations | PASS_CURRENT | none | retained | Requirements/BD | no client facts in definition | revision test |
-| CL-R06 | Lifecycle/current pointer is governed | owner brief | Content Library | DocumentVersion | master_content | version routes | version UI | current_document_version_id | canonical retrieval | PASS_CURRENT | none | retained | all consumers | stale versions unavailable | exact binding test |
-| CL-R07 | Category values are constrained | gap evidence | Content Library | MasterContentCategory | master_content | category routes | category UI | category table | gap-closure | PASS_CURRENT | closed | validation added | discovery | invalid type rejected | `test_category_type_validation` |
-| CL-R08 | Reference policies are validated | gap evidence | Content Library | ReferenceSequence | master_content | policy route | owner settings | sequence table | gap-closure | PASS_CURRENT | closed | validation added | references | unsafe prefix rejected | `test_reference_policy_validation` |
-| CL-R09 | Module bindings are type/purpose safe | gap evidence | Content Library | ModuleBinding | master_content | binding route | binding UI | binding table | gap-closure | PASS_CURRENT | closed | binding validation added | consumers | incompatible binding rejected | `test_module_binding_compatibility` |
-| CL-R10 | Dependencies are owner-controlled | gap evidence | Content Library | MasterContentDependency | master_content | dependency routes | owner UI | dependency table | gap-closure | PASS_CURRENT | closed | capability and validation added | Reports/Engineering | non-owner cannot mutate | dependency RBAC test |
-| CL-R11 | Definition bindings are active and compatible | gap evidence | Definitions | ModuleBinding(definition_id) | master_content | definition binding routes | Definitions UI | binding table | gap-closure | PASS_CURRENT | closed | active/type checks added | BD/Requirements | inactive definition not resolved | definition binding test |
-| CL-R12 | Source sections/provenance are durable | owner brief | Content Library/Evidence seam | SourceSection/Provenance | forms_governance | dashboard-v2 routes | source sections UI | source tables | dashboard tests | PASS_CURRENT | none | retained | Evidence | no unbounded page range | locator negative test |
-| CL-R13 | Revision references do not collide | gap evidence | Content Library | DocumentVersion | master_content | revision route | version UI | document_versions | gap-closure | PASS_CURRENT | closed | collision check added | consumers | duplicate terms rejected | revision collision test |
-| CL-R14 | Consumer resolution is deterministic | owner brief | Content Library | item + binding + version | master_content | resolver routes | consumer resolver UI | joined projection | convergence tests | PASS_CURRENT | none | retained | BD/Contract/Engineering | ambiguity fails closed | resolver tests |
-| CL-R15 | Persona/module scoping applies | owner brief | Content Library | ModuleBinding | master_content | eligible routes | Dashboard persona views | binding table | security tests | PASS_CURRENT | none | retained | all personas | cross-persona leakage denied | persona negative test |
-| CL-R16 | Current reusable source must be reviewed | architecture rule | Content Library | DocumentVersion metadata | master_content | eligible/resolver | readiness filters | version metadata | retrieval quality | PASS_CURRENT | none | retained | all consumers | pending/unreviewed unavailable | exact currentness test |
-| CL-R17 | Official authority form currentness | owner brief | Permit/Source18 | DocumentVersion metadata | source18/current controls | official-form routes | Source18 UI | document metadata | Source18 tests | PARTIAL_CURRENT | typed authority schema remains Source18-owned | consume existing seam; no duplicate model | Permit | AMEC cannot declare authority current | official form control tests |
-| CL-R18 | Exact current OfficialFormVersion required | architecture rule | Permit/Source18 | official form metadata | packet_manifest | packet routes | packet UI | packet snapshot | Source18 tests | PASS_CURRENT | none | retained | submission | stale/unknown version blocked | packet manifest negatives |
-| CL-R19 | AUTHORITY_ONLY fields immutable to AMEC/AI | architecture rule | Source18/Evidence | FieldAuthorityRule | governed_prefill/source18 | packet/pre-fill routes | authority field UI | field authority tables | adversarial tests | PASS_CURRENT | none | retained | Permit/Evidence | no prefill/write of authority-only | authority-only negative tests |
-| CL-R20 | Requirements policy engine is canonical | owner brief | Requirements | RequirementDefinition/Policy* | requirements services | requirements routes | project requirements UI | requirement tables | shared foundations | OUT_OF_SCOPE | no Content Library duplicate | seam documentation only | Project | Content Library cannot set applicability | requirements tests |
-| CL-R21 | Operational checklist is Project projection | architecture rule | Project Requirements | RequirementInstance | preparation services | preparation routes | project checklist UI | requirement_instances | preparation tests | OUT_OF_SCOPE | no Content Library duplicate | seam documentation only | Project | Form binding cannot create Project truth | project tests |
-| CL-R22 | Project Evidence is canonical | owner brief | Evidence | FieldObservation/VerifiedAssertion | governed_prefill/evidence | evidence routes | evidence UI | evidence tables | evidence tests | OUT_OF_SCOPE | no duplicate evidence store | seam documentation only | Evidence | library source is not evidence selection | evidence tests |
-| CL-R23 | AuthorityCase is canonical | owner brief | Permit | AuthorityCase | source18 | authority routes | permit UI | authority tables | permit tests | OUT_OF_SCOPE | no duplicate case state | seam documentation only | Permit | library cannot release/submit | permit tests |
-| CL-R24 | Submission packet is controlled | owner brief | Source18 | SubmissionPackage/Item | source18 | packet routes | packet UI | packet tables | packet tests | OUT_OF_SCOPE | no Content Library packet | seam documentation only | Permit | no auto-submit | packet tests |
-| CL-R25 | Actual Technical Report is Project artifact | owner brief | Engineering | report revisions/baselines | engineering services | engineering routes | engineering UI | project artifact tables | engineering tests | OUT_OF_SCOPE | no duplicate technical report | seam documentation only | Engineering | template cannot equal approved report | engineering tests |
-| CL-R26 | Engineering approval remains professional | architecture rule | Engineering | ProfessionalApproval | engineering services | approval routes | approval UI | approval tables | approval tests | OUT_OF_SCOPE | no Content Library approval | seam documentation only | Engineering | no AI/Content Library approval | approval negatives |
-| CL-R27 | Correspondence state remains owning-domain data | owner brief | Correspondence | correspondence models | construction services | correspondence routes | construction UI | correspondence tables | construction tests | OUT_OF_SCOPE | no duplicate register | seam documentation only | Construction | reusable template is not correspondence | route tests |
-| CL-R28 | Handover state remains owning-domain data | owner brief | Handover | handover models | handover services | handover routes | handover UI | handover tables | handover tests | OUT_OF_SCOPE | no duplicate state | seam documentation only | Handover | library cannot accept handover | handover tests |
-| CL-R29 | Finance state remains owning-domain data | owner brief | Finance | finance models | finance services | finance routes | finance UI | finance tables | finance tests | OUT_OF_SCOPE | no duplicate state | seam documentation only | Finance | template cannot create finance truth | finance tests |
-| CL-R30 | AI cannot approve/sign/stamp/release/submit | architecture rule | Content Library/Source18 | disabled AI route + packet controls | master_content/source18 | `/ai-assist`, packet routes | disabled UI | audit/events | adversarial tests | PASS_CURRENT | none | retained | all consumers | forbidden actions fail closed | AI boundary tests |
-| CL-R31 | RBAC separates Owner/Admin from consumers | owner brief | Platform/Content Library | capabilities | backend_realignment | route guards | role-aware UI | audit events | RBAC tests | PASS_CURRENT | none | capability changes added | all consumers | read roles cannot mutate | RBAC matrix tests |
-| CL-R32 | Audit/idempotency remain durable | owner brief | Platform/Content Library | AuditEvent/idempotency | master_content | mutation routes | owner UI | audit tables | owner dashboard | PASS_CURRENT | none | retained | all consumers | repeat mutation cannot duplicate | idempotency tests |
-| CL-R33 | Historical branch work is reconciled | execution brief | Content Library | current module tree | documented | n/a | n/a | git history/docs | reconciliation record | PASS_CURRENT | none | semantic integration only | release | no wholesale cherry-pick | history audit |
-| CL-R34 | Real current authority facts require owner data | execution brief | Permit/Owner | live authority source | current controls | production data seam | owner workflow | external source | synthetic only | UNKNOWN | live evidence unavailable by design | require controlled owner import | Permit | synthetic data cannot be claimed real | live-data gate |
-| CL-R35 | OfficialFormVersion typed ownership decision | execution brief | Product/Permit | metadata-backed current form | source18 | official form routes | Source18 UI | DocumentVersion metadata | Source18 tests | PRODUCT_DECISION_REQUIRED | decide whether to type it in Source18 or project a read-only view | preserve current seam pending decision | Permit | no duplicate Content Library authority | decision review |
+Source aliases in the atomic ledger resolve to the exact attached files:
+
+- OWNER_TRACK_V1 = /Users/ahmedsami/.codex/attachments/8a0e9739-4e4b-4042-a5f6-5f43fe62ab0d/pasted-text.txt
+- OWNER_RUN_V2 = /Users/ahmedsami/.codex/attachments/24eaee73-2303-420e-9fbd-39b4a0849a7f/pasted-text.txt
+- SAFETY_ADDENDUM = /Users/ahmedsami/.codex/attachments/257ac33e-8aef-465d-81c5-be2f4dfcefe4/pasted-text.txt
+- BASELINE_BOOTSTRAP = /Users/ahmedsami/.codex/attachments/3482ce91-43ee-4fb2-93e9-37c54f0a26ff/pasted-text.txt
+- FINAL_TRACEABILITY = /Users/ahmedsami/.codex/attachments/e045bd93-7d30-441a-aec2-0a84ca1f59b3/pasted-text.txt
+
+## Reconciliation counts
+
+OWNER_ATOMIC_REQUIREMENT_COUNT=81
+
+OWNER_REQUIREMENT_ORPHANS=0
+
+OWNER_UNSUPPORTED_IMPLEMENTATION_COUNT=0
+
+| Status | Count |
+|---|---:|
+| PASS_CURRENT | 61 |
+| PARTIAL_CURRENT | 8 |
+| OUT_OF_SCOPE | 9 |
+| PRODUCT_DECISION_REQUIRED | 2 |
+| UNKNOWN | 1 |
+| MISSING_CURRENT | 0 |
+| SUPERSEDED | 0 |
+
+OWNER_REQUIREMENTS_FULLY_CLOSED=false: the non-PASS classifications are explicit and remain non-PASS. MODULE_OWNED_BEHAVIORAL_GAPS_OPEN=0: no new unclosed Content-Library-owned behavioral gap was found in the atomic census.
+
+The previous 35-row ledger is retained conceptually as a rollup only; this 79-row atomic census is the authoritative traceability artifact for this closure pass.
