@@ -15,6 +15,7 @@ import os
 from uuid import uuid4
 
 from sqlalchemy import text
+from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
 
 from . import db as database
@@ -28,8 +29,10 @@ DDL_SENTINEL_TABLE = "dbo.g6_runtime_ddl_must_be_denied"
 def _credential_free_runtime_check() -> None:
     settings = get_settings()
     settings.validate_environment()
-    if any(value for value in (settings.database_url, settings.database_migration_url) if "://" in value and "@" in value.rsplit("//", 1)[-1].split("?", 1)[0]):
-        raise RuntimeError("qualification database URL must be credentialless")
+    for value in (settings.database_url, settings.database_migration_url):
+        parsed = make_url(value)
+        if parsed.username or parsed.password:
+            raise RuntimeError("qualification database URL must be credentialless")
 
 
 def _read_probe() -> int:
@@ -147,4 +150,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
