@@ -592,3 +592,16 @@ def test_cm_g17_source_bindings_require_current_scoped_lineage(client):
     assert stale.status_code == 409
     arbitrary = client.post(f"/api/admin/contracts/{contract_id}/client-inputs", headers=headers("OWNER_SPONSOR"), json={"sequence": 1, "title": "Arbitrary source", "source_document_version_id": str(uuid4())})
     assert arbitrary.status_code == 422
+
+
+def test_legacy_contract_approval_and_execution_surfaces_cannot_bypass_canonical_workspace():
+    from backend.app.api.recovery_routers import approve_contract_revision, record_contract_execution_evidence
+
+    with pytest.raises(Exception) as approval:
+        approve_contract_revision("legacy-revision", {}, None, None)
+    with pytest.raises(Exception) as execution:
+        record_contract_execution_evidence("legacy-revision", {}, None, None)
+    assert approval.value.status_code == 410
+    assert execution.value.status_code == 410
+    assert approval.value.detail["code"] == "CANONICAL_CONTRACT_WORKSPACE_REQUIRED"
+    assert execution.value.detail["code"] == "CANONICAL_CONTRACT_WORKSPACE_REQUIRED"

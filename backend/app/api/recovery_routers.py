@@ -38,6 +38,17 @@ def actor(payload: dict, default: str = "synthetic-operator") -> tuple[str, str]
     return str(payload.get("actor", default)), str(payload.get("actor_role", "ADMIN_PROJECT_COORDINATOR"))
 
 
+def _canonical_contract_workspace_required() -> None:
+    """Prevent the legacy recovery surface from becoming a second Contract authority."""
+    raise HTTPException(
+        410,
+        {
+            "code": "CANONICAL_CONTRACT_WORKSPACE_REQUIRED",
+            "detail": "Legacy Contract approval and execution mutations are retired; use the canonical Contract workspace.",
+        },
+    )
+
+
 def first_project(db: Session) -> Project:
     project = db.scalar(select(Project).order_by(Project.project_number))
     if not project:
@@ -678,6 +689,7 @@ def submit_contract_review(revision_id: str, payload: dict, request: Request, db
 
 @router.post("/contract-revisions/{revision_id}/approval")
 def approve_contract_revision(revision_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     revision = require(db, ContractRevision, revision_id, "CONTRACT_REVISION_NOT_FOUND")
     actor_id, actor_role = actor(payload, "synthetic-contract-approver")
     require_human_role(actor_role, {"CONTRACT_APPROVER", "OWNER_SPONSOR", "PROCESS_CHAMPION"})
@@ -695,6 +707,7 @@ def approve_contract_revision(revision_id: str, payload: dict, request: Request,
 
 @router.post("/contract-revisions/{revision_id}/execution-evidence")
 def record_contract_execution_evidence(revision_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     revision = require(db, ContractRevision, revision_id, "CONTRACT_REVISION_NOT_FOUND")
     if not approved_for(db, "ContractRevision", revision.id, "CONTRACT_APPROVAL"):
         raise HTTPException(409, "CONTRACT_APPROVAL_REQUIRED")
