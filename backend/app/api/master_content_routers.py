@@ -47,6 +47,7 @@ from ..services.master_content import (
     ENGINEERING_DISCIPLINES,
     resolve_master_content_purpose,
     validate_module_binding,
+    validate_internal_template_binding,
 )
 from ..services.forms_governance import (
     add_provenance,
@@ -576,6 +577,7 @@ def put_module_bindings(item_id: str, payload: list[BindingPayload], request: Re
     seen: dict[tuple[str, str], bool] = {}
     for row in payload:
         module, usage_type = validate_module_binding(content_type=item.content_type, module=row.module, usage_type=row.usage_type)
+        validate_internal_template_binding(db, item=item, usage_type=usage_type)
         key = (module, usage_type)
         if key in seen:
             raise HTTPException(422, {"code": "MODULE_BINDING_DUPLICATE", "module": module, "usage_type": usage_type})
@@ -590,11 +592,6 @@ def put_module_bindings(item_id: str, payload: list[BindingPayload], request: Re
         else:
             db.add(MasterContentModuleBinding(master_content_id=item_id, module=module, usage_type=usage_type, active=active, created_by=_actor(role)))
     item.used_in = sorted({module for (module, _), active in seen.items() if active})
-    # A frozen canonical consumer purpose is deterministic proof for these
-    # AMEC templates; unrelated Forms remain unclassified until governed.
-    if any(usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"} for _, usage_type in seen):
-        from ..services.forms_governance import ensure_profile
-        ensure_profile(db, item, ownership="AMEC_OWNED").content_ownership_class = "AMEC_OWNED"
     audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MODULE_BINDINGS_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after={"used_in": item.used_in})
     db.commit()
     return item_projection(db, item, include_history=True)

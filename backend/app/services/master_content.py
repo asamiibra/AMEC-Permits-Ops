@@ -35,6 +35,7 @@ from ..models import (
     MasterContentReferenceSequence,
     MasterContentIdempotency,
     MasterContentItem,
+    MasterContentGovernanceProfile,
     MasterContentApplicability,
     RequirementPolicyLineage,
     TechnicalRuleLineage,
@@ -88,6 +89,7 @@ DEFAULT_REFERENCE_SEQUENCES = [
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
 ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
 PURPOSE_CONTENT_TYPES = {"PROPOSAL_TEMPLATE": "FORM", "PROPOSAL_CHECKLIST": "FORM", "CONTRACT_TEMPLATE": "FORM"}
+INTERNAL_TEMPLATE_PURPOSES = frozenset(PURPOSE_CONTENT_TYPES)
 CONTENT_TYPE_MODULES = {
     "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
@@ -133,6 +135,35 @@ def validate_module_binding(*, content_type: str, module: str, usage_type: str) 
     if expected_module and module != expected_module:
         raise _error("PURPOSE_MODULE_MISMATCH", module=module, usage_type=usage_type)
     return module, usage_type
+
+
+def validate_internal_template_binding(db: Session, *, item: MasterContentItem, usage_type: str) -> None:
+    """Keep frozen internal-template purposes separate from external authority forms.
+
+    Purpose binding is a projection change only. It must not manufacture AMEC
+    ownership for an item whose governed source class says otherwise.
+    """
+    if usage_type not in INTERNAL_TEMPLATE_PURPOSES:
+        return
+    profile = db.scalar(
+        select(MasterContentGovernanceProfile).where(
+            MasterContentGovernanceProfile.master_content_item_id == item.id
+        )
+    )
+    if (
+        not profile
+        or profile.content_ownership_class != "AMEC_OWNED"
+        or profile.restricted_reference_sample
+        or item.needs_review
+    ):
+        raise _error(
+            "OFFICIAL_FORM_INTERNAL_TEMPLATE_BINDING_FORBIDDEN",
+            content_id=item.id,
+            content_type=item.content_type,
+            ownership=profile.content_ownership_class if profile else None,
+            restricted_reference_sample=bool(profile and profile.restricted_reference_sample),
+            usage_type=usage_type,
+        )
 
 
 def _actor(role: Any) -> str:
@@ -376,7 +407,7 @@ def canonical_master_content_candidates(
         if item.content_type == "FORM":
             # Proposal and Contract AMEC-owned bindings are frozen canonical
             # product configuration. Other forms require manual readiness.
-            frozen_purpose = usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
+            frozen_purpose = usage_type in INTERNAL_TEMPLATE_PURPOSES
             profile = governance["profile"]
             is_frozen_amec_form = (
                 frozen_purpose

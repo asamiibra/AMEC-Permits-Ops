@@ -1,6 +1,6 @@
 # Content Library final acceptance ledger
 
-This ledger binds all evidence to executable commit `decf0bc0e22c3b51fedb5b1e6ff287b24086f64e` and tree `33541ed1b5aa868a770a9486adf611e3ec55f061`. The compatibility parent is the live release observed at run start and run end: `36ce0cad2af86879cc29e1b9194bef43cc81f4ba` / `1cb74f41fe67ceec0fbf5781f5263673508eaacb`.
+This ledger records the pre-repair acceptance evidence for executable commit `decf0bc0e22c3b51fedb5b1e6ff287b24086f64e` and tree `33541ed1b5aa868a770a9486adf611e3ec55f061`; the final two-finding repair head and its exact-head gates are recorded in the execution report for this run. The compatibility parent is the live release observed at run start and run end: `36ce0cad2af86879cc29e1b9194bef43cc81f4ba` / `1cb74f41fe67ceec0fbf5781f5263673508eaacb`.
 
 | Gate | Result | Exact evidence |
 | --- | --- | --- |
@@ -36,6 +36,6 @@ The four-library projection is preserved; Checklist remains a Form master; Proje
 - G5 reusable Technical Report template contract: `CLOSED_ALREADY_PRESENT`; actual Technical Reports remain controlled Project/Engineering artifacts.
 - G6 transaction → exact FormVersion/RequirementPolicyVersion binding: `CLOSED_IMPLEMENTED` at the governed binding seam; stale/unknown currentness fails closed.
 - G7 typed evidence/source classes: `CLOSED_ALREADY_PRESENT` through existing provenance/policy models; operational anecdotes do not become law.
-- G8 reusable Letter semantics: `NOT_REQUIRED_WITH_REASON` — current Owner requirements do not authorize a separate Letter library or dedicated correspondence engine; reusable letterhead, if later authorized, belongs under Forms and organization/correspondence truth remains owning-domain-owned.
+- G8 reusable Letter semantics: `NOT_REQUIRED_BY_GOVERNING_REQUIREMENT` — AT-024 permits optional reusable letterhead under Forms but does not require a separate Letter library or dedicated correspondence engine; organization facts and correspondence remain owning-domain-owned.
 
 `CONTENT_LIBRARY_MODULE_IMPLEMENTATION_CLOSED` is implementation closure only. It does not mean integrated, production accepted, or authorized for real AMEC/DSM use.

@@ -167,12 +167,12 @@
       "service_api_evidence": "GovernanceProfile/DocumentVersion | forms_governance/source18 | official-form routes",
       "ui_evidence": "Forms/Source18 UI",
       "authorization_evidence": "See server capability/policy seam in implementation location.",
-      "test_evidence": "Source18 tests",
-      "status": "IMPLEMENTED_PARTIAL",
-      "gap": "Typed official-form authority remains Source18-owned; Content Library must not create a competing authority registry.",
+      "test_evidence": "Source18 tests; backend/tests/test_content_library_gap_closure.py::test_external_official_internal_template_binding_is_rejected_without_mutation; ::test_corrupted_external_frozen_binding_is_excluded_by_resolver; ::test_amec_owned_internal_template_binds_and_resolves_exact_current_version",
+      "status": "IMPLEMENTED_AND_PROVEN",
+      "gap": "",
       "required_change": "",
       "supersession": "",
-      "notes": "Typed official-form authority remains Source18-owned; Content Library must not create a competing authority registry."
+      "notes": "Content Library preserves the Source18-owned official-form authority boundary: external or otherwise unsafe governance classes cannot bind frozen internal-template purposes, and stale invalid bindings are excluded by the resolver."
     },
     {
       "requirement_id": "AT-010",
@@ -453,11 +453,11 @@
       "ui_evidence": "library/correspondence UI",
       "authorization_evidence": "See server capability/policy seam in implementation location.",
       "test_evidence": "construction tests",
-      "status": "IMPLEMENTED_PARTIAL",
-      "gap": "Dedicated letterhead adapter is not proven in the pinned base; no correspondence system is to be created here.",
+      "status": "NOT_APPLICABLE",
+      "gap": "",
       "required_change": "",
       "supersession": "",
-      "notes": "Dedicated letterhead adapter is not proven in the pinned base; no correspondence system is to be created here."
+      "notes": "AT-024 permits optional reusable letterhead under Forms only; no separate Letter library or correspondence engine is required, and organization facts/correspondence remain owning-domain-owned."
     },
     {
       "requirement_id": "AT-025",
