@@ -374,12 +374,14 @@ class CommunicationDelivery(Base):
 
 class Invoice(Base, TimestampMixin):
     __tablename__ = "invoices"
+    __table_args__ = (Index("uq_invoice_project_ordinal", "project_id", "project_invoice_ordinal", unique=True, mssql_where=text("project_id IS NOT NULL AND project_invoice_ordinal IS NOT NULL")),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     contract_id: Mapped[str] = mapped_column(ForeignKey("contracts.id"), nullable=False, index=True)
     project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
     client_account_id: Mapped[str | None] = mapped_column(ForeignKey("client_accounts.id"), index=True)
     billing_plan_id: Mapped[str | None] = mapped_column(ForeignKey("billing_plans.id"), index=True)
     invoice_reference: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    project_invoice_ordinal: Mapped[int | None] = mapped_column(Integer, index=True)
     invoice_ref_status: Mapped[str] = mapped_column(String(40), default="NOT_ALLOCATED", nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="DRAFT", nullable=False)
     current_revision_id: Mapped[str | None] = mapped_column(String(36))
@@ -411,6 +413,10 @@ class InvoiceRevision(Base):
     due_date_source_event_type: Mapped[str | None] = mapped_column(String(80))
     due_date_source_event_id: Mapped[str | None] = mapped_column(String(36))
     due_date_derived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    service_period: Mapped[str | None] = mapped_column(String(120))
+    planned_collection_date: Mapped[date | None] = mapped_column(Date)
+    actual_collection_date: Mapped[date | None] = mapped_column(Date)
+    actual_collection_date_source: Mapped[str | None] = mapped_column(String(80))
     contract_project_context_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     currency: Mapped[str | None] = mapped_column(String(20))

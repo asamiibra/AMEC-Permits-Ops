@@ -1,0 +1,19 @@
+{
+  "v10_hostile_final_audit_pass": true,
+  "direct_server_api_negative_matrix": {
+    "wrong_client": "403 PAYMENT_CLIENT_CONTRACT_MISMATCH",
+    "wrong_project": "403 CROSS_PROJECT_BILLING_CONTEXT_DENIED",
+    "unauthorized_finance_capability": "403 CAPABILITY_DENIED",
+    "unverified_payment_allocation": "409 VERIFIED_PAYMENT_REQUIRED",
+    "wrong_currency_allocation": "409 PAYMENT_CURRENCY_MISMATCH",
+    "over_allocation": "409 PAYMENT_ALLOCATION_OVER_LIMIT"
+  },
+  "real_postgresql_race_attacks": "PASS",
+  "ai_protected_finance_action_attack": "PASS",
+  "commercial_preactivation_bypass_attack": "PASS",
+  "invoice_reference_invalid_input_attack": "PASS",
+  "duplicate_numbering_control": "PASS",
+  "foreign_evidence_and_scope_controls": "PASS",
+  "project_activation_via_money_observation": "DENIED",
+  "no_production_or_real_financial_data": true
+}

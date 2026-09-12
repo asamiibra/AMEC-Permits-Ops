@@ -25,12 +25,12 @@ from ..db import get_db
 from ..expansion.runtime import render_artifact, select_template
 from ..models import (
     BillingMilestone, BillingMilestoneEligibility, BillingPlan, BillingPlanRevision,
-    ClientAccount, Contract, ContractAdminEvidence, ContractPaymentTerm,
+    ClientAccount, ConsultancyOffice, Contract, ContractAdminEvidence, ContractPaymentTerm,
     ContractRevision, Document, DocumentVersion, FinancialAccountMaster, RenderedArtifact,
     FinancialAccountVersion, Invoice, InvoiceAcceptRecord, InvoiceApprovalRecord, InvoiceRevision,
     InvoiceIssueEvent, InvoiceDeliveryEvent, InvoiceAcknowledgment, InvoiceLineItem, InvoiceNumberingPolicy, InvoicePaymentAllocation,
     InvoiceReference, LineageEdge, PaymentReceipt, Project, ProjectActivation,
-    ReceivableFollowUp, Role, TemplateDefinition, TemplateVersion,
+    PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, Role, TemplateDefinition, TemplateVersion,
 )
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
 from ..services.owner_decisions import runtime_decision_value
@@ -45,7 +45,9 @@ router = APIRouter(prefix="/api/billing", tags=["billing-invoice"])
 OWNER = {Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN}
 PLAN_WRITE = OWNER | {Role.PROCESS_CHAMPION}
 VIEW = PLAN_WRITE | {Role.RESPONSIBLE_ENGINEER, Role.PERMIT_PREPARER, Role.REQUIREMENT_STEWARD}
-DELIVERY_CHANNELS = {"EMAIL", "PORTAL", "IN_PERSON", "COURIER", "OTHER"}
+DELIVERY_CHANNELS = {"EMAIL", "PORTAL", "IN_PERSON", "COURIER", "WHATSAPP", "OTHER"}
+PAYMENT_METHODS = {"BANK_TRANSFER", "CHEQUE", "ALTERNATE_RECIPIENT", "PERSONAL_RECIPIENT"}
+NON_CASH_RESOLUTION_TYPES = {"WAIVED", "WRITTEN_OFF", "NON_COLLECTIBLE", "COMMERCIAL_RELEASE"}
 DUE_DATE_BASES = {"INVOICE_DATE", "ISSUE_DATE", "DELIVERY_DATE", "ACKNOWLEDGMENT_DATE", "CLIENT_APPROVAL_DATE", "FIXED_DATE", "OTHER_VERIFIED_EVENT"}
 ELIGIBLE_AMEC_CONTRACT_TYPES = {"AMEC_PROFESSIONAL_SERVICES", "AMEC_SERVICE_CONTRACT"}
 
@@ -86,6 +88,35 @@ def _d(value: Any, *, field: str = "amount") -> Decimal:
 
 def _money(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def _validate_document_evidence(db: Session, evidence_id: str | None, project: Project | None, *, not_found_code: str, mismatch_code: str) -> None:
+    if not evidence_id:
+        return
+    version = db.get(DocumentVersion, evidence_id)
+    document = db.get(Document, version.document_id) if version else None
+    if not version or not document:
+        raise HTTPException(404, {"code": not_found_code})
+    if project and document.project_id not in {None, project.id}:
+        raise HTTPException(403, {"code": mismatch_code})
+
+
+def _payment_evidence_gate(item: PaymentReceipt) -> None:
+    method = str(item.payment_method or "").strip().upper()
+    if not method:
+        raise HTTPException(409, {"code": "PAYMENT_METHOD_REQUIRED"})
+    if method not in PAYMENT_METHODS:
+        raise HTTPException(409, {"code": "PAYMENT_METHOD_NOT_SUPPORTED", "allowed": sorted(PAYMENT_METHODS)})
+    primary = bool(item.evidence_document_version_id or str(item.evidence_reference or "").strip())
+    voucher = bool(item.receipt_voucher_document_version_id or str(item.receipt_voucher_evidence_reference or "").strip())
+    if method == "BANK_TRANSFER" and not primary:
+        raise HTTPException(409, {"code": "PAYMENT_TRANSFER_EVIDENCE_REQUIRED"})
+    if method == "CHEQUE" and (not primary or not voucher):
+        raise HTTPException(409, {"code": "PAYMENT_CHEQUE_EVIDENCE_REQUIRED", "primary_evidence": primary, "receipt_voucher": voucher})
+    if method in {"ALTERNATE_RECIPIENT", "PERSONAL_RECIPIENT"}:
+        context = item.custodian_context_json or {}
+        if not primary or not str(context.get("recipient_name") or "").strip() or not str(context.get("custody_reference") or context.get("custodian_reference") or "").strip():
+            raise HTTPException(409, {"code": "PAYMENT_CUSTODIAN_CONTEXT_REQUIRED"})
 
 
 def _eligible_contract_type(db: Session, contract: Contract, revision: ContractRevision | None = None) -> str:
@@ -515,7 +546,8 @@ def create_invoice(payload: dict[str, Any], request: Request, db: Session = Depe
     offset_days = int(payload["due_days"]) if payload.get("due_days") is not None else due_days[0] if due_days and len(set(due_days)) == 1 else None
     if offset_days is not None and offset_days < 0:
         raise HTTPException(422, {"code": "DUE_DATE_OFFSET_INVALID"})
-    revision = InvoiceRevision(invoice_id=invoice.id, revision_number=1, controlling_contract_revision_id=contract_revision.id, billing_plan_revision_id=plan_revision.id, status="DRAFT", invoice_date=invoice_date, description=payload.get("description") or "Billing milestone invoice", currency=plan_revision.currency, contract_project_context_snapshot=plan_revision.contract_project_context_snapshot or {}, source_snapshot={"contract_id": contract.id, "contract_revision_id": contract_revision.id, "billing_plan_revision_id": plan_revision.id, "milestone_ids": ids, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "contract_project_context_snapshot": plan_revision.contract_project_context_snapshot or {}, "agreement_type": contract.agreement_type})
+    planned_collection_date = _date(payload["planned_collection_date"], field="planned_collection_date") if payload.get("planned_collection_date") else None
+    revision = InvoiceRevision(invoice_id=invoice.id, revision_number=1, controlling_contract_revision_id=contract_revision.id, billing_plan_revision_id=plan_revision.id, status="DRAFT", invoice_date=invoice_date, planned_collection_date=planned_collection_date, service_period=payload.get("service_period"), description=payload.get("description") or "Billing milestone invoice", currency=plan_revision.currency, contract_project_context_snapshot=plan_revision.contract_project_context_snapshot or {}, source_snapshot={"contract_id": contract.id, "contract_revision_id": contract_revision.id, "billing_plan_revision_id": plan_revision.id, "milestone_ids": ids, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "contract_project_context_snapshot": plan_revision.contract_project_context_snapshot or {}, "agreement_type": contract.agreement_type})
     _configure_due_date(revision, invoice_date=invoice_date, basis=requested_basis, offset_days=offset_days, fixed_date=explicit_due_date)
     db.add(revision); db.flush(); invoice.current_revision_id = revision.id
     sequence = 1
@@ -564,6 +596,49 @@ def list_invoices(project_id: str | None = None, contract_id: str | None = None,
         all_items.append({"invoice": _row(invoice), "contract": _row(contract), "client": _row(client), "project": _row(project), "revision": _row(revision), "stage": stage, "receivable": receivable})
     items = [item for item in all_items if not lane or lane.upper() in {"ALL", item["stage"], str(item["receivable"].get("state") or "").upper()}]
     return {"items": items, "total": len(items), "lanes": {"all": len(all_items), "need_action": sum(x["stage"] == "NEED_ACTION" for x in all_items), "authority_review": sum(x["stage"] == "AUTHORITY_REVIEW" for x in all_items), "ready_close": sum(x["stage"] == "READY_CLOSE" for x in all_items)}, "search": q, "lane": lane or "ALL"}
+
+
+@router.get("/projects/{project_id}/financial-projection")
+def project_financial_projection(project_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(404, {"code": "PROJECT_NOT_FOUND"})
+    invoices = db.scalars(select(Invoice).where(Invoice.project_id == project.id).order_by(Invoice.created_at)).all()
+    contracts = db.scalars(select(Contract).where((Contract.project_id == project.id) | (Contract.id.in_(select(Invoice.contract_id).where(Invoice.project_id == project.id))))).all()
+    contract = contracts[0] if contracts else None
+    contract_revision = db.get(ContractRevision, contract.current_revision_id) if contract and contract.current_revision_id else None
+    project_value = _contract_amount(contract_revision, contract) if contract and contract_revision else None
+    rows = [_invoice_projection(db, invoice) for invoice in invoices]
+    total_invoiced = sum((_d(row.get("payable_amount") or 0) for row in rows), Decimal("0"))
+    cash_received = sum((_d(row.get("cash_allocated_amount") or 0) for row in rows), Decimal("0"))
+    non_cash_resolved = sum((_d(row.get("non_cash_resolved_amount") or 0) for row in rows), Decimal("0"))
+    outstanding = sum((_d(row.get("outstanding_amount") or 0) for row in rows), Decimal("0"))
+    remaining_contract_balance = max(Decimal("0"), project_value - cash_received - non_cash_resolved) if project_value is not None else None
+    milestone_rows = db.scalars(select(BillingMilestone).join(BillingPlanRevision, BillingPlanRevision.id == BillingMilestone.billing_plan_revision_id).where(BillingPlanRevision.contract_id == contract.id)).all() if contract else []
+    eligible_milestones = [item for item in milestone_rows if item.eligibility_state == "ELIGIBLE"]
+    billing_complete = bool(rows) and all(row.get("status") in {"ISSUED", "VOIDED"} for row in rows) and all(_d(item.remaining_invoiceable_amount or 0) <= 0 for item in eligible_milestones)
+    financial_complete = bool(rows) and outstanding <= 0
+    return {"project": _row(project), "contract": _row(contract), "currency": contract.currency if contract else None, "project_value": str(_money(project_value)) if project_value is not None else None, "total_invoiced": str(_money(total_invoiced)), "amount_received": str(_money(cash_received)), "cash_allocated_amount": str(_money(cash_received)), "non_cash_resolved_amount": str(_money(non_cash_resolved)), "remaining_contract_balance": str(_money(remaining_contract_balance)) if remaining_contract_balance is not None else None, "outstanding_amount": str(_money(outstanding)), "billing_completion_state": "COMPLETE" if billing_complete else "OPEN", "financial_completion_state": "COMPLETE" if financial_complete else "OPEN", "billing_complete": billing_complete, "financial_complete": financial_complete, "completion_basis": {"billing": "issued_invoice_and_no_remaining_invoiceable_milestone", "financial": "zero_outstanding_after_cash_or_governed_non_cash_resolution"}, "invoice_count": len(rows), "invoices": rows, "source_of_truth": "CANONICAL_BILLING_EVENTS"}
+
+
+@router.get("/offices/{office_id}/invoice-register")
+def office_invoice_register(office_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    if not db.get(ConsultancyOffice, office_id):
+        raise HTTPException(404, {"code": "OFFICE_NOT_FOUND"})
+    rows = _office_invoice_projection(db, office_id)
+    return {"office_id": office_id, "items": rows, "total": len(rows), "source_of_truth": "CANONICAL_BILLING_EVENTS"}
+
+
+@router.get("/offices/{office_id}/open-receivables")
+def office_open_receivables(office_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    if not db.get(ConsultancyOffice, office_id):
+        raise HTTPException(404, {"code": "OFFICE_NOT_FOUND"})
+    rows = _office_invoice_projection(db, office_id, open_only=True)
+    total_open = sum((_d(row.get("outstanding_amount") or 0) for row in rows), Decimal("0"))
+    return {"office_id": office_id, "items": rows, "total": len(rows), "aggregate_outstanding_amount": str(_money(total_open)), "source_of_truth": "CANONICAL_BILLING_EVENTS"}
 
 
 @router.get("/invoices/{invoice_id}")
@@ -673,14 +748,14 @@ def record_invoice_delivery(revision_id: str, payload: dict[str, Any], request: 
         raise HTTPException(422, {"code": "DELIVERY_CHANNEL_NOT_SUPPORTED", "allowed": sorted(DELIVERY_CHANNELS)})
     delivered_at = datetime.fromisoformat(str(payload.get("delivered_at") or datetime.now(timezone.utc).isoformat()))
     evidence_id = payload.get("evidence_document_version_id")
-    if evidence_id:
-        evidence_version = db.get(DocumentVersion, evidence_id)
-        evidence_document = db.get(Document, evidence_version.document_id) if evidence_version else None
-        if not evidence_version or not evidence_document:
-            raise HTTPException(404, {"code": "DELIVERY_EVIDENCE_NOT_FOUND"})
-        if invoice.project_id and evidence_document.project_id not in {None, invoice.project_id}:
-            raise HTTPException(403, {"code": "CROSS_PROJECT_BILLING_CONTEXT_DENIED"})
-    delivery = InvoiceDeliveryEvent(invoice_id=invoice.id, issued_revision_id=revision.id, issue_event_id=issue.id, channel=channel, recipient_snapshot=payload.get("recipient_snapshot") or {}, delivered_at=delivered_at, delivery_reference=payload.get("delivery_reference"), evidence_document_version_id=evidence_id, recorded_by=_actor(request, payload), status="RECORDED", notes=payload.get("notes"), idempotency_key=key)
+    _validate_document_evidence(db, evidence_id, db.get(Project, invoice.project_id) if invoice.project_id else None, not_found_code="DELIVERY_EVIDENCE_NOT_FOUND", mismatch_code="CROSS_PROJECT_BILLING_CONTEXT_DENIED")
+    delivery_reference = str(payload.get("delivery_reference") or "").strip()
+    evidence_required = channel in {"EMAIL", "WHATSAPP", "IN_PERSON", "COURIER"} or channel in {"PORTAL", "OTHER"}
+    if evidence_required and not evidence_id and not delivery_reference:
+        raise HTTPException(409, {"code": "DELIVERY_EVIDENCE_REQUIRED", "channel": channel})
+    if channel == "WHATSAPP" and not evidence_id:
+        raise HTTPException(409, {"code": "WHATSAPP_DELIVERY_ACK_REQUIRED"})
+    delivery = InvoiceDeliveryEvent(invoice_id=invoice.id, issued_revision_id=revision.id, issue_event_id=issue.id, channel=channel, recipient_snapshot=payload.get("recipient_snapshot") or {}, delivered_at=delivered_at, delivery_reference=delivery_reference or None, evidence_document_version_id=evidence_id, recorded_by=_actor(request, payload), status="RECORDED", notes=payload.get("notes"), idempotency_key=key)
     db.add(delivery); db.flush()
     _derive_due_date(revision, event_type="DELIVERY", event_id=delivery.id, event_at=delivered_at)
     _lineage(db, request, invoice.project_id, "InvoiceIssueEvent", issue.id, "InvoiceDeliveryEvent", delivery.id, "INVOICE_DELIVERY_RECORD")
@@ -802,7 +877,12 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
     official_ref = _allocate_invoice_ref(db, issue_date, _actor(request, payload), contract=contract, revision=revision)
     artifact = render_artifact(db, artifact_type="INVOICE", context_type="INVOICE_REVISION", context_id=revision.id, payload={"invoice_reference": official_ref, "contract_reference": contract.contract_reference, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "project_context": revision.contract_project_context_snapshot or {}, "description": revision.description, "currency": revision.currency, "lines": [_row(x) for x in _lines(db, revision.id)], "gross_charge_total": str(revision.gross_charge_total), "payable_total": str(revision.payable_total), "amount_in_words": revision.amount_in_words, "invoice_date": issue_date.isoformat(), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "financial_account_version_id": account.id, "source_sample_policy": "REFERENCE_ONLY"}, source_revision_ids=[contract.id, revision.controlling_contract_revision_id, plan_revision.id if plan_revision else revision.id], template_version_id=template.id, actor=_actor(request, payload), correlation_id=_corr(request), project_id=project.id if project else None)
     event = InvoiceIssueEvent(id=issue_event_id, invoice_id=invoice.id, invoice_revision_id=revision.id, official_invoice_ref=official_ref, invoice_date=issue_date, issued_by=_actor(request, payload), idempotency_key=key, template_version_id=template.id, financial_account_version_id=account.id, rendered_artifact_id=artifact.id, source_snapshot={"contract_revision_id": revision.controlling_contract_revision_id, "billing_plan_revision_id": revision.billing_plan_revision_id, "financial_account_version_id": account.id, "template_version_id": template.id, "artifact_id": artifact.id})
-    db.add(event); db.flush(); invoice.invoice_reference = official_ref; invoice.invoice_ref_status = "ALLOCATED"; invoice.status = "ISSUED"; revision.status = "ISSUED"
+    db.add(event); db.flush()
+    if project:
+        db.execute(select(Project).where(Project.id == project.id).with_for_update()).scalar_one()
+    if project and invoice.project_invoice_ordinal is None:
+        invoice.project_invoice_ordinal = (db.scalar(select(func.max(Invoice.project_invoice_ordinal)).where(Invoice.project_id == project.id)) or 0) + 1
+    invoice.invoice_reference = official_ref; invoice.invoice_ref_status = "ALLOCATED"; invoice.status = "ISSUED"; revision.status = "ISSUED"
     for line in _lines(db, revision.id):
         if line.billing_milestone_id and line.affects_payable_total:
             milestone = db.get(BillingMilestone, line.billing_milestone_id); milestone.invoiced_amount = _money(_d(milestone.invoiced_amount or 0) + _line_total(line)); milestone.remaining_invoiceable_amount = _money(max(Decimal("0"), _d(milestone.calculated_amount or 0) - _d(milestone.invoiced_amount or 0)));
@@ -833,12 +913,96 @@ def _allocate_invoice_ref(db: Session, issue_date: date, actor: str, *, contract
 
 
 def _receivable(db: Session, invoice: Invoice, revision: InvoiceRevision | None) -> dict[str, Any]:
-    if not revision or invoice.status != "ISSUED": return {"state": "NOT_ISSUED", "issued_payable_amount": None, "verified_paid_amount": "0.00", "outstanding_amount": None, "overpayment_amount": "0.00", "due_date": None, "communication_state": _communication_state(db, invoice.id)}
+    if not revision or invoice.status != "ISSUED": return {"state": "NOT_ISSUED", "issued_payable_amount": None, "verified_paid_amount": "0.00", "resolved_non_cash_amount": "0.00", "financially_resolved_amount": "0.00", "outstanding_amount": None, "overpayment_amount": "0.00", "due_date": None, "communication_state": _communication_state(db, invoice.id)}
     paid = sum((_d(item.allocated_amount) for item in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id == invoice.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()), Decimal("0"))
-    payable = _d(revision.payable_total or 0); outstanding = payable - paid; over = max(Decimal("0"), -outstanding); now = date.today()
+    resolved_non_cash = sum((_d(item.amount) for item in db.scalars(select(ReceivableResolution).where(ReceivableResolution.invoice_id == invoice.id, ReceivableResolution.status == "ACTIVE")).all()), Decimal("0"))
+    payable = _d(revision.payable_total or 0); financially_resolved = paid + resolved_non_cash; outstanding = payable - financially_resolved; over = max(Decimal("0"), -outstanding); now = date.today()
     communication_state = _communication_state(db, invoice.id)
-    state = "PAID" if outstanding <= 0 else "PARTIALLY_PAID" if paid > 0 else "AWAITING_DUE_EVENT" if revision.due_date_status == "PENDING_EVENT" or not revision.due_date else "OVERDUE" if revision.due_date < now else "DUE" if revision.due_date <= now else "NOT_DUE"
-    return {"state": state, "communication_state": communication_state, "issued_payable_amount": str(_money(payable)), "verified_paid_amount": str(_money(paid)), "outstanding_amount": str(_money(max(Decimal("0"), outstanding))), "overpayment_amount": str(_money(over)), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "due_date_status": revision.due_date_status}
+    state = "RESOLVED_NON_CASH" if outstanding <= 0 and resolved_non_cash > 0 else "PAID" if outstanding <= 0 else "PARTIALLY_PAID" if financially_resolved > 0 else "AWAITING_DUE_EVENT" if revision.due_date_status == "PENDING_EVENT" or not revision.due_date else "OVERDUE" if revision.due_date < now else "DUE" if revision.due_date <= now else "NOT_DUE"
+    return {"state": state, "resolution_state": "NON_CASH" if resolved_non_cash > 0 else "NONE", "communication_state": communication_state, "issued_payable_amount": str(_money(payable)), "verified_paid_amount": str(_money(paid)), "resolved_non_cash_amount": str(_money(resolved_non_cash)), "financially_resolved_amount": str(_money(financially_resolved)), "outstanding_amount": str(_money(max(Decimal("0"), outstanding))), "overpayment_amount": str(_money(over)), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "due_date_status": revision.due_date_status}
+
+
+def _payment_credit(db: Session, payment: PaymentReceipt) -> dict[str, Any]:
+    allocated = sum(
+        (_d(item.allocated_amount) for item in db.scalars(
+            select(InvoicePaymentAllocation).where(
+                InvoicePaymentAllocation.payment_receipt_id == payment.id,
+                InvoicePaymentAllocation.status == "ALLOCATED",
+            )
+        ).all()),
+        Decimal("0"),
+    )
+    amount = _d(payment.amount)
+    if payment.verification_status == "REVERSED":
+        state = "REVERSED"
+        unallocated = Decimal("0")
+    elif payment.verification_status != "VERIFIED":
+        state = "CLIENT_PREPAYMENT_RECORDED" if not allocated else "PAYMENT_OBSERVED_WITH_ALLOCATIONS"
+        unallocated = Decimal("0")
+    else:
+        unallocated = max(Decimal("0"), amount - allocated)
+        state = "UNALLOCATED_CLIENT_CREDIT" if unallocated > 0 else "ALLOCATED_TO_INVOICE"
+    return {
+        "payment_id": payment.id,
+        "client_account_id": payment.client_account_id,
+        "contract_id": payment.contract_id,
+        "project_id": payment.project_id,
+        "currency": payment.currency,
+        "received_amount": str(_money(amount)),
+        "allocated_amount": str(_money(allocated)),
+        "unallocated_balance": str(_money(unallocated)),
+        "verification_status": payment.verification_status,
+        "state": state,
+    }
+
+
+def _invoice_projection(db: Session, invoice: Invoice) -> dict[str, Any]:
+    revision = db.get(InvoiceRevision, invoice.current_revision_id) if invoice.current_revision_id else None
+    receivable = _receivable(db, invoice, revision)
+    follow_ups = db.scalars(select(ReceivableFollowUp).where(ReceivableFollowUp.invoice_id == invoice.id).order_by(ReceivableFollowUp.created_at.desc())).all()
+    latest_follow_up = follow_ups[0] if follow_ups else None
+    return {
+        "invoice_id": invoice.id,
+        "invoice_reference": invoice.invoice_reference,
+        "project_invoice_ordinal": invoice.project_invoice_ordinal,
+        "contract_id": invoice.contract_id,
+        "project_id": invoice.project_id,
+        "client_account_id": invoice.client_account_id,
+        "status": invoice.status,
+        "revision_id": revision.id if revision else None,
+        "revision_number": revision.revision_number if revision else None,
+        "billing_period": revision.service_period if revision else None,
+        "planned_collection_date": revision.planned_collection_date.isoformat() if revision and revision.planned_collection_date else None,
+        "invoice_date": revision.invoice_date.isoformat() if revision and revision.invoice_date else None,
+        "due_date": revision.due_date.isoformat() if revision and revision.due_date else None,
+        "actual_collection_date": revision.actual_collection_date.isoformat() if revision and revision.actual_collection_date else None,
+        "actual_collection_date_source": revision.actual_collection_date_source if revision else None,
+        "payable_amount": str(_money(_d(revision.payable_total or 0))) if revision and revision.payable_total is not None else None,
+        "currency": revision.currency if revision else None,
+        "cash_allocated_amount": receivable.get("verified_paid_amount", "0.00"),
+        "non_cash_resolved_amount": receivable.get("resolved_non_cash_amount", "0.00"),
+        "outstanding_amount": receivable.get("outstanding_amount"),
+        "receivable_state": receivable.get("state"),
+        "collection_status": "NEED_ACTION" if _d(receivable.get("outstanding_amount") or 0) > 0 else "RESOLVED",
+        "follow_up_count": len(follow_ups),
+        "latest_follow_up": _row(latest_follow_up),
+    }
+
+
+def _office_invoice_projection(db: Session, office_id: str, *, open_only: bool = False) -> list[dict[str, Any]]:
+    project_ids = select(Project.id).where(Project.office_id == office_id)
+    contract_ids = select(Contract.id).where(Contract.project_id.in_(project_ids))
+    invoices = db.scalars(select(Invoice).where((Invoice.project_id.in_(project_ids)) | (Invoice.contract_id.in_(contract_ids))).order_by(Invoice.created_at.desc())).all()
+    rows = []
+    for invoice in invoices:
+        row = _invoice_projection(db, invoice)
+        if open_only and _d(row.get("outstanding_amount") or 0) <= 0:
+            continue
+        contract = db.get(Contract, invoice.contract_id)
+        project = db.get(Project, invoice.project_id) if invoice.project_id else None
+        client = db.get(ClientAccount, invoice.client_account_id) if invoice.client_account_id else None
+        rows.append({**row, "contract_reference": contract.contract_reference if contract else None, "project_reference": project.project_code or project.project_number if project else None, "client_name": client.display_name if client else None})
+    return rows
 
 
 @router.get("/invoices/{invoice_id}/receivable")
@@ -856,20 +1020,29 @@ def record_payment(payload: dict[str, Any], request: Request, db: Session = Depe
     contract, _contract_revision, _context, project = _contract_context(db, contract_id, None)
     client_id = str(payload.get("client_account_id") or (invoice.client_account_id if invoice else contract.client_account_id))
     if client_id != contract.client_account_id: raise HTTPException(403, {"code": "PAYMENT_CLIENT_CONTRACT_MISMATCH"})
-    payment_project_id = payload.get("project_id") or (invoice.project_id if invoice else project.id if project else None); _scope_project(db, payment_project_id, contract, project)
+    payment_project_id = payload["project_id"] if "project_id" in payload else (invoice.project_id if invoice else project.id if project else None); _scope_project(db, payment_project_id, contract, project)
     amount = _money(_d(payload.get("amount"), field="amount")); currency = str(payload.get("currency") or contract.currency or "").upper()
     if amount <= 0 or not currency: raise HTTPException(422, {"code": "PAYMENT_AMOUNT_CURRENCY_REQUIRED"})
     evidence_id = payload.get("evidence_document_version_id")
-    if evidence_id:
-        version = db.get(DocumentVersion, evidence_id); document = db.get(Document, version.document_id) if version else None
-        if not version or not document or (project and document.project_id not in {None, project.id}): raise HTTPException(403, {"code": "PAYMENT_EVIDENCE_PROJECT_MISMATCH"})
+    voucher_id = payload.get("receipt_voucher_document_version_id")
+    _validate_document_evidence(db, evidence_id, project, not_found_code="PAYMENT_EVIDENCE_NOT_FOUND", mismatch_code="PAYMENT_EVIDENCE_PROJECT_MISMATCH")
+    _validate_document_evidence(db, voucher_id, project, not_found_code="PAYMENT_RECEIPT_VOUCHER_NOT_FOUND", mismatch_code="PAYMENT_RECEIPT_VOUCHER_PROJECT_MISMATCH")
     key = str(payload.get("idempotency_key") or "").strip()
     if not key: raise HTTPException(422, {"code": "PAYMENT_IDEMPOTENCY_KEY_REQUIRED"})
     existing = db.scalar(select(PaymentReceipt).where(PaymentReceipt.idempotency_key == key))
     if existing: return _row(existing)
-    item = PaymentReceipt(client_account_id=client_id, contract_id=contract.id, project_id=payment_project_id, received_date=_date(payload.get("received_date") or date.today().isoformat(), field="received_date"), amount=amount, currency=currency, reference=str(payload.get("reference") or "").strip(), payment_method=payload.get("payment_method"), evidence_document_version_id=evidence_id, verification_status="OBSERVED", recorded_by=_actor(request, payload), notes=payload.get("notes"), idempotency_key=key)
+    item = PaymentReceipt(client_account_id=client_id, contract_id=contract.id, project_id=payment_project_id, received_date=_date(payload.get("received_date") or date.today().isoformat(), field="received_date"), amount=amount, currency=currency, reference=str(payload.get("reference") or "").strip(), payment_method=str(payload.get("payment_method") or "").strip().upper() or None, evidence_document_version_id=evidence_id, evidence_reference=str(payload.get("evidence_reference") or "").strip() or None, receipt_voucher_document_version_id=voucher_id, receipt_voucher_evidence_reference=str(payload.get("receipt_voucher_evidence_reference") or "").strip() or None, custodian_context_json=payload.get("custodian_context_json") or None, verification_status="OBSERVED", recorded_by=_actor(request, payload), notes=payload.get("notes"), idempotency_key=key)
     if not item.reference: raise HTTPException(422, {"code": "PAYMENT_REFERENCE_REQUIRED"})
-    db.add(item); db.flush(); _audit(db, request, "PAYMENT_RECEIPT_RECORDED", "PaymentReceipt", item.id, _actor(request, payload), {"contract_id": contract.id, "project_id": payment_project_id, "amount": str(amount), "currency": currency, "verification_status": item.verification_status}); db.commit(); return _row(item)
+    db.add(item); db.flush(); _audit(db, request, "PAYMENT_RECEIPT_RECORDED", "PaymentReceipt", item.id, _actor(request, payload), {"contract_id": contract.id, "project_id": payment_project_id, "amount": str(amount), "currency": currency, "verification_status": item.verification_status}); db.commit(); response = _row(item); response["credit"] = _payment_credit(db, item); return response
+
+
+@router.get("/payments/{payment_id}/unallocated-credit")
+def payment_unallocated_credit(payment_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "PAYMENT_CREDIT_VIEW")
+    item = db.get(PaymentReceipt, payment_id)
+    if not item:
+        raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
+    return _payment_credit(db, item)
 
 
 @router.post("/payments/{payment_id}/verify")
@@ -879,16 +1052,24 @@ def verify_payment(payment_id: str, payload: dict[str, Any], request: Request, d
     if not item: raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
     if item.verification_status == "VERIFIED": return _row(item)
     if item.verification_status == "REVERSED": raise HTTPException(409, {"code": "PAYMENT_REVERSED"})
-    item.verification_status = "VERIFIED"; item.verified_by = _actor(request, payload); item.verified_at = datetime.now(timezone.utc); _audit(db, request, "PAYMENT_RECEIPT_VERIFIED", "PaymentReceipt", item.id, _actor(request, payload), {"verification_status": item.verification_status}); db.commit(); return _row(item)
+    _payment_evidence_gate(item)
+    item.verification_status = "VERIFIED"; item.verified_by = _actor(request, payload); item.verified_at = datetime.now(timezone.utc); _audit(db, request, "PAYMENT_RECEIPT_VERIFIED", "PaymentReceipt", item.id, _actor(request, payload), {"verification_status": item.verification_status, "payment_method": item.payment_method, "evidence_control": "PASS"}); db.commit(); return _row(item)
 
 
 @router.post("/payments/{payment_id}/allocate")
 def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _role(role, OWNER, "PAYMENT_ALLOCATE")
-    payment = db.get(PaymentReceipt, payment_id); invoice = db.get(Invoice, payload.get("invoice_id"))
+    payment = db.scalar(select(PaymentReceipt).where(PaymentReceipt.id == payment_id).with_for_update())
+    invoice = db.scalar(select(Invoice).where(Invoice.id == payload.get("invoice_id")).with_for_update())
     if not payment or not invoice: raise HTTPException(404, {"code": "PAYMENT_OR_INVOICE_NOT_FOUND"})
     if payment.verification_status != "VERIFIED": raise HTTPException(409, {"code": "VERIFIED_PAYMENT_REQUIRED"})
     if invoice.status != "ISSUED": raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
+    if payment.client_account_id != invoice.client_account_id:
+        raise HTTPException(403, {"code": "PAYMENT_INVOICE_CLIENT_SCOPE_DENIED"})
+    if payment.contract_id != invoice.contract_id:
+        raise HTTPException(403, {"code": "PAYMENT_INVOICE_CONTRACT_SCOPE_DENIED"})
+    if payment.project_id and payment.project_id != invoice.project_id:
+        raise HTTPException(403, {"code": "PAYMENT_INVOICE_PROJECT_SCOPE_DENIED"})
     key = str(payload.get("idempotency_key") or "").strip()
     if not key: raise HTTPException(422, {"code": "ALLOCATION_IDEMPOTENCY_KEY_REQUIRED"})
     existing = db.scalar(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.idempotency_key == key))
@@ -897,7 +1078,99 @@ def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request,
     if not revision or payment.currency.upper() != str(revision.currency).upper(): raise HTTPException(409, {"code": "PAYMENT_CURRENCY_MISMATCH"})
     amount = _money(_d(payload.get("allocated_amount"), field="allocated_amount")); used = sum((_d(x.allocated_amount) for x in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.payment_receipt_id == payment.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()), Decimal("0")); receivable = _receivable(db, invoice, revision); outstanding = _d(receivable["outstanding_amount"] or 0)
     if amount <= 0 or used + amount > _d(payment.amount) or amount > outstanding: raise HTTPException(409, {"code": "PAYMENT_ALLOCATION_OVER_LIMIT", "unallocated_payment": str(_d(payment.amount) - used), "outstanding": str(outstanding)})
-    allocation = InvoicePaymentAllocation(payment_receipt_id=payment.id, invoice_id=invoice.id, allocated_amount=amount, currency=payment.currency, allocated_by=_actor(request, payload), idempotency_key=key); db.add(allocation); db.flush(); _lineage(db, request, invoice.project_id, "PaymentReceipt", payment.id, "InvoicePaymentAllocation", allocation.id, "VERIFIED_PAYMENT_ALLOCATION"); _audit(db, request, "PAYMENT_ALLOCATED", "InvoicePaymentAllocation", allocation.id, _actor(request, payload), {"payment_id": payment.id, "invoice_id": invoice.id, "allocated_amount": str(amount), "currency": payment.currency}); db.commit(); return {"allocation": _row(allocation), "receivable": _receivable(db, invoice, revision)}
+    allocation = InvoicePaymentAllocation(payment_receipt_id=payment.id, invoice_id=invoice.id, allocated_amount=amount, currency=payment.currency, allocated_by=_actor(request, payload), idempotency_key=key)
+    db.add(allocation)
+    db.flush()
+    post_allocation_receivable = _receivable(db, invoice, revision)
+    if post_allocation_receivable["outstanding_amount"] == "0.00":
+        revision.actual_collection_date = payment.received_date
+        revision.actual_collection_date_source = "VERIFIED_PAYMENT_ALLOCATION"
+    _lineage(db, request, invoice.project_id, "PaymentReceipt", payment.id, "InvoicePaymentAllocation", allocation.id, "VERIFIED_PAYMENT_ALLOCATION")
+    _audit(db, request, "PAYMENT_ALLOCATED", "InvoicePaymentAllocation", allocation.id, _actor(request, payload), {"payment_id": payment.id, "invoice_id": invoice.id, "allocated_amount": str(amount), "currency": payment.currency, "actual_collection_date": revision.actual_collection_date.isoformat() if revision.actual_collection_date else None})
+    db.commit()
+    return {"allocation": _row(allocation), "receivable": _receivable(db, invoice, revision)}
+
+
+@router.post("/payments/{payment_id}/reverse")
+def reverse_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, OWNER, "PAYMENT_REVERSE")
+    payment = db.get(PaymentReceipt, payment_id)
+    if not payment:
+        raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
+    key = str(payload.get("idempotency_key") or "").strip()
+    reason = str(payload.get("reason") or "").strip()
+    if not key:
+        raise HTTPException(422, {"code": "PAYMENT_REVERSAL_IDEMPOTENCY_KEY_REQUIRED"})
+    if not reason:
+        raise HTTPException(422, {"code": "PAYMENT_REVERSAL_REASON_REQUIRED"})
+    prior = db.scalar(select(PaymentReversalEvent).where(PaymentReversalEvent.idempotency_key == key))
+    if prior:
+        return {"reversal": _row(prior), "payment": _row(payment)}
+    if payment.verification_status == "REVERSED":
+        raise HTTPException(409, {"code": "PAYMENT_ALREADY_REVERSED"})
+    evidence_id = payload.get("evidence_document_version_id")
+    _validate_document_evidence(db, evidence_id, db.get(Project, payment.project_id) if payment.project_id else None, not_found_code="PAYMENT_REVERSAL_EVIDENCE_NOT_FOUND", mismatch_code="PAYMENT_REVERSAL_EVIDENCE_PROJECT_MISMATCH")
+    event = PaymentReversalEvent(payment_receipt_id=payment.id, reason=reason, evidence_document_version_id=evidence_id, effective_at=datetime.fromisoformat(str(payload.get("effective_at") or datetime.now(timezone.utc).isoformat())), reversed_by=_actor(request, payload), idempotency_key=key, status="EFFECTIVE")
+    db.add(event)
+    db.flush()
+    affected = db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.payment_receipt_id == payment.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()
+    for allocation in affected:
+        allocation.status = "REVERSED"
+        allocation.reversal_event_id = event.id
+        affected_invoice = db.get(Invoice, allocation.invoice_id)
+        affected_revision = db.get(InvoiceRevision, affected_invoice.current_revision_id) if affected_invoice else None
+        if affected_revision:
+            affected_revision.actual_collection_date = None
+            affected_revision.actual_collection_date_source = None
+    payment.verification_status = "REVERSED"
+    _audit(db, request, "PAYMENT_REVERSED", "PaymentReversalEvent", event.id, _actor(request, payload), {"payment_id": payment.id, "reason": reason, "affected_allocations": len(affected)})
+    db.commit()
+    return {"reversal": _row(event), "payment": _row(payment), "reversed_allocations": [_row(item) for item in affected]}
+
+
+@router.post("/invoices/{invoice_id}/resolutions")
+def resolve_receivable(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, OWNER, "RECEIVABLE_NON_CASH_RESOLVE")
+    invoice = db.scalar(select(Invoice).where(Invoice.id == invoice_id).with_for_update())
+    if not invoice:
+        raise HTTPException(404, {"code": "INVOICE_NOT_FOUND"})
+    revision = db.get(InvoiceRevision, invoice.current_revision_id)
+    if invoice.status != "ISSUED" or not revision:
+        raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
+    key = str(payload.get("idempotency_key") or "").strip()
+    if not key:
+        raise HTTPException(422, {"code": "RECEIVABLE_RESOLUTION_IDEMPOTENCY_KEY_REQUIRED"})
+    prior = db.scalar(select(ReceivableResolution).where(ReceivableResolution.idempotency_key == key))
+    if prior:
+        return {"resolution": _row(prior), "receivable": _receivable(db, invoice, revision)}
+    resolution_type = str(payload.get("resolution_type") or "").strip().upper()
+    if resolution_type not in NON_CASH_RESOLUTION_TYPES:
+        raise HTTPException(422, {"code": "RECEIVABLE_RESOLUTION_TYPE_NOT_SUPPORTED", "allowed": sorted(NON_CASH_RESOLUTION_TYPES)})
+    reason = str(payload.get("reason") or "").strip()
+    approval_reference = str(payload.get("approval_reference") or "").strip()
+    if not reason or not approval_reference:
+        raise HTTPException(422, {"code": "RECEIVABLE_RESOLUTION_APPROVAL_AND_REASON_REQUIRED"})
+    amount = _money(_d(payload.get("amount"), field="amount"))
+    currency = str(payload.get("currency") or revision.currency or "").upper()
+    receivable = _receivable(db, invoice, revision)
+    outstanding = _d(receivable["outstanding_amount"] or 0)
+    if currency != str(revision.currency).upper():
+        raise HTTPException(409, {"code": "RECEIVABLE_RESOLUTION_CURRENCY_MISMATCH"})
+    if amount <= 0 or amount > outstanding:
+        raise HTTPException(409, {"code": "RESOLUTION_AMOUNT_EXCEEDS_OUTSTANDING", "outstanding": str(outstanding)})
+    evidence_id = payload.get("evidence_document_version_id")
+    _validate_document_evidence(db, evidence_id, db.get(Project, invoice.project_id) if invoice.project_id else None, not_found_code="RECEIVABLE_RESOLUTION_EVIDENCE_NOT_FOUND", mismatch_code="RECEIVABLE_RESOLUTION_EVIDENCE_PROJECT_MISMATCH")
+    item = ReceivableResolution(invoice_id=invoice.id, resolution_type=resolution_type, amount=amount, currency=currency, reason=reason, approval_reference=approval_reference, evidence_document_version_id=evidence_id, effective_date=_date(payload.get("effective_date") or date.today().isoformat(), field="effective_date"), resolved_by=_actor(request, payload), status="ACTIVE", idempotency_key=key)
+    db.add(item)
+    db.flush()
+    post_resolution_receivable = _receivable(db, invoice, revision)
+    if post_resolution_receivable["outstanding_amount"] == "0.00":
+        revision.actual_collection_date = item.effective_date
+        revision.actual_collection_date_source = "NON_CASH_RECEIVABLE_RESOLUTION"
+    _lineage(db, request, invoice.project_id, "Invoice", invoice.id, "ReceivableResolution", item.id, "RECEIVABLE_NON_CASH_RESOLUTION")
+    _audit(db, request, "RECEIVABLE_NON_CASH_RESOLVED", "ReceivableResolution", item.id, _actor(request, payload), {"invoice_id": invoice.id, "resolution_type": resolution_type, "amount": str(amount), "approval_reference": approval_reference})
+    db.commit()
+    return {"resolution": _row(item), "receivable": _receivable(db, invoice, revision)}
 
 
 @router.post("/invoices/{invoice_id}/follow-ups")

@@ -1,0 +1,20 @@
+{
+  "ai_api_authority_tests": "45 passed",
+  "finance_rbac_negative_matrix": "PASS",
+  "cross_project_isolation": "PASS",
+  "cross_client_isolation": "PASS",
+  "financial_evidence_access": "PASS",
+  "ai_protected_action_denial": "PASS",
+  "protected_actions_not_autonomous": [
+    "invoice_accept",
+    "invoice_issue",
+    "payment_verify",
+    "payment_allocate",
+    "payment_reverse",
+    "non_cash_resolution",
+    "project_activation",
+    "commercial_handover",
+    "accounting_settlement"
+  ],
+  "v10_authority_regressions": 0
+}

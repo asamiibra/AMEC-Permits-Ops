@@ -1,0 +1,29 @@
+{
+  "command_scope": [
+    "test_billing_invoice_full.py",
+    "test_admin_contract_owner_session.py",
+    "test_azure_sql_port.py",
+    "test_database_startup_contract.py",
+    "test_db_rebaseline.py",
+    "test_source12_project_finance_controls.py",
+    "test_source14_contract_controls.py",
+    "test_source15_current_contract_controls.py",
+    "test_prebilling_regulatory_context.py"
+  ],
+  "result": "127 passed",
+  "warnings": 2,
+  "billing_focused_backend": "PASS",
+  "commercial_source14_requalification": "PASS",
+  "payment_evidence_before_verification": "PASS",
+  "payment_scope_isolation": "PASS",
+  "payment_allocation_concurrency": "PASS",
+  "payment_reversal": "PASS",
+  "non_cash_receivable_resolution": "PASS",
+  "prepayment_unallocated_credit": "PASS",
+  "project_finance_projection": "PASS",
+  "planned_due_actual_separation": "PASS",
+  "commercial_preactivation_proof": "PASS",
+  "invoice_reference_compatibility": "PASS",
+  "v9_reference_count": "129 passed / 1 skipped",
+  "zero_billing_caused_failures": true
+}

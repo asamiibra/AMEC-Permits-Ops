@@ -71,7 +71,7 @@ def _create_version_table(
 def test_repository_migration_head_is_current_opportunity_proposal_head():
     assert (
         database.repository_migration_head()
-        == "opportunity_proposal_idempotency_v1"
+        == "17c6ebd99c4a"
     )
 
 
