@@ -415,6 +415,12 @@ def test_repair_uses_non_destructive_fixture_mode(
     calls = []
 
     monkeypatch.setattr(
+        bootstrap_preprod,
+        "_reconcile_preprod_canonical_master_content",
+        lambda: calls.append(("master-content", None)),
+    )
+
+    monkeypatch.setattr(
         bootstrap_preprod.seed_cli,
         "create_fixtures",
         lambda root, *, clean: calls.append(
@@ -470,7 +476,8 @@ def test_repair_uses_non_destructive_fixture_mode(
         "fixtures",
         False,
     )
-    assert len(calls) == 4
+    assert calls[-1] == ("master-content", None)
+    assert len(calls) == 5
 
 
 def test_main_failure_is_nonzero_and_redacted(
