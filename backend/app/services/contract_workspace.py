@@ -494,41 +494,49 @@ def readiness(db: Session, contract: Contract, *, enforce_maker_checker: bool = 
         "scope": contract.contracted_scope_text,
     }
     all_order_evidence = [item for item in evidence if item.source_role in {"LPO", "PO"}]
-    order_evidence = [
-        item for item in evidence
-        if item.source_role in {"LPO", "PO"}
-        and (
-            not item.document_version_id
-            or (
-                (source_version := db.get(DocumentVersion, item.document_version_id)) is not None
-                and source_version.document.current_version_id == source_version.id
-                and not source_version.superseded_by
-            )
-        )
-    ]
-    stale_order_evidence = [item for item in all_order_evidence if item not in order_evidence]
+    order_evidence = []
+    invalid_order_evidence = []
+    superseded_order_evidence = []
+    cross_contract_order_evidence = []
+    for item in all_order_evidence:
+        source_version = db.get(DocumentVersion, item.document_version_id) if item.document_version_id else None
+        source_metadata = source_version.metadata_json if source_version and isinstance(source_version.metadata_json, dict) else {}
+        evidence_metadata = item.metadata_json if isinstance(item.metadata_json, dict) else {}
+        if source_metadata.get("contract_id") not in {None, contract.id} or evidence_metadata.get("contract_id") not in {None, contract.id}:
+            cross_contract_order_evidence.append(item)
+        if (
+            source_version
+            and source_version.document.current_version_id == source_version.id
+            and not source_version.superseded_by
+            and source_metadata.get("contract_id") in {None, contract.id}
+            and evidence_metadata.get("contract_id") in {None, contract.id}
+        ):
+            order_evidence.append(item)
+        else:
+            invalid_order_evidence.append(item)
+            if source_version and (source_version.superseded_by or getattr(source_version.approval_state, "value", str(source_version.approval_state)).upper() == "SUPERSEDED"):
+                superseded_order_evidence.append(item)
     structured_orders = [item.metadata_json.get("commercial_terms") for item in order_evidence if isinstance(item.metadata_json, dict) and isinstance(item.metadata_json.get("commercial_terms"), dict)]
     lpo_policy = runtime_decision_value(db, "CONTRACT_LPO_REQUIREDNESS_POLICY", "OWNER_DEFINITION_REQUIRED")
-    order_applicable = lpo_policy == "REQUIRED" or bool(order_evidence)
+    order_applicable = lpo_policy == "REQUIRED" or bool(all_order_evidence)
     order_reason = None if order_applicable else f"CONTRACT_LPO_REQUIREDNESS_POLICY={lpo_policy}; no PO/LPO comparison is applicable to this Contract."
+    order_source_state = None
+    if cross_contract_order_evidence:
+        order_source_state = "BLOCKED_CROSS_CONTRACT_SOURCE"
+    elif any((item.metadata_json or {}).get("exception_requested") and not (item.metadata_json or {}).get("exception_authorized") for item in all_order_evidence):
+        order_source_state = "BLOCKED_UNAUTHORIZED_EXCEPTION"
+    elif any((item.metadata_json or {}).get("superseded") is True for item in all_order_evidence) or superseded_order_evidence:
+        order_source_state = "BLOCKED_SUPERSEDED_SOURCE"
+    elif invalid_order_evidence or (all_order_evidence and len(structured_orders) != len(order_evidence)):
+        order_source_state = "BLOCKED_UNSTRUCTURED_SOURCE"
     commercial_control = commercial_reconciliation(
         proposal_fields,
         contract_fields,
         structured_orders[0] if len(structured_orders) == 1 else None,
         order_applicable=order_applicable,
         not_applicable_reason=order_reason,
-        order_source_count=len(order_evidence),
-        order_source_state=(
-            "BLOCKED_CROSS_CONTRACT_SOURCE"
-            if any((item.metadata_json or {}).get("contract_id") not in {None, contract.id} for item in order_evidence)
-            else "BLOCKED_SUPERSEDED_SOURCE"
-            if stale_order_evidence and not order_evidence
-            else "BLOCKED_SUPERSEDED_SOURCE"
-            if any((item.metadata_json or {}).get("superseded") is True for item in order_evidence)
-            else "BLOCKED_UNAUTHORIZED_EXCEPTION"
-            if any((item.metadata_json or {}).get("exception_requested") and not (item.metadata_json or {}).get("exception_authorized") for item in order_evidence)
-            else None
-        ),
+        order_source_count=len(all_order_evidence),
+        order_source_state=order_source_state,
     )
     if commercial_control["status"] != "PASS":
         blockers.append({"code": "CONTRACT_COMMERCIAL_RECONCILIATION_MISMATCH", "label": "Exact accepted Proposal / PO / LPO commercial reconciliation"})
