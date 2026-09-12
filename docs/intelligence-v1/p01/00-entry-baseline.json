@@ -1,0 +1,26 @@
+{
+  "repository": "asamiibra/AMEC-Permits-Ops",
+  "program_branch": "feature/proposalops-intelligence-v1",
+  "main_sha": "594b313a15cc6ade3f0505de395a5817c6337268",
+  "main_tree": "73d6781640bc774b577a6eb8e938868ef3fb83c3",
+  "program_branch_sha": "594b313a15cc6ade3f0505de395a5817c6337268",
+  "program_branch_tree": "73d6781640bc774b577a6eb8e938868ef3fb83c3",
+  "merge_base_with_main": "594b313a15cc6ade3f0505de395a5817c6337268",
+  "worktree_clean_at_entry": true,
+  "timestamp_utc": "2026-09-12T21:46:28Z",
+  "python_version": "Python 3.14.2 (python3; repository command `python` is unavailable)",
+  "node_version": "v24.13.0",
+  "npm_version": "11.6.2",
+  "alembic_heads": ["17c6ebd99c4a"],
+  "module_branch_count": 10,
+  "accepted_module_branches_contained": true,
+  "architecture_contract_path": "docs/architecture/ProposalOps_Intelligence_Architecture_LOCKED_v1.md",
+  "architecture_contract_sha256": "ba21554c74df2324e72bd3a454d1230a362f4b5900f11fa4d656970ea50b8a0e",
+  "P01_FINAL_SHA": null,
+  "P01_FINAL_TREE": null,
+  "SOURCE_CHANGE_COUNT": null,
+  "entry_notes": [
+    "Validated in a clean dedicated worktree because the originally focused release worktree contained unrelated user changes.",
+    "origin/main and origin/feature/proposalops-intelligence-v1 were identical at entry; no main drift was observed."
+  ]
+}

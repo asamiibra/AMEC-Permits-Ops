@@ -1,0 +1,50 @@
+{
+  "baseline_sha": "594b313a15cc6ade3f0505de395a5817c6337268",
+  "baseline_tree": "73d6781640bc774b577a6eb8e938868ef3fb83c3",
+  "application_behavior_changed": false,
+  "migration_added": false,
+  "migration": {
+    "head_count": 1,
+    "head": "17c6ebd99c4a",
+    "runner_result": "PASS: 13 passed, 1 skipped",
+    "roundtrip_result": "PASS: included in the combined migration command; 13 passed, 1 skipped"
+  },
+  "backend_regression": {
+    "result": "PASS",
+    "command": "APP_ENV=TEST SYNTHETIC_ONLY=true DATABASE_URL=sqlite:///./p01-backend-regression.db PYTHONPATH=. python3 -m pytest -q backend/tests --ignore=backend/tests/test_phase5_sqlserver_runtime.py",
+    "summary": "907 passed, 17 skipped, 4 warnings in 571.22s"
+  },
+  "frontend": {
+    "npm_ci": "PASS: 120 packages installed; npm reported 2 moderate audit findings",
+    "build": "PASS: Vite production build completed",
+    "tests": "PASS: 21 files, 114 tests"
+  },
+  "policy_and_security": {
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "bicep_main": "PASS with existing no-hardcoded-env-urls warnings",
+    "bicep_canonical": "PASS with existing no-hardcoded-env-urls warnings",
+    "pip_audit": "PASS: No known vulnerabilities found",
+    "npm_audit": "PASS at required high threshold: 0 high/critical; 2 moderate @vitest/mocker findings remain and force-upgrade is outside the declared range",
+    "result": "PASS_WITH_MODERATE_ADVISORY"
+  },
+  "storage_contract": {
+    "result": "PASS",
+    "compose_command": "BLOCKED_BY_HOST_TOOLING: docker compose subcommand unavailable; /usr/local/bin/docker-compose is a broken symlink",
+    "equivalent_synthetic_lab": "PASS: repository dev/storage-lab Dockerfile/config built; isolated Samba container health passed; 6 tests passed, 1 warning",
+    "teardown": "PASS: isolated container and network removed; no production or real DSM/Synology access"
+  },
+  "main_drift_observed": false,
+  "known_accepted_module_branches_contained": true,
+  "unmerged_newer_accepted_module_work_detected": false,
+  "production_mutated": false,
+  "real_amec_data_accessed": false,
+  "real_dsm_business_content_accessed": false,
+  "ai_protected_authority_changed": false,
+  "central_review_queue_created": false,
+  "duplicate_truth_engine_created": false,
+  "host_environment_notes": [
+    "The repository-prescribed executable `python` is unavailable; `python3` 3.14.2 was used for equivalent commands.",
+    "The shell profile emits a pre-existing missing Homebrew path warning; it did not affect validation outcomes."
+  ]
+}
