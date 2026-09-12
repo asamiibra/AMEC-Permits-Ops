@@ -377,14 +377,14 @@ def test_bd_proposal_full_owner_session_flow(client):
     assert download.headers["x-artifact-hash"]
 
     handoff = client.post(f"/api/bd/proposals/{proposal_id}/handoff/contract", headers=_headers("COMMERCIAL_APPROVER"))
-    assert handoff.status_code == 200
-    assert handoff.json()["accepted_revision_id"] == revision["id"]
-    assert handoff.json()["proposal_reference"] == accepted_payload["proposal_reference"]
-    assert handoff.json()["client"] == "Synthetic BD Regression Client"
-    assert handoff.json()["project_reference"] == "GHCE-2026-0187"
-    assert handoff.json()["proposal_artifact"]["content_hash"]
-    assert handoff.json()["checklist_artifact"]["content_hash"]
-    assert handoff.json()["machine_legal_contract"] is False
+    assert handoff.status_code == 409
+    assert handoff.json()["detail"]["code"] == "COMMERCIAL_RELEASE_REQUIRED"
+    preview = client.get(f"/api/bd/proposals/{proposal_id}/handoff/contract", headers=owner)
+    assert preview.status_code == 200
+    assert preview.json()["eligible"] is False
+    assert preview.json()["blockers"] == ["COMMERCIAL_RELEASE_REQUIRED", "DISTRIBUTION_REQUIRED", "CLIENT_ACCEPTANCE_VERIFICATION_REQUIRED", "LPO_RECONCILIATION_REQUIRED"]
+    assert preview.json()["accepted_revision_id"] == revision["id"]
+    assert preview.json()["machine_legal_contract"] is False
 
 
 def test_bd_proposal_dashboard_seams_and_engineering_read_only(client):

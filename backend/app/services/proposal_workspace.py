@@ -18,6 +18,7 @@ from ..models import (
     Opportunity,
     ProposalAcceptedRevision,
     ProposalOutputArtifact,
+    ProposalRevision,
     ProposalOwnerSetting,
     ProposalSourceEvidence,
     ProposalNote,
@@ -426,6 +427,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     sources = _sources(db, proposal.id)
     revisions = db.scalars(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
     current = revisions[0] if revisions else None
+    draft_revision = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
     validation = validate_proposal(db, proposal)
     readiness = v2_readiness(db, proposal, validation)
     stage_labels = {
@@ -486,6 +488,28 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
             "warnings": readiness["warnings"],
         },
     }
+    # The Proposal workspace exposes the protected downstream controls as a
+    # read-only projection. Each command still writes through its own service
+    # and the existing Proposal/Contract boundary remains authoritative.
+    from ..models import ProposalAcceptanceVerification, ProposalCommercialRelease, ProposalContractHandoff, ProposalDistributionEvent, ProposalLpoReconciliation, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalTechnicalAssessment
+    from .proposal_commercial_controls import _projection as control_projection
+    assessment = db.scalar(select(ProposalTechnicalAssessment).where(ProposalTechnicalAssessment.proposal_id == proposal.id, ProposalTechnicalAssessment.status.in_(("PASS", "CONDITIONAL"))).order_by(ProposalTechnicalAssessment.assessed_at.desc()))
+    scope = db.scalar(select(ProposalScopeConfirmation).where(ProposalScopeConfirmation.proposal_id == proposal.id, ProposalScopeConfirmation.status == "CURRENT").order_by(ProposalScopeConfirmation.confirmed_at.desc()))
+    release = db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal.id).order_by(ProposalCommercialRelease.authorized_at.desc()))
+    distribution = db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal.id).order_by(ProposalDistributionEvent.sent_at.desc()))
+    acceptance_verification = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal.id).order_by(ProposalAcceptanceVerification.verified_at.desc()))
+    lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal.id).order_by(ProposalLpoReconciliation.compared_at.desc()))
+    handoff = db.scalar(select(ProposalContractHandoff).where(ProposalContractHandoff.proposal_id == proposal.id).order_by(ProposalContractHandoff.handed_off_at.desc()))
+    commercial_controls = {
+        "technical_assessment": control_projection(assessment) if assessment else None,
+        "scope_confirmation": control_projection(scope) if scope else None,
+        "service_eligibility": [control_projection(item) for item in db.scalars(select(ProposalServiceEligibility).where(ProposalServiceEligibility.proposal_id == proposal.id).order_by(ProposalServiceEligibility.service_offering_code)).all()],
+        "commercial_release": control_projection(release) if release else None,
+        "distribution": control_projection(distribution) if distribution else None,
+        "acceptance_verification": control_projection(acceptance_verification) if acceptance_verification else None,
+        "lpo_reconciliation": control_projection(lpo) if lpo else None,
+        "contract_handoff": control_projection(handoff) if handoff else None,
+    }
     return {
         "id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
@@ -534,8 +558,10 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
             "template": {"ref": current.template_ref, "version_id": current.template_version_id, "version": current.template_version, "hash": current.template_hash},
             "checklist": {"ref": current.checklist_ref, "version_id": current.checklist_version_id, "version": current.checklist_version, "hash": current.checklist_hash},
         } if current else None,
+        "draft_revision": {"id": draft_revision.id, "revision_number": draft_revision.revision_number, "base_accepted_revision_id": draft_revision.base_accepted_revision_id, "content_hash": draft_revision.content_hash, "change_summary": draft_revision.change_summary} if draft_revision else None,
         "revision_history": [{"id": item.id, "revision_number": item.revision_number, "content_hash": item.content_hash, "accepted_at": item.accepted_at.isoformat(), "accepted_by": item.accepted_by} for item in revisions],
         "stage_gate": stage_gate,
+        "commercial_controls": commercial_controls,
         "stage_history": [{"event_type": event.event_type, "occurred_at": event.occurred_at.isoformat(), "actor": event.actor_id, "before": event.before_json, "after": event.after_json, "correlation_id": event.correlation_id} for event in stage_events],
         "ai_assist": validation["ai_assist"],
         "contract_eligible": bool(current and validation["ready"]),
