@@ -20,6 +20,8 @@
   "safety": {"production":false,"preprod":false,"azure":false,"entra":false,"dns":false,"real_amec":false,"real_dsm":false,"protected_actions_by_ai":false},
   "independent_review": "DEFERRED_TO_INTEGRATION_GATE_REVIEW_CHANNEL_UNAVAILABLE",
   "module_assurance": "PASS",
+  "technical_assurance": "PASS",
+  "requirements_closure": "PASS",
   "module_implementation_complete": true,
   "final_owner_source_delta_reconciliation": "PASS",
   "owner_requirements_historical_count": 81,
