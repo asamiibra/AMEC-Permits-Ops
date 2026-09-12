@@ -16,9 +16,9 @@
   "accepted_module_branches_contained": true,
   "architecture_contract_path": "docs/architecture/ProposalOps_Intelligence_Architecture_LOCKED_v1.md",
   "architecture_contract_sha256": "ba21554c74df2324e72bd3a454d1230a362f4b5900f11fa4d656970ea50b8a0e",
-  "P01_FINAL_SHA": null,
-  "P01_FINAL_TREE": null,
-  "SOURCE_CHANGE_COUNT": null,
+  "P01_FINAL_SHA": "51a1054617c058c503a5342e3c029153efbf7ef1",
+  "P01_FINAL_TREE": "247a3b6a1f772e284d259992b3c835a61b8c7517",
+  "SOURCE_CHANGE_COUNT": 0,
   "entry_notes": [
     "Validated in a clean dedicated worktree because the originally focused release worktree contained unrelated user changes.",
     "origin/main and origin/feature/proposalops-intelligence-v1 were identical at entry; no main drift was observed."
