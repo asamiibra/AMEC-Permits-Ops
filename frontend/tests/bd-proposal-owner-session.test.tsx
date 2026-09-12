@@ -105,6 +105,42 @@ describe("BD Proposal owner register", () => {
     expect(screen.getByText(/Dashboard configuration/)).toBeVisible();
   });
 
+  it("renders a null-shaped Proposal detail through the normalized workspace contract", async () => {
+    mockedApi.mockReset();
+    mockedApi
+      .mockResolvedValueOnce({
+        items: [{ id: "proposal-null", proposal: "Null-shaped proposal", proposal_reference: "AMEC-SYN-PROP-NULL", project_ref: null, client: "Synthetic Client", activity: "Null-shaped proposal", stage: "Intake & Sources", stage_code: "IN_REVIEW", amount: null, last_activity: null, current_owner: "Business Development", next_action: { label: "Resolve intake blockers" }, owner_lane: { memberships: ["ALL", "NEED_ACTION"] }, contract_eligible: false, validation: { ready: false } }],
+        lane_counts: { ALL: 1, NEED_ACTION: 1, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 },
+      })
+      .mockResolvedValueOnce({
+        id: "proposal-null",
+        title: "Null-shaped proposal",
+        proposal_reference: "AMEC-SYN-PROP-NULL",
+        project_reference: null,
+        stage: "IN_REVIEW",
+        fields: null,
+        forms_v2: null,
+        hardening: null,
+        validation: null,
+        intake_readiness: null,
+        outputs: null,
+        configuration: null,
+        proposal_breakdown: null,
+        authority: null,
+        sources: null,
+        notes: null,
+        site_photos: null,
+        revision_history: null,
+        stage_history: null,
+      });
+    render(<BDProposalOwnerSessionPage role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Open" }));
+    expect(await screen.findByRole("heading", { name: "Stakeholders", level: 3 })).toBeVisible();
+    expect(screen.getByText("No stakeholders recorded yet.")).toBeVisible();
+    expect(screen.getByText("No assumptions, unknowns, or conflicts recorded.")).toBeVisible();
+    expect(screen.getByText("No stage history recorded yet.")).toBeVisible();
+  });
+
   it("turns each initial source card into a selected, source-specific intake panel", async () => {
     mockedApi.mockReset();
     mockedApi.mockResolvedValue({ items: [], lane_counts: { ALL: 0, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 } });
