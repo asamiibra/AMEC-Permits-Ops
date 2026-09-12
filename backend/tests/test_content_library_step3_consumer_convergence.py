@@ -99,11 +99,13 @@ def test_master_content_consumer_authorization_and_exact_form_binding_fail_close
         headers=OWNER,
     )
     assert wrong_type.status_code == 200, wrong_type.text
-    assert client.put(
+    invalid_binding = client.put(
         f"/api/master-content/{wrong_type.json()['id']}/module-bindings",
         json=[{"module": "BD", "usage_type": "PROPOSAL_TEMPLATE"}],
         headers=OWNER,
-    ).status_code == 200
+    )
+    assert invalid_binding.status_code == 422
+    assert invalid_binding.json()["detail"]["code"] == "PURPOSE_CONTENT_TYPE_MISMATCH"
     proposal_resolution = client.get("/api/master-content/resolvers/BD/PROPOSAL_TEMPLATE", headers=OWNER)
     assert proposal_resolution.status_code == 200
     assert wrong_type.json()["id"] not in {row["id"] for row in proposal_resolution.json()["candidates"]}

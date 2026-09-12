@@ -1,0 +1,16 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_GATE_IMPACT_MAP_V1",
+  "future_promotion_impacts": {
+    "G3_auth_runtime": "dependency capability additions affect authorization regression on promotion",
+    "G4_topology_iac": "no change",
+    "G5_business_behavior": "Content Library binding/resolver/locator behavior requires module regression",
+    "G6_schema_migration": "no change; migration head unchanged",
+    "G7_artifact_source_freeze": "DocumentVersion/provenance behavior remains governed",
+    "G8_exact_release_deployment": "not performed; future integration only",
+    "G9_synthetic_e2e": "future promotion rerun as governed release policy requires",
+    "G13_business_uat": "separate future gate",
+    "G14_plus_production_real_data": "not performed; separate future gate"
+  },
+  "current_release_repair": false,
+  "production_close_train_mutated": false
+}

@@ -213,6 +213,8 @@ def ensure_contract_template(client):
         response = client.post("/api/master-content", data={"content_type": "FORM", "ref": "CT-TEST-001", "title": "Resolver Contract Template", "description": "Canonical synthetic Contract Template", "used_in": '["ADMIN"]'}, files={"file": ("CT-TEST-001.txt", b"canonical contract template", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
         assert response.status_code == 200, response.text
         item = response.json()
+    governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
+    assert governed.status_code == 200, governed.text
     binding = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "ADMIN", "usage_type": "CONTRACT_TEMPLATE"}], headers=headers("SYSTEM_ADMIN"))
     assert binding.status_code == 200, binding.text
 
@@ -225,6 +227,8 @@ def make_accepted_proposal(client, name="Skyline Factory Industrial"):
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
             item = created.json()
+        governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
+        assert governed.status_code == 200, governed.text
         assert client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": usage}], headers=headers("SYSTEM_ADMIN")).status_code == 200
     created = client.post("/api/bd/proposals", headers=headers("COMMERCIAL_APPROVER"), json={"proposal_description": name, "project_reference": "PRJ-DEMO-001", "client_name": "Skyline Synthetic Client"})
     assert created.status_code == 200, created.text

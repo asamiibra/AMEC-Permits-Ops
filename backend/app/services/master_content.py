@@ -35,6 +35,7 @@ from ..models import (
     MasterContentReferenceSequence,
     MasterContentIdempotency,
     MasterContentItem,
+    MasterContentGovernanceProfile,
     MasterContentApplicability,
     RequirementPolicyLineage,
     TechnicalRuleLineage,
@@ -88,6 +89,7 @@ DEFAULT_REFERENCE_SEQUENCES = [
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
 ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
 PURPOSE_CONTENT_TYPES = {"PROPOSAL_TEMPLATE": "FORM", "PROPOSAL_CHECKLIST": "FORM", "CONTRACT_TEMPLATE": "FORM"}
+INTERNAL_TEMPLATE_PURPOSES = frozenset(PURPOSE_CONTENT_TYPES)
 CONTENT_TYPE_MODULES = {
     "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
@@ -113,6 +115,55 @@ MODULE_LABELS = {
 
 def _error(code: str, status: int = 422, **details: Any) -> HTTPException:
     return HTTPException(status_code=status, detail={"code": code, **details})
+
+
+def validate_module_binding(*, content_type: str, module: str, usage_type: str) -> tuple[str, str]:
+    """Validate one binding against the executable Content Library taxonomy."""
+    content_type = content_type.strip().upper()
+    module = module.strip().upper()
+    usage_type = usage_type.strip().upper()
+    if content_type not in CONTENT_TYPE_MODULES:
+        raise _error("CONTENT_TYPE_NOT_ALLOWED", content_type=content_type)
+    if module not in ALLOWED_MODULES or usage_type not in ALLOWED_USAGE_TYPES:
+        raise _error("MODULE_BINDING_NOT_ALLOWED", module=module, usage_type=usage_type)
+    if module not in CONTENT_TYPE_MODULES[content_type]:
+        raise _error("MODULE_CONTENT_TYPE_MISMATCH", content_type=content_type, module=module)
+    expected_type = PURPOSE_CONTENT_TYPES.get(usage_type)
+    if expected_type and expected_type != content_type:
+        raise _error("PURPOSE_CONTENT_TYPE_MISMATCH", content_type=content_type, usage_type=usage_type)
+    expected_module = {"PROPOSAL_TEMPLATE": "BD", "PROPOSAL_CHECKLIST": "BD", "CONTRACT_TEMPLATE": "ADMIN"}.get(usage_type)
+    if expected_module and module != expected_module:
+        raise _error("PURPOSE_MODULE_MISMATCH", module=module, usage_type=usage_type)
+    return module, usage_type
+
+
+def validate_internal_template_binding(db: Session, *, item: MasterContentItem, usage_type: str) -> None:
+    """Keep frozen internal-template purposes separate from external authority forms.
+
+    Purpose binding is a projection change only. It must not manufacture AMEC
+    ownership for an item whose governed source class says otherwise.
+    """
+    if usage_type not in INTERNAL_TEMPLATE_PURPOSES:
+        return
+    profile = db.scalar(
+        select(MasterContentGovernanceProfile).where(
+            MasterContentGovernanceProfile.master_content_item_id == item.id
+        )
+    )
+    if (
+        not profile
+        or profile.content_ownership_class != "AMEC_OWNED"
+        or profile.restricted_reference_sample
+        or item.needs_review
+    ):
+        raise _error(
+            "OFFICIAL_FORM_INTERNAL_TEMPLATE_BINDING_FORBIDDEN",
+            content_id=item.id,
+            content_type=item.content_type,
+            ownership=profile.content_ownership_class if profile else None,
+            restricted_reference_sample=bool(profile and profile.restricted_reference_sample),
+            usage_type=usage_type,
+        )
 
 
 def _actor(role: Any) -> str:
@@ -263,7 +314,7 @@ def _allocate_reference(db: Session, content_type: str, requested: str | None = 
     return f"{sequence.prefix}-{sequence.current_value:0{sequence.padding}d}", True
 
 
-def _parse_modules(value: Any) -> list[str]:
+def _parse_modules(value: Any, content_type: str | None = None) -> list[str]:
     if value is None:
         return []
     if isinstance(value, str):
@@ -276,6 +327,10 @@ def _parse_modules(value: Any) -> list[str]:
     modules = [str(module).strip().upper() for module in value if str(module).strip()]
     if any(module not in ALLOWED_MODULES for module in modules):
         raise _error("MODULE_BINDING_NOT_ALLOWED", modules=modules)
+    if content_type:
+        invalid = [module for module in modules if module not in CONTENT_TYPE_MODULES.get(content_type.strip().upper(), set())]
+        if invalid:
+            raise _error("MODULE_CONTENT_TYPE_MISMATCH", content_type=content_type.strip().upper(), modules=invalid)
     return list(dict.fromkeys(modules))
 
 
@@ -352,14 +407,16 @@ def canonical_master_content_candidates(
         if item.content_type == "FORM":
             # Proposal and Contract AMEC-owned bindings are frozen canonical
             # product configuration. Other forms require manual readiness.
-            frozen_purpose = usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
+            frozen_purpose = usage_type in INTERNAL_TEMPLATE_PURPOSES
             profile = governance["profile"]
             is_frozen_amec_form = (
-                frozen_purpose
-                and profile.get("content_ownership_class") == "AMEC_OWNED"
+                profile.get("content_ownership_class") == "AMEC_OWNED"
                 and not profile.get("restricted_reference_sample")
             )
-            if not is_frozen_amec_form and governance["readiness"]["state"] != "MANUAL_USE_READY":
+            if frozen_purpose:
+                if not is_frozen_amec_form:
+                    continue
+            elif governance["readiness"]["state"] != "MANUAL_USE_READY":
                 continue
         elif item.content_type == "ENGINEERING_WORK":
             if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:
@@ -579,16 +636,19 @@ def revalidate_dependency(db: Session, *, dependency_id: str, actor: str, correl
     return {"id": dependency.id, "bound_version_id": dependency.bound_document_version_id, "expected_current_version_id": dependency.expected_current_version_id, "status": dependency.status}
 
 
-def eligible_master_content(db: Session, *, use: str = "ENGINEERING_AI") -> list[dict[str, Any]]:
-    rows = []
-    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE", MasterContentItem.needs_review == false()).order_by(MasterContentItem.ref)).all():
-        version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
-        if not version or _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
-            continue
-        if use == "ENGINEERING_AI" and item.content_type != "ENGINEERING_WORK":
-            continue
-        rows.append({"master_content_id": item.id, "ref": item.ref, "content_type": item.content_type, "title": item.title, "document_version_id": version.id, "version": version.version_number, "source_hash": version.sha256, "eligibility": "CURRENT_VERIFIED"})
-    return rows
+def eligible_master_content(db: Session, *, use: str = "ENGINEERING_AI", role: Any = None) -> list[dict[str, Any]]:
+    use = use.strip().upper()
+    use_contract = {"ENGINEERING_AI": ("ENGINEERING", "AVAILABLE", "ENGINEERING_WORK")}.get(use)
+    if not use_contract:
+        raise _error("ELIGIBILITY_USE_NOT_ALLOWED")
+    module, purpose, content_type = use_contract
+    candidates = canonical_master_content_candidates(db, module=module, usage_type=purpose, content_type=content_type)
+    if role is None:
+        return [{"master_content_id": row["id"], "ref": row["ref"], "content_type": row["content_type"], "title": row["title"], "document_version_id": row["version_id"], "version": row["version"], "source_hash": row["hash"], "eligibility": "CURRENT_VERIFIED"} for row in candidates]
+    persona = persona_for_role(role)
+    if persona not in {"OWNER", "SYSTEM_ADMIN"} and module not in ({"BD"} if persona == "BUSINESS_DEVELOPMENT" else {"ENGINEERING"}):
+        return []
+    return [{"master_content_id": row["id"], "ref": row["ref"], "content_type": row["content_type"], "title": row["title"], "document_version_id": row["version_id"], "version": row["version"], "source_hash": row["hash"], "eligibility": "CURRENT_VERIFIED"} for row in candidates]
 
 
 def definition_lookup(db: Session, term: str) -> dict[str, Any] | None:
@@ -1389,7 +1449,7 @@ def create_master_content(
         raise _error("SOR_DESTINATION_UNRESOLVED", 503)
     digest = hashlib.sha256(content).hexdigest()
     document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=title, language="en", source_system="MASTER_CONTENT")
-    modules = _parse_modules(used_in)
+    modules = _parse_modules(used_in, content_type)
     item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, source_type_code=source_type_code.upper() if source_type_code else None, status="ACTIVE", needs_review=needs_review, review_note=(review_note or None), document=document, created_by=actor)
     db.add(item)
     db.flush()
@@ -1449,7 +1509,7 @@ def create_master_content_version(
     category = _category(db, category_id, item.content_type) if category_id else db.get(ContentCategory, item.category_id) if item.category_id else None
     prior_category_id = item.category_id
     prior_modules = _modules_for(db, item_id=item.id)
-    modules = _parse_modules(used_in) if used_in is not None else prior_modules
+    modules = _parse_modules(used_in, item.content_type) if used_in is not None else prior_modules
     mapping = _mapping()
     destination = mapping.get(SEMANTIC_DESTINATION[item.content_type])
     if not destination:
