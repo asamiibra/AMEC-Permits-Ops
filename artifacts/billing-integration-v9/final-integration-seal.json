@@ -47,8 +47,10 @@
   "production_billing_authority": false,
   "real_amec_financial_data_authority": false,
   "module_branch_push_safe": true,
-  "remote_push_performed": false,
-  "remote_sha": null,
-  "local_remote_match": null,
+  "remote_push_performed": true,
+  "remote_sha": "b89ae8f5af6fa34cc119c5e8872a614dcdce9385",
+  "remote_sha_verified_at": "2026-09-12T09:10:49Z",
+  "local_remote_match": true,
+  "remote_verification_note": "The implementation and initial evidence seal commit were pushed and matched origin; this follow-up is evidence metadata only.",
   "production_or_preprod_touched": false
 }
