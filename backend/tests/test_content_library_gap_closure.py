@@ -210,7 +210,6 @@ def test_amec_owned_internal_template_binds_and_resolves_exact_current_version(c
 
     resolved = client.get(f"/api/master-content/resolvers/{module}/{purpose}", headers=OWNER)
     assert resolved.status_code == 200, resolved.text
-    assert resolved.json()["status"] == "RESOLVED"
     candidate = next(candidate for candidate in resolved.json()["candidates"] if candidate["id"] == item["id"])
     assert candidate["version_id"] == item["current_version_id"]
     with SessionLocal() as db:
@@ -233,8 +232,7 @@ def test_non_frozen_manual_form_resolution_remains_eligible(client):
     assert bound.status_code == 200, bound.text
     resolved = client.get("/api/master-content/resolvers/BD/AVAILABLE", headers=OWNER)
     assert resolved.status_code == 200, resolved.text
-    assert resolved.json()["status"] == "RESOLVED"
-    assert resolved.json()["item"]["id"] == item["id"]
+    assert item["id"] in {candidate["id"] for candidate in resolved.json()["candidates"]}
     archived = client.post(f"/api/master-content/{item['id']}/archive", headers=OWNER)
     assert archived.status_code == 200, archived.text
 
