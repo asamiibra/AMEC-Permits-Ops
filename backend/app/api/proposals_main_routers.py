@@ -14,6 +14,7 @@ from ..audit.service import audit
 from ..db import get_db
 from ..models import ApplicationStatus, AssistantHandoff, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Finding, LineageEdge, NotificationEvent, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, ProposalSourceEvidence, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
 from ..services.proposals_sor import ACTION_CONFIG, INTAKE_SEMANTIC_CONFIG, SEMANTIC_FOLDER_CONFIG, SOR_TEMPLATE_VERSION, canonicalize_project_reference, ingest_project_artifact, ingest_provisional_intake_artifact, promote_provisional_intake, resolve_project_target
+from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal as create_canonical_contract_from_proposal
 from ..services.backend_realignment import (
     CAPABILITY_MATRIX,
     KPI_PREDICATES,
@@ -464,39 +465,17 @@ def create_contract_from_proposal(proposal_id: str, request: Request, project_id
     if project_id and not db.get(Project, project_id):
         raise domain_error(404, "PROJECT_NOT_FOUND", project_id=project_id)
     if opportunity.status not in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "CLIENT_RESPONSE_PENDING", "PROPOSAL_PREPARATION", "IN_REVIEW"}:
-        existing_quotation = db.scalar(select(Quotation).where(Quotation.opportunity_id == opportunity.id).order_by(Quotation.created_at.desc()))
-        existing_contract = db.scalar(select(Contract).where(Contract.quotation_id == existing_quotation.id).order_by(Contract.created_at.desc())) if existing_quotation else None
-        if existing_contract:
-            return {"result": "IDEMPOTENT", "contract_id": existing_contract.id, "contract_reference": existing_contract.contract_reference, "related_proposal_id": opportunity.id, "project_id": existing_contract.project_id, "status": existing_contract.status, "next_route": f"/contracts/{existing_contract.id}"}
         raise domain_error(422, "PROPOSAL_NOT_READY_FOR_CONTRACT", proposal_status=opportunity.status)
-    quotation = db.scalar(select(Quotation).where(Quotation.opportunity_id == opportunity.id).order_by(Quotation.created_at.desc()))
-    if not quotation:
-        client_id = opportunity.client_account_id
-        if not client_id:
-            raise HTTPException(409, "CLIENT_CONTEXT_REQUIRED")
-        quotation = Quotation(opportunity_id=opportunity.id, quotation_reference=f"AMEC-SYN-QTN-{db.query(Quotation).count() + 1:04d}", status="RELEASED_FOR_CONTRACT", client_account_id=client_id)
-        db.add(quotation)
-        db.flush()
-        revision = QuotationRevision(quotation_id=quotation.id, revision_number=1, source_snapshot=opportunity.proposal_fields_json or {}, content_hash=f"PROPOSAL-{opportunity.id}", status="RELEASED", created_by=actor)
-        db.add(revision)
-        db.flush()
-        quotation.current_revision_id = revision.id
-    contract = db.scalar(select(Contract).where(Contract.quotation_id == quotation.id).order_by(Contract.created_at.desc()))
-    if contract and opportunity.project_id and contract.project_id and contract.project_id != opportunity.project_id:
-        raise domain_error(409, "CONTRACT_PROPOSAL_PROJECT_MISMATCH", proposal_project_id=opportunity.project_id, contract_project_id=contract.project_id)
-    if not contract:
-        fallback_reference = db.scalar(select(ReferenceNumber).where(ReferenceNumber.opportunity_id == opportunity.id).order_by(ReferenceNumber.reserved_at))
-        contract = Contract(client_account_id=quotation.client_account_id, quotation_id=quotation.id, contract_reference=f"AMEC-SYN-CTR-{db.query(Contract).count() + 1:04d}", status="DRAFT", project_id=opportunity.project_id or (fallback_reference.project_id if fallback_reference else None))
-        db.add(contract)
-        db.flush()
-        controlling_revision = db.get(QuotationRevision, quotation.current_revision_id) if quotation.current_revision_id else None
-        if controlling_revision:
-            revision = ContractRevision(contract_id=contract.id, revision_number=1, controlling_quotation_revision_id=controlling_revision.id, status="DRAFT", commercial_terms_snapshot=opportunity.proposal_fields_json or {})
-            db.add(revision)
-            db.flush()
-            contract.current_revision_id = revision.id
-    opportunity.status = "CONTRACT_HANDOVER"
-    audit(db, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), event_type="PROPOSAL_CONTRACT_TRANSITION", entity_type="Contract", entity_id=contract.id, actor_id=actor, after={"related_proposal_id": opportunity.id, "project_id": contract.project_id, "cross_project_contract_link": 0})
+    accepted = accepted_contract_revision(db, proposal_id)
+    if not accepted:
+        raise domain_error(409, "ACCEPTED_PROPOSAL_REVISION_REQUIRED", policy="CANONICAL_CONTRACT_CREATION")
+    contract = create_canonical_contract_from_proposal(
+        db,
+        proposal=opportunity,
+        accepted=accepted,
+        actor=actor,
+        correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"),
+    )
     db.commit()
     return {"contract_id": contract.id, "contract_reference": contract.contract_reference, "related_proposal_id": opportunity.id, "project_id": contract.project_id, "status": contract.status, "next_route": f"/contracts/{contract.id}"}
 
@@ -557,7 +536,6 @@ def initiate_permit_from_contract(contract_id: str, request: Request, db: Sessio
         raise domain_error(409, "PERMIT_CONTRACT_PROJECT_MISMATCH", reason="PERMIT_ALREADY_CONTROLLED_BY_DIFFERENT_CONTRACT")
     application.controlling_contract_id = contract.id
     contract.project_id = resolved_project_id
-    contract.status = "CONTRACT_HANDOVER"
     audit(db, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), event_type="CONTRACT_PERMIT_TRANSITION", entity_type="PermitApplication", entity_id=application.id, actor_id=actor, after={"controlling_contract_id": contract.id, "project_id": resolved_project_id, "cross_project_permit_link": 0, "human_final_submission": True})
     db.commit()
     return {"permit_id": application.id, "project_id": resolved_project_id, "controlling_contract_id": contract.id, "next_route": f"/proposals-contracts/{resolved_project_id}/project-and-sources", "human_final_submission": True}

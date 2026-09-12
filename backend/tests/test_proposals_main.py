@@ -205,6 +205,7 @@ def test_contract_permit_handoff_starts_downstream_permit_when_project_is_canoni
         assert contract and opportunity and target
         opportunity.project_id = target.id
         contract.project_id = target.id
+        contract.status = "DRAFT"
         db.commit()
         contract_id = contract.id
         project_id = target.id
@@ -213,6 +214,7 @@ def test_contract_permit_handoff_starts_downstream_permit_when_project_is_canoni
     assert response.json()["project_id"] == project_id
     with SessionLocal() as db:
         assert db.query(PermitApplication).filter(PermitApplication.project_id == project_id, PermitApplication.controlling_contract_id == contract_id).count() == 1
+        assert db.get(Contract, contract_id).status == "DRAFT"
 
 
 def test_primary_demo_source_provenance_lifecycle_and_lineage_reconcile(client):

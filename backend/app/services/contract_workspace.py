@@ -120,6 +120,8 @@ def contract_administrative_close(
     exact_revision = db.get(ContractRevision, service.contract_revision_id)
     if not exact_revision:
         blockers.append("EXACT_CONTRACT_REVISION_REQUIRED")
+    elif not contract_revision_is_accepted(exact_revision):
+        blockers.append("CONTRACT_ACCEPTANCE_REQUIRED")
     if not db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == service.contract_id, ContractAdminEvidence.contract_revision_id == service.contract_revision_id, ContractAdminEvidence.source_role == "EXECUTED_CONTRACT", ContractAdminEvidence.status.in_({"RECORDED", "VERIFIED", "APPROVED"}))):
         blockers.append("EXECUTED_CONTRACT_EVIDENCE_REQUIRED")
     if blockers:

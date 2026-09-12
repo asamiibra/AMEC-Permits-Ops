@@ -265,6 +265,7 @@ def _document_version_for_contract_context(
         and master.current_document_version_id == version.id
         and profile.currentness_status == "VERIFIED_CURRENT"
         and profile.content_ownership_class in {"AMEC_OWNED", "EXTERNAL_OFFICIAL"}
+        and approval_state in {"REVIEWED", "APPROVED"}
     )
     authorized = bool(linked or proposal_link or governed_master)
     if purpose == "EXECUTED_CONTRACT":
