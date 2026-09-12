@@ -1,0 +1,30 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_FINAL_REVALIDATION_V1",
+  "run": "RUN_CONTENT_LIBRARY_REQUIREMENTS_TO_IMPLEMENTATION_GAP_CLOSURE_FINAL",
+  "requirements_base": {
+    "sha": "96bb23378d3a78855a315ea751e2b3b66839cb02",
+    "tree": "34350399d5a113f4d2a21f728b1220f9c39c48f3"
+  },
+  "historical_ledger": "01-owner-requirements-ledger.json",
+  "owner_requirements": 81,
+  "requirement_orphans": 0,
+  "final_classification": {
+    "closed_implemented_or_already_present": 68,
+    "not_applicable_with_exact_reason": 9,
+    "source_clarification_required": 4,
+    "partial_implementable": 0,
+    "missing_implementable": 0,
+    "unsupported_guesses": 0
+  },
+  "p0": {"total": 3, "closed": 3, "unresolved": 0},
+  "p1": {"total": 11, "closed": 11, "unresolved": 0},
+  "source_clarification_required": [
+    {"requirement_id": "AT-031", "reason": "The source set does not supply a new authoritative platform/authority decision; no authority fact was invented."},
+    {"requirement_id": "AT-054", "reason": "The historical new-module-gap wording is resolved by the complete pinned-base audit and final reconciled evidence, not by inventing an Owner decision."},
+    {"requirement_id": "AT-080", "reason": "No Owner decision resolves whether a typed read-only OfficialFormVersion projection should be exposed by Content Library; Source18 remains the authority seam."},
+    {"requirement_id": "AT-081", "reason": "Current live authority/DSM/real AMEC evidence is unavailable and prohibited in this synthetic run; no currentness or regulatory truth was fabricated."}
+  ],
+  "source_clarification_silently_implemented": 0,
+  "unsupported_guesses_implemented": 0,
+  "method": "Rechecked the complete 81-row ledger against the final executable tree, changed-file reconciliation, focused tests, full regression, browser real-stack persistence flow, and governed synthetic storage CI. Historical PARTIAL/MISSING labels are not carried forward as open implementable gaps when their exact boundary is non-module-owned, documentation-only, or closed by the final executable/tests."
+}

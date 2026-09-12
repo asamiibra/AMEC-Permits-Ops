@@ -1,16 +1,20 @@
 """Focused end-to-end proof for the owner Dashboard master-content contract."""
 
 from pathlib import Path
+import json
 from uuid import uuid4
 
 from backend.app.adapters.synology.adapter import MockSynologyAdapter
 from backend.app.services import master_content
 
 
-def _master(client, content_type, ref, title, body=b"v1", role="SYSTEM_ADMIN", surface="DASHBOARD"):
+def _master(client, content_type, ref, title, body=b"v1", role="SYSTEM_ADMIN", surface="DASHBOARD", used_in=None):
+    data = {"content_type": content_type, "ref": ref, "title": title, "description": "Synthetic controlled fixture"}
+    if used_in is not None:
+        data["used_in"] = json.dumps(used_in)
     return client.post(
         "/api/master-content",
-        data={"content_type": content_type, "ref": ref, "title": title, "description": "Synthetic controlled fixture"},
+        data=data,
         files={"file": ("fixture.txt", body, "text/plain")},
         headers={"X-Dev-Role": role, "Idempotency-Key": str(uuid4()), "X-Source-Surface": surface},
     )
@@ -161,10 +165,12 @@ def test_material_master_change_propagates_to_issues_work_notifications_and_line
     assert projects.status_code == 200
     project_id = projects.json()[0]["id"]
 
-    created = _master(client, "ENGINEERING_WORK", f"EW-{uuid4().hex[:6]}", "Synthetic Engineering Source")
+    created = _master(client, "ENGINEERING_WORK", f"EW-{uuid4().hex[:6]}", "Synthetic Engineering Source", used_in=["ENGINEERING"])
     assert created.status_code == 200, created.text
     item = created.json()
     version_one = item["current_version_id"]
+    assert client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "TECHNICAL_WORKSHEET", "language_profile": "EN"}, headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 200
+    assert client.post(f"/api/master-content/{item['id']}/provenance", json={"obtained_from": "Synthetic propagation source"}, headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 200
 
     dependency = client.post(
         f"/api/master-content/{item['id']}/dependencies",
@@ -183,6 +189,7 @@ def test_material_master_change_propagates_to_issues_work_notifications_and_line
     assert revised.status_code == 200, revised.text
     version_two = revised.json()["current_version_id"]
     assert version_two != version_one
+    assert client.post(f"/api/master-content/{item['id']}/provenance", json={"document_version_id": version_two, "obtained_from": "Synthetic propagation source v2"}, headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 200
 
     propagation = client.get(f"/api/master-content/{item['id']}/propagation")
     assert propagation.status_code == 200
