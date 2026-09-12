@@ -410,11 +410,13 @@ def canonical_master_content_candidates(
             frozen_purpose = usage_type in INTERNAL_TEMPLATE_PURPOSES
             profile = governance["profile"]
             is_frozen_amec_form = (
-                frozen_purpose
-                and profile.get("content_ownership_class") == "AMEC_OWNED"
+                profile.get("content_ownership_class") == "AMEC_OWNED"
                 and not profile.get("restricted_reference_sample")
             )
-            if not is_frozen_amec_form and governance["readiness"]["state"] != "MANUAL_USE_READY":
+            if frozen_purpose:
+                if not is_frozen_amec_form:
+                    continue
+            elif governance["readiness"]["state"] != "MANUAL_USE_READY":
                 continue
         elif item.content_type == "ENGINEERING_WORK":
             if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:

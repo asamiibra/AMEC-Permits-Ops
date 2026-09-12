@@ -118,14 +118,34 @@ def test_external_official_internal_template_binding_is_rejected_without_mutatio
     assert _governance_snapshot(after) == _governance_snapshot(before)
 
 
-def test_corrupted_external_frozen_binding_is_excluded_by_resolver(client):
+@pytest.mark.parametrize(
+    "ownership,restricted",
+    [
+        ("EXTERNAL_OFFICIAL", False),
+        ("EXTERNAL_REFERENCE", False),
+        ("REFERENCE_SAMPLE", True),
+        ("NEEDS_REVIEW", False),
+    ],
+)
+def test_corrupted_unsafe_frozen_binding_is_excluded_by_resolver(client, ownership, restricted):
     item = _create(client, used_in=["BD"])
-    governed = client.patch(
-        f"/api/master-content/{item['id']}/governance",
-        json={"content_ownership_class": "EXTERNAL_OFFICIAL", "artifact_kind": "AUTHORITY_FORM", "language_profile": "EN"},
-        headers=OWNER,
-    )
-    assert governed.status_code == 200, governed.text
+    if ownership != "NEEDS_REVIEW":
+        governed = client.patch(
+            f"/api/master-content/{item['id']}/governance",
+            json={"content_ownership_class": ownership, "artifact_kind": "AUTHORITY_FORM", "language_profile": "EN", "restricted_reference_sample": restricted},
+            headers=OWNER,
+        )
+        assert governed.status_code == 200, governed.text
+    if ownership == "EXTERNAL_OFFICIAL":
+        provenance = client.post(f"/api/master-content/{item['id']}/provenance", json={"obtained_from": "Synthetic authority source"}, headers=OWNER)
+        assert provenance.status_code == 200, provenance.text
+        currentness = client.post(f"/api/master-content/{item['id']}/currentness", json={"action": "VERIFY_CURRENT", "note": "Synthetic verification"}, headers=OWNER)
+        assert currentness.status_code == 200, currentness.text
+        refreshed = client.get(f"/api/master-content/{item['id']}/governance", headers=OWNER)
+        assert refreshed.status_code == 200, refreshed.text
+        assert refreshed.json()["profile"]["content_ownership_class"] == "EXTERNAL_OFFICIAL"
+        assert refreshed.json()["profile"]["currentness_status"] == "VERIFIED_CURRENT"
+        assert refreshed.json()["readiness"]["state"] == "MANUAL_USE_READY"
     with SessionLocal() as db:
         db.add(MasterContentModuleBinding(master_content_id=item["id"], module="BD", usage_type="PROPOSAL_TEMPLATE", active=True, created_by="controlled-test-persistence"))
         db.commit()
@@ -165,8 +185,12 @@ def test_unsafe_ownership_classes_cannot_bind_frozen_internal_purposes(client, o
     assert _governance_snapshot(after) == _governance_snapshot(before)
 
 
-def test_amec_owned_internal_template_binds_and_resolves_exact_current_version(client):
-    item = _create(client, used_in=["BD"])
+@pytest.mark.parametrize(
+    "module,purpose",
+    [("BD", "PROPOSAL_TEMPLATE"), ("BD", "PROPOSAL_CHECKLIST"), ("ADMIN", "CONTRACT_TEMPLATE")],
+)
+def test_amec_owned_internal_template_binds_and_resolves_exact_current_version(client, module, purpose):
+    item = _create(client, used_in=[module])
     governed = client.patch(
         f"/api/master-content/{item['id']}/governance",
         json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"},
@@ -176,7 +200,7 @@ def test_amec_owned_internal_template_binds_and_resolves_exact_current_version(c
     before = client.get(f"/api/master-content/{item['id']}", headers=OWNER).json()
     bound = client.put(
         f"/api/master-content/{item['id']}/module-bindings",
-        json=[{"module": "BD", "usage_type": "PROPOSAL_TEMPLATE"}],
+        json=[{"module": module, "usage_type": purpose}],
         headers=OWNER,
     )
     assert bound.status_code == 200, bound.text
@@ -184,12 +208,33 @@ def test_amec_owned_internal_template_binds_and_resolves_exact_current_version(c
     assert after["governance"]["profile"]["content_ownership_class"] == "AMEC_OWNED"
     assert after["governance"]["profile"]["content_ownership_class"] == before["governance"]["profile"]["content_ownership_class"]
 
-    resolved = client.get("/api/master-content/resolvers/BD/PROPOSAL_TEMPLATE", headers=OWNER)
+    resolved = client.get(f"/api/master-content/resolvers/{module}/{purpose}", headers=OWNER)
     assert resolved.status_code == 200, resolved.text
+    assert resolved.json()["status"] == "RESOLVED"
     candidate = next(candidate for candidate in resolved.json()["candidates"] if candidate["id"] == item["id"])
     assert candidate["version_id"] == item["current_version_id"]
     with SessionLocal() as db:
         assert candidate["hash"] == db.get(DocumentVersion, item["current_version_id"]).sha256
+    archived = client.post(f"/api/master-content/{item['id']}/archive", headers=OWNER)
+    assert archived.status_code == 200, archived.text
+
+
+def test_non_frozen_manual_form_resolution_remains_eligible(client):
+    item = _create(client, used_in=["BD"])
+    governed = client.patch(
+        f"/api/master-content/{item['id']}/governance",
+        json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"},
+        headers=OWNER,
+    )
+    assert governed.status_code == 200, governed.text
+    provenance = client.post(f"/api/master-content/{item['id']}/provenance", json={"obtained_from": "Synthetic manual form source"}, headers=OWNER)
+    assert provenance.status_code == 200, provenance.text
+    bound = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": "AVAILABLE"}], headers=OWNER)
+    assert bound.status_code == 200, bound.text
+    resolved = client.get("/api/master-content/resolvers/BD/AVAILABLE", headers=OWNER)
+    assert resolved.status_code == 200, resolved.text
+    assert resolved.json()["status"] == "RESOLVED"
+    assert resolved.json()["item"]["id"] == item["id"]
     archived = client.post(f"/api/master-content/{item['id']}/archive", headers=OWNER)
     assert archived.status_code == 200, archived.text
 
