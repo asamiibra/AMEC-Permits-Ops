@@ -175,6 +175,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
+        "intelligence_v1_shared_contracts.py",
     }
     by_revision = {
         re.search(r'^revision = "([^"]+)"$', path.read_text(encoding="utf-8"), re.MULTILINE).group(1): path
@@ -190,6 +191,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "opportunity_proposal_idempotency_v1",
         "billing_module_closure_v8",
         "17c6ebd99c4a",
+        "intelligence_v1_shared_contracts",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
@@ -618,7 +620,7 @@ def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
 
 def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     result = nullable_unique_audit("post")
-    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 243
+    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 248
     assert result["unclassified_unique_object_count"] == 0
     assert result["unsafe_fk_or_semantic_review_required_count"] == 0
     assert result["nullable_unique_filter_required_count"] == 19
@@ -644,7 +646,7 @@ def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     assert objects["ix_opportunities_idempotency_key"]["model_filter"] == "idempotency_key is not null"
     assert objects["ix_opportunities_idempotency_key"]["migration_filter"] == "idempotency_key is not null"
     assert result["result"] == "PASS"
-    print("UNIQUE_OBJECT_TOTAL_COUNT=243")
+    print("UNIQUE_OBJECT_TOTAL_COUNT=248")
     print("UNCLASSIFIED_UNIQUE_OBJECT_COUNT=0")
     print("UNSAFE_FK_OR_SEMANTIC_REVIEW_REQUIRED_COUNT=0")
     print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=19")

@@ -36,3 +36,4 @@ from .source_intake_entities import *
 from .phase4_entities import *
 from .ai_entities import *
 from .source18_entities import *
+from .intelligence_entities import *

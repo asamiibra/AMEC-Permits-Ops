@@ -68,10 +68,10 @@ def _create_version_table(
             )
 
 
-def test_repository_migration_head_is_current_opportunity_proposal_head():
+def test_repository_migration_head_is_current_intelligence_contract_head():
     assert (
         database.repository_migration_head()
-        == "17c6ebd99c4a"
+        == "intelligence_v1_shared_contracts"
     )
 
 
