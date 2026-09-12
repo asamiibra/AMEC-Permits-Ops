@@ -8,8 +8,8 @@
   "historical_target_tree": "4fa639431a44ffbeb07f65a135272d9209f65c34",
   "integration_branch": "module/billing-invoice-receivables-collection-integration-v9",
   "historical_delta_file_count": 28,
-  "carried_forward_delta_file_count": 10,
-  "non_billing_delta_files_excluded": 18,
+  "carried_forward_delta_file_count": 9,
+  "non_billing_delta_files_excluded": 19,
   "overlapping_current_main_files": 3,
   "semantic_merge_files": [
     "backend/tests/test_admin_contract_owner_session.py",
