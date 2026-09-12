@@ -331,3 +331,172 @@ class ProposalNote(Base, TimestampMixin):
     related_contact: Mapped[str | None] = mapped_column(String(240))
     provenance: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="UNVERIFIED_CONTEXT")
+
+
+class ProposalTechnicalAssessment(Base, TimestampMixin):
+    """Human technical/site assessment used as an input to scope confirmation."""
+
+    __tablename__ = "proposal_technical_assessments"
+    __table_args__ = (
+        Index("ix_proposal_technical_assessment_proposal_status", "proposal_id", "status"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    site_context_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_site_contexts.id"))
+    assessment_type: Mapped[str] = mapped_column(String(60), nullable=False, default="SITE_TECHNICAL")
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="INCOMPLETE")
+    findings: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
+    assumptions: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
+    evidence_document_version_ids: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    source_lineage: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    assessment_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    assessed_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    assessed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    supersedes_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_technical_assessments.id"))
+
+
+class ProposalScopeConfirmation(Base, TimestampMixin):
+    """Immutable human confirmation of the Proposal scope revision."""
+
+    __tablename__ = "proposal_scope_confirmations"
+    __table_args__ = (
+        Index("ix_proposal_scope_confirmation_proposal_status", "proposal_id", "status"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    scope_revision_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    scope_statement: Mapped[str] = mapped_column(Text, nullable=False)
+    service_offering_codes: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    technical_assessment_ids: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    source_lineage: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    confirmed_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    confirming_capability: Mapped[str] = mapped_column(String(100), nullable=False)
+    confirmed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    audit_correlation_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="CURRENT")
+    supersedes_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_scope_confirmations.id"))
+
+
+class ProposalServiceEligibility(Base):
+    __tablename__ = "proposal_service_eligibility"
+    __table_args__ = (
+        UniqueConstraint("proposal_id", "service_offering_code", name="uq_proposal_service_eligibility_offering"),
+        Index("ix_proposal_service_eligibility_proposal_id", "proposal_id"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False)
+    service_offering_code: Mapped[str] = mapped_column(String(100), nullable=False)
+    result: Mapped[str] = mapped_column(String(60), nullable=False)
+    professional_party_id: Mapped[str | None] = mapped_column(ForeignKey("parties.id"))
+    capability_reference: Mapped[str | None] = mapped_column(String(300))
+    policy_reference: Mapped[str | None] = mapped_column(String(300))
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"))
+    decision_note: Mapped[str | None] = mapped_column(Text)
+    decided_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="CURRENT")
+
+
+class ProposalCommercialRelease(Base):
+    __tablename__ = "proposal_commercial_releases"
+    __table_args__ = (
+        UniqueConstraint("accepted_revision_id", name="uq_proposal_commercial_release_revision"),
+        UniqueConstraint("idempotency_key", name="uq_proposal_commercial_releases_idempotency_key"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    accepted_revision_id: Mapped[str] = mapped_column(ForeignKey("proposal_accepted_revisions.id"), nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    scope_confirmation_id: Mapped[str] = mapped_column(ForeignKey("proposal_scope_confirmations.id"), nullable=False)
+    eligibility_snapshot: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="AUTHORIZED")
+    authorized_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    authorizing_capability: Mapped[str] = mapped_column(String(100), nullable=False)
+    authorized_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    audit_correlation_id: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class ProposalDistributionEvent(Base):
+    __tablename__ = "proposal_distribution_events"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_proposal_distribution_idempotency"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    accepted_revision_id: Mapped[str] = mapped_column(ForeignKey("proposal_accepted_revisions.id"), nullable=False)
+    commercial_release_id: Mapped[str] = mapped_column(ForeignKey("proposal_commercial_releases.id"), nullable=False)
+    channel: Mapped[str] = mapped_column(String(40), nullable=False)
+    recipient_party_id: Mapped[str | None] = mapped_column(ForeignKey("parties.id"))
+    recipient_contact_reference: Mapped[str | None] = mapped_column(String(300))
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"))
+    evidence_reference: Mapped[str] = mapped_column(String(600), nullable=False)
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    sent_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    audit_correlation_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class ProposalAcceptanceVerification(Base):
+    __tablename__ = "proposal_acceptance_verifications"
+    __table_args__ = (UniqueConstraint("client_response_id", name="uq_proposal_acceptance_verification_response"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    accepted_revision_id: Mapped[str] = mapped_column(ForeignKey("proposal_accepted_revisions.id"), nullable=False)
+    client_response_id: Mapped[str] = mapped_column(ForeignKey("proposal_client_responses.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="VERIFIED")
+    evidence_reference: Mapped[str] = mapped_column(String(600), nullable=False)
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"))
+    verified_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    verification_note: Mapped[str | None] = mapped_column(Text)
+    verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    audit_correlation_id: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class ProposalLpoReconciliation(Base):
+    __tablename__ = "proposal_lpo_reconciliations"
+    __table_args__ = (
+        UniqueConstraint("proposal_id", "accepted_revision_id", name="uq_proposal_lpo_reconciliation_revision"),
+        UniqueConstraint("idempotency_key", name="uq_proposal_lpo_reconciliations_idempotency_key"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    accepted_revision_id: Mapped[str] = mapped_column(ForeignKey("proposal_accepted_revisions.id"), nullable=False)
+    client_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"))
+    client_artifact_reference: Mapped[str | None] = mapped_column(String(600))
+    applies: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    fields_compared: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    variances: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
+    result: Mapped[str] = mapped_column(String(40), nullable=False)
+    adjudication_note: Mapped[str | None] = mapped_column(Text)
+    adjudicated_by: Mapped[str | None] = mapped_column(String(200))
+    adjudicated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    compared_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    compared_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    audit_correlation_id: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class ProposalContractHandoff(Base):
+    __tablename__ = "proposal_contract_handoffs"
+    __table_args__ = (
+        UniqueConstraint("proposal_id", "accepted_revision_id", name="uq_proposal_contract_handoff_revision"),
+        UniqueConstraint("idempotency_key", name="uq_proposal_contract_handoffs_idempotency_key"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    accepted_revision_id: Mapped[str] = mapped_column(ForeignKey("proposal_accepted_revisions.id"), nullable=False)
+    acceptance_verification_id: Mapped[str] = mapped_column(ForeignKey("proposal_acceptance_verifications.id"), nullable=False)
+    reconciliation_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_lpo_reconciliations.id"))
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="ELIGIBLE")
+    handoff_payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    handed_off_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    handed_off_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    audit_correlation_id: Mapped[str] = mapped_column(String(200), nullable=False)

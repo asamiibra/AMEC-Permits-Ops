@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, JSON, Numeric, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TimestampMixin, utcnow
@@ -65,6 +65,7 @@ class ProjectArtifactRecord(Base, TimestampMixin):
 
 class Opportunity(Base, TimestampMixin):
     __tablename__ = "opportunities"
+    __table_args__ = (Index("ix_opportunities_idempotency_key", "idempotency_key", unique=True, mssql_where=text("idempotency_key IS NOT NULL")),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     office_id: Mapped[str] = mapped_column(ForeignKey("consultancy_offices.id"), nullable=False, index=True)
     client_account_id: Mapped[str | None] = mapped_column(ForeignKey("client_accounts.id"), index=True)
@@ -80,6 +81,7 @@ class Opportunity(Base, TimestampMixin):
     project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
     reference_state: Mapped[str] = mapped_column(String(30), default="PROVISIONAL", nullable=False)
     proposal_fields_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    idempotency_key: Mapped[str | None] = mapped_column(String(200))
     provisional_reference: Mapped[str | None] = mapped_column(String(100), index=True)
     canonical_project_reference: Mapped[str | None] = mapped_column(String(100), index=True)
     canonicalized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import AssistantHandoff, AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, ExternalBody, Jurisdiction, NotificationEvent, Opportunity, Party, ProposalAcceptedRevision, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, ServiceType, WorkflowTask, WorkflowTaskStatus
+from ..models import AssistantHandoff, AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, ExternalBody, Jurisdiction, NotificationEvent, Opportunity, Party, ProposalAcceptedRevision, ProposalAcceptanceVerification, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalContractHandoff, ProposalCommercialRelease, ProposalDistributionEvent, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalLpoReconciliation, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalTechnicalAssessment, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, ServiceType, WorkflowTask, WorkflowTaskStatus
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
@@ -28,6 +28,7 @@ from ..services.proposal_final_hardening import hardening_projection, impacted_s
 from ..services.proposal_reference import allocate_proposal_reference
 from ..services.proposals_sor import _safe_filename, ingest_provisional_intake_artifact, read_proposal_source_bytes
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
+from ..services.proposal_commercial_controls import authorize_release, confirm_scope, create_handoff as create_proposal_handoff, record_distribution, record_eligibility, record_technical_assessment, reconcile_lpo, verify_acceptance
 from ..services.owner_decisions import applied_runtime_decision_value, runtime_decision_value
 
 router = APIRouter(prefix="/api/bd/proposals", tags=["bd-proposal-owner-session"])
@@ -39,6 +40,7 @@ class ProposalCreate(BaseModel):
     project_id: str | None = None
     client_account_id: str | None = None
     client_name: str | None = None
+    idempotency_key: str | None = Field(default=None, max_length=200)
 
 
 class ProposalFieldsPatch(BaseModel):
@@ -92,6 +94,10 @@ def _actor(role: Role, supplied: str | None = None) -> str:
 
 def _create_proposal_record(payload: ProposalCreate, request: Request, db: Session, role: Role) -> Opportunity:
     """Create the canonical Proposal row without committing a source transaction."""
+    if payload.idempotency_key:
+        existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
+        if existing:
+            return existing
     office = db.scalar(select(ConsultancyOffice).order_by(ConsultancyOffice.office_code))
     if not office:
         raise HTTPException(503, "OFFICE_CONTEXT_REQUIRED")
@@ -104,7 +110,7 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
     reference = allocate_proposal_reference(db)
     fields = {"client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"client_name": "manual", "project_reference": "manual"}}
     fields = {key: value for key, value in fields.items() if value is not None}
-    item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, provisional_reference=reference, canonical_project_reference=payload.project_reference)
+    item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, idempotency_key=payload.idempotency_key, provisional_reference=reference, canonical_project_reference=payload.project_reference)
     db.add(item)
     db.flush()
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_DRAFT_CREATED", entity_type="Opportunity", entity_id=item.id, actor_id=_actor(role), after={"proposal_reference": reference, "status": item.status})
@@ -221,9 +227,13 @@ def list_proposals(q: str = "", stage: str | None = None, lane: str | None = Non
 @router.post("")
 def create_proposal(payload: ProposalCreate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_WRITE")
+    if payload.idempotency_key:
+        existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
+        if existing:
+            return {**proposal_projection(db, existing), "result": "IDEMPOTENT"}
     item = _create_proposal_record(payload, request, db, role)
     db.commit()
-    return proposal_projection(db, item)
+    return {**proposal_projection(db, item), "result": "CREATED"}
 
 
 @router.get("/master-content")
@@ -644,7 +654,7 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
 
 
 @router.post("/intake")
-async def create_proposal_intake(request: Request, proposal_description: str = Form(...), project_reference: str | None = Form(default=None), client_name: str | None = Form(default=None), client_account_id: str | None = Form(default=None), project_id: str | None = Form(default=None), initial_source_type: str | None = Form(default=None), source_title: str | None = Form(default=None), source_date: str | None = Form(default=None), source_notes: str | None = Form(default=None), source_revision: str | None = Form(default=None), file: UploadFile | None = File(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+async def create_proposal_intake(request: Request, proposal_description: str = Form(...), project_reference: str | None = Form(default=None), client_name: str | None = Form(default=None), client_account_id: str | None = Form(default=None), project_id: str | None = Form(default=None), initial_source_type: str | None = Form(default=None), source_title: str | None = Form(default=None), source_date: str | None = Form(default=None), source_notes: str | None = Form(default=None), source_revision: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), file: UploadFile | None = File(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     """Create a Proposal and its optional initial source in one DB transaction."""
     require_capability(role, "BD_PROPOSAL_WRITE")
     source_type = initial_source_type.upper() if initial_source_type else None
@@ -652,14 +662,17 @@ async def create_proposal_intake(request: Request, proposal_description: str = F
         raise HTTPException(422, {"code": "SOURCE_TYPE_REQUIRED", "allowed": list(SOURCE_TYPES)})
     if source_type and not file:
         raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_REQUIRED", "source_type": source_type})
-    proposal = _create_proposal_record(ProposalCreate(proposal_description=proposal_description, project_reference=project_reference, client_account_id=client_account_id, client_name=client_name, project_id=project_id), request, db, role)
+    existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == idempotency_key)) if idempotency_key else None
+    if existing:
+        return {"result": "IDEMPOTENT", "proposal": proposal_projection(db, existing), "next_route": f"/opportunities/{existing.id}"}
+    proposal = _create_proposal_record(ProposalCreate(proposal_description=proposal_description, project_reference=project_reference, client_account_id=client_account_id, client_name=client_name, project_id=project_id, idempotency_key=idempotency_key), request, db, role)
     result: dict[str, Any] = {}
     try:
         if source_type and file:
             content = await file.read()
             if not content:
                 raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_EMPTY", "source_type": source_type})
-            result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or source_title or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role), idempotency_key=None, source_metadata={"initial_source": True, "title": source_title, "source_date": source_date, "notes": source_notes}, db=db, role=role)
+            result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or source_title or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role), idempotency_key=idempotency_key, source_metadata={"initial_source": True, "title": source_title, "source_date": source_date, "notes": source_notes}, db=db, role=role)
         db.commit()
     except Exception:
         db.rollback()
@@ -761,7 +774,7 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
         raise domain_error(409, "PROPOSAL_ACCEPT_BLOCKED", blockers=check["blockers"] + v2_check["blocking"], warnings=check["warnings"] + v2_check["warnings"])
     snapshot = snapshot_for_accept(db, item, check)
     prior = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == item.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
-    if prior and snapshot.get("material_fingerprint") == (prior.snapshot or {}).get("material_fingerprint"):
+    if prior and not draft_revision and snapshot.get("material_fingerprint") == (prior.snapshot or {}).get("material_fingerprint"):
         raise domain_error(409, "PROPOSAL_ALREADY_ACCEPTED", accepted_revision_id=prior.id, revision_number=prior.revision_number)
     revision_number = (prior.revision_number + 1) if prior else 1
     content_hash = stable_hash(snapshot)
@@ -859,6 +872,94 @@ def record_commercial_outcome(proposal_id: str, payload: dict[str, Any], request
     return {"result": "RECORDED", "outcome": {"id": row.id, "outcome": row.outcome, "recorded_by": row.recorded_by, "recorded_at": row.recorded_at.isoformat()}, "proposal": proposal_projection(db, item)}
 
 
+def _control_result(row: Any, *, idempotent: bool = False) -> dict[str, Any]:
+    return {"result": "IDEMPOTENT" if idempotent else "RECORDED", "control": {column.name: getattr(row, column.name) for column in row.__table__.columns}}
+
+
+@router.post("/{proposal_id}/technical-assessments")
+def record_proposal_technical_assessment(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "EDIT_TECHNICAL")
+    try:
+        row = record_technical_assessment(db, proposal_id, payload, actor=_actor(role))
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_TECHNICAL_ASSESSMENT_RECORDED", entity_type="ProposalTechnicalAssessment", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "status": row.status, "assessment_hash": row.assessment_hash})
+    db.commit()
+    return _control_result(row)
+
+
+@router.post("/{proposal_id}/scope-confirmations")
+def confirm_proposal_scope(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    try:
+        row = confirm_scope(db, proposal_id, payload, actor=_actor(role), capability="BD_PROPOSAL_WRITE", correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SCOPE_CONFIRMED", entity_type="ProposalScopeConfirmation", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "scope_revision_hash": row.scope_revision_hash, "service_offering_codes": row.service_offering_codes})
+    db.commit()
+    return _control_result(row)
+
+
+@router.post("/{proposal_id}/service-eligibility")
+def record_proposal_service_eligibility(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    try:
+        row = record_eligibility(db, proposal_id, payload, actor=_actor(role))
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SERVICE_ELIGIBILITY_RECORDED", entity_type="ProposalServiceEligibility", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "service_offering_code": row.service_offering_code, "result": row.result})
+    db.commit()
+    return _control_result(row)
+
+
+@router.post("/{proposal_id}/commercial-release")
+def authorize_proposal_commercial_release(proposal_id: str, payload: dict[str, Any] | None = None, request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_ACCEPT")
+    try:
+        row, idempotent = authorize_release(db, proposal_id, payload or {}, actor=_actor(role), capability="BD_PROPOSAL_ACCEPT", correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_COMMERCIAL_RELEASE_AUTHORIZED", entity_type="ProposalCommercialRelease", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "accepted_revision_id": row.accepted_revision_id, "content_hash": row.content_hash, "idempotent": idempotent})
+    db.commit()
+    return _control_result(row, idempotent=idempotent)
+
+
+@router.post("/{proposal_id}/distribution")
+def record_proposal_distribution(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    try:
+        row, idempotent = record_distribution(db, proposal_id, payload, actor=_actor(role), correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_DISTRIBUTED", entity_type="ProposalDistributionEvent", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "accepted_revision_id": row.accepted_revision_id, "channel": row.channel, "evidence_reference": row.evidence_reference, "idempotent": idempotent})
+    db.commit()
+    return _control_result(row, idempotent=idempotent)
+
+
+@router.post("/{proposal_id}/acceptance-verification")
+def verify_proposal_client_acceptance(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    try:
+        row, idempotent = verify_acceptance(db, proposal_id, payload, actor=_actor(role), correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_CLIENT_ACCEPTANCE_VERIFIED", entity_type="ProposalAcceptanceVerification", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "accepted_revision_id": row.accepted_revision_id, "client_response_id": row.client_response_id, "idempotent": idempotent})
+    db.commit()
+    return _control_result(row, idempotent=idempotent)
+
+
+@router.post("/{proposal_id}/lpo-reconciliation")
+def reconcile_proposal_lpo(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    try:
+        row, idempotent = reconcile_lpo(db, proposal_id, payload, actor=_actor(role), correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_LPO_RECONCILIATED", entity_type="ProposalLpoReconciliation", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "accepted_revision_id": row.accepted_revision_id, "result": row.result, "variance_count": len(row.variances), "idempotent": idempotent})
+    db.commit()
+    return _control_result(row, idempotent=idempotent)
+
+
 @router.get("/{proposal_id}/outputs")
 def outputs(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
@@ -884,7 +985,19 @@ def contract_handoff_preview(proposal_id: str, db: Session = Depends(get_db), ro
     revision = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id).order_by(ProposalAcceptedRevision.revision_number.desc()))
     if not revision:
         raise HTTPException(409, "ACCEPTED_REVISION_REQUIRED")
-    return {"eligible": True, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False}
+    blockers: list[str] = []
+    if not db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal_id, ProposalCommercialRelease.accepted_revision_id == revision.id, ProposalCommercialRelease.status == "AUTHORIZED")):
+        blockers.append("COMMERCIAL_RELEASE_REQUIRED")
+    if not db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal_id, ProposalDistributionEvent.accepted_revision_id == revision.id)):
+        blockers.append("DISTRIBUTION_REQUIRED")
+    if not db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal_id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.status == "VERIFIED")):
+        blockers.append("CLIENT_ACCEPTANCE_VERIFICATION_REQUIRED")
+    lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal_id, ProposalLpoReconciliation.accepted_revision_id == revision.id))
+    if not lpo:
+        blockers.append("LPO_RECONCILIATION_REQUIRED")
+    elif lpo.result not in {"PASS", "NOT_APPLICABLE"}:
+        blockers.append("LPO_RECONCILIATION_REQUIRED")
+    return {"eligible": not blockers, "blockers": blockers, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
 
 
 @router.post("/{proposal_id}/handoff/contract")
@@ -901,6 +1014,10 @@ def contract_handoff(proposal_id: str, request: Request, db: Session = Depends(g
     if not client_id:
         raise HTTPException(409, "CLIENT_CONTEXT_REQUIRED")
     try:
+        handoff_row, handoff_idempotent = create_proposal_handoff(db, proposal_id, {}, actor=_actor(role, actor), correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    try:
         contract = create_contract_from_proposal(db, proposal=proposal, accepted=revision, actor=_actor(role, actor), correlation_id=request.state.correlation_id)
     except ValueError as exc:
         raise domain_error(409, str(exc)) from exc
@@ -909,7 +1026,19 @@ def contract_handoff(proposal_id: str, request: Request, db: Session = Depends(g
     artifacts = {item.artifact_type: {"id": item.id, "filename": item.filename, "content_hash": item.content_hash} for item in db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.revision_id == revision.id)).all()}
     fields = revision.snapshot.get("fields", {})
     client = db.get(ClientAccount, client_id)
-    return {"contract_id": contract.id, "contract_reference": contract.contract_reference, "proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "client": client.display_name if client else client_id, "project_reference": revision.snapshot.get("project_reference"), "project_description": fields.get("project_description") or revision.snapshot.get("title"), "scope": fields.get("scope_of_work") or fields.get("sow"), "amount": fields.get("price"), "currency": fields.get("currency"), "duration": fields.get("duration") or fields.get("period"), "proposal_artifact": artifacts.get("PROPOSAL"), "checklist_artifact": artifacts.get("CHECKLIST"), "source_ids": revision.snapshot.get("source_ids", []), "template": revision.snapshot.get("template"), "checklist": revision.snapshot.get("checklist"), "forms_driven_v2": revision.snapshot.get("forms_driven_v2"), "status": proposal.status, "machine_legal_contract": False, "creates_project_code": False, "creates_authority_case": False, "creates_regulatory_journey": False}
+    return {"contract_id": contract.id, "contract_reference": contract.contract_reference, "handoff_id": handoff_row.id, "handoff_idempotent": handoff_idempotent, "contract_handoff_eligible": True, "proposal_id": proposal.id, "proposal_reference": proposal.opportunity_reference, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "client": client.display_name if client else client_id, "project_reference": revision.snapshot.get("project_reference"), "project_description": fields.get("project_description") or revision.snapshot.get("title"), "scope": fields.get("scope_of_work") or fields.get("sow"), "amount": fields.get("price"), "currency": fields.get("currency"), "duration": fields.get("duration") or fields.get("period"), "proposal_artifact": artifacts.get("PROPOSAL"), "checklist_artifact": artifacts.get("CHECKLIST"), "source_ids": revision.snapshot.get("source_ids", []), "template": revision.snapshot.get("template"), "checklist": revision.snapshot.get("checklist"), "forms_driven_v2": revision.snapshot.get("forms_driven_v2"), "status": proposal.status, "machine_legal_contract": False, "creates_project_code": False, "creates_authority_case": False, "creates_regulatory_journey": False}
+
+
+@router.post("/{proposal_id}/handoff/contract-eligibility")
+def contract_handoff_eligibility(proposal_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), actor: str | None = None):
+    """Persist Proposal→Contract handoff eligibility without creating a Contract."""
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    try:
+        row, idempotent = create_proposal_handoff(db, proposal_id, {}, actor=_actor(role, actor), correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    db.commit()
+    return {"result": "IDEMPOTENT" if idempotent else "ELIGIBLE", "handoff_id": row.id, "proposal_id": proposal_id, "accepted_revision_id": row.accepted_revision_id, "status": row.status, "contract_created": False, "project_activation_created": False, "machine_legal_contract": False}
 
 
 @router.get("/settings/go-live")
