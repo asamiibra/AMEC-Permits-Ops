@@ -14,7 +14,7 @@ from ..audit.service import audit
 from ..db import get_db
 from ..models import ApplicationStatus, AssistantHandoff, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Finding, LineageEdge, NotificationEvent, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, ProposalSourceEvidence, Quotation, QuotationRevision, ReferenceNumber, Role, WorkflowTask, WorkflowTaskStatus
 from ..services.proposals_sor import ACTION_CONFIG, INTAKE_SEMANTIC_CONFIG, SEMANTIC_FOLDER_CONFIG, SOR_TEMPLATE_VERSION, canonicalize_project_reference, ingest_project_artifact, ingest_provisional_intake_artifact, promote_provisional_intake, resolve_project_target
-from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal as create_canonical_contract_from_proposal
+from ..services.contract_workspace import accepted_revision as accepted_contract_revision, contract_revision_is_accepted, create_contract_from_proposal as create_canonical_contract_from_proposal
 from ..services.backend_realignment import (
     CAPABILITY_MATRIX,
     KPI_PREDICATES,
@@ -505,6 +505,9 @@ def initiate_permit_from_contract(contract_id: str, request: Request, db: Sessio
         raise HTTPException(404, "CONTRACT_NOT_FOUND")
     quotation = db.get(Quotation, contract.quotation_id)
     opportunity = db.get(Opportunity, quotation.opportunity_id) if quotation else None
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    if not revision or not contract_revision_is_accepted(revision):
+        raise domain_error(409, "CONTRACT_ACCEPTANCE_REQUIRED", contract_revision_id=contract.current_revision_id)
     reference = db.scalar(select(ReferenceNumber).where(ReferenceNumber.contract_id == contract.id).order_by(ReferenceNumber.reserved_at))
     resolved_project_id = project_id or (contract.project_id or (opportunity.project_id if opportunity else None) or (reference.project_id if reference else None))
     if not resolved_project_id:

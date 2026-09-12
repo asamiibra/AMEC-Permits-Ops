@@ -70,7 +70,7 @@ def commercial_reconciliation(
     missing = [key for key, (expected, actual) in comparison_items.items() if expected not in (None, "") and actual in (None, "")]
     if order_applicable is None:
         order_applicable = asserted_order is not None
-    if order_source_state in {"BLOCKED_SUPERSEDED_SOURCE", "BLOCKED_CROSS_CONTRACT_SOURCE", "BLOCKED_UNAUTHORIZED_EXCEPTION"}:
+    if order_source_state in {"BLOCKED_SUPERSEDED_SOURCE", "BLOCKED_CROSS_CONTRACT_SOURCE", "BLOCKED_UNAUTHORIZED_EXCEPTION", "BLOCKED_UNSTRUCTURED_SOURCE"}:
         order_result: dict[str, Any] = {"status": order_source_state, "mismatches": [], "missing": [], "reason": "The asserted PO/LPO source is not eligible for Contract reconciliation."}
     elif order_source_count > 1:
         order_result: dict[str, Any] = {"status": "BLOCKED_AMBIGUOUS_SOURCE", "mismatches": [], "missing": [], "reason": "Multiple applicable PO/LPO assertions require one governed source."}

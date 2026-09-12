@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from backend.app.db import SessionLocal
-from backend.app.models import ConsultancyOffice, Contract, Document, DocumentVersion, EvidenceArtifact, LineageEdge, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, Quotation
+from backend.app.models import ConsultancyOffice, Contract, ContractRevision, Document, DocumentVersion, EvidenceArtifact, LineageEdge, Opportunity, PermitApplication, Project, ProjectArtifactRecord, ProposalIntakeArtifact, Quotation
 from backend.app.api import proposals_main_routers
 from backend.app.main import app
 from backend.app.fixtures.canonical import canonical_sor_root
@@ -206,6 +206,9 @@ def test_contract_permit_handoff_starts_downstream_permit_when_project_is_canoni
         opportunity.project_id = target.id
         contract.project_id = target.id
         contract.status = "DRAFT"
+        revision = db.query(ContractRevision).filter(ContractRevision.contract_id == contract.id, ContractRevision.id == contract.current_revision_id).one()
+        revision.status = "FINALIZED"
+        revision.admin_input_snapshot = {**(revision.admin_input_snapshot or {}), "acceptance": {"revision_id": revision.id, "accepted_by": "synthetic-test-owner", "accepted_at": "2026-09-12T00:00:00+00:00"}}
         db.commit()
         contract_id = contract.id
         project_id = target.id

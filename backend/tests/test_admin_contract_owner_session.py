@@ -574,6 +574,35 @@ def test_cm_g14_generic_stage_cannot_create_contract_closure(client):
         assert db.query(ContractAdministrativeClosure).filter(ContractAdministrativeClosure.contract_id == contract_id).count() == 0
 
 
+def test_cm_g02_generic_ready_stage_uses_full_authority_readiness_gate(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    response = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR"), json={"stage": "READY", "reason": "Attempted generic readiness bypass"})
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "CONTRACT_AUTHORITY_BLOCKED"
+    with SessionLocal() as db:
+        row = db.get(Contract, contract_id)
+        assert row.stage != "READY" and row.status != "READY"
+
+
+def test_cm_g04_po_evidence_requires_exact_document_version(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    response = client.post(
+        f"/api/admin/contracts/{contract_id}/evidence",
+        headers=headers("OWNER_SPONSOR"),
+        json={"evidence_type": "PO", "source_role": "PO", "source_reference": "synthetic://unversioned-po", "metadata": {"commercial_terms": {"amount": "QAR 250000", "currency": "QAR", "duration": "90 days"}}},
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "EXACT_DOCUMENT_VERSION_REQUIRED_FOR_CLIENT_EVIDENCE"
+
+
 def test_cm_g17_source_bindings_require_current_scoped_lineage(client):
     ensure_contract_template(client)
     proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")

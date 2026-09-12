@@ -228,7 +228,7 @@ def _document_version_for_contract_context(
     approval_state = getattr(version.approval_state, "value", str(version.approval_state)).upper()
     if version.superseded_by or approval_state == "SUPERSEDED":
         raise domain_error(409, "DOCUMENT_VERSION_LINEAGE_INVALID", reason="SUPERSEDED_VERSION", document_version_id=version.id)
-    if document.current_version_id and document.current_version_id != version.id:
+    if document.current_version_id != version.id:
         raise domain_error(409, "DOCUMENT_VERSION_LINEAGE_INVALID", reason="NON_CURRENT_VERSION", document_version_id=version.id)
     metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
     if metadata.get("contract_id") and metadata["contract_id"] != contract.id:
@@ -474,6 +474,8 @@ def stage_contract(contract_id: str, payload: StagePayload, request: Request, db
     if payload.stage.upper() == "CLOSED":
         require_capability(role, "CONTRACT_CLOSE")
         raise domain_error(409, "CONTRACT_ADMIN_CLOSE_CANONICAL_REQUIRED", detail="Use the Handover contract-admin-close service; generic stage mutation cannot close a Contract.")
+    if payload.stage.upper() == "READY":
+        return decide_contract_authority(contract_id, AuthorityPayload(decision="APPROVE", reason=payload.reason), request, db, role)
     require_capability(role, "CONTRACT_REVIEW_AUTHORITY" if payload.stage.upper() in {"AUTHORITY_REVIEW", "READY"} else "CONTRACT_EDIT")
     allowed_stages = effective_contract_stages(db)
     if payload.stage.upper() not in allowed_stages:
@@ -652,7 +654,7 @@ def add_evidence(contract_id: str, payload: EvidencePayload, request: Request, d
     source_role = payload.source_role.upper()
     if source_role == "EXECUTED_CONTRACT":
         raise domain_error(409, "USE_EXECUTED_EVIDENCE_ACTION", contract_id=contract_id)
-    if source_role in {"LPO", "CLIENT_DOCUMENT"} and not payload.document_version_id:
+    if source_role in {"LPO", "PO", "CLIENT_DOCUMENT"} and not payload.document_version_id:
         raise domain_error(422, "EXACT_DOCUMENT_VERSION_REQUIRED_FOR_CLIENT_EVIDENCE", source_role=payload.source_role)
     document = _document_version_for_contract_context(db, contract, revision, payload.document_version_id, purpose="EVIDENCE")
     source_reference = payload.source_reference or (document.source_path_or_reference if document else "")
@@ -801,7 +803,9 @@ def record_client_copy_distribution(contract_id: str, payload: ContractHandoffEv
 @router.post("/{contract_id}/operations-handoff")
 def record_operations_handoff(contract_id: str, payload: ContractHandoffEvidencePayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_HANDOFF")
-    if not db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract_id, ContractAdminEvidence.source_role == "CLIENT_COPY_DISTRIBUTION")):
+    contract = _contract_or_404(db, contract_id)
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    if not revision or not db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract_id, ContractAdminEvidence.contract_revision_id == revision.id, ContractAdminEvidence.source_role == "CLIENT_COPY_DISTRIBUTION")):
         raise domain_error(409, "CLIENT_COPY_DISTRIBUTION_REQUIRED", contract_id=contract_id)
     return _record_contract_handoff_evidence(contract_id, source_role="OPERATIONS_HANDOFF", payload=payload, request=request, db=db, role=role)
 
