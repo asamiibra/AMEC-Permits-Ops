@@ -474,6 +474,9 @@ def stage_contract(contract_id: str, payload: StagePayload, request: Request, db
     if payload.stage.upper() == "CLOSED":
         require_capability(role, "CONTRACT_CLOSE")
         raise domain_error(409, "CONTRACT_ADMIN_CLOSE_CANONICAL_REQUIRED", detail="Use the Handover contract-admin-close service; generic stage mutation cannot close a Contract.")
+    if payload.stage.upper() == "ACTIVE":
+        require_capability(role, "CONTRACT_EDIT")
+        raise domain_error(409, "CONTRACT_PROJECT_ACTIVATION_CANONICAL_REQUIRED", detail="Use the explicit Project Activation action; generic stage mutation cannot activate a Contract.")
     if payload.stage.upper() == "READY":
         return decide_contract_authority(contract_id, AuthorityPayload(decision="APPROVE", reason=payload.reason), request, db, role)
     require_capability(role, "CONTRACT_REVIEW_AUTHORITY" if payload.stage.upper() in {"AUTHORITY_REVIEW", "READY"} else "CONTRACT_EDIT")

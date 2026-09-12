@@ -583,6 +583,9 @@ def test_cm_g02_generic_ready_stage_uses_full_authority_readiness_gate(client):
     response = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR"), json={"stage": "READY", "reason": "Attempted generic readiness bypass"})
     assert response.status_code == 409
     assert response.json()["detail"]["code"] == "CONTRACT_AUTHORITY_BLOCKED"
+    activation_bypass = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR"), json={"stage": "ACTIVE", "reason": "Attempted generic activation bypass"})
+    assert activation_bypass.status_code == 409
+    assert activation_bypass.json()["detail"]["code"] == "CONTRACT_PROJECT_ACTIVATION_CANONICAL_REQUIRED"
     with SessionLocal() as db:
         row = db.get(Contract, contract_id)
         assert row.stage != "READY" and row.status != "READY"
