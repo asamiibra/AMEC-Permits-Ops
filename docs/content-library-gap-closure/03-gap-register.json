@@ -12,5 +12,12 @@
   "p0_unresolved_at_audit": 3,
   "p1_unresolved_at_audit": 3,
   "unsupported_guesses_implemented": 0,
-  "product_redesign_authorized": false
+  "product_redesign_authorized": false,
+  "final_owner_source_delta_reconciliation": "PASS",
+  "implementable_owner_requirement_gaps_open": 0,
+  "partial_owner_requirement_gaps_open": 0,
+  "missing_owner_requirement_gaps_open": 0,
+  "source_clarification_required": ["AT-031","AT-054","AT-080","AT-081"],
+  "source_clarification_silently_implemented": 0,
+  "all_cl_final_invariants_accounted_for": true
 }

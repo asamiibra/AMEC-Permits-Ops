@@ -14,6 +14,14 @@ ISOLATED_MODULE_WORKSPACE=true
 WORKTREE_CLEAN_AT_MODULE_START=true
 ORIGINAL_WORKSPACE_MUTATED=false
 ORIGINAL_UNCOMMITTED_WORK_TOUCHED=false
+LIVE_RELEASE_BRANCH=release/production-stabilization-v3
+LIVE_RELEASE_SHA=b8d2e8fecbfa54765eadd9eeb771dcd3051a6d37
+LIVE_RELEASE_TREE=f8f8e9b9e494ec8b672c9c691e53ff688937049f
+LIVE_RELEASE_OBSERVED_AT=2026-09-12T03:03:54Z
+CURRENT_COMPATIBILITY_BASE_PROVEN=true
+COMPATIBILITY_RECONCILIATION=PASS
+COMPATIBILITY_PATH_OVERLAP_COUNT=0
+COMPATIBILITY_MERGE_HEAD=9daaebeaf8541f745d14a095bc7400b7cff90550
 ```
 
-The pinned commit exists with the pinned tree. The current repository release may advance after this frozen baseline; that is reported separately and does not silently change this module-run base.
+The pinned requirements commit remains the historical module base. The live release was fetched directly from origin, had no path overlap with the Content Library executable delta, and was merged into the existing v3 candidate as a compatibility reconciliation. The integration target remains read-only.
