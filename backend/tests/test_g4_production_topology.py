@@ -7,6 +7,7 @@ from backend.app.config.settings import Settings
 
 ROOT = Path(__file__).resolve().parents[2]
 CANONICAL = ROOT / "infra" / "azure" / "canonical" / "main.bicep"
+PREPROD_PROFILE = ROOT / "infra" / "azure" / "canonical" / "preprod.bicepparam"
 
 
 def _prod_with_blob(**overrides) -> Settings:
@@ -73,9 +74,56 @@ def test_canonical_graph_freezes_g4_topology_controls():
         "Microsoft.Insights/diagnosticSettings@",
         "requestedBackupStorageRedundancy: 'Geo'",
         "MANAGED_ARTIFACT_STORE_REQUIRED",
-        "STORAGE_PROVIDER', value: 'azure_blob'",
+        "param storageProvider string = 'azure_blob'",
+        "param appEnvironment string = 'PROD'",
     )
     missing = [marker for marker in required if marker not in source]
     assert not missing, missing
     assert "STORAGE_PROVIDER', value: 'smb'" not in source
     assert "AZURE_DIRECT_SYNOLOGY_SMB', value: 'true'" not in source
+
+
+def test_canonical_production_defaults_preserve_accepted_names_and_controls():
+    source = CANONICAL.read_text(encoding="utf-8")
+    expected_defaults = (
+        "param environmentName string = 'production'",
+        "param resourceNamePrefix string = 'production'",
+        "var vnetName = 'vnet-proposalops-${resourceNamePrefix}-uaenorth'",
+        "var keyVaultName = 'kv-proposalops-${resourceNamePrefix}'",
+        "name: 'ca-proposalops-api-${resourceNamePrefix}'",
+        "name: 'ca-proposalops-worker-${resourceNamePrefix}'",
+        "name: 'caj-proposalops-migration-${resourceNamePrefix}'",
+        "param sqlServerAdministratorLogin string = 'proposalops_sql_control_plane'",
+        "administratorLogin: sqlServerAdministratorLogin",
+        "login: sqlAdministratorLogin",
+    )
+    missing = [marker for marker in expected_defaults if marker not in source]
+    assert not missing, missing
+
+    sql_diagnostics = source[source.index("resource sqlDiagnostics "):source.index("resource keyVaultDiagnostics ")]
+    assert "categoryGroup: 'allLogs'" not in sql_diagnostics
+    assert "category: 'AllMetrics'" in sql_diagnostics
+    assert "resolvedApiOriginHostName" in source
+
+
+def test_canonical_preprod_profile_is_synthetic_and_namespaced():
+    source = PREPROD_PROFILE.read_text(encoding="utf-8")
+    required = (
+        "param environmentName = 'preprod'",
+        "param resourceNamePrefix = 'g8p60912'",
+        "param appEnvironment = 'AZURE-PREPROD'",
+        "param syntheticOnly = true",
+        "param realDataAllowed = false",
+        "param sourceIntakeMode = 'BRIDGE'",
+        "param synologyMode = 'BRIDGE'",
+        "param storageProvider = 'azure_blob'",
+        "param deriveApiOriginHostName = true",
+        "param sqlServerAdministratorLogin = 'proposalops_g8_sqladmin'",
+        "param apiImage = readEnvironmentVariable(",
+        "param sqlAdministratorPassword = readEnvironmentVariable(",
+    )
+    missing = [marker for marker in required if marker not in source]
+    assert not missing, missing
+    assert "param appEnvironment = 'PROD'" not in source
+    assert "param syntheticOnly = false" not in source
+    assert "param realDataAllowed = true" not in source
