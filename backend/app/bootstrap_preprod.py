@@ -25,6 +25,7 @@ from .models import (
     User,
 )
 from .seed import cli as seed_cli
+from .services.master_content import reconcile_preprod_canonical_master_content
 
 
 EXPECTED_OFFICE_CODE = "QEC-DOHA"
@@ -142,6 +143,13 @@ def _repair_idempotent_post_seed_state() -> None:
 
     seed_cli.ensure_contract_center_golden_state()
 
+    _reconcile_preprod_canonical_master_content()
+
+
+def _reconcile_preprod_canonical_master_content() -> None:
+    with SessionLocal() as db:
+        reconcile_preprod_canonical_master_content(db)
+
 
 def run_preprod_bootstrap() -> str:
     settings = get_settings()
@@ -203,6 +211,7 @@ def run_preprod_bootstrap() -> str:
             reset_existing=False,
             clean_fixtures=False,
         )
+        _reconcile_preprod_canonical_master_content()
     else:
         _repair_idempotent_post_seed_state()
 

@@ -130,7 +130,13 @@ def _adapter():
 
 
 def _deployed_synthetic() -> bool:
-    return bool(os.getenv("VERCEL")) and get_settings().synthetic_only
+    settings = get_settings()
+    return (
+        settings.synthetic_only
+        and not settings.real_data_allowed
+        and settings.app_env.upper() != "PROD"
+        and (bool(os.getenv("VERCEL")) or settings.app_env.upper() == "AZURE-PREPROD")
+    )
 
 
 def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
@@ -626,6 +632,133 @@ def _demo_category_id(db: Session, content_type: str, label: str) -> str | None:
     categories = db.scalars(select(ContentCategory).where(ContentCategory.active == true())).all()
     matching = [row for row in categories if row.label == label and content_type in (row.allowed_content_types or [])]
     return (sorted(matching, key=lambda row: (0 if row.code.startswith(f"{content_type}_") else 1, row.sort_order, row.code))[0].id if matching else None)
+
+
+PREPROD_CANONICAL_MASTER_CONTENT = (
+    {
+        "ref": "BD-PROP-001",
+        "title": "AMEC Proposal Template",
+        "category": "Business Development",
+        "purpose": ("BD", "PROPOSAL_TEMPLATE"),
+        "description": "Canonical synthetic Dashboard-managed Proposal rendering template.",
+    },
+    {
+        "ref": "BD-CHK-001",
+        "title": "AMEC Proposal Checklist",
+        "category": "Business Development",
+        "purpose": ("BD", "PROPOSAL_CHECKLIST"),
+        "description": "Canonical synthetic Dashboard-managed Proposal readiness checklist.",
+    },
+    {
+        "ref": "CT-001",
+        "title": "AMEC Contract Template",
+        "category": "Contract",
+        "purpose": ("ADMIN", "CONTRACT_TEMPLATE"),
+        "description": "Canonical synthetic Dashboard-managed Contract handoff template.",
+    },
+)
+
+
+def reconcile_preprod_canonical_master_content(
+    db: Session,
+    *,
+    actor: str = "owner-demo-seed",
+) -> dict[str, Any]:
+    """Create the exact synthetic master sources required by preprod consumers.
+
+    This helper is deliberately narrower than the full Owner demo reconciler:
+    it does not archive records, seed definitions, or alter unrelated content.
+    A non-synthetic collision at a canonical ref/title is a fail-closed error.
+    """
+    seed_categories(db)
+    seed_reference_sequences(db)
+    created: list[str] = []
+    preserved: list[str] = []
+    bound: list[str] = []
+
+    for spec in PREPROD_CANONICAL_MASTER_CONTENT:
+        by_ref = db.scalar(
+            select(MasterContentItem).where(
+                MasterContentItem.content_type == "FORM",
+                MasterContentItem.ref == spec["ref"],
+            )
+        )
+        active_by_title = db.scalar(
+            select(MasterContentItem).where(
+                MasterContentItem.content_type == "FORM",
+                MasterContentItem.title == spec["title"],
+                MasterContentItem.status == "ACTIVE",
+            )
+        )
+        if by_ref and by_ref.title != spec["title"]:
+            raise RuntimeError(f"PREPROD_CANONICAL_MASTER_CONTENT_REF_COLLISION: {spec['ref']}")
+        if by_ref and active_by_title and by_ref.id != active_by_title.id:
+            raise RuntimeError(f"PREPROD_CANONICAL_MASTER_CONTENT_TITLE_COLLISION: {spec['title']}")
+
+        item = active_by_title or by_ref
+        if item is None:
+            category_id = _demo_category_id(db, "FORM", spec["category"])
+            projection = create_master_content(
+                db,
+                content_type="FORM",
+                ref=spec["ref"],
+                title=spec["title"],
+                category_id=category_id,
+                description=spec["description"],
+                filename=f"{spec['ref']}-preprod-canonical.txt",
+                mime_type="text/plain",
+                content=(
+                    "PROPOSALOPS SYNTHETIC PREPROD MASTER CONTENT\n"
+                    f"Canonical title: {spec['title']}\n"
+                    f"Canonical purpose: {spec['purpose'][1]}\n"
+                    "REAL_AMEC_MASTER_CONTENT_CONFIRMED=false\n"
+                ).encode("utf-8"),
+                actor=actor,
+                idempotency_key=f"preprod-canonical-master:v1:{spec['ref']}",
+                correlation_id=f"preprod-canonical-master:v1:{spec['ref']}",
+                source_surface="PREPROD_BOOTSTRAP",
+                used_in=[spec["purpose"][0], "PROPOSAL" if spec["purpose"][0] == "BD" else "CONTRACT"],
+                engineering_metadata={
+                    "preprod_canonical": True,
+                    "synthetic_only": True,
+                    "real_amec_master_content_confirmed": False,
+                },
+            )
+            item = db.get(MasterContentItem, projection["id"])
+            created.append(spec["ref"])
+        else:
+            version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+            marker = (item.engineering_metadata or {}).get("preprod_canonical")
+            if not marker or not version or not version.source_path_or_reference.startswith("synthetic-db://"):
+                raise RuntimeError(f"PREPROD_CANONICAL_MASTER_CONTENT_NON_SYNTHETIC_COLLISION: {spec['title']}")
+            preserved.append(spec["ref"])
+
+        item.needs_review = False
+        item.status = "ACTIVE"
+        profile = ensure_profile(db, item, ownership="AMEC_OWNED")
+        profile.content_ownership_class = "AMEC_OWNED"
+        profile.restricted_reference_sample = False
+        profile.artifact_kind = "CHECKLIST" if "Checklist" in spec["title"] else "AMEC_FORM"
+        profile.language_profile = "EN"
+        profile.currentness_status = "VERIFIED_CURRENT"
+        profile.currentness_verified_by = actor
+        profile.currentness_verification_note = "Synthetic preprod canonical fixture; not real AMEC source content."
+        module, usage_type = spec["purpose"]
+        binding = db.scalar(
+            select(MasterContentModuleBinding).where(
+                MasterContentModuleBinding.master_content_id == item.id,
+                MasterContentModuleBinding.module == module,
+                MasterContentModuleBinding.usage_type == usage_type,
+            )
+        )
+        if binding:
+            binding.active = True
+        else:
+            db.add(MasterContentModuleBinding(master_content_id=item.id, module=module, usage_type=usage_type, active=True, created_by=actor))
+        bound.append(f"{module}/{usage_type}")
+
+    db.commit()
+    return {"created": created, "preserved": preserved, "bindings": bound}
 
 
 def _forme_category_id(db: Session, label: str) -> str:

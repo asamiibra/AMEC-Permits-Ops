@@ -212,6 +212,7 @@ app.add_middleware(
         "X-Dev-Role",
         "X-Dev-User",
         "X-Source-Surface",
+        "Idempotency-Key",
     ],
 )
 
