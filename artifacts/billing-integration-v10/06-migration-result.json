@@ -1,0 +1,14 @@
+{
+  "current_alembic_head": "billing_module_closure_v8",
+  "one_alembic_head": true,
+  "billing_migration_semantics_pass": true,
+  "candidate_billing_migration_parent": "source18_committee_implementation_v1",
+  "control_platform_migration_result": "FAILED_PRE_BILLING_BASELINE_BIND_TYPING",
+  "candidate_platform_migration_result": "FAILED_PRE_BILLING_BASELINE_BIND_TYPING",
+  "platform_migration_caused_by_billing_delta": false,
+  "full_chain_compatibility_probe": "PASS",
+  "full_chain_probe_head": "billing_module_closure_v8",
+  "full_chain_probe_used_temporary_platform_substitutions_only": true,
+  "source18_rewrite_carried_forward": false,
+  "baseline_rewrite_carried_forward": false
+}

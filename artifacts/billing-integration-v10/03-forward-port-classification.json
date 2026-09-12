@@ -1,0 +1,21 @@
+{
+  "v10_forward_port_source_sha": "50e1c8e7d9f9e847f9ce50ab3002aaf90d289706",
+  "v10_implementation_sha": "8c48de7840ab2f74d462c93d9a3833673a7818c2",
+  "v10_implementation_tree": "2342dae2a39698c50da78af60d6576d0f5b0621c",
+  "forward_port_clean": true,
+  "unexplained_v10_files": 0,
+  "forward_port_files": {
+    "backend/app/api/billing_invoice_routers.py": "BILLING_FUNCTIONAL",
+    "backend/app/models/billing_entities.py": "BILLING_MODEL",
+    "backend/app/models/expansion_entities.py": "BILLING_MODEL",
+    "backend/migrations/versions/billing_module_closure_v8.py": "BILLING_MIGRATION",
+    "backend/tests/test_admin_contract_owner_session.py": "BILLING_TEST",
+    "backend/tests/test_azure_sql_port.py": "BILLING_TEST",
+    "backend/tests/test_billing_invoice_full.py": "BILLING_TEST",
+    "backend/tests/test_database_startup_contract.py": "BILLING_TEST",
+    "backend/tests/test_db_rebaseline.py": "BILLING_TEST"
+  },
+  "v9_evidence_files_reintroduced": false,
+  "non_billing_historical_files_reintroduced": false,
+  "baseline_historical_rewrite_carried_forward": false
+}
