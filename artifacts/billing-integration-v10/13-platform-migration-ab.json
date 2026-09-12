@@ -1,0 +1,14 @@
+{
+  "postgres_port": 55433,
+  "control_database": "amec_billing_v10_platform_control_20260912",
+  "candidate_database": "amec_billing_v10_platform_candidate_20260912",
+  "control_result": "FAILED_PRE_BILLING_BASELINE_BIND_TYPING",
+  "candidate_result": "FAILED_PRE_BILLING_BASELINE_BIND_TYPING",
+  "exact_error": "psycopg.errors.AmbiguousParameter: inconsistent types deduced for parameter $2",
+  "exact_frozen_statement": "master_content_reference_sequences INSERT reuses value_1/value_7 across text and varchar contexts",
+  "baseline_postgresql_compatibility_blocker": true,
+  "source18_postgresql_compatibility_blocker": true,
+  "platform_migration_caused_by_billing_delta": false,
+  "billing_full_chain_compatibility_probe": "PASS",
+  "cold_sqlite_upgrade": "BLOCKED_PREEXISTING_NONBATCH_FOREIGN_KEY_MIGRATION_BEHAVIOR"
+}

@@ -170,6 +170,8 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "baseline_phase4_v36_azure_sql.py",
         "opportunity_commercial_controls_v1.py",
         "opportunity_proposal_idempotency_v1.py",
+        "billing_module_closure_v8.py",
+        "17c6ebd99c4a_merge_billing_and_opportunity_migration_.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
@@ -186,6 +188,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "source18_committee_implementation_v1",
         "opportunity_commercial_controls_v1",
         "opportunity_proposal_idempotency_v1",
+        "17c6ebd99c4a",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
@@ -199,6 +202,14 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert 'revision = "source18_committee_implementation_v1"' in source18_committee
     assert 'down_revision = "source18_regulatory_current_state_v1"' in source18_committee
     source18 = by_revision["source18_regulatory_current_state_v1"].read_text(encoding="utf-8")
+    billing = by_revision["billing_module_closure_v8"].read_text(encoding="utf-8")
+    assert 'revision = "billing_module_closure_v8"' in billing
+    assert 'down_revision = "source18_committee_implementation_v1"' in billing
+    merge_point = by_revision["17c6ebd99c4a"].read_text(encoding="utf-8")
+    assert "billing_module_closure_v8" in merge_point
+    assert "opportunity_proposal_idempotency_v1" in merge_point
+    assert "op.create_" not in merge_point
+    assert "db.execute" not in merge_point
     assert 'revision = "source18_regulatory_current_state_v1"' in source18
     assert 'down_revision = "ai_d2_execution_ledger_v1"' in source18
     ledger = by_revision["ai_d2_execution_ledger_v1"]

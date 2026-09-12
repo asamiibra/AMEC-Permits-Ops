@@ -1,0 +1,24 @@
+{
+  "current_main_commercial_control_preserved": true,
+  "invoice_reference_dependency": "compose_amec_invoice_reference",
+  "invoice_reference_dependency_compatible": true,
+  "billing_router_import_preserved": true,
+  "invoice_issue_year_validation": true,
+  "project_reference_segment_validation": true,
+  "global_sequence_positive_validation": true,
+  "sequence_padding_preserved": true,
+  "exact_reference_prefix": "INV-AMEC-",
+  "global_sequence_non_resetting": true,
+  "g9_g10_fields_preserved": [
+    "client_delay_started_at",
+    "delay_reason",
+    "responsible_external_party",
+    "affected_service_project",
+    "supporting_evidence",
+    "recorded_by",
+    "recorded_at"
+  ],
+  "protected_human_commercial_handover_boundary_preserved": true,
+  "ai_autonomous_invoice_issue_authority": false,
+  "ai_autonomous_handover_authority": false
+}

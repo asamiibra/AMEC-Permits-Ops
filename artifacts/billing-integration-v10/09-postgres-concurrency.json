@@ -1,0 +1,27 @@
+{
+  "database": "amec_billing_v10_concurrency_20260912",
+  "payment_allocation_concurrency": "PASS",
+  "no_overallocation": true,
+  "no_double_effective_reversal": true,
+  "no_negative_financial_balance": true,
+  "same_payment_concurrent_allocations": {
+    "outcomes": ["allocated", "rejected:payment-limit"],
+    "active_allocation_count": 1,
+    "payment_status": "VERIFIED"
+  },
+  "same_invoice_concurrent_allocations": {
+    "outcomes": ["allocated", "rejected:invoice-limit"],
+    "invoice_allocated": "80.00"
+  },
+  "allocation_vs_reversal": {
+    "outcomes": ["rejected:payment-not-verified", "reversed"],
+    "active_allocation_count": 0,
+    "payment_status": "REVERSED"
+  },
+  "double_reversal": {
+    "outcomes": ["rejected:already-reversed", "reversed"],
+    "active_allocation_count": 0,
+    "payment_status": "REVERSED"
+  },
+  "independent_persisted_state": "PASS"
+}

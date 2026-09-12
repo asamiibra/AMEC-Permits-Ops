@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 
 from backend.app.db import SessionLocal
-from backend.app.models import Contract
+from backend.app.models import Contract, InvoiceRevision, Project
 from backend.tests.test_admin_contract_owner_session import clean_owner_fixture, ensure_contract_template, headers, make_accepted_proposal
 
 
@@ -78,7 +78,7 @@ def test_billing_invoice_accept_issue_receivable_payment_and_separation(client):
     created = client.post(
         "/api/billing/invoices",
         headers=headers("COMMERCIAL_APPROVER"),
-        json={"milestone_ids": [first_id], "due_date_basis": "DELIVERY_DATE", "due_days": 30, "informational_lines": [{"description": "Full Contract Amount (display only)", "calculated_line_amount": "250000"}]},
+        json={"milestone_ids": [first_id], "due_date_basis": "DELIVERY_DATE", "due_days": 30, "planned_collection_date": "2026-08-20", "service_period": "2026-08", "informational_lines": [{"description": "Full Contract Amount (display only)", "calculated_line_amount": "250000"}]},
     )
     assert created.status_code == 200, created.text
     invoice = created.json()["invoice"]
@@ -111,6 +111,9 @@ def test_billing_invoice_accept_issue_receivable_payment_and_separation(client):
 
     receivable = client.get(f"/api/billing/invoices/{invoice['id']}/receivable", headers=headers("OWNER_SPONSOR")).json()
     assert receivable["state"] == "AWAITING_DUE_EVENT"
+    missing_delivery_proof = client.post(f"/api/billing/invoice-revisions/{revision['id']}/deliveries", headers=headers("OWNER_SPONSOR"), json={"channel": "EMAIL", "idempotency_key": "delivery-billing-missing-proof"})
+    assert missing_delivery_proof.status_code == 409
+    assert missing_delivery_proof.json()["detail"]["code"] == "DELIVERY_EVIDENCE_REQUIRED"
     delivery = client.post(f"/api/billing/invoice-revisions/{revision['id']}/deliveries", headers=headers("OWNER_SPONSOR"), json={"channel": "EMAIL", "recipient_snapshot": {"party_ref": "SYN-CLIENT"}, "delivered_at": "2026-08-14T10:00:00+00:00", "delivery_reference": "SYN-DELIVERY-001", "idempotency_key": "delivery-billing-001"})
     assert delivery.status_code == 200, delivery.text
     assert delivery.json()["revision"]["due_date"] == "2026-09-13"
@@ -122,7 +125,12 @@ def test_billing_invoice_accept_issue_receivable_payment_and_separation(client):
     acknowledgment = client.post(f"/api/billing/invoices/{invoice['id']}/acknowledgments", headers=headers("OWNER_SPONSOR"), json={"acknowledgment_reference": "SYN-ACK-001", "acknowledged_at": "2026-08-15T10:00:00+00:00", "idempotency_key": "ack-billing-001"})
     assert acknowledgment.status_code == 200, acknowledgment.text
     assert acknowledgment.json()["receivable"]["communication_state"] == "ACKNOWLEDGED"
-    payment = client.post("/api/billing/payments", headers=headers("COMMERCIAL_APPROVER"), json={"invoice_id": invoice["id"], "amount": "50000", "currency": "QAR", "reference": "SYN-PAY-001", "idempotency_key": "payment-billing-001"})
+    observed_without_evidence = client.post("/api/billing/payments", headers=headers("COMMERCIAL_APPROVER"), json={"invoice_id": invoice["id"], "amount": "1000", "currency": "QAR", "reference": "SYN-PAY-MISSING-EVIDENCE", "idempotency_key": "payment-billing-missing-evidence"})
+    assert observed_without_evidence.status_code == 200, observed_without_evidence.text
+    blocked_verification = client.post(f"/api/billing/payments/{observed_without_evidence.json()['id']}/verify", headers=headers("OWNER_SPONSOR"), json={})
+    assert blocked_verification.status_code == 409
+    assert blocked_verification.json()["detail"]["code"] == "PAYMENT_METHOD_REQUIRED"
+    payment = client.post("/api/billing/payments", headers=headers("COMMERCIAL_APPROVER"), json={"invoice_id": invoice["id"], "amount": "50000", "currency": "QAR", "reference": "SYN-PAY-001", "payment_method": "BANK_TRANSFER", "evidence_reference": "synthetic://bank-transfer-proof-001", "idempotency_key": "payment-billing-001"})
     assert payment.status_code == 200, payment.text
     payment_id = payment.json()["id"]
     assert client.get(f"/api/billing/invoices/{invoice['id']}/receivable", headers=headers("OWNER_SPONSOR")).json()["verified_paid_amount"] == "0.00"
@@ -133,7 +141,93 @@ def test_billing_invoice_accept_issue_receivable_payment_and_separation(client):
     follow_up = client.post(f"/api/billing/invoices/{invoice['id']}/follow-ups", headers=headers("COMMERCIAL_APPROVER"), json={"note": "Synthetic follow-up only", "channel": "INTERNAL_NOTE"})
     assert follow_up.status_code == 200, follow_up.text
     assert client.get(f"/api/billing/invoices/{invoice['id']}/receivable", headers=headers("OWNER_SPONSOR")).json()["state"] == "PARTIALLY_PAID"
+    reversed_payment = client.post(f"/api/billing/payments/{payment_id}/reverse", headers=headers("OWNER_SPONSOR"), json={"reason": "Synthetic bank confirmation withdrawn", "evidence_reference": "synthetic://reversal-proof-001", "idempotency_key": "reversal-billing-001"})
+    assert reversed_payment.status_code == 200, reversed_payment.text
+    assert reversed_payment.json()["payment"]["verification_status"] == "REVERSED"
+    assert client.get(f"/api/billing/invoices/{invoice['id']}/receivable", headers=headers("OWNER_SPONSOR")).json()["verified_paid_amount"] == "0.00"
+    resolved = client.post(f"/api/billing/invoices/{invoice['id']}/resolutions", headers=headers("OWNER_SPONSOR"), json={"resolution_type": "WRITTEN_OFF", "amount": "125000", "currency": "QAR", "reason": "Synthetic non-cash closure", "approval_reference": "SYN-RESOLUTION-001", "idempotency_key": "resolution-billing-001"})
+    assert resolved.status_code == 200, resolved.text
+    assert resolved.json()["receivable"]["state"] == "RESOLVED_NON_CASH"
+    assert resolved.json()["receivable"]["outstanding_amount"] == "0.00"
+    with SessionLocal() as db:
+        persisted_revision = db.get(InvoiceRevision, revision["id"])
+        assert persisted_revision.actual_collection_date is not None
+        assert persisted_revision.actual_collection_date_source == "NON_CASH_RECEIVABLE_RESOLUTION"
+        assert persisted_revision.planned_collection_date.isoformat() == "2026-08-20"
+        assert persisted_revision.service_period == "2026-08"
+        project = db.get(Project, invoice["project_id"])
+        office_id = project.office_id
+    project_projection = client.get(f"/api/billing/projects/{invoice['project_id']}/financial-projection", headers=headers("OWNER_SPONSOR"))
+    assert project_projection.status_code == 200, project_projection.text
+    assert project_projection.json()["non_cash_resolved_amount"] == "125000.00"
+    assert project_projection.json()["outstanding_amount"] == "0.00"
+    assert project_projection.json()["billing_completion_state"] == "COMPLETE"
+    assert project_projection.json()["financial_completion_state"] == "COMPLETE"
+    assert project_projection.json()["billing_complete"] is True
+    assert project_projection.json()["financial_complete"] is True
+    register = client.get(f"/api/billing/offices/{office_id}/invoice-register", headers=headers("OWNER_SPONSOR"))
+    assert register.status_code == 200 and register.json()["total"] >= 1
+    open_receivables = client.get(f"/api/billing/offices/{office_id}/open-receivables", headers=headers("OWNER_SPONSOR"))
+    assert open_receivables.status_code == 200
+    assert all(item["outstanding_amount"] != "0.00" for item in open_receivables.json()["items"])
     assert client.get(f"/api/billing/invoices/{invoice['id']}/download", headers=headers("COMMERCIAL_APPROVER")).status_code == 200
+
+
+def test_client_prepayment_is_recorded_verified_and_kept_as_unallocated_credit(client):
+    contract_id = _activated_contract(client, "Client Prepayment Fixture")
+    recorded = client.post(
+        "/api/billing/payments",
+        headers=headers("COMMERCIAL_APPROVER"),
+        json={
+            "contract_id": contract_id,
+            "project_id": None,
+            "amount": "5000",
+            "currency": "QAR",
+            "reference": "SYN-PREPAY-001",
+            "payment_method": "BANK_TRANSFER",
+            "evidence_reference": "synthetic://prepayment-proof-001",
+            "idempotency_key": "prepayment-001",
+        },
+    )
+    assert recorded.status_code == 200, recorded.text
+    payment_id = recorded.json()["id"]
+    assert recorded.json()["credit"]["state"] == "CLIENT_PREPAYMENT_RECORDED"
+    assert recorded.json()["credit"]["unallocated_balance"] == "0.00"
+
+    verified = client.post(f"/api/billing/payments/{payment_id}/verify", headers=headers("OWNER_SPONSOR"), json={})
+    assert verified.status_code == 200, verified.text
+    credit = client.get(f"/api/billing/payments/{payment_id}/unallocated-credit", headers=headers("OWNER_SPONSOR"))
+    assert credit.status_code == 200, credit.text
+    assert credit.json()["state"] == "UNALLOCATED_CLIENT_CREDIT"
+    assert credit.json()["unallocated_balance"] == "5000.00"
+    assert credit.json()["project_id"] is None
+
+    custody_payment = client.post(
+        "/api/billing/payments",
+        headers=headers("COMMERCIAL_APPROVER"),
+        json={
+            "contract_id": contract_id,
+            "project_id": None,
+            "amount": "1250",
+            "currency": "QAR",
+            "reference": "SYN-CUSTODY-001",
+            "payment_method": "ALTERNATE_RECIPIENT",
+            "evidence_reference": "synthetic://custody-proof-001",
+            "custodian_context_json": {
+                "payment_destination": "Synthetic alternate recipient",
+                "received_by": "synthetic-receiver",
+                "custodian": "synthetic-custodian",
+                "recipient_name": "Synthetic alternate recipient",
+                "actual_recipient_context": "Synthetic approved alternate recipient",
+                "custody_reference": "SYN-CUSTODY-REF-001",
+            },
+            "idempotency_key": "custody-payment-001",
+        },
+    )
+    assert custody_payment.status_code == 200, custody_payment.text
+    assert custody_payment.json()["custodian_context_json"]["custody_reference"] == "SYN-CUSTODY-REF-001"
+    custody_verified = client.post(f"/api/billing/payments/{custody_payment.json()['id']}/verify", headers=headers("OWNER_SPONSOR"), json={})
+    assert custody_verified.status_code == 200, custody_verified.text
 
 
 def test_billing_rejects_manual_invoice_and_cross_role_issue(client):
