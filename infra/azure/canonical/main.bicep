@@ -470,11 +470,6 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: 'false' }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
-          { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
-          { name: 'AI_D4_COMMISSIONING_ID', value: '' }
-          { name: 'AI_FEATURE_ENABLED', value: 'false' }
-          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
-          { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
           { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
         ]
         resources: {
@@ -590,11 +585,16 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: migrationIdentity.properties.clientId }
+          { name: 'SYNOLOGY_MODE', value: synologyMode }
           { name: 'SOURCE_INTAKE_MODE', value: sourceIntakeMode }
           { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
           { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
+          { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'AI_FEATURE_ENABLED', value: 'false' }
+          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
+          { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
         ]
         resources: {
           cpu: 1
