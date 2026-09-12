@@ -1,0 +1,27 @@
+# Content Library module-run baseline
+
+```text
+REPOSITORY=asamiibra/AMEC-Permits-Ops
+MODULE_RUN_BASE_BRANCH_REFERENCE=release/production-stabilization-v3
+MODULE_RUN_BASE_SHA=96bb23378d3a78855a315ea751e2b3b66839cb02
+MODULE_RUN_BASE_TREE=34350399d5a113f4d2a21f728b1220f9c39c48f3
+MODULE_RUN_BASELINE_STATUS=OWNER_FROZEN_FOR_CONTENT_LIBRARY_MODULE_TRACK
+MODULE_BRANCH=module/content-library-owner-gap-closure-v3
+MODULE_BRANCH_BASE_SHA=96bb23378d3a78855a315ea751e2b3b66839cb02
+MODULE_BRANCH_BASE_TREE=34350399d5a113f4d2a21f728b1220f9c39c48f3
+MODULE_BRANCH_INITIAL_HEAD=96bb23378d3a78855a315ea751e2b3b66839cb02
+ISOLATED_MODULE_WORKSPACE=true
+WORKTREE_CLEAN_AT_MODULE_START=true
+ORIGINAL_WORKSPACE_MUTATED=false
+ORIGINAL_UNCOMMITTED_WORK_TOUCHED=false
+LIVE_RELEASE_BRANCH=release/production-stabilization-v3
+LIVE_RELEASE_SHA=b8d2e8fecbfa54765eadd9eeb771dcd3051a6d37
+LIVE_RELEASE_TREE=f8f8e9b9e494ec8b672c9c691e53ff688937049f
+LIVE_RELEASE_OBSERVED_AT=2026-09-12T03:03:54Z
+CURRENT_COMPATIBILITY_BASE_PROVEN=true
+COMPATIBILITY_RECONCILIATION=PASS
+COMPATIBILITY_PATH_OVERLAP_COUNT=0
+COMPATIBILITY_MERGE_HEAD=9daaebeaf8541f745d14a095bc7400b7cff90550
+```
+
+The pinned requirements commit remains the historical module base. The live release was fetched directly from origin, had no path overlap with the Content Library executable delta, and was merged into the existing v3 candidate as a compatibility reconciliation. The integration target remains read-only.

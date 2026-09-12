@@ -1,0 +1,14 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_TEST_EVIDENCE_V1",
+  "baseline_evidence_reused": true,
+  "focused_content_library_tests": {"result":"accepted historical evidence","passed":57,"skipped":1},
+  "full_backend_regression": {"result":"PASS","command":"APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false DATABASE_URL=sqlite:////tmp/amec-content-library-final-correction-full.db pytest -q backend/tests","head":"9daaebeaf8541f745d14a095bc7400b7cff90550","tree":"272bb0959937731904a544ff8cfe184076e9f6cf","passed":875,"skipped":33,"failed":0,"warnings":4,"duration":"19:27"},
+  "frontend_tests": {"result":"PASS","files":21,"passed":113,"duration":"42.40s"},
+  "frontend_build": "PASS (Vite; existing chunk-size warning)",
+  "browser_acceptance": "PASS: desktop 1; mobile 1",
+  "migration_qualification": "PASS: one head (source18_committee_implementation_v1); no module migration; isolated SQLite verification",
+  "required_post_implementation_regression": "pytest -q backend/tests",
+  "synthetic_only": true,
+  "external_targets": false,
+  "required_test_family_accounting": "Recorded in 01-owner-requirements-ledger.json; all families are PASS or explicit NOT_APPLICABLE with boundary reason"
+}
