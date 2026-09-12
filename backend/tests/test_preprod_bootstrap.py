@@ -106,6 +106,12 @@ def _install_base(
     )
 
     monkeypatch.setattr(
+        bootstrap_preprod,
+        "_reconcile_preprod_canonical_master_content",
+        lambda: None,
+    )
+
+    monkeypatch.setattr(
         bootstrap_preprod.seed_cli,
         "validate_preprod_migration_baseline",
         baseline_validator or (lambda db: None),
