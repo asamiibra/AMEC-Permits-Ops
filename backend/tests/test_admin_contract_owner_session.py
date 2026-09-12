@@ -15,7 +15,7 @@ from backend.app.models import (
     Invoice, InvoiceRevision, InvoiceMilestone, InvoiceApproval, InvoiceRequirementDecision,
     InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
     InvoiceIssueEvent, InvoiceDeliveryEvent, InvoiceAcknowledgment,
-    PaymentReceipt, InvoicePaymentAllocation, ReceivableFollowUp, AccountingHandoff, FinanceEvidence,
+    PaymentReceipt, InvoicePaymentAllocation, PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, AccountingHandoff, FinanceEvidence,
 )
 
 
@@ -80,6 +80,8 @@ def clean_owner_fixture():
                 db.query(InvoiceIssueEvent).filter(InvoiceIssueEvent.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
                 db.query(InvoiceMilestone).filter(InvoiceMilestone.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
                 db.query(InvoicePaymentAllocation).filter(InvoicePaymentAllocation.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(ReceivableResolution).filter(ReceivableResolution.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
+                db.query(PaymentReversalEvent).filter(PaymentReversalEvent.payment_receipt_id.in_(payment_ids)).delete(synchronize_session=False)
                 db.query(ReceivableFollowUp).filter(ReceivableFollowUp.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
                 db.query(AccountingHandoff).filter(AccountingHandoff.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
                 db.query(FinanceEvidence).filter(FinanceEvidence.invoice_id.in_(invoice_ids)).delete(synchronize_session=False)
@@ -169,6 +171,7 @@ def clean_owner_fixture():
                     db.query(InvoiceIssueEvent).filter(InvoiceIssueEvent.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
                     db.query(InvoiceMilestone).filter(InvoiceMilestone.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
                     db.query(InvoicePaymentAllocation).filter(InvoicePaymentAllocation.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
+                    db.query(ReceivableResolution).filter(ReceivableResolution.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
                     db.query(ReceivableFollowUp).filter(ReceivableFollowUp.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
                     db.query(AccountingHandoff).filter(AccountingHandoff.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)
                     db.query(FinanceEvidence).filter(FinanceEvidence.invoice_id.in_(canonical_invoice_ids)).delete(synchronize_session=False)

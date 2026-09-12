@@ -22,6 +22,7 @@ def test_active_graph_and_legacy_archive_are_exact():
     assert sorted(path.name for path in (ROOT / "backend/migrations/versions").glob("*.py")) == [
         "ai_d2_execution_ledger_v1.py",
         "baseline_phase4_v36_azure_sql.py",
+        "billing_module_closure_v8.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",

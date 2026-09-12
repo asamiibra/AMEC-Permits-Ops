@@ -278,6 +278,10 @@ class PaymentReceipt(Base):
     reference: Mapped[str] = mapped_column(String(200), nullable=False)
     payment_method: Mapped[str | None] = mapped_column(String(80))
     evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    evidence_reference: Mapped[str | None] = mapped_column(String(500))
+    receipt_voucher_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    receipt_voucher_evidence_reference: Mapped[str | None] = mapped_column(String(500))
+    custodian_context_json: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     verification_status: Mapped[str] = mapped_column(String(40), default="OBSERVED", nullable=False, index=True)
     recorded_by: Mapped[str] = mapped_column(String(200), nullable=False)
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
@@ -298,7 +302,42 @@ class InvoicePaymentAllocation(Base):
     allocated_by: Mapped[str] = mapped_column(String(200), nullable=False)
     allocated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     status: Mapped[str] = mapped_column(String(30), default="ALLOCATED", nullable=False)
+    reversal_event_id: Mapped[str | None] = mapped_column(String(36), index=True)
     idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class PaymentReversalEvent(Base):
+    __tablename__ = "payment_reversal_events"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_payment_reversal_idempotency"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    payment_receipt_id: Mapped[str] = mapped_column(ForeignKey("payment_receipts.id"), nullable=False, index=True)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    effective_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    reversed_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), default="EFFECTIVE", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class ReceivableResolution(Base):
+    __tablename__ = "receivable_resolutions"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_receivable_resolution_idempotency"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    invoice_id: Mapped[str] = mapped_column(ForeignKey("invoices.id"), nullable=False, index=True)
+    resolution_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    amount: Mapped[float] = mapped_column(Numeric(18, 2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(20), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    approval_reference: Mapped[str] = mapped_column(String(300), nullable=False)
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    effective_date: Mapped[date] = mapped_column(Date, nullable=False)
+    resolved_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), default="ACTIVE", nullable=False, index=True)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
 
 class ReceivableFollowUp(Base):
