@@ -402,37 +402,66 @@ class Settings(BaseSettings):
                 self._require_guid(value, setting_name)
             self._validate_credential_free_url(self.database_url, "DATABASE_URL")
 
+            if not self.database_migration_url.strip():
+                raise ValueError("AZURE-PREPROD requires DATABASE_MIGRATION_URL")
+            if not self.database_migration_url.lower().startswith("mssql+pyodbc://"):
+                raise ValueError(
+                    "AZURE-PREPROD DATABASE_MIGRATION_URL must use mssql+pyodbc://"
+                )
+            self._validate_mssql_url(
+                self.database_migration_url,
+                "DATABASE_MIGRATION_URL",
+            )
+            self._validate_credential_free_url(
+                self.database_migration_url,
+                "DATABASE_MIGRATION_URL",
+            )
+
             if self.monitoring_mode.upper() not in {"DISABLED", "APPLICATION_INSIGHTS"}:
                 raise ValueError("MONITORING_MODE must be DISABLED or APPLICATION_INSIGHTS")
             if self.monitoring_mode.upper() == "APPLICATION_INSIGHTS" and not self.applicationinsights_connection_string:
                 raise ValueError("APPLICATIONINSIGHTS_CONNECTION_STRING is required when monitoring is enabled")
 
-            # Azure A1 is the application/control plane only.
-            # Direct Synology/SMB access from Azure is prohibited.
-            if self.synology_mode.upper() != "SYNTHETIC":
-                raise ValueError(
-                    "AZURE-PREPROD requires SYNOLOGY_MODE=SYNTHETIC"
-                )
+            # Azure preproduction uses the same bridge contract as production,
+            # but only synthetic bridge fixtures are permitted at this gate.
+            if self.synology_mode.upper() != "BRIDGE":
+                raise ValueError("AZURE-PREPROD requires SYNOLOGY_MODE=BRIDGE")
 
             if self.azure_direct_synology_smb:
                 raise ValueError("AZURE-PREPROD requires AZURE_DIRECT_SYNOLOGY_SMB=false")
 
-            if (
-                self.synology_endpoint
-                or self.synology_share
-                or self.synology_secret_ref
-            ):
-                raise ValueError(
-                    "AZURE-PREPROD forbids Synology connection configuration"
-                )
+            self._validate_bridge_contract()
 
-            if self.storage_provider.lower() != "mock":
-                raise ValueError(
-                    "AZURE-PREPROD requires STORAGE_PROVIDER=mock"
+            if self.managed_artifact_store_required:
+                if self.storage_provider.lower() != "azure_blob":
+                    raise ValueError(
+                        "AZURE-PREPROD requires STORAGE_PROVIDER=azure_blob "
+                        "when managed artifact storage is required"
+                    )
+                blob_url = urlsplit(self.azure_blob_account_url)
+                if (
+                    blob_url.scheme != "https"
+                    or not blob_url.hostname
+                    or not blob_url.hostname.endswith(".blob.core.windows.net")
+                    or blob_url.path not in {"", "/"}
+                    or blob_url.query
+                    or blob_url.fragment
+                ):
+                    raise ValueError(
+                        "AZURE-PREPROD requires an exact HTTPS Azure Blob account URL"
+                    )
+                if not self.azure_blob_container.strip():
+                    raise ValueError(
+                        "AZURE-PREPROD requires AZURE_BLOB_CONTAINER"
+                    )
+                if not self.azure_blob_uami_client_id:
+                    raise ValueError(
+                        "AZURE-PREPROD requires AZURE_BLOB_UAMI_CLIENT_ID"
+                    )
+                self._require_guid(
+                    self.azure_blob_uami_client_id,
+                    "AZURE_BLOB_UAMI_CLIENT_ID",
                 )
-
-            if self.source_intake_mode.upper() not in {"SYNTHETIC", "LOCAL"}:
-                raise ValueError("AZURE-PREPROD requires synthetic source intake")
 
             if (
                 self.smb_server
