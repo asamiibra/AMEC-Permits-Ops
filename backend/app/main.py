@@ -82,6 +82,7 @@ from .observability import initialize_observability, install_log_redaction_filte
 from .api.governed_prefill_routers import router as governed_prefill_router
 from .api.ai_routers import router as ai_router
 from .api.bridge_intake_routers import router as bridge_intake_router
+from .api.auth_context_routers import router as auth_context_router
 from .api.source18_routers import router as source18_router
 
 settings = get_settings()
@@ -266,6 +267,7 @@ def _trusted_request_actor(
 app.include_router(governed_prefill_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(ai_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(bridge_intake_router)
+app.include_router(auth_context_router)
 
 
 @app.middleware("http")

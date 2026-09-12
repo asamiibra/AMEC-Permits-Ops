@@ -61,6 +61,7 @@ import {
 } from "./ProductionReadiness";
 import { AmecLogo } from "./AmecLogo";
 import { readDemoRole } from "./rebrand";
+import { browserAuthMode } from "./auth";
 import { CurrentDashboard } from "./Dashboard";
 import { DashboardInputsPage } from "./DashboardInputs";
 import { Phase4ReviewPage } from "./Phase4Review";
@@ -252,6 +253,7 @@ function App() {
   const [governance] = useState({ environment_badge: "SYNTHETIC PROTOTYPE" });
   const [error, setError] = useState("");
   const [role, setRole] = useState<string>(() => readDemoRole());
+  const [authSession, setAuthSession] = useState<{ authenticated: boolean; identity: { user_id: string | null; tenant_id: string | null; object_id: string | null; role: string } } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -321,6 +323,17 @@ function App() {
       }
     });
   }, [page]);
+  useEffect(() => {
+    if (browserAuthMode() !== "ENTRA") return;
+    api<{ authenticated: boolean; identity: { user_id: string | null; tenant_id: string | null; object_id: string | null; role: string } }>("/api/auth/session")
+      .then((session) => setAuthSession(session))
+      .catch(() => setAuthSession(null));
+  }, []);
+  useEffect(() => {
+    if (browserAuthMode() === "ENTRA" && authSession?.identity.role) {
+      setRole(authSession.identity.role);
+    }
+  }, [authSession]);
   useEffect(() => {
     sessionStorage.setItem("proposalops-role", role);
   }, [role]);
@@ -544,7 +557,7 @@ function App() {
     ? window.location.pathname.split("/")[2]
     : undefined;
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-g9-authenticated={authSession?.authenticated ? "true" : "false"} data-g9-auth-tenant={authSession?.identity.tenant_id || ""} data-g9-auth-object-id={authSession?.identity.object_id || ""} data-g9-auth-role={authSession?.identity.role || ""}>
       {mobileNavOpen && (
         <div
           className="mobile-nav-backdrop"
@@ -704,6 +717,7 @@ function App() {
               <span className="dot green" />{" "}
               {governance?.environment_badge || "SYNTHETIC PROTOTYPE"}
             </span>
+            {browserAuthMode() === "DEV_HEADER" && (
             <label aria-label="Demo as" className="role-switcher">
               Demo as
               <select
@@ -718,6 +732,7 @@ function App() {
                 <option value="RESPONSIBLE_ENGINEER">Engineering</option>
               </select>
             </label>
+            )}
             <button className="avatar" aria-label="Current user">
               SA
             </button>
