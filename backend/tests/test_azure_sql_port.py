@@ -168,6 +168,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert [path.name for path in active] == [
         "ai_d2_execution_ledger_v1.py",
         "baseline_phase4_v36_azure_sql.py",
+        "billing_module_closure_v8.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
@@ -177,13 +178,13 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert "down_revision = None" in source
     assert "ON CONFLICT" not in source
     assert "Base.metadata.create_all" not in source
-    successor = active[4].read_text(encoding="utf-8")
+    successor = active[5].read_text(encoding="utf-8")
     assert 'revision = "step5_content_azure_sql_v2"' in successor
     assert 'down_revision = "baseline_phase4_v36_azure_sql"' in successor
-    source18_committee = active[2].read_text(encoding="utf-8")
+    source18_committee = active[3].read_text(encoding="utf-8")
     assert 'revision = "source18_committee_implementation_v1"' in source18_committee
     assert 'down_revision = "source18_regulatory_current_state_v1"' in source18_committee
-    source18 = active[3].read_text(encoding="utf-8")
+    source18 = active[4].read_text(encoding="utf-8")
     assert 'revision = "source18_regulatory_current_state_v1"' in source18
     assert 'down_revision = "ai_d2_execution_ledger_v1"' in source18
     ledger = active[0]
@@ -589,17 +590,17 @@ def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
 
 def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     result = nullable_unique_audit("post")
-    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 230
+    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 233
     assert result["unclassified_unique_object_count"] == 0
     assert result["unsafe_fk_or_semantic_review_required_count"] == 0
-    assert result["nullable_unique_filter_required_count"] == 17
+    assert result["nullable_unique_filter_required_count"] == 18
     assert result["nullable_unique_filter_required_open_count"] == 0
-    assert result["nullable_unique_filter_implemented_count"] == 17
+    assert result["nullable_unique_filter_implemented_count"] == 18
     assert result["result"] == "PASS"
-    print("UNIQUE_OBJECT_TOTAL_COUNT=230")
+    print("UNIQUE_OBJECT_TOTAL_COUNT=233")
     print("UNCLASSIFIED_UNIQUE_OBJECT_COUNT=0")
     print("UNSAFE_FK_OR_SEMANTIC_REVIEW_REQUIRED_COUNT=0")
-    print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=17")
+    print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=18")
 
 
 def test_sqlserver_nullable_unique_filters_match_orm_and_migration():
@@ -640,7 +641,7 @@ def test_sqlserver_known_nullable_unique_indexes_compile_filtered():
 def test_sqlserver_nullable_unique_objects_are_not_fk_target_rewrites():
     result = nullable_unique_audit("post")
     safe_nullable = [item for item in result["objects"] if item["classification"] == "NULLABLE_UNIQUE_FILTER_REQUIRED"]
-    assert len(safe_nullable) == 17
+    assert len(safe_nullable) == 18
     assert all(item["foreign_key_target_usage"] is False for item in safe_nullable)
     assert all(item["foreign_key_references"] == [] for item in safe_nullable)
     print("NULLABLE_UNIQUE_FK_TARGET_REWRITE_COUNT=0")

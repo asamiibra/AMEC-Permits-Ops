@@ -1,0 +1,39 @@
+{
+  "integration_base_sha": "421574ae85ef380778be0f975b9f0f12ff7cedc6",
+  "integration_base_tree": "1cb74f41fe67ceec0fbf5781f5263673508eaacb",
+  "main_at_fresh_clone_entry": "6cead042f60d8b8b696d6adceed05764f0ffe026",
+  "main_drift_after_entry": true,
+  "historical_base_sha": "96bb23378d3a78855a315ea751e2b3b66839cb02",
+  "historical_base_tree": "34350399d5a113f4d2a21f728b1220f9c39c48f3",
+  "historical_target_tree": "4fa639431a44ffbeb07f65a135272d9209f65c34",
+  "integration_branch": "module/billing-invoice-receivables-collection-integration-v9",
+  "historical_delta_file_count": 28,
+  "carried_forward_delta_file_count": 10,
+  "non_billing_delta_files_excluded": 18,
+  "overlapping_current_main_files": 3,
+  "semantic_merge_files": [
+    "backend/tests/test_admin_contract_owner_session.py",
+    "backend/tests/test_azure_sql_port.py",
+    "backend/tests/test_billing_invoice_full.py"
+  ],
+  "unresolved_provenance_files": 0,
+  "excluded_delta_classification": {
+    ".gitignore": "HISTORICAL_TEST_HARNESS_BAGGAGE",
+    "artifacts/billing-assurance-closure-v9/owner-requirements-ledger.jsonl": "BILLING_EVIDENCE_ONLY_REPLACED_BY_INTEGRATION_EVIDENCE",
+    "artifacts/billing-assurance-closure-v9/reconstruction-manifest.json": "BILLING_EVIDENCE_ONLY_REPLACED_BY_INTEGRATION_EVIDENCE",
+    "backend/migrations/versions/baseline_phase4_v36_azure_sql.py": "PLATFORM_FIX_POSTGRESQL_BIND_TYPING_COMPATIBILITY",
+    "permitops.db": "UNRELATED_GENERATED_DATABASE_ARTIFACT",
+    "scripts/**/__pycache__/*.pyc": "UNRELATED_GENERATED_BYTECODE"
+  },
+  "carried_delta_classification": {
+    "backend/app/api/billing_invoice_routers.py": "BILLING_FUNCTIONAL",
+    "backend/app/models/billing_entities.py": "BILLING_MODEL",
+    "backend/app/models/expansion_entities.py": "BILLING_MODEL_SHARED_INVOICE_FIELDS",
+    "backend/migrations/versions/billing_module_closure_v8.py": "BILLING_MIGRATION_FORWARD_PORT",
+    "backend/tests/test_admin_contract_owner_session.py": "BILLING_TEST_SHARED_FIXTURE_CLEANUP",
+    "backend/tests/test_azure_sql_port.py": "BILLING_TEST_MIGRATION_GRAPH",
+    "backend/tests/test_billing_invoice_full.py": "BILLING_TEST",
+    "backend/tests/test_database_startup_contract.py": "BILLING_TEST_MIGRATION_HEAD",
+    "backend/tests/test_db_rebaseline.py": "BILLING_TEST_MIGRATION_INVENTORY"
+  }
+}

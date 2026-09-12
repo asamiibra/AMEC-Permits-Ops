@@ -1,0 +1,8 @@
+{
+  "pass": true,
+  "environment": "fresh disposable PostgreSQL 16, port 55433",
+  "same_payment_concurrent_allocations": {"outcomes": ["allocated", "rejected:payment-limit"], "payment_allocated": "70.00", "invoice_allocated": "70.00"},
+  "same_invoice_concurrent_allocations": {"outcomes": ["allocated", "rejected:invoice-limit"], "invoice_allocated": "80.00"},
+  "reversal_vs_allocation": {"outcomes": ["allocated", "reversed"], "active_allocation_count": 0, "payment_status": "REVERSED"},
+  "double_reversal": {"outcomes": ["rejected:already-reversed", "reversed"], "active_allocation_count": 0, "payment_status": "REVERSED"}
+}

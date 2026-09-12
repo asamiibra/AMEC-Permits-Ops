@@ -1,0 +1,29 @@
+{
+  "billing_focused_tests": "129 passed, 1 skipped",
+  "ai_and_api_authority_tests": "45 passed",
+  "frontend_tests": "113 passed",
+  "frontend_build": "PASS",
+  "postgres_concurrency_tests": "PASS",
+  "browser_tests": "1 passed",
+  "independent_persisted_state": "PASS",
+  "integration_negative_matrix": "PASS",
+  "migration_head_tests": "PASS",
+  "one_alembic_head": true,
+  "current_main_billing_assurance": {
+    "payment_scope_isolation": "PASS",
+    "payment_allocation_concurrency": "PASS",
+    "payment_reversal": "PASS",
+    "non_cash_receivable_resolution": "PASS",
+    "prepayment_unallocated_credit": "PASS",
+    "project_finance_projection": "PASS",
+    "planned_due_actual_separation": "PASS",
+    "commercial_preactivation_proof": "PASS",
+    "finance_rbac_negative_matrix": "PASS",
+    "cross_project_isolation": "PASS",
+    "cross_client_isolation": "PASS",
+    "financial_evidence_access": "PASS",
+    "ai_protected_action_denial": "PASS",
+    "browser_detail_matrix": "PASS",
+    "independent_persisted_state": "PASS"
+  }
+}
