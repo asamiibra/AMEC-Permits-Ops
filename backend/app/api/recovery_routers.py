@@ -618,6 +618,7 @@ def contract_transition_readiness(opportunity_id: str, db: Session = Depends(get
 
 @router.post("/opportunities/{opportunity_id}/contracts")
 def create_contract(opportunity_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     opportunity = require(db, Opportunity, opportunity_id, "OPPORTUNITY_NOT_FOUND")
     readiness = contract_transition_readiness(opportunity_id, db)
     if readiness["state"] != "READY_FOR_CONTRACT":
@@ -648,6 +649,7 @@ def contract_detail(contract_id: str, db: Session = Depends(get_db)):
 
 @router.post("/contracts/{contract_id}/revisions")
 def create_contract_revision(contract_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     contract = require(db, Contract, contract_id, "CONTRACT_NOT_FOUND")
     previous = db.scalar(select(ContractRevision).where(ContractRevision.contract_id == contract.id).order_by(ContractRevision.revision_number.desc()))
     quotation_revision = db.get(QuotationRevision, payload.get("controlling_quotation_revision_id")) if payload.get("controlling_quotation_revision_id") else db.get(ContractRevision, contract.current_revision_id).controlling_quotation_revision_id
@@ -665,6 +667,7 @@ def create_contract_revision(contract_id: str, payload: dict, request: Request, 
 
 @router.post("/contract-revisions/{revision_id}/render")
 def render_contract_revision(revision_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     revision = require(db, ContractRevision, revision_id, "CONTRACT_REVISION_NOT_FOUND")
     if revision.status in {"APPROVED", "EXECUTED_EVIDENCE_RECORDED"}:
         raise HTTPException(409, "APPROVED_CONTRACT_REVISION_IS_IMMUTABLE")
@@ -680,6 +683,7 @@ def render_contract_revision(revision_id: str, payload: dict, request: Request, 
 
 @router.post("/contract-revisions/{revision_id}/submit-review")
 def submit_contract_review(revision_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     revision = require(db, ContractRevision, revision_id, "CONTRACT_REVISION_NOT_FOUND")
     revision.status = "IN_REVIEW"
     audit(db, correlation_id=cid(request), event_type="CONTRACT_SUBMITTED_FOR_REVIEW", entity_type="ContractRevision", entity_id=revision.id, actor_id=payload.get("actor", "synthetic-admin"), after={"status": revision.status})
@@ -734,6 +738,7 @@ def contract_checklist(contract_id: str, db: Session = Depends(get_db)):
 
 @router.post("/contracts/{contract_id}/checklist/evaluate")
 def evaluate_contract_checklist(contract_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     contract = require(db, Contract, contract_id, "CONTRACT_NOT_FOUND")
     items = db.scalars(select(ChecklistItem).where(ChecklistItem.context_type == "CONTRACT", ChecklistItem.context_id == contract.id)).all()
     if not items:
@@ -769,6 +774,7 @@ def evaluate_contract_checklist(contract_id: str, payload: dict, request: Reques
 
 @router.post("/checklist-items/{item_id}/document-request")
 def request_checklist_document(item_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+    _canonical_contract_workspace_required()
     item = require(db, ChecklistItem, item_id, "CHECKLIST_ITEM_NOT_FOUND")
     contract = db.get(Contract, item.context_id) if item.context_type == "CONTRACT" else None
     client_id = contract.client_account_id if contract else payload.get("client_account_id")

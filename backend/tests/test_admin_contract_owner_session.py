@@ -595,13 +595,27 @@ def test_cm_g17_source_bindings_require_current_scoped_lineage(client):
 
 
 def test_legacy_contract_approval_and_execution_surfaces_cannot_bypass_canonical_workspace():
-    from backend.app.api.recovery_routers import approve_contract_revision, record_contract_execution_evidence
+    from backend.app.api.recovery_routers import (
+        approve_contract_revision,
+        create_contract,
+        create_contract_revision,
+        evaluate_contract_checklist,
+        record_contract_execution_evidence,
+        render_contract_revision,
+        submit_contract_review,
+    )
 
-    with pytest.raises(Exception) as approval:
-        approve_contract_revision("legacy-revision", {}, None, None)
-    with pytest.raises(Exception) as execution:
-        record_contract_execution_evidence("legacy-revision", {}, None, None)
-    assert approval.value.status_code == 410
-    assert execution.value.status_code == 410
-    assert approval.value.detail["code"] == "CANONICAL_CONTRACT_WORKSPACE_REQUIRED"
-    assert execution.value.detail["code"] == "CANONICAL_CONTRACT_WORKSPACE_REQUIRED"
+    legacy_calls = (
+        lambda: create_contract("legacy-opportunity", {}, None, None),
+        lambda: create_contract_revision("legacy-contract", {}, None, None),
+        lambda: render_contract_revision("legacy-revision", {}, None, None),
+        lambda: submit_contract_review("legacy-revision", {}, None, None),
+        lambda: approve_contract_revision("legacy-revision", {}, None, None),
+        lambda: record_contract_execution_evidence("legacy-revision", {}, None, None),
+        lambda: evaluate_contract_checklist("legacy-contract", {}, None, None),
+    )
+    for legacy_call in legacy_calls:
+        with pytest.raises(Exception) as blocked:
+            legacy_call()
+        assert blocked.value.status_code == 410
+        assert blocked.value.detail["code"] == "CANONICAL_CONTRACT_WORKSPACE_REQUIRED"
