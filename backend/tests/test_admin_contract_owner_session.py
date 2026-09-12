@@ -1,6 +1,7 @@
 """Administration Contract owner-session acceptance coverage."""
 
 import pytest
+from uuid import uuid4
 
 from backend.app.db import SessionLocal
 from backend.app.models import (
@@ -369,7 +370,7 @@ def test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptanc
     client_v2 = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={"source_role": "CLIENT_DOCUMENT", "source_filename": "client-document-v2.txt", "content": "client document version two"})
     assert client_v2.status_code == 200, client_v2.text
     assert client_v2.json()["version_number"] == 2
-    lpo = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={"source_role": "LPO", "source_filename": "lpo.txt", "content": "purchase order"})
+    lpo = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={"source_role": "LPO", "source_filename": "lpo.txt", "content": "purchase order", "commercial_terms": {"amount": "QAR 250000", "currency": "QAR", "duration": "90 days", "scope": "Industrial permitting scope"}})
     assert lpo.status_code == 200, lpo.text
     downloaded = client.get(f"/api/admin/contracts/{contract_id}/documents/{client_v2.json()['document_version_id']}/download", headers=headers("OWNER_SPONSOR"))
     assert downloaded.status_code == 200
@@ -522,3 +523,131 @@ def test_contract_execution_distribution_and_operations_handoff_are_distinct_and
         assert len({row.recorded_by for row in rows if row.source_role != "EXECUTED_CONTRACT"}) == 1
         assert all(row.contract_revision_id == accepted.json()["revision_id"] for row in rows)
         assert db.query(AuditEvent).filter(AuditEvent.entity_id == contract_id, AuditEvent.event_type.in_(("ADMIN_CONTRACT_CLIENT_COPY_DISTRIBUTION_RECORDED", "ADMIN_CONTRACT_OPERATIONS_HANDOFF_RECORDED"))).count() == 2
+
+
+def test_cm_g02_review_and_acceptance_capabilities_are_independently_governable(monkeypatch):
+    from backend.app.services import backend_realignment
+    review_only = set(backend_realignment.CAPABILITY_MATRIX["OWNER"]) - {"CONTRACT_ACCEPT_AUTHORITY", "CONTRACT_EXECUTION_EVIDENCE", "CONTRACT_HANDOFF"}
+    accept_only = set(backend_realignment.CAPABILITY_MATRIX["OWNER"]) - {"CONTRACT_REVIEW_AUTHORITY"}
+    monkeypatch.setitem(backend_realignment.CAPABILITY_MATRIX, "OWNER", review_only)
+    backend_realignment.require_capability("OWNER_SPONSOR", "CONTRACT_REVIEW_AUTHORITY")
+    with pytest.raises(Exception):
+        backend_realignment.require_capability("OWNER_SPONSOR", "CONTRACT_ACCEPT_AUTHORITY")
+    monkeypatch.setitem(backend_realignment.CAPABILITY_MATRIX, "OWNER", accept_only)
+    with pytest.raises(Exception):
+        backend_realignment.require_capability("OWNER_SPONSOR", "CONTRACT_REVIEW_AUTHORITY")
+    backend_realignment.require_capability("OWNER_SPONSOR", "CONTRACT_ACCEPT_AUTHORITY")
+    assert "CONTRACT_ACCEPT_AUTHORITY" not in backend_realignment.CAPABILITY_MATRIX["BUSINESS_DEVELOPMENT"]
+    assert "CONTRACT_ACCEPT_AUTHORITY" not in backend_realignment.CAPABILITY_MATRIX["ENGINEERING"]
+
+
+def test_cm_g04_explicit_order_outcomes_fail_closed():
+    from backend.app.services.business_v1_controls import commercial_reconciliation
+    proposal = {"price": "QAR 250000", "currency": "QAR", "duration": "90 days", "scope_of_work": "Permit design"}
+    contract = {"amount": "QAR 250000", "currency": "QAR", "duration": "90 days", "scope": "Permit design"}
+    assert commercial_reconciliation(proposal, contract, order_applicable=True)["order_to_proposal"]["status"] == "BLOCKED_MISSING_SOURCE"
+    assert commercial_reconciliation(proposal, contract, {"structured": False}, order_applicable=True)["order_to_proposal"]["status"] == "BLOCKED_UNSTRUCTURED_SOURCE"
+    assert commercial_reconciliation(proposal, contract, order_applicable=True, order_source_count=2)["order_to_proposal"]["status"] == "BLOCKED_AMBIGUOUS_SOURCE"
+    for state in ("BLOCKED_CROSS_CONTRACT_SOURCE", "BLOCKED_SUPERSEDED_SOURCE", "BLOCKED_UNAUTHORIZED_EXCEPTION"):
+        result = commercial_reconciliation(proposal, contract, order_applicable=True, order_source_state=state)
+        assert result["status"] == "BLOCKED"
+        assert result["order_to_proposal"]["status"] == state
+    assert commercial_reconciliation(proposal, contract, {"amount": "QAR 250001", "currency": "QAR", "duration": "90 days", "scope": "Permit design"}, order_applicable=True)["order_to_proposal"]["status"] == "MISMATCH"
+    assert commercial_reconciliation(proposal, contract, order_applicable=False, not_applicable_reason="Owner policy explicitly waives PO/LPO for this engagement.")["order_to_proposal"]["status"] == "NOT_APPLICABLE_WITH_REASON"
+
+
+def test_cm_g14_generic_stage_cannot_create_contract_closure(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    denied = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR"), json={"stage": "CLOSED", "reason": "Attempted bypass"})
+    assert denied.status_code == 409
+    assert denied.json()["detail"]["code"] == "CONTRACT_ADMIN_CLOSE_CANONICAL_REQUIRED"
+    unauthorized = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("BUSINESS_DEVELOPMENT"), json={"stage": "CLOSED", "reason": "Unauthorized bypass"})
+    assert unauthorized.status_code == 403
+    with SessionLocal() as db:
+        row = db.get(Contract, contract_id)
+        assert row.stage != "CLOSED" and row.status != "CLOSED"
+        from backend.app.models import ContractAdministrativeClosure
+        assert db.query(ContractAdministrativeClosure).filter(ContractAdministrativeClosure.contract_id == contract_id).count() == 0
+
+
+def test_cm_g02_generic_ready_stage_uses_full_authority_readiness_gate(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    response = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR"), json={"stage": "READY", "reason": "Attempted generic readiness bypass"})
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "CONTRACT_AUTHORITY_BLOCKED"
+    activation_bypass = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR"), json={"stage": "ACTIVE", "reason": "Attempted generic activation bypass"})
+    assert activation_bypass.status_code == 409
+    assert activation_bypass.json()["detail"]["code"] == "CONTRACT_PROJECT_ACTIVATION_CANONICAL_REQUIRED"
+    with SessionLocal() as db:
+        row = db.get(Contract, contract_id)
+        assert row.stage != "READY" and row.status != "READY"
+
+
+def test_cm_g04_po_evidence_requires_exact_document_version(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    response = client.post(
+        f"/api/admin/contracts/{contract_id}/evidence",
+        headers=headers("OWNER_SPONSOR"),
+        json={"evidence_type": "PO", "source_role": "PO", "source_reference": "synthetic://unversioned-po", "metadata": {"commercial_terms": {"amount": "QAR 250000", "currency": "QAR", "duration": "90 days"}}},
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "EXACT_DOCUMENT_VERSION_REQUIRED_FOR_CLIENT_EVIDENCE"
+
+
+def test_cm_g17_source_bindings_require_current_scoped_lineage(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract Reconciliation Fixture")
+    created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    lpo = {"source_role": "LPO", "source_filename": "g17-lpo-v1.txt", "content": "purchase order", "commercial_terms": {"amount": "QAR 250000", "currency": "QAR", "duration": "90 days", "scope": "Industrial permitting scope"}}
+    v1 = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json=lpo)
+    assert v1.status_code == 200, v1.text
+    source_id = v1.json()["document_version_id"]
+    valid = client.post(f"/api/admin/contracts/{contract_id}/commercial-terms", headers=headers("OWNER_SPONSOR"), json={"sequence": 1, "label": "Advance", "term_text": "30% advance", "source_document_version_id": source_id})
+    assert valid.status_code == 200, valid.text
+    v2 = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={**lpo, "source_filename": "g17-lpo-v2.txt", "content": "purchase order superseding v1"})
+    assert v2.status_code == 200, v2.text
+    stale = client.post(f"/api/admin/contracts/{contract_id}/deliverables", headers=headers("OWNER_SPONSOR"), json={"sequence": 2, "name": "Stale source", "source_document_version_id": source_id})
+    assert stale.status_code == 409
+    arbitrary = client.post(f"/api/admin/contracts/{contract_id}/client-inputs", headers=headers("OWNER_SPONSOR"), json={"sequence": 1, "title": "Arbitrary source", "source_document_version_id": str(uuid4())})
+    assert arbitrary.status_code == 422
+
+
+def test_legacy_contract_approval_and_execution_surfaces_cannot_bypass_canonical_workspace():
+    from backend.app.api.recovery_routers import (
+        approve_contract_revision,
+        create_contract,
+        create_contract_revision,
+        evaluate_contract_checklist,
+        record_contract_execution_evidence,
+        render_contract_revision,
+        submit_contract_review,
+    )
+
+    legacy_calls = (
+        lambda: create_contract("legacy-opportunity", {}, None, None),
+        lambda: create_contract_revision("legacy-contract", {}, None, None),
+        lambda: render_contract_revision("legacy-revision", {}, None, None),
+        lambda: submit_contract_review("legacy-revision", {}, None, None),
+        lambda: approve_contract_revision("legacy-revision", {}, None, None),
+        lambda: record_contract_execution_evidence("legacy-revision", {}, None, None),
+        lambda: evaluate_contract_checklist("legacy-contract", {}, None, None),
+    )
+    for legacy_call in legacy_calls:
+        with pytest.raises(Exception) as blocked:
+            legacy_call()
+        assert blocked.value.status_code == 410
+        assert blocked.value.detail["code"] == "CANONICAL_CONTRACT_WORKSPACE_REQUIRED"
