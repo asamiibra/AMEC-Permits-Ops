@@ -1,0 +1,13 @@
+{
+  "implementation_sha": "8c48de7840ab2f74d462c93d9a3833673a7818c2",
+  "backend": "V10",
+  "frontend": "V10",
+  "fresh_synthetic_data": true,
+  "fresh_browser_context": true,
+  "candidate_browser_result": "1 passed",
+  "cold_browser_result": "1 passed",
+  "browser_detail_matrix": "PASS",
+  "candidate_database": "/private/tmp/amec-billing-v10-browser-20260912.db",
+  "cold_database": "/private/tmp/amec-billing-v10-cold-browser-20260912.db",
+  "journey": "project-safe invoice context, communication history, separate delivery/acknowledgment/payment presentation"
+}

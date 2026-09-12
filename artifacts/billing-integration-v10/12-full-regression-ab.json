@@ -1,0 +1,16 @@
+{
+  "timeout_seconds": 300,
+  "control_base": "6cead042f60d8b8b696d6adceed05764f0ffe026",
+  "candidate": "8c48de7840ab2f74d462c93d9a3833673a7818c2",
+  "identical_invocation": "python -m pytest -q backend/tests",
+  "identical_environment": true,
+  "control_progress": ["7%", "15%"],
+  "candidate_progress": ["7%", "15%"],
+  "control_full_regression_result": "SHARED_HARNESS_TIMEOUT_AT_15_PERCENT",
+  "candidate_full_regression_result": "SHARED_HARNESS_TIMEOUT_AT_15_PERCENT",
+  "full_regression_harness_blocker": "scripts/phase5/source_preflight.py subprocess hang/timeout",
+  "full_regression_blocker_preexisting": true,
+  "full_regression_caused_by_billing_delta": false,
+  "control_returncode": -15,
+  "candidate_returncode": -15
+}

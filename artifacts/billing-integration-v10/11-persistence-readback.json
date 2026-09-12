@@ -1,0 +1,19 @@
+{
+  "candidate_independent_persistence": "PASS",
+  "candidate_database": "/private/tmp/amec-billing-v10-browser-20260912.db",
+  "candidate_counts": {
+    "invoices": 2,
+    "invoice_revisions": 2,
+    "invoice_issue_events": 0,
+    "payment_receipts": 0
+  },
+  "cold_independent_persistence": "PASS",
+  "cold_database": "/private/tmp/amec-billing-v10-cold-browser-20260912.db",
+  "cold_counts": {
+    "invoices": 2,
+    "invoice_revisions": 2,
+    "invoice_issue_events": 0,
+    "payment_receipts": 0
+  },
+  "independent_reopen_readback": true
+}

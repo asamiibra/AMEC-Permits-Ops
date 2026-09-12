@@ -1,0 +1,12 @@
+{
+  "historical_requirement_ledger_reopened": false,
+  "v10_requirement_impact_review": true,
+  "billing_requirement_implementation_altered_by_main_drift": false,
+  "commercial_control_behavior_requalified": true,
+  "protected_authority_boundary_changed": false,
+  "project_contract_billing_preactivation_semantics_requalified": true,
+  "invoice_reference_semantics_requalified": true,
+  "v10_requirement_orphans": 0,
+  "v10_applicable_p0_unresolved": 0,
+  "v10_authority_regressions": 0
+}

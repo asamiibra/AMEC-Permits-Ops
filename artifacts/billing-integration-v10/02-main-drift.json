@@ -1,0 +1,14 @@
+{
+  "merge_base_v9_entry": "421574ae85ef380778be0f975b9f0f12ff7cedc6",
+  "live_main_sha": "6cead042f60d8b8b696d6adceed05764f0ffe026",
+  "live_main_tree": "b9b8eff2b1626f33cb881bb1c9e9705140693c9d",
+  "main_drift_file_count": 3,
+  "main_drift_files": [
+    "backend/app/services/commercial_contract_controls.py",
+    "backend/tests/test_source14_contract_controls.py",
+    "frontend/tests/bd-proposal-owner-session.test.tsx"
+  ],
+  "direct_billing_file_conflicts": 0,
+  "shared_billing_dependency_drift": true,
+  "dependency_reason": "billing_invoice_routers.py imports compose_amec_invoice_reference from commercial_contract_controls.py"
+}

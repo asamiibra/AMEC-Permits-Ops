@@ -1,0 +1,11 @@
+{
+  "v9_branch": "module/billing-invoice-receivables-collection-integration-v9",
+  "v9_remote_sha": "7ad8e3bd199b24d72c11ed43a2ace5da2aa5f14a",
+  "v9_implementation_sha": "50e1c8e7d9f9e847f9ce50ab3002aaf90d289706",
+  "v9_implementation_tree": "b372e310b6e815936d3219b8c29a0f416fbfd497",
+  "historical_billing_tree": "4fa639431a44ffbeb07f65a135272d9209f65c34",
+  "historical_final_evidence_sha256": "0cbaba187d4e1db553f0c2983a8d76d75ec729b09b7375d783b5e6d1f1d87a4b",
+  "v9_immutable_historical_accepted_branch": true,
+  "v9_mutated_by_v10_run": false,
+  "v9_remote_local_match_at_entry": true
+}

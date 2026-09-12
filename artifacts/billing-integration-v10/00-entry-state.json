@@ -1,0 +1,15 @@
+{
+  "repository": "asamiibra/AMEC-Permits-Ops",
+  "live_main_sha_at_entry": "6cead042f60d8b8b696d6adceed05764f0ffe026",
+  "live_main_tree_at_entry": "b9b8eff2b1626f33cb881bb1c9e9705140693c9d",
+  "remote_main_verified": true,
+  "main_drift_before_v10_start": false,
+  "v9_remote_sha_at_entry": "7ad8e3bd199b24d72c11ed43a2ace5da2aa5f14a",
+  "v9_remote_verified_unchanged": true,
+  "v9_branch": "module/billing-invoice-receivables-collection-integration-v9",
+  "v10_branch": "module/billing-invoice-receivables-collection-integration-v10",
+  "v10_base_sha": "6cead042f60d8b8b696d6adceed05764f0ffe026",
+  "v10_base_tree": "b9b8eff2b1626f33cb881bb1c9e9705140693c9d",
+  "v10_worktree_clean_before_port": true,
+  "v9_immutable_historical_accepted_branch": true
+}
