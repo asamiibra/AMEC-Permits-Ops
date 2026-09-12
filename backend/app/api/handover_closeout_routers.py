@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from ..audit.service import audit
 from ..db import get_db
 from ..models import *
-from ..services.contract_workspace import contract_revision_is_accepted
+from ..services.contract_workspace import contract_administrative_close, contract_revision_is_accepted
 from .dependencies import current_user_role
 
 
@@ -481,14 +481,12 @@ def close_service(package_id: str, request: Request, db: Session = Depends(get_d
 @router.post("/{package_id}/contract-admin-close")
 def close_contract_admin(package_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _require(role, OWNER_ROLES, "CONTRACT_ADMIN_CLOSE")
-    package = _package(db, package_id, True); service = _service(db, package.service_engagement_id, True)
-    services = db.scalars(select(ServiceEngagement).where(ServiceEngagement.contract_id == service.contract_id)).all()
-    if any(x.status != "CLOSED" for x in services): raise HTTPException(409, "Required service engagements remain active")
-    if not db.get(ContractRevision, service.contract_revision_id): raise HTTPException(409, "Exact ContractRevision is missing")
-    existing = db.scalar(select(ContractAdministrativeClosure).where(ContractAdministrativeClosure.contract_id == service.contract_id))
-    if existing: return {"contract_administrative_closure": _row(existing), "idempotent": True}
-    closure = ContractAdministrativeClosure(contract_id=service.contract_id, project_id=service.project_id, contract_revision_id=service.contract_revision_id, service_closure_ids_json=[x.id for x in services], closed_by=role.value, evidence_json={"financial_settlement_separate": True, "project_archive_separate": True}); db.add(closure); db.commit(); db.refresh(closure)
-    return {"contract_administrative_closure": _row(closure), "financial_settlement": "SEPARATE", "project_archive": "SEPARATE"}
+    try:
+        result = contract_administrative_close(db, package_id=package_id, actor=role.value, correlation_id=getattr(request.state, "correlation_id", "handover-missing"))
+    except ValueError as exc:
+        code, _, detail = str(exc).partition(":")
+        raise HTTPException(409, {"code": code, "detail": detail}) from exc
+    return {**result, "contract_administrative_closure": _row(result["contract_administrative_closure"])}
 
 
 @router.post("/projects/{project_id}/regulatory-assessment")

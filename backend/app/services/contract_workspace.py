@@ -17,8 +17,8 @@ from ..models import (
     ContractReferenceSequence, ContractRevision, ContractTemplateSnapshot, DocumentVersion,
     Finding, LineageEdge, NotificationEvent, Opportunity, Project, ProjectActivation,
     Party, PartyRoleAssignment, ProposalAcceptedRevision, Quotation, QuotationRevision, RegulatoryJourney, ServiceEngagement, WorkflowTask,
-    BillingMilestone, BillingPlan, BillingPlanRevision, Invoice, InvoicePaymentAllocation,
-    InvoiceRevision, PaymentReceipt,
+    BillingMilestone, BillingPlan, BillingPlanRevision, ContractAdministrativeClosure, HandoverAcceptance,
+    HandoverPackage, Invoice, InvoicePaymentAllocation, InvoiceRevision, PaymentReceipt, ServiceScopeClosure,
 )
 from .master_content import resolve_master_content_purpose
 from .proposal_workspace import stable_hash
@@ -88,6 +88,74 @@ def effective_contract_stages(db: Session) -> tuple[str, ...]:
     stages = configured.get("stages") if isinstance(configured, dict) else None
     normalized = tuple(str(item).upper() for item in stages or CONTRACT_STAGES)
     return normalized or CONTRACT_STAGES
+
+
+def contract_administrative_close(
+    db: Session,
+    *,
+    package_id: str,
+    actor: str,
+    correlation_id: str,
+) -> dict[str, Any]:
+    """The sole service that may create a Contract administrative closure."""
+    package = db.scalar(select(HandoverPackage).where(HandoverPackage.id == package_id).with_for_update())
+    if not package:
+        raise ValueError("HANDOVER_PACKAGE_NOT_FOUND")
+    service = db.scalar(select(ServiceEngagement).where(ServiceEngagement.id == package.service_engagement_id).with_for_update())
+    if not service:
+        raise ValueError("SERVICE_ENGAGEMENT_REQUIRED")
+    services = db.scalars(select(ServiceEngagement).where(ServiceEngagement.contract_id == service.contract_id)).all()
+    blockers: list[str] = []
+    if any(item.project_id != service.project_id for item in services):
+        blockers.append("SERVICE_PROJECT_SCOPE_MISMATCH")
+    if any(item.contract_revision_id != service.contract_revision_id for item in services):
+        blockers.append("SERVICE_CONTRACT_REVISION_SCOPE_MISMATCH")
+    for item in services:
+        closure = db.scalar(select(ServiceScopeClosure).where(ServiceScopeClosure.service_engagement_id == item.id))
+        acceptance = db.get(HandoverAcceptance, closure.handover_acceptance_id) if closure and closure.handover_acceptance_id else None
+        if item.status != "CLOSED" or not closure:
+            blockers.append(f"SERVICE_CLOSURE_REQUIRED:{item.id}")
+        if not acceptance or acceptance.acceptance_status not in {"ACCEPTED", "ACCEPTED_WITH_REMARKS"}:
+            blockers.append(f"HANDOVER_RECEIPT_ACK_REQUIRED:{item.id}")
+    exact_revision = db.get(ContractRevision, service.contract_revision_id)
+    if not exact_revision:
+        blockers.append("EXACT_CONTRACT_REVISION_REQUIRED")
+    elif not contract_revision_is_accepted(exact_revision):
+        blockers.append("CONTRACT_ACCEPTANCE_REQUIRED")
+    if not db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == service.contract_id, ContractAdminEvidence.contract_revision_id == service.contract_revision_id, ContractAdminEvidence.source_role == "EXECUTED_CONTRACT", ContractAdminEvidence.status.in_({"RECORDED", "VERIFIED", "APPROVED"}))):
+        blockers.append("EXECUTED_CONTRACT_EVIDENCE_REQUIRED")
+    if blockers:
+        raise ValueError("CONTRACT_ADMIN_CLOSE_BLOCKED:" + ",".join(blockers))
+    contract = db.scalar(select(Contract).where(Contract.id == service.contract_id).with_for_update())
+    if not contract:
+        raise ValueError("CONTRACT_NOT_FOUND")
+    existing = db.scalar(select(ContractAdministrativeClosure).where(ContractAdministrativeClosure.contract_id == service.contract_id))
+    if existing:
+        return {"contract_administrative_closure": existing, "idempotent": True, "financial_settlement": "SEPARATE", "project_archive": "SEPARATE"}
+    closure = ContractAdministrativeClosure(
+        contract_id=service.contract_id,
+        project_id=service.project_id,
+        contract_revision_id=service.contract_revision_id,
+        service_closure_ids_json=[item.id for item in services],
+        closed_by=actor,
+        evidence_json={
+            "financial_settlement_separate": True,
+            "project_archive_separate": True,
+            "exact_service_closure_predicate": True,
+            "handover_delivery_receipt_acknowledgment": True,
+            "executed_contract_evidence": True,
+        },
+    )
+    db.add(closure)
+    before_contract = {"stage": contract.stage, "status": contract.status}
+    contract.stage = "CLOSED"
+    contract.status = "CLOSED"
+    contract.last_activity_at = now()
+    audit(db, correlation_id=correlation_id, event_type="CONTRACT_ADMINISTRATIVE_CLOSURE_RECORDED", entity_type="ContractAdministrativeClosure", entity_id=closure.id, actor_id=actor, after={"contract_id": service.contract_id, "contract_revision_id": service.contract_revision_id, "service_closure_ids": [item.id for item in services], "status": "CLOSED"}, metadata={"canonical_close_service": True, "financial_settlement_separate": True, "project_archive_separate": True})
+    audit(db, correlation_id=correlation_id, event_type="ADMIN_CONTRACT_CLOSED_BY_CANONICAL_SERVICE", entity_type="Contract", entity_id=contract.id, actor_id=actor, before=before_contract, after={"stage": contract.stage, "status": contract.status, "closure_id": closure.id}, metadata={"canonical_close_service": True})
+    db.commit()
+    db.refresh(closure)
+    return {"contract_administrative_closure": closure, "idempotent": False, "financial_settlement": "SEPARATE", "project_archive": "SEPARATE"}
 
 
 def effective_contract_reference_policy(db: Session) -> dict[str, Any]:
@@ -425,15 +493,57 @@ def readiness(db: Session, contract: Contract, *, enforce_maker_checker: bool = 
         "payment_terms": contract.payment_condition_text,
         "scope": contract.contracted_scope_text,
     }
-    structured_orders = [item.metadata_json.get("commercial_terms") for item in evidence if item.source_role in {"LPO", "PO", "CLIENT_DOCUMENT"} and isinstance(item.metadata_json, dict) and isinstance(item.metadata_json.get("commercial_terms"), dict)]
-    commercial_control = commercial_reconciliation(proposal_fields, contract_fields, structured_orders[-1] if structured_orders else None)
+    all_order_evidence = [item for item in evidence if item.source_role in {"LPO", "PO"}]
+    order_evidence = []
+    invalid_order_evidence = []
+    superseded_order_evidence = []
+    cross_contract_order_evidence = []
+    for item in all_order_evidence:
+        source_version = db.get(DocumentVersion, item.document_version_id) if item.document_version_id else None
+        source_metadata = source_version.metadata_json if source_version and isinstance(source_version.metadata_json, dict) else {}
+        evidence_metadata = item.metadata_json if isinstance(item.metadata_json, dict) else {}
+        if source_metadata.get("contract_id") not in {None, contract.id} or evidence_metadata.get("contract_id") not in {None, contract.id}:
+            cross_contract_order_evidence.append(item)
+        if (
+            source_version
+            and source_version.document.current_version_id == source_version.id
+            and not source_version.superseded_by
+            and source_metadata.get("contract_id") in {None, contract.id}
+            and evidence_metadata.get("contract_id") in {None, contract.id}
+        ):
+            order_evidence.append(item)
+        else:
+            invalid_order_evidence.append(item)
+            if source_version and (source_version.superseded_by or getattr(source_version.approval_state, "value", str(source_version.approval_state)).upper() == "SUPERSEDED"):
+                superseded_order_evidence.append(item)
+    structured_orders = [item.metadata_json.get("commercial_terms") for item in order_evidence if isinstance(item.metadata_json, dict) and isinstance(item.metadata_json.get("commercial_terms"), dict)]
+    lpo_policy = runtime_decision_value(db, "CONTRACT_LPO_REQUIREDNESS_POLICY", "OWNER_DEFINITION_REQUIRED")
+    order_applicable = lpo_policy == "REQUIRED" or bool(all_order_evidence)
+    order_reason = None if order_applicable else f"CONTRACT_LPO_REQUIREDNESS_POLICY={lpo_policy}; no PO/LPO comparison is applicable to this Contract."
+    order_source_state = None
+    if cross_contract_order_evidence:
+        order_source_state = "BLOCKED_CROSS_CONTRACT_SOURCE"
+    elif any((item.metadata_json or {}).get("exception_requested") and not (item.metadata_json or {}).get("exception_authorized") for item in all_order_evidence):
+        order_source_state = "BLOCKED_UNAUTHORIZED_EXCEPTION"
+    elif any((item.metadata_json or {}).get("superseded") is True for item in all_order_evidence) or superseded_order_evidence:
+        order_source_state = "BLOCKED_SUPERSEDED_SOURCE"
+    elif invalid_order_evidence or (all_order_evidence and len(structured_orders) != len(order_evidence)):
+        order_source_state = "BLOCKED_UNSTRUCTURED_SOURCE"
+    commercial_control = commercial_reconciliation(
+        proposal_fields,
+        contract_fields,
+        structured_orders[0] if len(structured_orders) == 1 else None,
+        order_applicable=order_applicable,
+        not_applicable_reason=order_reason,
+        order_source_count=len(all_order_evidence),
+        order_source_state=order_source_state,
+    )
     if commercial_control["status"] != "PASS":
         blockers.append({"code": "CONTRACT_COMMERCIAL_RECONCILIATION_MISMATCH", "label": "Exact accepted Proposal / PO / LPO commercial reconciliation"})
     if "COMMERCIAL_OR_AWARD_EVIDENCE" in required_evidence and not any(item.evidence_type in {"COMMERCIAL", "AWARD", "COMMERCIAL_OR_AWARD_EVIDENCE"} for item in evidence):
         blockers.append({"code": "COMMERCIAL_OR_AWARD_EVIDENCE_REQUIRED", "label": "Commercial or award evidence"})
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
     activation_blockers = [] if activation else [{"code": "PROJECT_ACTIVATION_HUMAN_ACTION_REQUIRED", "label": "Explicit Project Activation"}]
-    lpo_policy = runtime_decision_value(db, "CONTRACT_LPO_REQUIREDNESS_POLICY", "OWNER_DEFINITION_REQUIRED")
     lpo_received = any(item.source_role == "LPO" and item.status in {"RECEIVED", "VERIFIED", "HUMAN_VERIFIED", "APPROVED"} for item in evidence)
     if lpo_policy == "REQUIRED" and not lpo_received:
         blockers.append({"code": "CONTRACT_LPO_REQUIRED", "label": "LPO DocumentVersion"})
