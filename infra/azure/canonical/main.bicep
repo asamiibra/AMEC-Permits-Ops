@@ -3,6 +3,42 @@ targetScope = 'resourceGroup'
 @description('Canonical production region for ProposalOps.')
 param location string = 'uaenorth'
 
+@description('Deployment environment tag and resource-name namespace.')
+param environmentName string = 'production'
+
+@description('Resource-name namespace. Production defaults preserve the accepted names.')
+param resourceNamePrefix string = 'production'
+
+@description('Application environment value injected into runtime containers.')
+param appEnvironment string = 'PROD'
+
+@description('Whether the environment may process only synthetic content.')
+param syntheticOnly bool = false
+
+@description('Whether real data is allowed in the environment.')
+param realDataAllowed bool = false
+
+@description('Source intake protocol for the environment.')
+param sourceIntakeMode string = 'BRIDGE'
+
+@description('Synology integration mode for the environment.')
+param synologyMode string = 'BRIDGE'
+
+@description('Whether Azure may connect directly to Synology SMB.')
+param azureDirectSynologySmb bool = false
+
+@description('Storage provider used for managed generated artifacts.')
+param storageProvider string = 'azure_blob'
+
+@description('Whether the managed artifact store is required.')
+param managedArtifactStoreRequired bool = true
+
+@description('Whether the API ingress is externally reachable for the governed edge.')
+param apiIngressExternal bool = true
+
+@description('Derive the edge origin from the API Container App ingress FQDN.')
+param deriveApiOriginHostName bool = false
+
 @description('Resource group name used when composing private resource IDs.')
 param resourceGroupName string = resourceGroup().name
 
@@ -15,8 +51,8 @@ param workerImage string
 @description('Exact immutable migration image reference, including digest.')
 param migrationImage string
 
-@description('HTTPS hostname used by Azure Front Door to reach the API origin.')
-param apiOriginHostName string
+@description('Optional HTTPS hostname used by Azure Front Door to reach the API origin.')
+param apiOriginHostName string = ''
 
 @description('Optional production custom domain for the WAF-protected edge. DNS and certificate validation remain deployment-boundary actions.')
 param edgeCustomDomainName string = ''
@@ -32,6 +68,9 @@ param sqlAdministratorObjectId string
 
 @description('Display name of the approved Entra administrator for Azure SQL.')
 param sqlAdministratorLogin string
+
+@description('Distinct SQL control-plane administrator login; never the Entra administrator login.')
+param sqlServerAdministratorLogin string = 'proposalops_sql_control_plane'
 
 @description('Tenant ID used by the Qatar Source Intake Bridge machine identity.')
 param bridgeTenantId string
@@ -77,29 +116,30 @@ param artifactStorageName string = 'stproposalopsproduction'
 
 var tags = {
   application: 'ProposalOps'
-  environment: 'production'
+  environment: environmentName
   regionIntent: 'uaenorth'
   topology: 'azure-container-apps-azure-sql'
   managedBy: 'bicep'
 }
-var vnetName = 'vnet-proposalops-production-uaenorth'
-var acaEnvironmentName = 'cae-proposalops-production-uaenorth'
-var logAnalyticsName = 'law-proposalops-production-uaenorth'
-var appInsightsName = 'appi-proposalops-production-uaenorth'
-var keyVaultName = 'kv-proposalops-production'
-var apiIdentityName = 'uami-proposalops-api-production'
-var workerIdentityName = 'uami-proposalops-worker-production'
-var migrationIdentityName = 'uami-proposalops-migration-production'
-var sqlIdentityName = 'uami-proposalops-sql-production'
+var vnetName = 'vnet-proposalops-${resourceNamePrefix}-uaenorth'
+var acaEnvironmentName = 'cae-proposalops-${resourceNamePrefix}-uaenorth'
+var logAnalyticsName = 'law-proposalops-${resourceNamePrefix}-uaenorth'
+var appInsightsName = 'appi-proposalops-${resourceNamePrefix}-uaenorth'
+var keyVaultName = 'kv-proposalops-${resourceNamePrefix}'
+var apiIdentityName = 'uami-proposalops-api-${resourceNamePrefix}'
+var workerIdentityName = 'uami-proposalops-worker-${resourceNamePrefix}'
+var migrationIdentityName = 'uami-proposalops-migration-${resourceNamePrefix}'
+var sqlIdentityName = 'uami-proposalops-sql-${resourceNamePrefix}'
 var acrPullRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 var keyVaultSecretsUserRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
 var storageBlobDataContributorRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
-var frontDoorProfileName = 'afd-proposalops-production-uaenorth'
-var frontDoorEndpointName = 'afde-proposalops-production-uaenorth'
-var frontDoorWafPolicyName = 'waf-proposalops-production'
+var frontDoorProfileName = 'afd-proposalops-${resourceNamePrefix}-uaenorth'
+var frontDoorEndpointName = 'afde-proposalops-${resourceNamePrefix}-uaenorth'
+var frontDoorWafPolicyName = 'waf-proposalops-${resourceNamePrefix}'
 var sqlPrivateDnsZoneName = 'privatelink.database.windows.net'
 var keyVaultPrivateDnsZoneName = 'privatelink.vaultcore.azure.net'
 var blobPrivateDnsZoneName = 'privatelink.blob.core.windows.net'
+var resolvedApiOriginHostName = deriveApiOriginHostName ? apiApp.properties.configuration.ingress.fqdn : apiOriginHostName
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
@@ -314,7 +354,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
   }
   tags: tags
   properties: {
-    administratorLogin: sqlAdministratorLogin
+    administratorLogin: sqlServerAdministratorLogin
     administratorLoginPassword: sqlAdministratorPassword
     publicNetworkAccess: 'Disabled'
     minimalTlsVersion: '1.2'
@@ -376,7 +416,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01'
 }
 
 resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
-  name: 'ca-proposalops-api-production'
+  name: 'ca-proposalops-api-${resourceNamePrefix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -388,7 +428,7 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
     configuration: {
       activeRevisionsMode: 'Single'
       ingress: {
-        external: true
+        external: apiIngressExternal
         targetPort: 8000
         transport: 'http'
         allowInsecure: false
@@ -400,14 +440,14 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
         name: 'api'
         image: apiImage
         env: [
-          { name: 'APP_ENV', value: 'PROD' }
+          { name: 'APP_ENV', value: appEnvironment }
           { name: 'AUTH_MODE', value: 'ENTRA' }
           { name: 'ENTRA_TENANT_ID', value: tenantId }
           { name: 'ENTRA_API_CLIENT_ID', value: entraApiClientId }
           { name: 'ENTRA_WEB_CLIENT_ID', value: entraWebClientId }
           { name: 'ENTRA_REQUIRED_SCOPE', value: 'access_as_user' }
-          { name: 'SYNTHETIC_ONLY', value: 'false' }
-          { name: 'REAL_DATA_ALLOWED', value: 'false' }
+          { name: 'SYNTHETIC_ONLY', value: string(syntheticOnly) }
+          { name: 'REAL_DATA_ALLOWED', value: string(realDataAllowed) }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
           // The API token selector must match the UAMI attached to apiApp.
           { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: apiIdentity.properties.clientId }
@@ -415,20 +455,19 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'DATABASE_URL', value: databaseUrl }
           { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
-          { name: 'STORAGE_PROVIDER', value: 'azure_blob' }
-          { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: 'true' }
+          { name: 'STORAGE_PROVIDER', value: storageProvider }
+          { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: string(managedArtifactStoreRequired) }
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: apiIdentity.properties.clientId }
-          { name: 'SYNOLOGY_MODE', value: 'BRIDGE' }
-          { name: 'SOURCE_INTAKE_MODE', value: 'BRIDGE' }
+          { name: 'SYNOLOGY_MODE', value: synologyMode }
+          { name: 'SOURCE_INTAKE_MODE', value: sourceIntakeMode }
           { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
           { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
-          { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: 'false' }
-          { name: 'AI_D4_COMMISSIONING_ID', value: '' }
-          { name: 'AI_FEATURE_ENABLED', value: 'true' }
+          { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'AI_FEATURE_ENABLED', value: 'false' }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
           { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
@@ -444,7 +483,7 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
 }
 
 resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
-  name: 'ca-proposalops-worker-production'
+  name: 'ca-proposalops-worker-${resourceNamePrefix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -463,14 +502,14 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
         image: workerImage
         command: ['python', '-m', 'backend.app.worker']
         env: [
-          { name: 'APP_ENV', value: 'PROD' }
+          { name: 'APP_ENV', value: appEnvironment }
           { name: 'AUTH_MODE', value: 'ENTRA' }
           { name: 'ENTRA_TENANT_ID', value: tenantId }
           { name: 'ENTRA_API_CLIENT_ID', value: entraApiClientId }
           { name: 'ENTRA_WEB_CLIENT_ID', value: entraWebClientId }
           { name: 'ENTRA_REQUIRED_SCOPE', value: 'access_as_user' }
-          { name: 'SYNTHETIC_ONLY', value: 'false' }
-          { name: 'REAL_DATA_ALLOWED', value: 'false' }
+          { name: 'SYNTHETIC_ONLY', value: string(syntheticOnly) }
+          { name: 'REAL_DATA_ALLOWED', value: string(realDataAllowed) }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
           // The worker token selector must match the UAMI attached to workerApp.
           { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: workerIdentity.properties.clientId }
@@ -478,17 +517,21 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'DATABASE_URL', value: databaseUrl }
           { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
-          { name: 'STORAGE_PROVIDER', value: 'azure_blob' }
-          { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: 'true' }
+          { name: 'STORAGE_PROVIDER', value: storageProvider }
+          { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: string(managedArtifactStoreRequired) }
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: workerIdentity.properties.clientId }
-          { name: 'SYNOLOGY_MODE', value: 'BRIDGE' }
-          { name: 'SOURCE_INTAKE_MODE', value: 'BRIDGE' }
+          { name: 'SYNOLOGY_MODE', value: synologyMode }
+          { name: 'SOURCE_INTAKE_MODE', value: sourceIntakeMode }
           { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
           { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
+          { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'AI_FEATURE_ENABLED', value: 'false' }
+          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
+          { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
         ]
         resources: {
           cpu: 1
@@ -501,7 +544,7 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
 }
 
 resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
-  name: 'caj-proposalops-migration-production'
+  name: 'caj-proposalops-migration-${resourceNamePrefix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -522,14 +565,14 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
         image: migrationImage
         command: ['python', '-m', 'backend.app.migrate']
         env: [
-          { name: 'APP_ENV', value: 'PROD' }
+          { name: 'APP_ENV', value: appEnvironment }
           { name: 'AUTH_MODE', value: 'ENTRA' }
           { name: 'ENTRA_TENANT_ID', value: tenantId }
           { name: 'ENTRA_API_CLIENT_ID', value: entraApiClientId }
           { name: 'ENTRA_WEB_CLIENT_ID', value: entraWebClientId }
           { name: 'ENTRA_REQUIRED_SCOPE', value: 'access_as_user' }
-          { name: 'SYNTHETIC_ONLY', value: 'false' }
-          { name: 'REAL_DATA_ALLOWED', value: 'false' }
+          { name: 'SYNTHETIC_ONLY', value: string(syntheticOnly) }
+          { name: 'REAL_DATA_ALLOWED', value: string(realDataAllowed) }
           { name: 'AZURE_SQL_AUTH_MODE', value: 'MANAGED_IDENTITY_ACCESS_TOKEN' }
           // The migration token selector must match the UAMI attached to migrationJob.
           { name: 'AZURE_SQL_UAMI_CLIENT_ID', value: migrationIdentity.properties.clientId }
@@ -537,16 +580,21 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
           { name: 'DATABASE_URL', value: databaseUrl }
           { name: 'DATABASE_MIGRATION_URL', value: databaseMigrationUrl }
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
-          { name: 'STORAGE_PROVIDER', value: 'azure_blob' }
-          { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: 'true' }
+          { name: 'STORAGE_PROVIDER', value: storageProvider }
+          { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: string(managedArtifactStoreRequired) }
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: migrationIdentity.properties.clientId }
-          { name: 'SOURCE_INTAKE_MODE', value: 'BRIDGE' }
+          { name: 'SYNOLOGY_MODE', value: synologyMode }
+          { name: 'SOURCE_INTAKE_MODE', value: sourceIntakeMode }
           { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
           { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
+          { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'AI_FEATURE_ENABLED', value: 'false' }
+          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
+          { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
         ]
         resources: {
           cpu: 1
@@ -658,10 +706,10 @@ resource edgeOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = {
   properties: {
     enabledState: 'Enabled'
     enforceCertificateNameCheck: true
-    hostName: apiOriginHostName
+    hostName: resolvedApiOriginHostName
     httpPort: 80
     httpsPort: 443
-    originHostHeader: apiOriginHostName
+    originHostHeader: resolvedApiOriginHostName
     priority: 1
     weight: 1000
   }
@@ -744,7 +792,10 @@ resource workerDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
 resource sqlDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'platform-to-log-analytics'
   scope: sqlServer
-  properties: { workspaceId: logAnalytics.id, logs: [{ categoryGroup: 'allLogs', enabled: true }], metrics: [{ category: 'AllMetrics', enabled: true }] }
+  // Azure SQL does not support the generic allLogs category group in every
+  // region/API combination. Keep only the supported metrics category here;
+  // resource-log categories must be added only after provider discovery.
+  properties: { workspaceId: logAnalytics.id, metrics: [{ category: 'AllMetrics', enabled: true }] }
 }
 
 resource keyVaultDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
