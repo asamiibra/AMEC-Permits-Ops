@@ -10,6 +10,7 @@ from sqlalchemy import delete, select
 from backend.app.db import SessionLocal, engine
 from backend.app.models import (
     Contract,
+    ContractAdminEvidence,
     ContractAdministrativeClosure,
     ContractRevision,
     DistributionRequirement,
@@ -77,6 +78,7 @@ def bridge_case():
         db.flush()
         contract_revision.admin_input_snapshot = {**contract_revision.admin_input_snapshot, "acceptance": {**contract_revision.admin_input_snapshot["acceptance"], "revision_id": contract_revision.id}}
         contract.current_revision_id = contract_revision.id
+        db.add(ContractAdminEvidence(contract_id=contract.id, contract_revision_id=contract_revision.id, evidence_type="EXECUTED_CONTRACT", source_role="EXECUTED_CONTRACT", document_version_id=source_document.id, source_reference="synthetic://bridge/executed-contract", content_hash=source_document.sha256, status="RECORDED", recorded_by="synthetic-bridge-owner", metadata_json={"synthetic_only": True, "read_back_verified": True}))
         db.add(ProjectActivation(contract_id=contract.id, contract_revision_id=contract_revision.id, accepted_proposal_revision_id=contract.accepted_proposal_revision_id, project_id=project.id, project_code=f"SYN-BRIDGE-{suffix}", start_date=project.created_at.date(), original_start_date=project.created_at.date(), activated_by="synthetic-bridge-owner", idempotency_key=f"bridge-activation:{suffix}"))
         db.commit()
         context = {"suffix": suffix, "project_id": project.id, "contract_id": contract.id, "contract_revision_id": contract_revision.id, "document_version_id": source_document.id}

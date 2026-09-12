@@ -41,13 +41,17 @@ def commercial_reconciliation(
     asserted_order: Mapping[str, Any] | None = None,
     *,
     strict: bool = False,
+    order_applicable: bool | None = None,
+    not_applicable_reason: str | None = None,
+    order_source_count: int = 1,
+    order_source_state: str | None = None,
 ) -> dict[str, Any]:
     """Compare the exact accepted proposal with the current Contract.
 
     An LPO/PO is only compared when its evidence explicitly supplies a
-    structured commercial snapshot.  Unstructured evidence cannot silently
-    authorize a mismatch; it is reported as ``UNPROVEN`` for the caller to
-    keep in review.
+    structured commercial snapshot.  Applicability is explicit: a missing,
+    ambiguous, or unstructured applicable order is blocked rather than
+    treated as a successful reconciliation.
     """
 
     proposal = proposal_fields or {}
@@ -64,16 +68,29 @@ def commercial_reconciliation(
     comparison_items = comparisons if asserted_order is not None or strict else {key: comparisons[key] for key in ("amount", "currency", "duration")}
     mismatches = [key for key, (expected, actual) in comparison_items.items() if expected not in (None, "") and actual not in (None, "") and not _same(expected, actual)]
     missing = [key for key, (expected, actual) in comparison_items.items() if expected not in (None, "") and actual in (None, "")]
-    order_result: dict[str, Any] = {"status": "NOT_ASSERTED", "mismatches": [], "missing": []}
-    if asserted_order is not None:
+    if order_applicable is None:
+        order_applicable = asserted_order is not None
+    if order_source_state in {"BLOCKED_SUPERSEDED_SOURCE", "BLOCKED_CROSS_CONTRACT_SOURCE", "BLOCKED_UNAUTHORIZED_EXCEPTION"}:
+        order_result: dict[str, Any] = {"status": order_source_state, "mismatches": [], "missing": [], "reason": "The asserted PO/LPO source is not eligible for Contract reconciliation."}
+    elif order_source_count > 1:
+        order_result: dict[str, Any] = {"status": "BLOCKED_AMBIGUOUS_SOURCE", "mismatches": [], "missing": [], "reason": "Multiple applicable PO/LPO assertions require one governed source."}
+    elif asserted_order is None and order_applicable:
+        order_result = {"status": "BLOCKED_MISSING_SOURCE", "mismatches": [], "missing": [], "reason": "Applicable PO/LPO evidence is missing."}
+    elif asserted_order is None:
+        reason = (not_applicable_reason or "The active commercial policy explicitly marks PO/LPO comparison not applicable.").strip()
+        order_result = {"status": "NOT_APPLICABLE_WITH_REASON", "mismatches": [], "missing": [], "reason": reason}
+    elif not isinstance(asserted_order, Mapping) or asserted_order.get("structured") is False or asserted_order.get("_structured") is False:
+        order_result = {"status": "BLOCKED_UNSTRUCTURED_SOURCE", "mismatches": [], "missing": [], "reason": "PO/LPO evidence is not a structured commercial assertion."}
+    else:
         order_comparison = commercial_reconciliation(proposal, asserted_order, None, strict=True)["proposal_to_contract"]
         order_result = {"status": "PASS" if not order_comparison["mismatches"] and not order_comparison["missing"] else "MISMATCH", **order_comparison}
-    status = "PASS" if not mismatches and not missing and order_result["status"] in {"PASS", "NOT_ASSERTED"} else "BLOCKED"
+    order_passes = order_result["status"] == "PASS" or (order_result["status"] == "NOT_APPLICABLE_WITH_REASON" and not order_applicable)
+    status = "PASS" if not mismatches and not missing and order_passes else "BLOCKED"
     return {
         "status": status,
         "proposal_to_contract": {"mismatches": mismatches, "missing": missing},
         "order_to_proposal": order_result,
-        "fail_closed": status != "PASS",
+        "fail_closed": status != "PASS" or order_result["status"] != "PASS",
     }
 
 
