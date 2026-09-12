@@ -165,30 +165,47 @@ def test_phase4_has_exactly_six_review_actions_and_no_advisory_lock():
 
 def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     active = sorted(Path("backend/migrations/versions").glob("*.py"))
-    assert [path.name for path in active] == [
+    assert {path.name for path in active} == {
         "ai_d2_execution_ledger_v1.py",
         "baseline_phase4_v36_azure_sql.py",
+        "opportunity_commercial_controls_v1.py",
+        "opportunity_proposal_idempotency_v1.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
-    ]
-    source = active[1].read_text(encoding="utf-8")
+    }
+    by_revision = {
+        re.search(r'^revision = "([^"]+)"$', path.read_text(encoding="utf-8"), re.MULTILINE).group(1): path
+        for path in active
+    }
+    assert set(by_revision) == {
+        "baseline_phase4_v36_azure_sql",
+        "step5_content_azure_sql_v2",
+        "ai_d2_execution_ledger_v1",
+        "source18_regulatory_current_state_v1",
+        "source18_committee_implementation_v1",
+        "opportunity_commercial_controls_v1",
+        "opportunity_proposal_idempotency_v1",
+    }
+    source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
     assert "down_revision = None" in source
     assert "ON CONFLICT" not in source
     assert "Base.metadata.create_all" not in source
-    successor = active[4].read_text(encoding="utf-8")
+    successor = by_revision["step5_content_azure_sql_v2"].read_text(encoding="utf-8")
     assert 'revision = "step5_content_azure_sql_v2"' in successor
     assert 'down_revision = "baseline_phase4_v36_azure_sql"' in successor
-    source18_committee = active[2].read_text(encoding="utf-8")
+    source18_committee = by_revision["source18_committee_implementation_v1"].read_text(encoding="utf-8")
     assert 'revision = "source18_committee_implementation_v1"' in source18_committee
     assert 'down_revision = "source18_regulatory_current_state_v1"' in source18_committee
-    source18 = active[3].read_text(encoding="utf-8")
+    source18 = by_revision["source18_regulatory_current_state_v1"].read_text(encoding="utf-8")
     assert 'revision = "source18_regulatory_current_state_v1"' in source18
     assert 'down_revision = "ai_d2_execution_ledger_v1"' in source18
-    ledger = active[0]
+    ledger = by_revision["ai_d2_execution_ledger_v1"]
     assert 'revision = "ai_d2_execution_ledger_v1"' in ledger.read_text(encoding="utf-8")
     assert 'down_revision = "step5_content_azure_sql_v2"' in ledger.read_text(encoding="utf-8")
+    assert 'down_revision = "source18_committee_implementation_v1"' in by_revision["opportunity_commercial_controls_v1"].read_text(encoding="utf-8")
+    assert 'down_revision = "opportunity_commercial_controls_v1"' in by_revision["opportunity_proposal_idempotency_v1"].read_text(encoding="utf-8")
 
 
 def test_sqlserver_driver_dependency_metadata_consistent():
@@ -589,17 +606,36 @@ def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
 
 def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     result = nullable_unique_audit("post")
-    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 230
+    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 240
     assert result["unclassified_unique_object_count"] == 0
     assert result["unsafe_fk_or_semantic_review_required_count"] == 0
-    assert result["nullable_unique_filter_required_count"] == 17
+    assert result["nullable_unique_filter_required_count"] == 18
     assert result["nullable_unique_filter_required_open_count"] == 0
-    assert result["nullable_unique_filter_implemented_count"] == 17
+    assert result["nullable_unique_filter_implemented_count"] == 18
+    objects = {item["object_name"]: item for item in result["objects"]}
+    for name in (
+        "uq_proposal_service_eligibility_offering",
+        "uq_proposal_commercial_release_revision",
+        "uq_proposal_commercial_releases_idempotency_key",
+        "uq_proposal_distribution_idempotency",
+        "uq_proposal_acceptance_verification_response",
+        "uq_proposal_lpo_reconciliation_revision",
+        "uq_proposal_lpo_reconciliations_idempotency_key",
+        "uq_proposal_contract_handoff_revision",
+        "uq_proposal_contract_handoffs_idempotency_key",
+        "ix_opportunities_idempotency_key",
+    ):
+        assert objects[name]["migration_object_name"] == name
+        assert objects[name]["foreign_key_target_usage"] is False
+        assert objects[name]["foreign_key_references"] == []
+    assert objects["ix_opportunities_idempotency_key"]["classification"] == "NULLABLE_UNIQUE_FILTER_REQUIRED"
+    assert objects["ix_opportunities_idempotency_key"]["model_filter"] == "idempotency_key is not null"
+    assert objects["ix_opportunities_idempotency_key"]["migration_filter"] == "idempotency_key is not null"
     assert result["result"] == "PASS"
-    print("UNIQUE_OBJECT_TOTAL_COUNT=230")
+    print("UNIQUE_OBJECT_TOTAL_COUNT=240")
     print("UNCLASSIFIED_UNIQUE_OBJECT_COUNT=0")
     print("UNSAFE_FK_OR_SEMANTIC_REVIEW_REQUIRED_COUNT=0")
-    print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=17")
+    print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=18")
 
 
 def test_sqlserver_nullable_unique_filters_match_orm_and_migration():
@@ -640,7 +676,8 @@ def test_sqlserver_known_nullable_unique_indexes_compile_filtered():
 def test_sqlserver_nullable_unique_objects_are_not_fk_target_rewrites():
     result = nullable_unique_audit("post")
     safe_nullable = [item for item in result["objects"] if item["classification"] == "NULLABLE_UNIQUE_FILTER_REQUIRED"]
-    assert len(safe_nullable) == 17
+    assert len(safe_nullable) == 18
+    assert next(item for item in safe_nullable if item["object_name"] == "ix_opportunities_idempotency_key")["expected_mssql_filter"] == "idempotency_key is not null"
     assert all(item["foreign_key_target_usage"] is False for item in safe_nullable)
     assert all(item["foreign_key_references"] == [] for item in safe_nullable)
     print("NULLABLE_UNIQUE_FK_TARGET_REWRITE_COUNT=0")

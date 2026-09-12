@@ -9,7 +9,9 @@ SQL Server 2022 was used as the canonical validation database through the dispos
 - `SELECT 1`: PASS.
 - Independent reconnect: PASS.
 - Transaction commit/read-back: PASS.
-- Current SQL database control rows: technical assessments 2, scope confirmations 2, service eligibility 2, commercial releases 3, distribution events 3, acceptance verifications 3, LPO reconciliations 3, handoff eligibility 1.
-- Independent-connection read-back of the browser proposal handoff row: PASS.
+- Final browser Proposal `AMEC-SYN-PROP-0002` has two accepted revisions (R1/R2), four source evidence rows, one technical assessment, one current scope confirmation, one eligible service decision, one authorized release, one `CLIENT_PORTAL` distribution, two client responses, one verified acceptance, one `PASS` LPO reconciliation with `variances=[]`, and one `ELIGIBLE` handoff row.
+- The final R2 content hash is `3afff2ff7312eae21f8f6a7744f2d3bb2422552c9a8b2c73c4b43a94e67a14b`; release, acceptance, LPO, and handoff rows all point to the same accepted R2 revision.
+- Independent-connection read-back of the final browser proposal and its ten audit events: PASS.
+- Contract rows for the Proposal: `0`; Project Activation rows for the accepted revisions: `0`.
 
 No production or pre-production database was touched.

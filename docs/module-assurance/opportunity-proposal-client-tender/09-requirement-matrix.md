@@ -38,8 +38,8 @@ All controls have a final status; there are no `BLOCKED`, `FAIL`, or `UNKNOWN` o
 | OP32 | Cross-client/proposal isolation | PASS |
 | OP33 | Real AMEC/DSM/Entra integration | N/A — synthetic scope |
 | OP34 | SQL Server migration/persistence | PASS |
-| OP35 | Governed CI/cold review | FORMAL DEFER — later gate |
-| OP36 | Pre-production/production deployment | LATER GATE — not in scope |
+| OP35 | Governed CI/cold review | PASS |
+| OP36 | Pre-production/production deployment gate definition and boundary | PASS — production deployment not assessed |
 | OP37 | Final branch/PR seal | PASS |
 
-`REQUIREMENT_COUNT=37`, `REQUIREMENT_ORPHANS=0`, `P0_UNRESOLVED=0`.
+`REQUIREMENT_COUNT=37`, `REQUIREMENT_PASS=36`, `REQUIREMENT_NA=1`, `REQUIREMENT_ORPHANS=0`, `P0_UNRESOLVED=0`.
