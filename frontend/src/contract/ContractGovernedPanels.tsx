@@ -82,7 +82,7 @@ export function ContractExtensionDecisionPanel({ data, onRefresh }: RefreshProps
     <div className="contract-review-grid">
       {field("Original Contract end date", data.operations?.contract_clock?.original_expected_end, "Historical Contract fact")}
       {field("Current expected end", data.operations?.contract_clock?.current_expected_end, "Canonical operations projection")}
-      {field("Request actor / time", request ? `${request.metadata?.recorded_by || "Human actor"} · ${request.recorded_at || "time not recorded"}` : "No request recorded", "CONTRACT_EXTENSION evidence")}
+      {field("Request actor / time", request ? `${request.recorded_by || "Human actor"} · ${request.recorded_at || "time not recorded"}` : "No request recorded", "CONTRACT_EXTENSION evidence")}
       {field("Requested end date", request?.metadata?.requested_end_date, request?.metadata?.reason || "Request basis not recorded")}
     </div>
     {request ? <div className="contract-edit-form"><label>Approval end date<input type="date" value={approvedEndDate} onChange={event => setApprovedEndDate(event.target.value)} /></label><label>Required decision reason<textarea value={reason} onChange={event => setReason(event.target.value)} placeholder="Explain the authority decision" /></label><div className="contract-action-row"><button className="button-primary" onClick={() => void decide("APPROVE")}>Approve extension</button><button className="button-secondary" onClick={() => void decide("RETURN")}>Return for correction</button><button className="button-secondary" onClick={() => void decide("REJECT")}>Reject extension</button></div></div> : <p className="contract-empty">No extension request is awaiting authority decision.</p>}
