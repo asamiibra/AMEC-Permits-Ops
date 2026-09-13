@@ -88,6 +88,8 @@ export function CurrentDashboard({ role }: { role: string }) {
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formCount, setFormCount] = useState(0);
+  const [preferredCounts, setPreferredCounts] = useState({ reports: 0, engineering: 0, definitions: 0 });
+  const [matchingCounts, setMatchingCounts] = useState({ forms: 0, reports: 0, engineering: 0, definitions: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -109,6 +111,9 @@ export function CurrentDashboard({ role }: { role: string }) {
   } | null>(null);
   const [details, setDetails] = useState<MasterItem | Definition | null>(null);
   const [busy, setBusy] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [retryAction, setRetryAction] = useState<(() => Promise<void>) | null>(null);
   const canWrite = ownerRoles.has(role);
   const activeLibrary = libraryFromPath();
   const filtersActive = Boolean(query || category || status || module);
@@ -124,14 +129,24 @@ export function CurrentDashboard({ role }: { role: string }) {
       if (category) defParams.set("category", category);
       if (status) defParams.set("status", status);
       if (module) defParams.set("module", module);
+      const filteredFormParams = new URLSearchParams(params);
+      filteredFormParams.set("content_type", "FORM");
       const [master, forms, defs, cats] = await Promise.all([
         api<MasterItem[]>(`/api/master-content?${params}`),
-        api<Array<{ id: string }>>("/api/master-content?content_type=FORM"),
+        api<Array<{ id: string }>>(`/api/master-content?${filteredFormParams}`),
         api<Definition[]>(`/api/definitions?${defParams}`),
         api<Category[]>("/api/master-content/categories"),
       ]);
+      const [allForms, allReports, allEngineering, allDefinitions] = await Promise.all([
+        api<Array<{ id: string }>>("/api/master-content?content_type=FORM"),
+        api<MasterItem[]>("/api/master-content?content_type=REPORT"),
+        api<MasterItem[]>("/api/master-content?content_type=ENGINEERING_WORK"),
+        api<Definition[]>("/api/definitions"),
+      ]);
       setItems(master);
-      setFormCount(forms.length);
+      setFormCount(allForms.length);
+      setPreferredCounts({ reports: allReports.length, engineering: allEngineering.length, definitions: allDefinitions.length });
+      setMatchingCounts({ forms: forms.length, reports: master.filter((item) => item.content_type === "REPORT").length, engineering: master.filter((item) => item.content_type === "ENGINEERING_WORK").length, definitions: defs.length });
       setDefinitions(defs);
       setCategories(cats);
     } catch (err) {
@@ -147,6 +162,34 @@ export function CurrentDashboard({ role }: { role: string }) {
   useEffect(() => {
     void load();
   }, [query, category, status, module]);
+  const runAction = async (action: () => Promise<void>, fallback: string) => {
+    setActionError("");
+    setRetryAction(() => action);
+    try {
+      await action();
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause.message : fallback);
+    }
+  };
+  const openLinkedContent = async (contentId: string) => {
+    try {
+      setDetails(await api<MasterItem>(`/api/master-content/${encodeURIComponent(contentId)}`));
+    } catch (masterCause) {
+      try {
+        setDetails(await api<Definition>(`/api/definitions/${encodeURIComponent(contentId)}`));
+      } catch {
+        throw masterCause;
+      }
+    }
+  };
+  useEffect(() => {
+    const contentId = new URLSearchParams(window.location.search).get("content");
+    if (!contentId) return;
+    void runAction(
+      () => openLinkedContent(contentId),
+      "This Content Library item is unavailable for the current role or no longer exists.",
+    );
+  }, []);
   const categoryOptions = useMemo(
     () =>
       Array.from(
@@ -188,6 +231,8 @@ export function CurrentDashboard({ role }: { role: string }) {
           },
         );
       setEditor(null);
+      setSuccessMessage(editor?.item ? "Content revision saved. Earlier values remain in History." : "Content saved to the canonical Content Library.");
+      setActionError("");
       await load();
     } catch (err) {
       setError(
@@ -207,6 +252,8 @@ export function CurrentDashboard({ role }: { role: string }) {
         { method: "POST", body: JSON.stringify(data) },
       );
       setDefinitionEditor(undefined);
+      setSuccessMessage(definitionEditor ? "Definition revision saved. Earlier meaning remains in History." : "Definition saved to the Content Library.");
+      setActionError("");
       await load();
     } catch (err) {
       setError(
@@ -228,24 +275,21 @@ export function CurrentDashboard({ role }: { role: string }) {
         </div>
         <div className="dashboard-counts">
           <span>
-            <b>
-              {items.filter((item) => item.content_type === "REPORT").length}
-            </b>{" "}
+            <b>{preferredCounts.reports}</b>{" "}
             Reports
           </span>
           <span>
             <b>
               {
-                items.filter((item) => item.content_type === "ENGINEERING_WORK")
-                  .length
+                preferredCounts.engineering
               }
             </b>{" "}
             Engineering Works
           </span>
           <span>
-            <b>{definitions.length}</b> Definitions
+            <b>{preferredCounts.definitions}</b> Definitions
           </span>
-          <a className="button-secondary" href="/dashboard/inputs-go-live">
+          <a className="button-secondary" href="/dashboard/inputs-go-live?from=content-library">
             Inputs &amp; Go-Live
           </a>
         </div>
@@ -257,9 +301,9 @@ export function CurrentDashboard({ role }: { role: string }) {
         </div>
         <div className="dashboard-v2-overview-grid">
           <div className="dashboard-v2-summary-card"><span>Forms</span><strong>{formCount}</strong><small>Reusable forms, including Checklists</small></div>
-          <div className="dashboard-v2-summary-card"><span>Reports</span><strong>{items.filter((item) => item.content_type === "REPORT").length}</strong><small>Reusable report references</small></div>
-          <div className="dashboard-v2-summary-card"><span>Engineering Works</span><strong>{items.filter((item) => item.content_type === "ENGINEERING_WORK").length}</strong><small>Controlled engineering references</small></div>
-          <div className="dashboard-v2-summary-card"><span>Definitions</span><strong>{definitions.length}</strong><small>Shared semantic language</small></div>
+          <div className="dashboard-v2-summary-card"><span>Reports</span><strong>{preferredCounts.reports}</strong><small>All reusable report references{filtersActive ? ` · ${matchingCounts.reports} matching` : ""}</small></div>
+          <div className="dashboard-v2-summary-card"><span>Engineering Works</span><strong>{preferredCounts.engineering}</strong><small>All controlled references{filtersActive ? ` · ${matchingCounts.engineering} matching` : ""}</small></div>
+          <div className="dashboard-v2-summary-card"><span>Definitions</span><strong>{preferredCounts.definitions}</strong><small>All shared semantic language{filtersActive ? ` · ${matchingCounts.definitions} matching` : ""}</small></div>
         </div>
       </section>}
       <DashboardLibraryNavigation activeLibrary={activeLibrary} />
@@ -338,6 +382,8 @@ export function CurrentDashboard({ role }: { role: string }) {
           </button>
         </div>
       )}
+      {actionError && <div className="dashboard-error" role="alert"><b>Content Library action unavailable</b><span>{actionError}</span>{retryAction && <button className="button-secondary" onClick={() => void runAction(retryAction, "The Content Library action could not be completed.")}>Retry</button>}</div>}
+      {successMessage && <div className="inline-message" role="status">{successMessage}</div>}
       {loading && (
         <div className="panel dashboard-state" role="status">
           Loading master content…
@@ -356,17 +402,11 @@ export function CurrentDashboard({ role }: { role: string }) {
             filtered={filtersActive}
             onNew={() => setEditor({ type: "REPORT" })}
             onEdit={(item) => setEditor({ type: "REPORT", item })}
-            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<MasterItem>(
-                `/api/master-content/${item.id}`,
-              );
-              setHistory({
-                itemId: item.id,
-                title: `${item.ref} · ${item.title}`,
-                versions: detail.versions,
-              });
-            }}
+            onOpen={(item) => void runAction(() => openLinkedContent(item.id), "The report could not be opened. The list is unchanged.")}
+            onHistory={(item) => void runAction(async () => {
+              const detail = await api<MasterItem>(`/api/master-content/${item.id}`);
+              setHistory({ itemId: item.id, title: `${item.ref} · ${item.title}`, versions: detail.versions });
+            }, "Report history could not be loaded. The list is unchanged.")}
           />}
           {(activeLibrary === "overview" || activeLibrary === "engineering-works") && <MasterSection
             type="ENGINEERING_WORK"
@@ -377,17 +417,11 @@ export function CurrentDashboard({ role }: { role: string }) {
             filtered={filtersActive}
             onNew={() => setEditor({ type: "ENGINEERING_WORK" })}
             onEdit={(item) => setEditor({ type: "ENGINEERING_WORK", item })}
-            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<MasterItem>(
-                `/api/master-content/${item.id}`,
-              );
-              setHistory({
-                itemId: item.id,
-                title: `${item.ref} · ${item.title}`,
-                versions: detail.versions,
-              });
-            }}
+            onOpen={(item) => void runAction(() => openLinkedContent(item.id), "The Engineering Work could not be opened. The list is unchanged.")}
+            onHistory={(item) => void runAction(async () => {
+              const detail = await api<MasterItem>(`/api/master-content/${item.id}`);
+              setHistory({ itemId: item.id, title: `${item.ref} · ${item.title}`, versions: detail.versions });
+            }, "Engineering Work history could not be loaded. The list is unchanged.")}
           />}
           {(activeLibrary === "overview" || activeLibrary === "definitions") && <DefinitionSection
             definitions={definitions}
@@ -395,16 +429,11 @@ export function CurrentDashboard({ role }: { role: string }) {
             filtered={filtersActive}
             onNew={() => setDefinitionEditor(null)}
             onEdit={setDefinitionEditor}
-            onOpen={async (item) => setDetails(await api<Definition>(`/api/definitions/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<Definition>(
-                `/api/definitions/${item.id}`,
-              );
-              setHistory({
-                title: `${item.ref || "Definition"} · ${item.term}`,
-                revisions: detail.revisions,
-              });
-            }}
+            onOpen={(item) => void runAction(async () => setDetails(await api<Definition>(`/api/definitions/${item.id}`)), "The Definition could not be opened. The list is unchanged.")}
+            onHistory={(item) => void runAction(async () => {
+              const detail = await api<Definition>(`/api/definitions/${item.id}`);
+              setHistory({ title: `${item.ref || "Definition"} · ${item.term}`, revisions: detail.revisions });
+            }, "Definition history could not be loaded. The list is unchanged.")}
           />}
         </>
       )}
@@ -428,9 +457,9 @@ export function CurrentDashboard({ role }: { role: string }) {
         />
       )}
       {history && (
-        <HistoryDrawer history={history} onClose={() => setHistory(null)} />
+        <HistoryDrawer history={history} onClose={() => setHistory(null)} onDownload={(itemId, versionId, fileName) => void runAction(() => downloadVersion(itemId, versionId, fileName), "The source version download failed.")} />
       )}
-      {details && <ContentDetails item={details} onClose={() => setDetails(null)} />}
+      {details && <ContentDetails item={details} onClose={() => setDetails(null)} onDownload={(id) => void runAction(() => downloadMaster(id), "The source download failed. The Content Library list is unchanged.")} />}
     </div>
   );
 }
@@ -1027,6 +1056,7 @@ function DefinitionEditor({
 function HistoryDrawer({
   history,
   onClose,
+  onDownload,
 }: {
   history: {
     title: string;
@@ -1035,6 +1065,7 @@ function HistoryDrawer({
     revisions?: DefinitionRevision[];
   };
   onClose: () => void;
+  onDownload: (itemId: string, versionId: string, fileName: string) => void;
 }) {
   return (
     <Drawer
@@ -1066,13 +1097,13 @@ function HistoryDrawer({
                   ? "Preview PDF available"
                   : "Source document"}
               </span>
-              <a
+              <button
                 className="table-action action-view"
-                href={`/api/master-content/${history.itemId}/versions/${version.id}/download`}
-                download={version.file_name}
+                type="button"
+                onClick={() => history.itemId && onDownload(history.itemId, version.id, version.file_name)}
               >
                 Download
-              </a>
+              </button>
             </div>
           </article>
         ))}
@@ -1166,7 +1197,7 @@ function formatDateTime(value: string) {
     minute: "2-digit",
   });
 }
-function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onClose: () => void }) {
+function ContentDetails({ item, onClose, onDownload }: { item: MasterItem | Definition; onClose: () => void; onDownload: (itemId: string) => void }) {
   const isDefinition = "term" in item;
   return <Drawer title={`${item.ref || "Definition"} · ${isDefinition ? item.term : item.title}`} eyebrow={isDefinition ? "DEFINITION DETAILS" : `${item.content_type.replaceAll("_", " ")} DETAILS`} onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <div className="content-detail-grid">
@@ -1178,7 +1209,7 @@ function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onCl
     </div>
     <p className="detail-description">{item.description || "No description"}</p>
     <section className="form-governance-section"><h3>{isDefinition ? "Revision History" : "Version History"}</h3>{isDefinition ? ((item.revisions || []).length ? <div className="content-history-list">{(item.revisions || []).map((revision) => <div className="content-history-row" key={revision.id}><b>Revision {revision.revision}</b><StatusBadge value={revision.status} hasVersion /><small>{formatDateTime(revision.changed_at)}</small></div>)}</div> : <p>No previous revisions recorded.</p>) : ((item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name}</span><StatusBadge value={version.status} hasVersion /><small>{formatDateTime(version.updated_at)}</small></div>)}</div> : <p>No previous versions recorded.</p>)}</section>
-    {!isDefinition && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+    {!isDefinition && <button type="button" className="button-secondary" onClick={() => onDownload(item.id)}>Download current source</button>}
   </Drawer>;
 }
 

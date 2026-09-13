@@ -38,4 +38,32 @@ test.describe("Content Library first-class UI integration", () => {
     const axe = await new AxeBuilder({ page }).analyze();
     expect(axe.violations.filter((item) => ["serious", "critical"].includes(item.impact || ""))).toEqual([]);
   });
+
+  test("opens a canonical deep link and exercises Drawer keyboard boundaries", async ({ page, request }) => {
+    await page.addInitScript(() => sessionStorage.setItem("proposalops-role", "SYSTEM_ADMIN"));
+    const response = await request.get("/api/master-content?content_type=FORM", { headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
+    expect(response.ok()).toBeTruthy();
+    const item = (await response.json())[0];
+    expect(item?.id).toBeTruthy();
+    await page.goto(`/content-library?content=${encodeURIComponent(item.id)}`);
+    await expect(page).toHaveURL(new RegExp(`/content-library\\?content=${item.id}$`));
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveAttribute("aria-labelledby", "content-drawer-title");
+    await expect(page.locator(":focus")).toHaveAttribute("aria-label", "Close");
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Shift+Tab");
+    await expect(page.locator(":focus")).toHaveAttribute("aria-label", "Close");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test("Content Library Go-Live handoff is configurable and returns to the library", async ({ page }) => {
+    await page.goto("/content-library");
+    await page.getByRole("link", { name: "Inputs & Go-Live" }).click();
+    await expect(page).toHaveURL(/\/dashboard\/inputs-go-live\?from=content-library$/);
+    await expect(page.getByRole("button", { name: "Back to Content Library" })).toBeVisible();
+    await page.getByRole("button", { name: "Back to Content Library" }).click();
+    await expect(page).toHaveURL(/\/content-library$/);
+  });
 });

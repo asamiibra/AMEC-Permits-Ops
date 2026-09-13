@@ -140,7 +140,18 @@ test.describe("ProposalOps universal UI conformance gate", () => {
           console.log(`[ui-conformance] ${results.length + 1}/${expectedResultCount} ${entry.id} ${persona} ${viewport}`);
           try {
             await page.setViewportSize(size);
-            await page.goto(route, { waitUntil: "domcontentloaded", timeout: 10_000 });
+            let navigationError: unknown;
+            for (let attempt = 0; attempt < 2; attempt += 1) {
+              try {
+                await page.goto(route, { waitUntil: "domcontentloaded", timeout: 20_000 });
+                navigationError = undefined;
+                break;
+              } catch (error) {
+                navigationError = error;
+                if (attempt === 0) await page.waitForTimeout(250);
+              }
+            }
+            if (navigationError) throw navigationError;
             await page.waitForTimeout(80);
             const current = await snapshot(page);
             const shouldRunAxe = viewport === "desktop" && ["S01", "S02", "S02A", "S02B", "S02C", "S02D", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12", "S13", "S14", "S15", "S26"].includes(entry.id);

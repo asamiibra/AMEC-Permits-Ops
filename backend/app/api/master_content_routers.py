@@ -46,6 +46,7 @@ from ..services.master_content import (
     ENGINEERING_SOURCE_TYPES,
     ENGINEERING_DISCIPLINES,
     resolve_master_content_purpose,
+    CONSUMER_RESOLUTION_MATRIX,
     validate_module_binding,
     validate_internal_template_binding,
 )
@@ -341,9 +342,16 @@ def consumer_resolvers(consumer: str, db: Session = Depends(get_db), role: Role 
         consumer = "BD"
     elif persona == "ENGINEERING":
         consumer = "ENGINEERING"
-    purpose_map = {"BD": [("BD", "PROPOSAL_TEMPLATE"), ("BD", "PROPOSAL_CHECKLIST")], "ADMIN": [("ADMIN", "CONTRACT_TEMPLATE")]}
-    resolved = [{"module": module, "purpose": purpose, "resolution": resolve_master_content_purpose(db, module=module, usage_type=purpose)} for module, purpose in purpose_map.get(consumer, [])]
-    return {"consumer": consumer, "resolvers": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
+    aliases = {"BUSINESS_DEVELOPMENT": "BD", "PROPOSAL": "BD", "CONTRACT": "ADMIN", "DEFINITION": "DEFINITIONS", "REPORT": "REPORTS"}
+    consumer = aliases.get(consumer, consumer)
+    if consumer not in CONSUMER_RESOLUTION_MATRIX:
+        raise HTTPException(422, {"code": "MASTER_CONTENT_CONSUMER_NOT_ALLOWED", "consumer": consumer})
+    resolved = []
+    for contract in CONSUMER_RESOLUTION_MATRIX[consumer]:
+        resolver_path = contract.get("canonical_resolver") or f"/api/master-content/resolvers/{contract['module']}/{contract['purpose']}"
+        resolution = {"status": "LOOKUP_REQUIRED", "canonical_count": None, "item": None, "candidates": [], "truth": "DEFINITIONS"} if consumer == "DEFINITIONS" else resolve_master_content_purpose(db, module=contract["module"], usage_type=contract["purpose"], content_type=contract.get("content_type"))
+        resolved.append({**contract, "canonical_resolver": resolver_path, "resolution": resolution})
+    return {"consumer": consumer, "resolvers": resolved, "truth": "DASHBOARD_MASTER_CONTENT", "selection_rule": "SINGLETON_REQUIRED fails closed on zero or multiple; COLLECTION returns all deterministic eligible candidates"}
 
 
 @router.get("/master-content")

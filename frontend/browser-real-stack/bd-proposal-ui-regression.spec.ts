@@ -28,13 +28,13 @@ test("Proposal register counts reconcile with visible rows and valid opens are r
   await page.getByRole("button", { name: "Open", exact: true }).first().click();
   await expect(page).toHaveURL(/\/opportunities\/[0-9a-f-]+$/);
   await expect(page.getByText("ProposalOps could not render this screen", { exact: false })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Managed in Dashboard", level: 3 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Managed in Content Library", level: 3 })).toBeVisible();
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Managed in Dashboard", level: 3 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Managed in Content Library", level: 3 })).toBeVisible();
 
   for (const item of body.items.slice(1, 3)) {
     await page.goto(`/opportunities/${item.id}`);
-    await expect(page.getByRole("heading", { name: "Managed in Dashboard", level: 3 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Managed in Content Library", level: 3 })).toBeVisible();
     await expect(page.getByText("ProposalOps could not render this screen", { exact: false })).toHaveCount(0);
   }
 

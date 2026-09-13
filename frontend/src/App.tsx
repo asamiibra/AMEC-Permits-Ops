@@ -263,6 +263,7 @@ function App() {
   const sidebarRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
+  const inputsFromContentLibrary = page === "dashboard-inputs" && new URLSearchParams(window.location.search).get("from") === "content-library";
   useEffect(() => {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -834,7 +835,12 @@ function App() {
             <ReadinessOverviewPage onNavigate={navigate} role={role} />
           )}{" "}
           {page === "dashboard-inputs" && (
-            <DashboardInputsPage onNavigate={navigate} role={role} />
+            <DashboardInputsPage
+              onNavigate={navigate}
+              role={role}
+              backPage={inputsFromContentLibrary ? "content-library" : "dashboard"}
+              backLabel={inputsFromContentLibrary ? "Back to Content Library" : "Back to Dashboard"}
+            />
           )}{" "}
           {page === "expansion-foundation" && <ExpansionFoundation />}{" "}
           {page === "projects" && (

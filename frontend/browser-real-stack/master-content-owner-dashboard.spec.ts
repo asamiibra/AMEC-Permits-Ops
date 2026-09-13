@@ -33,6 +33,27 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   await expect(page.getByText(/IMMUTABLE HISTORY/)).toBeVisible();
   await page.getByRole("dialog").getByLabel("Close").click();
 
+  const reportRef = `E2E-R-${suffix}`;
+  await page.getByRole("button", { name: "New Report" }).click();
+  await page.getByLabel("Title / Name").fill("Verification Report");
+  await page.getByLabel("Reference").first().fill(reportRef);
+  await page.getByRole("dialog").getByLabel("Category").selectOption({ label: "Project" });
+  await page.getByRole("checkbox", { name: "Reports" }).check();
+  await page.getByLabel("Description").fill("Synthetic report source for the Content Library golden path.");
+  await page.getByLabel("File").setInputFiles({ name: "browser-report.txt", mimeType: "text/plain", buffer: Buffer.from("report v1") });
+  await page.getByRole("button", { name: "Create Report" }).click();
+  await expect(page.getByText(reportRef, { exact: true })).toBeVisible();
+  const reportRow = page.getByRole("row").filter({ hasText: reportRef });
+  await reportRow.getByRole("button", { name: "Open" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Verification Report");
+  const reportDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download current source" }).click();
+  await expect(await reportDownload).toBeTruthy();
+  await page.getByRole("dialog").getByLabel("Close").click();
+  await reportRow.getByRole("button", { name: "History" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Version 1");
+  await page.getByRole("dialog").getByLabel("Close").click();
+
   await page.getByRole("button", { name: "New Engineering Work" }).click();
   await page.getByLabel("Title / Name").fill("Verification Engineering Work");
   await page.getByLabel("Reference").first().fill(engineeringRef);

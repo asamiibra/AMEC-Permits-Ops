@@ -27,16 +27,28 @@ This ledger records the vertical UI integration of the accepted Content Library 
 | Visible personas | Owner, Business Development, Engineering; shared desktop/mobile navigation source | PASS |
 | Consumer entry points | Home Command Center, AMEC Work, global search, and Quick Create target `/content-library` | PASS |
 
+## Consumer and action contract closure
+
+| Contract | Exact evidence | Result |
+|---|---|---|
+| Executable downstream consumer matrix | `docs/content-library-ui-integration/02-consumer-resolution-matrix.json`; `/api/master-content/consumer-resolvers/{consumer}`; Step 3 matrix test | PASS |
+| Singleton versus collection selection | `SINGLETON_REQUIRED` fails closed on zero/multiple; `COLLECTION` returns deterministic eligible candidates; no first-row fallback | PASS |
+| Dependency Finding / WorkflowTask / Notification links | `backend/app/services/master_content.py` emits `/content-library?content=<id>` | PASS |
+| Preferred overview totals versus filtered matches | `CurrentDashboard` loads unfiltered preferred totals and separately reports matching counts | PASS |
+| Mutation success and action-level retry feedback | Content Library/Form open, history, download, refresh, and save paths | PASS |
+| Drawer accessibility | Focuses the dialog, traps Tab, closes on Escape, restores focus, and associates the visible title | PASS |
+| Inputs & Go-Live boundary | `?from=content-library` produces “Back to Content Library”; standalone route retains “Back to Dashboard” | PASS |
+
 ## Acceptance evidence
 
 | Gate | Exact evidence | Result |
 |---|---|---|
-| Frontend component/unit coverage | 22 test files; 123 tests passed in bounded batches | PASS |
+| Frontend component/unit coverage | 22 test files; 124 tests passed | PASS |
 | Frontend production build | `npm run build` | PASS |
 | Product browser acceptance | `content-library-owner-product.spec.ts`: desktop + mobile | PASS |
-| Real-stack Content Library integration | `content-library-ui-integration.spec.ts`: canonical/aliases/boundary + mobile/persona/Axe | PASS |
-| Real persistence and propagation | `master-content-owner-dashboard.spec.ts`: create/version/history/propagation/definition lookup/revalidation | PASS |
-| Focused backend contract | `backend/tests/test_content_library_gap_closure.py`: 20 passed | PASS |
+| Real-stack Content Library integration | `content-library-ui-integration.spec.ts` and `master-content-owner-dashboard.spec.ts`: 5 passed; canonical/aliases/boundary, mobile/persona/Axe, report persistence/download/history, definition lookup/revalidation, and propagation | PASS |
+| Real persistence and propagation | `master-content-owner-dashboard.spec.ts`: create/version/history/propagation/definition lookup/revalidation; cleanup archived 3 master items and 1 definition | PASS |
+| Focused backend contract | Content Library gap-closure, Step 2, Step 3 convergence, and resolution suites: 32 passed | PASS |
 | UI conformance crawl | 71 material routes × 119 role combinations × 3 viewports = 357 cases | PASS |
 | UI conformance decision | `artifacts/ui-conformance/final-result.json` = `PROPOSALOPS_UI_CONFORMANCE_READY`; `exact_gaps=[]` | PASS |
 | Accessibility/layout/network | `UI_ACCESSIBILITY_PASS`, `UI_OVERLAP_COLLISION_ZERO`, `UNINTENDED_HORIZONTAL_OVERFLOW_ZERO`, `UI_CRAWL_CONSOLE_ERROR_ZERO`, `UI_CRAWL_NETWORK_FAILURE_ZERO` | PASS |

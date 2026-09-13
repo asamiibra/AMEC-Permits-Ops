@@ -124,6 +124,9 @@ export function CanonicalFormsLibrary({
   } | null>(null);
   const [details, setDetails] = useState<CanonicalForm | null>(null);
   const [busy, setBusy] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [retryAction, setRetryAction] = useState<(() => Promise<void>) | null>(null);
   const [governanceFilters, setGovernanceFilters] = useState({ ownership: "", artifact_kind: "", currentness: "", readiness: "", quality_state: "", restricted_sample: "", language: "" });
   const [v2Filters, setV2Filters] = useState({ external_body_id: "", jurisdiction_id: "", service_type_id: "", lifecycle_phase_id: "", applicability_status: "", readiness: "" });
   const [catalogs, setCatalogs] = useState<V2Catalogs | null>(null);
@@ -170,6 +173,15 @@ export function CanonicalFormsLibrary({
   useEffect(() => {
     void load();
   }, [filters?.q, filters?.category, filters?.status, filters?.module, governanceFilters.ownership, governanceFilters.artifact_kind, governanceFilters.currentness, governanceFilters.readiness, governanceFilters.quality_state, governanceFilters.restricted_sample, governanceFilters.language, v2Filters.external_body_id, v2Filters.jurisdiction_id, v2Filters.service_type_id, v2Filters.lifecycle_phase_id, v2Filters.applicability_status, v2Filters.readiness]);
+  const runAction = async (action: () => Promise<void>, fallback: string) => {
+    setActionError("");
+    setRetryAction(() => action);
+    try {
+      await action();
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause.message : fallback);
+    }
+  };
   const save = async (request: SaveRequest) => {
     setBusy(true);
     setError("");
@@ -199,6 +211,7 @@ export function CanonicalFormsLibrary({
           },
         );
       setEditor(undefined);
+      setSuccessMessage(editor ? "Form revision saved. Earlier values remain in History." : "Form saved to the canonical Content Library.");
       await load();
     } catch (cause) {
       setError(
@@ -267,6 +280,8 @@ export function CanonicalFormsLibrary({
           </button>
         </div>
       )}
+      {successMessage && <div className="inline-message" role="status">{successMessage}</div>}
+      {actionError && <div className="dashboard-error" role="alert"><b>Form action unavailable</b><span>{actionError}</span>{retryAction && <button className="button-secondary" onClick={() => void runAction(retryAction, "The Form action could not be completed.")}>Retry</button>}</div>}
       {loading ? (
         <div className="dashboard-state" role="status">
           Loading Forms…
@@ -278,15 +293,11 @@ export function CanonicalFormsLibrary({
           forms={forms}
           canWrite={canWrite}
           onEdit={setEditor}
-          onOpen={async (form) => setDetails(await readCanonicalForm<CanonicalForm>(form.id))}
-          onHistory={async (form) => {
+          onOpen={(form) => void runAction(async () => setDetails(await readCanonicalForm<CanonicalForm>(form.id)), "The Form could not be opened. The list is unchanged.")}
+          onHistory={(form) => void runAction(async () => {
             const detail = await readCanonicalForm<CanonicalForm>(form.id);
-            setHistory({
-              itemId: form.id,
-              title: `${form.ref} · ${form.title}`,
-              versions: detail.versions || [],
-            });
-          }}
+            setHistory({ itemId: form.id, title: `${form.ref} · ${form.title}`, versions: detail.versions || [] });
+          }, "Form history could not be loaded. The list is unchanged.")}
         />
       )}
       {editor !== undefined && (
@@ -299,9 +310,9 @@ export function CanonicalFormsLibrary({
         />
       )}
       {history && (
-        <FormHistory history={history} onClose={() => setHistory(null)} />
+        <FormHistory history={history} onClose={() => setHistory(null)} onDownload={(itemId, versionId, fileName) => void runAction(() => downloadFormVersion(itemId, versionId, fileName), "The Form version download failed.")} />
       )}
-      {details && <FormDetails item={details} role={role} surface={surface} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onModify={() => { setDetails(null); setEditor(details); }} onClose={() => setDetails(null)} />}
+      {details && <FormDetails item={details} role={role} surface={surface} actionError={actionError} onDownload={() => void runAction(() => downloadForm(details.id), "The Form download failed. The list is unchanged.")} onRefresh={async () => { await runAction(async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id)), "The Form could not be refreshed. The list is unchanged."); }} onModify={() => { setDetails(null); setEditor(details); }} onClose={() => setDetails(null)} />}
     </section>
   );
 }
@@ -379,7 +390,7 @@ function FormTable({
   );
 }
 
-function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { item: CanonicalForm; role: string; surface: "DASHBOARD" | "ADMINISTRATION"; onRefresh: () => Promise<void>; onModify: () => void; onClose: () => void }) {
+function FormDetails({ item, role, surface, onRefresh, onModify, onClose, onDownload, actionError }: { item: CanonicalForm; role: string; surface: "DASHBOARD" | "ADMINISTRATION"; onRefresh: () => Promise<void>; onModify: () => void; onClose: () => void; onDownload: () => void; actionError?: string }) {
   const governance = item.governance || {};
   const profile = governance.profile || {};
   const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
@@ -401,7 +412,8 @@ function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { it
     <section className="form-governance-section readiness-panel"><h3>Readiness</h3><strong>{readiness.state.replaceAll("_", " ")}</strong>{readiness.blocking_reasons.length > 0 && <><b>Blocking reasons</b><ul>{readiness.blocking_reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></>}{readiness.warnings.length > 0 && <><b>Warnings</b><ul>{readiness.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></>}</section>
     <V2GovernanceDetails item={item} role={role} onRefresh={onRefresh} />
     </>}
-    {(surface === "DASHBOARD" || !profile.restricted_reference_sample) && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+    {actionError && <div className="dashboard-error" role="alert">{actionError}</div>}
+    {(surface === "DASHBOARD" || !profile.restricted_reference_sample) && <button type="button" className="button-secondary" onClick={onDownload}>Download current source</button>}
     {ownerRoles.has(role) && <div className="detail-actions"><button type="button" className="button-secondary" onClick={onModify}>Modify</button><button type="button" className="button-secondary" onClick={onModify}>Upload version</button></div>}
   </Drawer>;
 }
@@ -637,9 +649,11 @@ function FormEditor({
 function FormHistory({
   history,
   onClose,
+  onDownload,
 }: {
   history: { itemId: string; title: string; versions: Version[] };
   onClose: () => void;
+  onDownload: (itemId: string, versionId: string, fileName: string) => void;
 }) {
   return (
     <Drawer
@@ -672,13 +686,13 @@ function FormHistory({
                     ? "Preview PDF available"
                     : "Source document"}
                 </span>
-              <a
+              <button
                 className="table-action action-view"
-                href={`/api/master-content/${history.itemId}/versions/${version.id}/download`}
-                download={version.file_name}
+                type="button"
+                onClick={() => onDownload(history.itemId, version.id, version.file_name)}
               >
                 Download
-              </a>
+              </button>
               </div>
             </article>
           ))

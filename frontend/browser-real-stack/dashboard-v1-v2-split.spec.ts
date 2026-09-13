@@ -14,7 +14,7 @@ test("AMEC Work exposes one Content Library destination and the promoted current
   await expect(page.getByTestId("dashboard-library-navigation")).toBeVisible();
   await expect(page.getByTestId("dashboard-source-authority-panel")).toBeVisible();
   await expect(page.getByText("Advanced governance filters")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Inputs & Go-Live" })).toHaveAttribute("href", "/dashboard/inputs-go-live");
+  await expect(page.getByRole("link", { name: "Inputs & Go-Live" })).toHaveAttribute("href", "/dashboard/inputs-go-live?from=content-library");
 });
 
 test("/dashboard-v2 is a compatibility redirect to the current Content Library", async ({ page }) => {

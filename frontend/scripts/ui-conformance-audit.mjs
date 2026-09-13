@@ -58,6 +58,7 @@ const pageContracts = {
       expected_sections: source?.required || ["identity", "state", "next action", "evidence", "empty/loading/error handling"],
       expected_fields: source?.required || [],
       expected_actions: source?.actions || [],
+      contract_predicates: source?.contract_predicates || [],
       role_specific_controls: route.roles.map((persona) => ({ persona, classification: "CONTRACT_REQUIRED" })),
       expected_empty_state: "truthful empty or filtered-empty state",
       expected_loading_state: "loading state with page context",

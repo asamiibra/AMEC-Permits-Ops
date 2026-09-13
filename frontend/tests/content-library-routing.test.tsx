@@ -15,6 +15,7 @@ beforeEach(() => {
   window.history.replaceState({}, "", "/home");
   vi.stubGlobal("fetch", vi.fn((input: string | URL) => {
     const url = new URL(String(input), window.location.origin);
+    if (url.pathname === "/api/master-content/linked-content") return response({ id: "linked-content", ref: "R-LINK", content_type: "REPORT", title: "Linked report", version_status: "CURRENT", used_in: ["REPORTS"] });
     if (url.pathname === "/api/master-content" && url.searchParams.get("content_type") === "FORM") return response([{ id: "form-1" }]);
     if (url.pathname === "/api/master-content") return response([]);
     if (url.pathname === "/api/master-content/categories") return response([]);
@@ -71,5 +72,16 @@ describe("Content Library first-class route contract", () => {
     const link = screen.getByRole("link", { name: new RegExp(heading) });
     expect(link).toHaveAttribute("href", path);
     expect(link).toHaveAttribute("aria-current", "page");
+  });
+
+  it("opens an exact role-validated content deep link without rewriting the URL", async () => {
+    window.history.replaceState({}, "", "/content-library?content=linked-content");
+    render(<CurrentDashboard role="SYSTEM_ADMIN" />);
+    await waitFor(() => expect(screen.getByRole("dialog", { name: /R-LINK · Linked report/ })).toBeVisible());
+    expect(window.location.pathname).toBe("/content-library");
+    expect(window.location.search).toBe("?content=linked-content");
+    expect(screen.getByRole("dialog")).toHaveAttribute("aria-labelledby", "content-drawer-title");
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 });

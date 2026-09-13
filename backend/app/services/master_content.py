@@ -112,6 +112,32 @@ MODULE_LABELS = {
     "CONTRACT": "Contracts",
 }
 
+# Executable consumer contract. These purposes already exist in the governed
+# taxonomy; the matrix prevents consumers from silently falling back to
+# manual browsing or selecting a first matching row.
+CONSUMER_RESOLUTION_MATRIX = {
+    "BD": [
+        {"module": "BD", "purpose": "PROPOSAL_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal configuration", "ui_surface": "Proposal Configuration", "exact_version_binding": True},
+        {"module": "BD", "purpose": "PROPOSAL_CHECKLIST", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal acceptance", "ui_surface": "Proposal Configuration", "exact_version_binding": True},
+    ],
+    "ADMIN": [
+        {"module": "ADMIN", "purpose": "CONTRACT_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "Contract workspace", "ui_surface": "Contract Template / Configuration", "exact_version_binding": True},
+    ],
+    "ENGINEERING": [
+        {"module": "ENGINEERING", "purpose": "AVAILABLE", "content_type": "ENGINEERING_WORK", "selection_cardinality": "COLLECTION", "downstream_caller": "Engineering proposal preparation", "ui_surface": "Engineering References", "exact_version_binding": True},
+    ],
+    "PERMIT": [
+        {"module": "PERMIT", "purpose": "AVAILABLE", "content_type": None, "selection_cardinality": "COLLECTION", "downstream_caller": "Permit source preparation", "ui_surface": "Project & Sources", "exact_version_binding": True},
+    ],
+    "REPORTS": [
+        {"module": "REPORTS", "purpose": "AVAILABLE", "content_type": None, "selection_cardinality": "COLLECTION", "downstream_caller": "Report source preparation", "ui_surface": "Reports", "exact_version_binding": True},
+        {"module": "REPORTS", "purpose": "REPORT_SOURCE", "content_type": "REPORT", "selection_cardinality": "COLLECTION", "downstream_caller": "Controlled report source binding", "ui_surface": "Reports", "exact_version_binding": True},
+    ],
+    "DEFINITIONS": [
+        {"module": "DEFINITIONS", "purpose": "SEMANTIC_SOURCE", "content_type": "DEFINITION", "selection_cardinality": "SINGLETON_REQUIRED", "canonical_resolver": "/api/definitions/lookup/{term}", "downstream_caller": "Semantic definition lookup", "ui_surface": "Definitions", "exact_version_binding": True},
+    ],
+}
+
 
 def _error(code: str, status: int = 422, **details: Any) -> HTTPException:
     return HTTPException(status_code=status, detail={"code": code, **details})
@@ -443,10 +469,10 @@ def canonical_master_content_candidates(
     return candidates
 
 
-def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str, content_type: str | None = None) -> dict[str, Any]:
     module = module.strip().upper()
     usage_type = usage_type.strip().upper()
-    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=PURPOSE_CONTENT_TYPES.get(usage_type))
+    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=content_type or PURPOSE_CONTENT_TYPES.get(usage_type))
     return {"module": module, "purpose": usage_type, "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED", "canonical_count": len(resolved), "item": resolved[0] if len(resolved) == 1 else None, "candidates": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
 
 
@@ -526,7 +552,7 @@ def _project_finding(db: Session, *, item: MasterContentItem, event: MasterConte
     existing = db.scalar(select(Finding).where(Finding.source_type == "MASTER_CONTENT", Finding.source_reference == key))
     if existing:
         return existing
-    finding = Finding(project_id=dependency.project_id, application_id=application.id, source_type="MASTER_CONTENT", source_reference=key, source_timestamp=event.occurred_at, captured_by=event.actor_or_system, title=f"{item.ref} requires review", raw_text=f"Current {item.content_type} version changed while {dependency.downstream_type} {dependency.downstream_id} remained bound to an older version.", normalized_summary=f"Revalidate {dependency.downstream_type} against {item.ref} v{current.version_number}.", language="en", discipline="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "MASTER_CONTENT", affected_object_type=dependency.downstream_type, affected_object_id=dependency.id, requirement_code="MASTER_CONTENT_REVALIDATION", severity="MAJOR" if item.content_type == "ENGINEERING_WORK" else "ADVISORY", blocking=False, status="OPEN", assignee_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", correlation_id=correlation_id, domain="MASTER_CONTENT", owner_persona="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "OWNER", deep_link=f"/dashboard?content={item.id}")
+    finding = Finding(project_id=dependency.project_id, application_id=application.id, source_type="MASTER_CONTENT", source_reference=key, source_timestamp=event.occurred_at, captured_by=event.actor_or_system, title=f"{item.ref} requires review", raw_text=f"Current {item.content_type} version changed while {dependency.downstream_type} {dependency.downstream_id} remained bound to an older version.", normalized_summary=f"Revalidate {dependency.downstream_type} against {item.ref} v{current.version_number}.", language="en", discipline="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "MASTER_CONTENT", affected_object_type=dependency.downstream_type, affected_object_id=dependency.id, requirement_code="MASTER_CONTENT_REVALIDATION", severity="MAJOR" if item.content_type == "ENGINEERING_WORK" else "ADVISORY", blocking=False, status="OPEN", assignee_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", correlation_id=correlation_id, domain="MASTER_CONTENT", owner_persona="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "OWNER", deep_link=f"/content-library?content={item.id}")
     db.add(finding)
     db.flush()
     return finding
@@ -538,7 +564,7 @@ def _project_task(db: Session, *, dependency: MasterContentDependency, finding: 
     existing = db.scalar(select(WorkflowTask).where(WorkflowTask.context_type == "MASTER_CONTENT_DEPENDENCY", WorkflowTask.context_id == dependency.id, WorkflowTask.status.in_((WorkflowTaskStatus.OPEN, WorkflowTaskStatus.IN_PROGRESS))))
     if existing:
         return existing
-    task = WorkflowTask(project_id=dependency.project_id, application_id=finding.application_id, finding_id=finding.id, task_type="MASTER_CONTENT_REVALIDATION", title=f"Revalidate {item.ref} v{current.version_number}", description=f"Review the changed {item.content_type} source for {dependency.downstream_type} {dependency.downstream_id}.", owner_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", status=WorkflowTaskStatus.OPEN, priority="HIGH" if item.content_type == "ENGINEERING_WORK" else "NORMAL", correlation_id=correlation_id, task_family="MASTER_CONTENT", context_type="MASTER_CONTENT_DEPENDENCY", context_id=dependency.id, blocking=False, next_action_code="MASTER_CONTENT_REVALIDATION", deep_link=f"/dashboard?content={item.id}", evidence_summary={"master_content_id": item.id, "bound_version_id": dependency.bound_document_version_id, "current_version_id": current.id})
+    task = WorkflowTask(project_id=dependency.project_id, application_id=finding.application_id, finding_id=finding.id, task_type="MASTER_CONTENT_REVALIDATION", title=f"Revalidate {item.ref} v{current.version_number}", description=f"Review the changed {item.content_type} source for {dependency.downstream_type} {dependency.downstream_id}.", owner_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", status=WorkflowTaskStatus.OPEN, priority="HIGH" if item.content_type == "ENGINEERING_WORK" else "NORMAL", correlation_id=correlation_id, task_family="MASTER_CONTENT", context_type="MASTER_CONTENT_DEPENDENCY", context_id=dependency.id, blocking=False, next_action_code="MASTER_CONTENT_REVALIDATION", deep_link=f"/content-library?content={item.id}", evidence_summary={"master_content_id": item.id, "bound_version_id": dependency.bound_document_version_id, "current_version_id": current.id})
     db.add(task)
     db.flush()
     return task
@@ -550,7 +576,7 @@ def _project_notifications(db: Session, *, event: MasterContentChangeEvent, item
         target_id = f"{event.id}:{role}"
         if _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
             continue
-        db.add(NotificationEvent(finding_id=finding.id if finding else None, workflow_task_id=task.id if task else None, recipient_role=role, channel="IN_APP", event_type=event.event_type, status="PENDING", subject=f"{item.ref} updated", body_preview=f"{item.content_type.replace('_', ' ').title()} {item.ref} v{event.metadata_json.get('version_number')} is now current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=event.actor_or_system, deep_link=f"/dashboard?content={item.id}"))
+        db.add(NotificationEvent(finding_id=finding.id if finding else None, workflow_task_id=task.id if task else None, recipient_role=role, channel="IN_APP", event_type=event.event_type, status="PENDING", subject=f"{item.ref} updated", body_preview=f"{item.content_type.replace('_', ' ').title()} {item.ref} v{event.metadata_json.get('version_number')} is now current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=event.actor_or_system, deep_link=f"/content-library?content={item.id}"))
         _record_delivery(db, event.id, "NOTIFICATION", "ROLE", role, role)
 
 
@@ -1593,7 +1619,7 @@ def emit_definition_revision_event(db: Session, *, definition: DefinitionEntry, 
     db.flush()
     for role in ("OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"):
         if not _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
-            db.add(NotificationEvent(recipient_role=role, channel="IN_APP", event_type="DEFINITION_REVISION_PROMOTED", status="PENDING", subject=f"Definition updated: {revision.term}", body_preview=f"Definition revision {revision.revision_number} is current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=actor, deep_link="/dashboard"))
+            db.add(NotificationEvent(recipient_role=role, channel="IN_APP", event_type="DEFINITION_REVISION_PROMOTED", status="PENDING", subject=f"Definition updated: {revision.term}", body_preview=f"Definition revision {revision.revision_number} is current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=actor, deep_link=f"/content-library?content={definition.id}"))
             _record_delivery(db, event.id, "NOTIFICATION", "ROLE", role, role)
     audit(db, correlation_id=correlation_id, event_type="DEFINITION_REVISION_PROMOTED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=actor, after={"revision": revision.revision_number, "term": revision.term})
     return event

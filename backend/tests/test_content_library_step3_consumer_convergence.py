@@ -137,3 +137,40 @@ def test_master_content_consumer_authorization_and_exact_form_binding_fail_close
     )
     assert mismatch.status_code == 409
     assert mismatch.json()["detail"]["code"] == "FORM_INSTANCE_MASTER_CONTENT_MISMATCH"
+
+
+def test_consumer_resolution_matrix_covers_all_downstream_classes_and_cardinality(client):
+    expected = {
+        "BD": {"SINGLETON_REQUIRED"},
+        "ADMIN": {"SINGLETON_REQUIRED"},
+        "ENGINEERING": {"COLLECTION"},
+        "PERMIT": {"COLLECTION"},
+        "REPORTS": {"COLLECTION"},
+        "DEFINITIONS": {"SINGLETON_REQUIRED"},
+    }
+    for consumer, cardinalities in expected.items():
+        response = client.get(f"/api/master-content/consumer-resolvers/{consumer}", headers=OWNER)
+        assert response.status_code == 200, response.text
+        payload = response.json()
+        assert payload["consumer"] == consumer
+        assert payload["selection_rule"].startswith("SINGLETON_REQUIRED")
+        assert payload["resolvers"]
+        assert {row["selection_cardinality"] for row in payload["resolvers"]} == cardinalities
+        for row in payload["resolvers"]:
+            assert row["exact_version_binding"] is True
+            assert row["canonical_resolver"].startswith("/api/")
+            assert "resolution" in row
+
+    assert client.get("/api/master-content/consumer-resolvers/PROPOSAL", headers=OWNER).json()["consumer"] == "BD"
+    assert client.get("/api/master-content/consumer-resolvers/REPORT", headers=OWNER).json()["consumer"] == "REPORTS"
+    assert client.get("/api/master-content/consumer-resolvers/DEFINITION", headers=OWNER).json()["consumer"] == "DEFINITIONS"
+
+
+def test_consumer_matrix_respects_persona_scope_without_mutating_state(client):
+    business_development = client.get("/api/master-content/consumer-resolvers/ENGINEERING", headers=BD)
+    engineering = client.get("/api/master-content/consumer-resolvers/BD", headers={"X-Dev-Role": "RESPONSIBLE_ENGINEER"})
+    assert business_development.status_code == engineering.status_code == 200
+    assert business_development.json()["consumer"] == "BD"
+    assert engineering.json()["consumer"] == "ENGINEERING"
+    assert all(row["module"] == "BD" for row in business_development.json()["resolvers"])
+    assert all(row["module"] == "ENGINEERING" for row in engineering.json()["resolvers"])

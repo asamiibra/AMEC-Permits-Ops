@@ -46,6 +46,7 @@
         "Open Permit",
         "Review issue context"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -138,6 +139,7 @@
         "Start Permit",
         "Open Permit"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -226,6 +228,7 @@
         "Create Proposal",
         "Proceed"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -314,6 +317,7 @@
         "Create Contract",
         "View Contract"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -404,6 +408,7 @@
       "expected_actions": [
         "Ready for BD"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -496,6 +501,7 @@
         "Start Permit",
         "Open Permit"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -580,6 +586,7 @@
         "Review Proposal",
         "Open Permit"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -666,6 +673,7 @@
         "Open Permit",
         "View Authority Comment"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -754,6 +762,7 @@
       "expected_actions": [
         "Review issue context"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -844,6 +853,7 @@
         "Open Permit",
         "Mark as read"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -935,6 +945,7 @@
       "expected_actions": [
         "Open Inputs & Go-Live"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1026,6 +1037,7 @@
         "Confirm Project & Sources",
         "View current stage"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1117,6 +1129,7 @@
         "Review conflicts",
         "Open evidence detail"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1207,6 +1220,7 @@
       "expected_actions": [
         "Open package preparation"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1299,6 +1313,7 @@
       "expected_actions": [
         "Open assisted preparation"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1386,6 +1401,7 @@
         "Open readiness",
         "Record human confirmation"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1476,6 +1492,7 @@
       "expected_actions": [
         "Review comments"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1566,6 +1583,7 @@
       "expected_actions": [
         "Open permit issues"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1660,6 +1678,7 @@
       "expected_actions": [
         "View technical lineage"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1746,6 +1765,7 @@
       "expected_actions": [
         "View Inputs & Go-Live"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1820,6 +1840,7 @@
       "expected_actions": [
         "Export checklist"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1892,6 +1913,7 @@
       "expected_actions": [
         "View what we need from AMEC"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -1964,6 +1986,7 @@
       "expected_actions": [
         "Test connection"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2038,6 +2061,7 @@
       "expected_actions": [
         "View what we need from AMEC"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2112,6 +2136,7 @@
       "expected_actions": [
         "View templates"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2184,6 +2209,7 @@
       "expected_actions": [
         "View templates"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2260,6 +2286,7 @@
       "expected_actions": [
         "View requirements"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2334,6 +2361,7 @@
       "expected_actions": [
         "View template"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2408,6 +2436,7 @@
       "expected_actions": [
         "Save setting"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2484,6 +2513,7 @@
         "backup"
       ],
       "expected_actions": [],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2556,6 +2586,7 @@
       "expected_actions": [
         "Manage source connections"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2632,6 +2663,7 @@
       "expected_actions": [
         "Technical detail"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2704,6 +2736,7 @@
       "expected_actions": [
         "Open diagnostic"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2776,6 +2809,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2848,6 +2882,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2920,6 +2955,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -2992,6 +3028,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3064,6 +3101,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3136,6 +3174,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3208,6 +3247,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3280,6 +3320,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3352,6 +3393,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3427,6 +3469,7 @@
       "expected_actions": [
         "Open Opportunity"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3509,6 +3552,7 @@
         "Review drawing",
         "Return to BD"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3585,6 +3629,7 @@
       "expected_actions": [
         "View foundation"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3657,6 +3702,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3729,6 +3775,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3801,6 +3848,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3873,6 +3921,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -3945,6 +3994,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4017,6 +4067,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4089,6 +4140,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4161,6 +4213,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4233,6 +4286,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4305,6 +4359,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4377,6 +4432,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4449,6 +4505,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4521,6 +4578,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4593,6 +4651,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4665,6 +4724,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4737,6 +4797,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4809,6 +4870,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4881,6 +4943,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -4953,6 +5016,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -5025,6 +5089,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -5097,6 +5162,7 @@
       "expected_actions": [
         "Back to Administration"
       ],
+      "contract_predicates": [],
       "role_specific_controls": [
         {
           "persona": "Owner",
@@ -5168,23 +5234,46 @@
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_fields": [
         "Forms",
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_actions": [
         "Open",
+        "History",
+        "Download current source",
         "Search Content Library",
-        "Inputs & Go-Live"
+        "Inputs & Go-Live",
+        "Back to Content Library"
+      ],
+      "contract_predicates": [
+        "canonical affected-record deep link",
+        "consumer-resolution explanation",
+        "truthful count semantics",
+        "mutation success feedback",
+        "action failure/retry",
+        "dialog focus behavior",
+        "role-applicable records",
+        "Owner-only write actions",
+        "Inputs & Go-Live bridge",
+        "Report real-stack golden path",
+        "Definition revision/history golden path",
+        "AI deferred fail-closed behavior"
       ],
       "role_specific_controls": [
         {
@@ -5260,23 +5349,46 @@
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_fields": [
         "Forms",
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_actions": [
         "Open",
+        "History",
+        "Download current source",
         "Search Content Library",
-        "Inputs & Go-Live"
+        "Inputs & Go-Live",
+        "Back to Content Library"
+      ],
+      "contract_predicates": [
+        "canonical affected-record deep link",
+        "consumer-resolution explanation",
+        "truthful count semantics",
+        "mutation success feedback",
+        "action failure/retry",
+        "dialog focus behavior",
+        "role-applicable records",
+        "Owner-only write actions",
+        "Inputs & Go-Live bridge",
+        "Report real-stack golden path",
+        "Definition revision/history golden path",
+        "AI deferred fail-closed behavior"
       ],
       "role_specific_controls": [
         {
@@ -5352,23 +5464,46 @@
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_fields": [
         "Forms",
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_actions": [
         "Open",
+        "History",
+        "Download current source",
         "Search Content Library",
-        "Inputs & Go-Live"
+        "Inputs & Go-Live",
+        "Back to Content Library"
+      ],
+      "contract_predicates": [
+        "canonical affected-record deep link",
+        "consumer-resolution explanation",
+        "truthful count semantics",
+        "mutation success feedback",
+        "action failure/retry",
+        "dialog focus behavior",
+        "role-applicable records",
+        "Owner-only write actions",
+        "Inputs & Go-Live bridge",
+        "Report real-stack golden path",
+        "Definition revision/history golden path",
+        "AI deferred fail-closed behavior"
       ],
       "role_specific_controls": [
         {
@@ -5444,23 +5579,46 @@
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_fields": [
         "Forms",
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_actions": [
         "Open",
+        "History",
+        "Download current source",
         "Search Content Library",
-        "Inputs & Go-Live"
+        "Inputs & Go-Live",
+        "Back to Content Library"
+      ],
+      "contract_predicates": [
+        "canonical affected-record deep link",
+        "consumer-resolution explanation",
+        "truthful count semantics",
+        "mutation success feedback",
+        "action failure/retry",
+        "dialog focus behavior",
+        "role-applicable records",
+        "Owner-only write actions",
+        "Inputs & Go-Live bridge",
+        "Report real-stack golden path",
+        "Definition revision/history golden path",
+        "AI deferred fail-closed behavior"
       ],
       "role_specific_controls": [
         {
@@ -5536,23 +5694,46 @@
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_fields": [
         "Forms",
         "Reports",
         "Engineering Works",
         "Definitions",
+        "Used In",
         "currentness",
         "source",
-        "next action"
+        "version history",
+        "exact current version",
+        "retryable action feedback"
       ],
       "expected_actions": [
         "Open",
+        "History",
+        "Download current source",
         "Search Content Library",
-        "Inputs & Go-Live"
+        "Inputs & Go-Live",
+        "Back to Content Library"
+      ],
+      "contract_predicates": [
+        "canonical affected-record deep link",
+        "consumer-resolution explanation",
+        "truthful count semantics",
+        "mutation success feedback",
+        "action failure/retry",
+        "dialog focus behavior",
+        "role-applicable records",
+        "Owner-only write actions",
+        "Inputs & Go-Live bridge",
+        "Report real-stack golden path",
+        "Definition revision/history golden path",
+        "AI deferred fail-closed behavior"
       ],
       "role_specific_controls": [
         {
