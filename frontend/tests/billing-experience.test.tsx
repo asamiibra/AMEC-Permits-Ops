@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { BillingShell } from "../src/billing/BillingShell";
+import { PaymentWorkspace } from "../src/billing/BillingDetailWorkspaces";
 
 const capabilities = {
   role: "OWNER_SPONSOR",
@@ -25,6 +26,19 @@ beforeEach(() => { window.history.replaceState({}, "", "/billing"); });
 afterEach(() => { vi.unstubAllGlobals(); window.history.replaceState({}, "", "/billing"); });
 
 describe("Billing & Finance workspace", () => {
+  it("allocates to the explicitly selected second eligible invoice", async () => {
+    const requests: Array<{ url: string; body?: string }> = [];
+    const payment = { payment: { id: "p1", client_account_id: "c1", contract_id: "ct1", project_id: "pr1", received_date: "2026-01-01", amount: "200.00", currency: "QAR", reference: "PAY-1", payment_method: "BANK_TRANSFER", verification_status: "VERIFIED", recorded_at: "2026-01-01" }, credit: { state: "UNALLOCATED_CLIENT_CREDIT", received_amount: "200.00", allocated_amount: "0.00", unallocated_balance: "200.00", verification_status: "VERIFIED", currency: "QAR" }, context: { client: { id: "c1", name: "Client", reference: "C1" }, project: { id: "pr1", name: "Project", reference: "P1" }, contract: { id: "ct1", name: "Contract", reference: "CT1" } }, evidence: { primary: true, receipt_voucher: false }, allocations: [], reversals: [], eligible_invoices: [{ invoice_id: "i1", invoice_reference: "AMEC-1", outstanding_amount: "100.00", currency: "QAR", milestone_ids: ["m1"] }, { invoice_id: "i2", invoice_reference: "AMEC-2", outstanding_amount: "100.00", currency: "QAR", milestone_ids: ["m2"] }] };
+    vi.stubGlobal("fetch", vi.fn((input: string, init?: RequestInit) => { const url = String(input); requests.push({ url, body: init?.body as string | undefined }); const path = new URL(url, window.location.origin).pathname; const body = path.endsWith("/payments/p1") ? payment : path.includes("/evidence") ? { items: [], total: 0 } : {}; return Promise.resolve({ ok: true, headers: { get: () => "application/json" }, text: async () => JSON.stringify(body) }); }));
+    render(<PaymentWorkspace paymentId="p1" capabilities={{ ...capabilities, capabilities: { ...capabilities.capabilities, can_allocate_payment: true, can_reverse_payment: true } }} onOpen={() => undefined} />);
+    await screen.findByRole("heading", { name: "PAY-1" });
+    const selectButtons = await screen.findAllByRole("button", { name: "Select" });
+    selectButtons[1].click();
+    await screen.findByDisplayValue("100.00");
+    screen.getByRole("button", { name: "Allocate verified payment" }).click();
+    await waitFor(() => expect(requests.some((item) => item.url.endsWith("/payments/p1/allocate") && item.body?.includes('"invoice_id":"i2"'))).toBe(true));
+  });
+
   it("renders capability-backed command center and labels insights as deterministic", async () => {
     vi.stubGlobal("fetch", vi.fn((input: string) => {
       const path = new URL(String(input), window.location.origin).pathname;

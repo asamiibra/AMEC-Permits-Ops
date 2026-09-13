@@ -4,6 +4,7 @@ import type {
   BillingMilestone,
   BillingPlanItem,
   BillingControlsDTO,
+  BillingEvidenceItem,
   BillingPlanDetailDTO,
   BillingReportsDTO,
   CommandCenterDTO,
@@ -30,4 +31,5 @@ export const billingApi = {
   projectPaymentHistory: (id: string) => api<{ items: PaymentItem[]; total: number }>(`/api/billing/projects/${id}/payment-history`),
   controls: () => api<BillingControlsDTO>("/api/billing/controls"),
   reports: () => api<BillingReportsDTO>("/api/billing/reports"),
+  evidence: (projectId?: string | null) => api<{ items: BillingEvidenceItem[]; total: number }>(`/api/billing/evidence${projectId ? `?project_id=${encodeURIComponent(projectId)}` : ""}`),
 };

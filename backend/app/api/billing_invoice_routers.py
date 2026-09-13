@@ -12,9 +12,10 @@ from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import re
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -58,6 +59,26 @@ def _actor(request: Request, payload: dict[str, Any] | None = None) -> str:
 
 def _corr(request: Request) -> str:
     return getattr(request.state, "correlation_id", str(uuid4()))
+
+
+def _business_timezone() -> tuple[str | None, ZoneInfo | None]:
+    configured = get_settings().business_local_timezone.strip()
+    if not configured:
+        return None, None
+    try:
+        return configured, ZoneInfo(configured)
+    except ZoneInfoNotFoundError:
+        return configured, None
+
+
+def _local_year_bounds() -> tuple[str | None, datetime | None, datetime | None]:
+    name, zone = _business_timezone()
+    if zone is None:
+        return name, None, None
+    now = datetime.now(zone)
+    start = datetime(now.year, 1, 1, tzinfo=zone).astimezone(timezone.utc)
+    end = datetime(now.year + 1, 1, 1, tzinfo=zone).astimezone(timezone.utc)
+    return name, start, end
 
 
 def _role(role: Role, allowed: set[Role], code: str) -> None:
@@ -1327,16 +1348,59 @@ def billing_reports(db: Session = Depends(get_db), role: Role = Depends(current_
     _role(role, VIEW, "BILLING_VIEW")
     invoices = [_invoice_projection(db, invoice) for invoice in db.scalars(select(Invoice).order_by(Invoice.created_at.desc())).all()]
     payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc())).all()]
-    return {"invoice_report": invoices, "open_receivables": [item for item in invoices if _d(item.get("outstanding_amount") or 0) > 0], "payment_history": payments, "ytd": None, "ytd_status": "CONFIGURATION_REQUIRED", "ytd_policy": "CALENDAR_YEAR", "timezone_status": "CONFIGURATION_REQUIRED", "source_of_truth": "CANONICAL_BILLING_READ_MODELS"}
+    timezone_name, year_start, year_end = _local_year_bounds()
+    ytd = None
+    ytd_status = "CONFIGURATION_REQUIRED"
+    if year_start and year_end:
+        issued = db.scalars(select(InvoiceIssueEvent).where(InvoiceIssueEvent.issued_at >= year_start, InvoiceIssueEvent.issued_at < year_end)).all()
+        allocations = db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.allocated_at >= year_start, InvoicePaymentAllocation.allocated_at < year_end, InvoicePaymentAllocation.status != "REVERSED")).all()
+        invoiced_total = Decimal("0")
+        for event in issued:
+            revision = db.get(InvoiceRevision, event.invoice_revision_id)
+            invoiced_total += _d(getattr(revision, "payable_total", 0) if revision else 0)
+        ytd = {"policy": "CALENDAR_YEAR", "timezone": timezone_name, "invoiced": str(_money(invoiced_total)), "collected": str(_money(sum((_d(item.allocated_amount) for item in allocations), Decimal("0"))))}
+        ytd_status = "READY"
+    return {"invoice_report": invoices, "open_receivables": [item for item in invoices if _d(item.get("outstanding_amount") or 0) > 0], "payment_history": payments, "ytd": ytd, "ytd_status": ytd_status, "ytd_policy": "CALENDAR_YEAR", "timezone": timezone_name, "timezone_status": "READY" if year_start else "CONFIGURATION_REQUIRED", "source_of_truth": "CANONICAL_BILLING_READ_MODELS"}
+
+
+@router.get("/evidence")
+def billing_evidence(project_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    query = select(Document).order_by(Document.updated_at.desc())
+    if project_id:
+        query = query.where(Document.project_id == project_id)
+    items = []
+    for document in db.scalars(query).all():
+        version = db.get(DocumentVersion, document.current_version_id) if document.current_version_id else None
+        if not version:
+            continue
+        items.append({"document_id": document.id, "document_version_id": version.id, "label": document.logical_name, "filename": version.source_filename, "approval_state": str(version.approval_state), "source_reference": version.source_path_or_reference, "mime_type": version.mime_type, "open_path": f"/api/billing/evidence/{version.id}/open"})
+    return {"items": items, "total": len(items), "source_of_truth": "CONTENT_LIBRARY_DOCUMENT_VERSION"}
+
+
+@router.get("/evidence/{version_id}/open")
+def open_billing_evidence(version_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    version = db.get(DocumentVersion, version_id)
+    document = db.get(Document, version.document_id) if version else None
+    if not version or not document:
+        raise HTTPException(404, {"code": "BILLING_EVIDENCE_NOT_FOUND"})
+    if version.synthetic_content is None:
+        raise HTTPException(409, {"code": "EVIDENCE_OPEN_REQUIRES_STORAGE_ROUTE", "source_reference": version.source_path_or_reference})
+    return Response(content=version.synthetic_content, media_type=version.mime_type or "application/octet-stream", headers={"Content-Disposition": f'inline; filename="{version.source_filename}"', "X-Document-Version": version.id})
 
 
 @router.get("/supervision-queue")
 def supervision_queue(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _role(role, VIEW, "BILLING_VIEW")
+    timezone_name, _, _ = _local_year_bounds()
     items = []
     for plan in db.scalars(select(BillingPlan).where(BillingPlan.billing_mode == "SUPERVISION_MONTHLY", BillingPlan.status == "ACTIVE")).all():
-        items.append({"plan_id": plan.id, "project_id": plan.project_id, "contract_id": plan.contract_id, "status": "CONFIGURATION_REQUIRED", "reason": "A governed business-local timezone is required before deriving the previous service period.", "autonomous_invoice_issue": False})
-    return {"items": items, "total": len(items), "business_local_timezone": None, "business_local_timezone_configuration_required": True, "policy_status": "RESOLVED", "runtime_configuration_status": "CONFIGURATION_REQUIRED"}
+        if timezone_name and _business_timezone()[1] is not None:
+            items.append({"plan_id": plan.id, "project_id": plan.project_id, "contract_id": plan.contract_id, "status": "READY_FOR_REVIEW", "reason": "Previous service period derived for human review.", "autonomous_invoice_issue": False})
+        else:
+            items.append({"plan_id": plan.id, "project_id": plan.project_id, "contract_id": plan.contract_id, "status": "CONFIGURATION_REQUIRED", "reason": "A governed business-local timezone is required before deriving the previous service period.", "autonomous_invoice_issue": False})
+    return {"items": items, "total": len(items), "business_local_timezone": timezone_name, "business_local_timezone_configuration_required": not bool(timezone_name and _business_timezone()[1]), "policy_status": "RESOLVED", "runtime_configuration_status": "READY" if timezone_name and _business_timezone()[1] else "CONFIGURATION_REQUIRED"}
 
 
 @router.post("/readiness-requests")

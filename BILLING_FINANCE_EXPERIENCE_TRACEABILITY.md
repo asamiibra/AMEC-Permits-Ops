@@ -50,6 +50,27 @@ approved policy as unresolved.
 - Full qualification must be rerun after closure changes; prior PR #46 counts
   are historical evidence and are not reused as closure results.
 
+Residual implementation evidence from this run:
+
+- `PaymentWorkspace` now carries an explicit selected invoice target and the
+  regression test proves the second eligible invoice is sent in the allocation
+  request; it no longer posts the first eligible invoice unconditionally.
+- Billing Plan review carries an explicit selected milestone, and Billing
+  evidence selectors resolve Content Library current `DocumentVersion` records
+  with an evidence-open route instead of asking operators to type UUIDs.
+- Payment record, delivery, acknowledgment, approval, follow-up, and non-cash
+  resolution controls are exposed as separate human actions in the Billing UI;
+  backend method-specific evidence gates remain authoritative.
+- Business-local timezone is deployment configuration. Reports fail closed when
+  it is blank or invalid and expose `CONFIGURATION_REQUIRED`; no guessed
+  timezone or YTD value is emitted.
+- Qualification completed here: backend targeted Billing/finance/owner suite
+  `54 passed, 1 warning`; frontend targeted Billing suite `3 passed`; frontend
+  production build passed; Python compile and Alembic single-head checks passed.
+  The aggregate backend suite, full Billing route mutation browser suite, and
+  exact-head GitHub CI rerun were not completed by this residual run and are not
+  claimed as passes.
+
 ## Explicit non-goals
 
 - No new branch, replacement PR, Billing V11, or merge to `main`.

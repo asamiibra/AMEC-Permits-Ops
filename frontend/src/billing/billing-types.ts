@@ -123,12 +123,17 @@ export type PaymentItem = {
   eligible_invoices?: Array<{ invoice_id: string; invoice_reference: string; project_id?: string | null; outstanding_amount: string; currency: string; milestone_ids: string[] }>;
 };
 
+export type BillingEvidenceItem = { document_id: string; document_version_id: string; label: string; filename: string; approval_state: string; source_reference: string; mime_type: string; open_path: string };
+
+export type WorkItemTarget = { entity_type: string; entity_id: string; route: string };
+
 export type WorkItem = {
   category: string;
   why: string;
   next_action: string;
   authority_needed: string;
   entity: Record<string, unknown>;
+  target?: WorkItemTarget;
 };
 
 export type CommandCenterDTO = {
@@ -146,8 +151,9 @@ export type BillingReportsDTO = {
   invoice_report: InvoiceProjection[];
   open_receivables: InvoiceProjection[];
   payment_history: PaymentItem[];
-  ytd: null;
+  ytd: Record<string, unknown> | null;
   ytd_status: string;
+  timezone?: string | null;
   source_of_truth: string;
 };
 
