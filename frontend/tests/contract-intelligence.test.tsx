@@ -21,7 +21,9 @@ vi.mock("../src/contract/contractApi", () => ({
 describe("Contract Intelligence", () => {
   it("shows an honest policy-disabled state instead of fake findings", async () => {
     render(<ContractIntelligence contractId="contract-1" />);
-    expect(await screen.findByText("Available architecture · real-content execution not enabled")).toBeVisible();
+    expect(await screen.findByText("Catalogue only · shared Intelligence execution runtime is not integrated")).toBeVisible();
+    expect(screen.getByText("Capability catalogue")).toBeVisible();
+    expect(screen.getByText(/Execution is not enabled through the shared Intelligence runtime\./)).toBeVisible();
     expect(screen.getByText("Execution is disabled by current AI runtime policy.")).toBeVisible();
     expect(screen.queryByText(/analysis completed/i)).not.toBeInTheDocument();
   });

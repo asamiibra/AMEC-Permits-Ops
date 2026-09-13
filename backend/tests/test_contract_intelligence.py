@@ -5,6 +5,9 @@ def test_contract_skill_catalogue_is_governed_and_zero_authority():
     payload = contract_skill_catalogue(contract_id="contract-1", role="SYSTEM_ADMIN")
 
     assert payload["architecture"]["registry_version"] == CONTRACT_SKILL_REGISTRY_VERSION
+    assert payload["catalogue_state"] == "RELEASED"
+    assert payload["execution_state"] == "RUNTIME_NOT_INTEGRATED"
+    assert payload["eligibility_state"] == "CATALOGUE_ONLY"
     assert payload["runtime"]["real_content_allowed"] is False
     assert len(payload["skills"]) == 11
     assert {skill["skill_id"] for skill in payload["skills"]} == {
@@ -30,3 +33,8 @@ def test_contract_skill_catalogue_is_governed_and_zero_authority():
     assert all(skill["allowed_tools"] == [] for skill in payload["skills"])
     assert all(skill["model_policy"] == "NO_MODEL_INVOCATION_WHILE_DISABLED_BY_POLICY" for skill in payload["skills"])
     assert all(skill["evaluation_suite_version"] == "CONTRACT-INTELLIGENCE-EVAL-1.0" for skill in payload["skills"])
+    assert all(skill["owning_module"] == "CONTRACT" for skill in payload["skills"])
+    assert all(skill["output_class"] == "CANDIDATE_ANALYSIS_DRAFT_RECOMMENDATION_ONLY" for skill in payload["skills"])
+    assert all(skill["tool_policy"] == "NO_TOOLS_WHILE_RUNTIME_NOT_INTEGRATED" for skill in payload["skills"])
+    assert all(skill["eligibility_state"] in {"ELIGIBLE_FOR_FUTURE_EXECUTION", "MISSING_REQUIRED_CONTEXT"} for skill in payload["skills"])
+    assert all(skill["status"] != "AVAILABLE" for skill in payload["skills"])

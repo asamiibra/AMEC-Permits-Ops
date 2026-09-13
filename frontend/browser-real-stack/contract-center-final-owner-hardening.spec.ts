@@ -22,13 +22,18 @@ test.describe("Contract Center final Owner hardening", () => {
     await goldenRow.getByRole("button", { name: "Open", exact: true }).click();
     await expect(page).toHaveURL(/\/contract-mobilization\/contracts\//);
     await expect(page.getByRole("heading", { name: "Accepted Proposal" })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible();
+    await expect(page.getByText("Catalogue only · shared Intelligence execution runtime is not integrated", { exact: true })).toBeVisible();
+    await expect(page.locator(".ci-skill-card button")).toHaveCount(0);
     await expect(page.locator("#proposal-origin").getByText("SYN-OPP-0007", { exact: false })).toBeVisible();
     await expect(page.locator("#proposal-origin")).toContainText("Synthetic Engineering Advisory Proposal");
     await expect(page.getByText("Requirement not configured", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("NEEDED", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeDisabled();
     await page.getByPlaceholder("Why accept this exact revision?").fill("Confirm exact current Contract revision after authority review");
-    await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeDisabled();
+    await expect(page.locator("#contract-overview")).toContainText(/\d+ blocker\(s\) need attention/);
+    await expect(page.locator(".contract-next-note")).toContainText("Recorded independent Contract maker/checker and Proposal reconciliation");
     await expect(page.getByRole("textbox", { name: "Project Code" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Activate Project", exact: true })).toBeDisabled();
     await expect(page.getByText("Locked until Contract acceptance", { exact: true })).toBeVisible();
@@ -87,10 +92,10 @@ test.describe("Contract Center final Owner hardening", () => {
     await page.goto("/contract-mobilization");
     const goldenRow = page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0007" });
     await goldenRow.getByRole("button", { name: "Open", exact: true }).click();
-    await expect(page.getByRole("button", { name: "Open Contract Acceptance", exact: true })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("button", { name: "Open Contract Review", exact: true })).toBeVisible({ timeout: 45_000 });
     const postRequests: string[] = [];
     page.on("request", (request) => { if (request.method() === "POST") postRequests.push(request.url()); });
-    await page.getByRole("button", { name: "Open Contract Acceptance", exact: true }).click();
+    await page.getByRole("button", { name: "Open Contract Review", exact: true }).click();
     await expect(page.locator("#contract-review")).toBeFocused();
     expect(postRequests).toEqual([]);
     await expect(page.getByRole("textbox", { name: "Project Code" })).toBeDisabled();
@@ -119,7 +124,7 @@ test.describe("Contract Center final Owner hardening", () => {
     expect(contractId).toBeTruthy();
     await page.goto(`/contracts/${contractId}`);
     await expect(page).toHaveURL(new RegExp(`/contract-mobilization/contracts/${contractId}$`));
-    await expect(page.getByRole("heading", { name: "Assistance rail", exact: true })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible({ timeout: 45_000 });
   });
 
   test("keeps the canonical workspace accessible and usable on mobile", async ({ page }) => {
@@ -129,16 +134,19 @@ test.describe("Contract Center final Owner hardening", () => {
     const contractId = (body.items || []).find((item: { contract_ref?: string }) => item.contract_ref === "SYN-CTR-0007")?.id;
     expect(contractId).toBeTruthy();
     await page.goto(`/contract-mobilization/contracts/${contractId}`);
-    await expect(page.getByRole("heading", { name: "Assistance rail", exact: true })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible({ timeout: 45_000 });
     await expect(page.getByRole("tablist", { name: "Contract workspace sections" })).toBeVisible();
     await expect(page.getByRole("tab")).toHaveCount(8);
     const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
     expect(axe.violations.filter((item) => ["serious", "critical"].includes(item.impact || ""))).toEqual([]);
 
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.reload();
-    await expect(page.getByRole("heading", { name: "Assistance rail", exact: true })).toBeVisible({ timeout: 45_000 });
-    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 1024, height: 900 }, { width: 768, height: 900 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(viewport);
+      await page.reload();
+      await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible({ timeout: 45_000 });
+      await expect(page.getByRole("button", { name: "Open Contract Review", exact: true })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
+    }
     await page.locator(".contract-section-nav button").first().focus();
     await expect(page.locator(":focus")).toBeVisible();
   });

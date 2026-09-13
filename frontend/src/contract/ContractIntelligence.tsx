@@ -28,9 +28,9 @@ export function ContractIntelligence({ contractId }: { contractId: string }) {
   useEffect(() => { let active = true; getContractIntelligence(contractId).then((result) => { if (active) setData(result); }).catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : "Intelligence status unavailable."); }); return () => { active = false; }; }, [contractId]);
   const skillById = new Map((data?.skills || []).map((skill) => [skill.skill_id, skill]));
   return <aside className="contract-intelligence" aria-label="Contract Intelligence" tabIndex={0}>
-    <div className="ci-header"><div><span className="eyebrow">CONTRACT INTELLIGENCE</span><h2>Assistance rail</h2></div><span className="ci-ai-mark">Governed</span></div>
-    <div className="ci-runtime-state" role="status"><span className="ci-runtime-dot" />{data?.runtime.external_inference_enabled ? "Intelligence runtime enabled" : "Available architecture · real-content execution not enabled"}</div>
-    <p className="ci-intro">AI can explain evidence and prepare review material. It cannot accept, execute, verify payment, activate, send, or close a Contract.</p>
+    <div className="ci-header"><div><span className="eyebrow">CONTRACT INTELLIGENCE</span><h2>Capability catalogue</h2></div><span className="ci-ai-mark">Governed</span></div>
+    <div className="ci-runtime-state" role="status"><span className="ci-runtime-dot" />Catalogue only · shared Intelligence execution runtime is not integrated</div>
+    <p className="ci-intro">These governed skills are designed for this Contract context. Execution is not enabled through the shared Intelligence runtime. Human Contract authority and canonical business state remain separate.</p>
     {error && <p className="ci-error" role="alert">{error}</p>}
     <div className="ci-groups">{groups.map(([id, label, skillIds]) => <section className="ci-group" key={id} aria-labelledby={`ci-${id}`}><h3 id={`ci-${id}`}>{label}</h3>{skillIds.map((skillId) => { const skill = skillById.get(skillId); return skill ? <SkillCard key={skillId} skill={skill} /> : <div className="ci-empty" key={skillId}>Skill catalogue unavailable</div>; })}</section>)}</div>
     <div className="ci-boundary"><strong>Human authority boundary</strong><span>Findings remain advisory, citation-backed, and separate from the blue canonical Contract state and orange human actions.</span></div>

@@ -163,12 +163,12 @@ def upgrade() -> None:
     op.create_index("ix_physical_original_case_document", "physical_original_custody_events", ["authority_case_id", "document_version_id", "event_at"])
     op.create_index("ix_physical_original_custody_events_authority_case_id", "physical_original_custody_events", ["authority_case_id"])
     op.create_index("ix_physical_original_custody_events_document_version_id", "physical_original_custody_events", ["document_version_id"])
-    op.create_index("ix_physical_original_custody_events_evidence_document_version_id", "physical_original_custody_events", ["evidence_document_version_id"])
+    op.create_index("ix_physical_original_custody_evidence_doc_version_id", "physical_original_custody_events", ["evidence_document_version_id"])
 
 
 def downgrade() -> None:
     for name in (
-        "ix_physical_original_custody_events_evidence_document_version_id",
+        "ix_physical_original_custody_evidence_doc_version_id",
         "ix_physical_original_custody_events_document_version_id",
         "ix_physical_original_custody_events_authority_case_id",
         "ix_physical_original_case_document",

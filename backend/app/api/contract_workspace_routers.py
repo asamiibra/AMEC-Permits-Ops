@@ -445,8 +445,27 @@ def get_contract_intelligence(contract_id: str, db: Session = Depends(get_db), r
     central AI runtime policy forbids external inference or real-content use.
     """
     require_capability(role, "CONTRACT_READ")
-    _contract_or_404(db, contract_id)
-    return contract_skill_catalogue(contract_id=contract_id, role=role.value)
+    contract = _contract_or_404(db, contract_id)
+    detail = contract_projection(db, contract)
+    # Intelligence eligibility must be derived from the same enriched Contract
+    # read model that powers the workspace, including current PO/LPO evidence,
+    # structured inputs, and the operations projection.
+    detail.update(owner_contract_extensions(db, contract))
+    revisions = detail.get("revisions") or []
+    documents = [detail.get("client_document"), detail.get("po"), detail.get("lpo")]
+    current_revision = detail.get("current_revision") or {}
+    context = {
+        "current_revision": bool(detail.get("current_revision")),
+        "accepted_revision": bool(current_revision.get("accepted")),
+        "accepted_proposal_revision": bool(detail.get("origin")),
+        "po_or_lpo_document": any(item and item.get("document") for item in documents),
+        "at_least_two_revisions": len(revisions) >= 2,
+        "executed_copy_candidate": any(item.get("source_role") == "EXECUTED_CONTRACT" for item in detail.get("evidence_detail", [])),
+        "commercial_document": any(item and item.get("document") for item in documents),
+        "missing_document_workflow": bool(detail.get("documents_needed")),
+        "operations_context": bool(detail.get("operations")),
+    }
+    return contract_skill_catalogue(contract_id=contract_id, role=role.value, context=context)
 
 
 @router.patch("/{contract_id}")

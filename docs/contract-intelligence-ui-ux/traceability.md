@@ -1,46 +1,75 @@
-# Contract Intelligence UI/UX traceability qualification
+# Contract Intelligence UI/UX current-state traceability
 
-## Strict qualification
+This ledger is re-adjudicated against the exact feature head, not copied from
+the historical status columns in the Owner workbook. The complete atomic
+matrix is [owner-requirements-current-state.csv](./owner-requirements-current-state.csv).
 
-`OWNER_INPUT_REQUIRED`
+## Source packet integrity
 
-The authoritative Owner Source 1–18 workbook/matrix and its 309
-Contract/Mobilization-relevant line locators are not present in this checkout.
-The available brief identifies source slots only as “Source 1” through “Source
-18”; it does not supply source-native names, Owner IDs, row/line locators, or
-the 309-line mapping. Consequently this ledger does not manufacture names,
-IDs, locators, mappings, or PASS results.
+| Input | Source | Size | SHA-256 |
+|---|---|---:|---|
+| Owner requirements | `/Users/ahmedsami/Downloads/owner_requirements_309.xlsx` | 84842 bytes | `0ed89d635de886e9e3e2c6c690d9728407893cfd5e302a3ace90ddf22a4f89b1` |
+| Locked architecture | `/Users/ahmedsami/Downloads/ProposalOps_Intelligence_Architecture_LOCKED_v1.md` | 6281 bytes | `473abea53ae79dcec16f2c4fe47fc510c075d392ceeb6581bcd6812cda301bbd` |
 
-| Source slot | Authoritative source name | Owner ID / locator | 309-line mapping | Implementation seam | Test seam | Result |
-|---|---|---|---:|---|---|---|
-| Source 1 | Not supplied in checkout | Not supplied | Not verifiable | Proposal → Contract lineage | Contract owner-session tests | OWNER_INPUT_REQUIRED |
-| Source 2 | Not supplied in checkout | Not supplied | Not verifiable | Canonical Client fields / lineage | Contract owner-session tests | OWNER_INPUT_REQUIRED |
-| Source 3 | Not supplied in checkout | Not supplied | Not verifiable | Contract revision and commercial fields | Contract owner-session tests | OWNER_INPUT_REQUIRED |
-| Source 4 | Not supplied in checkout | Not supplied | Not verifiable | Contract Template snapshot | Contract template tests | OWNER_INPUT_REQUIRED |
-| Source 5 | Not supplied in checkout | Not supplied | Not verifiable | Maker/checker/authority/acceptance | Authority-boundary tests | OWNER_INPUT_REQUIRED |
-| Source 6 | Not supplied in checkout | Not supplied | Not verifiable | Immutable revision history | Revision immutability tests | OWNER_INPUT_REQUIRED |
-| Source 7 | Not supplied in checkout | Not supplied | Not verifiable | Executed evidence | Execution-order tests | OWNER_INPUT_REQUIRED |
-| Source 8 | Not supplied in checkout | Not supplied | Not verifiable | Client-copy distribution | Handoff-order tests | OWNER_INPUT_REQUIRED |
-| Source 9 | Not supplied in checkout | Not supplied | Not verifiable | Operations handoff | Handoff-order tests | OWNER_INPUT_REQUIRED |
-| Source 10 | Not supplied in checkout | Not supplied | Not verifiable | PO/LPO reconciliation | PO/LPO exact-version tests | OWNER_INPUT_REQUIRED |
-| Source 11 | Not supplied in checkout | Not supplied | Not verifiable | Structured client inputs | Contract commitment tests | OWNER_INPUT_REQUIRED |
-| Source 12 | Not supplied in checkout | Not supplied | Not verifiable | Structured deliverables | Contract commitment tests | OWNER_INPUT_REQUIRED |
-| Source 13 | Not supplied in checkout | Not supplied | Not verifiable | Explicit Project Activation gate | Activation tests | OWNER_INPUT_REQUIRED |
-| Source 14 | Not supplied in checkout | Not supplied | Not verifiable | Finance/Billing read-only seam | Billing boundary tests | OWNER_INPUT_REQUIRED |
-| Source 15 | Not supplied in checkout | Not supplied | Not verifiable | Canonical Forms projection | Forms/AI governance tests | OWNER_INPUT_REQUIRED |
-| Source 16 | Not supplied in checkout | Not supplied | Not verifiable | Contact routing and missing-document work | Operational contact tests | OWNER_INPUT_REQUIRED |
-| Source 17 | Not supplied in checkout | Not supplied | Not verifiable | Engineering ServiceEngagement context | Mobilization regression tests | OWNER_INPUT_REQUIRED |
-| Source 18 | Not supplied in checkout | Not supplied | Not verifiable | Current-form / regulatory owning seam | Current-control tests | OWNER_INPUT_REQUIRED |
+The workbook contains 309 mapped requirement rows across 18 Source Coverage
+rows. Historical `PASS`, `PARTIAL`, `GAP`, and `CRITICAL_GAP` values are prior
+baseline evidence only. Current results in the companion matrix use the
+allowed result vocabulary and cite current code/test seams.
 
-## Code-level evidence that is independently verifiable
+The 18 represented Owner sources are:
 
-The implementation and tests named above are repository evidence for code
-behavior only. They are not a substitute for source-name, Owner-ID, locator,
-scope-cluster, or 309-line traceability evidence. The exact required input is
-the preserved Owner Source 1–18 workbook/matrix (or an export containing the
-same fields: source name, Owner ID, requirement text, Contract/Mobilization
-scope, CM cluster, implementation/UI/API/test/result, and qualification).
+1. `Compliance Workflow - Overall (3).docx`
+2. `Engineering Module 1(3).docx`
+3. `Engineering Module 2(3).docx`
+4. `Finance : Invoice Module (3).docx`
+5. `Invoice : Contract  2 Module Requiremnents (3).docx`
+6. `Invoice : Contract  3 Module Requiremnents (3).docx`
+7. `Invoice : Contract  4 Module Requiremnents (3).docx`
+8. `Invoice : Contract  Module Requiremnents (5).docx`
+9. `overall flow(3).docx`
+10. `overall flow 2(3).docx`
+11. `overall flow 3(3).docx`
+12. `overall flow 4(4).docx`
+13. `overall flow 5(4).docx`
+14. `overall flow 6(3).docx`
+15. `overall flow 7(3).docx`
+16. `overall flow 8(3).docx`
+17. `Permit Module 2  Requiremnents (4).docx`
+18. `Permit Module Requiremnents (3).docx`
 
-AI remains catalogue-only, disabled by policy, and has zero canonical-write or
-protected-action authority. No source-traceability PASS is emitted until the
-authoritative mapping is available and independently reconciled.
+Thirteen sources contribute mapped Contract/Mobilization rows. The remaining
+five are represented in Source Coverage as Engineering/Permit or general
+workflow context/out-of-scope sources, with their owning-module boundary
+preserved.
+
+## Atomic counters
+
+```text
+SOURCE_REQUIREMENT_ROWS_EXPECTED=309
+SOURCE_REQUIREMENT_ROWS_ADJUDICATED=309
+SOURCE_REQUIREMENT_ROWS_DROPPED=0
+SOURCE_REQUIREMENT_ROWS_DUPLICATED=0
+SOURCE_1_18_ALL_REPRESENTED=true
+```
+
+## Current result vocabulary
+
+- `PASS`: current Contract-owned behavior is implemented and evidenced.
+- `CROSS_MODULE_PASS`: Contract exposes the owning module's canonical projection or deep link without duplicating its state machine.
+- `NOT_APPLICABLE_WITH_PROOF`: the row is outside Contract/Mobilization scope and the workbook's scope/coverage note explains why.
+- `OWNER_INPUT_REQUIRED`: an unresolved AMEC policy or applicability decision is surfaced without inventing a default.
+- `FAIL`: a current software or integration behavior remains incomplete.
+
+## Cluster adjudication
+
+| Cluster family | Current disposition | Evidence boundary |
+|---|---|---|
+| Core Proposal origin, revision, and human review controls | `PASS` | Canonical Contract service, exact revision evidence, protected capabilities, owner-session tests, and browser proof; alternate acceptance variants remain separately classified below |
+| Forms and authorizations | `OWNER_INPUT_REQUIRED` where applicability is undefined; otherwise `PASS` | Content Library projection; zero automation authority; no universal bundle inferred |
+| Finance, Engineering/Permit, Project identity, Service Scope, closeout | `CROSS_MODULE_PASS` | Contract read models and owning-workflow deep links; no duplicate Invoice, Permit, ServiceEngagement, or Handover authority |
+| Advance/start prerequisites and minimum Design dossier | `FAIL` | Current implementation retains configured/readiness seams but does not derive every contractual prerequisite or exact minimum dossier rule |
+| Proactive operations alerts and client stage communications | `FAIL` | Current operations projection is read-only and does not provide the full alert/communication workflow |
+| PO/LPO acceptance variants and pre-expiry extension warning | `FAIL` | Exact source intake and fail-closed reconciliation exist, but the alternate acceptance path and proactive warning are not fully implemented |
+
+The first current software gaps are listed explicitly in the matrix rather than
+being hidden behind historical labels or a generic source blocker.
