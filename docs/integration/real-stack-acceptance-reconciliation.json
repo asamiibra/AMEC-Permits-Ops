@@ -13,6 +13,8 @@
   },
   "current_applicable_acceptance": {
     "content_library_ui_integration": "PASS",
+    "content_library_real_stack_command": "PASS: 4 passed",
+    "content_library_real_stack_spec": "frontend/browser-real-stack/content-library-ui-integration.spec.ts",
     "source18_projection_and_exact_resolution": "PASS",
     "backend_regression": "PASS: 899 passed, 18 skipped",
     "frontend_unit_and_component": "PASS: 124 tests",
@@ -62,6 +64,13 @@
     }
   ],
   "current_unresolved_content_library_defects": [],
+  "focused_real_stack_replay": {
+    "command": "BASE_URL=http://127.0.0.1:5179 API_BASE_URL=http://127.0.0.1:8001 npx playwright test browser-real-stack/content-library-ui-integration.spec.ts -c playwright.real-stack.config.ts",
+    "result": "4 passed",
+    "frontend": "isolated candidate checkout on port 5179",
+    "backend": "isolated synthetic PostgreSQL on port 8001",
+    "database_head": "source18_committee_implementation_v1"
+  },
   "safety_boundary": {
     "database": "isolated synthetic PostgreSQL only",
     "production_or_preprod_mutation": false,

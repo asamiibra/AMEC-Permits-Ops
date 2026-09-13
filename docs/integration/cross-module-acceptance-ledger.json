@@ -18,7 +18,7 @@
     "rbac_and_ai_boundaries": "PASS",
     "cross_project_isolation": "PASS",
     "migration_graph": "PASS_PENDING_FINAL_HEAD_REPLAY",
-    "real_stack": "PENDING_ISOLATED_REHEARSAL"
+    "real_stack": "PASS_PENDING_EXACT_HEAD_BINDING"
   },
   "safety_boundary": {
     "production_deployment_authorized": false,
