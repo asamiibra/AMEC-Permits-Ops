@@ -67,9 +67,12 @@ Residual implementation evidence from this run:
 - Qualification completed here: backend targeted Billing/finance/owner suite
   `54 passed, 1 warning`; frontend targeted Billing suite `3 passed`; frontend
   production build passed; Python compile and Alembic single-head checks passed.
-  The aggregate backend suite, full Billing route mutation browser suite, and
-  exact-head GitHub CI rerun were not completed by this residual run and are not
-  claimed as passes.
+-  The full frontend suite passed `117 tests`; the universal UI crawl completed
+  all `312/312` cases, but its final decision remained `NOT_READY` with exact
+  gaps in owner-facing technical text, raw enum visibility, accessibility,
+  crawl console errors, status semantic clarity, and contract-detail
+  conformance. The aggregate backend suite, full Billing mutation browser
+  suite, and exact-head GitHub CI rerun are not claimed as passes.
 
 ## Explicit non-goals
 
