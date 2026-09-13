@@ -14,20 +14,11 @@ def _create(client, title=None, content=b"wave-a-synthetic-source"):
     return response.json()
 
 
-def test_external_official_readiness_currentness_and_version_history(client):
+def test_external_official_authority_requires_source18(client):
     item = _create(client, "Synthetic external authority form")
     updated = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "EXTERNAL_OFFICIAL", "artifact_kind": "AUTHORITY_FORM", "publisher_name": "Synthetic Authority", "official_form_no": "SYN-F-01", "official_issue_no": "1", "language_profile": "EN"}, headers=OWNER)
-    assert updated.status_code == 200, updated.text
-    assert updated.json()["readiness"]["state"] == "BLOCKED"
-    assert client.post(f"/api/master-content/{item['id']}/provenance", json={"obtained_from": "Synthetic intake fixture", "provenance_note": "Synthetic evidence only"}, headers=OWNER).status_code == 200
-    verified = client.post(f"/api/master-content/{item['id']}/currentness", json={"action": "VERIFY_CURRENT", "note": "Synthetic verification evidence"}, headers=OWNER)
-    assert verified.status_code == 200, verified.text
-    assert verified.json()["readiness"]["state"] == "MANUAL_USE_READY"
-    replaced = client.post(f"/api/master-content/{item['id']}/versions", data={"expected_current_version": "1", "change_reason": "New synthetic official version"}, files={"file": ("v2.txt", b"wave-a-synthetic-source-v2", "text/plain")}, headers=OWNER)
-    assert replaced.status_code == 200, replaced.text
-    history = client.get(f"/api/master-content/{item['id']}/versions", headers=OWNER).json()
-    assert [row["version"] for row in history] == [2, 1]
-    assert history[1]["status"] == "SUPERSEDED"
+    assert updated.status_code == 409, updated.text
+    assert updated.json()["detail"]["code"] == "SOURCE18_OFFICIAL_FORM_OWNER_REQUIRED"
 
 
 def test_restricted_sample_is_excluded_from_resolver_and_download_is_capability_gated(client):

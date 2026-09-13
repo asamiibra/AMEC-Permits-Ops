@@ -1,0 +1,16 @@
+{
+  "schema": "proposalops.integration.exact-head-acceptance-evidence.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "binding_mode": "DETERMINISTIC_PAYLOAD_PLUS_EXTERNAL_EXACT_HEAD_BINDING",
+  "head_sha": "EXTERNAL_EXACT_HEAD_BINDING",
+  "head_tree": "EXTERNAL_EXACT_HEAD_BINDING",
+  "checks": [
+    {"check":"AT-080_SOURCE18_PROJECTION","workflow":"LOCAL_ISOLATED_SYNTHETIC_ACCEPTANCE","run_id":"amec-closure-20260913-source18-repair","job_id":"source18-focused","head_sha":"EXTERNAL_EXACT_HEAD_BINDING","result":"PASS"},
+    {"check":"AT-080_CONTENT_LIBRARY_MUTATION_DENIAL","workflow":"LOCAL_ISOLATED_SYNTHETIC_ACCEPTANCE","run_id":"amec-closure-20260913-source18-repair","job_id":"source18-mutation-seams","head_sha":"EXTERNAL_EXACT_HEAD_BINDING","result":"PASS"},
+    {"check":"AT-054_UNIVERSAL_UI","workflow":"LOCAL_ISOLATED_SYNTHETIC_ACCEPTANCE","run_id":"amec-closure-20260913-ui-conformance","job_id":"universal-ui-crawl","head_sha":"EXTERNAL_EXACT_HEAD_BINDING","result":"PASS"},
+    {"check":"CONTENT_LIBRARY_REAL_STACK","workflow":"LOCAL_ISOLATED_SYNTHETIC_ACCEPTANCE","run_id":"amec-closure-20260913-real-stack","job_id":"content-library-ui-integration","head_sha":"EXTERNAL_EXACT_HEAD_BINDING","result":"PASS"},
+    {"check":"BACKEND_REGRESSION","workflow":"LOCAL_ISOLATED_SYNTHETIC_ACCEPTANCE","run_id":"amec-closure-20260913-backend-regression","job_id":"backend-tests","head_sha":"EXTERNAL_EXACT_HEAD_BINDING","result":"PASS"}
+  ],
+  "historical_real_stack": {"passed":54,"failed":11,"did_not_run":1,"interpretation":"stale historical expectations; not a current Content Library gate"},
+  "safety_boundary": {"synthetic_only":true,"production_mutation":false,"preprod_mutation":false,"real_amec_data":false}
+}

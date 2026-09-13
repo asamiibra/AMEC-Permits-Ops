@@ -472,7 +472,7 @@ def _governed_item(db: Session, item_id: str) -> MasterContentItem:
 
 @router.get("/master-content/governance/options")
 def governance_options(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    return {"ownership": ["AMEC_OWNED", "EXTERNAL_OFFICIAL", "EXTERNAL_REFERENCE", "REFERENCE_SAMPLE", "NEEDS_REVIEW"], "artifact_kind": ["AUTHORITY_FORM", "AMEC_FORM", "CHECKLIST", "UNDERTAKING", "AUTHORIZATION", "SERVICE_REQUEST", "CERTIFICATE_DECLARATION", "TECHNICAL_WORKSHEET", "INVOICE", "HANDOVER", "OTHER", "UNKNOWN"], "currentness": ["UNVERIFIED", "VERIFIED_CURRENT", "VERIFIED_NOT_CURRENT", "NEEDS_REVIEW"], "language": ["AR", "EN", "AR_EN_BILINGUAL", "OTHER"], "quality_state": ["OPEN", "ACCEPTED_RISK", "RESOLVED", "NOT_APPLICABLE"]}
+    return {"ownership": ["AMEC_OWNED", "EXTERNAL_REFERENCE", "REFERENCE_SAMPLE", "NEEDS_REVIEW"], "artifact_kind": ["AMEC_FORM", "CHECKLIST", "UNDERTAKING", "AUTHORIZATION", "SERVICE_REQUEST", "CERTIFICATE_DECLARATION", "TECHNICAL_WORKSHEET", "INVOICE", "HANDOVER", "OTHER", "UNKNOWN"], "currentness": ["UNVERIFIED", "VERIFIED_CURRENT", "VERIFIED_NOT_CURRENT", "NEEDS_REVIEW"], "language": ["AR", "EN", "AR_EN_BILINGUAL", "OTHER"], "quality_state": ["OPEN", "ACCEPTED_RISK", "RESOLVED", "NOT_APPLICABLE"]}
 
 
 @router.get("/master-content/governance/blocker-rollup")

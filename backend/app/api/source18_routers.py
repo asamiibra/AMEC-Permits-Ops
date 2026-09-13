@@ -17,6 +17,8 @@ from ..models import (
     AuthorityCase,
     CommitteePacketRevision,
     ConsultancyOffice,
+    Document,
+    DocumentApprovalState,
     DocumentVersion,
     ExternalBody,
     Jurisdiction,
@@ -143,14 +145,24 @@ def create_official_form_version(payload: dict[str, Any], request: Request, role
     item = db.get(DocumentVersion, source_id)
     if not form_code or not form_version or not item:
         raise HTTPException(422, {"code": "OFFICIAL_FORM_VERSION_REQUIRED"})
+    if str(item.source_system or "").upper() != "SOURCE18":
+        raise HTTPException(409, {"code": "SOURCE18_DOCUMENT_VERSION_REQUIRED"})
     currentness = str(payload.get("currentness_state") or "UNKNOWN").upper()
     status = str(payload.get("status") or "UNKNOWN").upper()
+    document = db.get(Document, item.document_id)
+    if currentness == "CURRENT" and (not document or item.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}):
+        raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_READY"})
     for candidate in db.scalars(select(DocumentVersion)).all():
+        if str(candidate.source_system or "").upper() != "SOURCE18":
+            continue
         metadata = dict(candidate.metadata_json or {})
         if metadata.get("official_form_code") == form_code and metadata.get("official_form_currentness") == "CURRENT":
             metadata["official_form_currentness"] = "SUPERSEDED"
             metadata["official_form_status"] = "SUPERSEDED"
             candidate.metadata_json = metadata
+            if candidate.id != item.id and candidate.source_system == "SOURCE18":
+                candidate.superseded_by = item.id
+                candidate.approval_state = DocumentApprovalState.SUPERSEDED
     item.metadata_json = {
         **(item.metadata_json or {}),
         "official_form_code": form_code,
@@ -159,6 +171,8 @@ def create_official_form_version(payload: dict[str, Any], request: Request, role
         "official_form_status": status,
         "official_form_provenance": payload.get("provenance") or {},
     }
+    if currentness == "CURRENT" and document:
+        document.current_version_id = item.id
     db.commit(); db.refresh(item)
     return {**{key: value for key, value in item.__dict__.items() if not key.startswith("_")}, "form_code": form_code, "version": form_version, "currentness_state": currentness, "status": status}
 

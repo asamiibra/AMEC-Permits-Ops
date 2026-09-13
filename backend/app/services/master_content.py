@@ -52,6 +52,11 @@ from ..models import (
     WorkflowTaskStatus,
     LineageEdge,
     Source18WorkflowTransaction,
+    AuthorityCase,
+    ConsultancyOffice,
+    ExternalBody,
+    Jurisdiction,
+    ServiceType,
 )
 from ..storage.legacy import legacy_synthetic_adapter
 from ..storage.factory import create_binary_store
@@ -194,12 +199,18 @@ def validate_internal_template_binding(db: Session, *, item: MasterContentItem, 
 
 
 def source18_authority_binding(db: Session, item: MasterContentItem) -> Source18WorkflowTransaction | None:
-    """Find a Source18 authority binding without creating a Content Library link."""
-    if not item.current_document_version_id:
-        return None
+    """Find any Source18 authority binding for the item's document history.
+
+    A Content Library item is protected for its whole document lineage.  It
+    must not become writable merely because an operator moved its current
+    pointer away from the version that was manually persisted as a Source18
+    binding.
+    """
     return db.scalar(
         select(Source18WorkflowTransaction).where(
-            Source18WorkflowTransaction.official_form_version_id == item.current_document_version_id
+            Source18WorkflowTransaction.official_form_version_id.in_(
+                select(DocumentVersion.id).where(DocumentVersion.document_id == item.document_id)
+            )
         )
     )
 
@@ -449,6 +460,12 @@ def canonical_master_content_candidates(
 
     candidates: list[dict[str, Any]] = []
     for item in db.scalars(statement).all():
+        # Official-form authority is Source18-owned.  Legacy/manual rows may
+        # still be visible for audit, but the ordinary Content Library
+        # resolver can never treat them as canonical reusable sources.
+        profile = governance_projection(db, item)["profile"]
+        if profile.get("content_ownership_class") == "EXTERNAL_OFFICIAL" or profile.get("artifact_kind") == "AUTHORITY_FORM":
+            continue
         version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
         if not version:
             continue
@@ -928,12 +945,16 @@ def _ensure_forme_category_configuration(db: Session) -> None:
 def _apply_forme_governance(db: Session, item: MasterContentItem, spec: dict[str, object], *, actor: str) -> None:
     profile = ensure_profile(db, item)
     title = str(spec["title"])
-    profile.content_ownership_class = "EXTERNAL_OFFICIAL" if spec["official_form_no"] else "AMEC_OWNED"
+    # FORME is an AMEC-managed synthetic/reference package, not an authority
+    # registry.  Official-form authority and currentness are exposed only by
+    # the Source18 projection; these internal reusable records must not carry
+    # the external-authority governance class.
+    profile.content_ownership_class = "AMEC_OWNED"
     profile.artifact_kind = "UNDERTAKING" if "Undertaking" in title else "AUTHORIZATION" if "Authorization" in title else "CHECKLIST" if "Checklist" in title else "INVOICE" if title == "Invoice Template" else "HANDOVER" if title == "Design Project Handover Form" else "TECHNICAL_WORKSHEET" if title == "External Wall / Roof U-Value Calculation" else "CERTIFICATE_DECLARATION" if title == "Material & Specification Conformity Certificate" else "OTHER"
     profile.publisher_name = "Ministry of Municipality" if str(spec["category"]).startswith("Municipality") else "GSAS / Lusail" if title == "GSAS 3+ Star Undertaking" else "AMEC / FORME source package"
     profile.publisher_unit = str(spec["category"])
     profile.jurisdiction_text = "Qatar"
-    profile.official_form_no = spec["official_form_no"]
+    profile.official_form_no = None
     profile.official_issue_no = str(spec["source_version"]) if spec.get("source_version") else None
     profile.language_profile = "AR_EN_BILINGUAL" if str(spec["source_path"]).lower().endswith((".pdf", ".docx")) else "OTHER"
     profile.currentness_status = "VERIFIED_CURRENT" if spec["status"] == "CURRENT" else "NEEDS_REVIEW"
@@ -1024,6 +1045,116 @@ def _reconcile_forme_masters(db: Session, *, actor: str) -> dict[str, object]:
     return {"created": created, "preserved": preserved, "conflicts": conflicts, "current": sum(1 for spec in FORME_MASTER_SPECS if spec["status"] == "CURRENT"), "needs_review": sum(1 for spec in FORME_MASTER_SPECS if spec["status"] == "NEEDS_REVIEW"), "inactive": 0}
 
 
+def _ensure_source18_demo_official_form(db: Session, *, actor: str) -> None:
+    """Provide one fully bound synthetic Source18 form for local acceptance.
+
+    This is a disposable TEST fixture only.  It exercises the same canonical
+    AuthorityCase → Source18 transaction → DocumentVersion chain consumed by
+    the read-only Content Library projection; it is never an AMEC or authority
+    source document.
+    """
+    transaction = db.scalar(
+        select(Source18WorkflowTransaction).where(
+            Source18WorkflowTransaction.idempotency_key == "owner-demo-source18-form:v1"
+        )
+    )
+    if transaction:
+        return
+    office = db.scalar(select(ConsultancyOffice).order_by(ConsultancyOffice.created_at))
+    body = db.scalar(select(ExternalBody).order_by(ExternalBody.created_at))
+    jurisdiction = db.scalar(select(Jurisdiction).order_by(Jurisdiction.created_at))
+    service = db.scalar(select(ServiceType).order_by(ServiceType.created_at))
+    if not office:
+        # Some focused Content Library unit fixtures intentionally seed only
+        # the library tables.  The complete owner-demo seed supplies this
+        # context and therefore receives the end-to-end Source18 fixture.
+        return
+    if not jurisdiction:
+        jurisdiction = Jurisdiction(code="SOURCE18-SYN-QA", country_code="QA", name_en="Synthetic Qatar", level="COUNTRY", status="ACTIVE", provenance_json={"synthetic_only": True})
+        db.add(jurisdiction)
+        db.flush()
+    if not body:
+        body = ExternalBody(code="SOURCE18-SYN-AUTHORITY", name_en="Synthetic Source18 Authority", body_type="AUTHORITY", status="ACTIVE", jurisdiction_id=jurisdiction.id, verification_state="SYNTHETIC_VERIFIED", provenance_json={"synthetic_only": True}, created_by=actor)
+        db.add(body)
+        db.flush()
+    if not service:
+        service = ServiceType(code="SOURCE18-SYN-FORM-REVIEW", name_en="Synthetic Source18 Form Review", status="ACTIVE", provenance_json={"synthetic_only": True})
+        db.add(service)
+        db.flush()
+    content = b"PROPOSALOPS SYNTHETIC SOURCE18 OFFICIAL FORM\nNOT AN OFFICIAL AUTHORITY DOCUMENT\n"
+    digest = hashlib.sha256(content).hexdigest()
+    document = Document(
+        project_id=None,
+        document_type=DocumentType.APPLICATION_FORM,
+        logical_name="source18-owner-demo-official-form",
+        language="EN",
+        source_system="SOURCE18",
+    )
+    db.add(document)
+    db.flush()
+    version = DocumentVersion(
+        document_id=document.id,
+        version_number=1,
+        source_filename="SOURCE18-SYN-001.pdf",
+        source_path_or_reference="synthetic://source18/owner-demo/SOURCE18-SYN-001.pdf",
+        sha256=digest,
+        mime_type="application/pdf",
+        file_size=len(content),
+        language="EN",
+        revision_label="2026.1",
+        approval_state=DocumentApprovalState.REVIEWED,
+        source_system="SOURCE18",
+        metadata_json={
+            "official_form_code": "SOURCE18-SYN-001",
+            "official_form_version": "2026.1",
+            "official_form_currentness": "CURRENT",
+            "official_form_status": "CURRENT",
+            "synthetic_only": True,
+        },
+        synthetic_content=content,
+    )
+    db.add(version)
+    db.flush()
+    document.current_version_id = version.id
+    case = AuthorityCase(
+        case_reference="SOURCE18-SYN-CASE-001",
+        external_body_id=body.id,
+        service_type_id=service.id,
+        jurisdiction_id=jurisdiction.id,
+        status="ACTIVE",
+        transaction_type="SOURCE18_FORM_REVIEW",
+        processing_mode="COUNTER_PROCESS",
+        project_required=False,
+        currentness_control_implemented=True,
+        current_authority_policy_verified="TRUE",
+        current_official_form_verified="TRUE",
+        live_action_eligibility="ALLOWED",
+        g5_blocking_currentness_gap=False,
+        official_form_version_id=version.id,
+        official_form_publisher="Synthetic Source18 Authority",
+        official_form_number="SOURCE18-SYN-001",
+        official_form_revision="2026.1",
+        official_form_retrieved_at=datetime.now(timezone.utc),
+        field_authority_schema_json={"authority_only_fields": ["authority_stamp"], "synthetic_only": True},
+        created_by=actor,
+    )
+    db.add(case)
+    db.flush()
+    db.add(Source18WorkflowTransaction(
+        authority_case_id=case.id,
+        office_id=office.id,
+        transaction_type="ENGINEER_UPDATE",
+        processing_mode="COUNTER_PROCESS",
+        state="UPDATED_CREDENTIAL_VERIFIED",
+        official_form_version_id=version.id,
+        currentness_state="CURRENT",
+        idempotency_key="owner-demo-source18-form:v1",
+        actor_ref=actor,
+        source_snapshot_json={"synthetic_only": True, "source_hash": digest},
+    ))
+    db.flush()
+
+
 def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed") -> dict[str, Any]:
     """Reconcile the synthetic MVP to core masters plus exact FORME metadata.
 
@@ -1108,6 +1239,8 @@ def reconcile_owner_demo_dataset(db: Session, *, actor: str = "owner-demo-seed")
         created_definitions.append(definition.ref)
     db.commit()
     forme_result = _reconcile_forme_masters(db, actor=actor)
+    _ensure_source18_demo_official_form(db, actor=actor)
+    db.commit()
     return {"archived_master": archived_master, "archived_definitions": archived_definitions, "created_master": created_master, "preserved_master": preserved_master, "created_definitions": created_definitions, "preserved_definitions": preserved_definitions, "generic_placeholder_analysis": placeholder_result, "forme_parity": forme_result}
 
 

@@ -374,7 +374,6 @@ def evaluate_automated_readiness(db: Session, profile: FormAutomationProfile, *,
     if profile.source_version_state != "CURRENT": reasons.append("MAPPING_NEEDS_REVALIDATION")
     governance_profile = wave_a["profile"]
     if governance_profile and governance_profile.restricted_reference_sample: reasons.append("RESTRICTED_SOURCE")
-    if governance_profile and governance_profile.content_ownership_class in {"EXTERNAL_OFFICIAL"} and governance_profile.currentness_status != "VERIFIED_CURRENT": reasons.append("SOURCE_NOT_CURRENT")
     if any(flag.severity == "BLOCKING" for flag in wave_a["quality_flags"]): reasons.append("QUALITY_BLOCKED")
     active_applicability = list(db.scalars(select(MasterContentApplicability).where(MasterContentApplicability.master_content_item_id == item.id, MasterContentApplicability.source_document_version_id == source_version, MasterContentApplicability.status == "ACTIVE")).all())
     if not active_applicability: reasons.append("NO_ACTIVE_APPLICABILITY")

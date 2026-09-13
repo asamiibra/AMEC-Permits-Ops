@@ -58,6 +58,7 @@ def _authority_form(db: Session, *, suffix: str, currentness: str = "CURRENT") -
     )
     db.add(version)
     db.flush()
+    document.current_version_id = version.id
     case = AuthorityCase(
         case_reference=f"CASE-{suffix}",
         external_body_id=f"body-{suffix}",
@@ -239,3 +240,45 @@ def test_all_content_library_authority_mutation_seams_fail_without_state_change(
         db.rollback()
 
     assert {"status": item.status, "current_document_version_id": item.current_document_version_id} == before
+
+
+def test_stale_manually_persisted_content_library_binding_remains_protected(db):
+    _, transaction, version = _authority_form(db, suffix="stale-binding")
+    document = db.get(Document, version.document_id)
+    newer = DocumentVersion(
+        document_id=document.id,
+        version_number=2,
+        source_filename="source18-stale-binding-v2.pdf",
+        source_path_or_reference="synthetic://source18/stale-binding/v2",
+        sha256="b" * 64,
+        mime_type="application/pdf",
+        file_size=12,
+        language="EN",
+        approval_state=DocumentApprovalState.REVIEWED,
+        source_system="SOURCE18",
+        metadata_json={"official_form_currentness": "CURRENT"},
+    )
+    db.add(newer)
+    db.flush()
+    document.current_version_id = newer.id
+    item = MasterContentItem(
+        ref="CL-SOURCE18-STALE-BINDING",
+        content_type="FORM",
+        title="Stale Source18 binding",
+        description="Synthetic stale binding audit fixture",
+        used_in=["PERMIT"],
+        status="ACTIVE",
+        needs_review=False,
+        document_id=document.id,
+        current_document_version_id=newer.id,
+        created_by="controlled-test-persistence",
+    )
+    db.add(item)
+    db.flush()
+    db.add(MasterContentGovernanceProfile(master_content_item_id=item.id, content_ownership_class="AMEC_OWNED", artifact_kind="AMEC_FORM"))
+    db.commit()
+
+    with pytest.raises(HTTPException) as error:
+        assert_content_library_authority_write_allowed(db, item)
+    assert error.value.detail["code"] == "SOURCE18_OFFICIAL_FORM_READ_ONLY"
+    assert source18_authority_item_ids(db) == {item.id}

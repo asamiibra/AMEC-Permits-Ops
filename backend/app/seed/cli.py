@@ -258,6 +258,12 @@ def seed(
     ensure_primary_proposal_sources()
     ensure_proposals_contracts_demo_state()
     ensure_contract_center_golden_state()
+    # Keep the disposable owner-demo seed aligned with the current
+    # Content-Library/Source18 acceptance contract, including one fully bound
+    # synthetic official-form projection fixture.
+    from ..services.master_content import reconcile_owner_demo_dataset
+    with SessionLocal() as db:
+        reconcile_owner_demo_dataset(db, actor="owner-demo-seed")
 
 
 def ensure_primary_proposal_sources():

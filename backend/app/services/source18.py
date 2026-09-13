@@ -19,6 +19,8 @@ from ..models import (
     AuthorityCase,
     CommitteePacketRevision,
     ConsultancyOffice,
+    Document,
+    DocumentApprovalState,
     DocumentVersion,
     Source18EngineerProfile,
     Source18ExternalComment,
@@ -125,7 +127,8 @@ def validate_source_currentness(db: Session, transaction: Source18WorkflowTransa
     if transaction.official_form_version_id:
         form = db.get(DocumentVersion, transaction.official_form_version_id)
         form_state = str((form.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper() if form else "UNKNOWN"
-        if not form or form_state != "CURRENT":
+        document = db.get(Document, form.document_id) if form else None
+        if not form or str(form.source_system or "").upper() != "SOURCE18" or not document or document.current_version_id != form.id or form.superseded_by is not None or form.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED} or form_state != "CURRENT":
             raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_CURRENT"})
 
 

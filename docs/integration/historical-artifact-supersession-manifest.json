@@ -6,6 +6,30 @@
   "stale_evidence_used_as_current": false,
   "rows": [
     {
+      "old_artifact_path": "docs/content-library-gap-closure/01-owner-requirements-ledger.json",
+      "old_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "old_artifact_hash": "efb68855e080a3368f24f54085c648e676ae70f6",
+      "historical_artifact_restored_exactly": true,
+      "old_scope": "historical Content Library acceptance ledger",
+      "old_result": "retained unchanged as historical provenance",
+      "why_superseded": "The new integration taxonomy is recorded in docs/integration; this historical ledger is not rewritten.",
+      "superseding_artifact": "docs/integration/content-library-evidence-taxonomy-reconciliation.json",
+      "superseding_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "current_effective_result": "Historical bytes remain immutable; only the new integration epoch carries the current taxonomy."
+    },
+    {
+      "old_artifact_path": "docs/content-library-gap-closure/13-final-acceptance-ledger.md",
+      "old_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "old_artifact_hash": "bde99f305f927d2a0b9c20b4dcfa035fae95e164",
+      "historical_artifact_restored_exactly": true,
+      "old_scope": "historical Content Library final acceptance ledger",
+      "old_result": "retained unchanged as historical provenance",
+      "why_superseded": "The new integration acceptance is recorded in docs/integration; the old final ledger is not rewritten.",
+      "superseding_artifact": "docs/integration/cross-module-acceptance-ledger.json",
+      "superseding_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "current_effective_result": "Historical bytes remain immutable; new acceptance is prospective only."
+    },
+    {
       "old_artifact_path": "artifacts/ui-conformance/ui-defects.json",
       "old_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
       "old_artifact_hash": "bde846acd7d11e749769f0f102a1e144383d18e4",

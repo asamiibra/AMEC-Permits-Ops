@@ -15,11 +15,14 @@ from sqlalchemy.orm import Session
 
 from ..models import (
     AuthorityCase,
+    Document,
+    DocumentApprovalState,
     DocumentVersion,
     ExternalBody,
     Jurisdiction,
     ServiceType,
     Source18WorkflowTransaction,
+    MasterContentItem,
 )
 
 
@@ -47,14 +50,22 @@ def _authority_only_fields(case: AuthorityCase) -> list[str]:
 
 def _projection(db: Session, transaction: Source18WorkflowTransaction, case: AuthorityCase) -> dict[str, Any]:
     version = db.get(DocumentVersion, transaction.official_form_version_id)
+    document = db.get(Document, version.document_id) if version else None
     case_version_matches = case.official_form_version_id == transaction.official_form_version_id
     version_is_source18 = bool(version and str(version.source_system or "").upper() == "SOURCE18")
+    version_is_document_current = bool(version and document and document.current_version_id == version.id)
+    version_is_unsuperseded = bool(version and version.superseded_by is None)
+    version_is_reviewed = bool(version and version.approval_state in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED})
     body = db.get(ExternalBody, case.external_body_id)
     jurisdiction = db.get(Jurisdiction, case.jurisdiction_id)
     service = db.get(ServiceType, case.service_type_id)
     currentness, reusable = _currentness(case, transaction, version)
     if not case_version_matches or not version_is_source18:
         currentness, reusable = "UNRESOLVED", False
+    elif reusable and not version_is_document_current:
+        currentness, reusable = "UNRESOLVED", False
+    elif reusable and (not version_is_unsuperseded or not version_is_reviewed):
+        currentness, reusable = "STALE", False
     return {
         "projection_type": "SOURCE18_OFFICIAL_FORM_READ_ONLY",
         "read_only": True,
@@ -77,6 +88,9 @@ def _projection(db: Session, transaction: Source18WorkflowTransaction, case: Aut
         "binding": {
             "case_version_matches_transaction": case_version_matches,
             "document_version_source_system_is_source18": version_is_source18,
+            "document_current_version_matches": version_is_document_current,
+            "document_version_is_unsuperseded": version_is_unsuperseded,
+            "document_version_is_reviewed": version_is_reviewed,
         },
         "authority": {
             "publisher": case.official_form_publisher,
@@ -149,5 +163,13 @@ def resolve_source18_official_form(db: Session, *, transaction_id: str | None = 
 
 
 def source18_authority_item_ids(db: Session) -> set[str]:
-    """Return no Content Library IDs: authority is intentionally not duplicated."""
-    return set()
+    """Report any persisted Content Library rows linked to Source18 history.
+
+    A zero result is the duplicate-registry proof.  This is an audit query,
+    not a registry or a writable association.
+    """
+    return set(db.scalars(
+        select(MasterContentItem.id)
+        .join(DocumentVersion, DocumentVersion.document_id == MasterContentItem.document_id)
+        .join(Source18WorkflowTransaction, Source18WorkflowTransaction.official_form_version_id == DocumentVersion.id)
+    ).all())

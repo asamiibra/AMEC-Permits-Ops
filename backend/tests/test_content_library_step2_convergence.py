@@ -49,8 +49,8 @@ def _governance(client, item_id: str, **values):
 
 def test_canonical_and_v2_reads_keep_all_filters_composable(client):
     category_id, category_label = _category()
-    item = _form(client, category_id=category_id, title="Step 2 authority service form", used_in=["BD"])
-    _governance(client, item["id"], content_ownership_class="EXTERNAL_OFFICIAL", artifact_kind="AUTHORITY_FORM", language_profile="EN", publisher_name="Step 2 Authority")
+    item = _form(client, category_id=category_id, title="Step 2 AMEC service form", used_in=["BD"])
+    _governance(client, item["id"], content_ownership_class="AMEC_OWNED", artifact_kind="AMEC_FORM", language_profile="EN", publisher_name="AMEC")
     suffix = uuid4().hex[:8]
     jurisdiction = client.post("/api/regulatory/jurisdictions", json={"code": f"STEP2-J-{suffix}", "country_code": "ZZ", "name_en": "Step 2 Locality", "level": "LOCALITY"}, headers=OWNER).json()["id"]
     body = client.post("/api/regulatory/external-bodies", json={"code": f"STEP2-B-{suffix}", "name_en": "Step 2 Authority", "body_type": "AUTHORITY", "jurisdiction_id": jurisdiction, "verification_state": "SYNTHETIC_UNVERIFIED"}, headers=OWNER).json()["id"]
@@ -59,7 +59,7 @@ def test_canonical_and_v2_reads_keep_all_filters_composable(client):
     applicability = client.post("/api/dashboard-v2/applicability", json={"master_content_item_id": item["id"], "source_document_version_id": item["current_version_id"], "external_body_id": body, "jurisdiction_id": jurisdiction, "service_type_id": service, "lifecycle_phase_id": phase, "status": "ACTIVE"}, headers=OWNER)
     assert applicability.status_code == 200, applicability.text
 
-    params = {"content_type": "FORM", "category_label": category_label, "owner_status": "CURRENT", "module": "BD", "ownership": "EXTERNAL_OFFICIAL", "artifact_kind": "AUTHORITY_FORM", "publisher": "authority", "language": "EN", "external_body_id": body, "jurisdiction_id": jurisdiction, "service_type_id": service, "lifecycle_phase_id": phase, "applicability_status": "ACTIVE"}
+    params = {"content_type": "FORM", "category_label": category_label, "owner_status": "CURRENT", "module": "BD", "ownership": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "publisher": "amec", "language": "EN", "external_body_id": body, "jurisdiction_id": jurisdiction, "service_type_id": service, "lifecycle_phase_id": phase, "applicability_status": "ACTIVE"}
     canonical = client.get("/api/master-content", params=params, headers=OWNER)
     v2 = client.get("/api/dashboard-v2/forms", params={key: value for key, value in params.items() if key != "content_type"}, headers=OWNER)
     assert canonical.status_code == 200, canonical.text

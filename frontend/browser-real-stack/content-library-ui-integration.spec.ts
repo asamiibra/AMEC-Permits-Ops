@@ -66,12 +66,28 @@ test.describe("Content Library first-class UI integration", () => {
     expect(listingBody.authority_owner).toBe("SOURCE18");
     expect(listingBody.read_only).toBe(true);
     expect(Array.isArray(listingBody.items)).toBe(true);
+    expect(listingBody.items.length).toBeGreaterThan(0);
+    for (const item of listingBody.items) {
+      expect(item.projection_type).toBe("SOURCE18_OFFICIAL_FORM_READ_ONLY");
+      expect(item.source18?.transaction_id).toBeTruthy();
+      expect(item.source18?.authority_case_id).toBeTruthy();
+      expect(item.document_version?.id).toBeTruthy();
+      expect(item.document_version?.sha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(item.provenance?.source_system).toBe("SOURCE18");
+      expect(item.provenance?.source_hash).toBe(item.document_version.sha256);
+      expect(item.currentness?.state).toBe("CURRENT");
+      expect(item.currentness?.reusable).toBe(true);
+      expect(item.reuse?.allowed).toBe(true);
+    }
 
     const resolving = await request.get("/api/master-content/official-forms/resolve", { headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
     expect(resolving.ok()).toBeTruthy();
     const resolvingBody = await resolving.json();
     expect(resolvingBody.truth).toBe("SOURCE18");
-    expect(["RESOLVED", "AMBIGUOUS", "UNRESOLVED"]).toContain(resolvingBody.status);
+    expect(resolvingBody.status).toBe("RESOLVED");
+    expect(resolvingBody.canonical_count).toBe(1);
+    expect(resolvingBody.item.document_version.id).toBe(listingBody.items[0].document_version.id);
+    expect(resolvingBody.item.document_version.sha256).toBe(listingBody.items[0].document_version.sha256);
   });
 
   test("Content Library Go-Live handoff is configurable and returns to the library", async ({ page }) => {
