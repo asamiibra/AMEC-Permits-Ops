@@ -64,15 +64,44 @@ Residual implementation evidence from this run:
 - Business-local timezone is deployment configuration. Reports fail closed when
   it is blank or invalid and expose `CONFIGURATION_REQUIRED`; no guessed
   timezone or YTD value is emitted.
-- Qualification completed here: backend targeted Billing/finance/owner suite
-  `54 passed, 1 warning`; frontend targeted Billing suite `3 passed`; frontend
-  production build passed; Python compile and Alembic single-head checks passed.
--  The full frontend suite passed `117 tests`; the universal UI crawl completed
-  all `312/312` cases, but its final decision remained `NOT_READY` with exact
-  gaps in owner-facing technical text, raw enum visibility, accessibility,
-  crawl console errors, status semantic clarity, and contract-detail
-  conformance. The aggregate backend suite, full Billing mutation browser
-  suite, and exact-head GitHub CI rerun are not claimed as passes.
+- Exact-head qualification at implementation SHA
+  `69e57cd0d47e8c6f192e34be6fa0a4e52a1dc809` (tree
+  `d7a7daf19d33b880bf7ea553c71ff2c41e6a33c9`) completed with focused backend
+  finance/authority tests `51 passed, 1 warning`; frontend Vitest `117/117`
+  passed; frontend production build passed; Python compile passed; and Alembic
+  reported one head. The universal UI crawl completed all `312/312` cases over
+  66 routes and ended `PROPOSALOPS_UI_CONFORMANCE_READY` with all 28 checks
+  true. A prior single `NOT_READY` replay was not reproducible on the repeat
+  exact-head crawl and is recorded as a harness flake, not a product repair.
+- Required exact-head GitHub Actions passed: `backend-regression`,
+  `frontend-regression`, `migration-head`, `policy-and-security`, and both
+  `samba-contract` contexts. The backend Vercel preview remains
+  environment-blocked because `DATABASE_URL` is unavailable to
+  `scripts/vercel_data_bootstrap.py`; no credentials were added.
+
+## Terminal closure audit disposition
+
+`FINAL_RESULT=PR46_BILLING_FINANCE_EXPERIENCE_CLOSURE_BLOCKED`
+
+The remaining blocker is the live Billing mutation authorization seam. The
+Billing router gates mutations through global `Role` sets and `_role(...)`;
+`AuthenticatedPrincipal` carries the global role but no capability-assignment,
+project-scope, or client-scope authority; and the tested `ScopedCapability`
+helper in `source12_finance_controls.py` is side-effect-free and is not wired
+into the Billing dependency or a persisted assignment/resolver. The repository
+does not define a fourth global Finance/Secretary persona, and that invariant
+is preserved. Therefore scoped Finance capability authorization is not proven
+for live mutations and role-only privilege escalation remains unresolved.
+
+The helper-level negative tests still pass for wrong project, job-title-only,
+Finance/Secretary persona, and engineering billable-stage boundaries. They do
+not prove live route enforcement, so this is a real closure blocker rather than
+a failed UI or arithmetic result. Payment recorded/verified/allocated/reversed
+and cross-project/client checks remain distinct and passing.
+
+No Billing V10 reopening, Billing V11 work, merge, deployment, production or
+preproduction access, Azure/Entra/DNS change, real financial-data use, or
+protected-human finance action occurred.
 
 ## Explicit non-goals
 
