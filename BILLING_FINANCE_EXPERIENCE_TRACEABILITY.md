@@ -41,10 +41,11 @@ approved policy as unresolved.
 
 ## Schema and qualification
 
-- One forward migration was added from `billing_finance_experience_v1`:
-  `billing_finance_experience_closure_v1`.
-- It adds milestone attribution to allocations and versioned FX / Expected EXP
-  persistence. It does not rewrite V10 or PR #46 historical migrations.
+- The accepted closure migration `billing_finance_experience_closure_v1` remains
+  intact, followed by one forward migration from that head:
+  `scoped_finance_capability_assignment_v1`. It adds only the generic persisted
+  scoped-capability assignment table and does not rewrite V10 or PR #46
+  historical migrations.
 - Synthetic data only; no production database, credentials, bank account,
   client payment, cheque, receipt, or external AI invocation.
 - Full qualification must be rerun after closure changes; prior PR #46 counts
@@ -81,23 +82,31 @@ Residual implementation evidence from this run:
 
 ## Terminal closure audit disposition
 
-`FINAL_RESULT=PR46_BILLING_FINANCE_EXPERIENCE_CLOSURE_BLOCKED`
+The scoped Finance authorization seam is implemented on the existing accepted
+branch. `ScopedCapabilityAssignment` is a persisted generic assignment bound to
+the actual User, exact capability code, and one or more explicit office/client/
+Project scopes, with effective dates, provenance, and revocation state. The
+server resolver requires an active persisted assignment, exact context match,
+the existing global Role constraint, and returns the assignment ID used for
+mutation audit. No authority is inferred from job title, display name, or
+global persona; Finance and Secretary remain operational functions rather than
+new global personas.
 
-The remaining blocker is the live Billing mutation authorization seam. The
-Billing router gates mutations through global `Role` sets and `_role(...)`;
-`AuthenticatedPrincipal` carries the global role but no capability-assignment,
-project-scope, or client-scope authority; and the tested `ScopedCapability`
-helper in `source12_finance_controls.py` is side-effect-free and is not wired
-into the Billing dependency or a persisted assignment/resolver. The repository
-does not define a fourth global Finance/Secretary persona, and that invariant
-is preserved. Therefore scoped Finance capability authorization is not proven
-for live mutations and role-only privilege escalation remains unresolved.
+All protected Billing POST mutation routes now resolve authorization from the
+canonical loaded Contract, Client, Project, Payment, or office context before
+writing. `/api/billing/capabilities` projects only effective scoped grants for
+the requested canonical context. Owner Administration exposes assignment list,
+create, and explicit revoke operations; revocation retains history. Synthetic
+seed data contains explicit office-scoped grants solely for the seeded demo
+users. Live route tests prove no-grant denial, wrong-capability denial,
+wrong-project denial, exact project-scope success, and auditable revoke.
 
-The helper-level negative tests still pass for wrong project, job-title-only,
-Finance/Secretary persona, and engineering billable-stage boundaries. They do
-not prove live route enforcement, so this is a real closure blocker rather than
-a failed UI or arithmetic result. Payment recorded/verified/allocated/reversed
-and cross-project/client checks remain distinct and passing.
+The new migration `scoped_finance_capability_assignment_v1` follows
+`billing_finance_experience_closure_v1` and is the sole repository head. The
+existing universal UI closure was not reopened, and no Vercel repair or merge
+to `main` was performed.
+
+`FINAL_RESULT=PR46_BILLING_FINANCE_EXPERIENCE_SCOPED_AUTHORIZATION_CLOSED`
 
 No Billing V10 reopening, Billing V11 work, merge, deployment, production or
 preproduction access, Azure/Entra/DNS change, real financial-data use, or

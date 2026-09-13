@@ -14,16 +14,16 @@ from sqlalchemy.orm import Session
 from ..adapters.excel.adapter import MockExcelAdapter
 from ..adapters.municipality.adapter import MockMunicipalityAdapter
 from ..audit.service import audit
-from ..api.dependencies import current_user_role
+from ..api.dependencies import AuthenticatedPrincipal, current_principal, current_user_role
 from ..config.settings import get_settings, repo_root
 from ..db import get_db
 from ..models import (
     AuditEvent, AttachmentCategoryConfig, ConfigurationArtifact, ConfigurationBundle,
-    Contract, ContractRevision, ExternalSystemLink, FieldDefinition, Finding,
+    ClientAccount, Contract, ContractRevision, ExternalSystemLink, FieldDefinition, Finding,
     FormTemplate, FormTemplateVersion, MunicipalityConfig, NotificationEvent,
     Opportunity, Project, ProjectNumberReservation, ProposalIntakeArtifact,
     Quotation, RequirementConfig, Role, ScenarioConfig, SynologyProjectBootstrap,
-    TargetRenderingRule, TemplateDefinition, TemplateVersion, User, WorkflowTask,
+    TargetRenderingRule, TemplateDefinition, TemplateVersion, User, WorkflowTask, ScopedCapabilityAssignment, ConsultancyOffice,
 )
 from ..services.proposals_sor import ACTION_CONFIG, SEMANTIC_FOLDER_CONFIG
 from ..storage.factory import create_binary_store
@@ -68,6 +68,40 @@ def _capability_rows() -> list[dict[str, str]]:
         ("Audit visibility", "View", "View limited", "View limited"),
     ]
     return [{"capability": a, "owner": b, "business_development": c, "engineering": d} for a, b, c, d in rows]
+
+
+CAPABILITY_CATALOG = [
+    "BILLING_VIEW", "BILLING_PLAN_MANAGE", "BILLING_PLAN_APPROVE", "BILLING_MILESTONE_REVIEW",
+    "BILLING_READINESS_REQUEST", "INVOICE_CREATE", "INVOICE_REVISION_CREATE", "INVOICE_CALCULATE",
+    "INVOICE_REFERENCE", "INVOICE_APPROVAL", "INVOICE_DELIVERY", "INVOICE_ACKNOWLEDGMENT", "INVOICE_ACCEPT",
+    "INVOICE_ISSUE", "FINANCIAL_ACCOUNT_MANAGE", "FINANCIAL_ACCOUNT_APPROVE", "PAYMENT_RECORD", "PAYMENT_VERIFY",
+    "PAYMENT_ALLOCATE", "PAYMENT_REVERSE", "RECEIVABLE_NON_CASH_RESOLVE", "RECEIVABLE_FOLLOW_UP",
+    "BILLING_FX_RATE_MANAGE", "PROJECT_EXPECTED_EXP_EDIT",
+]
+
+
+def _assignment_row(item: ScopedCapabilityAssignment, db: Session) -> dict[str, Any]:
+    user = db.get(User, item.user_id)
+    return {
+        "id": item.id,
+        "user_id": item.user_id,
+        "user_name": user.display_name if user else None,
+        "user_email": user.email if user else None,
+        "capability_code": item.capability_code,
+        "office_id": item.office_id,
+        "client_account_id": item.client_account_id,
+        "project_id": item.project_id,
+        "status": item.status,
+        "effective_from": item.effective_from.isoformat() if item.effective_from else None,
+        "effective_to": item.effective_to.isoformat() if item.effective_to else None,
+        "assignment_reference": item.assignment_reference,
+        "reason": item.reason,
+        "evidence_reference": item.evidence_reference,
+        "granted_by": item.granted_by,
+        "granted_at": item.granted_at.isoformat() if item.granted_at else None,
+        "revoked_by": item.revoked_by,
+        "revoked_at": item.revoked_at.isoformat() if item.revoked_at else None,
+    }
 
 
 def _readable(value: Any, fallback: str = "Needs AMEC Input") -> str:
@@ -178,7 +212,86 @@ def admin_summary(db: Session = Depends(get_db), _role: Role = Depends(owner_adm
 @router.get("/users")
 def admin_users(db: Session = Depends(get_db), _role: Role = Depends(owner_admin)):
     users = db.scalars(select(User).order_by(User.display_name)).all()
-    return {"users": [{"id": u.id, "name": u.display_name, "email": u.email, "role": _user_role(u.role), "status": "Active" if u.active else "Inactive", "office": u.office.name_en if u.office else "Needs AMEC Input"} for u in users], "production_user_management": "Needs AMEC production setup", "permissions": _capability_rows(), "inputs_route": "/admin/go-live-readiness"}
+    assignments = db.scalars(select(ScopedCapabilityAssignment).order_by(ScopedCapabilityAssignment.created_at.desc())).all()
+    return {"users": [{"id": u.id, "name": u.display_name, "email": u.email, "role": _user_role(u.role), "status": "Active" if u.active else "Inactive", "office": u.office.name_en if u.office else "Needs AMEC Input"} for u in users], "production_user_management": "Needs AMEC production setup", "permissions": _capability_rows(), "capability_catalog": CAPABILITY_CATALOG, "capability_assignments": [_assignment_row(item, db) for item in assignments], "inputs_route": "/admin/go-live-readiness"}
+
+
+@router.get("/capability-assignments")
+def list_capability_assignments(db: Session = Depends(get_db), _role: Role = Depends(owner_admin)):
+    rows = db.scalars(select(ScopedCapabilityAssignment).order_by(ScopedCapabilityAssignment.created_at.desc())).all()
+    return {"items": [_assignment_row(item, db) for item in rows], "capability_catalog": CAPABILITY_CATALOG}
+
+
+@router.post("/capability-assignments")
+def create_capability_assignment(
+    payload: dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    _role: Role = Depends(owner_admin),
+    principal: AuthenticatedPrincipal = Depends(current_principal),
+):
+    user = db.get(User, payload.get("user_id"))
+    capability = str(payload.get("capability_code") or "").strip().upper()
+    scope_fields = [str(payload.get(name) or "").strip() or None for name in ("office_id", "client_account_id", "project_id")]
+    if not user or not user.active:
+        raise HTTPException(404, {"code": "ASSIGNMENT_USER_NOT_FOUND"})
+    if capability not in CAPABILITY_CATALOG:
+        raise HTTPException(422, {"code": "ASSIGNMENT_CAPABILITY_NOT_SUPPORTED", "allowed": CAPABILITY_CATALOG})
+    if not any(scope_fields):
+        raise HTTPException(422, {"code": "ASSIGNMENT_SCOPE_REQUIRED"})
+    office_id, client_account_id, project_id = scope_fields
+    project = db.get(Project, project_id) if project_id else None
+    if project_id and not project:
+        raise HTTPException(404, {"code": "ASSIGNMENT_PROJECT_NOT_FOUND"})
+    if project and office_id and project.office_id != office_id:
+        raise HTTPException(422, {"code": "ASSIGNMENT_PROJECT_OFFICE_MISMATCH"})
+    if project and not office_id:
+        office_id = project.office_id
+    if office_id and not db.get(ConsultancyOffice, office_id):
+        raise HTTPException(404, {"code": "ASSIGNMENT_OFFICE_NOT_FOUND"})
+    if client_account_id and not db.get(ClientAccount, client_account_id):
+        raise HTTPException(404, {"code": "ASSIGNMENT_CLIENT_NOT_FOUND"})
+    reference = str(payload.get("assignment_reference") or "").strip()
+    reason = str(payload.get("reason") or "").strip()
+    if not reference or not reason:
+        raise HTTPException(422, {"code": "ASSIGNMENT_REFERENCE_AND_REASON_REQUIRED"})
+    def _parse(value: Any, field: str) -> datetime | None:
+        if not value:
+            return None
+        try:
+            return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise HTTPException(422, {"code": "ASSIGNMENT_DATE_INVALID", "field": field}) from exc
+    item = ScopedCapabilityAssignment(
+        user_id=user.id, capability_code=capability, office_id=office_id, client_account_id=client_account_id,
+        project_id=project_id, status="ACTIVE", effective_from=_parse(payload.get("effective_from"), "effective_from") or datetime.now(timezone.utc),
+        effective_to=_parse(payload.get("effective_to"), "effective_to"), assignment_reference=reference, reason=reason,
+        evidence_reference=str(payload.get("evidence_reference") or "").strip() or None, granted_by=principal.user_id or _role.value,
+    )
+    db.add(item); db.flush()
+    audit(db, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), event_type="SCOPED_CAPABILITY_ASSIGNED", entity_type="ScopedCapabilityAssignment", entity_id=item.id, actor_id=principal.user_id or _role.value, after=_assignment_row(item, db), metadata={"capability_code": capability})
+    db.commit()
+    return _assignment_row(item, db)
+
+
+@router.post("/capability-assignments/{assignment_id}/revoke")
+def revoke_capability_assignment(
+    assignment_id: str,
+    payload: dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    _role: Role = Depends(owner_admin),
+    principal: AuthenticatedPrincipal = Depends(current_principal),
+):
+    item = db.get(ScopedCapabilityAssignment, assignment_id)
+    if not item:
+        raise HTTPException(404, {"code": "ASSIGNMENT_NOT_FOUND"})
+    if item.status == "REVOKED":
+        return _assignment_row(item, db)
+    item.status = "REVOKED"; item.revoked_by = principal.user_id or _role.value; item.revoked_at = datetime.now(timezone.utc)
+    audit(db, correlation_id=getattr(getattr(request, "state", None), "correlation_id", "missing-correlation-id"), event_type="SCOPED_CAPABILITY_REVOKED", entity_type="ScopedCapabilityAssignment", entity_id=item.id, actor_id=item.revoked_by, after={"status": item.status, "revoked_by": item.revoked_by})
+    db.commit()
+    return _assignment_row(item, db)
 
 
 @router.get("/permissions")

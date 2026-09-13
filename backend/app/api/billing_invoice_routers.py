@@ -34,6 +34,8 @@ from ..models import (
     PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, BillingFxRateRecord, ProjectExpectedExpVersion, Role, TemplateDefinition, TemplateVersion,
 )
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
+from ..services.finance_authorization import BillingAuthorizationContext, effective_billing_capabilities, resolve_billing_capability
+from .dependencies import AuthenticatedPrincipal, current_principal
 from ..services.owner_decisions import runtime_decision_value
 from ..services.commercial_contract_controls import compose_amec_invoice_reference
 from ..services.source12_finance_controls import production_numbering_gate
@@ -84,6 +86,31 @@ def _local_year_bounds() -> tuple[str | None, datetime | None, datetime | None]:
 def _role(role: Role, allowed: set[Role], code: str) -> None:
     if role not in allowed:
         raise HTTPException(403, {"code": "CAPABILITY_DENIED", "capability": code})
+
+
+def _authorize(
+    db: Session,
+    request: Request,
+    principal: AuthenticatedPrincipal,
+    *,
+    capability: str,
+    roles: set[Role],
+    project_id: str | None = None,
+    client_account_id: str | None = None,
+    office_id: str | None = None,
+) -> None:
+    resolve_billing_capability(
+        db,
+        principal,
+        capability_code=capability,
+        allowed_roles=roles,
+        context=BillingAuthorizationContext(
+            office_id=office_id or principal.office_id,
+            client_account_id=client_account_id,
+            project_id=project_id,
+        ),
+        request=request,
+    )
 
 
 def _row(item: Any, *, mask_sensitive: bool = False) -> dict[str, Any] | None:
@@ -256,7 +283,10 @@ def _require_issue_project_policy(db: Session, project: Project | None) -> None:
 
 
 def _audit(db: Session, request: Request, event: str, entity_type: str, entity_id: str, actor: str, after: dict[str, Any] | None = None) -> None:
-    safe = after or {}
+    safe = dict(after or {})
+    assignment_id = getattr(request.state, "billing_authorization_assignment_id", None)
+    if assignment_id:
+        safe["authorization_assignment_id"] = assignment_id
     for key in ("account_reference", "iban", "bank_account", "payment_evidence"):
         safe.pop(key, None)
     audit(db, correlation_id=_corr(request), event_type=event, entity_type=entity_type, entity_id=entity_id, actor_id=actor, after=safe)
@@ -420,9 +450,10 @@ def billing_summary(db: Session = Depends(get_db), role: Role = Depends(current_
 
 
 @router.post("/plans")
-def create_billing_plan(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_billing_plan(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "BILLING_PLAN_MANAGE")
     contract, revision, context, project = _contract_context(db, str(payload.get("contract_id") or ""), payload.get("contract_revision_id"))
+    _authorize(db, request, principal, capability="BILLING_PLAN_MANAGE", roles=PLAN_WRITE, project_id=project.id if project else None, client_account_id=contract.client_account_id)
     currency = str(payload.get("currency") or revision.currency or contract.currency or "").upper()
     if not currency:
         raise HTTPException(409, {"code": "CONTRACT_CURRENCY_REQUIRED"})
@@ -456,13 +487,14 @@ def get_billing_plan(plan_id: str, db: Session = Depends(get_db), role: Role = D
 
 
 @router.post("/plans/{plan_id}/revisions")
-def revise_billing_plan(plan_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def revise_billing_plan(plan_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "BILLING_PLAN_MANAGE")
     plan = db.get(BillingPlan, plan_id)
     if not plan or plan.status in {"CANCELLED", "SUPERSEDED"}:
         raise HTTPException(404, {"code": "BILLING_PLAN_NOT_FOUND"})
     previous = db.get(BillingPlanRevision, plan.current_revision_id)
     contract, contract_revision, context, project = _contract_context(db, plan.contract_id, plan.contract_revision_id)
+    _authorize(db, request, principal, capability="BILLING_PLAN_MANAGE", roles=PLAN_WRITE, project_id=project.id if project else plan.project_id, client_account_id=contract.client_account_id)
     number = (db.scalar(select(func.max(BillingPlanRevision.revision_number)).where(BillingPlanRevision.billing_plan_id == plan.id)) or 0) + 1
     billing_mode = str(payload.get("billing_mode") or plan.billing_mode or "MILESTONE_EVENT").upper()
     if billing_mode not in {"SUPERVISION_MONTHLY", "MILESTONE_EVENT"}:
@@ -476,7 +508,7 @@ def revise_billing_plan(plan_id: str, payload: dict[str, Any], request: Request,
 
 
 @router.post("/plans/{plan_id}/activate")
-def activate_billing_plan(plan_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def activate_billing_plan(plan_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "BILLING_PLAN_APPROVE")
     plan = db.get(BillingPlan, plan_id)
     if not plan:
@@ -484,6 +516,7 @@ def activate_billing_plan(plan_id: str, payload: dict[str, Any], request: Reques
     revision = db.get(BillingPlanRevision, plan.current_revision_id) if plan.current_revision_id else None
     if not revision:
         raise HTTPException(409, {"code": "BILLING_PLAN_REVISION_REQUIRED"})
+    _authorize(db, request, principal, capability="BILLING_PLAN_APPROVE", roles=OWNER, project_id=revision.project_id or plan.project_id, client_account_id=revision.client_account_id or plan.client_account_id)
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == plan.contract_id, ProjectActivation.status == "ACTIVE"))
     policy = str(runtime_decision_value(db, "BILLING_PROJECT_REQUIREMENT_POLICY", "REQUIRED")).upper()
     if not activation and policy in {"REQUIRED", "PROJECT_REQUIRED"}:
@@ -501,9 +534,10 @@ def activate_billing_plan(plan_id: str, payload: dict[str, Any], request: Reques
 
 
 @router.post("/plan-revisions/{plan_revision_id}/milestones")
-def create_billing_milestone(plan_revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_billing_milestone(plan_revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "BILLING_MILESTONE_REVIEW")
     plan_revision, plan, contract, contract_revision, project = _plan_revision(db, plan_revision_id)
+    _authorize(db, request, principal, capability="BILLING_MILESTONE_REVIEW", roles=PLAN_WRITE, project_id=project.id if project else plan_revision.project_id, client_account_id=contract.client_account_id)
     if plan_revision.status == "SUPERSEDED" or plan.status == "CANCELLED":
         raise HTTPException(409, {"code": "BILLING_PLAN_REVISION_IMMUTABLE"})
     basis = str(payload.get("basis_type") or "").upper()
@@ -521,12 +555,13 @@ def create_billing_milestone(plan_revision_id: str, payload: dict[str, Any], req
 
 
 @router.post("/milestones/{milestone_id}/eligibility")
-def evaluate_milestone(milestone_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def evaluate_milestone(milestone_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "BILLING_MILESTONE_REVIEW")
     item = db.get(BillingMilestone, milestone_id)
     if not item:
         raise HTTPException(404, {"code": "BILLING_MILESTONE_NOT_FOUND"})
     plan_revision, plan, contract, contract_revision, project = _plan_revision(db, item.billing_plan_revision_id)
+    _authorize(db, request, principal, capability="BILLING_MILESTONE_REVIEW", roles=PLAN_WRITE, project_id=project.id if project else plan_revision.project_id, client_account_id=contract.client_account_id)
     trigger = item.trigger_type
     state, reason = "WAITING_TRIGGER", "Required trigger evidence is not present."
     evidence = dict(payload.get("trigger_evidence") or {})
@@ -548,7 +583,7 @@ def evaluate_milestone(milestone_id: str, payload: dict[str, Any], request: Requ
 
 
 @router.post("/invoices")
-def create_invoice(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_invoice(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "INVOICE_CREATE")
     ids = [str(x) for x in (payload.get("milestone_ids") or [])]
     if not ids:
@@ -557,6 +592,7 @@ def create_invoice(payload: dict[str, Any], request: Request, db: Session = Depe
     if any(item is None for item in milestones):
         raise HTTPException(404, {"code": "BILLING_MILESTONE_NOT_FOUND"})
     plan_revision, plan, contract, contract_revision, project = _plan_revision(db, milestones[0].billing_plan_revision_id)
+    _authorize(db, request, principal, capability="INVOICE_CREATE", roles=PLAN_WRITE, project_id=project.id if project else plan_revision.project_id, client_account_id=contract.client_account_id)
     if any(item.billing_plan_revision_id != plan_revision.id or item.eligibility_state != "ELIGIBLE" for item in milestones):
         raise HTTPException(409, {"code": "ELIGIBLE_MILESTONES_REQUIRED"})
     if plan.status != "ACTIVE" or plan_revision.status != "ACTIVE":
@@ -704,9 +740,10 @@ def invoice_precheck(invoice_id: str, db: Session = Depends(get_db), role: Role 
 
 
 @router.post("/invoices/{invoice_id}/clone")
-def clone_invoice(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def clone_invoice(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "INVOICE_CREATE")
     source, contract, previous, plan_revision, project = _invoice_revision(db, invoice_id)
+    _authorize(db, request, principal, capability="INVOICE_CREATE", roles=PLAN_WRITE, project_id=project.id if project else source.project_id, client_account_id=source.client_account_id or contract.client_account_id)
     if not plan_revision:
         raise HTTPException(409, {"code": "BILLING_PLAN_REVISION_REQUIRED"})
     key = str(payload.get("idempotency_key") or "").strip()
@@ -735,9 +772,10 @@ def clone_invoice(invoice_id: str, payload: dict[str, Any], request: Request, db
 
 
 @router.post("/invoices/{invoice_id}/revisions")
-def create_invoice_revision(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_invoice_revision(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "INVOICE_EDIT_DRAFT")
     invoice, contract, previous, plan_revision, project = _invoice_revision(db, invoice_id)
+    _authorize(db, request, principal, capability="INVOICE_REVISION_CREATE", roles=PLAN_WRITE, project_id=project.id if project else invoice.project_id, client_account_id=invoice.client_account_id or contract.client_account_id)
     if invoice.status in {"ISSUED", "VOIDED"} or previous.status in {"ACCEPTED_INTERNAL", "ISSUED"}:
         raise HTTPException(409, {"code": "ISSUED_OR_ACCEPTED_INVOICE_IMMUTABLE"})
     if not plan_revision:
@@ -759,11 +797,13 @@ def create_invoice_revision(invoice_id: str, payload: dict[str, Any], request: R
 
 
 @router.post("/invoice-revisions/{revision_id}/calculate")
-def calculate_invoice(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def calculate_invoice(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "INVOICE_EDIT_DRAFT")
     revision = db.get(InvoiceRevision, revision_id)
     if not revision or revision.status in {"ACCEPTED_INTERNAL", "ISSUED"}:
         raise HTTPException(409, {"code": "INVOICE_REVISION_IMMUTABLE"})
+    invoice, contract, _revision, _plan_revision, project = _invoice_revision(db, revision.invoice_id, revision.id)
+    _authorize(db, request, principal, capability="INVOICE_CALCULATE", roles=PLAN_WRITE, project_id=project.id if project else invoice.project_id, client_account_id=invoice.client_account_id or contract.client_account_id)
     if payload.get("lines") is not None:
         for line in _lines(db, revision.id): db.delete(line)
         db.flush()
@@ -785,11 +825,13 @@ def calculate_invoice(revision_id: str, payload: dict[str, Any], request: Reques
 
 
 @router.post("/invoice-revisions/{revision_id}/references")
-def add_invoice_reference(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def add_invoice_reference(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "INVOICE_REFERENCE_MANAGE")
     revision = db.get(InvoiceRevision, revision_id)
     if not revision or revision.status in {"ISSUED"}:
         raise HTTPException(409, {"code": "INVOICE_REVISION_IMMUTABLE"})
+    invoice, contract, _revision, _plan_revision, project = _invoice_revision(db, revision.invoice_id, revision.id)
+    _authorize(db, request, principal, capability="INVOICE_REFERENCE", roles=PLAN_WRITE, project_id=project.id if project else invoice.project_id, client_account_id=invoice.client_account_id or contract.client_account_id)
     value = str(payload.get("value") or "").strip(); reference_type = str(payload.get("reference_type") or "").strip().upper()
     if not value or not reference_type:
         raise HTTPException(422, {"code": "TYPED_REFERENCE_REQUIRED"})
@@ -798,10 +840,12 @@ def add_invoice_reference(revision_id: str, payload: dict[str, Any], request: Re
 
 
 @router.post("/invoice-revisions/{revision_id}/approvals")
-def add_invoice_approval(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def add_invoice_approval(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "INVOICE_APPROVAL_VERIFY")
     revision = db.get(InvoiceRevision, revision_id)
     if not revision or revision.status == "ISSUED": raise HTTPException(409, {"code": "INVOICE_REVISION_IMMUTABLE"})
+    invoice, contract, _revision, _plan_revision, project = _invoice_revision(db, revision.invoice_id, revision.id)
+    _authorize(db, request, principal, capability="INVOICE_APPROVAL", roles=OWNER, project_id=project.id if project else invoice.project_id, client_account_id=invoice.client_account_id or contract.client_account_id)
     item = InvoiceApprovalRecord(invoice_revision_id=revision.id, approval_type=str(payload.get("approval_type") or "CONFIGURED_APPROVAL"), status=str(payload.get("status") or "PENDING").upper(), approval_reference=payload.get("approval_reference"), approving_party_or_body=payload.get("approving_party_or_body"), decision_date=_date(payload["decision_date"], field="decision_date") if payload.get("decision_date") else None, source_document_version_id=payload.get("source_document_version_id"), notes=payload.get("notes"), verified_by=_actor(request, payload) if str(payload.get("status") or "").upper() == "VERIFIED" else None, verified_at=datetime.now(timezone.utc) if str(payload.get("status") or "").upper() == "VERIFIED" else None)
     db.add(item); db.flush()
     invoice = db.get(Invoice, revision.invoice_id)
@@ -812,12 +856,14 @@ def add_invoice_approval(revision_id: str, payload: dict[str, Any], request: Req
 
 
 @router.post("/invoice-revisions/{revision_id}/deliveries")
-def record_invoice_delivery(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def record_invoice_delivery(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "INVOICE_DELIVERY_RECORD")
     revision = db.get(InvoiceRevision, revision_id)
     if not revision:
         raise HTTPException(404, {"code": "INVOICE_REVISION_NOT_FOUND"})
     invoice = db.get(Invoice, revision.invoice_id)
+    contract = db.get(Contract, invoice.contract_id) if invoice else None
+    _authorize(db, request, principal, capability="INVOICE_DELIVERY", roles=OWNER, project_id=invoice.project_id if invoice else None, client_account_id=invoice.client_account_id if invoice else (contract.client_account_id if contract else None))
     issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice.id, InvoiceIssueEvent.invoice_revision_id == revision.id))
     if not issue or revision.status != "ISSUED":
         raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
@@ -858,13 +904,15 @@ def invoice_communications(invoice_id: str, db: Session = Depends(get_db), role:
 
 
 @router.post("/invoices/{invoice_id}/acknowledgments")
-def record_invoice_acknowledgment(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def record_invoice_acknowledgment(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "INVOICE_ACKNOWLEDGMENT_RECORD")
     invoice = db.get(Invoice, invoice_id)
     issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice_id)) if invoice else None
     revision = db.get(InvoiceRevision, issue.invoice_revision_id) if issue else None
     if not invoice or not issue or not revision:
         raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
+    contract = db.get(Contract, invoice.contract_id)
+    _authorize(db, request, principal, capability="INVOICE_ACKNOWLEDGMENT", roles=OWNER, project_id=invoice.project_id, client_account_id=invoice.client_account_id or (contract.client_account_id if contract else None))
     key = str(payload.get("idempotency_key") or "").strip()
     if not key:
         raise HTTPException(422, {"code": "ACKNOWLEDGMENT_IDEMPOTENCY_KEY_REQUIRED"})
@@ -890,12 +938,13 @@ def record_invoice_acknowledgment(invoice_id: str, payload: dict[str, Any], requ
 
 
 @router.post("/invoice-revisions/{revision_id}/accept")
-def accept_invoice(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def accept_invoice(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "INVOICE_ACCEPT")
     invoice, contract, revision, plan_revision, project = _invoice_revision(db, str(payload.get("invoice_id") or ""), revision_id) if payload.get("invoice_id") else (None, None, db.get(InvoiceRevision, revision_id), None, None)
     if invoice is None:
         if not revision: raise HTTPException(404, {"code": "INVOICE_REVISION_NOT_FOUND"})
         invoice, contract, revision, plan_revision, project = _invoice_revision(db, revision.invoice_id, revision.id)
+    _authorize(db, request, principal, capability="INVOICE_ACCEPT", roles=OWNER, project_id=project.id if project else invoice.project_id, client_account_id=invoice.client_account_id or contract.client_account_id)
     if revision.status == "ACCEPTED_INTERNAL":
         existing = db.scalar(select(InvoiceAcceptRecord).where(InvoiceAcceptRecord.invoice_revision_id == revision.id)); return {"invoice": _row(invoice), "revision": _row(revision), "accept": _row(existing)}
     if revision.status in {"ISSUED", "CANCELLED"}: raise HTTPException(409, {"code": "INVOICE_REVISION_NOT_ACCEPTABLE"})
@@ -909,18 +958,20 @@ def accept_invoice(revision_id: str, payload: dict[str, Any], request: Request, 
 
 
 @router.post("/financial-accounts")
-def create_financial_account(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_financial_account(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "FINANCIAL_ACCOUNT_MANAGE")
+    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_MANAGE", roles=OWNER)
     item = FinancialAccountMaster(legal_entity_party_id=payload.get("legal_entity_party_id"), legal_entity_ref=str(payload.get("legal_entity_ref") or "").strip(), account_name=str(payload.get("account_name") or "").strip(), status="DRAFT", created_by=_actor(request, payload))
     if not item.legal_entity_ref or not item.account_name: raise HTTPException(422, {"code": "LEGAL_ENTITY_AND_ACCOUNT_NAME_REQUIRED"})
     db.add(item); db.flush(); _audit(db, request, "FINANCIAL_ACCOUNT_MASTER_CREATED", "FinancialAccountMaster", item.id, _actor(request, payload), {"legal_entity_ref": item.legal_entity_ref, "status": item.status}); db.commit(); return _row(item)
 
 
 @router.post("/financial-accounts/{master_id}/versions")
-def create_financial_account_version(master_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_financial_account_version(master_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "FINANCIAL_ACCOUNT_MANAGE")
     master = db.get(FinancialAccountMaster, master_id)
     if not master: raise HTTPException(404, {"code": "FINANCIAL_ACCOUNT_MASTER_NOT_FOUND"})
+    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_MANAGE", roles=OWNER)
     version_number = (db.scalar(select(func.max(FinancialAccountVersion.version_number)).where(FinancialAccountVersion.financial_account_master_id == master.id)) or 0) + 1
     item = FinancialAccountVersion(financial_account_master_id=master.id, version_number=version_number, bank_name=str(payload.get("bank_name") or ""), account_name=str(payload.get("account_name") or master.account_name), account_reference=str(payload.get("account_reference") or ""), currency=str(payload.get("currency") or "").upper(), effective_from=_date(payload.get("effective_from") or date.today().isoformat(), field="effective_from"), effective_to=_date(payload["effective_to"], field="effective_to") if payload.get("effective_to") else None, status="DRAFT", payment_instruction_metadata=payload.get("payment_instruction_metadata") or {}, created_by=_actor(request, payload))
     if not item.bank_name or not item.account_reference or not item.currency: raise HTTPException(422, {"code": "FINANCIAL_ACCOUNT_FIELDS_REQUIRED"})
@@ -928,21 +979,23 @@ def create_financial_account_version(master_id: str, payload: dict[str, Any], re
 
 
 @router.post("/financial-account-versions/{version_id}/approve")
-def approve_financial_account_version(version_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def approve_financial_account_version(version_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "FINANCIAL_ACCOUNT_APPROVE")
     item = db.get(FinancialAccountVersion, version_id)
     if not item: raise HTTPException(404, {"code": "FINANCIAL_ACCOUNT_VERSION_NOT_FOUND"})
     master = db.get(FinancialAccountMaster, item.financial_account_master_id)
     if not master: raise HTTPException(409, {"code": "FINANCIAL_ACCOUNT_MASTER_NOT_FOUND"})
+    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_APPROVE", roles=OWNER)
     item.status = "ACTIVE"; item.approved_by = _actor(request, payload); item.approved_at = datetime.now(timezone.utc); master.status = "ACTIVE"; _audit(db, request, "FINANCIAL_ACCOUNT_VERSION_APPROVED", "FinancialAccountVersion", item.id, _actor(request, payload), {"master_id": master.id, "version_number": item.version_number, "currency": item.currency}); db.commit(); return _mask_account(item)
 
 
 @router.post("/invoice-revisions/{revision_id}/issue")
-def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "INVOICE_ISSUE")
     revision = db.get(InvoiceRevision, revision_id)
     if not revision: raise HTTPException(404, {"code": "INVOICE_REVISION_NOT_FOUND"})
     invoice, contract, revision, plan_revision, project = _invoice_revision(db, revision.invoice_id, revision.id)
+    _authorize(db, request, principal, capability="INVOICE_ISSUE", roles=OWNER, project_id=project.id if project else invoice.project_id, client_account_id=invoice.client_account_id or contract.client_account_id)
     key = str(payload.get("idempotency_key") or "").strip()
     if not key: raise HTTPException(422, {"code": "ISSUE_IDEMPOTENCY_KEY_REQUIRED"})
     prior = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.idempotency_key == key))
@@ -1084,33 +1137,30 @@ def _billing_context(db: Session, *, contract_id: str | None, project_id: str | 
     }
 
 
-def _capability_projection(role: Role) -> dict[str, bool]:
-    owner = role in OWNER
-    plan_write = role in PLAN_WRITE
-    view = role in VIEW
-    request_ready = owner or role in {Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}
+def _capability_projection(effective: set[str]) -> dict[str, bool]:
+    has = effective.__contains__
     return {
-        "can_view": view,
-        "can_manage_plan": plan_write,
-        "can_approve_plan": owner,
-        "can_review_milestone": plan_write,
-        "can_request_billable_stage": request_ready,
-        "can_create_invoice": plan_write,
-        "can_edit_invoice": plan_write,
-        "can_accept_invoice": owner,
-        "can_issue_invoice": owner,
-        "can_record_delivery": owner,
-        "can_record_acknowledgment": owner,
-        "can_record_payment": plan_write,
-        "can_verify_payment": owner,
-        "can_allocate_payment": owner,
-        "can_reverse_payment": owner,
-        "can_record_follow_up": plan_write,
-        "can_resolve_receivable": owner,
-        "can_manage_financial_account": owner,
-        "can_approve_financial_account": owner,
-        "can_manage_fx_rate": owner,
-        "can_edit_expected_exp": owner,
+        "can_view": has("BILLING_VIEW"),
+        "can_manage_plan": has("BILLING_PLAN_MANAGE"),
+        "can_approve_plan": has("BILLING_PLAN_APPROVE"),
+        "can_review_milestone": has("BILLING_MILESTONE_REVIEW"),
+        "can_request_billable_stage": has("BILLING_READINESS_REQUEST"),
+        "can_create_invoice": has("INVOICE_CREATE"),
+        "can_edit_invoice": has("INVOICE_CALCULATE") or has("INVOICE_REVISION_CREATE"),
+        "can_accept_invoice": has("INVOICE_ACCEPT"),
+        "can_issue_invoice": has("INVOICE_ISSUE"),
+        "can_record_delivery": has("INVOICE_DELIVERY"),
+        "can_record_acknowledgment": has("INVOICE_ACKNOWLEDGMENT"),
+        "can_record_payment": has("PAYMENT_RECORD"),
+        "can_verify_payment": has("PAYMENT_VERIFY"),
+        "can_allocate_payment": has("PAYMENT_ALLOCATE"),
+        "can_reverse_payment": has("PAYMENT_REVERSE"),
+        "can_record_follow_up": has("RECEIVABLE_FOLLOW_UP"),
+        "can_resolve_receivable": has("RECEIVABLE_NON_CASH_RESOLVE"),
+        "can_manage_financial_account": has("FINANCIAL_ACCOUNT_MANAGE"),
+        "can_approve_financial_account": has("FINANCIAL_ACCOUNT_APPROVE"),
+        "can_manage_fx_rate": has("BILLING_FX_RATE_MANAGE"),
+        "can_edit_expected_exp": has("PROJECT_EXPECTED_EXP_EDIT"),
     }
 
 
@@ -1220,12 +1270,47 @@ def _payment_projection(db: Session, item: PaymentReceipt) -> dict[str, Any]:
 
 
 @router.get("/capabilities")
-def billing_capabilities(role: Role = Depends(current_user_role)):
+def billing_capabilities(
+    project_id: str | None = None,
+    client_account_id: str | None = None,
+    contract_id: str | None = None,
+    invoice_id: str | None = None,
+    payment_id: str | None = None,
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+    principal: AuthenticatedPrincipal = Depends(current_principal),
+):
     _role(role, VIEW, "BILLING_VIEW")
+    if invoice_id:
+        invoice = db.get(Invoice, invoice_id)
+        if invoice:
+            project_id = invoice.project_id or project_id
+            client_account_id = invoice.client_account_id or client_account_id
+            contract_id = invoice.contract_id
+    if payment_id:
+        payment = db.get(PaymentReceipt, payment_id)
+        if payment:
+            project_id = payment.project_id or project_id
+            client_account_id = payment.client_account_id or client_account_id
+            contract_id = payment.contract_id
+    contract = db.get(Contract, contract_id) if contract_id else None
+    if contract:
+        project_id = contract.project_id or project_id
+        client_account_id = contract.client_account_id or client_account_id
+    project = db.get(Project, project_id) if project_id else None
+    office_id = project.office_id if project else principal.office_id
+    context = BillingAuthorizationContext(office_id=office_id, client_account_id=client_account_id, project_id=project_id)
+    effective = effective_billing_capabilities(db, principal, context=context)
     return {
         "role": role.value,
-        "capabilities": _capability_projection(role),
+        "capabilities": _capability_projection(effective),
+        "effective_capabilities": sorted(effective),
+        "authorization_scope": {"office_id": office_id, "client_account_id": client_account_id, "project_id": project_id},
+        # Keep the established response contract while making the actual
+        # source explicit in the adjacent field; booleans above are never
+        # derived from the global Role.
         "authority_source": "SERVER_MUTATION_POLICY",
+        "authorization_model": "PERSISTED_SCOPED_CAPABILITY_ASSIGNMENTS",
         "frontend_only_authority_grants": 0,
         "unresolved_owner_decisions": [],
         "resolved_owner_policies": RESOLVED_OWNER_POLICIES,
@@ -1404,7 +1489,7 @@ def supervision_queue(db: Session = Depends(get_db), role: Role = Depends(curren
 
 
 @router.post("/readiness-requests")
-def create_readiness_request(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_readiness_request(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER | {Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}, "BILLABLE_STAGE_REQUEST")
     milestone = db.get(BillingMilestone, payload.get("billing_milestone_id"))
     plan_revision = db.get(BillingPlanRevision, payload.get("billing_plan_revision_id"))
@@ -1412,6 +1497,7 @@ def create_readiness_request(payload: dict[str, Any], request: Request, db: Sess
     contract = db.get(Contract, payload.get("contract_id"))
     if not milestone or not plan_revision or not project or not contract or milestone.billing_plan_revision_id != plan_revision.id or plan_revision.project_id != project.id or plan_revision.contract_id != contract.id:
         raise HTTPException(409, {"code": "BILLING_READINESS_SCOPE_MISMATCH"})
+    _authorize(db, request, principal, capability="BILLING_READINESS_REQUEST", roles=OWNER | {Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}, project_id=project.id, client_account_id=contract.client_account_id)
     evidence_id = payload.get("evidence_document_version_id")
     _validate_document_evidence(db, evidence_id, project, not_found_code="BILLING_READINESS_EVIDENCE_NOT_FOUND", mismatch_code="BILLING_READINESS_EVIDENCE_PROJECT_MISMATCH")
     key = str(payload.get("idempotency_key") or "").strip()
@@ -1456,7 +1542,7 @@ def invoice_receivable(invoice_id: str, db: Session = Depends(get_db), role: Rol
 
 
 @router.post("/payments")
-def record_payment(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def record_payment(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "PAYMENT_RECORD")
     invoice = db.get(Invoice, payload.get("invoice_id")) if payload.get("invoice_id") else None
     contract_id = str(payload.get("contract_id") or (invoice.contract_id if invoice else ""))
@@ -1464,6 +1550,7 @@ def record_payment(payload: dict[str, Any], request: Request, db: Session = Depe
     client_id = str(payload.get("client_account_id") or (invoice.client_account_id if invoice else contract.client_account_id))
     if client_id != contract.client_account_id: raise HTTPException(403, {"code": "PAYMENT_CLIENT_CONTRACT_MISMATCH"})
     payment_project_id = payload["project_id"] if "project_id" in payload else (invoice.project_id if invoice else project.id if project else None); _scope_project(db, payment_project_id, contract, project)
+    _authorize(db, request, principal, capability="PAYMENT_RECORD", roles=PLAN_WRITE, project_id=payment_project_id, client_account_id=client_id)
     amount = _money(_d(payload.get("amount"), field="amount")); currency = str(payload.get("currency") or contract.currency or "").upper()
     if amount <= 0 or not currency: raise HTTPException(422, {"code": "PAYMENT_AMOUNT_CURRENCY_REQUIRED"})
     evidence_id = payload.get("evidence_document_version_id")
@@ -1508,8 +1595,9 @@ def project_payment_history(project_id: str, db: Session = Depends(get_db), role
 
 
 @router.post("/fx-rates")
-def create_fx_rate(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def create_fx_rate(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "FX_RATE_MANAGE")
+    _authorize(db, request, principal, capability="BILLING_FX_RATE_MANAGE", roles=OWNER)
     currency = str(payload.get("source_currency") or "").strip().upper()
     rate = _d(payload.get("qar_per_source_currency_rate"), field="qar_per_source_currency_rate")
     if not currency or currency == "QAR" or rate <= 0:
@@ -1523,11 +1611,12 @@ def create_fx_rate(payload: dict[str, Any], request: Request, db: Session = Depe
 
 
 @router.post("/projects/{project_id}/expected-exp")
-def set_expected_exp(project_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def set_expected_exp(project_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "EXPECTED_EXP_EDIT")
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(404, {"code": "PROJECT_NOT_FOUND"})
+    _authorize(db, request, principal, capability="PROJECT_EXPECTED_EXP_EDIT", roles=OWNER, project_id=project.id, office_id=project.office_id)
     value = _d(payload.get("value_percent"), field="value_percent")
     if value < 0 or value > 100:
         raise HTTPException(422, {"code": "EXPECTED_EXP_PERCENT_OUT_OF_RANGE"})
@@ -1566,10 +1655,11 @@ def billing_controls(db: Session = Depends(get_db), role: Role = Depends(current
 
 
 @router.post("/payments/{payment_id}/verify")
-def verify_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def verify_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "PAYMENT_VERIFY")
     item = db.get(PaymentReceipt, payment_id)
     if not item: raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
+    _authorize(db, request, principal, capability="PAYMENT_VERIFY", roles=OWNER, project_id=item.project_id, client_account_id=item.client_account_id)
     if item.verification_status == "VERIFIED": return _row(item)
     if item.verification_status == "REVERSED": raise HTTPException(409, {"code": "PAYMENT_REVERSED"})
     _payment_evidence_gate(item)
@@ -1577,11 +1667,12 @@ def verify_payment(payment_id: str, payload: dict[str, Any], request: Request, d
 
 
 @router.post("/payments/{payment_id}/allocate")
-def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "PAYMENT_ALLOCATE")
     payment = db.scalar(select(PaymentReceipt).where(PaymentReceipt.id == payment_id).with_for_update())
     invoice = db.scalar(select(Invoice).where(Invoice.id == payload.get("invoice_id")).with_for_update())
     if not payment or not invoice: raise HTTPException(404, {"code": "PAYMENT_OR_INVOICE_NOT_FOUND"})
+    _authorize(db, request, principal, capability="PAYMENT_ALLOCATE", roles=OWNER, project_id=invoice.project_id or payment.project_id, client_account_id=invoice.client_account_id)
     if payment.verification_status != "VERIFIED": raise HTTPException(409, {"code": "VERIFIED_PAYMENT_REQUIRED"})
     if invoice.status != "ISSUED": raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
     if payment.client_account_id != invoice.client_account_id:
@@ -1625,11 +1716,12 @@ def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request,
 
 
 @router.post("/payments/{payment_id}/reverse")
-def reverse_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def reverse_payment(payment_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "PAYMENT_REVERSE")
     payment = db.get(PaymentReceipt, payment_id)
     if not payment:
         raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
+    _authorize(db, request, principal, capability="PAYMENT_REVERSE", roles=OWNER, project_id=payment.project_id, client_account_id=payment.client_account_id)
     key = str(payload.get("idempotency_key") or "").strip()
     reason = str(payload.get("reason") or "").strip()
     if not key:
@@ -1662,7 +1754,7 @@ def reverse_payment(payment_id: str, payload: dict[str, Any], request: Request, 
 
 
 @router.post("/invoices/{invoice_id}/resolutions")
-def resolve_receivable(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def resolve_receivable(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "RECEIVABLE_NON_CASH_RESOLVE")
     invoice = db.scalar(select(Invoice).where(Invoice.id == invoice_id).with_for_update())
     if not invoice:
@@ -1670,6 +1762,7 @@ def resolve_receivable(invoice_id: str, payload: dict[str, Any], request: Reques
     revision = db.get(InvoiceRevision, invoice.current_revision_id)
     if invoice.status != "ISSUED" or not revision:
         raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
+    _authorize(db, request, principal, capability="RECEIVABLE_NON_CASH_RESOLVE", roles=OWNER, project_id=invoice.project_id, client_account_id=invoice.client_account_id)
     key = str(payload.get("idempotency_key") or "").strip()
     if not key:
         raise HTTPException(422, {"code": "RECEIVABLE_RESOLUTION_IDEMPOTENCY_KEY_REQUIRED"})
@@ -1707,10 +1800,11 @@ def resolve_receivable(invoice_id: str, payload: dict[str, Any], request: Reques
 
 
 @router.post("/invoices/{invoice_id}/follow-ups")
-def record_follow_up(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def record_follow_up(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, PLAN_WRITE, "RECEIVABLE_FOLLOW_UP")
     invoice = db.get(Invoice, invoice_id)
     if not invoice: raise HTTPException(404, {"code": "INVOICE_NOT_FOUND"})
+    _authorize(db, request, principal, capability="RECEIVABLE_FOLLOW_UP", roles=PLAN_WRITE, project_id=invoice.project_id, client_account_id=invoice.client_account_id)
     item = ReceivableFollowUp(invoice_id=invoice.id, follow_up_date=_date(payload.get("follow_up_date") or date.today().isoformat(), field="follow_up_date"), channel=str(payload.get("channel") or "INTERNAL_NOTE"), contact_party_id=payload.get("contact_party_id"), note=str(payload.get("note") or "").strip(), outcome=payload.get("outcome"), next_follow_up_at=datetime.fromisoformat(payload["next_follow_up_at"]) if payload.get("next_follow_up_at") else None, recorded_by=_actor(request, payload))
     if not item.note: raise HTTPException(422, {"code": "FOLLOW_UP_NOTE_REQUIRED"})
     db.add(item); db.flush(); _audit(db, request, "RECEIVABLE_FOLLOW_UP_RECORDED", "ReceivableFollowUp", item.id, _actor(request, payload), {"invoice_id": invoice.id, "channel": item.channel, "payment_status_unchanged": True}); db.commit(); return _row(item)

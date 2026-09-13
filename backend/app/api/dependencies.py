@@ -5,7 +5,7 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..auth.entra import (
@@ -61,15 +61,36 @@ def current_principal(
     x_dev_role: str | None = Header(
         default="SYSTEM_ADMIN"
     ),
+    x_dev_user: str | None = Header(default=None),
     db: Session = Depends(get_db),
 ) -> AuthenticatedPrincipal:
     settings = get_settings()
     auth_mode = settings.auth_mode.upper()
 
     if auth_mode == "DEV_HEADER":
+        role = _resolve_dev_role(x_dev_role)
+        synthetic_user = None
+        # Direct unit calls can omit a FastAPI Header dependency and therefore
+        # pass its Header sentinel rather than None. Never persist or query
+        # with that sentinel as an identity.
+        if isinstance(x_dev_user, str) and x_dev_user.strip():
+            synthetic_user = db.scalar(
+                select(User).where(
+                    User.active == true(),
+                    (User.id == x_dev_user.strip()) | (User.email == x_dev_user.strip()),
+                )
+            )
+        if synthetic_user is None and isinstance(x_dev_role, str):
+            synthetic_user = db.scalar(
+                select(User)
+                .where(User.active == true(), User.role == role)
+                .order_by(User.email)
+            )
         return AuthenticatedPrincipal(
             auth_mode="DEV_HEADER",
-            role=_resolve_dev_role(x_dev_role),
+            role=role,
+            user_id=synthetic_user.id if synthetic_user else None,
+            office_id=synthetic_user.office_id if synthetic_user else None,
         )
 
     if auth_mode != "ENTRA":
