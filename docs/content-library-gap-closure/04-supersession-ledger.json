@@ -1,0 +1,10 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_SUPERSESSION_LEDGER_V1",
+  "entries": [
+    {"item":"reusable checklist master","current_decision":"Form","supersedes":"parallel Checklist library"},
+    {"item":"project operational checklist","current_decision":"projection of canonical Project Requirement Items","supersedes":"FormInstance-as-checklist-truth path"},
+    {"item":"official authority form","current_decision":"Source18/OfficialFormVersion authority seam","supersedes":"Content Library-owned authority registry"},
+    {"item":"actual Technical Report","current_decision":"controlled versioned Project artifact","supersedes":"report template as project report truth"},
+    {"item":"historical Content Library branches","current_decision":"evidence only; semantic reconciliation","supersedes":"wholesale branch merge"}
+  ]
+}

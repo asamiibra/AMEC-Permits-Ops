@@ -80,6 +80,13 @@ RAW_ACTOR_LABELS = {
 def _title_case(value: str | None) -> str:
     return (value or "System").replace("_", " ").title()
 
+
+def _content_library_link(value: str | None) -> str | None:
+    """Return only the canonical internal destination for Content Library work."""
+    if value and value.startswith("/content-library?content="):
+        return value
+    return None
+
 BUSINESS_DOMAIN_LABELS = {
     "PROPOSAL_COMMERCIAL": "PROPOSAL", "PROPOSAL_TECHNICAL": "PROPOSAL",
     "CONTRACT": "CONTRACT", "PERMIT_ADMINISTRATIVE": "PERMIT",
@@ -145,6 +152,8 @@ def requested_persona(value: str | None) -> str:
 def inferred_domain(finding: Finding) -> str:
     if finding.domain in DOMAINS:
         return finding.domain
+    if finding.domain == "MASTER_CONTENT" or finding.source_type == "MASTER_CONTENT":
+        return "MASTER_CONTENT"
     if finding.source_type in {"AUTHORITY_PRECHECK", "OFFICIAL_MUNICIPALITY_COMMENT"}:
         return "AUTHORITY"
     if finding.discipline in {"ENGINEERING", "TECHNICAL", "STRUCTURAL", "ARCHITECTURAL"}:
@@ -319,9 +328,13 @@ def project_issue(db: Session, finding: Finding, persona: str) -> dict[str, Any]
     actionability = issue_actionability(domain, finding.owner_persona, persona, finding.blocking)
     entity = _entity_label(db, proposal_id=finding.proposal_id, contract_id=finding.contract_id, permit_id=finding.permit_id, project_id=finding.project_id)
     link = finding.deep_link or deep_link(proposal_id=finding.proposal_id, contract_id=finding.contract_id, permit_id=finding.permit_id, project_id=finding.project_id, domain=domain)
+    content_library_link = _content_library_link(finding.deep_link) if domain == "MASTER_CONTENT" or finding.source_type == "MASTER_CONTENT" else None
     display_domain = business_domain(finding)
     resolution_link, resolution_cta = resolution_context(finding, display_domain)
     route, route_cta = issue_route(finding, persona, display_domain)
+    if content_library_link:
+        route = content_library_link
+        route_cta = "Review Content Library"
     what, why, next_step = _copy(finding)
     entity["type"] = display_domain
     entity["id"] = finding.contract_id or finding.proposal_id or finding.permit_id or finding.project_id
@@ -338,7 +351,7 @@ def project_issue(db: Session, finding: Finding, persona: str) -> dict[str, Any]
         "what_is_wrong": what, "why_it_matters": why, "what_needs_to_happen": next_step,
         "summary": finding.normalized_summary, "created_at": finding.captured_at, "updated_at": finding.captured_at,
         "due_at": finding.due_at, "sla_state": sla_state(finding.due_at), "actionability": actionability,
-        "deep_link": route or link, "affected_record": entity, "visible": actionability != "HIDDEN",
+        "deep_link": content_library_link or route or link, "affected_record": entity, "visible": actionability != "HIDDEN",
     }
 
 

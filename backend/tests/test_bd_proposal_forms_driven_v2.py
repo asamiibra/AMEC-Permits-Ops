@@ -45,6 +45,8 @@ def _ensure_templates(client):
             response = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"synthetic BD v2 content", "text/plain")}, headers=OWNER)
             assert response.status_code == 200, response.text
             item = response.json()
+        governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=OWNER)
+        assert governed.status_code == 200, governed.text
         bound = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": usage}], headers=OWNER)
         assert bound.status_code == 200, bound.text
 

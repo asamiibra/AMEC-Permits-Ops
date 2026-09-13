@@ -370,10 +370,12 @@ export function DashboardInputsPage({
   role,
   onNavigate,
   backPage = "dashboard",
+  backLabel = "Back to Dashboard",
 }: {
   role: string;
   onNavigate: (page: string) => void;
   backPage?: string;
+  backLabel?: string;
 }) {
   const { data, error, reload } = useDashboardInputs(true);
   const update = async (key: string, action: string, notes?: string) => {
@@ -399,7 +401,7 @@ export function DashboardInputsPage({
           className="button-secondary"
           onClick={() => onNavigate(backPage)}
         >
-          <Icon name="arrow-left" size={14} /> Back to Dashboard
+          <Icon name="arrow-left" size={14} /> {backLabel}
         </button>
       </div>
       {error && (

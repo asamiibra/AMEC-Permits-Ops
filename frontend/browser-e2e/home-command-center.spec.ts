@@ -34,7 +34,7 @@ test("Home is the command center with seven business stages and preserved canoni
   expect(await page.locator(".home-stage-card").count()).toBe(7);
   expect(await page.locator(".home-attention-row").count()).toBe(Number(await page.locator(".home-attention-counts strong").first().textContent()));
   await expect(page.getByRole("link", { name: /Open Finance/ })).toHaveAttribute("href", "/billing");
-  await expect(page.getByRole("link", { name: /Open Content Library/ })).toHaveAttribute("href", "/dashboard");
+  await expect(page.getByRole("link", { name: /Open Content Library/ })).toHaveAttribute("href", "/content-library");
   await expect(page.locator(".home-activity-row")).toHaveCount(3);
   await expect(page.getByRole("button", { name: /Notifications/ })).toBeVisible();
 

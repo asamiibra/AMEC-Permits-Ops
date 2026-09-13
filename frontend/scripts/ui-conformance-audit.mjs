@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { evaluateUiConformance } from "./ui-conformance-gate.mjs";
 
 const frontendRoot = process.cwd();
 const repoRoot = path.resolve(frontendRoot, "..");
@@ -15,6 +16,8 @@ const writeJson = (file, value) => {
 const sourceInventory = readJson(path.join(sourceRoot, "route-inventory.json"));
 const sourceContracts = readJson(path.join(sourceRoot, "page-design-contracts.json"));
 const sourceDefects = readJson(path.join(sourceRoot, "design-defects.json"));
+const currentDefectLedger = path.join(repoRoot, "docs", "integration", "universal-ui-defect-ledger.json");
+const effectiveDefects = fs.existsSync(currentDefectLedger) ? readJson(currentDefectLedger) : sourceDefects;
 const contractById = new Map(sourceContracts.contracts.map((contract) => [contract.id, contract]));
 const commonForbidden = sourceContracts.common_forbidden_owner_terms || [];
 
@@ -58,6 +61,7 @@ const pageContracts = {
       expected_sections: source?.required || ["identity", "state", "next action", "evidence", "empty/loading/error handling"],
       expected_fields: source?.required || [],
       expected_actions: source?.actions || [],
+      contract_predicates: source?.contract_predicates || [],
       role_specific_controls: route.roles.map((persona) => ({ persona, classification: "CONTRACT_REQUIRED" })),
       expected_empty_state: "truthful empty or filtered-empty state",
       expected_loading_state: "loading state with page context",
@@ -91,15 +95,14 @@ const rolePageMatrix = {
 
 const defects = {
   audit_version: "proposalops-ui-conformance-v1",
-  source_defects: sourceDefects.defects,
+  source_defects: effectiveDefects.defects || effectiveDefects.source_defects || [],
   new_gate_defects: [
-    { id: "UCF-P1-001", route: "all material routes", persona: "all", severity: "P1", rule: "OWNER_FACING_CONCATENATED_TEXT_ZERO", status: "PENDING_BROWSER_EXECUTION", observed: "Needs runtime bounding-box and structural checks." },
-    { id: "UCF-P1-002", route: "all material routes", persona: "all", severity: "P1", rule: "RAW_ENUM_VISIBLE_ZERO", status: "PENDING_BROWSER_EXECUTION", observed: "Needs runtime allowlist audit across all role/viewport combinations." },
-    { id: "UCF-P1-003", route: "all material routes", persona: "all", severity: "P1", rule: "UI_CRAWL_NETWORK_FAILURE_ZERO", status: "PENDING_REAL_STACK_EXECUTION", observed: "Current focused tests use synthetic API mocks; real-stack network proof is still required." }
+    { id: "UCF-P1-001", scope: "UNIVERSAL", route: "all material routes", persona: "all", severity: "P1", rule: "OWNER_FACING_CONCATENATED_TEXT_ZERO", status: "PENDING_BROWSER_EXECUTION", observed: "Needs runtime bounding-box and structural checks." },
+    { id: "UCF-P1-002", scope: "UNIVERSAL", route: "all material routes", persona: "all", severity: "P1", rule: "RAW_ENUM_VISIBLE_ZERO", status: "PENDING_BROWSER_EXECUTION", observed: "Needs runtime allowlist audit across all role/viewport combinations." },
+    { id: "UCF-P1-003", scope: "UNIVERSAL", route: "all material routes", persona: "all", severity: "P1", rule: "UI_CRAWL_NETWORK_FAILURE_ZERO", status: "PENDING_REAL_STACK_EXECUTION", observed: "Current focused tests use synthetic API mocks; real-stack network proof is still required." }
   ],
-  p0_open: 0,
-  p1_open: sourceDefects.defects.filter((defect) => defect.severity === "P1").length + 3,
-  status: "NOT_READY_PENDING_GATE_EXECUTION"
+  status: "NOT_READY_PENDING_GATE_EXECUTION",
+  authority: "frontend/scripts/ui-conformance-gate.mjs"
 };
 
 const pending = (gate, note) => ({ gate, status: "PENDING_BROWSER_EXECUTION", note });
@@ -134,8 +137,10 @@ writeJson(path.join(auditRoot, "layout-results.json"), layout);
 writeJson(path.join(auditRoot, "mobile-results.json"), mobile);
 writeJson(path.join(auditRoot, "accessibility-results.json"), accessibility);
 writeJson(path.join(auditRoot, "network-console-results.json"), networkConsole);
+const preparedGate = evaluateUiConformance({ defects, runtimeChecks: {} });
 writeJson(path.join(auditRoot, "final-result.json"), {
-  decision: "PROPOSALOPS_UI_CONFORMANCE_NOT_READY",
+  decision: preparedGate.decision,
+  gate: preparedGate,
   generated_by: "frontend/scripts/ui-conformance-audit.mjs",
   material_route_count: routeInventory.route_count,
   contract_count: pageContracts.contract_count,
@@ -143,11 +148,7 @@ writeJson(path.join(auditRoot, "final-result.json"), {
   required_gates: [
     "UI_ROUTE_DISCOVERY_GAP_ZERO", "MATERIAL_UI_CONTRACT_COVERAGE_100_PERCENT", "OWNER_FACING_TECHNICAL_TEXT_ZERO", "OWNER_FACING_CONCATENATED_TEXT_ZERO", "RAW_ACTOR_CODE_VISIBLE_ZERO", "RAW_ENUM_VISIBLE_ZERO", "UI_INFORMATION_HIERARCHY_PASS", "CURRENT_VS_VIEWED_STAGE_UI_PASS", "UI_STATUS_SEMANTIC_CLARITY_PASS", "UI_ROLE_ACTION_PARITY_PASS", "AMBIGUOUS_UI_CTA_ZERO", "PAGE_INTERNAL_CONTRADICTION_ZERO", "CROSS_PAGE_UI_TRUTH_PASS", "UI_KPI_LIST_PARITY_PASS", "CONTRACT_DETAIL_UI_CONFORMANCE_PASS", "UI_OVERLAP_COLLISION_ZERO", "UNINTENDED_HORIZONTAL_OVERFLOW_ZERO", "BLANK_MAJOR_UI_SECTION_ZERO", "UNINTENTIONAL_UI_DUPLICATION_ZERO", "UI_FAKE_EMPTY_OR_HEALTH_ZERO", "UI_TERMINOLOGY_CONFORMANCE_PASS", "UI_SYNTHETIC_LABEL_CONSISTENCY_PASS", "UI_POST_MUTATION_REFRESH_CONSISTENCY_PASS", "UI_ACCESSIBILITY_PASS", "UI_MOBILE_PASS", "UI_CRAWL_CONSOLE_ERROR_ZERO", "UI_CRAWL_NETWORK_FAILURE_ZERO", "ROLE_UI_DIFFERENCE_INTENTIONAL_PASS", "PROPOSALOPS_UI_CONFORMANCE_READY"
   ],
-  exact_gaps: [
-    "The exhaustive browser crawl has not yet populated runtime evidence.",
-    "Existing universal-design defects include P1 upstream framing, admin route classification, technical leakage, source status semantics, and legacy error-state handling.",
-    "Real-stack network/console and screenshot semantic review remain required."
-  ]
+  exact_gaps: preparedGate.defect_summary.blocking_ids
 });
 
 console.log(`Prepared ProposalOps UI conformance artifacts for ${routeInventory.route_count} material routes and ${rolePageMatrix.combination_count} route/persona combinations.`);

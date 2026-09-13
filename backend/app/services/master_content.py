@@ -35,6 +35,7 @@ from ..models import (
     MasterContentReferenceSequence,
     MasterContentIdempotency,
     MasterContentItem,
+    MasterContentGovernanceProfile,
     MasterContentApplicability,
     RequirementPolicyLineage,
     TechnicalRuleLineage,
@@ -50,6 +51,7 @@ from ..models import (
     WorkflowTask,
     WorkflowTaskStatus,
     LineageEdge,
+    Source18WorkflowTransaction,
 )
 from ..storage.legacy import legacy_synthetic_adapter
 from ..storage.factory import create_binary_store
@@ -88,6 +90,7 @@ DEFAULT_REFERENCE_SEQUENCES = [
 ALLOWED_MODULES = {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "ISSUES", "NOTIFICATIONS", "REPORTS", "PROPOSAL", "CONTRACT"}
 ALLOWED_USAGE_TYPES = {"AVAILABLE", "TEMPLATE", "REFERENCE", "VALIDATION_SOURCE", "REPORT_SOURCE", "SEMANTIC_SOURCE", "PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
 PURPOSE_CONTENT_TYPES = {"PROPOSAL_TEMPLATE": "FORM", "PROPOSAL_CHECKLIST": "FORM", "CONTRACT_TEMPLATE": "FORM"}
+INTERNAL_TEMPLATE_PURPOSES = frozenset(PURPOSE_CONTENT_TYPES)
 CONTENT_TYPE_MODULES = {
     "FORM": {"MY_WORK", "BD", "ADMIN", "ENGINEERING", "PERMIT", "COMPLETION", "HANDOVER", "BILLING", "PROPOSAL", "CONTRACT"},
     "REPORT": {"BD", "ENGINEERING", "PERMIT", "REPORTS", "PROPOSAL", "CONTRACT", "ADMIN"},
@@ -110,9 +113,108 @@ MODULE_LABELS = {
     "CONTRACT": "Contracts",
 }
 
+# Executable consumer contract. These purposes already exist in the governed
+# taxonomy; the matrix prevents consumers from silently falling back to
+# manual browsing or selecting a first matching row.
+CONSUMER_RESOLUTION_MATRIX = {
+    "BD": [
+        {"module": "BD", "purpose": "PROPOSAL_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal configuration", "ui_surface": "Proposal Configuration", "exact_version_binding": True},
+        {"module": "BD", "purpose": "PROPOSAL_CHECKLIST", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal acceptance", "ui_surface": "Proposal Configuration", "exact_version_binding": True},
+    ],
+    "ADMIN": [
+        {"module": "ADMIN", "purpose": "CONTRACT_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "Contract workspace", "ui_surface": "Contract Template / Configuration", "exact_version_binding": True},
+    ],
+    "ENGINEERING": [
+        {"module": "ENGINEERING", "purpose": "AVAILABLE", "content_type": "ENGINEERING_WORK", "selection_cardinality": "COLLECTION", "downstream_caller": "Engineering proposal preparation", "ui_surface": "Engineering References", "exact_version_binding": True},
+    ],
+    "PERMIT": [
+        {"module": "PERMIT", "purpose": "AVAILABLE", "content_type": None, "selection_cardinality": "COLLECTION", "downstream_caller": "Permit source preparation", "ui_surface": "Project & Sources", "exact_version_binding": True},
+    ],
+    "REPORTS": [
+        {"module": "REPORTS", "purpose": "AVAILABLE", "content_type": None, "selection_cardinality": "COLLECTION", "downstream_caller": "Report source preparation", "ui_surface": "Reports", "exact_version_binding": True},
+        {"module": "REPORTS", "purpose": "REPORT_SOURCE", "content_type": "REPORT", "selection_cardinality": "COLLECTION", "downstream_caller": "Controlled report source binding", "ui_surface": "Reports", "exact_version_binding": True},
+    ],
+    "DEFINITIONS": [
+        {"module": "DEFINITIONS", "purpose": "SEMANTIC_SOURCE", "content_type": "DEFINITION", "selection_cardinality": "SINGLETON_REQUIRED", "canonical_resolver": "/api/definitions/lookup/{term}", "downstream_caller": "Semantic definition lookup", "ui_surface": "Definitions", "exact_version_binding": True},
+    ],
+}
+
 
 def _error(code: str, status: int = 422, **details: Any) -> HTTPException:
     return HTTPException(status_code=status, detail={"code": code, **details})
+
+
+def validate_module_binding(*, content_type: str, module: str, usage_type: str) -> tuple[str, str]:
+    """Validate one binding against the executable Content Library taxonomy."""
+    content_type = content_type.strip().upper()
+    module = module.strip().upper()
+    usage_type = usage_type.strip().upper()
+    if content_type not in CONTENT_TYPE_MODULES:
+        raise _error("CONTENT_TYPE_NOT_ALLOWED", content_type=content_type)
+    if module not in ALLOWED_MODULES or usage_type not in ALLOWED_USAGE_TYPES:
+        raise _error("MODULE_BINDING_NOT_ALLOWED", module=module, usage_type=usage_type)
+    if module not in CONTENT_TYPE_MODULES[content_type]:
+        raise _error("MODULE_CONTENT_TYPE_MISMATCH", content_type=content_type, module=module)
+    expected_type = PURPOSE_CONTENT_TYPES.get(usage_type)
+    if expected_type and expected_type != content_type:
+        raise _error("PURPOSE_CONTENT_TYPE_MISMATCH", content_type=content_type, usage_type=usage_type)
+    expected_module = {"PROPOSAL_TEMPLATE": "BD", "PROPOSAL_CHECKLIST": "BD", "CONTRACT_TEMPLATE": "ADMIN"}.get(usage_type)
+    if expected_module and module != expected_module:
+        raise _error("PURPOSE_MODULE_MISMATCH", module=module, usage_type=usage_type)
+    return module, usage_type
+
+
+def validate_internal_template_binding(db: Session, *, item: MasterContentItem, usage_type: str) -> None:
+    """Keep frozen internal-template purposes separate from external authority forms.
+
+    Purpose binding is a projection change only. It must not manufacture AMEC
+    ownership for an item whose governed source class says otherwise.
+    """
+    if usage_type not in INTERNAL_TEMPLATE_PURPOSES:
+        return
+    profile = db.scalar(
+        select(MasterContentGovernanceProfile).where(
+            MasterContentGovernanceProfile.master_content_item_id == item.id
+        )
+    )
+    if (
+        not profile
+        or profile.content_ownership_class != "AMEC_OWNED"
+        or profile.restricted_reference_sample
+        or item.needs_review
+    ):
+        raise _error(
+            "OFFICIAL_FORM_INTERNAL_TEMPLATE_BINDING_FORBIDDEN",
+            content_id=item.id,
+            content_type=item.content_type,
+            ownership=profile.content_ownership_class if profile else None,
+            restricted_reference_sample=bool(profile and profile.restricted_reference_sample),
+            usage_type=usage_type,
+        )
+
+
+def source18_authority_binding(db: Session, item: MasterContentItem) -> Source18WorkflowTransaction | None:
+    """Find a Source18 authority binding without creating a Content Library link."""
+    if not item.current_document_version_id:
+        return None
+    return db.scalar(
+        select(Source18WorkflowTransaction).where(
+            Source18WorkflowTransaction.official_form_version_id == item.current_document_version_id
+        )
+    )
+
+
+def assert_content_library_authority_write_allowed(db: Session, item: MasterContentItem) -> None:
+    """Content Library cannot mutate an item currently owned by Source18."""
+    transaction = source18_authority_binding(db, item)
+    if transaction:
+        raise _error(
+            "SOURCE18_OFFICIAL_FORM_READ_ONLY",
+            409,
+            source18_transaction_id=transaction.id,
+            authority_case_id=transaction.authority_case_id,
+            document_version_id=transaction.official_form_version_id,
+        )
 
 
 def _actor(role: Any) -> str:
@@ -253,7 +355,10 @@ def _allocate_reference(db: Session, content_type: str, requested: str | None = 
         raise _error("REFERENCE_SEQUENCE_UNAVAILABLE", 503, content_type=content_type)
     prefix_pattern = re.compile(rf"^{re.escape(sequence.prefix)}-(\d+)$")
     existing_max = 0
-    for ref in db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == content_type)).all():
+    reference_rows = db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == content_type)).all()
+    if content_type == "DEFINITION":
+        reference_rows += db.scalars(select(DefinitionEntry.ref)).all()
+    for ref in reference_rows:
         match = prefix_pattern.match(ref or "")
         if match:
             existing_max = max(existing_max, int(match.group(1)))
@@ -263,7 +368,7 @@ def _allocate_reference(db: Session, content_type: str, requested: str | None = 
     return f"{sequence.prefix}-{sequence.current_value:0{sequence.padding}d}", True
 
 
-def _parse_modules(value: Any) -> list[str]:
+def _parse_modules(value: Any, content_type: str | None = None) -> list[str]:
     if value is None:
         return []
     if isinstance(value, str):
@@ -276,6 +381,10 @@ def _parse_modules(value: Any) -> list[str]:
     modules = [str(module).strip().upper() for module in value if str(module).strip()]
     if any(module not in ALLOWED_MODULES for module in modules):
         raise _error("MODULE_BINDING_NOT_ALLOWED", modules=modules)
+    if content_type:
+        invalid = [module for module in modules if module not in CONTENT_TYPE_MODULES.get(content_type.strip().upper(), set())]
+        if invalid:
+            raise _error("MODULE_CONTENT_TYPE_MISMATCH", content_type=content_type.strip().upper(), modules=invalid)
     return list(dict.fromkeys(modules))
 
 
@@ -352,14 +461,16 @@ def canonical_master_content_candidates(
         if item.content_type == "FORM":
             # Proposal and Contract AMEC-owned bindings are frozen canonical
             # product configuration. Other forms require manual readiness.
-            frozen_purpose = usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"}
+            frozen_purpose = usage_type in INTERNAL_TEMPLATE_PURPOSES
             profile = governance["profile"]
             is_frozen_amec_form = (
-                frozen_purpose
-                and profile.get("content_ownership_class") == "AMEC_OWNED"
+                profile.get("content_ownership_class") == "AMEC_OWNED"
                 and not profile.get("restricted_reference_sample")
             )
-            if not is_frozen_amec_form and governance["readiness"]["state"] != "MANUAL_USE_READY":
+            if frozen_purpose:
+                if not is_frozen_amec_form:
+                    continue
+            elif governance["readiness"]["state"] != "MANUAL_USE_READY":
                 continue
         elif item.content_type == "ENGINEERING_WORK":
             if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:
@@ -383,10 +494,10 @@ def canonical_master_content_candidates(
     return candidates
 
 
-def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str, content_type: str | None = None) -> dict[str, Any]:
     module = module.strip().upper()
     usage_type = usage_type.strip().upper()
-    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=PURPOSE_CONTENT_TYPES.get(usage_type))
+    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=content_type or PURPOSE_CONTENT_TYPES.get(usage_type))
     return {"module": module, "purpose": usage_type, "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED", "canonical_count": len(resolved), "item": resolved[0] if len(resolved) == 1 else None, "candidates": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
 
 
@@ -466,7 +577,7 @@ def _project_finding(db: Session, *, item: MasterContentItem, event: MasterConte
     existing = db.scalar(select(Finding).where(Finding.source_type == "MASTER_CONTENT", Finding.source_reference == key))
     if existing:
         return existing
-    finding = Finding(project_id=dependency.project_id, application_id=application.id, source_type="MASTER_CONTENT", source_reference=key, source_timestamp=event.occurred_at, captured_by=event.actor_or_system, title=f"{item.ref} requires review", raw_text=f"Current {item.content_type} version changed while {dependency.downstream_type} {dependency.downstream_id} remained bound to an older version.", normalized_summary=f"Revalidate {dependency.downstream_type} against {item.ref} v{current.version_number}.", language="en", discipline="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "MASTER_CONTENT", affected_object_type=dependency.downstream_type, affected_object_id=dependency.id, requirement_code="MASTER_CONTENT_REVALIDATION", severity="MAJOR" if item.content_type == "ENGINEERING_WORK" else "ADVISORY", blocking=False, status="OPEN", assignee_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", correlation_id=correlation_id, domain="MASTER_CONTENT", owner_persona="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "OWNER", deep_link=f"/dashboard?content={item.id}")
+    finding = Finding(project_id=dependency.project_id, application_id=application.id, source_type="MASTER_CONTENT", source_reference=key, source_timestamp=event.occurred_at, captured_by=event.actor_or_system, title=f"{item.ref} requires review", raw_text=f"Current {item.content_type} version changed while {dependency.downstream_type} {dependency.downstream_id} remained bound to an older version.", normalized_summary=f"Revalidate {dependency.downstream_type} against {item.ref} v{current.version_number}.", language="en", discipline="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "MASTER_CONTENT", affected_object_type=dependency.downstream_type, affected_object_id=dependency.id, requirement_code="MASTER_CONTENT_REVALIDATION", severity="MAJOR" if item.content_type == "ENGINEERING_WORK" else "ADVISORY", blocking=False, status="OPEN", assignee_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", correlation_id=correlation_id, domain="MASTER_CONTENT", owner_persona="ENGINEERING" if item.content_type == "ENGINEERING_WORK" else "OWNER", deep_link=f"/content-library?content={item.id}")
     db.add(finding)
     db.flush()
     return finding
@@ -478,7 +589,7 @@ def _project_task(db: Session, *, dependency: MasterContentDependency, finding: 
     existing = db.scalar(select(WorkflowTask).where(WorkflowTask.context_type == "MASTER_CONTENT_DEPENDENCY", WorkflowTask.context_id == dependency.id, WorkflowTask.status.in_((WorkflowTaskStatus.OPEN, WorkflowTaskStatus.IN_PROGRESS))))
     if existing:
         return existing
-    task = WorkflowTask(project_id=dependency.project_id, application_id=finding.application_id, finding_id=finding.id, task_type="MASTER_CONTENT_REVALIDATION", title=f"Revalidate {item.ref} v{current.version_number}", description=f"Review the changed {item.content_type} source for {dependency.downstream_type} {dependency.downstream_id}.", owner_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", status=WorkflowTaskStatus.OPEN, priority="HIGH" if item.content_type == "ENGINEERING_WORK" else "NORMAL", correlation_id=correlation_id, task_family="MASTER_CONTENT", context_type="MASTER_CONTENT_DEPENDENCY", context_id=dependency.id, blocking=False, next_action_code="MASTER_CONTENT_REVALIDATION", deep_link=f"/dashboard?content={item.id}", evidence_summary={"master_content_id": item.id, "bound_version_id": dependency.bound_document_version_id, "current_version_id": current.id})
+    task = WorkflowTask(project_id=dependency.project_id, application_id=finding.application_id, finding_id=finding.id, task_type="MASTER_CONTENT_REVALIDATION", title=f"Revalidate {item.ref} v{current.version_number}", description=f"Review the changed {item.content_type} source for {dependency.downstream_type} {dependency.downstream_id}.", owner_role="RESPONSIBLE_ENGINEER" if item.content_type == "ENGINEERING_WORK" else "OWNER", status=WorkflowTaskStatus.OPEN, priority="HIGH" if item.content_type == "ENGINEERING_WORK" else "NORMAL", correlation_id=correlation_id, task_family="MASTER_CONTENT", context_type="MASTER_CONTENT_DEPENDENCY", context_id=dependency.id, blocking=False, next_action_code="MASTER_CONTENT_REVALIDATION", deep_link=f"/content-library?content={item.id}", evidence_summary={"master_content_id": item.id, "bound_version_id": dependency.bound_document_version_id, "current_version_id": current.id})
     db.add(task)
     db.flush()
     return task
@@ -490,7 +601,7 @@ def _project_notifications(db: Session, *, event: MasterContentChangeEvent, item
         target_id = f"{event.id}:{role}"
         if _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
             continue
-        db.add(NotificationEvent(finding_id=finding.id if finding else None, workflow_task_id=task.id if task else None, recipient_role=role, channel="IN_APP", event_type=event.event_type, status="PENDING", subject=f"{item.ref} updated", body_preview=f"{item.content_type.replace('_', ' ').title()} {item.ref} v{event.metadata_json.get('version_number')} is now current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=event.actor_or_system, deep_link=f"/dashboard?content={item.id}"))
+        db.add(NotificationEvent(finding_id=finding.id if finding else None, workflow_task_id=task.id if task else None, recipient_role=role, channel="IN_APP", event_type=event.event_type, status="PENDING", subject=f"{item.ref} updated", body_preview=f"{item.content_type.replace('_', ' ').title()} {item.ref} v{event.metadata_json.get('version_number')} is now current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=event.actor_or_system, deep_link=f"/content-library?content={item.id}"))
         _record_delivery(db, event.id, "NOTIFICATION", "ROLE", role, role)
 
 
@@ -498,6 +609,8 @@ def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: 
     """Evaluate explicit dependencies and project deterministic platform actions."""
     dependencies = db.scalars(select(MasterContentDependency).where(MasterContentDependency.master_content_id == item.id)).all()
     impacts = {"dependencies": len(dependencies), "lineage": 0, "findings": 0, "tasks": 0, "notifications": 0, "governance_revalidation": 0}
+    notification_finding = None
+    notification_task = None
     if event.previous_version_id and event.previous_version_id != current.id:
         # Source version pinning is a fail-closed boundary for V2.  Existing
         # active links and released mappings remain auditable, but they cannot
@@ -530,6 +643,8 @@ def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: 
             dependency.expected_current_version_id = current.id
             finding = _project_finding(db, item=item, event=event, dependency=dependency, current=current, correlation_id=event.correlation_id)
             task = _project_task(db, dependency=dependency, finding=finding, item=item, current=current, correlation_id=event.correlation_id)
+            notification_finding = notification_finding or finding
+            notification_task = notification_task or task
             if finding:
                 impacts["findings"] += 1
                 _record_delivery(db, event.id, "FINDING", "Finding", finding.id)
@@ -541,7 +656,7 @@ def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: 
             task = None
     if dependencies and event.materiality == "MATERIAL":
         before_notifications = len(db.new)
-        _project_notifications(db, event=event, item=item, finding=None, task=None, correlation_id=event.correlation_id)
+        _project_notifications(db, event=event, item=item, finding=notification_finding, task=notification_task, correlation_id=event.correlation_id)
         impacts["notifications"] = len(db.new) - before_notifications
     event.status = "PROCESSED"
     event.metadata_json = {**(event.metadata_json or {}), "propagation": impacts, "processed_at": _now().isoformat()}
@@ -579,16 +694,19 @@ def revalidate_dependency(db: Session, *, dependency_id: str, actor: str, correl
     return {"id": dependency.id, "bound_version_id": dependency.bound_document_version_id, "expected_current_version_id": dependency.expected_current_version_id, "status": dependency.status}
 
 
-def eligible_master_content(db: Session, *, use: str = "ENGINEERING_AI") -> list[dict[str, Any]]:
-    rows = []
-    for item in db.scalars(select(MasterContentItem).where(MasterContentItem.status == "ACTIVE", MasterContentItem.needs_review == false()).order_by(MasterContentItem.ref)).all():
-        version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
-        if not version or _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
-            continue
-        if use == "ENGINEERING_AI" and item.content_type != "ENGINEERING_WORK":
-            continue
-        rows.append({"master_content_id": item.id, "ref": item.ref, "content_type": item.content_type, "title": item.title, "document_version_id": version.id, "version": version.version_number, "source_hash": version.sha256, "eligibility": "CURRENT_VERIFIED"})
-    return rows
+def eligible_master_content(db: Session, *, use: str = "ENGINEERING_AI", role: Any = None) -> list[dict[str, Any]]:
+    use = use.strip().upper()
+    use_contract = {"ENGINEERING_AI": ("ENGINEERING", "AVAILABLE", "ENGINEERING_WORK")}.get(use)
+    if not use_contract:
+        raise _error("ELIGIBILITY_USE_NOT_ALLOWED")
+    module, purpose, content_type = use_contract
+    candidates = canonical_master_content_candidates(db, module=module, usage_type=purpose, content_type=content_type)
+    if role is None:
+        return [{"master_content_id": row["id"], "ref": row["ref"], "content_type": row["content_type"], "title": row["title"], "document_version_id": row["version_id"], "version": row["version"], "source_hash": row["hash"], "eligibility": "CURRENT_VERIFIED"} for row in candidates]
+    persona = persona_for_role(role)
+    if persona not in {"OWNER", "SYSTEM_ADMIN"} and module not in ({"BD"} if persona == "BUSINESS_DEVELOPMENT" else {"ENGINEERING"}):
+        return []
+    return [{"master_content_id": row["id"], "ref": row["ref"], "content_type": row["content_type"], "title": row["title"], "document_version_id": row["version_id"], "version": row["version"], "source_hash": row["hash"], "eligibility": "CURRENT_VERIFIED"} for row in candidates]
 
 
 def definition_lookup(db: Session, term: str) -> dict[str, Any] | None:
@@ -1389,7 +1507,7 @@ def create_master_content(
         raise _error("SOR_DESTINATION_UNRESOLVED", 503)
     digest = hashlib.sha256(content).hexdigest()
     document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=title, language="en", source_system="MASTER_CONTENT")
-    modules = _parse_modules(used_in)
+    modules = _parse_modules(used_in, content_type)
     item = MasterContentItem(ref=ref, content_type=content_type, title=title, category_id=category_id, description=description, used_in=modules, engineering_metadata=engineering_metadata or {}, source_type_code=source_type_code.upper() if source_type_code else None, status="ACTIVE", needs_review=needs_review, review_note=(review_note or None), document=document, created_by=actor)
     db.add(item)
     db.flush()
@@ -1434,6 +1552,7 @@ def create_master_content_version(
     item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
     if not item:
         raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
     if item.status != "ACTIVE":
         raise _error("CONTENT_ARCHIVED", 409)
     current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
@@ -1449,7 +1568,7 @@ def create_master_content_version(
     category = _category(db, category_id, item.content_type) if category_id else db.get(ContentCategory, item.category_id) if item.category_id else None
     prior_category_id = item.category_id
     prior_modules = _modules_for(db, item_id=item.id)
-    modules = _parse_modules(used_in) if used_in is not None else prior_modules
+    modules = _parse_modules(used_in, item.content_type) if used_in is not None else prior_modules
     mapping = _mapping()
     destination = mapping.get(SEMANTIC_DESTINATION[item.content_type])
     if not destination:
@@ -1505,6 +1624,7 @@ def archive_master_content(db: Session, *, item_id: str, actor: str, correlation
     item = db.get(MasterContentItem, item_id)
     if not item:
         raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
     item.status = "ARCHIVED"
     current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
     event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=current.id if current else None, new_version_id=current.id if current else item.id, change_type="MASTER_CONTENT_ARCHIVED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"ref": item.ref, "version_number": current.version_number if current else None}, event_type="MASTER_CONTENT_ARCHIVED", content_type=item.content_type, business_ref=item.ref, change_kind="ARCHIVE", change_reason="Owner archived content", materiality="MATERIAL", source_hash=current.sha256 if current else None)
@@ -1530,7 +1650,7 @@ def emit_definition_revision_event(db: Session, *, definition: DefinitionEntry, 
     db.flush()
     for role in ("OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"):
         if not _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
-            db.add(NotificationEvent(recipient_role=role, channel="IN_APP", event_type="DEFINITION_REVISION_PROMOTED", status="PENDING", subject=f"Definition updated: {revision.term}", body_preview=f"Definition revision {revision.revision_number} is current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=actor, deep_link="/dashboard"))
+            db.add(NotificationEvent(recipient_role=role, channel="IN_APP", event_type="DEFINITION_REVISION_PROMOTED", status="PENDING", subject=f"Definition updated: {revision.term}", body_preview=f"Definition revision {revision.revision_number} is current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=actor, deep_link=f"/content-library?content={definition.id}"))
             _record_delivery(db, event.id, "NOTIFICATION", "ROLE", role, role)
     audit(db, correlation_id=correlation_id, event_type="DEFINITION_REVISION_PROMOTED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=actor, after={"revision": revision.revision_number, "term": revision.term})
     return event

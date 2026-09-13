@@ -8,7 +8,7 @@
     "frontend/src/AMECWork.tsx",
     "human-like browser navigation crawl"
   ],
-  "router_definition_route_count": 66,
+  "router_definition_route_count": 71,
   "material_routes": [
     {
       "id": "S01",
@@ -2055,9 +2055,175 @@
         "historical",
         "disabled-action"
       ]
+    },
+    {
+      "id": "CL-ROOT",
+      "route": "/content-library",
+      "aliases": [
+        "/dashboard",
+        "/dashboard-v2",
+        "/library",
+        "/master-content"
+      ],
+      "contract_id": "content-library",
+      "domain": "reference",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "direct": true,
+      "discovered_by": [
+        "router-definition",
+        "direct-navigation-crawl"
+      ],
+      "applicable_viewports": [
+        "desktop",
+        "tablet",
+        "mobile"
+      ],
+      "important_states": [
+        "normal",
+        "loading",
+        "empty",
+        "filter-empty",
+        "error",
+        "blocked",
+        "read-only",
+        "historical",
+        "disabled-action"
+      ]
+    },
+    {
+      "id": "CL-FORMS",
+      "route": "/content-library/forms",
+      "contract_id": "content-library",
+      "domain": "reference",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "direct": true,
+      "discovered_by": [
+        "router-definition",
+        "direct-navigation-crawl"
+      ],
+      "applicable_viewports": [
+        "desktop",
+        "tablet",
+        "mobile"
+      ],
+      "important_states": [
+        "normal",
+        "loading",
+        "empty",
+        "filter-empty",
+        "error",
+        "blocked",
+        "read-only",
+        "historical",
+        "disabled-action"
+      ]
+    },
+    {
+      "id": "CL-REPORTS",
+      "route": "/content-library/reports",
+      "contract_id": "content-library",
+      "domain": "reference",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "direct": true,
+      "discovered_by": [
+        "router-definition",
+        "direct-navigation-crawl"
+      ],
+      "applicable_viewports": [
+        "desktop",
+        "tablet",
+        "mobile"
+      ],
+      "important_states": [
+        "normal",
+        "loading",
+        "empty",
+        "filter-empty",
+        "error",
+        "blocked",
+        "read-only",
+        "historical",
+        "disabled-action"
+      ]
+    },
+    {
+      "id": "CL-ENGINEERING",
+      "route": "/content-library/engineering-works",
+      "contract_id": "content-library",
+      "domain": "reference",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "direct": true,
+      "discovered_by": [
+        "router-definition",
+        "direct-navigation-crawl"
+      ],
+      "applicable_viewports": [
+        "desktop",
+        "tablet",
+        "mobile"
+      ],
+      "important_states": [
+        "normal",
+        "loading",
+        "empty",
+        "filter-empty",
+        "error",
+        "blocked",
+        "read-only",
+        "historical",
+        "disabled-action"
+      ]
+    },
+    {
+      "id": "CL-DEFINITIONS",
+      "route": "/content-library/definitions",
+      "contract_id": "content-library",
+      "domain": "reference",
+      "roles": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "direct": true,
+      "discovered_by": [
+        "router-definition",
+        "direct-navigation-crawl"
+      ],
+      "applicable_viewports": [
+        "desktop",
+        "tablet",
+        "mobile"
+      ],
+      "important_states": [
+        "normal",
+        "loading",
+        "empty",
+        "filter-empty",
+        "error",
+        "blocked",
+        "read-only",
+        "historical",
+        "disabled-action"
+      ]
     }
   ],
-  "route_count": 66,
+  "route_count": 71,
   "route_discovery_status": "PENDING_BROWSER_EXECUTION",
   "required_gate": "UI_ROUTE_DISCOVERY_GAP_ZERO"
 }
