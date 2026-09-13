@@ -19,6 +19,7 @@ from .phase4 import (
     ingest_evidence_envelope,
     record_source_event,
 )
+from .document_intelligence import normalize_classifier_proposal
 
 
 CLASSIFIER_VERSION = "classifier-v2-rules-only-1.0.0"
@@ -160,4 +161,18 @@ def classify_and_persist(db: Session, payload: ClassifierV2Request, role: Role |
     evidence = ingest_evidence_envelope(db, evidence_payload, role)
     classification_payload = ClassificationEnvelopeIn(envelope_id=f"phase5-envelope-{replay_id[:40]}", root_event_id=event.id, source_mode="CONTROLLED_SYNTHETIC", classifier_version=CLASSIFIER_VERSION, rules_version=RULES_VERSION, taxonomy_revision=TAXONOMY_REVISION, module_truth_contract_sha=PHASE3C_MODULE_TRUTH_SHA, corpus_app_contract_sha=PHASE4_CORPUS_APP_SHA, axes_json=proposal)
     envelope = create_classification_envelope(db, classification_payload, role)
-    return {"classification": proposal, "source_event": {"id": event.id, "event_id": event.event_id, "root_event_id": event.id, "immutable_payload_hash": event.immutable_payload_hash}, "evidence_envelope": {"id": evidence.id, "evidence_envelope_sha256": evidence.evidence_envelope_sha256}, "classification_envelope": {"id": envelope.id, "envelope_id": envelope.envelope_id, "status": envelope.status, "record_version": envelope.record_version, "immutable_result_hash": envelope.immutable_result_hash}, "shadow_state": "REVIEW_COMPARE_ONLY", "logical_replay_identity": replay_id, "correlation_id": payload.correlation_id}
+    candidates = normalize_classifier_proposal(
+        db,
+        scope_type=payload.scope_type,
+        scope_id=payload.scope_id,
+        correlation_id=payload.correlation_id,
+        source_artifact_id=payload.source_artifact_id,
+        proposal=proposal,
+        classifier_version=CLASSIFIER_VERSION,
+        rules_version=RULES_VERSION,
+        taxonomy_revision=TAXONOMY_REVISION,
+        evidence_envelope_id=evidence.id,
+        source_document_version_id=None,
+        target_module=None,
+    )
+    return {"classification": proposal, "source_event": {"id": event.id, "event_id": event.event_id, "root_event_id": event.id, "immutable_payload_hash": event.immutable_payload_hash}, "evidence_envelope": {"id": evidence.id, "evidence_envelope_sha256": evidence.evidence_envelope_sha256}, "classification_envelope": {"id": envelope.id, "envelope_id": envelope.envelope_id, "status": envelope.status, "record_version": envelope.record_version, "immutable_result_hash": envelope.immutable_result_hash}, "candidate_assertion_ids": [candidate.id for candidate in candidates], "shadow_state": "REVIEW_COMPARE_ONLY", "logical_replay_identity": replay_id, "correlation_id": payload.correlation_id}

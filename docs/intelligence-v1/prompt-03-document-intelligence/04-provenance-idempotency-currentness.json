@@ -1,0 +1,16 @@
+{
+  "candidate_identity": {
+    "algorithm": "SHA256",
+    "serialization": "sorted compact JSON",
+    "prefix": "di:",
+    "inputs": ["scope", "subject", "assertion_code", "producer_kind", "producer_version", "producer_hash", "source_document_version_id", "source_observation_id", "evidence_envelope_id", "value_hash"]
+  },
+  "exact_replay": "PASS: same source/producer/scope/value returns same CandidateAssertion",
+  "collision": "PASS: P02 INTELLIGENCE_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+  "new_source_version": "PASS: historical candidate retained as SUPERSEDED and replacement is CURRENT",
+  "different_producer": "PASS: distinct producer identity coexists",
+  "transactionality": "PASS: nested transaction rollback leaves old candidate CURRENT and no replacement",
+  "source_binding": "PASS: observation and DocumentVersion project scope must agree when both are known",
+  "unresolved_scope": "PASS: missing scope fails closed",
+  "raw_content": "PASS: candidate stores structured value/provenance references; no raw bytes in candidate identity envelope"
+}

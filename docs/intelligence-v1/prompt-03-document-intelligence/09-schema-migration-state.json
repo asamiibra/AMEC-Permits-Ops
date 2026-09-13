@@ -1,0 +1,8 @@
+{
+  "migration_added": false,
+  "alembic_head_count": 1,
+  "alembic_head": "intelligence_v1_shared_contracts",
+  "inventory_before_p03": ["17c6ebd99c4a_merge_billing_and_opportunity_migration_.py", "ai_d2_execution_ledger_v1.py", "baseline_phase4_v36_azure_sql.py", "billing_module_closure_v8.py", "intelligence_v1_shared_contracts.py", "opportunity_commercial_controls_v1.py", "opportunity_proposal_idempotency_v1.py", "source18_committee_implementation_v1.py", "source18_regulatory_current_state_v1.py", "step5_content_azure_sql_v2.py"],
+  "inventory_after_p03": ["17c6ebd99c4a_merge_billing_and_opportunity_migration_.py", "ai_d2_execution_ledger_v1.py", "baseline_phase4_v36_azure_sql.py", "billing_module_closure_v8.py", "intelligence_v1_shared_contracts.py", "opportunity_commercial_controls_v1.py", "opportunity_proposal_idempotency_v1.py", "source18_committee_implementation_v1.py", "source18_regulatory_current_state_v1.py", "step5_content_azure_sql_v2.py"],
+  "inventory_unchanged": true
+}
