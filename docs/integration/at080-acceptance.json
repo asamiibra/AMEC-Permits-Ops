@@ -27,6 +27,6 @@
     "read_capability_enforcement": "backend/tests/test_source18_content_library_projection.py::test_official_form_projection_routes_require_read_capability",
     "duplicate_registry_proof": "backend/tests/test_source18_content_library_projection.py::test_source18_form_is_a_typed_read_only_projection_with_exact_hash_and_version"
   },
-  "integrated_acceptance": "PENDING_EXACT_HEAD_REPLAY",
+  "integrated_acceptance": "PASS_PENDING_INDEPENDENT_EXACT_HEAD_REVIEW",
   "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING"
 }

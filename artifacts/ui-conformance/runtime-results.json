@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-13T13:57:54.302Z",
+  "generated_at": "2026-09-13T14:48:47.329Z",
   "route_count": 71,
   "result_count": 357,
   "results": [
@@ -995,9 +995,17 @@
       "persona": "Owner",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Loading Issue details… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Back to Issues Proposal Technical ISSUE Proposal source needs review SYN-OPP-0001 Proposal Technical Minor Open Owner: Engineering Due: — What is wrong The source review condition is still open. Why it matters The next workflow step depends on verified evidence. What needs to happen Review the source and record the decision. Affected business record Proposal Reference SYN-OPP-0001 Name Al Noor Villa Proposal Evidence 0 recorded No supporting evidence is attached to this Issue. RESOLUTION PATH Next action Review the source and record the decision. Closure follows the underlying condition and its verification evidence. Activity & history 0 records No Issue activity is recorded yet. No closure or recurrence history is recorded yet. SYNTHETIC PROTOTYPE",
       "headings": [
-        "ProposalOps"
+        "ProposalOps",
+        "Proposal source needs review",
+        "What is wrong",
+        "Why it matters",
+        "What needs to happen",
+        "Affected business record",
+        "Evidence",
+        "Next action",
+        "Activity & history"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -1075,7 +1083,7 @@
       "persona": "Owner",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA OWNER AWARENESS Owner notifications A cross-functional event stream for decisions, commercial changes, engineering updates, and critical alerts. Unread 0 Commercial updates 0 Engineering / permit updates 0 Critical alerts 0 EVENT STREAM Owner notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH Review delivery status Secondary operational evidence SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA OWNER AWARENESS Owner notifications A cross-functional event stream for decisions, commercial changes, engineering updates, and critical alerts. Unread 0 Commercial updates 0 Engineering / permit updates 0 Critical alerts 0 EVENT STREAM Owner notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH No delivery failures Secondary operational evidence SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Owner notifications",
@@ -1113,7 +1121,7 @@
       "persona": "Owner",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA OWNER AWARENESS Owner notifications A cross-functional event stream for decisions, commercial changes, engineering updates, and critical alerts. Unread 0 Commercial updates 0 Engineering / permit updates 0 Critical alerts 0 EVENT STREAM Owner notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH Review delivery status Secondary operational evidence SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA OWNER AWARENESS Owner notifications A cross-functional event stream for decisions, commercial changes, engineering updates, and critical alerts. Unread 0 Commercial updates 0 Engineering / permit updates 0 Critical alerts 0 EVENT STREAM Owner notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH No delivery failures Secondary operational evidence SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Owner notifications",
@@ -1552,11 +1560,11 @@
       "persona": "Owner",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Project & Sources ; CURRENT STAGE Authority Review VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office — Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS BLOCKED · Missing required source-system link Owner: Engineering Evidence required: Project identity and source reference SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Project & Sources ; CURRENT STAGE Verify Data VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office AMEC Engineering Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS Synology Project source Linked to this project Excel Project tracker Linked to this project Municipality GHCE-APP-0142 Linked to this project Simulator SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1591,11 +1599,11 @@
       "persona": "Owner",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Project & Sources ; CURRENT STAGE Authority Review VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office — Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS BLOCKED · Missing required source-system link Owner: Engineering Evidence required: Project identity and source reference SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Project & Sources ; CURRENT STAGE Verify Data VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office AMEC Engineering Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS Synology Project source Linked to this project Excel Project tracker Linked to this project Municipality GHCE-APP-0142 Linked to this project Simulator SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1669,11 +1677,11 @@
       "persona": "Owner",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Verify Data ; CURRENT STAGE Authority Review VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Verify Data ; CURRENT STAGE Verify Data VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1747,11 +1755,11 @@
       "persona": "Owner",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Prepare Package ; CURRENT STAGE Authority Review VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Prepare Package ; CURRENT STAGE Verify Data VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Prepare Package"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1864,11 +1872,11 @@
       "persona": "Owner",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Municipality Preparation ; CURRENT STAGE Authority Review VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Municipality Preparation ; CURRENT STAGE Verify Data VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -1981,11 +1989,11 @@
       "persona": "Owner",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Final Review & Human Submit ; CURRENT STAGE Authority Review VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Final Review & Human Submit ; CURRENT STAGE Verify Data VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -2021,11 +2029,11 @@
       "persona": "Owner",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Final Review & Human Submit ; CURRENT STAGE Authority Review VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Final Review & Human Submit ; CURRENT STAGE Verify Data VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -2179,11 +2187,11 @@
       "persona": "Owner",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 9 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Authority Review ; CURRENT STAGE Authority Review VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 9 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Authority Review ; CURRENT STAGE Verify Data VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -2296,11 +2304,11 @@
       "persona": "Owner",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 8 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Comments & Corrections ; CURRENT STAGE Authority Review VIEWING Comments & Corrections AMEC Work › GHCE-2026-0142 › Comments & Corrections NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Comments & Corrections Findings, tasks, notifications, evidence, closure verification, recurrence, staleness, and the resubmission gate stay together in this permit context. Open permit issues Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 8 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Comments & Corrections ; CURRENT STAGE Verify Data VIEWING Comments & Corrections AMEC Work › GHCE-2026-0142 › Comments & Corrections NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Comments & Corrections Findings, tasks, notifications, evidence, closure verification, recurrence, staleness, and the resubmission gate stay together in this permit context. Open permit issues Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Comments & Corrections"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -2335,11 +2343,11 @@
       "persona": "Owner",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 7 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING History / Close ; CURRENT STAGE Authority Review VIEWING History / Close AMEC Work › GHCE-2026-0142 › History / Close NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 8 · HISTORY / CLOSE Permit evidence timeline Current and historical revisions, packages, prechecks, submission cycles, findings, recurrence, and audit events are separated clearly. View technical lineage No timeline events Preparation revisions, packages, confirmations, and authority changes will be recorded here. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 7 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING History / Close ; CURRENT STAGE Verify Data VIEWING History / Close AMEC Work › GHCE-2026-0142 › History / Close NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 8 · HISTORY / CLOSE Permit evidence timeline Current and historical revisions, packages, prechecks, submission cycles, findings, recurrence, and audit events are separated clearly. View technical lineage No timeline events Preparation revisions, packages, confirmations, and authority changes will be recorded here. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Permit evidence timeline"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -7953,15 +7961,11 @@
       "persona": "Owner",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records + New Form Loading Forms… MASTER LIBRARY Reports Reusable reports and references. 0 records New Report No reports yet. Add the first report to the AMEC master library. MASTER LIBRARY Engineering Works Controlled engineering references. 0 records New Engineering Work No engineering works yet. Add the first engineering work to the AMEC master library. CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records New Definition No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Content Library",
-        "One library, four reusable content types",
-        "Forms",
-        "Reports",
-        "Engineering Works",
-        "Definitions"
+        "One library, four reusable content types"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -7995,11 +7999,15 @@
       "persona": "Owner",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records + New Form Loading Forms… MASTER LIBRARY Reports Reusable reports and references. 0 records New Report No reports yet. Add the first report to the AMEC master library. MASTER LIBRARY Engineering Works Controlled engineering references. 0 records New Engineering Work No engineering works yet. Add the first engineering work to the AMEC master library. CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records New Definition No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Content Library",
-        "One library, four reusable content types"
+        "One library, four reusable content types",
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -8033,11 +8041,10 @@
       "persona": "Owner",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records + New Form Loading Forms… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Forms"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -8071,11 +8078,10 @@
       "persona": "Owner",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records + New Form Loading Forms… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Forms"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -8221,11 +8227,10 @@
       "persona": "Owner",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Reports Reusable reports and references. 0 records New Report No reports yet. Add the first report to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Reports"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -8259,11 +8264,10 @@
       "persona": "Owner",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Engineering Works Controlled engineering references. 0 records New Engineering Work No engineering works yet. Add the first engineering work to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Engineering Works"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -9440,7 +9444,7 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA COMMERCIAL AWARENESS Business Development notifications Commercial updates, client communication, proposal movement, and contract handoffs. Unread 0 Proposal updates 0 Contract updates 0 Client / handoff updates 0 EVENT STREAM Business Development notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH No delivery failures Secondary operational evidence SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA COMMERCIAL AWARENESS Business Development notifications Commercial updates, client communication, proposal movement, and contract handoffs. Unread 0 Proposal updates 0 Contract updates 0 Client / handoff updates 0 EVENT STREAM Business Development notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH Review delivery status Secondary operational evidence SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Business Development notifications",
@@ -9878,11 +9882,11 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Project & Sources ; CURRENT STAGE Verify Data VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office AMEC Engineering Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS Synology Project source Linked to this project Excel Project tracker Linked to this project Municipality GHCE-APP-0142 Linked to this project Simulator SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Project & Sources ; CURRENT STAGE Authority Review VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office — Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS BLOCKED · Missing required source-system link Owner: Engineering Evidence required: Project identity and source reference SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -9956,11 +9960,11 @@
       "persona": "Business Development",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Project & Sources ; CURRENT STAGE Verify Data VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office AMEC Engineering Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS Synology Project source Linked to this project Excel Project tracker Linked to this project Municipality GHCE-APP-0142 Linked to this project Simulator SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Project & Sources ; CURRENT STAGE Authority Review VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office — Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS BLOCKED · Missing required source-system link Owner: Engineering Evidence required: Project identity and source reference SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10034,11 +10038,11 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Verify Data ; CURRENT STAGE Verify Data VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Verify Data ; CURRENT STAGE Authority Review VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10190,11 +10194,11 @@
       "persona": "Business Development",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Prepare Package ; CURRENT STAGE Verify Data VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Prepare Package ; CURRENT STAGE Authority Review VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Prepare Package"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10229,11 +10233,11 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Municipality Preparation ; CURRENT STAGE Verify Data VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Municipality Preparation ; CURRENT STAGE Authority Review VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10268,11 +10272,11 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Municipality Preparation ; CURRENT STAGE Verify Data VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Municipality Preparation ; CURRENT STAGE Authority Review VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10346,11 +10350,11 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Final Review & Human Submit ; CURRENT STAGE Verify Data VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Final Review & Human Submit ; CURRENT STAGE Authority Review VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -10466,11 +10470,11 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Authority Review ; CURRENT STAGE Verify Data VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Authority Review ; CURRENT STAGE Authority Review VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10505,11 +10509,11 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Authority Review ; CURRENT STAGE Verify Data VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Authority Review ; CURRENT STAGE Authority Review VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10544,11 +10548,11 @@
       "persona": "Business Development",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 9 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Authority Review ; CURRENT STAGE Verify Data VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 9 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Authority Review ; CURRENT STAGE Authority Review VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10700,11 +10704,11 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 7 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING History / Close ; CURRENT STAGE Verify Data VIEWING History / Close AMEC Work › GHCE-2026-0142 › History / Close NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 8 · HISTORY / CLOSE Permit evidence timeline Current and historical revisions, packages, prechecks, submission cycles, findings, recurrence, and audit events are separated clearly. View technical lineage No timeline events Preparation revisions, packages, confirmations, and authority changes will be recorded here. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 7 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING History / Close ; CURRENT STAGE Authority Review VIEWING History / Close AMEC Work › GHCE-2026-0142 › History / Close NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 8 · HISTORY / CLOSE Permit evidence timeline Current and historical revisions, packages, prechecks, submission cycles, findings, recurrence, and audit events are separated clearly. View technical lineage No timeline events Preparation revisions, packages, confirmations, and authority changes will be recorded here. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Permit evidence timeline"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -10966,15 +10970,11 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Content Library",
-        "One library, four reusable content types",
-        "Forms",
-        "Reports",
-        "Engineering Works",
-        "Definitions"
+        "One library, four reusable content types"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11008,15 +11008,11 @@
       "persona": "Business Development",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Content Library",
-        "One library, four reusable content types",
-        "Forms",
-        "Reports",
-        "Engineering Works",
-        "Definitions"
+        "One library, four reusable content types"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11050,11 +11046,10 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Forms"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11088,11 +11083,10 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Forms"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11163,11 +11157,10 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Reports"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11201,11 +11194,10 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Reports"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11277,11 +11269,10 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Engineering Works"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11315,11 +11306,10 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Engineering Works"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11353,11 +11343,10 @@
       "persona": "Business Development",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Engineering Works"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11391,11 +11380,10 @@
       "persona": "Business Development",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Definitions"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11429,11 +11417,10 @@
       "persona": "Business Development",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Definitions"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -11467,11 +11454,10 @@
       "persona": "Business Development",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Definitions"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -12462,7 +12448,7 @@
       "persona": "Engineering",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA ENGINEERING AWARENESS Engineering notifications Proposal preparation, handoffs, permit changes, and authority updates that need engineering awareness. Unread 0 Proposal updates 0 Handoffs 0 Permit / authority updates 0 EVENT STREAM Engineering notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH No delivery failures Secondary operational evidence SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA ENGINEERING AWARENESS Engineering notifications Proposal preparation, handoffs, permit changes, and authority updates that need engineering awareness. Unread 0 Proposal updates 0 Handoffs 0 Permit / authority updates 0 EVENT STREAM Engineering notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH Review delivery status Secondary operational evidence SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Engineering notifications",
@@ -12538,7 +12524,7 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 8 DEMO AS Owner Business Development Engineering ENGINEERING AWARENESS Engineering notifications Proposal preparation, handoffs, permit changes, and authority updates that need engineering awareness. Unread 0 Proposal updates 0 Handoffs 0 Permit / authority updates 0 EVENT STREAM Engineering notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH Review delivery status Secondary operational evidence SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 8 DEMO AS Owner Business Development Engineering ENGINEERING AWARENESS Engineering notifications Proposal preparation, handoffs, permit changes, and authority updates that need engineering awareness. Unread 0 Proposal updates 0 Handoffs 0 Permit / authority updates 0 EVENT STREAM Engineering notifications 0 notifications All Proposal Commercial Proposal Technical / Handoff Contract Permit Setup Permit Technical Authority Communication Delivery System / Data Critical No notifications match this filter. The backend returned a real empty result for this filter. Try All or another domain. DELIVERY HEALTH No delivery failures Secondary operational evidence SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Engineering notifications",
@@ -12978,11 +12964,11 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Project & Sources ; CURRENT STAGE Authority Review VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office — Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS BLOCKED · Missing required source-system link Owner: Engineering Evidence required: Project identity and source reference SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Project & Sources ; CURRENT STAGE Verify Data VIEWING Project & Sources AMEC Work › GHCE-2026-0142 › Project & Sources NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 1 · PROJECT & SOURCES Establish the permit workspace Confirm project identity and the source-system links that drive later verification. COMPLETE PROJECT Project number GHCE-2026-0142 Consultancy office AMEC Engineering Project type Building Permit Confirmation evidence Pending human confirmation SOURCE SYSTEMS Synology Project source Linked to this project Excel Project tracker Linked to this project Municipality GHCE-APP-0142 Linked to this project Simulator SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Establish the permit workspace"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13017,11 +13003,11 @@
       "persona": "Engineering",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Verify Data ; CURRENT STAGE Authority Review VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Verify Data ; CURRENT STAGE Verify Data VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13056,11 +13042,11 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Verify Data ; CURRENT STAGE Verify Data VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Verify Data ; CURRENT STAGE Authority Review VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13095,11 +13081,11 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 8 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Verify Data ; CURRENT STAGE Verify Data VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 8 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Verify Data ; CURRENT STAGE Authority Review VIEWING Verify Data AMEC Work › GHCE-2026-0142 › Verify Data NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 2 · VERIFY DATA Verify the facts that drive the permit Evidence, current value, verification state, and conflict context stay in one operator job. Open evidence detail PROPERTY No source in this business domain yet. OWNERS / REPRESENTATION No source in this business domain yet. PROJECT No source in this business domain yet. DRAWINGS No source in this business domain yet. DEPENDENCIES / APPROVALS No source in this business domain yet. No open conflicts are currently returned for this project. Why this value? and lineage remain available from the History/Admin surfaces. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Verify the facts that drive the permit"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13134,11 +13120,11 @@
       "persona": "Engineering",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Prepare Package ; CURRENT STAGE Verify Data VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Prepare Package ; CURRENT STAGE Authority Review VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Prepare Package"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13212,11 +13198,11 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Prepare Package ; CURRENT STAGE Verify Data VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Prepare Package ; CURRENT STAGE Authority Review VIEWING Prepare Package AMEC Work › GHCE-2026-0142 › Prepare Package NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Prepare Package Requirements, forms, Excel projections, drawing metadata, attachments, and internal reviews are package-contextual. The readiness gate remains deterministic. Open package preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Prepare Package"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13290,11 +13276,11 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Municipality Preparation ; CURRENT STAGE Verify Data VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 10 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Municipality Preparation ; CURRENT STAGE Authority Review VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13329,11 +13315,11 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Municipality Preparation ; CURRENT STAGE Verify Data VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 10 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Municipality Preparation ; CURRENT STAGE Authority Review VIEWING Municipality Preparation AMEC Work › GHCE-2026-0142 › Municipality Preparation NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Municipality Preparation Prepare in configured portal order with assisted field entry, stable grid identity, exact attachments, save/reopen reconciliation, and precheck evidence. Open assisted preparation Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Municipality Preparation"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13368,11 +13354,11 @@
       "persona": "Engineering",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Final Review & Human Submit ; CURRENT STAGE Verify Data VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Final Review & Human Submit ; CURRENT STAGE Authority Review VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -13408,11 +13394,11 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Final Review & Human Submit ; CURRENT STAGE Verify Data VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Final Review & Human Submit ; CURRENT STAGE Authority Review VIEWING Final Review & Human Submit AMEC Work › GHCE-2026-0142 › Final Review & Human Submit NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 5 · FINAL REVIEW & HUMAN SUBMIT Ready for a named human decision ProposalOps cannot submit this application. The Final Submitter completes submission in the Municipality portal and records evidence here. NO MACHINE SUBMIT Current package approved Gate evidence required PreparationRevision current Gate evidence required Municipality draft verified Gate evidence required Attachments persisted Gate evidence required Grids reconciled Gate evidence required Precheck clear Gate evidence required No blocking findings Gate evidence required Required human reviews complete Gate evidence required FINAL SUBMISSION HANDOFF GHCE-APP-0142 Bind the application identity, current package/hash, PreparationRevision, precheck, and blocking findings to the handoff. Open readiness Record human confirmation SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Ready for a named human decision",
         "GHCE-APP-0142"
       ],
@@ -13527,11 +13513,11 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Authority Review ; CURRENT STAGE Verify Data VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 9 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Authority Review ; CURRENT STAGE Authority Review VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13566,11 +13552,11 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 9 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Authority Review ; CURRENT STAGE Verify Data VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ 9 DEMO AS Owner Business Development Engineering Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Authority Review ; CURRENT STAGE Authority Review VIEWING Authority Review AMEC Work › GHCE-2026-0142 › Authority Review NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 6 · AUTHORITY REVIEW Read-only authority monitoring Monitoring stays inside this permit workspace: status, repetition, last checked, next planned check, comments, and read-contract health. READ-ONLY Authority status Under Review Repetition 1 Last checked 8/8/2026 New comments 0 External portal reads are bounded and evidence-backed. Manual fallback is visible when the read contract is unavailable. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Read-only authority monitoring"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13605,11 +13591,11 @@
       "persona": "Engineering",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING Comments & Corrections ; CURRENT STAGE Authority Review VIEWING Comments & Corrections AMEC Work › GHCE-2026-0142 › Comments & Corrections NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage PERMIT STAGE Comments & Corrections Findings, tasks, notifications, evidence, closure verification, recurrence, staleness, and the resubmission gate stay together in this permit context. Open permit issues Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 8 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING Comments & Corrections ; CURRENT STAGE Verify Data VIEWING Comments & Corrections AMEC Work › GHCE-2026-0142 › Comments & Corrections NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage PERMIT STAGE Comments & Corrections Findings, tasks, notifications, evidence, closure verification, recurrence, staleness, and the resubmission gate stay together in this permit context. Open permit issues Current state Derived from package, preparation, portal, and finding controls Blockers Exact reason, owner, evidence, and next route appear when the gate is blocked Safety boundary Assisted and read-only controls only; no machine final submission SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Review authority status",
+        "Verify proposal data",
         "Comments & Corrections"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13722,11 +13708,11 @@
       "persona": "Engineering",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 7 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources 2 Verify YOU ARE HERE 3 Package 4 Municipality 5 Final review 6 Authority 7 Corrections 8 History CURRENT STAGE Verify Data VIEWING History / Close ; CURRENT STAGE Verify Data VIEWING History / Close AMEC Work › GHCE-2026-0142 › History / Close NEXT ACTION Verify proposal data Review source evidence. Owner: Engineering · Stage: Verify Data · Context only for this role View current stage STAGE 8 · HISTORY / CLOSE Permit evidence timeline Current and historical revisions, packages, prechecks, submission cycles, findings, recurrence, and audit events are separated clearly. View technical lineage No timeline events Preparation revisions, packages, confirmations, and authority changes will be recorded here. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 7 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA Permit portfolio PERMIT WORKSPACE GHCE-2026-0142 · Al Noor Villa GHCE-APP-0142 · Doha · Building Permit Under Review Owner / next actor Omar Haddad Sources Verify Package Municipality Final review 6 Authority YOU ARE HERE 7 Corrections 8 History CURRENT STAGE Authority Review VIEWING History / Close ; CURRENT STAGE Authority Review VIEWING History / Close AMEC Work › GHCE-2026-0142 › History / Close NEXT ACTION Review authority status The application is in authority review; monitoring is read-only. Owner: Permit Team · Stage: Authority Review · Context only for this role View current stage STAGE 8 · HISTORY / CLOSE Permit evidence timeline Current and historical revisions, packages, prechecks, submission cycles, findings, recurrence, and audit events are separated clearly. View technical lineage No timeline events Preparation revisions, packages, confirmations, and authority changes will be recorded here. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "GHCE-2026-0142 · Al Noor Villa",
-        "Verify proposal data",
+        "Review authority status",
         "Permit evidence timeline"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
@@ -13997,15 +13983,11 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Content Library",
-        "One library, four reusable content types",
-        "Forms",
-        "Reports",
-        "Engineering Works",
-        "Definitions"
+        "One library, four reusable content types"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14039,11 +14021,15 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live GOVERNED DISCOVERY & REUSE One library, four reusable content types Find the current, source-linked content that ProposalOps workflows are allowed to reuse. Server-provided status and currentness FORMS 0 Reusable forms, including Checklists REPORTS 0 All reusable report references ENGINEERING WORKS 0 All controlled references DEFINITIONS 0 All shared semantic language CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
         "Content Library",
-        "One library, four reusable content types"
+        "One library, four reusable content types",
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14077,10 +14063,11 @@
       "persona": "Engineering",
       "viewport": "desktop",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library"
+        "Content Library",
+        "Forms"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14114,11 +14101,10 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Forms"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14152,10 +14138,11 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Forms Reusable AMEC forms and templates. 0 records Loading Forms… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library"
+        "Content Library",
+        "Forms"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14226,10 +14213,11 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library"
+        "Content Library",
+        "Reports"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14263,11 +14251,10 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Reports Reusable reports and references. 0 records No reports yet. Add the first report to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Reports"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14338,11 +14325,10 @@
       "persona": "Engineering",
       "viewport": "tablet",
       "contract": true,
-      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts MASTER LIBRARY Engineering Works Controlled engineering references. 0 records No engineering works yet. Add the first engineering work to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 SYNTHETIC PROTOTYPE DEMO AS Owner Business Development Engineering SA AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Engineering Works"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,
@@ -14488,11 +14474,10 @@
       "persona": "Engineering",
       "viewport": "mobile",
       "contract": true,
-      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts CONTENT LIBRARY Definitions Shared business language for client, project, proposal, and permit work. 0 records No definitions yet. Add the first definition to the AMEC master library. SYNTHETIC PROTOTYPE",
+      "text": "Menu AMEC WORKSPACE ProposalOps ⌕ ＋ Inputs & Go-Live 0 DEMO AS Owner Business Development Engineering AMEC · CONTENT LIBRARY Content Library Master Forms, Reports, Engineering Works & Definitions 0 Reports 0 Engineering Works 0 Definitions Inputs & Go-Live CONTENT LIBRARY Overview See the governed library at a glance. CONTENT LIBRARY Forms Reusable forms and Checklists. CONTENT LIBRARY Reports Reusable reports and references. CONTENT LIBRARY Engineering Works Controlled engineering references. CONTENT LIBRARY Definitions Shared business language. Canonical source records linkedMasterContentItem → Document → DocumentVersion SEARCH CATEGORY All categories STATUS All statuses Current Needs Review Inactive USED IN All modules AMEC Work Business Development Administration Engineering Permit Completion Completion / Handover Billing Issues Notifications Reports Proposals Contracts Loading master content… SYNTHETIC PROTOTYPE",
       "headings": [
         "ProposalOps",
-        "Content Library",
-        "Definitions"
+        "Content Library"
       ],
       "title": "ProposalOps · Proposal & Contract Workflow",
       "current_stage_visible": false,

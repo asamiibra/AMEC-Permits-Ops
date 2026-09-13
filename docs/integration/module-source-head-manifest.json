@@ -8,7 +8,7 @@
       "source_branch": "module/content-library-owner-gap-closure-final",
       "source_sha": "65b778e963ef7b7775e6f66aee7a1e6f2a76dd2c",
       "source_tree": "09d64a3011c5f4d488c0c9914d050e902414ac55",
-      "module_acceptance_state": "FOCUSED_BACKEND_AND_FRONTEND_PASS; INTEGRATION_ACCEPTANCE_PENDING",
+      "module_acceptance_state": "FOCUSED_BACKEND_FRONTEND_AND_REAL_STACK_PASS; INDEPENDENT_REVIEW_PENDING",
       "approved_for_integration": true,
       "source_commit_scope": "AT-080 typed read-only Source18 projection, UI gate fail-closed semantics, Content Library UI repairs"
     }
