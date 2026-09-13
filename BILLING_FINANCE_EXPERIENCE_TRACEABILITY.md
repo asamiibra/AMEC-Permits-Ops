@@ -117,7 +117,9 @@ strict duplicate-text assertion); the Billing detail route itself rendered
 successfully. This is not a full browser qualification pass and the prior
 312/312 crawl remains historical only.
 
-Post-hardening qualification also completed the full backend suite with
+Post-hardening qualification at code head
+`e641df7674c7934d48898ac1e15f4abbdddb264a` (tree
+`72e8fe0f9beff5a9cd8afe82230c56e8b21ef52d`) also completed the full backend suite with
 `914 passed, 33 skipped, 4 warnings`, the focused Billing/auth suite with
 `32 passed, 1 warning`, migration-contract checks with `49 passed, 1 warning`,
 frontend Vitest with `117/117`, frontend production build, Python compile, and

@@ -3,8 +3,10 @@
   "phase": "PRE_IMPLEMENTATION_ADVERSARIAL_VALIDATION",
   "repository": "asamiibra/AMEC-Permits-Ops",
   "branch": "feature/billing-finance-experience-intelligence-v1",
-  "head_sha": "4edf3dbeddc0ca5956c2927e2c2d2d46ddacde70",
-  "head_tree": "dd6dd140a0f0d008cf0cd88e95b55118f020ced3",
+  "head_sha": "e641df7674c7934d48898ac1e15f4abbdddb264a",
+  "head_tree": "72e8fe0f9beff5a9cd8afe82230c56e8b21ef52d",
+  "pre_implementation_head_sha": "4edf3dbeddc0ca5956c2927e2c2d2d46ddacde70",
+  "pre_implementation_head_tree": "dd6dd140a0f0d008cf0cd88e95b55118f020ced3",
   "base_main_sha": "594b313a15cc6ade3f0505de395a5817c6337268",
   "counts": {
     "closure_propositions": 24,
