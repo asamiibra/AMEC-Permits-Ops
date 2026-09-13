@@ -117,6 +117,28 @@ def transaction_states(transaction_type: str) -> list[str]:
         raise HTTPException(422, {"code": "SOURCE18_TRANSACTION_TYPE_UNSUPPORTED"}) from exc
 
 
+def validate_source18_official_form_version(db: Session, version_id: str | None) -> DocumentVersion:
+    """Require an exact, current Source18-owned official-form version."""
+    if not version_id:
+        raise HTTPException(422, {"code": "SOURCE18_OFFICIAL_FORM_VERSION_REQUIRED"})
+    form = db.get(DocumentVersion, version_id)
+    if not form:
+        raise HTTPException(422, {"code": "OFFICIAL_FORM_DOCUMENT_VERSION_NOT_FOUND"})
+    document = db.get(Document, form.document_id)
+    form_state = str((form.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper()
+    if (
+        str(form.source_system or "").upper() != "SOURCE18"
+        or not document
+        or str(document.source_system or "").upper() != "SOURCE18"
+        or document.current_version_id != form.id
+        or form.superseded_by is not None
+        or form.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}
+        or form_state != "CURRENT"
+    ):
+        raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_CURRENT"})
+    return form
+
+
 def validate_source_currentness(db: Session, transaction: Source18WorkflowTransaction) -> None:
     if transaction.currentness_state != "CURRENT":
         raise HTTPException(409, {"code": "SOURCE18_SOURCE_NOT_CURRENT", "currentness_state": transaction.currentness_state})
@@ -125,11 +147,7 @@ def validate_source_currentness(db: Session, transaction: Source18WorkflowTransa
         if not policy or policy.status != "CURRENT":
             raise HTTPException(409, {"code": "SOURCE18_POLICY_VERSION_NOT_CURRENT"})
     if transaction.official_form_version_id:
-        form = db.get(DocumentVersion, transaction.official_form_version_id)
-        form_state = str((form.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper() if form else "UNKNOWN"
-        document = db.get(Document, form.document_id) if form else None
-        if not form or str(form.source_system or "").upper() != "SOURCE18" or not document or document.current_version_id != form.id or form.superseded_by is not None or form.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED} or form_state != "CURRENT":
-            raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_CURRENT"})
+        validate_source18_official_form_version(db, transaction.official_form_version_id)
 
 
 def staffing_readiness(db: Session, office_id: str, *, at: datetime | None = None) -> dict[str, Any]:
