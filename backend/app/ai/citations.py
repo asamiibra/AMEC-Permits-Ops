@@ -7,7 +7,7 @@ from typing import Any
 
 from .contracts import AIContextManifest, AIContextItem
 from .errors import AIError
-from .structured_output import TechnicalMethodologyDraft
+from .structured_output import TechnicalMethodologyDraft, StructuredOutputDefinition
 
 
 @dataclass(frozen=True)
@@ -63,3 +63,44 @@ def validate_citations(draft: TechnicalMethodologyDraft, manifest: AIContextMani
         for manifest_item in (manifest_items[key],)
         if key in set(keys)
     }
+
+
+def validate_compiled_citations(
+    output: Any,
+    compiled_context: Any,
+    definition: StructuredOutputDefinition,
+) -> tuple[dict[str, Any], ...]:
+    """Map model citation keys only to the frozen P04 context items."""
+
+    try:
+        keys = tuple(definition.citation_keys(output))
+    except Exception as exc:
+        raise AIError("AI_CITATION_VALIDATION_FAILED", status_code=502) from exc
+    if definition.requires_grounding and not keys:
+        raise AIError("AI_CITATION_VALIDATION_FAILED", status_code=502)
+    if any(not isinstance(key, str) or not key.startswith("CIT-") for key in keys):
+        raise AIError("AI_CITATION_VALIDATION_FAILED", status_code=502)
+
+    context_items = tuple(compiled_context.items)
+    by_key = {f"CIT-{index:03d}": item for index, item in enumerate(context_items, 1)}
+    ordered_keys = tuple(dict.fromkeys(keys))
+    if any(key not in by_key for key in ordered_keys):
+        raise AIError("AI_CITATION_VALIDATION_FAILED", status_code=502)
+
+    citations: list[dict[str, Any]] = []
+    for ordinal, key in enumerate(ordered_keys, 1):
+        item = by_key[key]
+        citations.append(
+            {
+                "ordinal": ordinal,
+                "source_type": item.dependency_type,
+                "source_id": item.dependency_id,
+                "source_version_or_hash": item.dependency_version_or_hash,
+                "locator_json": {
+                    "context_snapshot_id": compiled_context.context_snapshot_id,
+                    "context_key": item.key,
+                    "citation_key": key,
+                },
+            }
+        )
+    return tuple(citations)

@@ -23,6 +23,8 @@ from .ledger import finalize_failure, finalize_success, reserve_audit
 from .limits import reserve_execution
 from .provider import AIProvider, AIProviderRequest, AzureOpenAIResponsesProvider
 from .runtime_binding import AIRuntimeBinding
+from .gateway import ModelGateway
+from .skill_registry import COMPATIBILITY_SKILL
 from .structured_output import output_fingerprint, validate_draft
 
 
@@ -115,7 +117,11 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     # Phase C: no SQL session or SQL transaction is used below this line.
     try:
         active_provider = provider or AzureOpenAIResponsesProvider(settings)
-        result = active_provider.execute_structured(AIProviderRequest(provider_input=provider_input, max_output_tokens=settings.ai_max_output_tokens))
+        result = ModelGateway(settings, provider=active_provider).execute(
+            COMPATIBILITY_SKILL,
+            provider_input=provider_input,
+            max_output_tokens=settings.ai_max_output_tokens,
+        )
         draft = validate_draft(result.payload)
         citation_map = validate_citations(draft, manifest)
         estimated_cost = (result.usage.input_tokens * settings.ai_input_price_usd_per_1m_tokens / 1_000_000) + (result.usage.output_tokens * settings.ai_output_price_usd_per_1m_tokens / 1_000_000)

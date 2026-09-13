@@ -1,0 +1,10 @@
+{
+  "prompt": "P05_SHARED_SKILL_RUNTIME_MODEL_GATEWAY",
+  "branch": "feature/proposalops-intelligence-v1",
+  "entry_sha": "49b9829b3e82fcbccd2f539d43050a9e2cc934f9",
+  "entry_tree": "8c1e261eb18b0f77e1c72f21019d74ff37132b33",
+  "p4_final_seal": "docs/intelligence-v1/prompt-04-context-compiler/12-final-seal.md",
+  "architecture_contract_sha256": "ba21554c74df2324e72bd3a454d1230a362f4b5900f11fa4d656970ea50b8a0e",
+  "real_data_allowed": false,
+  "production_mutation_allowed": false
+}
