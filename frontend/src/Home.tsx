@@ -4,7 +4,7 @@ import { api } from "./api";
 type HomeProps = { role: string };
 
 const stages = [
-  { id: "intake", title: "Intake & Opportunity", description: "Turn a client need into a governed Proposal.", href: "/opportunities", icon: "↗" },
+  { id: "intake", title: "Proposals", description: "Turn a client need into a governed Proposal.", href: "/proposals", icon: "↗" },
   { id: "contract", title: "Contract & Mobilization", description: "Move an accepted Proposal into controlled activation.", href: "/proposals-contracts", icon: "▤" },
   { id: "design", title: "Design & Technical Delivery", description: "Coordinate engineering deliverables, reviews, and baselines.", href: "/engineering", icon: "⌁" },
   { id: "regulatory", title: "Regulatory & Submissions", description: "Prepare authority evidence, cases, submissions, and findings.", href: "/authority-cases", icon: "◈" },

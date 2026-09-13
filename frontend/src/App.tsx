@@ -67,6 +67,8 @@ import { DashboardInputsPage } from "./DashboardInputs";
 import { Phase4ReviewPage } from "./Phase4Review";
 import { Phase5ReviewPage } from "./Phase5Review";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
+import { ProposalRoutes } from "./features/proposals/ProposalRoutes";
+import type { ProposalRole } from "./features/proposals/types";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
 import { BillingInvoicePage } from "./BillingInvoice";
@@ -116,7 +118,7 @@ const businessNav: BusinessNavItem[] = [
   { id: "home", page: "home", label: "Home", icon: "dashboard", path: "/home", group: "HOME" },
   { id: "phase4-review", page: "phase4-review", label: "Evidence Review", icon: "check", path: "/phase4/review", group: "HOME" },
   { id: "phase5-review", page: "phase5-review", label: "Classifier Review", icon: "check", path: "/phase5/review", group: "HOME" },
-  { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
+  { id: "proposals", page: "proposals", label: "Proposals", icon: "briefcase", path: "/proposals", group: "BUSINESS FLOW" },
   { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
   { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
   { id: "regulatory-submissions", page: "permit-portfolio", label: "Regulatory & Submissions", icon: "authority", path: "/permits", group: "BUSINESS FLOW" },
@@ -174,8 +176,8 @@ const pageFromPath = () => {
   if (path === "/dashboard") return "dashboard";
   if (path === "/dashboard-v2") return "dashboard";
   if (path === "/content-library" || path === "/library" || path === "/master-content") return "dashboard";
-  if (path === "/bd") return "opportunities";
-  if (path === "/bd/proposals") return "bd-proposals";
+  if (path === "/bd") return "proposals";
+  if (path === "/bd/proposals") return "proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
   if (path === "/contract-mobilization" || path.startsWith("/contract-mobilization/")) return "contract-mobilization";
   if (path === "/engineering") return "project-engineering";
@@ -192,13 +194,9 @@ const pageFromPath = () => {
   if (path === "/proposals-contracts") return "permits";
   if (path === "/permits/new") return "permit-new";
   if (path.startsWith("/permits/")) return "permit-case";
-  if (
-    path === "/proposals/new" ||
-    path.startsWith("/proposals/") ||
-    path.startsWith("/contracts/")
-  )
-    return "permits";
-  if (path === "/opportunities" || path.startsWith("/opportunities/")) return "opportunities";
+  if (path.startsWith("/contracts/")) return "permits";
+  if (path === "/proposals" || path === "/proposals/new" || path.startsWith("/proposals/")) return "proposals";
+  if (path === "/opportunities" || path.startsWith("/opportunities/")) return "proposals";
   if (path === "/engineering-closeout") return "engineering-closeout";
   if (path === "/reviews") return "reviews";
   if (path === "/issues") return "issues";
@@ -510,7 +508,7 @@ function App() {
         "home",
         "phase4-review",
         "phase5-review",
-        "intake-opportunity",
+        "proposals",
         "contract-mobilization",
         "regulatory-submissions",
         "source18-committee",
@@ -535,6 +533,8 @@ function App() {
       ? `${selected.project_number} · ${selected.project_name}`
       : page === "home"
         ? "Home"
+      : page === "proposals"
+        ? "Proposals"
       : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
         ? "Permit"
       : page === "administration"
@@ -770,7 +770,7 @@ function App() {
           )}{" "}
           {page === "about" && <AboutPermitOpsPage onNavigate={navigate} />}{" "}
           {page === "opportunities" && <OpportunitiesPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />}{" "}
-          {page === "billing" && <BillingInvoicePage />}{" "}
+          {page === "proposals" && <ProposalRoutes role={role as ProposalRole} />}{" "}\n          {page === "billing" && <BillingInvoicePage />}{" "}
           {page === "contract-mobilization" && <ContractMobilizationPage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}

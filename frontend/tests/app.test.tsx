@@ -12,7 +12,7 @@ describe("ProposalOps shell", () => {
     expect(screen.getByText("AMEC Engineering")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Home", level: 2 })).toBeTruthy();
     expect(screen.getByText("Prioritized work and lifecycle exceptions")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Intake & Opportunity" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Proposals" })).toBeTruthy();
     expect(screen.queryByText("WEEK 1 FOUNDATION")).toBeNull();
   });
 
