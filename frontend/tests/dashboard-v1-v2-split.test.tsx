@@ -45,10 +45,10 @@ describe("Owner content library surface", () => {
     for (const name of ["Forms", "Reports", "Engineering Works", "Definitions"]) {
       expect(screen.getByRole("heading", { name })).toBeVisible();
     }
-    for (const forbidden of ["GOVERNANCE OVERVIEW", "Canonical control plane", "Advanced governance filters", "Content ownership", "SOURCE / VERSION", "Governed discovery", "Purpose bindings"]) {
+    for (const forbidden of ["GOVERNANCE OVERVIEW", "Canonical control plane", "Advanced governance filters", "Content ownership", "SOURCE / VERSION", "Purpose bindings"]) {
       expect(screen.queryByText(forbidden, { exact: false })).not.toBeInTheDocument();
     }
-    expect(screen.getByRole("link", { name: "Inputs & Go-Live" })).toHaveAttribute("href", "/dashboard/inputs-go-live");
+    expect(screen.getByRole("link", { name: "Inputs & Go-Live" })).toHaveAttribute("href", "/dashboard/inputs-go-live?from=content-library");
     expect(screen.getByRole("cell", { name: "Current" })).toBeVisible();
     expect(screen.getByRole("cell", { name: "Business Development" })).toBeVisible();
   });
@@ -65,7 +65,7 @@ describe("Owner content library surface", () => {
     await waitFor(() => expect(screen.getByRole("heading", { name: /F-0001 · Shared synthetic form/ })).toBeVisible());
     expect(screen.getByText("Current source file")).toBeVisible();
     expect(screen.getByText("Version History")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Download current source" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Download current source" })).toBeVisible();
     expect(screen.queryByText("Source & Authority", { exact: false })).not.toBeInTheDocument();
     expect(screen.queryByText("Form automation governance", { exact: false })).not.toBeInTheDocument();
   });

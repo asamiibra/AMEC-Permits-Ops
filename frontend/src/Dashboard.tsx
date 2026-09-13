@@ -11,6 +11,7 @@ import {
   MODULE_OPTIONS,
   versionLabel,
 } from "./masterContentUi";
+import { Icon } from "./Icon";
 
 type Category = {
   id: string;
@@ -74,11 +75,21 @@ type SaveRequest = { form?: FormData; metadata?: Record<string, unknown> };
 type MasterType = "REPORT" | "ENGINEERING_WORK";
 
 const ownerRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
+type LibraryKey = "overview" | "forms" | "reports" | "engineering-works" | "definitions";
+
+function libraryFromPath(): LibraryKey {
+  const segment = window.location.pathname.split("/")[2];
+  if (segment === "forms" || segment === "reports" || segment === "engineering-works" || segment === "definitions") return segment;
+  return "overview";
+}
 
 export function CurrentDashboard({ role }: { role: string }) {
   const [items, setItems] = useState<MasterItem[]>([]);
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [formCount, setFormCount] = useState(0);
+  const [preferredCounts, setPreferredCounts] = useState({ reports: 0, engineering: 0, definitions: 0 });
+  const [matchingCounts, setMatchingCounts] = useState({ forms: 0, reports: 0, engineering: 0, definitions: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -100,7 +111,11 @@ export function CurrentDashboard({ role }: { role: string }) {
   } | null>(null);
   const [details, setDetails] = useState<MasterItem | Definition | null>(null);
   const [busy, setBusy] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [retryAction, setRetryAction] = useState<(() => Promise<void>) | null>(null);
   const canWrite = ownerRoles.has(role);
+  const activeLibrary = libraryFromPath();
   const filtersActive = Boolean(query || category || status || module);
   const load = async () => {
     setLoading(true);
@@ -114,12 +129,24 @@ export function CurrentDashboard({ role }: { role: string }) {
       if (category) defParams.set("category", category);
       if (status) defParams.set("status", status);
       if (module) defParams.set("module", module);
-      const [master, defs, cats] = await Promise.all([
+      const filteredFormParams = new URLSearchParams(params);
+      filteredFormParams.set("content_type", "FORM");
+      const [master, forms, defs, cats] = await Promise.all([
         api<MasterItem[]>(`/api/master-content?${params}`),
+        api<Array<{ id: string }>>(`/api/master-content?${filteredFormParams}`),
         api<Definition[]>(`/api/definitions?${defParams}`),
         api<Category[]>("/api/master-content/categories"),
       ]);
+      const [allForms, allReports, allEngineering, allDefinitions] = await Promise.all([
+        api<Array<{ id: string }>>("/api/master-content?content_type=FORM"),
+        api<MasterItem[]>("/api/master-content?content_type=REPORT"),
+        api<MasterItem[]>("/api/master-content?content_type=ENGINEERING_WORK"),
+        api<Definition[]>("/api/definitions"),
+      ]);
       setItems(master);
+      setFormCount(allForms.length);
+      setPreferredCounts({ reports: allReports.length, engineering: allEngineering.length, definitions: allDefinitions.length });
+      setMatchingCounts({ forms: forms.length, reports: master.filter((item) => item.content_type === "REPORT").length, engineering: master.filter((item) => item.content_type === "ENGINEERING_WORK").length, definitions: defs.length });
       setDefinitions(defs);
       setCategories(cats);
     } catch (err) {
@@ -135,6 +162,34 @@ export function CurrentDashboard({ role }: { role: string }) {
   useEffect(() => {
     void load();
   }, [query, category, status, module]);
+  const runAction = async (action: () => Promise<void>, fallback: string) => {
+    setActionError("");
+    setRetryAction(() => action);
+    try {
+      await action();
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause.message : fallback);
+    }
+  };
+  const openLinkedContent = async (contentId: string) => {
+    try {
+      setDetails(await api<MasterItem>(`/api/master-content/${encodeURIComponent(contentId)}`));
+    } catch (masterCause) {
+      try {
+        setDetails(await api<Definition>(`/api/definitions/${encodeURIComponent(contentId)}`));
+      } catch {
+        throw masterCause;
+      }
+    }
+  };
+  useEffect(() => {
+    const contentId = new URLSearchParams(window.location.search).get("content");
+    if (!contentId) return;
+    void runAction(
+      () => openLinkedContent(contentId),
+      "This Content Library item is unavailable for the current role or no longer exists.",
+    );
+  }, []);
   const categoryOptions = useMemo(
     () =>
       Array.from(
@@ -148,42 +203,46 @@ export function CurrentDashboard({ role }: { role: string }) {
     setStatus("");
     setModule("");
   };
-  const saveMaster = async (request: SaveRequest) => {
+  const saveMaster = async (request: SaveRequest, idempotencyKey = crypto.randomUUID()) => {
     setBusy(true);
+    const editedItem = editor?.item;
     try {
-      if (request.metadata && editor?.item)
-        await api(`/api/master-content/${editor.item.id}/metadata`, {
+      if (request.metadata && editedItem)
+        await api(`/api/master-content/${editedItem.id}/metadata`, {
           method: "PATCH",
           body: JSON.stringify(request.metadata),
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key": crypto.randomUUID(),
+            "Idempotency-Key": idempotencyKey,
             "X-Source-Surface": "DASHBOARD",
           },
         });
       else if (request.form)
         await api(
-          editor?.item
-            ? `/api/master-content/${editor.item.id}/versions`
+          editedItem
+            ? `/api/master-content/${editedItem.id}/versions`
             : "/api/master-content",
           {
             method: "POST",
             body: request.form,
             headers: {
-              "Idempotency-Key": crypto.randomUUID(),
+              "Idempotency-Key": idempotencyKey,
               "X-Source-Surface": "DASHBOARD",
             },
           },
         );
       setEditor(null);
-      await load();
+      setSuccessMessage(editedItem ? "Content revision saved. Earlier values remain in History." : "Content saved to the canonical Content Library.");
+      setActionError("");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "The change could not be saved.",
-      );
+      const message = err instanceof Error ? err.message : "The change could not be saved.";
+      setError("");
+      setActionError(message);
+      setRetryAction(() => saveMaster(request, idempotencyKey));
     } finally {
       setBusy(false);
     }
+    void load();
   };
   const saveDefinition = async (data: Record<string, unknown>) => {
     setBusy(true);
@@ -195,13 +254,14 @@ export function CurrentDashboard({ role }: { role: string }) {
         { method: "POST", body: JSON.stringify(data) },
       );
       setDefinitionEditor(undefined);
+      setSuccessMessage(definitionEditor ? "Definition revision saved. Earlier meaning remains in History." : "Definition saved to the Content Library.");
+      setActionError("");
       await load();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "The definition could not be saved.",
-      );
+      const message = err instanceof Error ? err.message : "The definition could not be saved.";
+      setError("");
+      setActionError(message);
+      setRetryAction(() => saveDefinition(data));
     } finally {
       setBusy(false);
     }
@@ -216,29 +276,38 @@ export function CurrentDashboard({ role }: { role: string }) {
         </div>
         <div className="dashboard-counts">
           <span>
-            <b>
-              {items.filter((item) => item.content_type === "REPORT").length}
-            </b>{" "}
+            <b>{preferredCounts.reports}</b>{" "}
             Reports
           </span>
           <span>
             <b>
               {
-                items.filter((item) => item.content_type === "ENGINEERING_WORK")
-                  .length
+                preferredCounts.engineering
               }
             </b>{" "}
             Engineering Works
           </span>
           <span>
-            <b>{definitions.length}</b> Definitions
+            <b>{preferredCounts.definitions}</b> Definitions
           </span>
-          <a className="button-secondary" href="/dashboard/inputs-go-live">
+          <a className="button-secondary" href="/dashboard/inputs-go-live?from=content-library">
             Inputs &amp; Go-Live
           </a>
         </div>
       </header>
-      <DashboardLibraryNavigation />
+      {activeLibrary === "overview" && <section className="dashboard-v2-overview" aria-labelledby="content-library-overview-heading">
+        <div className="dashboard-v2-overview-heading">
+          <div><span className="eyebrow">GOVERNED DISCOVERY &amp; REUSE</span><h3 id="content-library-overview-heading">One library, four reusable content types</h3><p>Find the current, source-linked content that ProposalOps workflows are allowed to reuse.</p></div>
+          <span className="dashboard-v2-overview-state">Server-provided status and currentness</span>
+        </div>
+        <div className="dashboard-v2-overview-grid">
+          <div className="dashboard-v2-summary-card"><span>Forms</span><strong>{formCount}</strong><small>Reusable forms, including Checklists{filtersActive ? ` · ${matchingCounts.forms} matching` : ""}</small></div>
+          <div className="dashboard-v2-summary-card"><span>Reports</span><strong>{preferredCounts.reports}</strong><small>All reusable report references{filtersActive ? ` · ${matchingCounts.reports} matching` : ""}</small></div>
+          <div className="dashboard-v2-summary-card"><span>Engineering Works</span><strong>{preferredCounts.engineering}</strong><small>All controlled references{filtersActive ? ` · ${matchingCounts.engineering} matching` : ""}</small></div>
+          <div className="dashboard-v2-summary-card"><span>Definitions</span><strong>{preferredCounts.definitions}</strong><small>All shared semantic language{filtersActive ? ` · ${matchingCounts.definitions} matching` : ""}</small></div>
+        </div>
+      </section>}
+      <DashboardLibraryNavigation activeLibrary={activeLibrary} />
       <div className="dashboard-source-card" data-testid="dashboard-source-authority-panel">
         <strong>Canonical source records linked</strong>
         <small>MasterContentItem → Document → DocumentVersion</small>
@@ -314,6 +383,8 @@ export function CurrentDashboard({ role }: { role: string }) {
           </button>
         </div>
       )}
+      {actionError && <div className="dashboard-error" role="alert"><b>Content Library action unavailable</b><span>{actionError}</span>{retryAction && <button className="button-secondary" onClick={() => void runAction(retryAction, "The Content Library action could not be completed.")}>Retry</button>}</div>}
+      {successMessage && <div className="inline-message" role="status">{successMessage}</div>}
       {loading && (
         <div className="panel dashboard-state" role="status">
           Loading master content…
@@ -321,30 +392,24 @@ export function CurrentDashboard({ role }: { role: string }) {
       )}
       {!loading && !error && (
         <>
-          <CanonicalFormsLibrary
+          {(activeLibrary === "overview" || activeLibrary === "forms") && <CanonicalFormsLibrary
             role={role}
             filters={{ q: query, category, status, module }}
-          />
-          <MasterSection
+          />}
+          {(activeLibrary === "overview" || activeLibrary === "reports") && <MasterSection
             type="REPORT"
             items={items.filter((item) => item.content_type === "REPORT")}
             canWrite={canWrite}
             filtered={filtersActive}
             onNew={() => setEditor({ type: "REPORT" })}
             onEdit={(item) => setEditor({ type: "REPORT", item })}
-            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<MasterItem>(
-                `/api/master-content/${item.id}`,
-              );
-              setHistory({
-                itemId: item.id,
-                title: `${item.ref} · ${item.title}`,
-                versions: detail.versions,
-              });
-            }}
-          />
-          <MasterSection
+            onOpen={(item) => void runAction(() => openLinkedContent(item.id), "The report could not be opened. The list is unchanged.")}
+            onHistory={(item) => void runAction(async () => {
+              const detail = await api<MasterItem>(`/api/master-content/${item.id}`);
+              setHistory({ itemId: item.id, title: `${item.ref} · ${item.title}`, versions: detail.versions });
+            }, "Report history could not be loaded. The list is unchanged.")}
+          />}
+          {(activeLibrary === "overview" || activeLibrary === "engineering-works") && <MasterSection
             type="ENGINEERING_WORK"
             items={items.filter(
               (item) => item.content_type === "ENGINEERING_WORK",
@@ -353,35 +418,24 @@ export function CurrentDashboard({ role }: { role: string }) {
             filtered={filtersActive}
             onNew={() => setEditor({ type: "ENGINEERING_WORK" })}
             onEdit={(item) => setEditor({ type: "ENGINEERING_WORK", item })}
-            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<MasterItem>(
-                `/api/master-content/${item.id}`,
-              );
-              setHistory({
-                itemId: item.id,
-                title: `${item.ref} · ${item.title}`,
-                versions: detail.versions,
-              });
-            }}
-          />
-          <DefinitionSection
+            onOpen={(item) => void runAction(() => openLinkedContent(item.id), "The Engineering Work could not be opened. The list is unchanged.")}
+            onHistory={(item) => void runAction(async () => {
+              const detail = await api<MasterItem>(`/api/master-content/${item.id}`);
+              setHistory({ itemId: item.id, title: `${item.ref} · ${item.title}`, versions: detail.versions });
+            }, "Engineering Work history could not be loaded. The list is unchanged.")}
+          />}
+          {(activeLibrary === "overview" || activeLibrary === "definitions") && <DefinitionSection
             definitions={definitions}
             canWrite={canWrite}
             filtered={filtersActive}
             onNew={() => setDefinitionEditor(null)}
             onEdit={setDefinitionEditor}
-            onOpen={async (item) => setDetails(await api<Definition>(`/api/definitions/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<Definition>(
-                `/api/definitions/${item.id}`,
-              );
-              setHistory({
-                title: `${item.ref || "Definition"} · ${item.term}`,
-                revisions: detail.revisions,
-              });
-            }}
-          />
+            onOpen={(item) => void runAction(async () => setDetails(await api<Definition>(`/api/definitions/${item.id}`)), "The Definition could not be opened. The list is unchanged.")}
+            onHistory={(item) => void runAction(async () => {
+              const detail = await api<Definition>(`/api/definitions/${item.id}`);
+              setHistory({ title: `${item.ref || "Definition"} · ${item.term}`, revisions: detail.revisions });
+            }, "Definition history could not be loaded. The list is unchanged.")}
+          />}
         </>
       )}
       {editor && (
@@ -404,20 +458,26 @@ export function CurrentDashboard({ role }: { role: string }) {
         />
       )}
       {history && (
-        <HistoryDrawer history={history} onClose={() => setHistory(null)} />
+        <HistoryDrawer history={history} onClose={() => setHistory(null)} onDownload={(itemId, versionId, fileName) => void runAction(() => downloadVersion(itemId, versionId, fileName), "The source version download failed.")} />
       )}
-      {details && <ContentDetails item={details} onClose={() => setDetails(null)} />}
+      {details && <ContentDetails item={details} onClose={() => setDetails(null)} onDownload={(id) => void runAction(() => downloadMaster(id), "The source download failed. The Content Library list is unchanged.")} />}
     </div>
   );
 }
 
-function DashboardLibraryNavigation() {
+function DashboardLibraryNavigation({ activeLibrary }: { activeLibrary: LibraryKey }) {
+  const links: Array<{ key: LibraryKey; label: string; description: string; href: string }> = [
+    { key: "overview", label: "Overview", description: "See the governed library at a glance.", href: "/content-library" },
+    { key: "forms", label: "Forms", description: "Reusable forms and Checklists.", href: "/content-library/forms" },
+    { key: "reports", label: "Reports", description: "Reusable reports and references.", href: "/content-library/reports" },
+    { key: "engineering-works", label: "Engineering Works", description: "Controlled engineering references.", href: "/content-library/engineering-works" },
+    { key: "definitions", label: "Definitions", description: "Shared business language.", href: "/content-library/definitions" },
+  ];
   return (
-    <nav className="dashboard-v2-library-nav" aria-label="Dashboard master libraries" data-testid="dashboard-library-navigation">
-      <a href="#forms"><span className="eyebrow">CONTENT LIBRARY</span><strong>Forms</strong><small>Reusable forms and templates.</small></a>
-      <a href="#reports"><span className="eyebrow">CONTENT LIBRARY</span><strong>Reports</strong><small>Reusable reports and references.</small></a>
-      <a href="#engineering-works"><span className="eyebrow">CONTENT LIBRARY</span><strong>Engineering Works</strong><small>Controlled engineering references.</small></a>
-      <a href="#definitions"><span className="eyebrow">CONTENT LIBRARY</span><strong>Definitions</strong><small>Shared business language.</small></a>
+    <nav className="dashboard-v2-library-nav" aria-label="Content Library navigation" data-testid="dashboard-library-navigation">
+      {links.map((link) => <a href={link.href} key={link.key} className={activeLibrary === link.key ? "selected" : ""} aria-current={activeLibrary === link.key ? "page" : undefined}>
+        <span className="eyebrow"><Icon name="library" size={14} /> CONTENT LIBRARY</span><strong>{link.label}</strong><small>{link.description}</small>
+      </a>)}
     </nav>
   );
 }
@@ -478,6 +538,7 @@ function MasterSection({
               <tr>
                 <th>S/N</th>
                 <th>Version</th>
+                <th>Status</th>
                 <th>Reference</th>
                 <th>{type === "ENGINEERING_WORK" ? "Document" : "Report"}</th>
                 <th>Category</th>
@@ -488,22 +549,23 @@ function MasterSection({
             <tbody>
               {items.map((item, index) => (
                 <tr key={item.id}>
-                  <td>{item.serial_number || index + 1}</td>
-                  <td>{versionLabel(item.version)}</td>
-                  <td>
+                  <td data-label="S/N">{item.serial_number || index + 1}</td>
+                  <td data-label="Version">{versionLabel(item.version)}</td>
+                  <td data-label="Status"><StatusBadge value={item.version_status} hasVersion={Boolean(item.version)} /></td>
+                  <td data-label="Reference">
                     <code className="content-reference">{item.ref}</code>
                   </td>
-                  <td>
+                  <td data-label={type === "ENGINEERING_WORK" ? "Engineering Work" : "Report"}>
                     <b>{item.title}</b>
                   </td>
-                  <td>{item.category?.label || "Uncategorized"}</td>
-                  <td
+                  <td data-label="Category">{item.category?.label || "Uncategorized"}</td>
+                  <td data-label="Description"
                     className="description-cell"
                     title={item.description || "No description"}
                   >
                     {item.description || "No description"}
                   </td>
-                  <td className="dashboard-actions">
+                  <td data-label="Actions" className="dashboard-actions">
                     <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
@@ -586,6 +648,7 @@ function DefinitionSection({
               <tr>
                 <th>S/N</th>
                 <th>Reference</th>
+                <th>Status</th>
                 <th>Term</th>
                 <th>Category</th>
                 <th>Meaning</th>
@@ -595,23 +658,24 @@ function DefinitionSection({
             <tbody>
               {definitions.map((item, index) => (
                 <tr key={item.id}>
-                  <td>{item.serial_number || index + 1}</td>
-                  <td>
+                  <td data-label="S/N">{item.serial_number || index + 1}</td>
+                  <td data-label="Reference">
                     <code className="content-reference">
                       {item.ref || "Unassigned"}
                     </code>
                   </td>
-                  <td>
+                  <td data-label="Status"><StatusBadge value={item.status} hasVersion={Boolean(item.revision)} /></td>
+                  <td data-label="Term">
                     <b>{item.term}</b>
                   </td>
-                  <td>{item.category || "Uncategorized"}</td>
-                  <td
+                  <td data-label="Category">{item.category || "Uncategorized"}</td>
+                  <td data-label="Meaning"
                     className="description-cell"
                     title={item.description || "No meaning recorded"}
                   >
                     {item.description || "No meaning recorded"}
                   </td>
-                  <td className="dashboard-actions">
+                  <td data-label="Actions" className="dashboard-actions">
                     <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
@@ -993,6 +1057,7 @@ function DefinitionEditor({
 function HistoryDrawer({
   history,
   onClose,
+  onDownload,
 }: {
   history: {
     title: string;
@@ -1001,6 +1066,7 @@ function HistoryDrawer({
     revisions?: DefinitionRevision[];
   };
   onClose: () => void;
+  onDownload: (itemId: string, versionId: string, fileName: string) => void;
 }) {
   return (
     <Drawer
@@ -1032,13 +1098,13 @@ function HistoryDrawer({
                   ? "Preview PDF available"
                   : "Source document"}
               </span>
-              <a
+              <button
                 className="table-action action-view"
-                href={`/api/master-content/${history.itemId}/versions/${version.id}/download`}
-                download={version.file_name}
+                type="button"
+                onClick={() => history.itemId && onDownload(history.itemId, version.id, version.file_name)}
               >
                 Download
-              </a>
+              </button>
             </div>
           </article>
         ))}
@@ -1132,7 +1198,7 @@ function formatDateTime(value: string) {
     minute: "2-digit",
   });
 }
-function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onClose: () => void }) {
+function ContentDetails({ item, onClose, onDownload }: { item: MasterItem | Definition; onClose: () => void; onDownload: (itemId: string) => void }) {
   const isDefinition = "term" in item;
   return <Drawer title={`${item.ref || "Definition"} · ${isDefinition ? item.term : item.title}`} eyebrow={isDefinition ? "DEFINITION DETAILS" : `${item.content_type.replaceAll("_", " ")} DETAILS`} onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <div className="content-detail-grid">
@@ -1143,8 +1209,8 @@ function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onCl
       {!isDefinition && <div><span>Current source file</span><b>{item.current_source_filename || "Not recorded"}</b></div>}
     </div>
     <p className="detail-description">{item.description || "No description"}</p>
-    <section className="form-governance-section"><h3>{isDefinition ? "Revision History" : "Version History"}</h3>{isDefinition ? ((item.revisions || []).length ? <div className="content-history-list">{(item.revisions || []).map((revision) => <div className="content-history-row" key={revision.id}><b>Revision {revision.revision}</b><span>{revision.status}</span><small>{formatDateTime(revision.changed_at)}</small></div>)}</div> : <p>No previous revisions recorded.</p>) : ((item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name} · {version.status}</span><small>{formatDateTime(version.updated_at)}</small></div>)}</div> : <p>No previous versions recorded.</p>)}</section>
-    {!isDefinition && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
+    <section className="form-governance-section"><h3>{isDefinition ? "Revision History" : "Version History"}</h3>{isDefinition ? ((item.revisions || []).length ? <div className="content-history-list">{(item.revisions || []).map((revision) => <div className="content-history-row" key={revision.id}><b>Revision {revision.revision}</b><StatusBadge value={revision.status} hasVersion /><small>{formatDateTime(revision.changed_at)}</small></div>)}</div> : <p>No previous revisions recorded.</p>) : ((item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name}</span><StatusBadge value={version.status} hasVersion /><small>{formatDateTime(version.updated_at)}</small></div>)}</div> : <p>No previous versions recorded.</p>)}</section>
+    {!isDefinition && <button type="button" className="button-secondary" onClick={() => onDownload(item.id)}>Download current source</button>}
   </Drawer>;
 }
 

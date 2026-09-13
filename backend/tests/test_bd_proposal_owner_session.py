@@ -24,6 +24,8 @@ def _ensure_dashboard_proposal_templates(client):
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"synthetic regression canonical content", "text/plain")}, headers=_headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
             item = created.json()
+        governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=_headers("SYSTEM_ADMIN"))
+        assert governed.status_code == 200, governed.text
         bound = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": usage}], headers=_headers("SYSTEM_ADMIN"))
         assert bound.status_code == 200, bound.text
 

@@ -1,0 +1,35 @@
+{
+  "contract": "CONTENT_LIBRARY_CONSUMER_RESOLUTION_MATRIX",
+  "truth": "DASHBOARD_MASTER_CONTENT",
+  "selection_rule": "SINGLETON_REQUIRED fails closed on zero or multiple; COLLECTION returns all deterministic eligible candidates",
+  "exact_version_binding": true,
+  "consumers": {
+    "BD": [
+      {"module": "BD", "purpose": "PROPOSAL_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal configuration"},
+      {"module": "BD", "purpose": "PROPOSAL_CHECKLIST", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal acceptance"}
+    ],
+    "ADMIN": [
+      {"module": "ADMIN", "purpose": "CONTRACT_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "Contract workspace"}
+    ],
+    "ENGINEERING": [
+      {"module": "ENGINEERING", "purpose": "AVAILABLE", "content_type": "ENGINEERING_WORK", "selection_cardinality": "COLLECTION", "downstream_caller": "Engineering proposal preparation"}
+    ],
+    "PERMIT": [
+      {"module": "PERMIT", "purpose": "AVAILABLE", "content_type": null, "selection_cardinality": "COLLECTION", "downstream_caller": "Permit source preparation"}
+    ],
+    "REPORTS": [
+      {"module": "REPORTS", "purpose": "AVAILABLE", "content_type": null, "selection_cardinality": "COLLECTION", "downstream_caller": "Report source preparation"},
+      {"module": "REPORTS", "purpose": "REPORT_SOURCE", "content_type": "REPORT", "selection_cardinality": "COLLECTION", "downstream_caller": "Controlled report source binding"}
+    ],
+    "DEFINITIONS": [
+      {"module": "DEFINITIONS", "purpose": "SEMANTIC_SOURCE", "content_type": "DEFINITION", "selection_cardinality": "SINGLETON_REQUIRED", "canonical_resolver": "/api/definitions/lookup/{term}", "downstream_caller": "Semantic definition lookup"}
+    ]
+  },
+  "evidence": {
+    "backend_matrix": "backend/app/services/master_content.py:CONSUMER_RESOLUTION_MATRIX",
+    "backend_endpoint": "/api/master-content/consumer-resolvers/{consumer}",
+    "backend_test": "backend/tests/test_content_library_step3_consumer_convergence.py:test_consumer_resolution_matrix_covers_all_downstream_classes_and_cardinality",
+    "ui_deep_link": "/content-library?content=<canonical-content-id>",
+    "ui_behavior": "Role-scoped exact-item load; URL is preserved; unauthorized or unavailable items fail closed with retryable feedback."
+  }
+}

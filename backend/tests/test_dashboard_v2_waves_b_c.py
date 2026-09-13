@@ -67,8 +67,8 @@ def test_dashboard_v2_waves_b_c_governed_vertical_slice(client):
 
         # Exact source sections are version-pinned and can support multiple
         # policy/technical sources without inferring applicability.
-        section_a = _post(client, f"/api/master-content/{item_id}/source-sections", {"document_version_id": version_id, "section_key": "authority-scope", "label": "Authority scope", "page_start": 1})
-        section_b = _post(client, f"/api/master-content/{item_id}/source-sections", {"document_version_id": version_id, "section_key": "service-scope", "label": "Service scope", "page_start": 2})
+        section_a = _post(client, f"/api/master-content/{item_id}/source-sections", {"document_version_id": version_id, "section_key": "authority-scope", "label": "Authority scope", "page_start": 1, "page_end": 1})
+        section_b = _post(client, f"/api/master-content/{item_id}/source-sections", {"document_version_id": version_id, "section_key": "service-scope", "label": "Service scope", "page_start": 2, "page_end": 2})
         _post(client, f"/api/master-content/{item_id}/provenance", {"document_version_id": version_id, "obtained_from": "SYNTHETIC_AUTHORITY_SOURCE", "source_reference": "V2-BC-SYNTHETIC"})
         governance = client.patch(f"/api/master-content/{item_id}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AUTHORITY_FORM", "language_profile": "EN"}, headers=OWNER)
         assert governance.status_code == 200, governance.text

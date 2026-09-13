@@ -118,6 +118,9 @@ def _domain_for_persona(persona: str, domain: str, item: dict[str, Any]) -> bool
 
 
 def _issue_route(task: dict[str, Any], domain: str, issue_id: str) -> tuple[str, str]:
+    preserved_link = task.get("deep_link")
+    if preserved_link and str(preserved_link).startswith("/content-library?content="):
+        return str(preserved_link), "Review Content Library"
     focus = f"?issue={issue_id}"
     context_id = task.get("context_id")
     project_id = task.get("project_id")
@@ -271,6 +274,7 @@ def _finding_items(findings: list[dict[str, Any]], references: dict[str, dict[st
             "context_id": contract_id or proposal_id or permit_id,
             "project_id": project_id,
             "title": finding.get("title"),
+            "deep_link": finding.get("deep_link"),
         }
         deep_link, cta = _issue_route(route_task, domain, str(finding["id"]))
         finding_title = _owner_copy(finding.get("title") or "assigned issue")

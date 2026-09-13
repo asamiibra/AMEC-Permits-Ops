@@ -1,0 +1,21 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_CURRENT_IMPLEMENTATION_MAP_V1",
+  "baseline_sha": "96bb23378d3a78855a315ea751e2b3b66839cb02",
+  "four_library_projection": {
+    "forms": "frontend/src/Dashboard.tsx; backend/app/services/master_content.py",
+    "reports": "frontend/src/Dashboard.tsx; backend/app/models/master_content_entities.py",
+    "engineering_works": "frontend/src/Dashboard.tsx; backend/app/services/master_content.py",
+    "definitions": "frontend/src/Dashboard.tsx; backend/app/api/master_content_routers.py"
+  },
+  "shared_lineage": ["Document", "DocumentVersion", "MasterContentItem", "MasterContentDependency", "MasterContentChangeEvent"],
+  "authority_seams": {
+    "official_forms": "backend/app/services/source18.py and source18 entities",
+    "evidence": "VerifiedAssertion/FieldObservation owning-domain paths",
+    "project_requirements": "RequirementDefinition/RequirementInstance/Project Requirement Item owning-domain paths",
+    "technical_reports": "project/engineering artifact paths",
+    "professional_approval": "engineering approval/baseline paths"
+  },
+  "consumer_seams": ["proposal workspace", "permit/Source18", "engineering", "governed prefill", "AI assist boundary"],
+  "migration_head": "source18_committee_implementation_v1",
+  "classification_rule": "absent historical names are classified as renamed, replaced, superseded, not implemented, or unknown; stale structures are not recreated"
+}

@@ -10,7 +10,10 @@ def _issues(client, persona, headers=None):
 def test_issue_rows_use_existing_context_routes_with_focus_query(client):
     rows = _issues(client, "OWNER", {"X-Dev-Role": "SYSTEM_ADMIN"})
     assert len(rows) >= 7
-    assert all("issue" in parse_qs(urlparse(row["deep_link"]).query) for row in rows)
+    standard_rows = [row for row in rows if row["domain"] != "MASTER_CONTENT"]
+    content_rows = [row for row in rows if row["domain"] == "MASTER_CONTENT"]
+    assert all("issue" in parse_qs(urlparse(row["deep_link"]).query) for row in standard_rows)
+    assert all(urlparse(row["deep_link"]).path == "/content-library" and "content" in parse_qs(urlparse(row["deep_link"]).query) for row in content_rows)
     assert all(not urlparse(row["deep_link"]).path.startswith("/issues/") for row in rows)
     assert {urlparse(row["deep_link"]).path.split("/")[1] for row in rows} >= {"proposals", "contracts", "proposals-contracts"}
 
@@ -34,7 +37,7 @@ def test_issue_backed_work_and_target_api_reject_cross_entity_focus(client):
     assert work.status_code == 200
     issue_items = [item for item in work.json()["items"] if item.get("issue_id")]
     assert issue_items
-    assert all("issue=" in item["deep_link"] and not item["deep_link"].startswith("/issues/") for item in issue_items)
+    assert all(("issue=" in item["deep_link"] and not item["deep_link"].startswith("/issues/")) or item["deep_link"].startswith("/content-library?content=") for item in issue_items)
     rows = _issues(client, "OWNER", {"X-Dev-Role": "SYSTEM_ADMIN"})
     permit = next(item for item in rows if item["domain"] == "PERMIT_TECHNICAL")
     unrelated = next(item for item in rows if item["domain"] == "PROPOSAL_TECHNICAL")

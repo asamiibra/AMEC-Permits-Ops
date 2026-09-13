@@ -165,6 +165,8 @@ def governance_projection(db: Session, item: MasterContentItem, *, include_histo
 
 
 def update_governance(db: Session, item: MasterContentItem, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     profile = ensure_profile(db, item)
     before = _profile_dict(profile)
     for key in ("content_ownership_class", "artifact_kind", "publisher_name", "publisher_unit", "jurisdiction_text", "official_form_no", "official_issue_no", "language_profile", "sensitivity_class", "contains_pii", "contains_signature", "contains_stamp", "contains_financial_data", "contains_project_specific_data", "restricted_reference_sample", "currentness_verification_note"):
@@ -183,6 +185,8 @@ def update_governance(db: Session, item: MasterContentItem, payload: dict[str, A
 
 
 def set_currentness(db: Session, item: MasterContentItem, *, action: str, actor: str, note: str | None, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     profile = ensure_profile(db, item)
     action = action.upper()
     if action not in {"VERIFY_CURRENT", "MARK_NOT_CURRENT", "REVOKE"}: raise _deny("CURRENTNESS_ACTION_INVALID")
@@ -247,8 +251,9 @@ def resolve_quality_flag(db: Session, item: MasterContentItem, flag: MasterConte
 def add_source_section(db: Session, item: MasterContentItem, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
     version = db.get(DocumentVersion, payload["document_version_id"])
     if not version or version.document_id != item.document_id: raise _deny("SOURCE_SECTION_VERSION_MISMATCH", 409)
-    if payload.get("locator_type", "PAGE_RANGE").upper() not in LOCATOR_TYPES: raise _deny("SOURCE_SECTION_LOCATOR_INVALID")
-    section = MasterContentSourceSection(id=str(uuid4()), master_content_item_id=item.id, document_version_id=version.id, section_key=payload["section_key"], label=payload["label"], locator_type=payload.get("locator_type", "PAGE_RANGE").upper(), page_start=payload.get("page_start"), page_end=payload.get("page_end"), locator_payload=payload.get("locator_payload") or {}, description=payload.get("description"), created_by=actor)
+    locator_type = payload.get("locator_type", "PAGE_RANGE").upper()
+    _validate_locator(locator_type, payload.get("page_start"), payload.get("page_end"))
+    section = MasterContentSourceSection(id=str(uuid4()), master_content_item_id=item.id, document_version_id=version.id, section_key=payload["section_key"], label=payload["label"], locator_type=locator_type, page_start=payload.get("page_start"), page_end=payload.get("page_end"), locator_payload=payload.get("locator_payload") or {}, description=payload.get("description"), created_by=actor)
     db.add(section)
     db.flush()
     audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_SOURCE_SECTION_CREATED", entity_type="MasterContentSourceSection", entity_id=section.id, actor_id=actor, after=_section_dict(section))
@@ -265,10 +270,18 @@ def update_source_section(db: Session, item: MasterContentItem, section: MasterC
     for key in ("section_key", "label", "locator_type", "page_start", "page_end", "locator_payload", "description", "status"):
         if key in payload and payload[key] is not None:
             setattr(section, key, payload[key].upper() if key in {"locator_type", "status"} and isinstance(payload[key], str) else payload[key])
-    if section.locator_type not in LOCATOR_TYPES: raise _deny("SOURCE_SECTION_LOCATOR_INVALID")
+    _validate_locator(section.locator_type, section.page_start, section.page_end)
     audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_SOURCE_SECTION_UPDATED", entity_type="MasterContentSourceSection", entity_id=section.id, actor_id=actor, after=_section_dict(section))
     db.commit()
     return _section_dict(section)
+
+
+def _validate_locator(locator_type: str, page_start: int | None, page_end: int | None) -> None:
+    if locator_type not in LOCATOR_TYPES:
+        raise _deny("SOURCE_SECTION_LOCATOR_INVALID")
+    if locator_type == "PAGE_RANGE":
+        if page_start is None or page_end is None or page_start < 1 or page_end < 1 or page_start > page_end:
+            raise _deny("SOURCE_SECTION_LOCATOR_INVALID", locator_type=locator_type)
 
 
 def source_blocker_rollup(db: Session) -> dict[str, int]:

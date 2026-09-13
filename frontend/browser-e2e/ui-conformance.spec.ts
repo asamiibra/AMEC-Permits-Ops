@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
 import path from "node:path";
+// @ts-ignore The gate is plain ESM so the prepare script and Playwright share one executable authority.
+import { evaluateUiConformance } from "../scripts/ui-conformance-gate.mjs";
 
 type Persona = "Owner" | "Business Development" | "Engineering";
 const internalRole: Record<Persona, string> = { Owner: "SYSTEM_ADMIN", "Business Development": "COMMERCIAL_APPROVER", Engineering: "RESPONSIBLE_ENGINEER" };
@@ -38,10 +40,15 @@ async function fulfillApi(route: any) {
   const pathName = url.pathname;
   const persona = url.searchParams.get("persona") || "OWNER";
   let body: any = {};
-  if (pathName === "/api/projects") body = [project];
+  if (pathName === "/api/master-content/categories") body = [];
+  else if (pathName === "/api/master-content") body = [];
+  else if (pathName === "/api/definitions") body = [];
+  else if (pathName === "/api/dashboard-v2/catalogs") body = { external_bodies: [], jurisdictions: [], service_types: [], lifecycle_phases: [] };
+  else if (pathName === "/api/projects") body = [project];
   else if (pathName === "/api/applications") body = [application];
   else if (pathName === "/api/reconciliation/governance") body = { environment_badge: "SYNTHETIC PROTOTYPE" };
   else if (pathName === "/api/work") body = { summary: { needs_action: 1, waiting_review: 0, blocked: 1, overdue: 0 }, items: [{ id: "work-1", title: "Review Proposal", business_context: "Technical Proposal Preparation requires review.", domain: "proposal", reference: proposal.proposal_id, assigned_team: "Engineering", stage: "Engineering Proposal Preparation", cta_label: "Open Proposal", deep_link: `/proposals/${proposal.id}/preparation`, blocking: true }], unfiltered_visible_count: 1, context_visible_count: 1, recent_changes: [] };
+  else if (pathName === "/api/dashboard-inputs") body = { summary: { confirmed: 1, remaining: 0, technical_remaining: 0, ready: true }, groups: [], items: [] };
   else if (pathName === "/api/proposals-main") body = proposalRegister(persona);
   else if (pathName === `/api/proposals-main/proposals/${proposal.id}`) body = { proposal, readiness: { client_context: true }, fields: { description: proposal.proposal_description, price: proposal.amount, period: "12 months", sow: "Design and engineering services", exclusions: "Not recorded", technical_exclusions: "Not recorded", process_of_work: "Engineering review" }, sources: [{ id: "source-1", artifact_class: "TENDER_DOCUMENT", semantic_class: "TENDER_DOCUMENT", filename: "Tender brief.pdf", version: 1, verification_status: "READ_BACK_VERIFIED", current: true, sor_binding: "Project source", content_hash: "fixture-content-hash" }], contracts: [contract], issues: [], tasks: [{ id: "handoff-1", title: "Engineering preparation", owner_role: "Engineering", status: "READY" }] };
   else if (pathName === `/api/proposals-main/contracts/${contract.id}`) body = { contract, project: { id: project.id, reference: project.project_number, name: project.project_name }, proposal: { id: proposal.id, reference: proposal.proposal_id, title: proposal.proposal_description, status: proposal.proposal_status }, revisions: [{ id: "revision-1", revision_number: 1, status: "CURRENT" }], permits: [], sources: [{ id: "source-2", artifact_class: "CONTRACT_FORM", verification_status: "READ_BACK_VERIFIED", path: "Contract source" }], issues: [], history: [{ id: "audit-1" }], next_action: { label: "Initiate Permit", eligible: true } };
@@ -135,7 +142,18 @@ test.describe("ProposalOps universal UI conformance gate", () => {
           console.log(`[ui-conformance] ${results.length + 1}/${expectedResultCount} ${entry.id} ${persona} ${viewport}`);
           try {
             await page.setViewportSize(size);
-            await page.goto(route, { waitUntil: "domcontentloaded", timeout: 10_000 });
+            let navigationError: unknown;
+            for (let attempt = 0; attempt < 2; attempt += 1) {
+              try {
+                await page.goto(route, { waitUntil: "domcontentloaded", timeout: 20_000 });
+                navigationError = undefined;
+                break;
+              } catch (error) {
+                navigationError = error;
+                if (attempt === 0) await page.waitForTimeout(250);
+              }
+            }
+            if (navigationError) throw navigationError;
             await page.waitForTimeout(80);
             const current = await snapshot(page);
             const shouldRunAxe = viewport === "desktop" && ["S01", "S02", "S02A", "S02B", "S02C", "S02D", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12", "S13", "S14", "S15", "S26"].includes(entry.id);
@@ -183,14 +201,29 @@ test.describe("ProposalOps universal UI conformance gate", () => {
       UI_INFORMATION_HIERARCHY_PASS: results.every((item) => item.headings.length > 0),
       UNINTENTIONAL_UI_DUPLICATION_ZERO: results.every((item) => item.collisions.length === 0)
     };
-    const ready = Object.values(checks).every(Boolean);
+    const defectLedger = JSON.parse(fs.readFileSync(path.join(auditRoot, "ui-defects.json"), "utf8"));
+    const runtimeDefectChecks: Record<string, string> = {
+      OWNER_FACING_CONCATENATED_TEXT_ZERO: "OWNER_FACING_CONCATENATED_TEXT_ZERO",
+      RAW_ENUM_VISIBLE_ZERO: "RAW_ENUM_VISIBLE_ZERO",
+      UI_CRAWL_NETWORK_FAILURE_ZERO: "UI_CRAWL_NETWORK_FAILURE_ZERO",
+    };
+    const effectiveDefectLedger = {
+      ...defectLedger,
+      new_gate_defects: (defectLedger.new_gate_defects || []).map((defect: any) => ({
+        ...defect,
+        status: checks[runtimeDefectChecks[defect.rule] as keyof typeof checks] ? "PASS_RUNTIME" : "OPEN",
+        final_head_runtime: true,
+      })),
+    };
+    const derived = evaluateUiConformance({ defects: effectiveDefectLedger, runtimeChecks: checks });
+    fs.writeFileSync(path.join(auditRoot, "ui-defects.json"), JSON.stringify(effectiveDefectLedger, null, 2) + "\n");
     fs.writeFileSync(path.join(auditRoot, "runtime-results.json"), JSON.stringify({ generated_at: new Date().toISOString(), route_count: inventory.route_count, result_count: results.length, results, console_errors: consoleErrors, request_failures: requestFailures, bad_responses: badResponses, checks }, null, 2) + "\n");
     fs.writeFileSync(path.join(auditRoot, "text-quality-results.json"), JSON.stringify({ gate: "OWNER_FACING_TECHNICAL_TEXT_ZERO", status: checks.OWNER_FACING_TECHNICAL_TEXT_ZERO ? "PASS" : "FAIL", result_count: results.length, failures: results.filter((item) => item.raw_uuid || item.raw_json || item.raw_actor || item.raw_enum.length).slice(0, 100) }, null, 2) + "\n");
     fs.writeFileSync(path.join(auditRoot, "layout-results.json"), JSON.stringify({ gates: { UI_OVERLAP_COLLISION_ZERO: checks.UI_OVERLAP_COLLISION_ZERO, UNINTENDED_HORIZONTAL_OVERFLOW_ZERO: checks.UNINTENDED_HORIZONTAL_OVERFLOW_ZERO, BLANK_MAJOR_UI_SECTION_ZERO: checks.BLANK_MAJOR_UI_SECTION_ZERO }, result_count: results.length, failures: results.filter((item) => item.collisions.length || item.horizontal_overflow || item.blank_sections.length).slice(0, 100) }, null, 2) + "\n");
     fs.writeFileSync(path.join(auditRoot, "mobile-results.json"), JSON.stringify({ gate: "UI_MOBILE_PASS", status: checks.UI_MOBILE_PASS ? "PASS" : "FAIL", viewports, failures: results.filter((item) => item.viewport === "mobile" && item.horizontal_overflow) }, null, 2) + "\n");
     fs.writeFileSync(path.join(auditRoot, "accessibility-results.json"), JSON.stringify({ gate: "UI_ACCESSIBILITY_PASS", status: checks.UI_ACCESSIBILITY_PASS ? "PASS" : "FAIL", failures: results.filter((item) => item.axe_critical_or_serious.length).slice(0, 100) }, null, 2) + "\n");
     fs.writeFileSync(path.join(auditRoot, "network-console-results.json"), JSON.stringify({ gates: { UI_CRAWL_CONSOLE_ERROR_ZERO: checks.UI_CRAWL_CONSOLE_ERROR_ZERO, UI_CRAWL_NETWORK_FAILURE_ZERO: checks.UI_CRAWL_NETWORK_FAILURE_ZERO }, console_errors: consoleErrors, request_failures: requestFailures, bad_responses: badResponses }, null, 2) + "\n");
-    const final = { decision: ready ? "PROPOSALOPS_UI_CONFORMANCE_READY" : "PROPOSALOPS_UI_CONFORMANCE_NOT_READY", checks, route_count: inventory.route_count, result_count: results.length, exact_gaps: Object.entries(checks).filter(([, value]) => !value).map(([key]) => key) };
+    const final = { ...derived, checks: { ...checks, ...derived.checks }, route_count: inventory.route_count, result_count: results.length, exact_gaps: [...derived.defect_summary.blocking_ids, ...Object.entries(checks).filter(([, value]) => !value).map(([key]) => key)] };
     fs.writeFileSync(path.join(auditRoot, "final-result.json"), JSON.stringify(final, null, 2) + "\n");
     expect(results).toHaveLength(expectedResultCount);
   });

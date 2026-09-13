@@ -1,0 +1,14 @@
+{
+  "schema": "AMEC_CONTENT_LIBRARY_DUPLICATE_ENGINE_RISK_REGISTER_V1",
+  "duplicate_master_content_read_engines": 0,
+  "duplicate_governed_resolver_engines": 0,
+  "parallel_checklist_library_count": 0,
+  "parallel_version_authority_count": 0,
+  "parallel_source_provenance_engine_count": 0,
+  "checks": [
+    {"risk":"Content Library as Project/evidence/permit truth","result":"PASS","evidence":"separate owning-domain models and consumer seams"},
+    {"risk":"AI direct read bypass","result":"PASS","evidence":"AI assist boundary remains governed"},
+    {"risk":"arbitrary master_content_id bypass","result":"GAP","evidence":"binding validation closure registered as CLG-003"},
+    {"risk":"stale current authority selection","result":"PASS","evidence":"current/reviewed version gates and Source18 seam"}
+  ]
+}
