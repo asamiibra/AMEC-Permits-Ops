@@ -8,11 +8,11 @@ def test_owner_decision_register_is_canonical_and_truthful(client):
     response = client.get("/api/owner-decisions")
     assert response.status_code == 200
     payload = response.json()
-    assert payload["count"] == 50
+    assert payload["count"] == 64
     assert payload["duplicate_key_count"] == 0
-    assert {len(group["items"]) for group in payload["groups"]} == {3, 8, 11, 12, 16}
+    assert {len(group["items"]) for group in payload["groups"]} == {3, 8, 11, 12, 14, 16}
     assert payload["go_live"]["overall"] == "BLOCKED"
-    assert payload["truth_tokens"]["OWNER_DECISION_CANONICAL_COUNT_50"] is True
+    assert payload["truth_tokens"]["OWNER_DECISION_CANONICAL_COUNT_64"] is True
     assert payload["truth_tokens"]["SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO"] is True
     assert payload["truth_tokens"]["OWNER_DECISION_RUNTIME_MISMATCH_ZERO"] is True
 

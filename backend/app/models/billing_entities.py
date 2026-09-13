@@ -318,6 +318,7 @@ class InvoicePaymentAllocation(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     payment_receipt_id: Mapped[str] = mapped_column(ForeignKey("payment_receipts.id"), nullable=False, index=True)
     invoice_id: Mapped[str] = mapped_column(ForeignKey("invoices.id"), nullable=False, index=True)
+    billing_milestone_id: Mapped[str | None] = mapped_column(ForeignKey("billing_milestones.id"), index=True)
     allocated_amount: Mapped[float] = mapped_column(Numeric(18, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String(20), nullable=False)
     allocated_by: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -373,3 +374,36 @@ class ReceivableFollowUp(Base):
     next_follow_up_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     recorded_by: Mapped[str] = mapped_column(String(200), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class BillingFxRateRecord(Base):
+    """Versioned Owner-approved FX record; no live market feed is consulted."""
+    __tablename__ = "billing_fx_rate_records"
+    __table_args__ = (UniqueConstraint("source_currency", "rate_record_version", name="uq_billing_fx_rate_version"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    source_currency: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    qar_per_source_currency_rate: Mapped[float] = mapped_column(Numeric(18, 8), nullable=False)
+    rate_effective_date: Mapped[date] = mapped_column(Date, nullable=False)
+    rate_source_reference: Mapped[str] = mapped_column(String(300), nullable=False)
+    rate_record_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    owner_approval_identity: Mapped[str] = mapped_column(String(200), nullable=False)
+    owner_approval_time_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), default="ACTIVE", nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class ProjectExpectedExpVersion(Base):
+    """Versioned Owner-entered project finance field; never formula-derived."""
+    __tablename__ = "project_expected_exp_versions"
+    __table_args__ = (UniqueConstraint("project_id", "version", name="uq_project_expected_exp_version"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)
+    value_percent: Mapped[float] = mapped_column(Numeric(9, 4), nullable=False)
+    effective_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    owner_editor_identity: Mapped[str] = mapped_column(String(200), nullable=False)
+    edit_time_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source_or_note: Mapped[str] = mapped_column(Text, nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(30), default="ACTIVE", nullable=False, index=True)

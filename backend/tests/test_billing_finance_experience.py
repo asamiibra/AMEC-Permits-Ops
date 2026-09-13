@@ -8,7 +8,8 @@ def test_billing_capabilities_are_server_projection_and_fail_closed_for_ai(clien
     assert body["authority_source"] == "SERVER_MUTATION_POLICY"
     assert body["capabilities"]["can_issue_invoice"] is True
     assert body["frontend_only_authority_grants"] == 0
-    assert len(body["unresolved_owner_decisions"]) == 5
+    assert body["unresolved_owner_decisions"] == []
+    assert body["resolved_owner_policies"]["FINANCE_YTD_REPORTING_YEAR_BOUNDARY"] == "CALENDAR_YEAR"
 
     engineer = client.get("/api/billing/capabilities", headers=headers("RESPONSIBLE_ENGINEER"))
     assert engineer.status_code == 200, engineer.text
@@ -31,7 +32,8 @@ def test_billing_bounded_read_models_keep_invoice_and_receivable_history_separat
     assert "invoice_report" in reports
     assert "open_receivables" in reports
     assert reports["ytd"] is None
-    assert reports["ytd_status"] == "OWNER_DECISION_REQUIRED"
+    assert reports["ytd_status"] == "CONFIGURATION_REQUIRED"
+    assert reports["ytd_policy"] == "CALENDAR_YEAR"
 
 
 def test_billing_read_models_do_not_grant_mutation_to_engineering(client):

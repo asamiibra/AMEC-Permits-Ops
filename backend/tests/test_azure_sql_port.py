@@ -173,6 +173,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "billing_module_closure_v8.py",
         "17c6ebd99c4a_merge_billing_and_opportunity_migration_.py",
         "billing_finance_experience_v1.py",
+        "billing_finance_experience_closure_v1.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
@@ -192,6 +193,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "billing_module_closure_v8",
         "17c6ebd99c4a",
         "billing_finance_experience_v1",
+        "billing_finance_experience_closure_v1",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
@@ -623,7 +625,7 @@ def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
 
 def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     result = nullable_unique_audit("post")
-    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 245
+    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 247
     assert result["unclassified_unique_object_count"] == 0
     assert result["unsafe_fk_or_semantic_review_required_count"] == 0
     assert result["nullable_unique_filter_required_count"] == 20

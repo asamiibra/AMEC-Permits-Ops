@@ -1,59 +1,58 @@
-# Billing & Finance Experience v1 — Traceability
+# Billing & Finance Experience — PR #46 closure traceability
 
-This feature branch implements the requested Billing / Invoice / Receivables /
-Collection operating experience as a bounded layer over the accepted Billing
-V10 canonical events. It does not reopen Billing V10, change financial
-arithmetic, or merge to `main`.
+This document records the implementation against the governing Owner Sources
+12–16, later same-scope Owner-resolved G0.13 / G0.14 / G0.16 decisions, cross-
+source Sources 6 / 7 / 9 / 11 where applicable, and the locked ProposalOps
+Intelligence Architecture v1. The original product brief is treated as an
+execution prompt, not as the governing authority.
 
-Source authority: the user-provided request attachment
-`/Users/ahmedsami/.codex/attachments/a31fdd56-38a5-45d4-985f-1e2f412b879d/pasted-text.txt`.
-The request was supplied as one consolidated product and qualification brief;
-the locators below use its numbered requirement sections and named contracts.
+The feature remains a bounded operating layer over accepted Billing V10
+canonical events. It does not reopen V10, create Billing V11, change accepted
+financial arithmetic, introduce ERP journal integration, or merge to `main`.
 
-| Request locator | Acceptance intent | Implementation / evidence | Authority boundary |
-| --- | --- | --- | --- |
-| §§8–9, 87 | Three visible personas; Billing & Finance replaces four old lanes | `frontend/src/App.tsx`, `frontend/src/billing/BillingShell.tsx`, `frontend/src/billing/billing-experience.css` | Navigation is a server capability projection; hidden UI is not authority |
-| §§10, 29–31 | Command Center with work-first queue and deterministic insights | `GET /api/billing/capabilities`, `GET /api/billing/command-center`, `frontend/src/billing/BillingCommandCenter.tsx` | `source_of_truth=CANONICAL_BILLING_EVENTS`; `system_insights_only=true`; no model call |
-| §§12–18 | Billing Plans, milestones, invoice register, receivables, payments/credits, controls/reports | `GET /api/billing/plans`, `/milestones`, `/invoices`, `/receivables`, `/payments`, `/controls`, `/reports`; `frontend/src/billing/BillingRegisters.tsx` | Read models only; protected mutations remain canonical router policy |
-| §§19–24 | Invoice detail preserves project/client/contract context and distinct status dimensions | `frontend/src/billing/InvoiceWorkspace.tsx`; enhanced `GET /api/billing/invoices/{id}` | Issue and accept remain separate human actions; communication, receivable, verification, and allocation do not collapse |
-| §§25–28 | Project Finance, payment history, evidence, allocation and explicit reversal | `GET /api/billing/projects/{id}/payment-history`; payment projection and invoice workspace panels | Observed ≠ verified ≠ allocated; reversal is append-only and explicit |
-| §§32–35 | Billing mode and service period are structured; monthly supervision fails closed without timezone policy | `billing_mode` fields, structured InvoiceRevision period fields, `GET /api/billing/supervision-queue` | No autonomous invoice creation, issuing, verification, allocation, or settlement |
-| §§36–39 | Engineering / PM may request billable-stage review without invoice authority | `BillingReadinessRequest`, `POST /api/billing/readiness-requests`, `GET /api/billing/readiness-requests` | Append-only request; response explicitly reports `invoice_issue_authority=false` |
-| §§40–42 | Safe invoice clone creates a separate draft and excludes lifecycle/payment state | `POST /api/billing/invoices/{id}/clone`; `Invoice.source_clone_id`; clone idempotency key | Draft-only clone; no silent issue, payment, allocation, or resolution copy |
-| §§43–47 | Owner decisions are visible and unresolved values are not fabricated | Capability, command-center, controls and workspace policy cards | Five unresolved policies remain `OWNER_DECISION_REQUIRED`; no fabricated QAR conversion, EXP%, YTD, timezone, or numbering policy |
-| §§48–55 | Content Library remains the evidence foundation | Existing `DocumentVersion` validation and Billing evidence references | No second evidence store introduced |
-| §§56–63 | Typed frontend contracts and bounded failure states | `frontend/src/billing/billing-types.ts`, `billing-api.ts`, loading/error/empty states | New Billing surface contains no `any`; capability resolution fails closed |
-| §§64–73 | Backend/schema qualification and one forward migration | `backend/migrations/versions/billing_finance_experience_v1.py`; model/router tests | One new migration from `17c6ebd99c4a`; canonical Billing authority/arithmetic unchanged |
-| §§74–86 | Browser, frontend, accessibility and regression qualification | `frontend/tests/billing-experience.test.tsx`; package scripts; backend selected suite | Qualification evidence is recorded in the PR and final task report |
+| Governing evidence / family | Requirement | Implementation path / API | Positive and negative evidence | Authority boundary |
+| --- | --- | --- | --- | --- |
+| Owner Sources 12 / 16; G0.13 / G0.14 / G0.16 | Billing policies are resolved within existing persona and scoped-capability governance | `backend/app/services/owner_decisions.py`; `RESOLVED_OWNER_POLICIES`; `/api/billing/capabilities`; `/api/billing/controls` | Resolved policy projection; runtime readiness remains separate; job-title-only and missing-scope paths remain denied | No Finance or Secretary persona; mutations remain server-enforced |
+| Source 13 standard Invoice policy | Accepted Contract authority, one office-wide sequence, rollover without reset, `INV-AMEC-{year}-{project}-{sequence}`, governed `INV-Form.docx`, human signer | `_allocate_invoice_ref`, Issue precheck, `InvoiceIssueEvent`, `RenderedArtifact` | Issue derives reference server-side; duplicate/idempotency constraints; no client-side next reference | No production numbering readiness is claimed until reconciliation gate passes |
+| Sources 12 / 16 | Payment observed, verified, allocated, and reversed are distinct | `InvoicePaymentAllocation.billing_milestone_id`; payment verify/allocate/reverse routes; Payment Workspace | Unverified allocation denied; multi-milestone allocation without explicit milestone denied; reversal preserves events | AI cannot verify, allocate, reverse, or settle |
+| Source 12 milestone arithmetic | Actual Collected is only the sum of active allocations explicitly attributed to the milestone | `_milestone_projection`; allocation validation; closure migration | Historical unlinked allocations remain `UNATTRIBUTED_HISTORICAL_ALLOCATION` and are excluded from milestone Actual Collected | No invoice-level inference or proportional split |
+| Sources 12 / 13 | Plan, revision, milestone, evidence, readiness, supervision, and contractual-term lineage | `BillingPlanWorkspace`; `/api/billing/plans/{id}`; readiness and eligibility routes; supervision queue | Requester boundary is explicit; contract payment-term lineage is validated | Readiness never grants Issue or payment authority; monthly recurrence creates work only |
+| Source 16 artifact/evidence family | Issued PDF, references, approvals, delivery, acknowledgment, and Content Library DocumentVersion lineage | `InvoiceWorkspace`; invoice detail/precheck/download routes; existing evidence validation | Accept/Issue precheck gates; issued artifact metadata shown; delivery ≠ acknowledgment ≠ approval | No external send is claimed; canonical artifact is PDF |
+| Sources 12 / 16 | Payment entry, evidence completeness, allocation splits, unallocated credit, reversal, follow-up, non-cash resolution | `PaymentWorkspace`; payment routes and projections | Method-specific evidence gates; resolution is not Paid; follow-up does not change financial state | Protected actions require scoped human capability |
+| Sources 12 / 16 | Project Finance and calendar-year YTD projections | `ProjectFinanceWorkspace`; `/api/billing/projects/{id}/financial-projection`; versioned FX/Expected EXP records | QAR is direct; non-QAR without approved FX is `FX_RATE_RECORD_REQUIRED`; YTD is `CONFIGURATION_REQUIRED` without governed business-local timezone | No guessed FX, EXP formula, timezone, or YTD amount |
+| Locked Intelligence Architecture v1 | Shared intelligence, module review, human authority, canonical truth | Typed `WorkItem.target`; deterministic `SYSTEM_INSIGHT` queue; Billing UI contract fields reserved for future `AI_WORK_PRODUCT` | No Billing model invocation; no Billing-local AI table/gateway/queue | `AI_CANONICAL_WRITE_AUTHORITY=ZERO`; `AI_PROTECTED_ACTION_AUTHORITY=ZERO` |
+| Sources 6 / 7 / 9 / 11; route contract | Every visible Billing destination is a functioning context workspace | `/billing/plans/:id`, `/billing/payments/:id`, `/billing/projects/:id`; typed shell routing | Detail routes no longer fall back to registers; technical IDs remain metadata | UI visibility never replaces backend authorization |
+
+## Policy truth versus runtime facts
+
+The following policies are resolved and no longer appear as Owner decisions
+required:
+
+- Finance/Secretary mapping: `SCOPED_CAPABILITY_ASSIGNMENT_WITHIN_EXISTING_PERSONA_MODEL`
+- Invoice numbering: `CONTINUE_RECONCILED_HISTORICAL_AMEC_SEQUENCE_AND_FORMAT`
+- Non-QAR conversion: `GOVERNED_OWNER_EDITABLE_FX_RATE_RECORD`
+- Expected EXP%: `OWNER_APPROVED_EDITABLE_PROJECT_FINANCE_FIELD`
+- YTD boundary: `CALENDAR_YEAR`
+
+Runtime data may still be unavailable. The UI reports this explicitly, for
+example `PRODUCTION_NUMBERING_READY=false`, `FX_RATE_RECORD_REQUIRED`,
+`NOT_SET`, or `CONFIGURATION_REQUIRED`; these states do not relabel an
+approved policy as unresolved.
+
+## Schema and qualification
+
+- One forward migration was added from `billing_finance_experience_v1`:
+  `billing_finance_experience_closure_v1`.
+- It adds milestone attribution to allocations and versioned FX / Expected EXP
+  persistence. It does not rewrite V10 or PR #46 historical migrations.
+- Synthetic data only; no production database, credentials, bank account,
+  client payment, cheque, receipt, or external AI invocation.
+- Full qualification must be rerun after closure changes; prior PR #46 counts
+  are historical evidence and are not reused as closure results.
 
 ## Explicit non-goals
 
-- No Billing V11, reclosure, or new Billing loop.
-- No AI Billing skill, model invocation, canonical write authority, or protected
-  action authority.
-- No production deployment, real financial data, or public demo URL.
-- No merge to `main` in this execution.
-
-## Qualification commands
-
-```text
-PYTHONPATH=. APP_ENV=TEST SYNTHETIC_ONLY=true python -m pytest <selected backend qualification>
-cd frontend && npm test -- --run
-cd frontend && npm run build
-cd frontend && npm run ui-conformance
-```
-
-The final task report records the exact command results, branch SHA, remote
-parity, PR URL, migration head count, and any environment-gated browser result.
-
-## Qualification recorded for this branch
-
-- Backend selected Billing / contract / controls suite: **114 passed**.
-- Frontend Vitest suite: **22 files, 116 tests passed**.
-- Frontend TypeScript/Vite production build: **PASS**.
-- Focused real-stack Billing browser rehearsal against the feature server and
-  synthetic FastAPI/SQLite data: **1 passed**.
-- Repository UI conformance crawl against the feature server: **312/312
-  cases passed; final decision READY**. The existing universal route inventory
-  contains 66 non-Billing material routes; the focused Billing rehearsal is the
-  direct evidence for the new Billing route surface.
+- No new branch, replacement PR, Billing V11, or merge to `main`.
+- No accounting ERP/journal integration in this release.
+- No Billing-specific AI runtime or fake AI work product.
+- No production numbering reservation or public preview credential changes.

@@ -71,7 +71,7 @@ def _create_version_table(
 def test_repository_migration_head_is_billing_finance_experience_head():
     assert (
         database.repository_migration_head()
-        == "billing_finance_experience_v1"
+        == "billing_finance_experience_closure_v1"
     )
 
 

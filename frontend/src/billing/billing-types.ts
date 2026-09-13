@@ -120,6 +120,7 @@ export type PaymentItem = {
   evidence: { primary: boolean; receipt_voucher: boolean };
   allocations: Array<Record<string, unknown>>;
   reversals: Array<Record<string, unknown>>;
+  eligible_invoices?: Array<{ invoice_id: string; invoice_reference: string; project_id?: string | null; outstanding_amount: string; currency: string; milestone_ids: string[] }>;
 };
 
 export type WorkItem = {
@@ -157,6 +158,38 @@ export type BillingControlsDTO = {
   unresolved_owner_decisions: string[];
   ai_canonical_write_authority: 0;
   ai_protected_action_authority: 0;
+  resolved_owner_policies?: Array<{ key: string; policy_status: string; effective_value: string }>;
+  fx_policy?: { status: string; policy: string; records: Array<Record<string, unknown>> };
+  expected_exp_policy?: { status: string; policy: string };
+  ytd_policy?: { status: string; boundary: string; runtime_configuration_status: string };
+};
+
+export type BillingPlanDetailDTO = {
+  plan: Record<string, unknown> & { id: string; status: string; billing_mode?: string };
+  revision?: Record<string, unknown> & { id: string; revision_number: number; status: string; billing_mode?: string } | null;
+  revisions?: Array<Record<string, unknown>>;
+  milestones: BillingMilestone[];
+  readiness_requests?: Array<Record<string, unknown>>;
+  context?: BillingContext;
+};
+
+export type ProjectFinanceDTO = {
+  project?: Record<string, unknown> | null;
+  contract?: Record<string, unknown> | null;
+  currency?: string | null;
+  project_value?: string | null;
+  qar_amount?: string | null;
+  fx_projection?: Record<string, unknown>;
+  expected_exp?: Record<string, unknown>;
+  total_invoiced?: string;
+  amount_received?: string;
+  outstanding_amount?: string;
+  billing_completion_state?: string;
+  financial_completion_state?: string;
+  invoices?: InvoiceProjection[];
+  milestones?: BillingMilestone[];
+  payment_history?: PaymentItem[];
+  ytd?: Record<string, unknown>;
 };
 
 export type InvoiceDetailDTO = {

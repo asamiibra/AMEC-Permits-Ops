@@ -30,7 +30,7 @@ from ..models import (
     FinancialAccountVersion, Invoice, InvoiceAcceptRecord, InvoiceApprovalRecord, InvoiceRevision,
     InvoiceIssueEvent, InvoiceDeliveryEvent, InvoiceAcknowledgment, InvoiceLineItem, InvoiceNumberingPolicy, InvoicePaymentAllocation,
     InvoiceReference, LineageEdge, PaymentReceipt, Project, ProjectActivation,
-    PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, Role, TemplateDefinition, TemplateVersion,
+    PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, BillingFxRateRecord, ProjectExpectedExpVersion, Role, TemplateDefinition, TemplateVersion,
 )
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
 from ..services.owner_decisions import runtime_decision_value
@@ -429,7 +429,9 @@ def get_billing_plan(plan_id: str, db: Session = Depends(get_db), role: Role = D
         raise HTTPException(404, {"code": "BILLING_PLAN_NOT_FOUND"})
     revision = db.get(BillingPlanRevision, plan.current_revision_id) if plan.current_revision_id else None
     milestones = db.scalars(select(BillingMilestone).where(BillingMilestone.billing_plan_revision_id == (revision.id if revision else "")).order_by(BillingMilestone.sequence)).all()
-    return {"plan": _row(plan), "revision": _row(revision), "milestones": [_row(x) for x in milestones]}
+    revisions = db.scalars(select(BillingPlanRevision).where(BillingPlanRevision.billing_plan_id == plan.id).order_by(BillingPlanRevision.revision_number.desc())).all()
+    readiness = db.scalars(select(BillingReadinessRequest).where(BillingReadinessRequest.billing_plan_revision_id == (revision.id if revision else "")).order_by(BillingReadinessRequest.requested_at.desc())).all()
+    return {"plan": _row(plan), "revision": _row(revision), "revisions": [_row(x) for x in revisions], "milestones": [_milestone_projection(db, x) for x in milestones], "readiness_requests": [_row(x) for x in readiness], "context": _billing_context(db, contract_id=plan.contract_id, project_id=plan.project_id, client_account_id=plan.client_account_id), "source_of_truth": "CANONICAL_BILLING_PLAN_AND_REVISION_LINEAGE"}
 
 
 @router.post("/plans/{plan_id}/revisions")
@@ -625,11 +627,17 @@ def project_financial_projection(project_id: str, db: Session = Depends(get_db),
     non_cash_resolved = sum((_d(row.get("non_cash_resolved_amount") or 0) for row in rows), Decimal("0"))
     outstanding = sum((_d(row.get("outstanding_amount") or 0) for row in rows), Decimal("0"))
     remaining_contract_balance = max(Decimal("0"), project_value - cash_received - non_cash_resolved) if project_value is not None else None
+    fx_rate = None
+    qar_amount = project_value if contract and str(contract.currency or "").upper() == "QAR" else None
+    if project_value is not None and contract and str(contract.currency or "").upper() != "QAR":
+        fx_rate = db.scalar(select(BillingFxRateRecord).where(BillingFxRateRecord.source_currency == str(contract.currency or "").upper(), BillingFxRateRecord.status == "ACTIVE", BillingFxRateRecord.rate_effective_date <= date.today()).order_by(BillingFxRateRecord.rate_effective_date.desc(), BillingFxRateRecord.rate_record_version.desc()))
+        qar_amount = _money(project_value * _d(fx_rate.qar_per_source_currency_rate)) if fx_rate else None
     milestone_rows = db.scalars(select(BillingMilestone).join(BillingPlanRevision, BillingPlanRevision.id == BillingMilestone.billing_plan_revision_id).where(BillingPlanRevision.contract_id == contract.id)).all() if contract else []
     eligible_milestones = [item for item in milestone_rows if item.eligibility_state == "ELIGIBLE"]
     billing_complete = bool(rows) and all(row.get("status") in {"ISSUED", "VOIDED"} for row in rows) and all(_d(item.remaining_invoiceable_amount or 0) <= 0 for item in eligible_milestones)
     financial_complete = bool(rows) and outstanding <= 0
-    return {"project": _row(project), "contract": _row(contract), "currency": contract.currency if contract else None, "project_value": str(_money(project_value)) if project_value is not None else None, "total_invoiced": str(_money(total_invoiced)), "amount_received": str(_money(cash_received)), "cash_allocated_amount": str(_money(cash_received)), "non_cash_resolved_amount": str(_money(non_cash_resolved)), "remaining_contract_balance": str(_money(remaining_contract_balance)) if remaining_contract_balance is not None else None, "outstanding_amount": str(_money(outstanding)), "billing_completion_state": "COMPLETE" if billing_complete else "OPEN", "financial_completion_state": "COMPLETE" if financial_complete else "OPEN", "billing_complete": billing_complete, "financial_complete": financial_complete, "completion_basis": {"billing": "issued_invoice_and_no_remaining_invoiceable_milestone", "financial": "zero_outstanding_after_cash_or_governed_non_cash_resolution"}, "invoice_count": len(rows), "invoices": rows, "source_of_truth": "CANONICAL_BILLING_EVENTS"}
+    expected_exp = db.scalar(select(ProjectExpectedExpVersion).where(ProjectExpectedExpVersion.project_id == project.id, ProjectExpectedExpVersion.status == "ACTIVE").order_by(ProjectExpectedExpVersion.version.desc()))
+    return {"project": _row(project), "contract": _row(contract), "currency": contract.currency if contract else None, "project_value": str(_money(project_value)) if project_value is not None else None, "qar_amount": str(_money(qar_amount)) if qar_amount is not None else None, "fx_projection": {"status": "NOT_APPLICABLE" if contract and str(contract.currency or "").upper() == "QAR" else "FX_RATE_RECORD_REQUIRED" if not fx_rate else "PASS", "source_currency": contract.currency if contract else None, "qar_per_source_currency_rate": str(fx_rate.qar_per_source_currency_rate) if fx_rate else None, "rate_record_id": fx_rate.id if fx_rate else None, "rate_source_reference": fx_rate.rate_source_reference if fx_rate else None}, "expected_exp": {"status": "NOT_SET" if not expected_exp else "PASS", "value_percent": str(expected_exp.value_percent) if expected_exp else None, "version": expected_exp.version if expected_exp else None, "source_or_note": expected_exp.source_or_note if expected_exp else None}, "total_invoiced": str(_money(total_invoiced)), "amount_received": str(_money(cash_received)), "cash_allocated_amount": str(_money(cash_received)), "non_cash_resolved_amount": str(_money(non_cash_resolved)), "remaining_contract_balance": str(_money(remaining_contract_balance)) if remaining_contract_balance is not None else None, "outstanding_amount": str(_money(outstanding)), "billing_completion_state": "COMPLETE" if billing_complete else "OPEN", "financial_completion_state": "COMPLETE" if financial_complete else "OPEN", "billing_complete": billing_complete, "financial_complete": financial_complete, "completion_basis": {"billing": "issued_invoice_and_no_remaining_invoiceable_milestone", "financial": "zero_outstanding_after_cash_or_governed_non_cash_resolution"}, "invoice_count": len(rows), "invoices": rows, "milestones": [_milestone_projection(db, item) for item in milestone_rows], "payment_history": [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).where(PaymentReceipt.project_id == project.id).order_by(PaymentReceipt.received_date.desc())).all()], "ytd": {"policy": "CALENDAR_YEAR", "status": "CONFIGURATION_REQUIRED", "timezone": None, "invoiced": None, "collected": None}, "source_of_truth": "CANONICAL_BILLING_EVENTS"}
 
 
 @router.get("/offices/{office_id}/invoice-register")
@@ -1080,7 +1088,26 @@ def _capability_projection(role: Role) -> dict[str, bool]:
         "can_resolve_receivable": owner,
         "can_manage_financial_account": owner,
         "can_approve_financial_account": owner,
+        "can_manage_fx_rate": owner,
+        "can_edit_expected_exp": owner,
     }
+
+
+RESOLVED_OWNER_POLICIES = {
+    "FINANCE_SECRETARY_CAPABILITY_MAPPING": "SCOPED_CAPABILITY_ASSIGNMENT_WITHIN_EXISTING_PERSONA_MODEL",
+    "GLOBAL_INVOICE_NUMBERING_POLICY": "CONTINUE_RECONCILED_HISTORICAL_AMEC_SEQUENCE_AND_FORMAT",
+    "NON_QAR_QAR_CONVERSION_AND_PROVENANCE_POLICY": "GOVERNED_OWNER_EDITABLE_FX_RATE_RECORD",
+    "EXPECTED_EXP_PERCENT_DEFINITION_AND_SOURCE": "OWNER_APPROVED_EDITABLE_PROJECT_FINANCE_FIELD",
+    "FINANCE_YTD_REPORTING_YEAR_BOUNDARY": "CALENDAR_YEAR",
+}
+
+
+def _policy_projection(db: Session) -> list[dict[str, Any]]:
+    """Expose policy truth separately from runtime readiness facts."""
+    rows: list[dict[str, Any]] = []
+    for key, value in RESOLVED_OWNER_POLICIES.items():
+        rows.append({"key": key, "policy_status": "RESOLVED", "effective_value": value})
+    return rows
 
 
 def _milestone_projection(db: Session, item: BillingMilestone) -> dict[str, Any]:
@@ -1109,7 +1136,7 @@ def _milestone_projection(db: Session, item: BillingMilestone) -> dict[str, Any]
             "currency": line.currency,
         })
         actual_collected += sum(
-            (_d(allocation.allocated_amount) for allocation in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id == invoice.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()),
+            (_d(allocation.allocated_amount) for allocation in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id == invoice.id, InvoicePaymentAllocation.billing_milestone_id == item.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()),
             Decimal("0"),
         )
     calculated = _d(item.calculated_amount or 0)
@@ -1141,12 +1168,22 @@ def _milestone_projection(db: Session, item: BillingMilestone) -> dict[str, Any]
         "remaining_invoiceable": str(_money(remaining)),
         "invoiceable_now": item.eligibility_state == "ELIGIBLE" and remaining > 0,
         "invoices": invoices,
+        "unattributed_historical_collection": str(_money(sum((_d(allocation.allocated_amount) for allocation in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id.in_([row[1].id for row in invoice_rows]), InvoicePaymentAllocation.status == "ALLOCATED")).all() if allocation.billing_milestone_id is None), Decimal("0")))),
         "latest_eligibility": _row(db.scalar(select(BillingMilestoneEligibility).where(BillingMilestoneEligibility.billing_milestone_id == item.id).order_by(BillingMilestoneEligibility.evaluated_at.desc()))),
     }
 
 
 def _payment_projection(db: Session, item: PaymentReceipt) -> dict[str, Any]:
     credit = _payment_credit(db, item)
+    eligible_invoices = []
+    for invoice in db.scalars(select(Invoice).where(Invoice.client_account_id == item.client_account_id, Invoice.contract_id == item.contract_id, Invoice.status == "ISSUED").order_by(Invoice.created_at)).all():
+        if item.project_id and invoice.project_id not in {None, item.project_id}:
+            continue
+        projection = _invoice_projection(db, invoice)
+        if str(projection.get("currency") or "").upper() == str(item.currency).upper() and _d(projection.get("outstanding_amount") or 0) > 0:
+            revision = db.get(InvoiceRevision, invoice.current_revision_id) if invoice.current_revision_id else None
+            milestone_ids = [line.billing_milestone_id for line in _lines(db, revision.id)] if revision else []
+            eligible_invoices.append({"invoice_id": invoice.id, "invoice_reference": invoice.invoice_reference, "project_id": invoice.project_id, "outstanding_amount": projection.get("outstanding_amount"), "currency": projection.get("currency"), "milestone_ids": [value for value in milestone_ids if value]})
     return {
         "payment": _row(item),
         "credit": credit,
@@ -1155,8 +1192,9 @@ def _payment_projection(db: Session, item: PaymentReceipt) -> dict[str, Any]:
             "primary": bool(item.evidence_document_version_id or item.evidence_reference),
             "receipt_voucher": bool(item.receipt_voucher_document_version_id or item.receipt_voucher_evidence_reference),
         },
-        "allocations": [_row(allocation) for allocation in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.payment_receipt_id == item.id).order_by(InvoicePaymentAllocation.allocated_at)).all()],
+        "allocations": [{**(_row(allocation) or {}), "milestone": _row(db.get(BillingMilestone, allocation.billing_milestone_id)) if allocation.billing_milestone_id else None} for allocation in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.payment_receipt_id == item.id).order_by(InvoicePaymentAllocation.allocated_at)).all()],
         "reversals": [_row(event) for event in db.scalars(select(PaymentReversalEvent).where(PaymentReversalEvent.payment_receipt_id == item.id).order_by(PaymentReversalEvent.created_at)).all()],
+        "eligible_invoices": eligible_invoices,
     }
 
 
@@ -1168,13 +1206,8 @@ def billing_capabilities(role: Role = Depends(current_user_role)):
         "capabilities": _capability_projection(role),
         "authority_source": "SERVER_MUTATION_POLICY",
         "frontend_only_authority_grants": 0,
-        "unresolved_owner_decisions": [
-            {"key": "FINANCE_SECRETARY_CAPABILITY_MAPPING", "label": "Finance/Secretary capability mapping"},
-            {"key": "GLOBAL_INVOICE_NUMBERING_POLICY", "label": "Production global Invoice numbering policy"},
-            {"key": "NON_QAR_QAR_CONVERSION_POLICY", "label": "Non-QAR to QAR conversion and provenance"},
-            {"key": "EXPECTED_EXP_PERCENT_DEFINITION", "label": "Expected EXP % definition and source"},
-            {"key": "FINANCE_YTD_REPORTING_YEAR_BOUNDARY", "label": "Finance YTD reporting-year boundary"},
-        ],
+        "unresolved_owner_decisions": [],
+        "resolved_owner_policies": RESOLVED_OWNER_POLICIES,
     }
 
 
@@ -1193,20 +1226,20 @@ def billing_command_center(db: Session = Depends(get_db), role: Role = Depends(c
     work: list[dict[str, Any]] = []
     for item in milestones:
         if item["invoiceable_now"]:
-            work.append({"category": "MILESTONE_READY", "why": "The governed milestone is eligible and has invoiceable balance.", "next_action": "Prepare draft invoice", "authority_needed": "Billing plan/invoice preparation capability", "entity": item})
+            work.append({"category": "MILESTONE_READY", "why": "The governed milestone is eligible and has invoiceable balance.", "next_action": "Prepare draft invoice", "authority_needed": "Billing plan/invoice preparation capability", "target": {"entity_type": "BILLING_MILESTONE", "entity_id": item["id"], "route": f"/billing/plans/{item['plan_id']}#milestone-{item['id']}"}, "entity": item})
         elif item["eligibility_state"] != "ELIGIBLE":
-            work.append({"category": "MILESTONE_EVIDENCE_REQUIRED", "why": "Trigger evidence has not made this milestone eligible.", "next_action": "Review trigger evidence", "authority_needed": "Milestone review capability", "entity": item})
+            work.append({"category": "MILESTONE_EVIDENCE_REQUIRED", "why": "Trigger evidence has not made this milestone eligible.", "next_action": "Review trigger evidence", "authority_needed": "Milestone review capability", "target": {"entity_type": "BILLING_MILESTONE", "entity_id": item["id"], "route": f"/billing/plans/{item['plan_id']}#milestone-{item['id']}"}, "entity": item})
     for item in invoice_rows:
         if item["status"] in {"DRAFT", "NEEDS_REVALIDATION"}:
-            work.append({"category": "INVOICE_REVIEW_REQUIRED", "why": "The invoice remains a human-preparation draft.", "next_action": "Open invoice preflight", "authority_needed": "Invoice preparation capability", "entity": item})
+            work.append({"category": "INVOICE_REVIEW_REQUIRED", "why": "The invoice remains a human-preparation draft.", "next_action": "Open invoice preflight", "authority_needed": "Invoice preparation capability", "target": {"entity_type": "INVOICE", "entity_id": item["invoice_id"], "route": f"/billing/invoices/{item['invoice_id']}?tab=preflight"}, "entity": item})
         if item["status"] == "ISSUED" and item.get("receivable_state") in {"DUE", "OVERDUE", "PARTIALLY_PAID"}:
-            work.append({"category": "RECEIVABLE_OVERDUE" if item.get("receivable_state") == "OVERDUE" else "FOLLOW_UP_DUE", "why": f"Receivable is {str(item.get('receivable_state') or '').replace('_', ' ').lower()} with outstanding exposure.", "next_action": "Review collection action", "authority_needed": "Receivable follow-up capability", "entity": item})
+            work.append({"category": "RECEIVABLE_OVERDUE" if item.get("receivable_state") == "OVERDUE" else "FOLLOW_UP_DUE", "why": f"Receivable is {str(item.get('receivable_state') or '').replace('_', ' ').lower()} with outstanding exposure.", "next_action": "Review collection action", "authority_needed": "Receivable follow-up capability", "target": {"entity_type": "INVOICE", "entity_id": item["invoice_id"], "route": f"/billing/invoices/{item['invoice_id']}?tab=collections"}, "entity": item})
     for item in payments:
         payment = item["payment"]
         if payment.get("verification_status") == "OBSERVED":
-            work.append({"category": "PAYMENT_VERIFICATION_REQUIRED", "why": "Payment evidence is recorded but verification is a separate human control.", "next_action": "Review payment evidence", "authority_needed": "Payment verification capability", "entity": item})
+            work.append({"category": "PAYMENT_VERIFICATION_REQUIRED", "why": "Payment evidence is recorded but verification is a separate human control.", "next_action": "Review payment evidence", "authority_needed": "Payment verification capability", "target": {"entity_type": "PAYMENT", "entity_id": payment["id"], "route": f"/billing/payments/{payment['id']}"}, "entity": item})
         if item["credit"].get("state") == "UNALLOCATED_CLIENT_CREDIT":
-            work.append({"category": "UNALLOCATED_CLIENT_CREDIT", "why": "Verified payment has remaining credit not allocated to an invoice.", "next_action": "Allocate to an eligible same-scope invoice", "authority_needed": "Payment allocation capability", "entity": item})
+            work.append({"category": "UNALLOCATED_CLIENT_CREDIT", "why": "Verified payment has remaining credit not allocated to an invoice.", "next_action": "Allocate to an eligible same-scope invoice", "authority_needed": "Payment allocation capability", "target": {"entity_type": "PAYMENT", "entity_id": payment["id"], "route": f"/billing/payments/{payment['id']}"}, "entity": item})
     return {
         "metrics": {
             "ready_to_invoice": sum(item["invoiceable_now"] for item in milestones),
@@ -1222,7 +1255,8 @@ def billing_command_center(db: Session = Depends(get_db), role: Role = Depends(c
         "source_of_truth": "CANONICAL_BILLING_EVENTS",
         "system_insights_only": True,
         "ai_assisted": False,
-        "unresolved_owner_decisions": ["FINANCE_SECRETARY_CAPABILITY_MAPPING", "GLOBAL_INVOICE_NUMBERING_POLICY", "NON_QAR_QAR_CONVERSION_POLICY", "EXPECTED_EXP_PERCENT_DEFINITION", "FINANCE_YTD_REPORTING_YEAR_BOUNDARY"],
+        "unresolved_owner_decisions": [],
+        "resolved_owner_policies": RESOLVED_OWNER_POLICIES,
     }
 
 
@@ -1285,7 +1319,7 @@ def list_billing_receivables(project_id: str | None = None, state: str | None = 
         row["days_relative_to_due"] = days_relative
         row["collection_action"] = "FOLLOW_UP" if _d(row.get("outstanding_amount") or 0) > 0 else "NONE"
         items.append(row)
-    return {"items": items, "total": len(items), "formal_aging_report": False, "aging_note": "Descriptive date difference only; formal accounting aging policy is not approved."}
+    return {"items": items, "total": len(items), "formal_aging_report": False, "aging_note": "Descriptive date difference only; formal accounting aging policy is not approved.", "policy_status": "RESOLVED"}
 
 
 @router.get("/reports")
@@ -1293,7 +1327,7 @@ def billing_reports(db: Session = Depends(get_db), role: Role = Depends(current_
     _role(role, VIEW, "BILLING_VIEW")
     invoices = [_invoice_projection(db, invoice) for invoice in db.scalars(select(Invoice).order_by(Invoice.created_at.desc())).all()]
     payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc())).all()]
-    return {"invoice_report": invoices, "open_receivables": [item for item in invoices if _d(item.get("outstanding_amount") or 0) > 0], "payment_history": payments, "ytd": None, "ytd_status": "OWNER_DECISION_REQUIRED", "source_of_truth": "CANONICAL_BILLING_READ_MODELS"}
+    return {"invoice_report": invoices, "open_receivables": [item for item in invoices if _d(item.get("outstanding_amount") or 0) > 0], "payment_history": payments, "ytd": None, "ytd_status": "CONFIGURATION_REQUIRED", "ytd_policy": "CALENDAR_YEAR", "timezone_status": "CONFIGURATION_REQUIRED", "source_of_truth": "CANONICAL_BILLING_READ_MODELS"}
 
 
 @router.get("/supervision-queue")
@@ -1302,7 +1336,7 @@ def supervision_queue(db: Session = Depends(get_db), role: Role = Depends(curren
     items = []
     for plan in db.scalars(select(BillingPlan).where(BillingPlan.billing_mode == "SUPERVISION_MONTHLY", BillingPlan.status == "ACTIVE")).all():
         items.append({"plan_id": plan.id, "project_id": plan.project_id, "contract_id": plan.contract_id, "status": "CONFIGURATION_REQUIRED", "reason": "A governed business-local timezone is required before deriving the previous service period.", "autonomous_invoice_issue": False})
-    return {"items": items, "total": len(items), "business_local_timezone": None, "policy_status": "OWNER_DECISION_REQUIRED"}
+    return {"items": items, "total": len(items), "business_local_timezone": None, "business_local_timezone_configuration_required": True, "policy_status": "RESOLVED", "runtime_configuration_status": "CONFIGURATION_REQUIRED"}
 
 
 @router.post("/readiness-requests")
@@ -1409,22 +1443,59 @@ def project_payment_history(project_id: str, db: Session = Depends(get_db), role
     return {"project": _row(project), "items": [_payment_projection(db, item) for item in payments], "total": len(payments), "source_of_truth": "PAYMENT_RECEIPT_VERIFICATION_ALLOCATION_AND_REVERSAL_EVENTS"}
 
 
+@router.post("/fx-rates")
+def create_fx_rate(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, OWNER, "FX_RATE_MANAGE")
+    currency = str(payload.get("source_currency") or "").strip().upper()
+    rate = _d(payload.get("qar_per_source_currency_rate"), field="qar_per_source_currency_rate")
+    if not currency or currency == "QAR" or rate <= 0:
+        raise HTTPException(422, {"code": "FX_RATE_RECORD_INVALID"})
+    version = (db.scalar(select(func.max(BillingFxRateRecord.rate_record_version)).where(BillingFxRateRecord.source_currency == currency)) or 0) + 1
+    item = BillingFxRateRecord(source_currency=currency, qar_per_source_currency_rate=rate, rate_effective_date=_date(payload.get("rate_effective_date") or date.today().isoformat(), field="rate_effective_date"), rate_source_reference=str(payload.get("rate_source_reference") or "").strip(), rate_record_version=version, owner_approval_identity=_actor(request, payload), owner_approval_time_utc=datetime.now(timezone.utc), status="ACTIVE")
+    if not item.rate_source_reference:
+        raise HTTPException(422, {"code": "FX_RATE_SOURCE_REFERENCE_REQUIRED"})
+    db.add(item); db.flush(); _audit(db, request, "BILLING_FX_RATE_RECORDED", "BillingFxRateRecord", item.id, _actor(request, payload), {"source_currency": currency, "version": version}); db.commit()
+    return _row(item)
+
+
+@router.post("/projects/{project_id}/expected-exp")
+def set_expected_exp(project_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, OWNER, "EXPECTED_EXP_EDIT")
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(404, {"code": "PROJECT_NOT_FOUND"})
+    value = _d(payload.get("value_percent"), field="value_percent")
+    if value < 0 or value > 100:
+        raise HTTPException(422, {"code": "EXPECTED_EXP_PERCENT_OUT_OF_RANGE"})
+    version = (db.scalar(select(func.max(ProjectExpectedExpVersion.version)).where(ProjectExpectedExpVersion.project_id == project.id)) or 0) + 1
+    item = ProjectExpectedExpVersion(project_id=project.id, value_percent=value, effective_time=datetime.now(timezone.utc), owner_editor_identity=_actor(request, payload), edit_time_utc=datetime.now(timezone.utc), source_or_note=str(payload.get("source_or_note") or "").strip(), version=version, status="ACTIVE")
+    if not item.source_or_note:
+        raise HTTPException(422, {"code": "EXPECTED_EXP_SOURCE_NOTE_REQUIRED"})
+    db.add(item); db.flush(); _audit(db, request, "PROJECT_EXPECTED_EXP_RECORDED", "ProjectExpectedExpVersion", item.id, _actor(request, payload), {"project_id": project.id, "version": version}); db.commit()
+    return _row(item)
+
+
 @router.get("/controls")
 def billing_controls(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     _role(role, VIEW, "BILLING_VIEW")
     accounts = db.scalars(select(FinancialAccountMaster).order_by(FinancialAccountMaster.account_name)).all()
     versions = db.scalars(select(FinancialAccountVersion).order_by(FinancialAccountVersion.created_at.desc())).all()
+    policy = db.scalar(select(InvoiceNumberingPolicy).where(InvoiceNumberingPolicy.policy_key == "INVOICE"))
+    numbering_gate = production_numbering_gate(
+        legacy_finance_reconciled=bool(runtime_decision_value(db, "SOURCE12_LEGACY_FINANCE_RECONCILIATION_CAPABILITY", False)),
+        historical_global_sequence_reconciled=bool(runtime_decision_value(db, "SOURCE12_HISTORICAL_GLOBAL_SEQUENCE_RECONCILED", False)),
+        next_global_sequence_exactly_derived=bool(runtime_decision_value(db, "SOURCE12_NEXT_GLOBAL_SEQUENCE_EXACTLY_DERIVED", False)),
+    )
+    fx_rates = db.scalars(select(BillingFxRateRecord).order_by(BillingFxRateRecord.source_currency, BillingFxRateRecord.rate_record_version.desc())).all()
     return {
         "financial_account_masters": [_row(item) for item in accounts],
         "financial_account_versions": [_mask_account(item) for item in versions],
-        "invoice_numbering": {"status": "OWNER_DECISION_REQUIRED", "policy": None, "production_fail_closed": True},
-        "unresolved_owner_decisions": [
-            "FINANCE_SECRETARY_CAPABILITY_MAPPING",
-            "GLOBAL_INVOICE_NUMBERING_POLICY",
-            "NON_QAR_QAR_CONVERSION_POLICY",
-            "EXPECTED_EXP_PERCENT_DEFINITION",
-            "FINANCE_YTD_REPORTING_YEAR_BOUNDARY",
-        ],
+        "invoice_numbering": {"status": "RESOLVED", "policy": _row(policy), "production_fail_closed": not bool(numbering_gate["ready"]), "policy_status": "RESOLVED", "legacy_finance_reconciliation": numbering_gate["controls"]},
+        "fx_policy": {"status": "RESOLVED", "policy": RESOLVED_OWNER_POLICIES["NON_QAR_QAR_CONVERSION_AND_PROVENANCE_POLICY"], "records": [_row(rate) for rate in fx_rates]},
+        "expected_exp_policy": {"status": "RESOLVED", "policy": RESOLVED_OWNER_POLICIES["EXPECTED_EXP_PERCENT_DEFINITION_AND_SOURCE"]},
+        "ytd_policy": {"status": "RESOLVED", "boundary": "CALENDAR_YEAR", "runtime_configuration_status": "CONFIGURATION_REQUIRED"},
+        "resolved_owner_policies": _policy_projection(db),
+        "unresolved_owner_decisions": [],
         "ai_canonical_write_authority": 0,
         "ai_protected_action_authority": 0,
     }
@@ -1461,9 +1532,22 @@ def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request,
     if existing: return _row(existing)
     revision = db.get(InvoiceRevision, invoice.current_revision_id)
     if not revision or payment.currency.upper() != str(revision.currency).upper(): raise HTTPException(409, {"code": "PAYMENT_CURRENCY_MISMATCH"})
+    attributable_milestones = [line.billing_milestone_id for line in _lines(db, revision.id) if line.billing_milestone_id and line.affects_payable_total]
+    attributable_milestones = list(dict.fromkeys(attributable_milestones))
+    requested_milestone_id = str(payload.get("billing_milestone_id") or "").strip() or None
+    if len(attributable_milestones) > 1 and not requested_milestone_id:
+        raise HTTPException(409, {"code": "MILESTONE_ATTRIBUTION_REQUIRED_FOR_MULTI_MILESTONE_INVOICE", "milestone_ids": attributable_milestones})
+    milestone_id = requested_milestone_id or (attributable_milestones[0] if len(attributable_milestones) == 1 else None)
+    milestone = db.get(BillingMilestone, milestone_id) if milestone_id else None
+    if milestone_id and (not milestone or milestone.billing_plan_revision_id != revision.billing_plan_revision_id or milestone_id not in attributable_milestones):
+        raise HTTPException(409, {"code": "MILESTONE_ATTRIBUTION_SCOPE_MISMATCH"})
     amount = _money(_d(payload.get("allocated_amount"), field="allocated_amount")); used = sum((_d(x.allocated_amount) for x in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.payment_receipt_id == payment.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()), Decimal("0")); receivable = _receivable(db, invoice, revision); outstanding = _d(receivable["outstanding_amount"] or 0)
+    milestone_attributed = sum((_d(x.allocated_amount) for x in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.billing_milestone_id == milestone_id, InvoicePaymentAllocation.status == "ALLOCATED")).all()), Decimal("0")) if milestone_id else Decimal("0")
+    milestone_invoice_amount = sum((_line_total(line) for line in _lines(db, revision.id) if line.billing_milestone_id == milestone_id and line.affects_payable_total), Decimal("0")) if milestone_id else Decimal("0")
     if amount <= 0 or used + amount > _d(payment.amount) or amount > outstanding: raise HTTPException(409, {"code": "PAYMENT_ALLOCATION_OVER_LIMIT", "unallocated_payment": str(_d(payment.amount) - used), "outstanding": str(outstanding)})
-    allocation = InvoicePaymentAllocation(payment_receipt_id=payment.id, invoice_id=invoice.id, allocated_amount=amount, currency=payment.currency, allocated_by=_actor(request, payload), idempotency_key=key)
+    if milestone_id and milestone_attributed + amount > milestone_invoice_amount:
+        raise HTTPException(409, {"code": "MILESTONE_ATTRIBUTION_OVER_LIMIT", "milestone_id": milestone_id, "remaining_attributable": str(milestone_invoice_amount - milestone_attributed)})
+    allocation = InvoicePaymentAllocation(payment_receipt_id=payment.id, invoice_id=invoice.id, billing_milestone_id=milestone_id, allocated_amount=amount, currency=payment.currency, allocated_by=_actor(request, payload), idempotency_key=key)
     db.add(allocation)
     db.flush()
     post_allocation_receivable = _receivable(db, invoice, revision)
@@ -1471,7 +1555,7 @@ def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request,
         revision.actual_collection_date = payment.received_date
         revision.actual_collection_date_source = "VERIFIED_PAYMENT_ALLOCATION"
     _lineage(db, request, invoice.project_id, "PaymentReceipt", payment.id, "InvoicePaymentAllocation", allocation.id, "VERIFIED_PAYMENT_ALLOCATION")
-    _audit(db, request, "PAYMENT_ALLOCATED", "InvoicePaymentAllocation", allocation.id, _actor(request, payload), {"payment_id": payment.id, "invoice_id": invoice.id, "allocated_amount": str(amount), "currency": payment.currency, "actual_collection_date": revision.actual_collection_date.isoformat() if revision.actual_collection_date else None})
+    _audit(db, request, "PAYMENT_ALLOCATED", "InvoicePaymentAllocation", allocation.id, _actor(request, payload), {"payment_id": payment.id, "invoice_id": invoice.id, "billing_milestone_id": milestone_id, "allocated_amount": str(amount), "currency": payment.currency, "actual_collection_date": revision.actual_collection_date.isoformat() if revision.actual_collection_date else None})
     db.commit()
     return {"allocation": _row(allocation), "receivable": _receivable(db, invoice, revision)}
 
