@@ -21,3 +21,9 @@ The user worktree is `/Users/ahmedsami/Desktop/Qatar Permitting Tool/Dev`, branc
 At the protected-main baseline, Proposal routes still expose synthetic-only response markers, create a synthetic ClientAccount from `client_name`, accept actor parameters/defaults, create accepted output through `output_bytes()` with `synthetic://` references, accept eligibility based on caller payload, accept client evidence references without exact DocumentVersion/hash validation, and derive LPO `PASS` from caller-provided empty variances. Active staleness review clears events without recording a revalidation revision/result. These are implementation gaps, not proof of production readiness.
 
 Repository Alembic head is `17c6ebd99c4a` (read from the repository migration graph). No database migration or external production gate was run during baseline capture.
+
+## Final branch position
+
+- Final hardening commit: `b47263a9ef86e472f34d218c2f255cf6d0dd73f1`, tree `fc4c3bd05436c7ac5559ed8bfc814fb9eaaca93b`.
+- Final branch remains `module/opportunity-proposal-client-tender`, 1 commit ahead of protected `main` and 18 commits ahead of the remote PR41 head; merge base with `main` is `594b313a15cc6ade3f0505de395a5817c6337268`.
+- PR41 accepted SHA `dbd54c8e208e7347c959364b0bffd0f513eb81c7` and merge `e3af5e8d5c8abc996f1039aaae394bb734cc0193` remain immutable ancestors/provenance; no new Proposal branch was created.
