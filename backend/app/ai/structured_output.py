@@ -5,7 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from typing import Literal
+from dataclasses import dataclass
+from typing import Any, Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -57,6 +58,29 @@ class TechnicalMethodologyDraft(BaseModel):
         return self
 
 
+@dataclass(frozen=True)
+class StructuredOutputDefinition:
+    """Server-registered strict output behavior for one executable skill."""
+
+    schema_name: str
+    schema_version: str
+    output_class: str
+    provider_schema: dict[str, Any]
+    validator: Callable[[object], BaseModel]
+    citation_keys: Callable[[BaseModel], tuple[str, ...]]
+    requires_grounding: bool = True
+
+
+def _technical_citation_keys(value: BaseModel) -> tuple[str, ...]:
+    draft = value
+    keys: list[str] = []
+    for section in draft.sections:
+        keys.extend(section.citation_keys)
+    for assumption in draft.assumptions:
+        keys.extend(assumption.citation_keys)
+    return tuple(keys)
+
+
 PROVIDER_JSON_SCHEMA = {
     "type": "object",
     "properties": {
@@ -83,3 +107,17 @@ def validate_draft(payload: object) -> TechnicalMethodologyDraft:
 def output_fingerprint(draft: TechnicalMethodologyDraft) -> str:
     canonical = json.dumps(draft.model_dump(mode="json"), ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
+
+
+# Bind the compatibility definition after the historical schema and validator
+# exist.  This keeps the old public helpers stable while giving the registry a
+# generic, server-owned output definition.
+TECHNICAL_METHODOLOGY_OUTPUT = StructuredOutputDefinition(
+    schema_name="technical_methodology_draft",
+    schema_version="1",
+    output_class="DRAFT",
+    provider_schema=PROVIDER_JSON_SCHEMA,
+    validator=validate_draft,
+    citation_keys=_technical_citation_keys,
+    requires_grounding=True,
+)

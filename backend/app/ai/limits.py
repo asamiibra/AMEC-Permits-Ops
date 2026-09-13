@@ -57,9 +57,17 @@ def reserve_execution(
     model_version: str,
     citation_count: int,
     provider_input: str,
+    scope_type: str | None = None,
+    scope_id: str | None = None,
+    owning_module: str | None = None,
+    skill_id: str | None = None,
+    skill_version: str | None = None,
+    skill_manifest_hash: str | None = None,
 ) -> Reservation:
     existing = db.scalar(select(AIExecutionLedger).where(AIExecutionLedger.idempotency_key == idempotency_key).with_for_update())
     if existing is not None:
+        if existing.request_fingerprint != request_fingerprint or existing.actor_user_id != actor_user_id:
+            raise AIError("AI_IDEMPOTENCY_CONFLICT", status_code=409)
         code = "AI_REQUEST_IN_PROGRESS" if existing.status == "RESERVED" else "AI_REQUEST_ALREADY_COMPLETED"
         raise AIError(code, status_code=409)
 
@@ -89,7 +97,9 @@ def reserve_execution(
     ledger = AIExecutionLedger(
         idempotency_key=idempotency_key, correlation_id=correlation_id, actor_user_id=actor_user_id, auth_mode=auth_mode,
         purpose=purpose, execution_mode=execution_mode, project_id=project_id, target_entity_type=target_entity_type,
-        target_entity_id=target_entity_id, architecture_version=architecture_version, policy_version=policy_version,
+        target_entity_id=target_entity_id, scope_type=scope_type or target_entity_type, scope_id=scope_id or target_entity_id,
+        owning_module=owning_module, skill_id=skill_id, skill_version=skill_version,
+        skill_manifest_hash=skill_manifest_hash, architecture_version=architecture_version, policy_version=policy_version,
         context_fingerprint=context_fingerprint, request_fingerprint=request_fingerprint, provider=provider,
         provider_region=provider_region, deployment_name=deployment_name, model_name=model_name, model_version=model_version,
         status="RESERVED", input_token_upper_bound=upper_bound, input_rate_usd_per_1m=settings.ai_input_price_usd_per_1m_tokens,
