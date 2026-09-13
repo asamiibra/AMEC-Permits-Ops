@@ -67,7 +67,11 @@ export function AIAssistCompact() {
 export function Drawer({ title, eyebrow, children, footer, onClose, wide = false }: { title: string; eyebrow: string; children: ReactNode; footer: ReactNode; onClose: () => void; wide?: boolean }) {
   const drawerRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
   const previousFocus = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
   useEffect(() => {
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusableSelector = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -79,7 +83,7 @@ export function Drawer({ title, eyebrow, children, footer, onClose, wide = false
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (event.key !== "Tab") return;
@@ -100,7 +104,7 @@ export function Drawer({ title, eyebrow, children, footer, onClose, wide = false
       document.removeEventListener("keydown", onKeyDown);
       previousFocus.current?.focus();
     };
-  }, [onClose]);
+  }, []);
   const submitEditor = (event: React.MouseEvent<HTMLElement>) => { const target = (event.target as HTMLElement).closest("button") as HTMLButtonElement | null; if (target && target.type !== "button" && !target.disabled) (target.closest(".content-drawer-backdrop") as HTMLElement | null)?.querySelector<HTMLFormElement>("form.content-editor-form")?.requestSubmit(); };
   const historyDrawer = eyebrow.includes("HISTORY");
   return <div className="content-drawer-backdrop" role="presentation"><section ref={drawerRef} className={`content-drawer ${wide ? "content-drawer-wide" : ""}`} role="dialog" aria-modal="true" aria-labelledby="content-drawer-title"><header className="content-drawer-header"><div>{historyDrawer && <span className="eyebrow">IMMUTABLE HISTORY</span>}<span className="eyebrow">{eyebrow}</span><h2 id="content-drawer-title">{title}</h2></div><button ref={closeRef} type="button" className="drawer-close" aria-label="Close" onClick={onClose}><Icon name="close" size={16} /></button></header><div className="content-drawer-body">{children}</div><footer className="content-drawer-footer" onClick={submitEditor}>{footer}</footer></section></div>;
