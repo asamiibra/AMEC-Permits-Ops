@@ -2,8 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { BillingShell } from "../src/billing/BillingShell";
 import { PaymentWorkspace } from "../src/billing/BillingDetailWorkspaces";
+import type { BillingCapabilityDTO } from "../src/billing/billing-types";
 
-const capabilities = {
+const capabilities: BillingCapabilityDTO = {
   role: "OWNER_SPONSOR",
   capabilities: { can_view: true, can_accept_invoice: true, can_issue_invoice: true, can_verify_payment: true, can_create_invoice: true },
   authority_source: "SERVER_MUTATION_POLICY",
