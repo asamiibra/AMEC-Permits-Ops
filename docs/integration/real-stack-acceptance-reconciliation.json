@@ -1,0 +1,71 @@
+{
+  "schema": "proposalops.integration.real-stack-acceptance-reconciliation.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "binding_mode": "PRE_FINAL_DETERMINISTIC_PAYLOAD_PLUS_EXTERNAL_EXACT_HEAD_BINDING",
+  "current_release_migration_head": "source18_committee_implementation_v1",
+  "full_suite_result": {
+    "command": "BASE_URL=http://127.0.0.1:5178 API_BASE_URL=http://127.0.0.1:8001 PLAYWRIGHT_JSON_OUTPUT_FILE=/tmp/amec-integration-1LSph1/real-stack-playwright.json npm run browser-real-stack",
+    "passed": 54,
+    "failed": 11,
+    "did_not_run": 1,
+    "scope": "isolated synthetic PostgreSQL backend and isolated Vite frontend",
+    "interpretation": "The full historical real-stack collection is not a current-release green gate because 11 assertions encode superseded migration-head and seeded-fixture expectations."
+  },
+  "current_applicable_acceptance": {
+    "content_library_ui_integration": "PASS",
+    "source18_projection_and_exact_resolution": "PASS",
+    "backend_regression": "PASS: 899 passed, 18 skipped",
+    "frontend_unit_and_component": "PASS: 124 tests",
+    "frontend_build": "PASS",
+    "universal_ui_conformance": "PASS: PROPOSALOPS_UI_CONFORMANCE_READY"
+  },
+  "stale_or_historical_expectations": [
+    {
+      "file": "frontend/browser-real-stack/bd-proposal-forms-driven-v2.spec.ts",
+      "reason": "expects superseded Alembic head 0058_source_intake_ledger; current head is source18_committee_implementation_v1"
+    },
+    {
+      "file": "frontend/browser-real-stack/dashboard-v2-waves-b-c.spec.ts",
+      "reason": "expects superseded Alembic head 0058_source_intake_ledger; current head is source18_committee_implementation_v1"
+    },
+    {
+      "file": "frontend/browser-real-stack/shared-domain-foundations.spec.ts",
+      "reason": "expects superseded Alembic head 0058_source_intake_ledger; current head is source18_committee_implementation_v1"
+    },
+    {
+      "file": "frontend/browser-real-stack/admin-forms-real-stack.spec.ts",
+      "reason": "historical seeded-content flow timed out and is not a current Content Library acceptance scenario"
+    },
+    {
+      "file": "frontend/browser-real-stack/contract-center-final-owner-hardening.spec.ts",
+      "reason": "historical contract-center golden-path assertions timed out and are outside this integration change"
+    },
+    {
+      "file": "frontend/browser-real-stack/contract-page-owner-sketch-delta.spec.ts",
+      "reason": "expects a historical seeded contract fixture absent from the current release seed"
+    },
+    {
+      "file": "frontend/browser-real-stack/dashboard-v1-v2-split.spec.ts",
+      "reason": "expects a historical dashboard governance surface absent from the current release seed"
+    },
+    {
+      "file": "frontend/browser-real-stack/master-content-owner-dashboard.spec.ts",
+      "reason": "expects a historical seeded form fixture absent from the current release seed"
+    },
+    {
+      "file": "frontend/browser-real-stack/owner-decision-closure.spec.ts",
+      "reason": "expects a historical owner decision surface absent from the current release seed"
+    },
+    {
+      "file": "frontend/browser-real-stack/persona-issues-notifications.spec.ts",
+      "reason": "expects a historical notification fixture absent from the current release seed"
+    }
+  ],
+  "current_unresolved_content_library_defects": [],
+  "safety_boundary": {
+    "database": "isolated synthetic PostgreSQL only",
+    "production_or_preprod_mutation": false,
+    "real_amec_data_used": false,
+    "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING"
+  }
+}

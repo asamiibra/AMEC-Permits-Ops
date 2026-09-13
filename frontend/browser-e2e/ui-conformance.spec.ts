@@ -143,14 +143,20 @@ test.describe("ProposalOps universal UI conformance gate", () => {
           try {
             await page.setViewportSize(size);
             let navigationError: unknown;
-            for (let attempt = 0; attempt < 2; attempt += 1) {
+            for (let attempt = 0; attempt < 3; attempt += 1) {
               try {
                 await page.goto(route, { waitUntil: "domcontentloaded", timeout: 20_000 });
                 navigationError = undefined;
                 break;
               } catch (error) {
                 navigationError = error;
-                if (attempt === 0) await page.waitForTimeout(250);
+                if (attempt < 2) {
+                  // Reset the SPA between retries so a prior route's pending
+                  // render/fetch cannot contaminate the next navigation.
+                  await page.goto("/work", { waitUntil: "domcontentloaded", timeout: 20_000 }).catch(() => undefined);
+                  await page.evaluate((role) => sessionStorage.setItem("proposalops-role", role), internalRole[persona]);
+                  await page.waitForTimeout(250);
+                }
               }
             }
             if (navigationError) throw navigationError;

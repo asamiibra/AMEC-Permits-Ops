@@ -1,0 +1,83 @@
+{
+  "schema": "proposalops.integration.evidence-taxonomy-reconciliation.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "historical_epoch_immutable": true,
+  "binding_mode": "PRE_FINAL_DETERMINISTIC_PAYLOAD_PLUS_EXTERNAL_EXACT_HEAD_BINDING",
+  "historical_content_library_epoch": {
+    "acceptance_head": "6966bf40ea6f1b59792131427b601231fdc786fc",
+    "acceptance_tree": "866013e51ed9060034f6ae9c2ffbb0f37212f893",
+    "executable_subject": "decf0bc0e22c3b51fedb5b1e6ff287b24086f64e",
+    "executable_tree": "33541ed1b5aa868a770a9486adf611e3ec55f061"
+  },
+  "rows": [
+    {
+      "requirement_id": "AT-031",
+      "historical_artifact": "docs/content-library-gap-closure/01-owner-requirements-ledger.json",
+      "historical_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "historical_artifact_blob": "4a761c38fb3d6988a9e296b6ea20b078ce80a36e",
+      "historical_status": "SOURCE_CLARIFICATION_REQUIRED",
+      "why_status_is_now_stale_or_inaccurate": "The current integrated shell and role matrix prove the visible product personas; Administration remains an internal capability surface, not a fourth visible product persona.",
+      "new_effective_taxonomy": "ARCHITECTURAL_BOUNDARY_PROVED",
+      "governing_owner_decision": "Library is not a task queue; visible personas remain Owner, Business Development, and Engineering.",
+      "implementation_evidence": ["frontend/src/App.tsx", "frontend/src/Dashboard.tsx", "frontend/scripts/ui-conformance-gate.mjs"],
+      "test_evidence": ["frontend/browser-e2e/ui-conformance.spec.ts", "frontend/tests/ui-conformance-gate.test.mjs"],
+      "effective_from_integration_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "supersedes": ["historical AT-031 source-clarification classification"],
+      "does_not_rewrite_historical_epoch": true
+    },
+    {
+      "requirement_id": "AT-054",
+      "historical_artifact": "docs/content-library-gap-closure/01-owner-requirements-ledger.json",
+      "historical_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "historical_artifact_blob": "4a761c38fb3d6988a9e296b6ea20b078ce80a36e",
+      "historical_status": "SOURCE_CLARIFICATION_REQUIRED",
+      "why_status_is_now_stale_or_inaccurate": "The requirement is a universal ProposalOps UI conformance gate, not an external-source clarification; closure is evaluated only by current machine-readable defect/test state.",
+      "new_effective_taxonomy": "PROPOSALOPS_UNIVERSAL_UI_CONFORMANCE",
+      "governing_owner_decision": "All applicable universal UI P0/P1/P2 and unclassified defects must be closed before readiness.",
+      "implementation_evidence": ["frontend/scripts/ui-conformance-gate.mjs", "docs/integration/universal-ui-defect-ledger.json"],
+      "test_evidence": ["frontend/tests/ui-conformance-gate.test.mjs", "frontend/browser-e2e/ui-conformance.spec.ts"],
+      "effective_from_integration_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "supersedes": ["historical AT-054 source-clarification classification"],
+      "does_not_rewrite_historical_epoch": true
+    },
+    {
+      "requirement_id": "AT-080",
+      "historical_artifact": "docs/content-library-gap-closure/01-owner-requirements-ledger.json",
+      "historical_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "historical_artifact_blob": "4a761c38fb3d6988a9e296b6ea20b078ce80a36e",
+      "historical_status": "SOURCE_CLARIFICATION_REQUIRED",
+      "why_status_is_now_stale_or_inaccurate": "The Owner has now resolved the authority boundary: Source18 is sole official-form authority and Content Library exposes a typed read-only projection.",
+      "new_effective_taxonomy": "SOURCE18_AUTHORITY_CONTENT_LIBRARY_TYPED_READ_ONLY_PROJECTION",
+      "governing_owner_decision": "Source18 owns official-form identity, currentness, DocumentVersion, hash, and authority-only field semantics; Content Library cannot mutate them.",
+      "implementation_evidence": ["backend/app/services/source18_form_projection.py", "backend/app/api/master_content_routers.py", "backend/app/services/master_content.py", "backend/app/services/forms_governance.py"],
+      "test_evidence": ["backend/tests/test_source18_content_library_projection.py"],
+      "effective_from_integration_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "supersedes": ["historical AT-080 source-clarification classification"],
+      "does_not_rewrite_historical_epoch": true
+    },
+    {
+      "requirement_id": "AT-081",
+      "historical_artifact": "docs/content-library-gap-closure/01-owner-requirements-ledger.json",
+      "historical_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "historical_artifact_blob": "4a761c38fb3d6988a9e296b6ea20b078ce80a36e",
+      "historical_status": "SOURCE_CLARIFICATION_REQUIRED",
+      "why_status_is_now_stale_or_inaccurate": "This integration requirement is an exact-head acceptance and independent-review gate; it is not a request for live authority data and cannot be closed by synthetic evidence alone.",
+      "new_effective_taxonomy": "INTEGRATION_EXACT_HEAD_INDEPENDENT_REVIEW",
+      "governing_owner_decision": "A new integration epoch must bind all acceptance evidence to one final exact head and one independent cold review.",
+      "implementation_evidence": ["docs/integration/integration-source-manifest.json", "docs/integration/cross-module-acceptance-ledger.json"],
+      "test_evidence": ["external exact-head CI and independent cold-review binding"],
+      "effective_from_integration_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "supersedes": ["historical AT-081 source-clarification classification"],
+      "does_not_rewrite_historical_epoch": true
+    }
+  ],
+  "final_effective_taxonomy": {
+    "AT-031": "ARCHITECTURAL_BOUNDARY_PROVED",
+    "AT-054": "PROPOSALOPS_UNIVERSAL_UI_CONFORMANCE",
+    "AT-080": "SOURCE18_AUTHORITY_CONTENT_LIBRARY_TYPED_READ_ONLY_PROJECTION",
+    "AT-081": "INTEGRATION_EXACT_HEAD_INDEPENDENT_REVIEW"
+  },
+  "stale_taxonomy_superseded": true,
+  "historical_taxonomy_deleted": false,
+  "historical_epoch_rewritten": false
+}

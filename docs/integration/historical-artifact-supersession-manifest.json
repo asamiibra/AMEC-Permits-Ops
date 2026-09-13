@@ -1,0 +1,42 @@
+{
+  "schema": "proposalops.integration.historical-artifact-supersession.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "historical_evidence_rewritten": false,
+  "historical_failures_deleted": false,
+  "stale_evidence_used_as_current": false,
+  "rows": [
+    {
+      "old_artifact_path": "artifacts/ui-conformance/ui-defects.json",
+      "old_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "old_artifact_hash": "bde846acd7d11e749769f0f102a1e144383d18e4",
+      "old_scope": "prior universal/module UI audit epoch",
+      "old_result": "OPEN_LEGACY_ALIAS_DRIFT plus open P2 rows",
+      "why_superseded": "Its statuses and taxonomy describe an earlier executable; current integrated runtime and the new typed ledger are authoritative for this epoch.",
+      "superseding_artifact": "docs/integration/universal-ui-defect-ledger.json",
+      "superseding_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "current_effective_result": "All listed rows are explicitly classified and closed/superseded; universal readiness is derived by the executable gate."
+    },
+    {
+      "old_artifact_path": "artifacts/universal-design-audit/design-defects.json",
+      "old_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "old_artifact_hash": "49f895c9fc1cffee361a10e8f3db28e9a1d52d1a",
+      "old_scope": "historical design-audit source inventory",
+      "old_result": "historical source defects and prior audit scope",
+      "why_superseded": "The current integration ledger adds explicit scope/severity/status and binds the effective result to current runtime evidence.",
+      "superseding_artifact": "docs/integration/universal-ui-defect-ledger.json",
+      "superseding_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "current_effective_result": "Historical source remains immutable provenance and is not consumed as current gate state."
+    },
+    {
+      "old_artifact_path": "docs/content-library-gap-closure/16-independent-review-disposition.md",
+      "old_artifact_commit": "6966bf40ea6f1b59792131427b601231fdc786fc",
+      "old_artifact_hash": "f102b1d0934575b855cf54a6180cb35fdbcf2ca0",
+      "old_scope": "isolated Content Library acceptance epoch",
+      "old_result": "prior module review disposition",
+      "why_superseded": "It cannot serve as proof of the later cross-module exact-head review required by AT-081.",
+      "superseding_artifact": "docs/integration/cross-module-acceptance-ledger.json",
+      "superseding_head": "EXTERNAL_EXACT_HEAD_BINDING",
+      "current_effective_result": "Supporting historical evidence only; the new integration epoch requires a fresh independent reviewer."
+    }
+  ]
+}

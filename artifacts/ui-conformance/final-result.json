@@ -1,5 +1,6 @@
 {
   "decision": "PROPOSALOPS_UI_CONFORMANCE_READY",
+  "ready": true,
   "checks": {
     "UI_ROUTE_DISCOVERY_GAP_ZERO": true,
     "MATERIAL_UI_CONTRACT_COVERAGE_100_PERCENT": true,
@@ -28,7 +29,25 @@
     "UI_MOBILE_PASS": true,
     "AMBIGUOUS_UI_CTA_ZERO": true,
     "UI_INFORMATION_HIERARCHY_PASS": true,
-    "UNINTENTIONAL_UI_DUPLICATION_ZERO": true
+    "UNINTENTIONAL_UI_DUPLICATION_ZERO": true,
+    "UNIVERSAL_P0_OPEN_ZERO": true,
+    "UNIVERSAL_P1_OPEN_ZERO": true,
+    "UNIVERSAL_P2_OPEN_ZERO": true,
+    "UNIVERSAL_UNCLASSIFIED_OPEN_ZERO": true,
+    "UNIVERSAL_UNEXPLAINED_DEFERRED_ZERO": true,
+    "REQUIRED_UI_TESTS_PASS": true,
+    "ACCESSIBILITY_CONFORMANCE_PASS": true,
+    "RESPONSIVE_CONFORMANCE_PASS": true
+  },
+  "defect_summary": {
+    "total": 11,
+    "universal_total": 8,
+    "universal_p0_open": 0,
+    "universal_p1_open": 0,
+    "universal_p2_open": 0,
+    "universal_unclassified_open": 0,
+    "universal_unexplained_deferred": 0,
+    "blocking_ids": []
   },
   "route_count": 71,
   "result_count": 357,

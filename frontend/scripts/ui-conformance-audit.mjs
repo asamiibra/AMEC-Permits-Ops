@@ -95,7 +95,7 @@ const rolePageMatrix = {
 
 const defects = {
   audit_version: "proposalops-ui-conformance-v1",
-  source_defects: effectiveDefects.defects || effectiveDefects.source_defects || [],
+  source_defects: effectiveDefects.defects || effectiveDefects.source_defects || effectiveDefects.rows || [],
   new_gate_defects: [
     { id: "UCF-P1-001", scope: "UNIVERSAL", route: "all material routes", persona: "all", severity: "P1", rule: "OWNER_FACING_CONCATENATED_TEXT_ZERO", status: "PENDING_BROWSER_EXECUTION", observed: "Needs runtime bounding-box and structural checks." },
     { id: "UCF-P1-002", scope: "UNIVERSAL", route: "all material routes", persona: "all", severity: "P1", rule: "RAW_ENUM_VISIBLE_ZERO", status: "PENDING_BROWSER_EXECUTION", observed: "Needs runtime allowlist audit across all role/viewport combinations." },

@@ -1,0 +1,33 @@
+{
+  "schema": "proposalops.integration.cross-module-acceptance-ledger.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "binding_mode": "PRE_FINAL_DETERMINISTIC_PAYLOAD_PLUS_EXTERNAL_EXACT_HEAD_BINDING",
+  "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING",
+  "requirements": [
+    {"id":"AT-031","taxonomy":"ARCHITECTURAL_BOUNDARY_PROVED","status":"PASS_PENDING_EXACT_HEAD_BINDING","evidence":["frontend/browser-e2e/ui-conformance.spec.ts","frontend/src/App.tsx"],"assertion":"Owner, Business Development, and Engineering are the visible personas; Administration is not a fourth visible product persona."},
+    {"id":"AT-054","taxonomy":"PROPOSALOPS_UNIVERSAL_UI_CONFORMANCE","status":"PASS","evidence":["docs/integration/ui-conformance-result.json","artifacts/ui-conformance/final-result.json"],"assertion":"Derived gate is ready with zero universal P0/P1/P2/unclassified/unexplained deferred rows."},
+    {"id":"AT-080","taxonomy":"SOURCE18_AUTHORITY_CONTENT_LIBRARY_TYPED_READ_ONLY_PROJECTION","status":"PASS_PENDING_EXACT_HEAD_REPLAY","evidence":["docs/integration/at080-acceptance.json","backend/tests/test_source18_content_library_projection.py"],"assertion":"Source18 owns official-form truth; Content Library exposes only a typed read-only projection and exact resolver."},
+    {"id":"AT-081","taxonomy":"INTEGRATION_EXACT_HEAD_INDEPENDENT_REVIEW","status":"PENDING_INDEPENDENT_REVIEW","evidence":["docs/integration/integration-source-manifest.json"],"assertion":"The final integration acceptance and independent cold review must bind to one exact final head."},
+    {"id":"G8","taxonomy":"NOT_REQUIRED_BY_GOVERNING_REQUIREMENT","status":"NOT_REQUIRED_BY_GOVERNING_REQUIREMENT","evidence":["docs/content-library-gap-closure/13-final-acceptance-ledger.md"],"assertion":"No separate Letter library or correspondence engine is required by the governing requirement; optional reusable letterhead is a Form, while organization facts/correspondence remain owning-domain-owned."},
+    {"id":"AT-024","taxonomy":"NOT_APPLICABLE","status":"NOT_APPLICABLE","evidence":["docs/content-library-gap-closure/01-owner-requirements-ledger.json"],"assertion":"AT-024 permits optional reusable letterhead under Forms only; it does not require a separate Letter content class or correspondence system."}
+  ],
+  "focused_acceptance": {
+    "source18_projection": "PASS",
+    "consumer_resolution": "PASS",
+    "requirements_project_state": "PASS",
+    "rbac_and_ai_boundaries": "PASS",
+    "cross_project_isolation": "PASS",
+    "migration_graph": "PASS_PENDING_FINAL_HEAD_REPLAY",
+    "real_stack": "PENDING_ISOLATED_REHEARSAL"
+  },
+  "safety_boundary": {
+    "production_deployment_authorized": false,
+    "production_db_authorized": false,
+    "real_amec_data_authorized": false,
+    "real_dsm_business_content_authorized": false,
+    "entra_mutation_authorized": false,
+    "dns_mutation_authorized": false,
+    "vercel_release_authority": "NONE",
+    "protected_human_action_authority_from_ai": false
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "proposalops.integration.at080-acceptance.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "requirement_id": "AT-080",
+  "owner_decision": "SOURCE18_ONLY_OFFICIAL_FORM_AUTHORITY_PLUS_CONTENT_LIBRARY_TYPED_READ_ONLY_PROJECTION",
+  "source18_official_form_authority_owner": true,
+  "content_library_official_form_projection": "TYPED_READ_ONLY",
+  "content_library_can_create_official_form_authority": false,
+  "content_library_can_update_official_form_authority": false,
+  "content_library_can_delete_official_form_authority": false,
+  "content_library_can_mutate_official_form_currentness": false,
+  "content_library_can_mutate_official_form_field_authority": false,
+  "content_library_can_grant_official_form_approval": false,
+  "duplicate_official_form_authority_registry_count": 0,
+  "source_of_truth": ["AuthorityCase", "Source18WorkflowTransaction", "DocumentVersion"],
+  "projection_service": "backend/app/services/source18_form_projection.py",
+  "projection_route": "/api/master-content/official-forms",
+  "resolver_route": "/api/master-content/official-forms/resolve",
+  "required_proofs": {
+    "exact_source18_identity": "backend/tests/test_source18_content_library_projection.py::test_current_source18_form_is_exposed_as_typed_read_only_projection",
+    "exact_document_version_and_hash": "backend/tests/test_source18_content_library_projection.py::test_current_source18_form_is_exposed_as_typed_read_only_projection",
+    "stale_rejection": "backend/tests/test_source18_content_library_projection.py::test_stale_source18_form_is_visible_but_not_resolvable",
+    "unknown_currentness_fail_closed": "backend/tests/test_source18_content_library_projection.py::test_unknown_currentness_fails_closed",
+    "ambiguous_fail_closed": "backend/tests/test_source18_content_library_projection.py::test_ambiguous_current_source18_form_fails_closed",
+    "authority_mutation_denial_no_mutation": "backend/tests/test_source18_content_library_projection.py::test_content_library_cannot_mutate_source18_authority_truth"
+  },
+  "integrated_acceptance": "PENDING_EXACT_HEAD_REPLAY",
+  "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING"
+}

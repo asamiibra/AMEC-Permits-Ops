@@ -1,0 +1,22 @@
+{
+  "schema": "proposalops.integration.conflict-reconciliation.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "post_sync_base": "36ce0cad2af86879cc29e1b9194bef43cc81f4ba",
+  "module_source": "65b778e963ef7b7775e6f66aee7a1e6f2a76dd2c",
+  "merge_commit": "fe05aef33dc85915d947dfe9112c1058bef0f569",
+  "overlap_classification": {
+    "Content_Library_backend_and_tests": "MODULE_ONLY",
+    "Content_Library_frontend_routes_and_shared_UI": "COMPLEMENTARY",
+    "Source18_and_DocumentVersion": "COMPLEMENTARY",
+    "Forms_governance_and_master_content": "COMPLEMENTARY",
+    "Alembic_migrations": "INTEGRATION_ONLY_REPAIR_REQUIRED",
+    "unresolved_conflicts": "NONE"
+  },
+  "integration_only_repairs": [
+    {"path":"backend/migrations/versions/baseline_phase4_v36_azure_sql.py","reason":"Typed repeated seed parameters for PostgreSQL 16 clean-head migration."},
+    {"path":"backend/migrations/versions/source18_regulatory_current_state_v1.py","reason":"PostgreSQL identifier-safe index name with matching downgrade."}
+  ],
+  "governing_precedence": ["latest applicable Owner decision", "canonical architecture", "current accepted release behavior", "current module requirement"],
+  "unresolved_conflicts": [],
+  "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING"
+}

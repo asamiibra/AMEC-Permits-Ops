@@ -1,0 +1,24 @@
+{
+  "schema": "proposalops.integration.ui-conformance-result.v1",
+  "epoch": "NEW_INTEGRATION_EPOCH",
+  "decision": "PROPOSALOPS_UI_CONFORMANCE_READY",
+  "runtime": {
+    "route_count": 71,
+    "result_count": 357,
+    "personas": ["Owner", "Business Development", "Engineering"],
+    "viewports": ["desktop", "tablet", "mobile"],
+    "isolated_frontend_base_url": "http://127.0.0.1:5175"
+  },
+  "defect_summary": {
+    "universal_p0_open": 0,
+    "universal_p1_open": 0,
+    "universal_p2_open": 0,
+    "universal_unclassified_open": 0,
+    "universal_unexplained_deferred": 0
+  },
+  "gate_authority": "frontend/scripts/ui-conformance-gate.mjs",
+  "machine_derived": true,
+  "manual_ready_override_ignored": true,
+  "evidence_artifacts": ["artifacts/ui-conformance/final-result.json", "artifacts/ui-conformance/runtime-results.json", "docs/integration/universal-ui-defect-ledger.json"],
+  "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING"
+}
