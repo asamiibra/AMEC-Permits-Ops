@@ -1,0 +1,9 @@
+{
+  "resolution_before_persistence": true,
+  "required_missing_source": "PASS: zero ContextSnapshot and ContextDependency rows",
+  "authorization_failure": "PASS: zero ContextSnapshot and ContextDependency rows",
+  "currentness_failure": "PASS: zero ContextSnapshot and ContextDependency rows",
+  "persistence_failure": "PASS: nested transaction rolls back attempted snapshot and dependency set",
+  "existing_caller_transaction": "PRESERVED: compiler uses begin_nested and does not commit unrelated caller work",
+  "dependency_count": "PASS: updated by existing record_context_dependency and exact on replay"
+}

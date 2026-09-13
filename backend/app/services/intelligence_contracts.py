@@ -26,6 +26,7 @@ from backend.app.models.intelligence_entities import (
 
 SCOPE_TYPES = {"PROJECT", "MODULE", "GLOBAL", "DOCUMENT", "WORKFLOW", "ENTITY"}
 DEPENDENCY_TYPES = {
+    "CANDIDATE_ASSERTION",
     "DOCUMENT_VERSION",
     "EVIDENCE_ENVELOPE",
     "VERIFIED_ASSERTION",

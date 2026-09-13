@@ -1,0 +1,9 @@
+{
+  "migration_expected": false,
+  "migration_allowed": false,
+  "migration_added": false,
+  "alembic_head_count": 1,
+  "alembic_head": "intelligence_v1_shared_contracts",
+  "change": "CANDIDATE_ASSERTION added to the existing string dependency vocabulary only",
+  "duplicate_context_persistence_model_added": false
+}

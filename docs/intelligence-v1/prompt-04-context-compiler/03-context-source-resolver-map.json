@@ -1,0 +1,14 @@
+{
+  "resolver_registry": "static GovernedContextCompiler.RESOLVER_REGISTRY",
+  "arbitrary_sql_or_reflection": false,
+  "resolvers": [
+    {"context_type": "CANDIDATE_ASSERTION", "dependency_type": "CANDIDATE_ASSERTION", "trust": "CANDIDATE", "currentness": "CURRENT", "selector": ["id", "candidate_assertion_id"]},
+    {"context_type": "DOCUMENT_VERSION", "dependency_type": "DOCUMENT_VERSION", "trust": "GOVERNED_EVIDENCE", "currentness": "Document.current_version_id and no superseder", "selector": ["id", "document_version_id"]},
+    {"context_type": "PHASE4_DOCUMENT_EVIDENCE_ENVELOPE", "dependency_type": "EVIDENCE_ENVELOPE", "trust": "GOVERNED_EVIDENCE", "currentness": "underlying DocumentVersion current", "selector": ["id", "evidence_envelope_id"]},
+    {"context_type": "VERIFIED_ASSERTION", "dependency_type": "VERIFIED_ASSERTION", "trust": "VERIFIED", "currentness": "CURRENT plus current observation/version lineage", "selector": ["id", "verified_assertion_id"]},
+    {"context_type": "MASTER_CONTENT", "dependency_type": "MASTER_CONTENT_VERSION", "trust": "CANONICAL", "currentness": "existing exact/purpose resolver semantics", "selector": ["master_content_item_id", "document_version_id", "content_type", "module", "usage_type"]},
+    {"context_type": "DEFINITION_REVISION", "dependency_type": "DEFINITION_REVISION", "trust": "CANONICAL", "currentness": "active DefinitionEntry current revision", "selector": ["id", "definition_revision_id"]},
+    {"context_type": "DOMAIN_ENTITY_REVISION", "dependency_type": "DOMAIN_ENTITY_REVISION", "trust": "CANONICAL", "currentness": "explicit current Project row", "selector": ["entity_type", "entity_id"]},
+    {"context_type": "POLICY_VERSION", "dependency_type": "POLICY_VERSION", "trust": "CANONICAL", "currentness": "exact request policy version", "selector": ["version"]}
+  ]
+}
