@@ -5,5 +5,7 @@
   "alembic_head_count": 1,
   "alembic_head": "intelligence_v1_shared_contracts",
   "change": "CANDIDATE_ASSERTION added to the existing string dependency vocabulary only",
-  "duplicate_context_persistence_model_added": false
+  "duplicate_context_persistence_model_added": false,
+  "migration_diff_from_p03": [],
+  "active_migration_inventory_unchanged": true
 }
