@@ -4,6 +4,7 @@ import { CanonicalFormsLibrary } from "./MasterContentForms";
 import { readDemoRole } from "./rebrand";
 import { Icon } from "./Icon";
 import { OwnerDecisionCenterPage } from "./OwnerDecisionCenter";
+import { ContractMobilizationFeature } from "./contract/ContractMobilizationFeature";
 
 type AdminCategory = { key: string; label: string; route: string; status: string };
 
@@ -55,34 +56,7 @@ export function AdministrationOwnerPage() {
 }
 
 export function ContractMobilizationPage() {
-  const [path, setPath] = useState(window.location.pathname);
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const contractId = path.match(/^\/contract-mobilization\/contracts\/([^/]+)/)?.[1] || null;
-  const endpoint = contractId ? `/api/admin/contracts/${contractId}` : "/api/admin/contracts?filter=ALL";
-  const go = (route: string) => { window.history.pushState({}, "", route); window.dispatchEvent(new PopStateEvent("popstate")); };
-
-  useEffect(() => {
-    const sync = () => setPath(window.location.pathname);
-    window.addEventListener("popstate", sync);
-    const legacyContract = window.location.pathname.match(/^\/admin\/contracts(?:\/([^/]+))?/);
-    const legacyActivation = window.location.pathname.match(/^\/admin\/project-activation(?:\/([^/]+))?/);
-    if (legacyContract || legacyActivation) {
-      const id = legacyContract?.[1] || legacyActivation?.[1];
-      const target = id ? `/contract-mobilization/contracts/${id}${legacyActivation ? "#activation" : ""}` : legacyActivation ? "/contract-mobilization?view=activation" : "/contract-mobilization?view=contracts";
-      window.history.replaceState({}, "", target);
-      setPath(window.location.pathname);
-    }
-    return () => window.removeEventListener("popstate", sync);
-  }, []);
-  useEffect(() => {
-    setLoading(true); setError(""); setData(null);
-    api<any>(endpoint).then(setData).catch((cause) => setError(cause instanceof Error ? cause.message : "Contract & Mobilization is unavailable.")).finally(() => setLoading(false));
-  }, [endpoint]);
-  if (loading) return <ContractMobilizationShell onNavigate={go}><section className="panel"><b>Loading Contract &amp; Mobilization…</b></section></ContractMobilizationShell>;
-  if (error) return <ContractMobilizationShell onNavigate={go}><section className="panel error-state" role="alert"><h2>Contract &amp; Mobilization unavailable</h2><p>{error}</p><button className="button-primary" onClick={() => { setLoading(true); api<any>(endpoint).then(setData).catch((cause) => setError(cause instanceof Error ? cause.message : "Contract & Mobilization is unavailable.")).finally(() => setLoading(false)); }}>Retry</button></section></ContractMobilizationShell>;
-  return <ContractMobilizationShell onNavigate={go}>{contractId ? <ContractWorkbench data={data} onBack={() => go("/contract-mobilization?view=contracts")} onRefresh={() => { api<any>(endpoint).then(setData).catch(() => {}); }} onNavigate={go} /> : <OperationalContracts onNavigate={(route) => go(route.replace(/^\/admin\/contracts/, "/contract-mobilization/contracts"))} />}</ContractMobilizationShell>;
+  return <ContractMobilizationFeature />;
 }
 
 function ContractMobilizationShell({ onNavigate, children }: { onNavigate: (route: string) => void; children: ReactNode }) {

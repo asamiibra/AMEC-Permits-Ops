@@ -19,6 +19,7 @@ from ..db import get_db
 from ..models import ClientAccount, ContactPoint, Contract, ContractAdminEvidence, ContractAdminInput, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, DashboardInputItem, Document, DocumentApprovalState, DocumentType, DocumentVersion, MasterContentGovernanceProfile, MasterContentItem, NotificationEvent, Opportunity, PartyRoleAssignment, ProposalAcceptedRevision, ProposalSourceLink, Project, ProjectActivation, Role, WorkflowTask
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.admin_contract_read_model import owner_contract_extensions
+from ..ai.contract_skills import contract_skill_catalogue
 from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, OPERATIONAL_CONTACT_PURPOSES, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, now, operational_contact_routing_projection, project_activation, readiness, resolve_operational_contact
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
@@ -419,6 +420,18 @@ def get_billing_context(contract_id: str, revision_id: str | None = None, db: Se
     contract = _contract_or_404(db, contract_id)
     from ..services.contract_workspace import contract_billing_context
     return contract_billing_context(db, contract, revision_id=revision_id)
+
+
+@router.get("/{contract_id}/intelligence")
+def get_contract_intelligence(contract_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Return governed skill eligibility without reading document content.
+
+    Skill execution is deliberately separate and remains disabled while the
+    central AI runtime policy forbids external inference or real-content use.
+    """
+    require_capability(role, "CONTRACT_READ")
+    _contract_or_404(db, contract_id)
+    return contract_skill_catalogue(contract_id=contract_id, role=role.value)
 
 
 @router.patch("/{contract_id}")

@@ -1,0 +1,32 @@
+import { useEffect, useMemo, useState } from "react";
+import { api } from "../api";
+import { createContract, listContracts } from "./contractApi";
+import type { ContractListItem } from "./contractTypes";
+
+const lanes = [["ALL", "All contracts"], ["NEEDS_ACTION", "Needs action"], ["AUTHORITY_REVIEW", "Authority review"], ["READY_CLOSE", "Ready / close"]] as const;
+const label = (value: unknown, fallback = "Not recorded") => value ? String(value).replaceAll("_", " ") : fallback;
+
+export function ContractRegister({ onOpen }: { onOpen: (id: string) => void }) {
+  const [items, setItems] = useState<ContractListItem[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [lane, setLane] = useState("ALL");
+  const [query, setQuery] = useState("");
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [proposalId, setProposalId] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const load = async (nextLane = lane, nextQuery = query) => { setError(""); try { const responses = await Promise.all(lanes.map(([key]) => listContracts(nextQuery, key))); setCounts(Object.fromEntries(responses.map((response, index) => [lanes[index][0], response.count ?? response.items.length]))); setItems(responses[lanes.findIndex(([key]) => key === nextLane)]?.items || []); const proposalData = await api<any>("/api/bd/proposals"); setProposals((proposalData.items || []).filter((item: any) => item.contract_eligible)); } catch (cause) { setError(cause instanceof Error ? cause.message : "Contracts could not be loaded."); } };
+  useEffect(() => { void load("ALL", ""); }, []);
+  const visibleMessage = useMemo(() => message || (items.length ? "" : "No Contracts in this lane."), [items.length, message]);
+  const create = async () => { if (!proposalId) { setMessage("Select an accepted Proposal revision before creating a Contract."); return; } try { const result = await createContract(proposalId); onOpen(result.id); } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Contract could not be created; the accepted Proposal remains unchanged."); } };
+  return <section className="contract-register" aria-labelledby="contract-register-title">
+    <div className="contract-page-hero"><div><span className="eyebrow">AMEC · BUSINESS STAGE 2</span><h1 id="contract-register-title">Contract &amp; Mobilization</h1><p>One operational register for commercial acceptance, executed evidence, mobilization, and the next human decision.</p></div><span className="contract-synthetic-badge">SYNTHETIC / OWNER CONTROLLED</span></div>
+    <div className="contract-register-summary"><div><span>Accessible Contracts</span><strong>{counts.ALL ?? 0}</strong></div><div><span>Need action</span><strong>{counts.NEEDS_ACTION ?? 0}</strong></div><div><span>Authority review</span><strong>{counts.AUTHORITY_REVIEW ?? 0}</strong></div><div><span>Ready / close</span><strong>{counts.READY_CLOSE ?? 0}</strong></div></div>
+    <section className="contract-panel contract-register-panel"><div className="contract-panel-heading"><div><span className="eyebrow">OPERATIONAL REGISTER</span><h3>Contracts</h3></div><span className="contract-source-note">Canonical Contract read model</span></div>
+      <div className="contract-register-toolbar"><div className="contract-tabs" role="tablist" aria-label="Contract register filters">{lanes.map(([key, text]) => <button key={key} role="tab" aria-selected={lane === key} className={lane === key ? "active" : ""} onClick={() => { setLane(key); void load(key, query); }}>{text}<b>{counts[key] ?? 0}</b></button>)}</div><div className="contract-register-actions"><label className="sr-only" htmlFor="contract-search">Search Contracts</label><input id="contract-search" value={query} placeholder="Search Contract, Client, or Project" onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void load(lane, query); }} /><button className="button-secondary" onClick={() => void load(lane, query)}>Search</button><label className="sr-only" htmlFor="new-contract-proposal">Accepted Proposal</label><select id="new-contract-proposal" value={proposalId} onChange={(event) => setProposalId(event.target.value)}><option value="">Select accepted Proposal…</option>{proposals.map((item) => <option key={item.id} value={item.id}>{item.proposal || item.title || "Accepted Proposal"} · {item.proposal_reference || item.reference || "Accepted"}</option>)}</select><button className="button-primary" disabled={!proposalId} onClick={() => void create()}>+ New Contract</button></div></div>
+      {error && <div className="contract-error" role="alert"><strong>Could not load Contracts</strong><span>{error}</span><button className="button-secondary" onClick={() => void load(lane, query)}>Retry</button></div>}
+      <div className="contract-register-table" role="table" aria-label="Contracts"><div className="contract-register-table-head" role="row"><b>Contract</b><b>Client / Project</b><b>Stage</b><b>Next action</b><b>Commercial</b><b>Open</b></div>{items.map((item) => <div className="contract-register-row admin-owner-row" role="row" key={item.id}><div><strong>{item.contract_name || "Unnamed Contract"}</strong><small>{item.contract_reference || "Reference pending"}</small></div><div><span>{item.client?.name || "Client pending"}</span><small>{item.project?.reference || item.project_opportunity_ref || "Project / Opportunity pending"}</small></div><div><span className="contract-status-chip status-canonical">{label(item.stage)}</span><small>{item.blockers_count ? `${item.blockers_count} blocker(s)` : "No blocker count"}</small></div><div><strong>{label(item.next_action, "No action recorded")}</strong><small>{label(item.billing_readiness, "Billing context separate")}</small></div><div><strong>{item.amount ? `${item.amount} ${item.currency || ""}` : "Amount not confirmed"}</strong><small>{item.close_date || "Close date not recorded"}</small></div><button className="text-button" onClick={() => onOpen(item.id)}>Open</button></div>)}{visibleMessage && !error && <div className="contract-empty"><strong>{visibleMessage}</strong><span>Choose another lane or create a draft from an accepted Proposal.</span></div>}</div>
+      <div className="contract-boundary-note"><strong>Ownership boundary</strong><span>Finance owns Invoice/payment mutations; Project Activation is a separate protected human action; Intelligence never writes Contract truth.</span></div>
+    </section>
+  </section>;
+}

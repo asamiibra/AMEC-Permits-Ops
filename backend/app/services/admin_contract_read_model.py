@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, ContractTemplateSnapshot, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalContactContext
-from .contract_workspace import contract_billing_context
+from .contract_workspace import contract_billing_context, contract_revision_is_accepted, contract_revision_is_authority_reviewed
 from .owner_decisions import runtime_decision_value
 
 
@@ -59,6 +59,7 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
         if item.source_role in {"LPO", "CLIENT_DOCUMENT"} and item.source_role not in current_by_role:
             current_by_role[item.source_role] = item
     template = db.scalar(select(ContractTemplateSnapshot).where(ContractTemplateSnapshot.contract_id == contract.id).order_by(ContractTemplateSnapshot.captured_at.desc()))
+    revisions = db.scalars(select(ContractRevision).where(ContractRevision.contract_id == contract.id).order_by(ContractRevision.revision_number.desc())).all()
     proposal = db.get(Opportunity, contract.proposal_id) if contract.proposal_id else None
     accepted = db.get(ProposalAcceptedRevision, contract.accepted_proposal_revision_id) if contract.accepted_proposal_revision_id else None
     lpo_policy = str(runtime_decision_value(db, "CONTRACT_LPO_REQUIREDNESS_POLICY", "OWNER_DEFINITION_REQUIRED"))
@@ -86,6 +87,8 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
     ]
     return {
         "contract": {"payment_condition_text": contract.payment_condition_text, "contracted_scope_text": contract.contracted_scope_text, "valuation_amount": str(contract.valuation_amount) if contract.valuation_amount is not None else None, "valuation_currency": contract.valuation_currency, "valuation_basis": contract.valuation_basis, "valuation_status": contract.valuation_status, "project_opportunity_ref": contract.project_opportunity_ref, "project_description": ((accepted.snapshot or {}).get("project_description") if accepted else None) or ((accepted.snapshot or {}).get("fields", {}).get("project_description") if accepted else None) or "Not provided"},
+        "revisions": [{"id": item.id, "revision_number": item.revision_number, "status": item.status, "created_at": item.created_at.isoformat(), "supersedes_revision_id": item.supersedes_revision_id, "content_hash": item.content_hash, "authority_reviewed": contract_revision_is_authority_reviewed(item), "accepted": contract_revision_is_accepted(item), "maker_checker": (item.admin_input_snapshot or {}).get("maker_checker")} for item in revisions],
+        "handoff_evidence": {role: [{"id": item.id, "contract_revision_id": item.contract_revision_id, "source_reference": item.source_reference, "status": item.status, "recorded_by": item.recorded_by, "recorded_at": item.recorded_at.isoformat(), "document_version_id": item.document_version_id, "content_hash": item.content_hash, "metadata": item.metadata_json} for item in evidence if item.source_role == role] for role in ("CLIENT_COPY_DISTRIBUTION", "OPERATIONS_HANDOFF")},
         "client_fields": client_fields["fields"],
         "field_lineage": client_fields,
         "client_contacts": [{"id": item.id, "name": item.name, "email": item.email, "phone": item.phone, "role_title": item.role_title} for item in contacts],
