@@ -379,7 +379,7 @@ def source18_official_forms(
     role: Role = Depends(current_user_role),
 ):
     """Expose Source18 official forms as a typed read-only Content Library view."""
-    del role  # visibility is inherited from the read-only Source18 projection.
+    require_capability(role, "SOURCE18_OFFICIAL_FORM_READ")
     rows = source18_official_form_projection(db, include_non_current=not current_only)
     needle = q.strip().casefold()
     if transaction_id or authority_case_id:
@@ -418,7 +418,7 @@ def resolve_source18_form(
     db: Session = Depends(get_db),
     role: Role = Depends(current_user_role),
 ):
-    del role
+    require_capability(role, "SOURCE18_OFFICIAL_FORM_READ")
     return resolve_source18_official_form(db, transaction_id=transaction_id, authority_case_id=authority_case_id)
 
 

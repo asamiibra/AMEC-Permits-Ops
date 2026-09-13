@@ -102,6 +102,12 @@ CAPABILITY_MATRIX["ENGINEERING"].update({
     "PHASE4_VIEW_SOURCE_REVIEW", "PHASE4_RESOLVE_RELATIONSHIP",
 })
 
+# Source18 official-form discovery is a distinct read capability.  It is
+# available to every governed product persona, but the projection route still
+# checks it explicitly instead of silently discarding the authenticated role.
+for _persona in ("SYSTEM_ADMIN", "OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"):
+    CAPABILITY_MATRIX[_persona].add("SOURCE18_OFFICIAL_FORM_READ")
+
 # One registry drives both summary counts and list filters.  States are stored
 # as strings in the legacy expansion tables and are intentionally not renamed.
 KPI_PREDICATES = {

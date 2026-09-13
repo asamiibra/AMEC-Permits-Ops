@@ -17,12 +17,15 @@
   "projection_route": "/api/master-content/official-forms",
   "resolver_route": "/api/master-content/official-forms/resolve",
   "required_proofs": {
-    "exact_source18_identity": "backend/tests/test_source18_content_library_projection.py::test_current_source18_form_is_exposed_as_typed_read_only_projection",
-    "exact_document_version_and_hash": "backend/tests/test_source18_content_library_projection.py::test_current_source18_form_is_exposed_as_typed_read_only_projection",
-    "stale_rejection": "backend/tests/test_source18_content_library_projection.py::test_stale_source18_form_is_visible_but_not_resolvable",
+    "exact_source18_identity": "backend/tests/test_source18_content_library_projection.py::test_source18_form_is_a_typed_read_only_projection_with_exact_hash_and_version",
+    "exact_document_version_and_hash": "backend/tests/test_source18_content_library_projection.py::test_source18_form_is_a_typed_read_only_projection_with_exact_hash_and_version",
+    "stale_rejection": "backend/tests/test_source18_content_library_projection.py::test_stale_source18_form_is_visible_for_audit_but_cannot_resolve_as_current",
     "unknown_currentness_fail_closed": "backend/tests/test_source18_content_library_projection.py::test_unknown_currentness_fails_closed",
     "ambiguous_fail_closed": "backend/tests/test_source18_content_library_projection.py::test_ambiguous_current_source18_form_fails_closed",
-    "authority_mutation_denial_no_mutation": "backend/tests/test_source18_content_library_projection.py::test_content_library_cannot_mutate_source18_authority_truth"
+    "identity_and_source_binding_fail_closed": "backend/tests/test_source18_content_library_projection.py::test_case_transaction_version_and_source18_identity_must_agree",
+    "authority_mutation_denial_no_mutation": "backend/tests/test_source18_content_library_projection.py::test_all_content_library_authority_mutation_seams_fail_without_state_change",
+    "read_capability_enforcement": "backend/tests/test_source18_content_library_projection.py::test_official_form_projection_routes_require_read_capability",
+    "duplicate_registry_proof": "backend/tests/test_source18_content_library_projection.py::test_source18_form_is_a_typed_read_only_projection_with_exact_hash_and_version"
   },
   "integrated_acceptance": "PENDING_EXACT_HEAD_REPLAY",
   "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING"

@@ -58,6 +58,22 @@ test.describe("Content Library first-class UI integration", () => {
     await expect(dialog).toHaveCount(0);
   });
 
+  test("exposes the typed read-only Source18 official-form projection", async ({ request }) => {
+    const listing = await request.get("/api/master-content/official-forms", { headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
+    expect(listing.ok()).toBeTruthy();
+    const listingBody = await listing.json();
+    expect(listingBody.projection_type).toBe("SOURCE18_OFFICIAL_FORM_READ_ONLY");
+    expect(listingBody.authority_owner).toBe("SOURCE18");
+    expect(listingBody.read_only).toBe(true);
+    expect(Array.isArray(listingBody.items)).toBe(true);
+
+    const resolving = await request.get("/api/master-content/official-forms/resolve", { headers: { "X-Dev-Role": "SYSTEM_ADMIN" } });
+    expect(resolving.ok()).toBeTruthy();
+    const resolvingBody = await resolving.json();
+    expect(resolvingBody.truth).toBe("SOURCE18");
+    expect(["RESOLVED", "AMBIGUOUS", "UNRESOLVED"]).toContain(resolvingBody.status);
+  });
+
   test("Content Library Go-Live handoff is configurable and returns to the library", async ({ page }) => {
     await page.goto("/content-library");
     await page.getByRole("link", { name: "Inputs & Go-Live" }).click();

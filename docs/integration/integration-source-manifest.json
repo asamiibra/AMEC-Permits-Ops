@@ -28,8 +28,14 @@
     "tree": "09d64a3011c5f4d488c0c9914d050e902414ac55"
   },
   "integration_method": "GOVERNED_NO_FF_MERGE",
-  "candidate_integration_head": "fe05aef33dc85915d947dfe9112c1058bef0f569",
-  "candidate_integration_tree": "09d64a3011c5f4d488c0c9914d050e902414ac55",
+  "pre_final_candidate_integration_head": "fe05aef33dc85915d947dfe9112c1058bef0f569",
+  "pre_final_candidate_integration_tree": "09d64a3011c5f4d488c0c9914d050e902414ac55",
+  "post_merge_evidence_commits": [
+    "c95472ad7bc25549f096a26e2cd7b53b94c5039c",
+    "6e1ac97dc3fffec89660eb415c325841f9d9eefd"
+  ],
+  "final_head_sha": "EXTERNAL_EXACT_HEAD_BINDING",
+  "final_head_tree": "EXTERNAL_EXACT_HEAD_BINDING",
   "final_head_binding": "EXTERNAL_EXACT_HEAD_BINDING",
   "release_branch_mutated_by_this_run": false,
   "main_branch_mutated_by_this_run": false,

@@ -30,7 +30,7 @@ def _currentness(case: AuthorityCase, transaction: Source18WorkflowTransaction, 
     transaction_state = str(transaction.currentness_state or "UNKNOWN").upper()
     document_state = str((version.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper()
     case_state = str(case.current_official_form_verified or "UNKNOWN").upper()
-    if transaction_state == "CURRENT" and document_state == "CURRENT" and case_state in {"TRUE", "CURRENT", "VERIFIED_CURRENT", "UNKNOWN"}:
+    if transaction_state == "CURRENT" and document_state == "CURRENT" and case_state in {"TRUE", "CURRENT", "VERIFIED_CURRENT"}:
         return "CURRENT", True
     if transaction_state in {"STALE", "NOT_CURRENT", "SUPERSEDED"} or document_state in {"STALE", "NOT_CURRENT", "SUPERSEDED"} or case_state in {"FALSE", "NOT_CURRENT", "VERIFIED_NOT_CURRENT"}:
         return "STALE", False
@@ -47,10 +47,14 @@ def _authority_only_fields(case: AuthorityCase) -> list[str]:
 
 def _projection(db: Session, transaction: Source18WorkflowTransaction, case: AuthorityCase) -> dict[str, Any]:
     version = db.get(DocumentVersion, transaction.official_form_version_id)
+    case_version_matches = case.official_form_version_id == transaction.official_form_version_id
+    version_is_source18 = bool(version and str(version.source_system or "").upper() == "SOURCE18")
     body = db.get(ExternalBody, case.external_body_id)
     jurisdiction = db.get(Jurisdiction, case.jurisdiction_id)
     service = db.get(ServiceType, case.service_type_id)
     currentness, reusable = _currentness(case, transaction, version)
+    if not case_version_matches or not version_is_source18:
+        currentness, reusable = "UNRESOLVED", False
     return {
         "projection_type": "SOURCE18_OFFICIAL_FORM_READ_ONLY",
         "read_only": True,
@@ -69,6 +73,10 @@ def _projection(db: Session, transaction: Source18WorkflowTransaction, case: Aut
             "source_filename": version.source_filename if version else None,
             "revision_label": version.revision_label if version else None,
             "source_reference": version.source_path_or_reference if version else None,
+        },
+        "binding": {
+            "case_version_matches_transaction": case_version_matches,
+            "document_version_source_system_is_source18": version_is_source18,
         },
         "authority": {
             "publisher": case.official_form_publisher,
@@ -98,7 +106,7 @@ def _projection(db: Session, transaction: Source18WorkflowTransaction, case: Aut
         },
         "reuse": {
             "allowed": reusable,
-            "blocked_reason": None if reusable else "SOURCE18_OFFICIAL_FORM_NOT_EXACT_CURRENT",
+            "blocked_reason": None if reusable else "SOURCE18_OFFICIAL_FORM_BINDING_NOT_EXACT_CURRENT",
         },
     }
 
