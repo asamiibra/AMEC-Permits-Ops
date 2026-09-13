@@ -584,6 +584,8 @@ def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: 
     """Evaluate explicit dependencies and project deterministic platform actions."""
     dependencies = db.scalars(select(MasterContentDependency).where(MasterContentDependency.master_content_id == item.id)).all()
     impacts = {"dependencies": len(dependencies), "lineage": 0, "findings": 0, "tasks": 0, "notifications": 0, "governance_revalidation": 0}
+    notification_finding = None
+    notification_task = None
     if event.previous_version_id and event.previous_version_id != current.id:
         # Source version pinning is a fail-closed boundary for V2.  Existing
         # active links and released mappings remain auditable, but they cannot
@@ -616,6 +618,8 @@ def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: 
             dependency.expected_current_version_id = current.id
             finding = _project_finding(db, item=item, event=event, dependency=dependency, current=current, correlation_id=event.correlation_id)
             task = _project_task(db, dependency=dependency, finding=finding, item=item, current=current, correlation_id=event.correlation_id)
+            notification_finding = notification_finding or finding
+            notification_task = notification_task or task
             if finding:
                 impacts["findings"] += 1
                 _record_delivery(db, event.id, "FINDING", "Finding", finding.id)
@@ -627,7 +631,7 @@ def propagate_master_change(db: Session, event: MasterContentChangeEvent, item: 
             task = None
     if dependencies and event.materiality == "MATERIAL":
         before_notifications = len(db.new)
-        _project_notifications(db, event=event, item=item, finding=None, task=None, correlation_id=event.correlation_id)
+        _project_notifications(db, event=event, item=item, finding=notification_finding, task=notification_task, correlation_id=event.correlation_id)
         impacts["notifications"] = len(db.new) - before_notifications
     event.status = "PROCESSED"
     event.metadata_json = {**(event.metadata_json or {}), "propagation": impacts, "processed_at": _now().isoformat()}

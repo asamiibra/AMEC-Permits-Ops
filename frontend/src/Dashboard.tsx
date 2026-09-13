@@ -235,9 +235,10 @@ export function CurrentDashboard({ role }: { role: string }) {
       setActionError("");
       await load();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "The change could not be saved.",
-      );
+      const message = err instanceof Error ? err.message : "The change could not be saved.";
+      setError("");
+      setActionError(message);
+      setRetryAction(() => saveMaster(request));
     } finally {
       setBusy(false);
     }
@@ -256,11 +257,10 @@ export function CurrentDashboard({ role }: { role: string }) {
       setActionError("");
       await load();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "The definition could not be saved.",
-      );
+      const message = err instanceof Error ? err.message : "The definition could not be saved.";
+      setError("");
+      setActionError(message);
+      setRetryAction(() => saveDefinition(data));
     } finally {
       setBusy(false);
     }
@@ -300,7 +300,7 @@ export function CurrentDashboard({ role }: { role: string }) {
           <span className="dashboard-v2-overview-state">Server-provided status and currentness</span>
         </div>
         <div className="dashboard-v2-overview-grid">
-          <div className="dashboard-v2-summary-card"><span>Forms</span><strong>{formCount}</strong><small>Reusable forms, including Checklists</small></div>
+          <div className="dashboard-v2-summary-card"><span>Forms</span><strong>{formCount}</strong><small>Reusable forms, including Checklists{filtersActive ? ` · ${matchingCounts.forms} matching` : ""}</small></div>
           <div className="dashboard-v2-summary-card"><span>Reports</span><strong>{preferredCounts.reports}</strong><small>All reusable report references{filtersActive ? ` · ${matchingCounts.reports} matching` : ""}</small></div>
           <div className="dashboard-v2-summary-card"><span>Engineering Works</span><strong>{preferredCounts.engineering}</strong><small>All controlled references{filtersActive ? ` · ${matchingCounts.engineering} matching` : ""}</small></div>
           <div className="dashboard-v2-summary-card"><span>Definitions</span><strong>{preferredCounts.definitions}</strong><small>All shared semantic language{filtersActive ? ` · ${matchingCounts.definitions} matching` : ""}</small></div>

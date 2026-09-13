@@ -214,11 +214,10 @@ export function CanonicalFormsLibrary({
       setSuccessMessage(editor ? "Form revision saved. Earlier values remain in History." : "Form saved to the canonical Content Library.");
       await load();
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "The Form change could not be saved.",
-      );
+      const message = cause instanceof Error ? cause.message : "The Form change could not be saved.";
+      setError("");
+      setActionError(message);
+      setRetryAction(() => save(request));
     } finally {
       setBusy(false);
     }
