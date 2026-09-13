@@ -203,45 +203,46 @@ export function CurrentDashboard({ role }: { role: string }) {
     setStatus("");
     setModule("");
   };
-  const saveMaster = async (request: SaveRequest) => {
+  const saveMaster = async (request: SaveRequest, idempotencyKey = crypto.randomUUID()) => {
     setBusy(true);
+    const editedItem = editor?.item;
     try {
-      if (request.metadata && editor?.item)
-        await api(`/api/master-content/${editor.item.id}/metadata`, {
+      if (request.metadata && editedItem)
+        await api(`/api/master-content/${editedItem.id}/metadata`, {
           method: "PATCH",
           body: JSON.stringify(request.metadata),
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key": crypto.randomUUID(),
+            "Idempotency-Key": idempotencyKey,
             "X-Source-Surface": "DASHBOARD",
           },
         });
       else if (request.form)
         await api(
-          editor?.item
-            ? `/api/master-content/${editor.item.id}/versions`
+          editedItem
+            ? `/api/master-content/${editedItem.id}/versions`
             : "/api/master-content",
           {
             method: "POST",
             body: request.form,
             headers: {
-              "Idempotency-Key": crypto.randomUUID(),
+              "Idempotency-Key": idempotencyKey,
               "X-Source-Surface": "DASHBOARD",
             },
           },
         );
       setEditor(null);
-      setSuccessMessage(editor?.item ? "Content revision saved. Earlier values remain in History." : "Content saved to the canonical Content Library.");
+      setSuccessMessage(editedItem ? "Content revision saved. Earlier values remain in History." : "Content saved to the canonical Content Library.");
       setActionError("");
-      await load();
     } catch (err) {
       const message = err instanceof Error ? err.message : "The change could not be saved.";
       setError("");
       setActionError(message);
-      setRetryAction(() => saveMaster(request));
+      setRetryAction(() => saveMaster(request, idempotencyKey));
     } finally {
       setBusy(false);
     }
+    void load();
   };
   const saveDefinition = async (data: Record<string, unknown>) => {
     setBusy(true);

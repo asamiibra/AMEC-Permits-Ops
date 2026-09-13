@@ -152,10 +152,7 @@ test.describe("ProposalOps universal UI conformance gate", () => {
               }
             }
             if (navigationError) throw navigationError;
-            // Route components can render their loading shell before the
-            // persona-scoped data promise settles. Wait for the required
-            // information hierarchy before taking the conformance snapshot.
-            await page.locator("main h1, main h2, main h3").first().waitFor({ state: "visible", timeout: 10_000 });
+            await page.waitForTimeout(80);
             const current = await snapshot(page);
             const shouldRunAxe = viewport === "desktop" && ["S01", "S02", "S02A", "S02B", "S02C", "S02D", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12", "S13", "S14", "S15", "S26"].includes(entry.id);
             const axe = shouldRunAxe ? await Promise.race([

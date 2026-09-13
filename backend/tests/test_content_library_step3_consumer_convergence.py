@@ -226,3 +226,14 @@ def test_propagated_revalidation_keeps_canonical_content_library_links(client):
     assert all(notification.finding_id == finding.id for notification in notifications)
     assert all(notification.workflow_task_id == task.id for notification in notifications)
     assert all("/dashboard?content=" not in (notification.deep_link or "") for notification in notifications)
+
+    issues = client.get("/api/issues", params={"persona": "ENGINEERING"}, headers=OWNER)
+    assert issues.status_code == 200, issues.text
+    projected_issue = next(row for row in issues.json()["issues"] if row["id"] == finding.id)
+    assert projected_issue["deep_link"] == canonical_link
+    assert projected_issue["issue_detail_link"] == canonical_link
+
+    work = client.get("/api/work", params={"team": "ENGINEERING"}, headers=OWNER)
+    assert work.status_code == 200, work.text
+    projected_task = next(row for row in work.json()["items"] if row.get("source_type") == "WORKFLOW_TASK" and row.get("source_id") == task.id)
+    assert projected_task["deep_link"] == canonical_link

@@ -182,45 +182,46 @@ export function CanonicalFormsLibrary({
       setActionError(cause instanceof Error ? cause.message : fallback);
     }
   };
-  const save = async (request: SaveRequest) => {
+  const save = async (request: SaveRequest, idempotencyKey = crypto.randomUUID()) => {
     setBusy(true);
     setError("");
+    const editedItem = editor;
     try {
-      if (request.metadata && editor)
-        await api(`/api/master-content/${editor.id}/metadata`, {
+      if (request.metadata && editedItem)
+        await api(`/api/master-content/${editedItem.id}/metadata`, {
           method: "PATCH",
           body: JSON.stringify(request.metadata),
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key": crypto.randomUUID(),
+            "Idempotency-Key": idempotencyKey,
             "X-Source-Surface": surface,
           },
         });
       else if (request.form)
         await api(
-          editor
-            ? `/api/master-content/${editor.id}/versions`
+          editedItem
+            ? `/api/master-content/${editedItem.id}/versions`
             : "/api/master-content",
           {
             method: "POST",
             body: request.form,
             headers: {
-              "Idempotency-Key": crypto.randomUUID(),
+              "Idempotency-Key": idempotencyKey,
               "X-Source-Surface": surface,
             },
           },
         );
       setEditor(undefined);
-      setSuccessMessage(editor ? "Form revision saved. Earlier values remain in History." : "Form saved to the canonical Content Library.");
-      await load();
+      setSuccessMessage(editedItem ? "Form revision saved. Earlier values remain in History." : "Form saved to the canonical Content Library.");
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "The Form change could not be saved.";
       setError("");
       setActionError(message);
-      setRetryAction(() => save(request));
+      setRetryAction(() => save(request, idempotencyKey));
     } finally {
       setBusy(false);
     }
+    void load();
   };
   const filtered = Boolean(filters?.q || filters?.category || filters?.status || filters?.module || Object.values(v2Filters).some(Boolean) || Object.values(governanceFilters).some(Boolean));
   return (
