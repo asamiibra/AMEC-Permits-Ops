@@ -32,8 +32,8 @@ test("Owner Administration exposes the sketch workspaces and backend-derived lan
     await expect(page.getByRole("tab", { name: new RegExp(label) })).toBeVisible();
   }
   await page.goto("/billing");
-  await expect(page.getByRole("heading", { name: "Finance · Billing & Invoice", level: 2 })).toBeVisible({ timeout: 45_000 });
-  await expect(page.getByRole("tab", { name: /Need Action/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Command Center", level: 2 })).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByLabel("Billing and Finance").getByRole("button", { name: "Billing & Milestones", exact: true })).toBeVisible();
 });
 
 test("Owner Administration sections load real backend projections", async ({ page }) => {

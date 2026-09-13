@@ -1,0 +1,76 @@
+"""Add the bounded read-model/workflow support for Billing UX v1.
+
+This migration adds only fields needed to represent structured Billing mode,
+structured service periods, safe invoice cloning, and the append-only request
+for human Billing readiness review. It does not alter historical V10 data or
+grant any financial authority.
+"""
+
+from alembic import op
+import sqlalchemy as sa
+
+
+revision = "billing_finance_experience_v1"
+down_revision = "17c6ebd99c4a"
+branch_labels = None
+depends_on = None
+
+
+def upgrade() -> None:
+    op.add_column("billing_plans", sa.Column("billing_mode", sa.String(length=40), nullable=False, server_default="MILESTONE_EVENT"))
+    op.add_column("billing_plan_revisions", sa.Column("billing_mode", sa.String(length=40), nullable=False, server_default="MILESTONE_EVENT"))
+    op.add_column("invoice_revisions", sa.Column("service_period_start", sa.Date(), nullable=True))
+    op.add_column("invoice_revisions", sa.Column("service_period_end", sa.Date(), nullable=True))
+    op.add_column("invoice_revisions", sa.Column("service_period_label", sa.String(length=120), nullable=True))
+    op.add_column("invoices", sa.Column("source_clone_id", sa.String(length=36), nullable=True))
+    op.add_column("invoices", sa.Column("clone_idempotency_key", sa.String(length=200), nullable=True))
+    op.create_index("ix_invoices_source_clone_id", "invoices", ["source_clone_id"], unique=False)
+    op.create_index("ix_invoices_clone_idempotency_key", "invoices", ["clone_idempotency_key"], unique=True, mssql_where=sa.text("clone_idempotency_key IS NOT NULL"))
+    op.create_foreign_key("fk_invoices_source_clone_id", "invoices", "invoices", ["source_clone_id"], ["id"])
+    op.create_table(
+        "billing_readiness_requests",
+        sa.Column("id", sa.String(length=36), primary_key=True),
+        sa.Column("project_id", sa.String(length=36), nullable=False),
+        sa.Column("contract_id", sa.String(length=36), nullable=False),
+        sa.Column("billing_plan_revision_id", sa.String(length=36), nullable=False),
+        sa.Column("billing_milestone_id", sa.String(length=36), nullable=False),
+        sa.Column("requested_by", sa.String(length=200), nullable=False),
+        sa.Column("requested_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("evidence_document_version_id", sa.String(length=36), nullable=True),
+        sa.Column("note", sa.Text(), nullable=True),
+        sa.Column("status", sa.String(length=40), nullable=False, server_default="REQUESTED"),
+        sa.Column("idempotency_key", sa.String(length=200), nullable=False),
+        sa.Column("correlation_id", sa.String(length=100), nullable=False),
+        sa.ForeignKeyConstraint(["project_id"], ["projects.id"]),
+        sa.ForeignKeyConstraint(["contract_id"], ["contracts.id"]),
+        sa.ForeignKeyConstraint(["billing_plan_revision_id"], ["billing_plan_revisions.id"]),
+        sa.ForeignKeyConstraint(["billing_milestone_id"], ["billing_milestones.id"]),
+        sa.ForeignKeyConstraint(["evidence_document_version_id"], ["document_versions.id"]),
+        sa.UniqueConstraint("idempotency_key", name="uq_billing_readiness_request_idempotency"),
+    )
+    op.create_index("ix_billing_readiness_requests_project_id", "billing_readiness_requests", ["project_id"])
+    op.create_index("ix_billing_readiness_requests_contract_id", "billing_readiness_requests", ["contract_id"])
+    op.create_index("ix_billing_readiness_requests_billing_plan_revision_id", "billing_readiness_requests", ["billing_plan_revision_id"])
+    op.create_index("ix_billing_readiness_requests_billing_milestone_id", "billing_readiness_requests", ["billing_milestone_id"])
+    op.create_index("ix_billing_readiness_requests_status", "billing_readiness_requests", ["status"])
+    op.create_index("ix_billing_readiness_requests_correlation_id", "billing_readiness_requests", ["correlation_id"])
+
+
+def downgrade() -> None:
+    op.drop_index("ix_billing_readiness_requests_correlation_id", table_name="billing_readiness_requests")
+    op.drop_index("ix_billing_readiness_requests_status", table_name="billing_readiness_requests")
+    op.drop_index("ix_billing_readiness_requests_billing_milestone_id", table_name="billing_readiness_requests")
+    op.drop_index("ix_billing_readiness_requests_billing_plan_revision_id", table_name="billing_readiness_requests")
+    op.drop_index("ix_billing_readiness_requests_contract_id", table_name="billing_readiness_requests")
+    op.drop_index("ix_billing_readiness_requests_project_id", table_name="billing_readiness_requests")
+    op.drop_table("billing_readiness_requests")
+    op.drop_constraint("fk_invoices_source_clone_id", "invoices", type_="foreignkey")
+    op.drop_index("ix_invoices_clone_idempotency_key", table_name="invoices")
+    op.drop_index("ix_invoices_source_clone_id", table_name="invoices")
+    op.drop_column("invoices", "clone_idempotency_key")
+    op.drop_column("invoices", "source_clone_id")
+    op.drop_column("invoice_revisions", "service_period_label")
+    op.drop_column("invoice_revisions", "service_period_end")
+    op.drop_column("invoice_revisions", "service_period_start")
+    op.drop_column("billing_plan_revisions", "billing_mode")
+    op.drop_column("billing_plans", "billing_mode")

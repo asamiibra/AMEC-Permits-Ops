@@ -1,0 +1,96 @@
+import { useEffect, useState, type ReactNode } from "react";
+import { api } from "../api";
+import { Icon } from "../Icon";
+import { billingApi } from "./billing-api";
+import type { BillingCapabilityDTO, BillingPlanItem, BillingControlsDTO, BillingReportsDTO, InvoiceRegisterItem, InvoiceProjection, PaymentItem } from "./billing-types";
+import { humanize, money, Panel, StateMessage, StatusSet } from "./components/BillingPrimitives";
+
+type View = "plans" | "milestones" | "invoices" | "receivables" | "payments" | "reports" | "controls";
+type Props = { view: View; capabilities: BillingCapabilityDTO; onOpen: (path: string) => void };
+
+export function BillingRegisters({ view, capabilities, onOpen }: Props) {
+  if (view === "plans") return <PlansView onOpen={onOpen} />;
+  if (view === "milestones") return <MilestonesView onOpen={onOpen} capabilities={capabilities} />;
+  if (view === "invoices") return <InvoicesView onOpen={onOpen} />;
+  if (view === "receivables") return <ReceivablesView onOpen={onOpen} />;
+  if (view === "payments") return <PaymentsView onOpen={onOpen} capabilities={capabilities} />;
+  if (view === "controls") return <ControlsView />;
+  return <ReportsView />;
+}
+
+function useLoad<T>(load: () => Promise<T>) {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const refresh = () => { setLoading(true); setError(""); void load().then(setData).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Billing data unavailable.")).finally(() => setLoading(false)); };
+  useEffect(refresh, []);
+  return { data, error, loading, refresh };
+}
+
+function RegisterFrame({ title, eyebrow, description, children }: { title: string; eyebrow: string; description: string; children: ReactNode }) {
+  return <div className="billing-page"><div className="billing-page-intro"><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2><p>{description}</p></div></div>{children}</div>;
+}
+
+function PlansView({ onOpen }: { onOpen: (path: string) => void }) {
+  const state = useLoad(billingApi.plans);
+  if (state.loading && !state.data) return <StateMessage kind="loading" title="Loading Billing Plans" detail="Reading exact Contract revisions and plan history." />;
+  if (state.error && !state.data) return <StateMessage kind="error" title="Billing Plans unavailable" detail={state.error} onRetry={state.refresh} />;
+  const items = state.data?.items || [];
+  return <RegisterFrame title="Billing & Milestones" eyebrow="BILLING PLANS" description="Exact Contract-revision plans, configured billing mode, activation state, and milestone readiness."><Panel title="Billing Plans" action={<span className="billing-count">{items.length} plans</span>}>{items.length ? <div className="billing-record-list">{items.map((item) => <article className="billing-record" key={item.plan.id}><div className="billing-record-main"><span className="billing-category">{humanize(String(item.plan.status))} · {humanize(item.plan.billing_mode || item.revision?.billing_mode || "MILESTONE_EVENT")}</span><h3>{String(item.context.contract?.name || item.context.contract?.reference || "Contract")}</h3><p>{item.context.client?.name || "Client context unavailable"} · {item.context.project?.name || "Project context unavailable"}</p><small>Revision {item.revision?.revision_number ?? "—"} · {item.revision?.currency || "—"} · {item.milestones.length} milestone(s)</small></div><div className="billing-record-side"><b>{money(item.revision?.contract_amount, item.revision?.currency)}</b><button className="button-secondary" onClick={() => onOpen(`/billing/plans/${item.plan.id}`)}>Open plan <Icon name="arrow-up-right" size={14} /></button></div></article>)}</div> : <StateMessage kind="empty" title="No Billing Plans" detail="Create a governed plan from an eligible Contract revision." />}</Panel></RegisterFrame>;
+}
+
+function MilestonesView({ onOpen, capabilities }: { onOpen: (path: string) => void; capabilities: BillingCapabilityDTO }) {
+  const state = useLoad(billingApi.milestones);
+  if (state.loading && !state.data) return <StateMessage kind="loading" title="Loading milestone ledger" detail="Checking canonical eligibility and invoiceable balance." />;
+  if (state.error && !state.data) return <StateMessage kind="error" title="Milestones unavailable" detail={state.error} onRetry={state.refresh} />;
+  const items = state.data?.items || [];
+  return <RegisterFrame title="Billing & Milestones" eyebrow="READINESS LEDGER" description="Invoiceability is derived from governed eligibility; actual collected is derived from verified allocation events."><Panel title="Milestone financial ledger" action={<span className="billing-count">{items.length} milestones</span>}><div className="billing-table-wrap"><table className="billing-table-responsive"><thead><tr><th>Milestone</th><th>Context</th><th>Eligibility</th><th>Invoiceable</th><th>Actual collected</th><th>Linked invoices</th><th /></tr></thead><tbody>{items.map((item) => <tr key={item.id}><td data-label="Milestone"><b>{item.sequence}. {item.name}</b><small>{humanize(item.trigger_type)} · {humanize(item.basis_type)}</small></td><td data-label="Context">{item.context.project?.name || "Project unavailable"}<small>{item.context.contract?.reference || "Contract unavailable"}</small></td><td data-label="Eligibility"><span className={`billing-pill billing-pill-${item.eligibility_state.toLowerCase()}`}>{humanize(item.eligibility_state)}</span></td><td data-label="Invoiceable">{money(item.remaining_invoiceable, item.currency)}{item.invoiceable_now && <small>Ready now</small>}</td><td data-label="Actual collected">{money(item.actual_collected, item.currency)}</td><td data-label="Linked invoices">{item.invoices.length || "—"}</td><td data-label="Action"><button className="text-button" onClick={() => onOpen(item.invoices[0] ? `/billing/invoices/${item.invoices[0].invoice_id}` : `/billing/plans/${item.plan_id}`)}>Open <Icon name="arrow-up-right" size={14} /></button></td></tr>)}</tbody></table></div>{items.length === 0 && <StateMessage kind="empty" title="No milestones" detail="Milestones appear when a Billing Plan revision defines governed billing triggers." />}<div className="billing-note"><b>Requester boundary</b><span>Engineering and PM may request review when authorized; requesting review never issues an invoice or grants payment authority.</span></div><small>Effective role: {capabilities.role} · action visibility comes from server capabilities.</small></Panel></RegisterFrame>;
+}
+
+function InvoicesView({ onOpen }: { onOpen: (path: string) => void }) {
+  const state = useLoad(() => billingApi.invoices("").then((result) => result));
+  if (state.loading && !state.data) return <StateMessage kind="loading" title="Loading Invoice Register" detail="Reading complete invoice history." />;
+  if (state.error && !state.data) return <StateMessage kind="error" title="Invoice Register unavailable" detail={state.error} onRetry={state.refresh} />;
+  const items = state.data?.items || [];
+  return <RegisterFrame title="Invoices" eyebrow="COMPLETE HISTORY" description="Every invoice remains visible here, including financially resolved history. Open Receivables is a separate action queue."><Panel title="Invoice Register" action={<span className="billing-count">{items.length} invoices</span>}><div className="billing-table-wrap"><table className="billing-table-responsive"><thead><tr><th>Global reference / Project #</th><th>Client</th><th>Project / Contract</th><th>Service period</th><th>Amount</th><th>States</th><th /></tr></thead><tbody>{items.map((item) => <InvoiceRow key={item.invoice.id} item={item} onOpen={onOpen} />)}</tbody></table></div>{!items.length && <StateMessage kind="empty" title="No invoices recorded" detail="Invoices are created only from eligible Billing Milestones." />}</Panel></RegisterFrame>;
+}
+
+function InvoiceRow({ item, onOpen }: { item: InvoiceRegisterItem; onOpen: (path: string) => void }) {
+  const revision = item.revision as { payable_total?: unknown; currency?: unknown; service_period_label?: unknown; service_period?: unknown } | null | undefined;
+  const receivable = item.receivable as { state?: unknown; communication_state?: unknown; outstanding_amount?: unknown };
+  return <tr><td data-label="Reference"><b>{item.invoice.invoice_reference}</b><small>Project invoice #{item.invoice.project_invoice_ordinal ?? "not issued"}</small></td><td data-label="Client">{String((item.client as { display_name?: unknown } | null)?.display_name || "Client unavailable")}</td><td data-label="Project / Contract">{String((item.project as { project_name?: unknown } | null)?.project_name || "Project context unavailable")}<small>{String((item.contract as { contract_reference?: unknown } | null)?.contract_reference || "Contract unavailable")}</small></td><td data-label="Service period">{String(revision?.service_period_label || revision?.service_period || "Not structured")}</td><td data-label="Amount">{money(revision?.payable_total, String(revision?.currency || ""))}<small>Outstanding {money(receivable.outstanding_amount, String(revision?.currency || ""))}</small></td><td data-label="States"><StatusSet items={[["Invoice", item.invoice.status], ["Communication", receivable.communication_state], ["Receivable", receivable.state]]} /></td><td data-label="Action"><button className="text-button" onClick={() => onOpen(`/billing/invoices/${item.invoice.id}`)}>Open <Icon name="arrow-up-right" size={14} /></button></td></tr>;
+}
+
+function ReceivablesView({ onOpen }: { onOpen: (path: string) => void }) {
+  const state = useLoad(billingApi.receivables);
+  if (state.loading && !state.data) return <StateMessage kind="loading" title="Loading Open Receivables" detail="Building the current collection queue." />;
+  if (state.error && !state.data) return <StateMessage kind="error" title="Receivables unavailable" detail={state.error} onRetry={state.refresh} />;
+  const items = state.data?.items || [];
+  return <RegisterFrame title="Open Receivables" eyebrow="COLLECTIONS" description="Only unresolved financial exposure appears here. Financially resolved invoice history remains in the Invoice Register."><Panel title="Collection action queue" action={<span className="billing-count">{items.length} open</span>}>{items.length ? <div className="billing-record-list">{items.map((item) => <article className="billing-record" key={item.invoice_id}><div className="billing-record-main"><span className="billing-category">{humanize(item.receivable_state)} · {item.days_relative_to_due == null ? "Due date pending" : item.days_relative_to_due > 0 ? `${item.days_relative_to_due} days past due` : `${Math.abs(item.days_relative_to_due)} days until due`}</span><h3>{item.invoice_reference}</h3><p>{item.context?.client?.name || "Client unavailable"} · {item.context?.project?.name || "Project unavailable"}</p><small>Latest follow-up: {item.latest_follow_up ? "Recorded" : "None recorded"} · communication {humanize((item as InvoiceProjection).context?.contract?.reference || "separate")}</small></div><div className="billing-record-side"><b>{money(item.outstanding_amount, item.currency)}</b><button className="button-secondary" onClick={() => onOpen(`/billing/invoices/${item.invoice_id}`)}>Review action <Icon name="arrow-up-right" size={14} /></button></div></article>)}</div> : <StateMessage kind="empty" title="No open receivables" detail="Issued invoices with unresolved exposure will appear here." />}<div className="billing-note"><b>Reporting boundary</b><span>{state.data?.aging_note}</span></div></Panel></RegisterFrame>;
+}
+
+function PaymentsView({ onOpen, capabilities }: { onOpen: (path: string) => void; capabilities: BillingCapabilityDTO }) {
+  const state = useLoad(billingApi.payments);
+  const [actionError, setActionError] = useState("");
+  if (state.loading && !state.data) return <StateMessage kind="loading" title="Loading Payments & Credits" detail="Reading observed, verified, allocated, and reversed payment states." />;
+  if (state.error && !state.data) return <StateMessage kind="error" title="Payments unavailable" detail={state.error} onRetry={state.refresh} />;
+  const items = state.data?.items || [];
+  const verify = async (id: string) => { setActionError(""); try { await api(`/api/billing/payments/${id}/verify`, { method: "POST", body: JSON.stringify({}) }); state.refresh(); } catch (cause) { setActionError(cause instanceof Error ? cause.message : "Payment verification failed."); } };
+  return <RegisterFrame title="Payments & Credits" eyebrow="CASH EVIDENCE" description="Observed money is not verified money; verified money is not automatically allocated money."><Panel title="Payment work queues" action={<span className="billing-count">{items.length} receipts</span>}>{actionError && <div className="billing-error" role="alert">{actionError}</div>}<div className="billing-payment-queues"><span>Observed / Needs Verification <b>{items.filter((item) => item.payment.verification_status === "OBSERVED").length}</b></span><span>Verified / Unallocated <b>{items.filter((item) => item.credit.state === "UNALLOCATED_CLIENT_CREDIT").length}</b></span><span>Allocated <b>{items.filter((item) => item.credit.state === "ALLOCATED_TO_INVOICE").length}</b></span><span>Reversed <b>{items.filter((item) => item.credit.state === "REVERSED").length}</b></span></div><div className="billing-table-wrap"><table className="billing-table-responsive"><thead><tr><th>Payment</th><th>Context</th><th>Evidence</th><th>Verification</th><th>Credit</th><th /></tr></thead><tbody>{items.map((item) => <tr key={item.payment.id}><td data-label="Payment"><b>{money(item.payment.amount, item.payment.currency)}</b><small>{item.payment.reference} · {item.payment.received_date}</small></td><td data-label="Context">{item.context.client?.name || "Client unavailable"}<small>{item.context.project?.name || "Project unavailable"}</small></td><td data-label="Evidence">{item.evidence.primary ? "Primary evidence recorded" : "Evidence required"}<small>{item.evidence.receipt_voucher ? "Receipt voucher recorded" : "No receipt voucher"}</small></td><td data-label="Verification"><span className="billing-pill">{humanize(item.payment.verification_status)}</span>{item.payment.verification_status === "OBSERVED" && capabilities.capabilities.can_verify_payment && <button className="text-button" onClick={() => void verify(item.payment.id)}>Verify</button>}</td><td data-label="Credit">{humanize(item.credit.state)}<small>Unallocated {money(item.credit.unallocated_balance, item.credit.currency)}</small></td><td data-label="Action"><button className="text-button" onClick={() => onOpen(`/billing/payments/${item.payment.id}`)}>Open <Icon name="arrow-up-right" size={14} /></button></td></tr>)}</tbody></table></div>{!items.length && <StateMessage kind="empty" title="No payments recorded yet" detail="Record a client payment when governed payment evidence is available." />}</Panel></RegisterFrame>;
+}
+
+function ReportsView() {
+  const state = useLoad(() => billingApi.reports());
+  if (state.loading && !state.data) return <StateMessage kind="loading" title="Loading Billing Reports" detail="Reading bounded invoice, receivable, and payment report views." />;
+  if (state.error && !state.data) return <StateMessage kind="error" title="Billing Reports unavailable" detail={state.error} onRetry={state.refresh} />;
+  const report = state.data as BillingReportsDTO | null;
+  return <RegisterFrame title="Reports" eyebrow="REPORTING" description="Bounded canonical report views. Formal YTD reporting remains closed until the reporting-year policy is approved."><Panel title="Reporting boundaries"><div className="billing-report-grid"><div><b>Invoice Report</b><p>{report?.invoice_report.length || 0} historical invoice record(s), including financially resolved history.</p></div><div><b>Open Receivables</b><p>{report?.open_receivables.length || 0} current unresolved exposure record(s).</p></div><div><b>Project Payment History</b><p>{report?.payment_history.length || 0} observed, verified, allocated, or reversed payment record(s).</p></div><div><b>Company / YTD</b><p>Owner decision required; no YTD value is fabricated.</p></div></div><div className="billing-note"><b>System boundary</b><span>Source: {report?.source_of_truth || "canonical Billing read models"} · YTD status: {String(report?.ytd_status || "Owner decision required").replaceAll("_", " ")}</span></div></Panel></RegisterFrame>;
+}
+
+function ControlsView() {
+  const state = useLoad(() => billingApi.controls());
+  if (state.loading && !state.data) return <StateMessage kind="loading" title="Loading Billing Controls" detail="Reading masked account controls and policy status." />;
+  if (state.error && !state.data) return <StateMessage kind="error" title="Billing Controls unavailable" detail={state.error} onRetry={state.refresh} />;
+  const controls = state.data as BillingControlsDTO | null;
+  return <RegisterFrame title="Controls" eyebrow="GOVERNANCE" description="Read-only controls over protected financial configuration. Account versions remain masked and unresolved policies remain explicit."><Panel title="Financial control posture"><div className="billing-report-grid"><div><b>Account masters</b><p>{controls?.financial_account_masters.length || 0} configured master record(s).</p></div><div><b>Account versions</b><p>{controls?.financial_account_versions.length || 0} masked version record(s).</p></div><div><b>Invoice numbering</b><p>{humanize(controls?.invoice_numbering.status || "OWNER_DECISION_REQUIRED")}; production fail-closed: {controls?.invoice_numbering.production_fail_closed ? "yes" : "no"}.</p></div><div><b>AI authority</b><p>Canonical writes: 0 · protected actions: 0.</p></div></div><div className="billing-note"><b>Unresolved policy count</b><span>{controls?.unresolved_owner_decisions.length || 0} Owner decision(s) remain visible without fabricated values.</span></div></Panel></RegisterFrame>;
+}

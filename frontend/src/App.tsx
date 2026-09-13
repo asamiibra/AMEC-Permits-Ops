@@ -118,6 +118,7 @@ const businessNav: BusinessNavItem[] = [
   { id: "phase5-review", page: "phase5-review", label: "Classifier Review", icon: "check", path: "/phase5/review", group: "HOME" },
   { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
   { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
+  { id: "billing-finance", page: "billing", label: "Billing & Finance", icon: "finance", path: "/billing", group: "BUSINESS FLOW" },
   { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
   { id: "regulatory-submissions", page: "permit-portfolio", label: "Regulatory & Submissions", icon: "authority", path: "/permits", group: "BUSINESS FLOW" },
   { id: "source18-committee", page: "source18-committee", label: "Engineers Committee", icon: "authority", path: "/source18/committee", group: "BUSINESS FLOW" },
@@ -254,6 +255,7 @@ function App() {
   const [error, setError] = useState("");
   const [role, setRole] = useState<string>(() => readDemoRole());
   const [authSession, setAuthSession] = useState<{ authenticated: boolean; identity: { user_id: string | null; tenant_id: string | null; object_id: string | null; role: string } } | null>(null);
+  const [billingVisible, setBillingVisible] = useState<boolean | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -329,6 +331,12 @@ function App() {
       .then((session) => setAuthSession(session))
       .catch(() => setAuthSession(null));
   }, []);
+  useEffect(() => {
+    setBillingVisible(null);
+    api<{ capabilities: { can_view: boolean } }>("/api/billing/capabilities")
+      .then((result) => setBillingVisible(result.capabilities.can_view === true))
+      .catch(() => setBillingVisible(false));
+  }, [role]);
   useEffect(() => {
     if (browserAuthMode() === "ENTRA" && authSession?.identity.role) {
       setRole(authSession.identity.role);
@@ -504,6 +512,7 @@ function App() {
   };
   const openProject = (p: Project) => openPermit(p.id);
   const visibleBusinessNav = businessNav.filter((item) => {
+    if (item.id === "billing-finance") return billingVisible === true;
     if (role === "SYSTEM_ADMIN" || role === "OWNER_SPONSOR") return true;
     if (role === "COMMERCIAL_APPROVER")
       return [

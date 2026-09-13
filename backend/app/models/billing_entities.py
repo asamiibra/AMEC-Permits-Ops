@@ -25,6 +25,7 @@ class BillingPlan(Base):
     client_account_id: Mapped[str] = mapped_column(ForeignKey("client_accounts.id"), nullable=False, index=True)
     currency: Mapped[str] = mapped_column(String(20), nullable=False)
     automation_mode: Mapped[str] = mapped_column(String(40), default="MANUAL", nullable=False)
+    billing_mode: Mapped[str] = mapped_column(String(40), default="MILESTONE_EVENT", nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="DRAFT", nullable=False, index=True)
     current_revision_id: Mapped[str | None] = mapped_column(String(36), index=True)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -47,6 +48,7 @@ class BillingPlanRevision(Base):
     client_account_id: Mapped[str] = mapped_column(ForeignKey("client_accounts.id"), nullable=False, index=True)
     contract_amount: Mapped[float | None] = mapped_column(Numeric(18, 2))
     currency: Mapped[str] = mapped_column(String(20), nullable=False)
+    billing_mode: Mapped[str] = mapped_column(String(40), default="MILESTONE_EVENT", nullable=False)
     valuation_amount: Mapped[float | None] = mapped_column(Numeric(18, 2))
     valuation_currency: Mapped[str | None] = mapped_column(String(20))
     valuation_status: Mapped[str] = mapped_column(String(50), default="UNKNOWN_NON_AUTHORITATIVE", nullable=False)
@@ -98,6 +100,25 @@ class BillingMilestoneEligibility(Base):
     reason: Mapped[str] = mapped_column(Text, nullable=False)
     trigger_evidence: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     policy_version: Mapped[str] = mapped_column(String(80), default="BILLING_ELIGIBILITY_V1", nullable=False)
+
+
+class BillingReadinessRequest(Base):
+    """Append-only request for human Billing review; never an invoice command."""
+    __tablename__ = "billing_readiness_requests"
+    __table_args__ = (UniqueConstraint("idempotency_key", name="uq_billing_readiness_request_idempotency"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)
+    contract_id: Mapped[str] = mapped_column(ForeignKey("contracts.id"), nullable=False, index=True)
+    billing_plan_revision_id: Mapped[str] = mapped_column(ForeignKey("billing_plan_revisions.id"), nullable=False, index=True)
+    billing_milestone_id: Mapped[str] = mapped_column(ForeignKey("billing_milestones.id"), nullable=False, index=True)
+    requested_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    note: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(40), default="REQUESTED", nullable=False, index=True)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    correlation_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
 
 class InvoiceLineItem(Base):

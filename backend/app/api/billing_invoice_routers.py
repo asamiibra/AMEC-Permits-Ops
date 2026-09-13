@@ -24,7 +24,7 @@ from ..audit.service import audit
 from ..db import get_db
 from ..expansion.runtime import render_artifact, select_template
 from ..models import (
-    BillingMilestone, BillingMilestoneEligibility, BillingPlan, BillingPlanRevision,
+    BillingMilestone, BillingMilestoneEligibility, BillingPlan, BillingPlanRevision, BillingReadinessRequest,
     ClientAccount, ConsultancyOffice, Contract, ContractAdminEvidence, ContractPaymentTerm,
     ContractRevision, Document, DocumentVersion, FinancialAccountMaster, RenderedArtifact,
     FinancialAccountVersion, Invoice, InvoiceAcceptRecord, InvoiceApprovalRecord, InvoiceRevision,
@@ -408,9 +408,12 @@ def create_billing_plan(payload: dict[str, Any], request: Request, db: Session =
     existing = db.scalar(select(BillingPlan).where(BillingPlan.contract_id == contract.id, BillingPlan.contract_revision_id == revision.id, BillingPlan.status.not_in({"CANCELLED", "SUPERSEDED"})))
     if existing:
         return {"plan": _row(existing), "revision": _row(db.get(BillingPlanRevision, existing.current_revision_id))}
-    plan = BillingPlan(contract_id=contract.id, contract_revision_id=revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, currency=currency, automation_mode=str(payload.get("automation_mode") or "MANUAL").upper(), status="DRAFT", created_by=_actor(request, payload))
+    billing_mode = str(payload.get("billing_mode") or "MILESTONE_EVENT").upper()
+    if billing_mode not in {"SUPERVISION_MONTHLY", "MILESTONE_EVENT"}:
+        raise HTTPException(422, {"code": "BILLING_MODE_NOT_SUPPORTED", "allowed": ["MILESTONE_EVENT", "SUPERVISION_MONTHLY"]})
+    plan = BillingPlan(contract_id=contract.id, contract_revision_id=revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, currency=currency, automation_mode=str(payload.get("automation_mode") or "MANUAL").upper(), billing_mode=billing_mode, status="DRAFT", created_by=_actor(request, payload))
     db.add(plan); db.flush()
-    plan_revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=1, contract_id=contract.id, contract_revision_id=revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(revision, contract), currency=currency, valuation_amount=revision.valuation_amount, valuation_currency=revision.valuation_currency, valuation_status=revision.valuation_status, contract_project_context_snapshot=context.get("contract_project_context_snapshot") or {}, status="DRAFT", created_by=_actor(request, payload), source_snapshot={"contract_billing_context": context, "project_activation_status": context.get("project_activation_status"), "agreement_type": contract.agreement_type})
+    plan_revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=1, contract_id=contract.id, contract_revision_id=revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(revision, contract), currency=currency, billing_mode=billing_mode, valuation_amount=revision.valuation_amount, valuation_currency=revision.valuation_currency, valuation_status=revision.valuation_status, contract_project_context_snapshot=context.get("contract_project_context_snapshot") or {}, status="DRAFT", created_by=_actor(request, payload), source_snapshot={"contract_billing_context": context, "project_activation_status": context.get("project_activation_status"), "agreement_type": contract.agreement_type})
     db.add(plan_revision); db.flush(); plan.current_revision_id = plan_revision.id
     _lineage(db, request, project.id if project else None, "ContractRevision", revision.id, "BillingPlanRevision", plan_revision.id, "BILLING_PLAN_FROM_EXACT_CONTRACT_REVISION")
     _audit(db, request, "BILLING_PLAN_CREATED", "BillingPlan", plan.id, _actor(request, payload), {"contract_revision_id": revision.id, "project_id": project.id if project else None, "automation_mode": plan.automation_mode})
@@ -438,7 +441,10 @@ def revise_billing_plan(plan_id: str, payload: dict[str, Any], request: Request,
     previous = db.get(BillingPlanRevision, plan.current_revision_id)
     contract, contract_revision, context, project = _contract_context(db, plan.contract_id, plan.contract_revision_id)
     number = (db.scalar(select(func.max(BillingPlanRevision.revision_number)).where(BillingPlanRevision.billing_plan_id == plan.id)) or 0) + 1
-    revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=number, contract_id=contract.id, contract_revision_id=contract_revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(contract_revision, contract), currency=str(payload.get("currency") or plan.currency).upper(), valuation_amount=contract_revision.valuation_amount, valuation_currency=contract_revision.valuation_currency, valuation_status=contract_revision.valuation_status, contract_project_context_snapshot=context.get("contract_project_context_snapshot") or {}, status="DRAFT", supersedes_revision_id=previous.id if previous else None, created_by=_actor(request, payload), source_snapshot={"reason": payload.get("reason"), "contract_billing_context": context, "agreement_type": contract.agreement_type})
+    billing_mode = str(payload.get("billing_mode") or plan.billing_mode or "MILESTONE_EVENT").upper()
+    if billing_mode not in {"SUPERVISION_MONTHLY", "MILESTONE_EVENT"}:
+        raise HTTPException(422, {"code": "BILLING_MODE_NOT_SUPPORTED", "allowed": ["MILESTONE_EVENT", "SUPERVISION_MONTHLY"]})
+    revision = BillingPlanRevision(billing_plan_id=plan.id, revision_number=number, contract_id=contract.id, contract_revision_id=contract_revision.id, project_id=project.id if project else None, client_account_id=contract.client_account_id, contract_amount=_contract_amount(contract_revision, contract), currency=str(payload.get("currency") or plan.currency).upper(), billing_mode=billing_mode, valuation_amount=contract_revision.valuation_amount, valuation_currency=contract_revision.valuation_currency, valuation_status=contract_revision.valuation_status, contract_project_context_snapshot=context.get("contract_project_context_snapshot") or {}, status="DRAFT", supersedes_revision_id=previous.id if previous else None, created_by=_actor(request, payload), source_snapshot={"reason": payload.get("reason"), "contract_billing_context": context, "agreement_type": contract.agreement_type})
     db.add(revision); db.flush(); plan.current_revision_id = revision.id; plan.status = "DRAFT"
     _lineage(db, request, project.id if project else None, "BillingPlanRevision", previous.id if previous else contract_revision.id, "BillingPlanRevision", revision.id, "BILLING_PLAN_REVISION_SUPERSEDES")
     _audit(db, request, "BILLING_PLAN_REVISED", "BillingPlanRevision", revision.id, _actor(request, payload), {"supersedes_revision_id": previous.id if previous else None})
@@ -547,7 +553,11 @@ def create_invoice(payload: dict[str, Any], request: Request, db: Session = Depe
     if offset_days is not None and offset_days < 0:
         raise HTTPException(422, {"code": "DUE_DATE_OFFSET_INVALID"})
     planned_collection_date = _date(payload["planned_collection_date"], field="planned_collection_date") if payload.get("planned_collection_date") else None
-    revision = InvoiceRevision(invoice_id=invoice.id, revision_number=1, controlling_contract_revision_id=contract_revision.id, billing_plan_revision_id=plan_revision.id, status="DRAFT", invoice_date=invoice_date, planned_collection_date=planned_collection_date, service_period=payload.get("service_period"), description=payload.get("description") or "Billing milestone invoice", currency=plan_revision.currency, contract_project_context_snapshot=plan_revision.contract_project_context_snapshot or {}, source_snapshot={"contract_id": contract.id, "contract_revision_id": contract_revision.id, "billing_plan_revision_id": plan_revision.id, "milestone_ids": ids, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "contract_project_context_snapshot": plan_revision.contract_project_context_snapshot or {}, "agreement_type": contract.agreement_type})
+    service_start = _date(payload["service_period_start"], field="service_period_start") if payload.get("service_period_start") else None
+    service_end = _date(payload["service_period_end"], field="service_period_end") if payload.get("service_period_end") else None
+    if service_start and service_end and service_end < service_start:
+        raise HTTPException(422, {"code": "SERVICE_PERIOD_INVALID"})
+    revision = InvoiceRevision(invoice_id=invoice.id, revision_number=1, controlling_contract_revision_id=contract_revision.id, billing_plan_revision_id=plan_revision.id, status="DRAFT", invoice_date=invoice_date, planned_collection_date=planned_collection_date, service_period=payload.get("service_period"), service_period_start=service_start, service_period_end=service_end, service_period_label=payload.get("service_period_label") or payload.get("service_period"), description=payload.get("description") or "Billing milestone invoice", currency=plan_revision.currency, contract_project_context_snapshot=plan_revision.contract_project_context_snapshot or {}, source_snapshot={"contract_id": contract.id, "contract_revision_id": contract_revision.id, "billing_plan_revision_id": plan_revision.id, "milestone_ids": ids, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "contract_project_context_snapshot": plan_revision.contract_project_context_snapshot or {}, "agreement_type": contract.agreement_type})
     _configure_due_date(revision, invoice_date=invoice_date, basis=requested_basis, offset_days=offset_days, fixed_date=explicit_due_date)
     db.add(revision); db.flush(); invoice.current_revision_id = revision.id
     sequence = 1
@@ -651,7 +661,48 @@ def get_invoice(invoice_id: str, db: Session = Depends(get_db), role: Role = Dep
     artifact = db.get(RenderedArtifact, issue.rendered_artifact_id) if issue else None
     deliveries = db.scalars(select(InvoiceDeliveryEvent).where(InvoiceDeliveryEvent.invoice_id == invoice.id).order_by(InvoiceDeliveryEvent.delivered_at)).all()
     acknowledgments = db.scalars(select(InvoiceAcknowledgment).where(InvoiceAcknowledgment.invoice_id == invoice.id).order_by(InvoiceAcknowledgment.acknowledged_at)).all()
-    return {"invoice": _row(invoice), "contract": _row(contract), "project": _row(project), "revision": _row(revision), "lines": [_row(x) for x in _lines(db, revision.id)], "references": [_row(x) for x in references], "approvals": [_row(x) for x in approvals], "issue": _row(issue), "artifact": _row(artifact), "communications": {"state": _communication_state(db, invoice.id), "deliveries": [_row(x) for x in deliveries], "acknowledgments": [_row(x) for x in acknowledgments]}, "receivable": _receivable(db, invoice, revision), "settlement": "DEFERRED_TO_FINANCIAL_SETTLEMENT"}
+    follow_ups = db.scalars(select(ReceivableFollowUp).where(ReceivableFollowUp.invoice_id == invoice.id).order_by(ReceivableFollowUp.created_at.desc())).all()
+    allocations = db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id == invoice.id).order_by(InvoicePaymentAllocation.allocated_at)).all()
+    resolutions = db.scalars(select(ReceivableResolution).where(ReceivableResolution.invoice_id == invoice.id).order_by(ReceivableResolution.created_at)).all()
+    return {"invoice": _row(invoice), "contract": _row(contract), "project": _row(project), "client": _row(db.get(ClientAccount, invoice.client_account_id)) if invoice.client_account_id else None, "revision": _row(revision), "lines": [_row(x) for x in _lines(db, revision.id)], "references": [_row(x) for x in references], "approvals": [_row(x) for x in approvals], "issue": _row(issue), "artifact": _row(artifact), "communications": {"state": _communication_state(db, invoice.id), "deliveries": [_row(x) for x in deliveries], "acknowledgments": [_row(x) for x in acknowledgments]}, "receivable": _receivable(db, invoice, revision), "allocations": [_row(x) for x in allocations], "resolutions": [_row(x) for x in resolutions], "follow_ups": [_row(x) for x in follow_ups], "precheck": _precheck(db, invoice, contract, revision, plan_revision), "settlement": "DEFERRED_TO_FINANCIAL_SETTLEMENT"}
+
+
+@router.get("/invoices/{invoice_id}/precheck")
+def invoice_precheck(invoice_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    invoice, contract, revision, plan_revision, _project = _invoice_revision(db, invoice_id)
+    return {**_precheck(db, invoice, contract, revision, plan_revision), "invoice_id": invoice.id, "revision_id": revision.id, "action_boundary": {"accept": "HUMAN_ONLY", "issue": "HUMAN_ONLY", "ai_protected_action_authority": 0}}
+
+
+@router.post("/invoices/{invoice_id}/clone")
+def clone_invoice(invoice_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, PLAN_WRITE, "INVOICE_CREATE")
+    source, contract, previous, plan_revision, project = _invoice_revision(db, invoice_id)
+    if not plan_revision:
+        raise HTTPException(409, {"code": "BILLING_PLAN_REVISION_REQUIRED"})
+    key = str(payload.get("idempotency_key") or "").strip()
+    if not key:
+        raise HTTPException(422, {"code": "INVOICE_CLONE_IDEMPOTENCY_KEY_REQUIRED"})
+    prior = db.scalar(select(Invoice).where(Invoice.source_clone_id == source.id, Invoice.clone_idempotency_key == key))
+    if prior:
+        return {"invoice": _row(prior), "source_invoice_id": source.id, "copied_lifecycle_events": False}
+    service_start = _date(payload["service_period_start"], field="service_period_start") if payload.get("service_period_start") else None
+    service_end = _date(payload["service_period_end"], field="service_period_end") if payload.get("service_period_end") else None
+    service_label = str(payload.get("service_period_label") or "").strip() or None
+    if not ((service_start and service_end) or service_label):
+        raise HTTPException(422, {"code": "STRUCTURED_SERVICE_PERIOD_REQUIRED"})
+    if service_end and service_start and service_end < service_start:
+        raise HTTPException(422, {"code": "SERVICE_PERIOD_INVALID"})
+    clone = Invoice(contract_id=source.contract_id, project_id=source.project_id, client_account_id=source.client_account_id, billing_plan_id=source.billing_plan_id, invoice_reference=f"DRAFT-{uuid4().hex[:12].upper()}", invoice_ref_status="NOT_ALLOCATED", status="DRAFT", source_clone_id=source.id, clone_idempotency_key=key)
+    db.add(clone); db.flush()
+    invoice_date = _date(payload.get("invoice_date") or date.today().isoformat(), field="invoice_date")
+    next_revision = InvoiceRevision(invoice_id=clone.id, revision_number=1, controlling_contract_revision_id=previous.controlling_contract_revision_id, billing_plan_revision_id=previous.billing_plan_revision_id, status="DRAFT", invoice_date=invoice_date, service_period=service_label or previous.service_period, service_period_start=service_start, service_period_end=service_end, service_period_label=service_label, description=payload.get("description") or previous.description, currency=previous.currency, contract_project_context_snapshot=previous.contract_project_context_snapshot or {}, source_snapshot={"clone_of_invoice_id": source.id, "copied_fields": ["current_valid_context", "permitted_invoice_lines"], "excluded_lifecycle": ["accept", "issue", "delivery", "acknowledgment", "client_approval", "payment", "allocation", "follow_up", "resolution"]})
+    _configure_due_date(next_revision, invoice_date=invoice_date, basis=_due_basis(payload.get("due_date_basis")), offset_days=int(payload["due_days"]) if payload.get("due_days") is not None else None, fixed_date=_date(payload["due_date"], field="due_date") if payload.get("due_date") else None)
+    db.add(next_revision); db.flush(); clone.current_revision_id = next_revision.id
+    for line in _lines(db, previous.id):
+        db.add(InvoiceLineItem(invoice_revision_id=next_revision.id, sequence=line.sequence, line_role=line.line_role, item_code=line.item_code, description=line.description, quantity=line.quantity, unit=line.unit, unit_price=line.unit_price, currency=line.currency, calculated_line_amount=line.calculated_line_amount, billing_milestone_id=line.billing_milestone_id, affects_payable_total=line.affects_payable_total, source_reference=line.source_reference))
+    _calculate_revision(db, next_revision); _lineage(db, request, project.id if project else None, "Invoice", source.id, "Invoice", clone.id, "INVOICE_CLONED_AS_NEW_DRAFT"); _audit(db, request, "INVOICE_CLONED", "Invoice", clone.id, _actor(request, payload), {"source_invoice_id": source.id, "copied_lifecycle_events": False}); db.commit()
+    return {"invoice": _row(clone), "revision": _row(next_revision), "lines": [_row(x) for x in _lines(db, next_revision.id)], "source_invoice_id": source.id, "copied_lifecycle_events": False}
 
 
 @router.post("/invoices/{invoice_id}/revisions")
@@ -664,7 +715,11 @@ def create_invoice_revision(invoice_id: str, payload: dict[str, Any], request: R
         raise HTTPException(409, {"code": "BILLING_PLAN_REVISION_REQUIRED"})
     number = (db.scalar(select(func.max(InvoiceRevision.revision_number)).where(InvoiceRevision.invoice_id == invoice.id)) or 0) + 1
     next_invoice_date = _date(payload.get("invoice_date") or previous.invoice_date or date.today().isoformat(), field="invoice_date")
-    next_revision = InvoiceRevision(invoice_id=invoice.id, revision_number=number, controlling_contract_revision_id=previous.controlling_contract_revision_id, billing_plan_revision_id=previous.billing_plan_revision_id, status="DRAFT", supersedes_revision_id=previous.id, invoice_date=next_invoice_date, description=payload.get("description") or previous.description, currency=previous.currency, contract_project_context_snapshot=previous.contract_project_context_snapshot or {}, source_snapshot={**(previous.source_snapshot or {}), "supersedes_revision_id": previous.id, "reason": payload.get("reason")})
+    service_start = _date(payload["service_period_start"], field="service_period_start") if payload.get("service_period_start") else previous.service_period_start
+    service_end = _date(payload["service_period_end"], field="service_period_end") if payload.get("service_period_end") else previous.service_period_end
+    if service_start and service_end and service_end < service_start:
+        raise HTTPException(422, {"code": "SERVICE_PERIOD_INVALID"})
+    next_revision = InvoiceRevision(invoice_id=invoice.id, revision_number=number, controlling_contract_revision_id=previous.controlling_contract_revision_id, billing_plan_revision_id=previous.billing_plan_revision_id, status="DRAFT", supersedes_revision_id=previous.id, invoice_date=next_invoice_date, description=payload.get("description") or previous.description, service_period=payload.get("service_period") or previous.service_period, service_period_start=service_start, service_period_end=service_end, service_period_label=payload.get("service_period_label") or previous.service_period_label or payload.get("service_period") or previous.service_period, currency=previous.currency, contract_project_context_snapshot=previous.contract_project_context_snapshot or {}, source_snapshot={**(previous.source_snapshot or {}), "supersedes_revision_id": previous.id, "reason": payload.get("reason")})
     _configure_due_date(next_revision, invoice_date=next_invoice_date, basis=_due_basis(payload.get("due_date_basis")) or previous.due_date_basis, offset_days=int(payload["due_days"]) if payload.get("due_days") is not None else previous.due_date_offset_days, fixed_date=_date(payload["due_date"], field="due_date") if payload.get("due_date") else previous.due_date_fixed_date)
     db.add(next_revision); db.flush()
     prior_lines = _lines(db, previous.id)
@@ -989,6 +1044,296 @@ def _invoice_projection(db: Session, invoice: Invoice) -> dict[str, Any]:
     }
 
 
+def _billing_context(db: Session, *, contract_id: str | None, project_id: str | None, client_account_id: str | None) -> dict[str, Any]:
+    contract = db.get(Contract, contract_id) if contract_id else None
+    project = db.get(Project, project_id) if project_id else None
+    client = db.get(ClientAccount, client_account_id) if client_account_id else None
+    return {
+        "client": {"id": client.id, "name": client.display_name, "reference": client.client_reference} if client else None,
+        "project": {"id": project.id, "name": project.project_name, "reference": project.project_code or project.project_number} if project else None,
+        "contract": {"id": contract.id, "name": contract.contract_name, "reference": contract.contract_reference} if contract else None,
+    }
+
+
+def _capability_projection(role: Role) -> dict[str, bool]:
+    owner = role in OWNER
+    plan_write = role in PLAN_WRITE
+    view = role in VIEW
+    request_ready = owner or role in {Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}
+    return {
+        "can_view": view,
+        "can_manage_plan": plan_write,
+        "can_approve_plan": owner,
+        "can_review_milestone": plan_write,
+        "can_request_billable_stage": request_ready,
+        "can_create_invoice": plan_write,
+        "can_edit_invoice": plan_write,
+        "can_accept_invoice": owner,
+        "can_issue_invoice": owner,
+        "can_record_delivery": owner,
+        "can_record_acknowledgment": owner,
+        "can_record_payment": plan_write,
+        "can_verify_payment": owner,
+        "can_allocate_payment": owner,
+        "can_reverse_payment": owner,
+        "can_record_follow_up": plan_write,
+        "can_resolve_receivable": owner,
+        "can_manage_financial_account": owner,
+        "can_approve_financial_account": owner,
+    }
+
+
+def _milestone_projection(db: Session, item: BillingMilestone) -> dict[str, Any]:
+    plan_revision = db.get(BillingPlanRevision, item.billing_plan_revision_id)
+    plan = db.get(BillingPlan, plan_revision.billing_plan_id) if plan_revision else None
+    contract = db.get(Contract, plan_revision.contract_id) if plan_revision else None
+    project = db.get(Project, item.source_snapshot.get("project_id")) if item.source_snapshot.get("project_id") else db.get(Project, plan_revision.project_id) if plan_revision and plan_revision.project_id else None
+    client_id = plan_revision.client_account_id if plan_revision else None
+    client = db.get(ClientAccount, client_id) if client_id else None
+    invoice_rows = db.execute(
+        select(InvoiceLineItem, Invoice)
+        .join(InvoiceRevision, InvoiceRevision.id == InvoiceLineItem.invoice_revision_id)
+        .join(Invoice, Invoice.id == InvoiceRevision.invoice_id)
+        .where(InvoiceLineItem.billing_milestone_id == item.id)
+        .order_by(Invoice.created_at)
+    ).all()
+    invoices: list[dict[str, Any]] = []
+    actual_collected = Decimal("0")
+    for line, invoice in invoice_rows:
+        invoice_projection = _invoice_projection(db, invoice)
+        invoices.append({
+            "invoice_id": invoice.id,
+            "invoice_reference": invoice.invoice_reference,
+            "status": invoice.status,
+            "amount": str(_money(_line_total(line))),
+            "currency": line.currency,
+        })
+        actual_collected += sum(
+            (_d(allocation.allocated_amount) for allocation in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.invoice_id == invoice.id, InvoicePaymentAllocation.status == "ALLOCATED")).all()),
+            Decimal("0"),
+        )
+    calculated = _d(item.calculated_amount or 0)
+    invoiced = _d(item.invoiced_amount or 0)
+    remaining = max(Decimal("0"), _d(item.remaining_invoiceable_amount if item.remaining_invoiceable_amount is not None else calculated - invoiced))
+    return {
+        "id": item.id,
+        "sequence": item.sequence,
+        "name": item.name,
+        "description": item.description,
+        "currency": item.currency,
+        "basis_type": item.basis_type,
+        "basis_amount": str(_money(_d(item.basis_amount))) if item.basis_amount is not None else None,
+        "percentage": str(item.percentage) if item.percentage is not None else None,
+        "calculated_amount": str(_money(calculated)) if item.calculated_amount is not None else None,
+        "trigger_type": item.trigger_type,
+        "trigger_description": item.trigger_description,
+        "eligibility_state": item.eligibility_state,
+        "status": item.status,
+        "billing_mode": plan_revision.billing_mode if plan_revision else None,
+        "plan_id": plan.id if plan else None,
+        "plan_revision_id": plan_revision.id if plan_revision else None,
+        "contract_id": contract.id if contract else None,
+        "project_id": project.id if project else None,
+        "client_account_id": client_id,
+        "context": _billing_context(db, contract_id=contract.id if contract else None, project_id=project.id if project else None, client_account_id=client_id),
+        "invoiced_amount": str(_money(invoiced)),
+        "actual_collected": str(_money(actual_collected)),
+        "remaining_invoiceable": str(_money(remaining)),
+        "invoiceable_now": item.eligibility_state == "ELIGIBLE" and remaining > 0,
+        "invoices": invoices,
+        "latest_eligibility": _row(db.scalar(select(BillingMilestoneEligibility).where(BillingMilestoneEligibility.billing_milestone_id == item.id).order_by(BillingMilestoneEligibility.evaluated_at.desc()))),
+    }
+
+
+def _payment_projection(db: Session, item: PaymentReceipt) -> dict[str, Any]:
+    credit = _payment_credit(db, item)
+    return {
+        "payment": _row(item),
+        "credit": credit,
+        "context": _billing_context(db, contract_id=item.contract_id, project_id=item.project_id, client_account_id=item.client_account_id),
+        "evidence": {
+            "primary": bool(item.evidence_document_version_id or item.evidence_reference),
+            "receipt_voucher": bool(item.receipt_voucher_document_version_id or item.receipt_voucher_evidence_reference),
+        },
+        "allocations": [_row(allocation) for allocation in db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.payment_receipt_id == item.id).order_by(InvoicePaymentAllocation.allocated_at)).all()],
+        "reversals": [_row(event) for event in db.scalars(select(PaymentReversalEvent).where(PaymentReversalEvent.payment_receipt_id == item.id).order_by(PaymentReversalEvent.created_at)).all()],
+    }
+
+
+@router.get("/capabilities")
+def billing_capabilities(role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    return {
+        "role": role.value,
+        "capabilities": _capability_projection(role),
+        "authority_source": "SERVER_MUTATION_POLICY",
+        "frontend_only_authority_grants": 0,
+        "unresolved_owner_decisions": [
+            {"key": "FINANCE_SECRETARY_CAPABILITY_MAPPING", "label": "Finance/Secretary capability mapping"},
+            {"key": "GLOBAL_INVOICE_NUMBERING_POLICY", "label": "Production global Invoice numbering policy"},
+            {"key": "NON_QAR_QAR_CONVERSION_POLICY", "label": "Non-QAR to QAR conversion and provenance"},
+            {"key": "EXPECTED_EXP_PERCENT_DEFINITION", "label": "Expected EXP % definition and source"},
+            {"key": "FINANCE_YTD_REPORTING_YEAR_BOUNDARY", "label": "Finance YTD reporting-year boundary"},
+        ],
+    }
+
+
+@router.get("/command-center")
+def billing_command_center(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    invoices = db.scalars(select(Invoice).order_by(Invoice.created_at.desc())).all()
+    invoice_rows: list[dict[str, Any]] = []
+    for invoice in invoices:
+        projection = _invoice_projection(db, invoice)
+        invoice_rows.append({**projection, "context": _billing_context(db, contract_id=invoice.contract_id, project_id=invoice.project_id, client_account_id=invoice.client_account_id)})
+    milestones = [_milestone_projection(db, item) for item in db.scalars(select(BillingMilestone).order_by(BillingMilestone.sequence)).all()]
+    payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc(), PaymentReceipt.recorded_at.desc())).all()]
+    open_receivables = [item for item in invoice_rows if _d(item.get("outstanding_amount") or 0) > 0]
+    today = date.today()
+    work: list[dict[str, Any]] = []
+    for item in milestones:
+        if item["invoiceable_now"]:
+            work.append({"category": "MILESTONE_READY", "why": "The governed milestone is eligible and has invoiceable balance.", "next_action": "Prepare draft invoice", "authority_needed": "Billing plan/invoice preparation capability", "entity": item})
+        elif item["eligibility_state"] != "ELIGIBLE":
+            work.append({"category": "MILESTONE_EVIDENCE_REQUIRED", "why": "Trigger evidence has not made this milestone eligible.", "next_action": "Review trigger evidence", "authority_needed": "Milestone review capability", "entity": item})
+    for item in invoice_rows:
+        if item["status"] in {"DRAFT", "NEEDS_REVALIDATION"}:
+            work.append({"category": "INVOICE_REVIEW_REQUIRED", "why": "The invoice remains a human-preparation draft.", "next_action": "Open invoice preflight", "authority_needed": "Invoice preparation capability", "entity": item})
+        if item["status"] == "ISSUED" and item.get("receivable_state") in {"DUE", "OVERDUE", "PARTIALLY_PAID"}:
+            work.append({"category": "RECEIVABLE_OVERDUE" if item.get("receivable_state") == "OVERDUE" else "FOLLOW_UP_DUE", "why": f"Receivable is {str(item.get('receivable_state') or '').replace('_', ' ').lower()} with outstanding exposure.", "next_action": "Review collection action", "authority_needed": "Receivable follow-up capability", "entity": item})
+    for item in payments:
+        payment = item["payment"]
+        if payment.get("verification_status") == "OBSERVED":
+            work.append({"category": "PAYMENT_VERIFICATION_REQUIRED", "why": "Payment evidence is recorded but verification is a separate human control.", "next_action": "Review payment evidence", "authority_needed": "Payment verification capability", "entity": item})
+        if item["credit"].get("state") == "UNALLOCATED_CLIENT_CREDIT":
+            work.append({"category": "UNALLOCATED_CLIENT_CREDIT", "why": "Verified payment has remaining credit not allocated to an invoice.", "next_action": "Allocate to an eligible same-scope invoice", "authority_needed": "Payment allocation capability", "entity": item})
+    return {
+        "metrics": {
+            "ready_to_invoice": sum(item["invoiceable_now"] for item in milestones),
+            "draft_review_required": sum(item["status"] in {"DRAFT", "NEEDS_REVALIDATION"} for item in invoice_rows),
+            "issued_outstanding": sum(item["status"] == "ISSUED" and _d(item.get("outstanding_amount") or 0) > 0 for item in invoice_rows),
+            "overdue": sum(item.get("receivable_state") == "OVERDUE" for item in invoice_rows),
+            "payments_to_verify": sum(item["payment"].get("verification_status") == "OBSERVED" for item in payments),
+            "unallocated_client_credit": sum(1 for item in payments if item["credit"].get("state") == "UNALLOCATED_CLIENT_CREDIT"),
+        },
+        "work_items": work,
+        "open_receivables": open_receivables,
+        "payments": payments,
+        "source_of_truth": "CANONICAL_BILLING_EVENTS",
+        "system_insights_only": True,
+        "ai_assisted": False,
+        "unresolved_owner_decisions": ["FINANCE_SECRETARY_CAPABILITY_MAPPING", "GLOBAL_INVOICE_NUMBERING_POLICY", "NON_QAR_QAR_CONVERSION_POLICY", "EXPECTED_EXP_PERCENT_DEFINITION", "FINANCE_YTD_REPORTING_YEAR_BOUNDARY"],
+    }
+
+
+@router.get("/plans")
+def list_billing_plans(project_id: str | None = None, contract_id: str | None = None, status: str | None = None, billing_mode: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    query = select(BillingPlan).order_by(BillingPlan.created_at.desc())
+    if project_id: query = query.where(BillingPlan.project_id == project_id)
+    if contract_id: query = query.where(BillingPlan.contract_id == contract_id)
+    if status: query = query.where(BillingPlan.status == status.upper())
+    if billing_mode: query = query.where(BillingPlan.billing_mode == billing_mode.upper())
+    items = []
+    for plan in db.scalars(query).all():
+        revision = db.get(BillingPlanRevision, plan.current_revision_id) if plan.current_revision_id else None
+        milestones = db.scalars(select(BillingMilestone).where(BillingMilestone.billing_plan_revision_id == (revision.id if revision else "")).order_by(BillingMilestone.sequence)).all()
+        items.append({"plan": _row(plan), "revision": _row(revision), "milestones": [_milestone_projection(db, item) for item in milestones], "context": _billing_context(db, contract_id=plan.contract_id, project_id=plan.project_id, client_account_id=plan.client_account_id)})
+    return {"items": items, "total": len(items), "filters": {"project_id": project_id, "contract_id": contract_id, "status": status, "billing_mode": billing_mode}, "source_of_truth": "CANONICAL_BILLING_PLAN"}
+
+
+@router.get("/milestones")
+def list_billing_milestones(project_id: str | None = None, contract_id: str | None = None, plan_id: str | None = None, eligibility: str | None = None, invoiceability: str | None = None, billing_mode: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    query = select(BillingMilestone).join(BillingPlanRevision, BillingPlanRevision.id == BillingMilestone.billing_plan_revision_id).order_by(BillingMilestone.sequence)
+    if project_id: query = query.where(BillingPlanRevision.project_id == project_id)
+    if contract_id: query = query.where(BillingPlanRevision.contract_id == contract_id)
+    if plan_id: query = query.where(BillingPlanRevision.billing_plan_id == plan_id)
+    if eligibility: query = query.where(BillingMilestone.eligibility_state == eligibility.upper())
+    if billing_mode: query = query.where(BillingPlanRevision.billing_mode == billing_mode.upper())
+    items = [_milestone_projection(db, item) for item in db.scalars(query).all()]
+    if invoiceability: items = [item for item in items if item["invoiceable_now"] == (invoiceability.upper() in {"READY", "TRUE", "YES"})]
+    return {"items": items, "total": len(items), "source_of_truth": "CANONICAL_MILESTONE_ELIGIBILITY_AND_INVOICE_EVENTS"}
+
+
+@router.get("/payments")
+def list_billing_payments(project_id: str | None = None, contract_id: str | None = None, verification_status: str | None = None, credit_state: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "PAYMENT_CREDIT_VIEW")
+    query = select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc(), PaymentReceipt.recorded_at.desc())
+    if project_id: query = query.where(PaymentReceipt.project_id == project_id)
+    if contract_id: query = query.where(PaymentReceipt.contract_id == contract_id)
+    if verification_status: query = query.where(PaymentReceipt.verification_status == verification_status.upper())
+    items = [_payment_projection(db, item) for item in db.scalars(query).all()]
+    if credit_state: items = [item for item in items if item["credit"]["state"] == credit_state.upper()]
+    return {"items": items, "total": len(items), "source_of_truth": "CANONICAL_PAYMENT_RECEIPT_AND_ALLOCATION_EVENTS"}
+
+
+@router.get("/receivables")
+def list_billing_receivables(project_id: str | None = None, state: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    query = select(Invoice).where(Invoice.status == "ISSUED").order_by(Invoice.created_at.desc())
+    if project_id: query = query.where(Invoice.project_id == project_id)
+    items = []
+    for invoice in db.scalars(query).all():
+        row = _invoice_projection(db, invoice)
+        if state and row.get("receivable_state") != state.upper(): continue
+        row["context"] = _billing_context(db, contract_id=invoice.contract_id, project_id=invoice.project_id, client_account_id=invoice.client_account_id)
+        due_date = row.get("due_date")
+        days_relative = None
+        if due_date:
+            days_relative = (date.today() - date.fromisoformat(due_date)).days
+        row["days_relative_to_due"] = days_relative
+        row["collection_action"] = "FOLLOW_UP" if _d(row.get("outstanding_amount") or 0) > 0 else "NONE"
+        items.append(row)
+    return {"items": items, "total": len(items), "formal_aging_report": False, "aging_note": "Descriptive date difference only; formal accounting aging policy is not approved."}
+
+
+@router.get("/reports")
+def billing_reports(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    invoices = [_invoice_projection(db, invoice) for invoice in db.scalars(select(Invoice).order_by(Invoice.created_at.desc())).all()]
+    payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc())).all()]
+    return {"invoice_report": invoices, "open_receivables": [item for item in invoices if _d(item.get("outstanding_amount") or 0) > 0], "payment_history": payments, "ytd": None, "ytd_status": "OWNER_DECISION_REQUIRED", "source_of_truth": "CANONICAL_BILLING_READ_MODELS"}
+
+
+@router.get("/supervision-queue")
+def supervision_queue(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    items = []
+    for plan in db.scalars(select(BillingPlan).where(BillingPlan.billing_mode == "SUPERVISION_MONTHLY", BillingPlan.status == "ACTIVE")).all():
+        items.append({"plan_id": plan.id, "project_id": plan.project_id, "contract_id": plan.contract_id, "status": "CONFIGURATION_REQUIRED", "reason": "A governed business-local timezone is required before deriving the previous service period.", "autonomous_invoice_issue": False})
+    return {"items": items, "total": len(items), "business_local_timezone": None, "policy_status": "OWNER_DECISION_REQUIRED"}
+
+
+@router.post("/readiness-requests")
+def create_readiness_request(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, OWNER | {Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}, "BILLABLE_STAGE_REQUEST")
+    milestone = db.get(BillingMilestone, payload.get("billing_milestone_id"))
+    plan_revision = db.get(BillingPlanRevision, payload.get("billing_plan_revision_id"))
+    project = db.get(Project, payload.get("project_id"))
+    contract = db.get(Contract, payload.get("contract_id"))
+    if not milestone or not plan_revision or not project or not contract or milestone.billing_plan_revision_id != plan_revision.id or plan_revision.project_id != project.id or plan_revision.contract_id != contract.id:
+        raise HTTPException(409, {"code": "BILLING_READINESS_SCOPE_MISMATCH"})
+    evidence_id = payload.get("evidence_document_version_id")
+    _validate_document_evidence(db, evidence_id, project, not_found_code="BILLING_READINESS_EVIDENCE_NOT_FOUND", mismatch_code="BILLING_READINESS_EVIDENCE_PROJECT_MISMATCH")
+    key = str(payload.get("idempotency_key") or "").strip()
+    if not key: raise HTTPException(422, {"code": "BILLING_READINESS_IDEMPOTENCY_KEY_REQUIRED"})
+    existing = db.scalar(select(BillingReadinessRequest).where(BillingReadinessRequest.idempotency_key == key))
+    if existing: return {"request": _row(existing), "invoice_issue_authority": False}
+    item = BillingReadinessRequest(project_id=project.id, contract_id=contract.id, billing_plan_revision_id=plan_revision.id, billing_milestone_id=milestone.id, requested_by=_actor(request, payload), evidence_document_version_id=evidence_id, note=str(payload.get("note") or "").strip() or None, idempotency_key=key, correlation_id=_corr(request))
+    db.add(item); db.flush(); _audit(db, request, "BILLING_READINESS_REQUESTED", "BillingReadinessRequest", item.id, _actor(request, payload), {"invoice_issue_authority": False, "milestone_id": milestone.id}); db.commit()
+    return {"request": _row(item), "invoice_issue_authority": False, "message": "Submitting this request does not Issue an Invoice and does not grant payment authority."}
+
+
+@router.get("/readiness-requests")
+def list_readiness_requests(project_id: str | None = None, milestone_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    query = select(BillingReadinessRequest).order_by(BillingReadinessRequest.requested_at.desc())
+    if project_id: query = query.where(BillingReadinessRequest.project_id == project_id)
+    if milestone_id: query = query.where(BillingReadinessRequest.billing_milestone_id == milestone_id)
+    return {"items": [_row(item) for item in db.scalars(query).all()], "total": db.scalar(select(func.count()).select_from(query.subquery())) or 0}
+
+
 def _office_invoice_projection(db: Session, office_id: str, *, open_only: bool = False) -> list[dict[str, Any]]:
     project_ids = select(Project.id).where(Project.office_id == office_id)
     contract_ids = select(Contract.id).where(Contract.project_id.in_(project_ids))
@@ -1043,6 +1388,46 @@ def payment_unallocated_credit(payment_id: str, db: Session = Depends(get_db), r
     if not item:
         raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
     return _payment_credit(db, item)
+
+
+@router.get("/payments/{payment_id}")
+def get_payment(payment_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "PAYMENT_CREDIT_VIEW")
+    item = db.get(PaymentReceipt, payment_id)
+    if not item:
+        raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
+    return _payment_projection(db, item)
+
+
+@router.get("/projects/{project_id}/payment-history")
+def project_payment_history(project_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(404, {"code": "PROJECT_NOT_FOUND"})
+    payments = db.scalars(select(PaymentReceipt).where(PaymentReceipt.project_id == project_id).order_by(PaymentReceipt.received_date.desc())).all()
+    return {"project": _row(project), "items": [_payment_projection(db, item) for item in payments], "total": len(payments), "source_of_truth": "PAYMENT_RECEIPT_VERIFICATION_ALLOCATION_AND_REVERSAL_EVENTS"}
+
+
+@router.get("/controls")
+def billing_controls(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    _role(role, VIEW, "BILLING_VIEW")
+    accounts = db.scalars(select(FinancialAccountMaster).order_by(FinancialAccountMaster.account_name)).all()
+    versions = db.scalars(select(FinancialAccountVersion).order_by(FinancialAccountVersion.created_at.desc())).all()
+    return {
+        "financial_account_masters": [_row(item) for item in accounts],
+        "financial_account_versions": [_mask_account(item) for item in versions],
+        "invoice_numbering": {"status": "OWNER_DECISION_REQUIRED", "policy": None, "production_fail_closed": True},
+        "unresolved_owner_decisions": [
+            "FINANCE_SECRETARY_CAPABILITY_MAPPING",
+            "GLOBAL_INVOICE_NUMBERING_POLICY",
+            "NON_QAR_QAR_CONVERSION_POLICY",
+            "EXPECTED_EXP_PERCENT_DEFINITION",
+            "FINANCE_YTD_REPORTING_YEAR_BOUNDARY",
+        ],
+        "ai_canonical_write_authority": 0,
+        "ai_protected_action_authority": 0,
+    }
 
 
 @router.post("/payments/{payment_id}/verify")
