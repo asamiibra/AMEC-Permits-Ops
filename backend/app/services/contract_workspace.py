@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
 import re
 from typing import Any
@@ -17,7 +17,7 @@ from ..models import (
     ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractMilestone,
     ContractReferenceSequence, ContractRevision, ContractTemplateSnapshot, Document, DocumentVersion,
     Finding, LineageEdge, NotificationEvent, Opportunity, Project, ProjectActivation,
-    Party, PartyRoleAssignment, ProposalAcceptedRevision, Quotation, QuotationRevision, RegulatoryJourney, ServiceEngagement, WorkflowTask,
+    Party, PartyRoleAssignment, ProposalAcceptedRevision, ProposalContractHandoff, Quotation, QuotationRevision, RegulatoryJourney, ServiceEngagement, WorkflowTask,
     BillingMilestone, BillingPlan, BillingPlanRevision, ContractAdministrativeClosure, HandoverAcceptance,
     HandoverPackage, Invoice, InvoicePaymentAllocation, InvoiceRevision, PaymentReceipt, ServiceScopeClosure,
 )
@@ -201,7 +201,16 @@ def contract_revision_is_accepted(revision: ContractRevision | None) -> bool:
 
 
 def contract_revision_is_authority_reviewed(revision: ContractRevision | None) -> bool:
-    return bool(revision and str(revision.status or "").upper() == "APPROVED")
+    if not revision:
+        return False
+    review = (revision.admin_input_snapshot or {}).get("authority_review") or {}
+    return bool(
+        review.get("revision_id") == revision.id
+        and review.get("decision") == "APPROVE"
+        and review.get("reviewed_by")
+        and review.get("reviewed_at")
+        and str(revision.status or "").upper() in {"APPROVED", "FINALIZED"}
+    )
 
 
 def _document_version_projection(db: Session, document_version_id: str | None) -> dict[str, Any] | None:
@@ -433,6 +442,18 @@ def _ensure_task_notification(db: Session, contract: Contract, correlation_id: s
 def create_contract_from_proposal(db: Session, *, proposal: Opportunity, accepted: ProposalAcceptedRevision, actor: str, correlation_id: str, requested_reference: str | None = None) -> Contract:
     if not proposal.client_account_id:
         raise ValueError("CLIENT_CONTEXT_REQUIRED")
+    latest = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
+    if not latest or latest.id != accepted.id or latest.content_hash != accepted.content_hash or str(latest.status).upper() != "ACCEPTED":
+        raise ValueError("STALE_ACCEPTED_PROPOSAL_REVISION")
+    handoff = db.scalar(select(ProposalContractHandoff).where(ProposalContractHandoff.proposal_id == proposal.id, ProposalContractHandoff.accepted_revision_id == accepted.id, ProposalContractHandoff.status == "ELIGIBLE").order_by(ProposalContractHandoff.handed_off_at.desc()))
+    if not handoff:
+        raise ValueError("PROPOSAL_CONTRACT_HANDOFF_REQUIRED")
+    handoff_payload = handoff.handoff_payload or {}
+    if handoff_payload.get("proposal_id") != proposal.id or handoff_payload.get("client_account_id") != proposal.client_account_id:
+        raise ValueError("PROPOSAL_CONTRACT_HANDOFF_CONTEXT_MISMATCH")
+    lineage = handoff_payload.get("content_lineage") or {}
+    if lineage.get("content_hash") != accepted.content_hash:
+        raise ValueError("PROPOSAL_CONTRACT_HANDOFF_HASH_MISMATCH")
     existing = db.scalar(select(Contract).where(Contract.proposal_id == proposal.id, Contract.accepted_proposal_revision_id == accepted.id).order_by(Contract.created_at.desc()))
     if existing:
         return existing
@@ -550,9 +571,9 @@ def readiness(db: Session, contract: Contract, *, enforce_maker_checker: bool = 
         blockers.append({"code": "CONTRACT_LPO_REQUIRED", "label": "LPO DocumentVersion"})
     start_evaluation = contract_start_prerequisites(db, contract)
     advance_control = {"status": start_evaluation["status"], "blockers": start_evaluation["blockers"], "policy_version": start_evaluation["policy_version"], "authority": "CONTRACT_START_PREREQUISITES"}
-    for code in start_evaluation["blockers"]:
-        if code not in {"CLIENT_COPY_DISTRIBUTION_REQUIRED", "OPERATIONS_HANDOFF_REQUIRED"}:
-            activation_blockers.append({"code": code, "label": "Canonical Contract start prerequisite"})
+    for fact in start_evaluation["facts"]:
+        if "PROJECT_ACTIVATION" in (fact.get("required_for") or []) and fact.get("state") not in {"RECORDED", "SATISFIED", "NOT_APPLICABLE"}:
+            activation_blockers.append({"code": fact["fact"], "label": f"Canonical Contract prerequisite: {fact['fact']}"})
     maker_checker = maker_checker_gate((current_revision.admin_input_snapshot if current_revision else None), enforce=enforce_maker_checker)
     if enforce_maker_checker and maker_checker["status"] != "PASS":
         blockers.append({"code": "CONTRACT_MAKER_CHECKER_REQUIRED", "label": "Recorded independent Contract maker/checker and Proposal reconciliation"})
@@ -564,6 +585,16 @@ def _contract_evidence(db: Session, contract_id: str, revision_id: str | None = 
     if revision_id:
         query = query.where(ContractAdminEvidence.contract_revision_id == revision_id)
     return db.scalars(query.order_by(ContractAdminEvidence.recorded_at)).all()
+
+
+def _decimal_amount(value: Any) -> Decimal | None:
+    if value in (None, ""):
+        return None
+    try:
+        match = re.search(r"[-+]?\d+(?:\.\d+)?", str(value).replace(",", ""))
+        return Decimal(match.group(0)) if match else None
+    except (InvalidOperation, ValueError):
+        return None
 
 
 def _contact_is_current(contact: ContactPoint, evaluated_on: date) -> tuple[bool, str | None]:
@@ -761,12 +792,24 @@ def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, A
     scoped_allocations = [item for item in allocations if item.payment_receipt_id in verified_ids and str(item.currency).upper() == str(contract.currency or "").upper()]
     paid = sum((Decimal(str(item.allocated_amount or 0)) for item in scoped_allocations), Decimal("0"))
     required_amount = Decimal("0")
+    contract_amount = _decimal_amount(contract.amount_value)
     for term in advance_terms:
         if term.fixed_amount is not None:
-            required_amount += Decimal(str(term.fixed_amount))
-        elif term.percentage is not None and contract.amount_value is not None:
-            required_amount += Decimal(str(contract.amount_value)) * Decimal(str(term.percentage)) / Decimal("100")
-    amount_satisfied = not applicable or (required_amount <= paid and required_amount > 0) or (required_amount == 0 and bool(scoped_allocations))
+            parsed = _decimal_amount(term.fixed_amount)
+            if parsed is not None:
+                required_amount += parsed
+        elif term.percentage is not None and contract_amount is not None:
+            percentage = _decimal_amount(term.percentage)
+            if percentage is not None:
+                required_amount += contract_amount * percentage / Decimal("100")
+    term_currencies = {str(item.currency or "").strip().upper() for item in advance_terms}
+    currency_valid = bool(advance_terms) and bool(contract.currency) and term_currencies == {str(contract.currency).strip().upper()}
+    amounts_resolved = bool(advance_terms) and all(
+        (_decimal_amount(item.fixed_amount) is not None and (_decimal_amount(item.fixed_amount) or Decimal("0")) > 0)
+        or (_decimal_amount(item.percentage) is not None and (_decimal_amount(item.percentage) or Decimal("0")) > 0 and contract_amount is not None)
+        for item in advance_terms
+    )
+    amount_satisfied = not applicable or (currency_valid and amounts_resolved and required_amount > 0 and required_amount <= paid)
     blockers: list[str] = []
     if not revision_id: blockers.append("CURRENT_CONTRACT_REVISION_REQUIRED")
     if revision and not contract_revision_is_accepted(revision): blockers.append("CONTRACT_ACCEPTANCE_REQUIRED")
@@ -774,18 +817,20 @@ def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, A
     if not client_copy: blockers.append("CLIENT_COPY_DISTRIBUTION_REQUIRED")
     if not operations_handoff: blockers.append("OPERATIONS_HANDOFF_REQUIRED")
     if applicable:
+        if not currency_valid: blockers.append("ADVANCE_TERM_CURRENCY_INVALID_OR_MISMATCH")
+        if not amounts_resolved: blockers.append("ADVANCE_REQUIRED_AMOUNT_UNRESOLVED")
         if not invoice_revision_ids: blockers.append("ADVANCE_ISSUED_INVOICE_REVISION_REQUIRED")
         if not verified_payments: blockers.append("ADVANCE_VERIFIED_PAYMENT_RECEIPT_REQUIRED")
         if not scoped_allocations: blockers.append("ADVANCE_PAYMENT_ALLOCATION_REQUIRED")
         if not amount_satisfied: blockers.append("ADVANCE_PAYMENT_AMOUNT_INSUFFICIENT")
     facts = [
-        {"fact": "CONTRACT_EXECUTED", "state": "RECORDED" if executed else "MISSING", "required": True, "detail": executed.id if executed else None},
-        {"fact": "CLIENT_COPY_DISTRIBUTED", "state": "RECORDED" if client_copy else "MISSING", "required": True, "detail": client_copy.id if client_copy else None},
-        {"fact": "OPERATIONS_HANDOFF", "state": "RECORDED" if operations_handoff else "MISSING", "required": True, "detail": operations_handoff.id if operations_handoff else None},
-        {"fact": "ADVANCE_REQUIREMENT", "state": "REQUIRED" if applicable else "NOT_APPLICABLE", "required": applicable, "detail": sorted(term_ids)},
-        {"fact": "REQUIRED_ADVANCE_SATISFIED", "state": "SATISFIED" if amount_satisfied else "UNSATISFIED", "required": applicable, "detail": {"required_amount": str(required_amount), "allocated_amount": str(paid), "currency": contract.currency}},
-        {"fact": "CONTRACT_DURATION_START", "state": "RECORDED" if any((item.metadata_json or {}).get("duration_start_fact") for item in evidence) else "OWNER_INPUT_REQUIRED", "required": False},
-        {"fact": "PROJECT_ACTIVATION", "state": "RECORDED" if db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id)) else "MISSING", "required": False},
+        {"fact": "CONTRACT_EXECUTED", "applicable": True, "required_for": ["COMMERCIAL_START"], "state": "RECORDED" if executed else "MISSING", "source_clause": "CONTRACT_EXECUTED_EVIDENCE", "source_document_version_id": executed.document_version_id if executed else None, "evidence_ids": [executed.id] if executed else []},
+        {"fact": "CLIENT_COPY_DISTRIBUTED", "applicable": True, "required_for": ["COMMERCIAL_START"], "state": "RECORDED" if client_copy else "MISSING", "source_clause": "CLIENT_COPY_DISTRIBUTION_EVIDENCE", "source_document_version_id": client_copy.document_version_id if client_copy else None, "evidence_ids": [client_copy.id] if client_copy else []},
+        {"fact": "OPERATIONS_HANDOFF", "applicable": True, "required_for": ["COMMERCIAL_START"], "state": "RECORDED" if operations_handoff else "MISSING", "source_clause": "OPERATIONS_HANDOFF_EVIDENCE", "source_document_version_id": operations_handoff.document_version_id if operations_handoff else None, "evidence_ids": [operations_handoff.id] if operations_handoff else []},
+        {"fact": "ADVANCE_REQUIREMENT", "applicable": applicable, "required_for": ["COMMERCIAL_START", "PROJECT_ACTIVATION"] if applicable else [], "state": "REQUIRED" if applicable else "NOT_APPLICABLE", "source_clause": "CONTRACT_PAYMENT_TERM", "source_document_version_id": advance_terms[0].source_document_version_id if advance_terms else None, "evidence_ids": sorted(term_ids)},
+        {"fact": "REQUIRED_ADVANCE_SATISFIED", "applicable": applicable, "required_for": ["COMMERCIAL_START", "PROJECT_ACTIVATION"] if applicable else [], "state": "SATISFIED" if amount_satisfied else "UNSATISFIED" if applicable else "NOT_APPLICABLE", "source_clause": "ISSUED_INVOICE_VERIFIED_PAYMENT_ALLOCATED", "source_document_version_id": None, "evidence_ids": [item.id for item in scoped_allocations], "detail": {"required_amount": str(required_amount), "allocated_amount": str(paid), "currency": contract.currency, "currency_valid": currency_valid, "amount_resolved": amounts_resolved}},
+        {"fact": "CONTRACT_DURATION_START", "applicable": any((item.metadata_json or {}).get("duration_start_required") for item in evidence), "required_for": ["COMMERCIAL_START"] if any((item.metadata_json or {}).get("duration_start_required") for item in evidence) else [], "state": "RECORDED" if any((item.metadata_json or {}).get("duration_start_fact") for item in evidence) else "UNRESOLVED" if any((item.metadata_json or {}).get("duration_start_required") for item in evidence) else "NOT_APPLICABLE", "source_clause": "CONTRACT_SPECIFIC_DURATION_START_RECORD", "source_document_version_id": None, "evidence_ids": []},
+        {"fact": "PROJECT_ACTIVATION", "applicable": True, "required_for": [], "state": "RECORDED" if db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id)) else "NOT_RECORDED", "source_clause": "EXPLICIT_OWNER_ACTIVATION", "source_document_version_id": None, "evidence_ids": []},
     ]
     return {
         "applicable": applicable,
@@ -852,7 +897,7 @@ def contract_readiness_states(db: Session, contract: Contract) -> dict[str, Any]
     evidence = _contract_evidence(db, contract.id, revision.id if revision else None)
     services = db.scalars(select(ServiceEngagement).where(ServiceEngagement.contract_id == contract.id)).all()
     service_codes = {str(item.service_offering_code or "").upper() for item in services}
-    design_applicable = bool(service_codes & {"DESIGN", "DESIGN_PERMIT", "PERMIT"})
+    design_applicable = bool(service_codes & {"DESIGN", "DESIGN_PERMIT"})
     authority_applicable = bool(service_codes & {"PERMIT", "DESIGN_PERMIT", "AUTHORITY", "CIVIL_DEFENSE", "MAINTENANCE_PERMIT"})
     required_inputs = db.scalars(select(ContractClientInputRequirement).where(ContractClientInputRequirement.contract_id == contract.id, ContractClientInputRequirement.required == true())).all()
     def input_state(keys: set[str], *, all_required: bool = False) -> tuple[list[str], list[str]]:
@@ -896,9 +941,12 @@ def project_activation(db: Session, *, contract: Contract, project_code: str, st
     # downstream client-copy and Operations handoff facts remain required for
     # commercial start, but are recorded after activation and before service
     # execution; they must not create a circular prerequisite here.
-    activation_blockers = [item for item in start_gate["blockers"] if item not in {"CLIENT_COPY_DISTRIBUTION_REQUIRED", "OPERATIONS_HANDOFF_REQUIRED"}]
+    activation_blockers = [
+        item for item in start_gate["facts"]
+        if "PROJECT_ACTIVATION" in (item.get("required_for") or []) and item.get("state") not in {"RECORDED", "SATISFIED", "NOT_APPLICABLE"}
+    ]
     if activation_blockers:
-        raise ValueError("CONTRACT_START_PREREQUISITES_BLOCKED:" + ",".join(activation_blockers))
+        raise ValueError("CONTRACT_START_PREREQUISITES_BLOCKED:" + ",".join(item["fact"] for item in activation_blockers))
     activation_fields = set(effective_activation_fields(db))
     if "CONTRACT" in activation_fields and not contract.id:
         raise ValueError("CONTRACT_REQUIRED_FOR_PROJECT_ACTIVATION")
@@ -1090,6 +1138,55 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
         "auditability": "AUDIT_EVENTS_AND_CANONICAL_ROWS",
         "external_send": "HUMAN_CONTROLLED",
     }
+
+
+def evaluate_contract_exceptions(db: Session, contract: Contract, *, actor: str, correlation_id: str) -> dict[str, Any]:
+    """Reconcile proactive Contract exceptions into the shared work queue.
+
+    The evaluator is idempotent by a stable condition key. It only creates
+    in-app work and notifications; all external communication remains a human
+    action. Resolved conditions close their prior task rather than generating
+    another event.
+    """
+    projection = contract_operations_projection(db, contract)
+    conditions: list[dict[str, Any]] = []
+    for blocker in projection["controls"]["open_readiness_blockers"]:
+        conditions.append({"key": f"READINESS:{blocker['code']}", "title": f"Resolve Contract readiness: {blocker['label']}", "description": blocker["label"], "priority": "HIGH", "next_action": blocker["code"]})
+    if projection["schedule_state"] == "OVERDUE" or projection["delay_state"] == "OVERDUE":
+        conditions.append({"key": "SCHEDULE:OVERDUE", "title": "Review Contract schedule risk", "description": "A Contract action or milestone is overdue.", "priority": "HIGH", "next_action": "REVIEW_SCHEDULE_RISK"})
+    if projection["controls"]["required_input_state"] == "OPEN_REQUIRED_INPUTS":
+        cutoff = now() - timedelta(days=7)
+        if any(item.created_at and item.created_at <= cutoff for item in db.scalars(select(ContractClientInputRequirement).where(ContractClientInputRequirement.contract_id == contract.id)).all()):
+            conditions.append({"key": "INPUTS:AGED_REQUIRED_DOCUMENTS", "title": "Follow up aged Contract inputs", "description": "Required Contract inputs have remained unresolved under the governed age policy.", "priority": "HIGH", "next_action": "FOLLOW_UP_REQUIRED_INPUTS"})
+    if projection["controls"]["earned_not_invoiced_state"] == "EARNED_BUT_NOT_INVOICED":
+        conditions.append({"key": "BILLING:EARNED_NOT_INVOICED", "title": "Review earned milestone not invoiced", "description": "A governed billing milestone is earned but has no issued invoice.", "priority": "HIGH", "next_action": "REVIEW_EARNED_MILESTONE"})
+    if projection["controls"]["extension_state"] in {"PRE_EXPIRY_EXTENSION_WARNING", "EXTENSION_REVIEW_REQUIRED"} or (
+        projection["dates"]["contract_end"] and projection["dates"].get("contract_end") >= now().date().isoformat() and projection["risk_state"] == "BLOCKED"
+    ):
+        conditions.append({"key": "SCHEDULE:PRE_EXPIRY_RISK", "title": "Review pre-expiry Contract risk", "description": "Open canonical blockers put the current Contract at risk before its governed end date.", "priority": "HIGH", "next_action": "REVIEW_PRE_EXPIRY_RISK"})
+    active_condition_keys = {item["key"] for item in conditions}
+    existing = db.scalars(select(WorkflowTask).where(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract.id, WorkflowTask.task_type == "CONTRACT_EXCEPTION_REVIEW")).all()
+    closed = 0
+    for task in existing:
+        key = (task.evidence_summary or {}).get("condition_key")
+        if key and key not in active_condition_keys and str(task.status).upper() not in {"COMPLETED", "CANCELLED"}:
+            task.status = "COMPLETED"
+            task.completed_at = now()
+            closed += 1
+            audit(db, correlation_id=correlation_id, event_type="CONTRACT_EXCEPTION_RESOLVED", entity_type="WorkflowTask", entity_id=task.id, actor_id=actor, after={"condition_key": key, "status": task.status}, metadata={"canonical_truth": True})
+    created: list[WorkflowTask] = []
+    for condition in conditions:
+        task = next((item for item in existing if (item.evidence_summary or {}).get("condition_key") == condition["key"] and str(item.status).upper() not in {"COMPLETED", "CANCELLED"}), None)
+        if task:
+            continue
+        stable_id = f"contract:{contract.id}:exception:{condition['key']}"
+        task = WorkflowTask(project_id=contract.project_id, task_type="CONTRACT_EXCEPTION_REVIEW", title=condition["title"], description=condition["description"], owner_role="OWNER", status="OPEN", priority=condition["priority"], correlation_id=stable_id[:100], task_family="CONTRACTS", context_type="CONTRACT", context_id=contract.id, blocking=True, next_action_code=condition["next_action"], deep_link=f"/contracts/{contract.id}", evidence_summary={"condition_key": condition["key"], "evaluated_from": "CANONICAL_CONTRACT_OPERATIONS_PROJECTION", "external_send": False})
+        db.add(task)
+        db.flush()
+        db.add(NotificationEvent(workflow_task_id=task.id, recipient_role="OWNER", channel="IN_APP", event_type="CONTRACT_EXCEPTION_REVIEW_REQUIRED", status="PENDING", subject=condition["title"], body_preview=condition["description"], correlation_id=stable_id[:100], domain="CONTRACT_WORKFLOW", contract_id=contract.id, proposal_id=contract.proposal_id, severity=condition["priority"], audience=["OWNER"], actor=actor, deep_link=f"/contracts/{contract.id}"))
+        audit(db, correlation_id=correlation_id, event_type="CONTRACT_EXCEPTION_CREATED", entity_type="WorkflowTask", entity_id=task.id, actor_id=actor, after={"condition_key": condition["key"], "status": task.status}, metadata={"canonical_truth": True, "external_send": False})
+        created.append(task)
+    return {"created": [item.id for item in created], "resolved": closed, "active_condition_keys": sorted(active_condition_keys), "source_of_record": "WorkflowTask+NotificationEvent+canonical_contract_projection", "external_send": False}
 
 
 def contract_projection(db: Session, contract: Contract, *, include_history: bool = True) -> dict[str, Any]:

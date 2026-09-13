@@ -8,7 +8,9 @@ import base64
 import binascii
 import hashlib
 import os
+import io
 from pathlib import Path
+import zipfile
 from typing import Any
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
@@ -23,7 +25,7 @@ from ..models import ClientAccount, ContactPoint, Contract, ContractAdminEvidenc
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.admin_contract_read_model import owner_contract_extensions
 from ..ai.contract_skills import contract_skill_catalogue
-from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, OPERATIONAL_CONTACT_PURPOSES, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, now, operational_contact_routing_projection, project_activation, readiness, resolve_operational_contact
+from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, OPERATIONAL_CONTACT_PURPOSES, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, evaluate_contract_exceptions, now, operational_contact_routing_projection, project_activation, readiness, resolve_operational_contact
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
 from ..config.settings import get_settings
@@ -31,6 +33,7 @@ from ..storage.factory import create_binary_store
 from ..storage.port import StorageTarget
 from ..storage.service import DocumentStorageService
 from ..storage.errors import StorageError
+from ..services.upload_scanner import configured_upload_scanner
 
 
 router = APIRouter(prefix="/api/admin/contracts", tags=["administration-contract-owner-session"])
@@ -572,6 +575,8 @@ def decide_contract_authority(contract_id: str, payload: AuthorityPayload, reque
             return {"decision": "ALREADY_AUTHORITY_REVIEWED", "revision_id": revision.id, "contract": contract_projection(db, contract)}
         before = {"revision_status": revision.status, "contract_stage": contract.stage, "authority_state": contract.authority_state}
         revision.status = "APPROVED"
+        review = {"revision_id": revision.id, "reviewed_by": _request_actor(request, role), "reviewed_at": now().isoformat(), "decision": "APPROVE", "policy_version": "CONTRACT_DURABLE_AUTHORITY_REVIEW_V1", "reason": payload.reason}
+        revision.admin_input_snapshot = {**(revision.admin_input_snapshot or {}), "authority_review": review}
         contract.authority_state = "AUTHORIZED_OWNER_REVIEW"
         contract.stage = "READY"
         contract.status = "READY"
@@ -634,6 +639,8 @@ def accept_contract(contract_id: str, payload: AcceptContractPayload, request: R
         return {"decision": "ALREADY_ACCEPTED", "revision_id": revision.id, "contract": contract_projection(db, contract)}
     if contract_revision_is_finalized(revision):
         raise domain_error(409, "CONTRACT_FINALIZED_REVISION_IMMUTABLE", revision_id=revision.id)
+    if not contract_revision_is_authority_reviewed(revision):
+        raise domain_error(409, "CONTRACT_AUTHORITY_REVIEW_REQUIRED", revision_id=revision.id)
     check = readiness(db, contract)
     if not check["ready"]:
         raise domain_error(409, "CONTRACT_ACCEPT_BLOCKED", blockers=check["blockers"])
@@ -897,7 +904,7 @@ def _synthetic_document_mode() -> bool:
 
 
 MAX_CONTRACT_UPLOAD_BYTES = 25 * 1024 * 1024
-ALLOWED_CONTRACT_MIME_TYPES = {"application/pdf", "text/plain", "application/octet-stream", "image/png", "image/jpeg", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
+ALLOWED_CONTRACT_MIME_TYPES = {"application/pdf", "text/plain", "image/png", "image/jpeg", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
 
 
 def _validate_contract_upload(*, filename: str, mime_type: str, content: bytes) -> None:
@@ -916,15 +923,20 @@ def _validate_contract_upload(*, filename: str, mime_type: str, content: bytes) 
         normalized_mime == "application/pdf" and content.startswith(b"%PDF-")
         or normalized_mime == "image/png" and content.startswith(b"\x89PNG\r\n\x1a\n")
         or normalized_mime == "image/jpeg" and content.startswith(b"\xff\xd8\xff")
-        or normalized_mime in {"text/plain", "application/octet-stream"}
-        or normalized_mime.endswith("wordprocessingml.document") and content.startswith(b"PK")
+        or normalized_mime == "text/plain"
+        or normalized_mime.endswith("wordprocessingml.document") and content.startswith(b"PK") and _valid_docx(content)
     )
     if not magic_ok:
         raise domain_error(422, "CONTRACT_UPLOAD_MAGIC_MISMATCH", mime_type=normalized_mime)
-    settings = get_settings()
-    scanner_ready = bool(os.getenv("CONTRACT_UPLOAD_SCANNER_READY")) or _synthetic_document_mode()
-    if str(settings.app_env).upper() == "PROD" and not scanner_ready:
-        raise domain_error(503, "CONTRACT_UPLOAD_SCANNER_UNAVAILABLE_FAIL_CLOSED")
+
+
+def _valid_docx(content: bytes) -> bool:
+    try:
+        with zipfile.ZipFile(io.BytesIO(content)) as archive:
+            names = set(archive.namelist())
+            return "[Content_Types].xml" in names and "word/document.xml" in names
+    except (OSError, ValueError, zipfile.BadZipFile):
+        return False
 
 
 def _record_contract_document_bytes(contract_id: str, *, source_role: str, source_filename: str, mime_type: str, content: bytes, reason: str, commercial_terms: dict[str, Any] | None, request: Request, db: Session, role: Role) -> dict[str, Any]:
@@ -935,6 +947,12 @@ def _record_contract_document_bytes(contract_id: str, *, source_role: str, sourc
     if source_role not in allowed_document_roles:
         raise domain_error(422, "CONTRACT_DOCUMENT_ROLE_INVALID", allowed=sorted(allowed_document_roles))
     _validate_contract_upload(filename=source_filename, mime_type=mime_type, content=content)
+    scan = configured_upload_scanner(synthetic=_synthetic_document_mode()).scan(content, source_filename, mime_type)
+    if scan.state != "CLEAN":
+        audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_DOCUMENT_UPLOAD_REJECTED", entity_type="Contract", entity_id=contract.id, actor_id=actor_name(role), after={"source_role": source_role, "scanner_state": scan.state, "scanner_provider": scan.provider}, metadata={"detail": scan.detail, "current_pointer_advanced": False, "fail_closed": True})
+        db.commit()
+        status = 503 if scan.state in {"SCAN_ERROR", "SCANNER_UNAVAILABLE"} else 422
+        raise domain_error(status, f"CONTRACT_UPLOAD_{scan.state}_REJECTED", scanner_provider=scan.provider, detail=scan.detail)
     digest = hashlib.sha256(content).hexdigest()
     logical_name = f"contract:{contract.id}:{source_role}"
     document = db.scalar(select(Document).where(Document.project_id.is_(None), Document.logical_name == logical_name))
@@ -946,7 +964,8 @@ def _record_contract_document_bytes(contract_id: str, *, source_role: str, sourc
     if previous and previous.sha256 == digest:
         return {"status": "ALREADY_CURRENT", "document_version_id": previous.id, "contract": contract_projection(db, contract)}
     version_number = (previous.version_number + 1) if previous else 1
-    if get_settings().storage_provider.lower() == "smb":
+    settings = get_settings()
+    if settings.storage_provider.lower() in {"smb", "azure_blob"}:
         try:
             store = create_binary_store()
             version = DocumentStorageService(store).store_version(
@@ -955,18 +974,18 @@ def _record_contract_document_bytes(contract_id: str, *, source_role: str, sourc
                 content=content,
                 filename=source_filename,
                 mime_type=mime_type,
-                target=StorageTarget(store.provider_id, store.config.share, f"contracts/{contract.id}/{source_role.lower()}"),
+                target=StorageTarget(store.provider_id, "managed-artifacts", f"contracts/{contract.id}/{source_role.lower()}"),
                 actor=actor_name(role),
                 correlation_id=request.state.correlation_id,
                 idempotency_key=f"contract:{contract.id}:{source_role}:{digest}",
                 source_system="CONTRACT_WORKSPACE",
-                metadata={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "synthetic_only": False},
+                metadata={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "synthetic_only": False, "scanner_state": scan.state, "scanner_provider": scan.provider},
                 version_number=version_number,
             ).version
         except StorageError as exc:
             raise HTTPException(502, {"code": exc.code.value}) from exc
     else:
-        version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "read_back_verified": True, "synthetic_only": _synthetic_document_mode()})
+        version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "read_back_verified": True, "synthetic_only": _synthetic_document_mode(), "scanner_state": scan.state, "scanner_provider": scan.provider})
         db.add(version)
         db.flush()
     document.current_version_id = version.id
@@ -1102,6 +1121,15 @@ def get_activation(contract_id: str, db: Session = Depends(get_db), role: Role =
 def get_operations_projection(contract_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_READ")
     return contract_operations_projection(db, _contract_or_404(db, contract_id))
+
+
+@router.post("/{contract_id}/evaluate-exceptions")
+def evaluate_contract_exception_work(contract_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_EDIT")
+    contract = _contract_or_404(db, contract_id)
+    result = evaluate_contract_exceptions(db, contract, actor=_request_actor(request, role), correlation_id=request.state.correlation_id)
+    db.commit()
+    return result
 
 
 @router.post("/{contract_id}/activate-project")

@@ -36,6 +36,16 @@ def record_checker(client, contract_id: str, actor: str = "synthetic-contract-ch
     return response
 
 
+def record_authority(client, contract_id: str, actor: str = "synthetic-contract-authority"):
+    response = client.post(
+        f"/api/admin/contracts/{contract_id}/authority",
+        headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": actor},
+        json={"decision": "APPROVE", "reason": "Synthetic durable authority review"},
+    )
+    assert response.status_code == 200, response.text
+    return response
+
+
 def record_executed_evidence(client, contract_id: str, actor: str = "synthetic-contract-authority"):
     uploaded = client.post(f"/api/admin/contracts/{contract_id}/documents", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": actor}, json={"source_role": "EXECUTED_CONTRACT", "source_filename": "executed-contract.txt", "content": f"synthetic executed copy for {contract_id}", "reason": "Synthetic activation prerequisite"})
     assert uploaded.status_code == 200, uploaded.text
@@ -247,8 +257,22 @@ def make_accepted_proposal(client, name="Skyline Factory Industrial"):
     assert proceeded.status_code == 200, proceeded.text
     engineering_ready = client.post(f"/api/proposals-main/proposals/{proposal_id}/engineering-ready", headers=headers("RESPONSIBLE_ENGINEER"))
     assert engineering_ready.status_code == 200, engineering_ready.text
+    assessment = client.post(f"/api/bd/proposals/{proposal_id}/technical-assessments", headers=headers("RESPONSIBLE_ENGINEER"), json={"status": "PASS", "findings": [{"code": "SYNTHETIC_FIXTURE_READY"}]})
+    assert assessment.status_code == 200, assessment.text
+    assessment_id = assessment.json()["control"]["id"]
+    scope = client.post(f"/api/bd/proposals/{proposal_id}/scope-confirmations", headers=headers("COMMERCIAL_APPROVER"), json={"scope_statement": "Synthetic fixture scope confirmed", "service_offering_codes": ["PERMITTING"], "technical_assessment_ids": [assessment_id]})
+    assert scope.status_code == 200, scope.text
+    eligibility = client.post(f"/api/bd/proposals/{proposal_id}/service-eligibility", headers=headers("COMMERCIAL_APPROVER"), json={"service_offering_code": "PERMITTING", "result": "ELIGIBLE"})
+    assert eligibility.status_code == 200, eligibility.text
     accepted = client.post(f"/api/bd/proposals/{proposal_id}/accept", headers=headers("COMMERCIAL_APPROVER"))
     assert accepted.status_code == 200, accepted.text
+    assert client.post(f"/api/bd/proposals/{proposal_id}/commercial-release", headers=headers("COMMERCIAL_APPROVER"), json={}).status_code == 200
+    assert client.post(f"/api/bd/proposals/{proposal_id}/distribution", headers=headers("COMMERCIAL_APPROVER"), json={"channel": "CLIENT_PORTAL", "evidence_reference": f"synthetic://fixture-distribution/{proposal_id}"}).status_code == 200
+    response = client.post(f"/api/bd/proposals/{proposal_id}/client-responses", headers=headers("COMMERCIAL_APPROVER"), json={"response_type": "ACCEPTED", "evidence_reference": f"synthetic://fixture-acceptance/{proposal_id}"})
+    assert response.status_code == 200, response.text
+    assert client.post(f"/api/bd/proposals/{proposal_id}/acceptance-verification", headers=headers("COMMERCIAL_APPROVER"), json={"client_response_id": response.json()["response"]["id"], "evidence_reference": f"synthetic://fixture-acceptance/{proposal_id}"}).status_code == 200
+    assert client.post(f"/api/bd/proposals/{proposal_id}/lpo-reconciliation", headers=headers("COMMERCIAL_APPROVER"), json={"applies": False, "adjudication_note": "NOT_REQUIRED_BY_GOVERNING_REQUIREMENT: synthetic fixture has no PO/LPO."}).status_code == 200
+    assert client.post(f"/api/bd/proposals/{proposal_id}/handoff/contract-eligibility", headers=headers("COMMERCIAL_APPROVER"), json={}).status_code == 200
     return proposal_id, accepted.json()["current_revision"]
 
 
@@ -291,6 +315,7 @@ def test_contract_manual_policy_permissions_and_explicit_project_activation(clie
     assert blocked_activation.status_code == 409
     assert blocked_activation.json()["detail"]["code"] == "CONTRACT_ACCEPTANCE_REQUIRED"
     record_checker(client, contract_id)
+    record_authority(client, contract_id)
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept-activation:{contract_id}"})
     assert accepted.status_code == 200, accepted.text
     record_executed_evidence(client, contract_id)
@@ -414,6 +439,7 @@ def test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptanc
     assert changed["origin"]["accepted_revision_id"] == accepted_revision["id"]
 
     record_checker(client, contract_id)
+    record_authority(client, contract_id)
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": f"accept:{contract_id}"})
     assert accepted.status_code == 200, accepted.text
     assert accepted.json()["decision"] == "ACCEPTED"
@@ -440,7 +466,7 @@ def test_contract_origin_safe_default_blocks_legacy_acceptance_and_activation(cl
     assert body["contract"].get("project_description") in {"Not provided", None}
     blocked = client.post(f"/api/admin/contracts/{legacy['id']}/accept", headers=headers("OWNER_SPONSOR"), json={"idempotency_key": "legacy-accept-blocked"})
     assert blocked.status_code == 409
-    assert blocked.json()["detail"]["code"] == "CONTRACT_ACCEPT_BLOCKED"
+    assert blocked.json()["detail"]["code"] == "CONTRACT_AUTHORITY_REVIEW_REQUIRED"
     activation = client.post(f"/api/admin/contracts/{legacy['id']}/activate-project", headers=headers("OWNER_SPONSOR"), json={"project_code": "AMEC-LEGACY-001", "start_date": "2026-08-15", "idempotency_key": "legacy-activation-blocked"})
     assert activation.status_code == 409
     assert activation.json()["detail"]["code"] == "CONTRACT_ACCEPTANCE_REQUIRED"
@@ -463,7 +489,7 @@ def test_contract_authority_review_does_not_accept_or_activate_and_checker_is_ex
         json={"idempotency_key": "boundary-direct-accept"},
     )
     assert direct_accept.status_code == 409
-    assert direct_accept.json()["detail"]["code"] == "CONTRACT_ACCEPT_BLOCKED"
+    assert direct_accept.json()["detail"]["code"] == "CONTRACT_AUTHORITY_REVIEW_REQUIRED"
     assert "contract-preparer" not in str(direct_accept.json())
 
     same_actor_checker = client.post(
@@ -516,6 +542,7 @@ def test_contract_execution_distribution_and_operations_handoff_are_distinct_and
     assert created.status_code == 200, created.text
     contract_id = created.json()["id"]
     record_checker(client, contract_id, actor="closure-checker")
+    record_authority(client, contract_id, actor="closure-authority")
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "closure-authority"}, json={"idempotency_key": "closure-accept"})
     assert accepted.status_code == 200, accepted.text
 
@@ -542,7 +569,7 @@ def test_contract_execution_distribution_and_operations_handoff_are_distinct_and
     prerequisites = client.get(f"/api/admin/contracts/{contract_id}/start-prerequisites", headers=headers("OWNER_SPONSOR"))
     assert prerequisites.status_code == 200, prerequisites.text
     assert prerequisites.json()["required_advance"]["applicability"] == "NOT_APPLICABLE"
-    assert any(item["fact"] == "PROJECT_ACTIVATION" and item["state"] == "MISSING" for item in prerequisites.json()["facts"])
+    assert any(item["fact"] == "PROJECT_ACTIVATION" and item["state"] == "NOT_RECORDED" for item in prerequisites.json()["facts"])
 
     with SessionLocal() as db:
         rows = db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id == contract_id).all()

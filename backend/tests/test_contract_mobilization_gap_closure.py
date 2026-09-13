@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from backend.app.db import SessionLocal
 from backend.app.models import AuditEvent, Contract, ContractAdminEvidence, ContractRevision, Project, ProjectActivation, ServiceEngagement
-from backend.tests.test_admin_contract_owner_session import ensure_contract_template, make_accepted_proposal, record_checker
+from backend.tests.test_admin_contract_owner_session import ensure_contract_template, make_accepted_proposal, record_authority, record_checker
 
 
 def headers(role: str, actor: str | None = None) -> dict[str, str]:
@@ -23,6 +23,7 @@ def test_executed_evidence_service_gate_operations_and_persistence(client):
     contract_id = created.json()["id"]
     revision_id = created.json()["current_revision"]["id"]
     record_checker(client, contract_id, actor="contract-checker")
+    record_authority(client, contract_id, actor="contract-authority")
     accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR", "contract-authority"), json={"idempotency_key": f"gap-accept:{suffix}"})
     assert accepted.status_code == 200, accepted.text
     assert accepted.json()["contract"]["current_revision"]["accepted"] is True
