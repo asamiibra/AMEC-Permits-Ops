@@ -58,6 +58,30 @@ test.describe("Contract Center final Owner hardening", () => {
     await expect(page.getByRole("heading", { name: "Extension request & history", exact: true })).toBeVisible();
   });
 
+  test("records an extension request through the authority UI and preserves historical dates", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    const response = await page.request.get("/api/admin/contracts?filter=ALL");
+    const body = await response.json();
+    const contractId = (body.items || []).find((item: { contract_ref?: string }) => item.contract_ref === "SYN-CTR-0007")?.id;
+    expect(contractId).toBeTruthy();
+    const before = await page.request.get(`/api/admin/contracts/${contractId}`);
+    const beforeBody = await before.json();
+    const originalEnd = beforeBody.contract?.expected_close_date;
+    const request = await page.request.post(`/api/admin/contracts/${contractId}/extension-requests`, { data: { requested_end_date: "2027-01-31", source_reference: `browser-extension:${Date.now()}`, reason: "Client-approved schedule movement requires authority review" } });
+    expect(request.ok()).toBeTruthy();
+    await page.goto(`/contract-mobilization/contracts/${contractId}`);
+    await expect(page.getByRole("heading", { name: "Extension authority decision", exact: true })).toBeVisible({ timeout: 45_000 });
+    await page.getByPlaceholder("Explain the authority decision").fill("Approve for prospective amendment after owner review");
+    await page.getByRole("button", { name: "Approve extension", exact: true }).click();
+    await expect(page.locator(".contract-message[role=status]").last()).toContainText("APPROVE recorded", { timeout: 45_000 });
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Extension authority decision", exact: true })).toBeVisible();
+    await expect(page.getByText("APPROVE", { exact: true }).last()).toBeVisible();
+    const after = await page.request.get(`/api/admin/contracts/${contractId}`);
+    const afterBody = await after.json();
+    expect(afterBody.contract?.expected_close_date).toBe(originalEnd);
+  });
+
   test("header next action only focuses its owning panel", async ({ page }) => {
     await waitForContractRef(page, "SYN-CTR-0007");
     await page.goto("/contract-mobilization");
