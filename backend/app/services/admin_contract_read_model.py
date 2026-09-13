@@ -7,7 +7,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, ContractTemplateSnapshot, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalContactContext
+from ..models import ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, ContractTemplateSnapshot, Document, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalContactContext
 from .contract_workspace import contract_billing_context, contract_revision_is_accepted, contract_revision_is_authority_reviewed
 from .owner_decisions import runtime_decision_value
 
@@ -18,8 +18,9 @@ def _document(db: Session, version_id: str | None) -> dict[str, Any] | None:
     version = db.get(DocumentVersion, version_id)
     if not version:
         return {"id": version_id, "status": "MISSING"}
+    document = db.get(Document, version.document_id)
     approval = version.approval_state.value if hasattr(version.approval_state, "value") else version.approval_state
-    return {"id": version.id, "document_id": version.document_id, "version_number": version.version_number, "filename": version.source_filename, "source_reference": version.source_path_or_reference, "sha256": version.sha256, "approval_state": approval, "read_back_verified": bool((version.metadata_json or {}).get("read_back_verified")), "synthetic_only": bool((version.metadata_json or {}).get("synthetic_only")), "download": None}
+    return {"id": version.id, "document_id": version.document_id, "version_number": version.version_number, "filename": version.source_filename, "source_reference": version.source_path_or_reference, "sha256": version.sha256, "approval_state": approval, "currentness_state": "CURRENT" if document and document.current_version_id == version.id else "SUPERSEDED", "verification_state": "VERIFIED" if (version.metadata_json or {}).get("read_back_verified") else "UNVERIFIED", "read_back_verified": bool((version.metadata_json or {}).get("read_back_verified")), "synthetic_only": bool((version.metadata_json or {}).get("synthetic_only")), "download": None}
 
 
 def _client_fields(db: Session, contract: Contract, revision: ContractRevision | None) -> dict[str, Any]:
@@ -78,12 +79,12 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
     lpo = panel_document("LPO")
     client_document = panel_document("CLIENT_DOCUMENT")
     source_panel = [
-        {"key": "contract", "label": "Contract", "detail": f"Current Contract Revision {revision.revision_number}" if revision else "Current Contract Revision pending", "source": "ContractRevision", "open": None},
-        {"key": "document_list", "label": "Document List", "detail": f"{len(client_inputs)} structured client input(s)", "source": "ContractClientInputRequirement", "open": f"/admin/contracts/{contract.id}#documents-needed"},
-        {"key": "proposal", "label": "Accepted Proposal", "detail": f"{proposal.opportunity_reference} · Revision {accepted.revision_number}" if proposal and accepted else "Proposal origin requires reconciliation", "source": "AcceptedProposalRevision", "open": f"/opportunities/{proposal.id}" if proposal else None},
-        {"key": "lpo", "label": "LPO", "detail": lpo["document"]["filename"] if lpo["document"] else lpo["requiredness"]["label"], "source": "DocumentVersion", "open": lpo["document"]["download"] if lpo["document"] else None},
-        {"key": "client_document", "label": "Client Document", "detail": client_document["document"]["filename"] if client_document["document"] else client_document["requiredness"]["label"], "source": "DocumentVersion", "open": client_document["document"]["download"] if client_document["document"] else None},
-        {"key": "contract_template", "label": "Contract Template", "detail": f"Dashboard · v{template.version}" if template else "Not configured", "source": "Dashboard", "open": f"/admin/templates" if not template else f"/api/master-content/{template.master_content_id}/download"},
+        {"key": "contract", "label": "Contract", "detail": f"Current Contract Revision {revision.revision_number}" if revision else "Current Contract Revision pending", "source": "ContractRevision", "currentness_state": "CURRENT" if revision else "UNAVAILABLE", "verification_state": "CANONICAL_REVISION" if revision else "UNAVAILABLE", "open": None},
+        {"key": "document_list", "label": "Document List", "detail": f"{len(client_inputs)} structured client input(s)", "source": "ContractClientInputRequirement", "currentness_state": "CURRENT", "verification_state": "POLICY_PROJECTION", "open": f"/contract-mobilization/contracts/{contract.id}#contract-commitments"},
+        {"key": "proposal", "label": "Accepted Proposal", "detail": f"{proposal.opportunity_reference} · Revision {accepted.revision_number}" if proposal and accepted else "Proposal origin requires reconciliation", "source": "AcceptedProposalRevision", "currentness_state": "CURRENT" if proposal and accepted else "UNAVAILABLE", "verification_state": "ACCEPTED_REVISION" if proposal and accepted else "UNAVAILABLE", "open": f"/opportunities/{proposal.id}" if proposal else None},
+        {"key": "lpo", "label": "LPO", "detail": lpo["document"]["filename"] if lpo["document"] else lpo["requiredness"]["label"], "source": "DocumentVersion", "currentness_state": lpo["document"].get("currentness_state", "UNAVAILABLE") if lpo["document"] else "UNAVAILABLE", "verification_state": lpo["document"].get("verification_state", "UNAVAILABLE") if lpo["document"] else "UNAVAILABLE", "open": lpo["document"]["download"] if lpo["document"] else None},
+        {"key": "client_document", "label": "Client Document", "detail": client_document["document"]["filename"] if client_document["document"] else client_document["requiredness"]["label"], "source": "DocumentVersion", "currentness_state": client_document["document"].get("currentness_state", "UNAVAILABLE") if client_document["document"] else "UNAVAILABLE", "verification_state": client_document["document"].get("verification_state", "UNAVAILABLE") if client_document["document"] else "UNAVAILABLE", "open": client_document["document"]["download"] if client_document["document"] else None},
+        {"key": "contract_template", "label": "Contract Template", "detail": f"Dashboard · v{template.version}" if template else "Not configured", "source": "Dashboard", "currentness_state": "CURRENT" if template else "UNAVAILABLE", "verification_state": "PINNED_TEMPLATE" if template else "UNAVAILABLE", "open": f"/admin/templates" if not template else f"/api/master-content/{template.master_content_id}/download"},
     ]
     return {
         "contract": {"payment_condition_text": contract.payment_condition_text, "contracted_scope_text": contract.contracted_scope_text, "valuation_amount": str(contract.valuation_amount) if contract.valuation_amount is not None else None, "valuation_currency": contract.valuation_currency, "valuation_basis": contract.valuation_basis, "valuation_status": contract.valuation_status, "project_opportunity_ref": contract.project_opportunity_ref, "project_description": ((accepted.snapshot or {}).get("project_description") if accepted else None) or ((accepted.snapshot or {}).get("fields", {}).get("project_description") if accepted else None) or "Not provided"},

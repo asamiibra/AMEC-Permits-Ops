@@ -26,6 +26,8 @@ test.describe("Contract Center final Owner hardening", () => {
     await expect(page.locator("#proposal-origin")).toContainText("Synthetic Engineering Advisory Proposal");
     await expect(page.getByText("Requirement not configured", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("NEEDED", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeDisabled();
+    await page.getByPlaceholder("Why accept this exact revision?").fill("Confirm exact current Contract revision after authority review");
     await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeEnabled();
     await expect(page.getByRole("textbox", { name: "Project Code" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Activate Project", exact: true })).toBeDisabled();
@@ -36,6 +38,21 @@ test.describe("Contract Center final Owner hardening", () => {
     await expect(page.locator('.contract-section-nav a[href="#overview"]')).toHaveAttribute("href", "#overview");
     await expect(page.getByRole("button", { name: "+ Add Payment Term", exact: true })).toBeVisible();
     await expect(page.getByRole("textbox", { name: "Payment Term name" })).toHaveCount(0);
+  });
+
+  test("header next action only focuses its owning panel", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    await page.goto("/contract-mobilization");
+    const goldenRow = page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0007" });
+    await goldenRow.getByRole("button", { name: "Open", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Open Contract Acceptance", exact: true })).toBeVisible({ timeout: 45_000 });
+    const postRequests: string[] = [];
+    page.on("request", (request) => { if (request.method() === "POST") postRequests.push(request.url()); });
+    await page.getByRole("button", { name: "Open Contract Acceptance", exact: true }).click();
+    await expect(page.locator("#contract-review")).toBeFocused();
+    expect(postRequests).toEqual([]);
+    await expect(page.getByRole("textbox", { name: "Project Code" })).toBeDisabled();
+    await expect(page.getByRole("textbox", { name: "Project Start Date" })).toBeDisabled();
   });
 
   test("keeps the legacy Contract safe and separate", async ({ page }) => {

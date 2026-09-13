@@ -26,7 +26,7 @@ def test_permit_transition_requires_manual_source_and_preserves_same_project_lin
     generated_root = None
     generated_bootstrap = None
     with SessionLocal() as db:
-        contract = db.query(Contract).order_by(Contract.contract_reference).first()
+        contract = db.query(Contract).filter(Contract.contract_reference == "SYN-CTR-0001").one_or_none()
         project = db.get(Project, contract.project_id)
         application = db.query(PermitApplication).filter(PermitApplication.controlling_contract_id == contract.id).first()
         assert contract and project and application

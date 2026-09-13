@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import date, datetime, timezone
 from decimal import Decimal
+import base64
+import binascii
 import hashlib
 from pathlib import Path
 from typing import Any
@@ -150,7 +152,8 @@ class ClientInputPayload(BaseModel):
 class ContractDocumentPayload(BaseModel):
     source_role: str = Field(min_length=1, max_length=80)
     source_filename: str = Field(min_length=1, max_length=300)
-    content: str = Field(min_length=1, max_length=500000)
+    content: str | None = Field(default=None, max_length=500000)
+    content_base64: str | None = Field(default=None, max_length=700000)
     mime_type: str = Field(default="text/plain", max_length=100)
     commercial_terms: dict[str, Any] | None = None
     reason: str = Field(default="Owner Contract document evidence", min_length=3, max_length=1000)
@@ -834,7 +837,17 @@ def add_contract_document(contract_id: str, payload: ContractDocumentPayload, re
     source_role = payload.source_role.upper()
     if source_role not in {"LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"}:
         raise domain_error(422, "CONTRACT_DOCUMENT_ROLE_INVALID", allowed=["LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"])
-    content = payload.content.encode("utf-8")
+    if payload.content_base64:
+        try:
+            content = base64.b64decode(payload.content_base64, validate=True)
+        except (binascii.Error, ValueError) as exc:
+            raise domain_error(422, "CONTRACT_DOCUMENT_BASE64_INVALID") from exc
+    elif payload.content:
+        content = payload.content.encode("utf-8")
+    else:
+        raise domain_error(422, "CONTRACT_DOCUMENT_CONTENT_REQUIRED")
+    if not content:
+        raise domain_error(422, "CONTRACT_DOCUMENT_CONTENT_REQUIRED")
     digest = hashlib.sha256(content).hexdigest()
     logical_name = f"contract:{contract.id}:{source_role}"
     document = db.scalar(select(Document).where(Document.project_id.is_(None), Document.logical_name == logical_name))

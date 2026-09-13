@@ -26,7 +26,10 @@ export type ContractData = {
     amount?: string | number | null;
     currency?: string | null;
     duration?: string | null;
+    payment_condition_text?: string | null;
+    contracted_scope_text?: string | null;
     project_description?: string | null;
+    project_opportunity_ref?: string | null;
     last_activity?: string | null;
     expected_close_date?: string | null;
     authority_state?: string | null;
@@ -45,7 +48,7 @@ export type ContractData = {
   evidence?: Array<Record<string, any>>;
   client_document?: Record<string, any>;
   lpo?: Record<string, any>;
-  source_panel?: Array<{ key?: string; label?: string; detail?: string; source?: string; open?: string | null }>;
+  source_panel?: Array<{ key?: string; label?: string; detail?: string; source?: string; open?: string | null; currentness_state?: string; verification_state?: string; classifier_candidate?: string | null; classifier_confidence?: number | null }>;
   payment_terms?: Array<Record<string, any>>;
   deliverables?: Array<Record<string, any>>;
   client_inputs?: Array<Record<string, any>>;

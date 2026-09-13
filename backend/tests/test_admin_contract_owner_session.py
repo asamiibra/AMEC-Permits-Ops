@@ -1,5 +1,7 @@
 """Administration Contract owner-session acceptance coverage."""
 
+import base64
+import hashlib
 import pytest
 from uuid import uuid4
 
@@ -46,7 +48,7 @@ def record_executed_evidence(client, contract_id: str, actor: str = "synthetic-c
 def clean_owner_fixture():
     yield
     with SessionLocal() as db:
-        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Project Activation Fixture", "Contract Reconciliation Fixture", "Contract Page Owner Sketch Delta Fixture", "External Construction Agreement Boundary"])).all()
+        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Project Activation Fixture", "Contract Reconciliation Fixture", "Contract Page Owner Sketch Delta Fixture", "Contract Authority Boundary Fixture", "External Construction Agreement Boundary"])).all()
         proposal_ids = [item.id for item in proposals]
         contracts = db.query(Contract).filter(Contract.proposal_id.in_(proposal_ids)).all() if proposal_ids else []
         contract_ids = [item.id for item in contracts]
@@ -382,8 +384,26 @@ def test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptanc
     downloaded = client.get(f"/api/admin/contracts/{contract_id}/documents/{client_v2.json()['document_version_id']}/download", headers=headers("OWNER_SPONSOR"))
     assert downloaded.status_code == 200
     assert downloaded.content == b"client document version two"
+    binary_payload = b"%PDF-1.7\x00amec\xffcontract\x00"
+    binary = client.post(
+        f"/api/admin/contracts/{contract_id}/documents",
+        headers=headers("OWNER_SPONSOR"),
+        json={
+            "source_role": "CLIENT_DOCUMENT",
+            "source_filename": "client-document-binary.pdf",
+            "mime_type": "application/pdf",
+            "content_base64": base64.b64encode(binary_payload).decode("ascii"),
+            "reason": "Owner recorded the exact binary Client Document bytes",
+        },
+    )
+    assert binary.status_code == 200, binary.text
+    assert binary.json()["sha256"] == hashlib.sha256(binary_payload).hexdigest()
+    binary_download = client.get(f"/api/admin/contracts/{contract_id}/documents/{binary.json()['document_version_id']}/download", headers=headers("OWNER_SPONSOR"))
+    assert binary_download.status_code == 200
+    assert binary_download.content == binary_payload
+    assert binary_download.headers["x-document-sha256"] == hashlib.sha256(binary_payload).hexdigest()
     with SessionLocal() as db:
-        assert db.query(DocumentVersion).filter(DocumentVersion.document_id == client_v1["document_id"]).count() == 2
+        assert db.query(DocumentVersion).filter(DocumentVersion.document_id == client_v1["document_id"]).count() == 3
 
     changed_fields = client.patch(f"/api/admin/contracts/{contract_id}/client-fields", headers=headers("OWNER_SPONSOR"), json={"client_name": "Contract-side Client", "client_company": "Contract-side Company", "cr_number": "CR-DELTA", "mobile": "+974 5555 0101", "client_email": "owner@example.test", "reason": "Owner confirmed Contract party fields"})
     assert changed_fields.status_code == 200, changed_fields.text

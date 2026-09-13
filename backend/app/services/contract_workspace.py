@@ -688,6 +688,35 @@ def resolve_operational_contact(
 
 def operational_contact_routing_projection(db: Session, contract: Contract, project: Project | None = None) -> dict[str, Any]:
     routes = {purpose: resolve_operational_contact(db, project=project, contract=contract, purpose=purpose) for purpose in sorted(OPERATIONAL_CONTACT_PURPOSES)}
+    eligible_options: dict[str, list[dict[str, Any]]] = {purpose: [] for purpose in routes}
+    if project:
+        evaluated_on = now().date()
+        contacts = db.scalars(select(ContactPoint).where(ContactPoint.project_id == project.id)).all()
+        assignments = db.scalars(select(PartyRoleAssignment).where(PartyRoleAssignment.project_id == project.id, PartyRoleAssignment.status == "ACTIVE")).all()
+        active_assignments = [item for item in assignments if (not item.valid_from or item.valid_from <= evaluated_on) and (not item.valid_until or item.valid_until >= evaluated_on)]
+        operational_party_ids = {item.party_id for item in active_assignments if item.role_code == OPERATIONAL_CONTACT_ROLE}
+        organization_party_ids = {item.party_id for item in active_assignments if item.role_code == OPERATIONAL_CONTACT_ORGANIZATION_ROLE}
+        client = db.get(ClientAccount, contract.client_account_id) if contract.client_account_id else None
+        if client and client.canonical_party_id:
+            organization_party_ids &= {client.canonical_party_id}
+        for contact in contacts:
+            purpose = str(contact.purpose or "").upper()
+            current, _ = _contact_is_current(contact, evaluated_on)
+            if purpose not in eligible_options or not current or contact.party_id not in operational_party_ids:
+                continue
+            for organization_party_id in sorted(organization_party_ids):
+                eligible_options[purpose].append({
+                    "contact_point_id": contact.id,
+                    "operational_contact_party_id": contact.party_id,
+                    "operational_contact": _party_summary(db, contact.party_id),
+                    "organization_party_id": organization_party_id,
+                    "organization": _party_summary(db, organization_party_id),
+                    "channel": contact.channel,
+                    "value_present": bool(contact.value),
+                    "practical_role": "Owner-confirmed operational contact",
+                })
+    for purpose, route in routes.items():
+        route["eligible_options"] = eligible_options[purpose]
     return {
         "purposes": routes,
         "generic_fallback_policy": "DISALLOWED",
@@ -925,6 +954,37 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
     issued_milestones = {item.controlling_milestone_id for item in invoice_revisions if item.status == "ISSUED"}
     billing_state = "READY_TO_INVOICE" if earned else "INVOICE_ISSUED" if any(item.status == "ISSUED" for item in invoice_revisions) else "NO_INVOICE_DUE_SIGNAL"
     collection_state = "NOT_ISSUED" if not invoice_revisions else "ISSUED" if any(item.status == "ISSUED" for item in invoice_revisions) else "PREPARATION"
+    client_copy = any(item.source_role == "CLIENT_COPY_DISTRIBUTION" and item.contract_revision_id == (revision.id if revision else None) for item in evidence)
+    operations_handoff = any(item.source_role == "OPERATIONS_HANDOFF" and item.contract_revision_id == (revision.id if revision else None) for item in evidence)
+    accepted_proposal = bool(contract.accepted_proposal_revision_id and accepted_revision(db, contract.proposal_id, contract.accepted_proposal_revision_id) if contract.proposal_id else False)
+    checker = bool((revision.admin_input_snapshot or {}).get("maker_checker", {}).get("checker")) if revision else False
+    authority_review = contract_revision_is_authority_reviewed(revision)
+    contract_accepted = contract_revision_is_accepted(revision)
+    readiness_by_name = readiness_states["states"]
+    lifecycle_milestones = [
+        {"code": "PROPOSAL_ACCEPTED", "label": "Proposal accepted", "complete": accepted_proposal, "evidence": "ProposalAcceptedRevision" if accepted_proposal else None, "blocked_reason": None if accepted_proposal else "Accepted Proposal revision not recorded"},
+        {"code": "CONTRACT_PREPARED", "label": "Contract prepared", "complete": bool(revision), "evidence": f"ContractRevision:{revision.id}" if revision else None, "blocked_reason": None if revision else "Current Contract revision not recorded"},
+        {"code": "CHECKER_COMPLETED", "label": "Checker completed", "complete": checker, "evidence": "maker_checker.checker" if checker else None, "blocked_reason": None if checker else "Independent checker not recorded"},
+        {"code": "AUTHORITY_REVIEW_COMPLETED", "label": "Authority review completed", "complete": authority_review, "evidence": revision.status if authority_review and revision else None, "blocked_reason": None if authority_review else "Authority review not recorded"},
+        {"code": "CONTRACT_ACCEPTED", "label": "Contract accepted", "complete": contract_accepted, "evidence": "acceptance" if contract_accepted else None, "blocked_reason": None if contract_accepted else "Contract acceptance not recorded"},
+        {"code": "EXECUTED_CONTRACT_RECORDED", "label": "Executed Contract recorded", "complete": bool(executed_evidence), "evidence": executed_evidence[0].id if executed_evidence else None, "blocked_reason": None if executed_evidence else "Executed Contract evidence not recorded"},
+        {"code": "CLIENT_COPY_DISTRIBUTED", "label": "Client copy distributed", "complete": client_copy, "evidence": "CLIENT_COPY_DISTRIBUTION" if client_copy else None, "blocked_reason": None if client_copy else "Client distribution not recorded"},
+        {"code": "OPERATIONS_HANDOFF_RECORDED", "label": "Operations handoff recorded", "complete": operations_handoff, "evidence": "OPERATIONS_HANDOFF" if operations_handoff else None, "blocked_reason": None if operations_handoff else "Operations handoff not recorded"},
+        {"code": "COMMERCIAL_START_READY", "label": "Commercial start ready", "complete": readiness_by_name["COMMERCIAL_START_READY"]["result"] == "READY", "evidence": readiness_by_name["COMMERCIAL_START_READY"]["policy_version"], "blocked_reason": "; ".join(readiness_by_name["COMMERCIAL_START_READY"]["missing_evidence"]) or None},
+        {"code": "DESIGN_START_READY", "label": "Design start ready", "complete": readiness_by_name["DESIGN_START_READY"]["result"] in {"READY", "NOT_APPLICABLE"}, "evidence": readiness_by_name["DESIGN_START_READY"]["policy_version"], "blocked_reason": "; ".join(readiness_by_name["DESIGN_START_READY"]["missing_evidence"]) or None},
+        {"code": "AUTHORITY_SUBMISSION_READY", "label": "Authority submission ready", "complete": readiness_by_name["AUTHORITY_SUBMISSION_READY"]["result"] in {"READY", "NOT_APPLICABLE"}, "evidence": readiness_by_name["AUTHORITY_SUBMISSION_READY"]["policy_version"], "blocked_reason": "; ".join(readiness_by_name["AUTHORITY_SUBMISSION_READY"]["missing_evidence"]) or None},
+        {"code": "PROJECT_ACTIVATED", "label": "Project activated", "complete": bool(activation), "evidence": activation.id if activation else None, "blocked_reason": None if activation else "Explicit Project Activation is separate"},
+        {"code": "SERVICE_SCOPE_ACTIVE", "label": "Service Scope active", "complete": any(str(item.status).upper() == "ACTIVE" for item in services), "evidence": "ServiceEngagement" if any(str(item.status).upper() == "ACTIVE" for item in services) else None, "blocked_reason": None if any(str(item.status).upper() == "ACTIVE" for item in services) else "No active ServiceEngagement is recorded"},
+        {"code": "CONTRACT_ADMINISTRATIVELY_CLOSED", "label": "Contract administrative close", "complete": False, "evidence": None, "blocked_reason": "Handover-owned close projection required"},
+    ]
+    if not authority_review:
+        primary_next_action = {"code": "CONTRACT_AUTHORITY_REVIEW", "label": "Open Contract Review", "action_type": "NAVIGATE", "target_section": "review", "capability": "CONTRACT_REVIEW_AUTHORITY", "enabled": True, "blocked_reason": None, "requires_form_input": False}
+    elif not contract_accepted:
+        primary_next_action = {"code": "CONTRACT_ACCEPTANCE", "label": "Open Contract Acceptance", "action_type": "NAVIGATE", "target_section": "review", "capability": "CONTRACT_ACCEPT_AUTHORITY", "enabled": True, "blocked_reason": None, "requires_form_input": False}
+    elif not executed_evidence or not client_copy or not operations_handoff:
+        primary_next_action = {"code": "EXECUTION_HANDOFF", "label": "Open Execution & Handoff", "action_type": "NAVIGATE", "target_section": "execution", "capability": "CONTRACT_HANDOFF", "enabled": True, "blocked_reason": None, "requires_form_input": True}
+    else:
+        primary_next_action = {"code": "PROJECT_ACTIVATION", "label": "Open Project Activation", "action_type": "NAVIGATE", "target_section": "mobilization", "capability": "PROJECT_ACTIVATE", "enabled": True, "blocked_reason": None, "requires_form_input": True}
     return {
         "status": "BLOCKED" if blockers else "READY",
         "source_of_record": "CANONICAL_CONTRACT_PROJECT_MOBILIZATION_READ_MODEL",
@@ -938,6 +998,8 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
         "risk_state": "BLOCKED" if open_blocking_findings or readiness_result["blockers"] else "NO_BLOCKING_RISK_RECORDED",
         "responsible_action": responsible_action,
         "next_action": next_action,
+        "primary_next_action": primary_next_action,
+        "lifecycle_milestones": lifecycle_milestones,
         "start_prerequisites": start_prerequisites,
         "readiness_states": readiness_states,
         "operational_contact_routing": operational_contact_routing,
