@@ -633,7 +633,7 @@ def test_contract_po_lpo_multipart_extension_and_forms_projection(client):
     large_pdf = b"%PDF-1.7\x00" + (b"amec-binary\xff" * 80000)
     po = client.post(f"/api/admin/contracts/{contract_id}/documents/upload", headers=headers("OWNER_SPONSOR"), data={"source_role": "PO", "reason": "Owner recorded exact purchase order"}, files={"file": ("purchase-order.pdf", large_pdf, "application/pdf")})
     assert po.status_code == 200, po.text
-    lpo = client.post(f"/api/admin/contracts/{contract_id}/documents/upload", headers=headers("OWNER_SPONSOR"), data={"source_role": "LPO", "reason": "Owner recorded exact letter of purchase order"}, files={"file": ("letter-of-purchase-order.pdf", b"LPO exact bytes", "application/pdf")})
+    lpo = client.post(f"/api/admin/contracts/{contract_id}/documents/upload", headers=headers("OWNER_SPONSOR"), data={"source_role": "LPO", "reason": "Owner recorded exact letter of purchase order"}, files={"file": ("letter-of-purchase-order.pdf", b"%PDF-1.7\nLPO exact bytes", "application/pdf")})
     assert lpo.status_code == 200, lpo.text
     assert po.json()["sha256"] == hashlib.sha256(large_pdf).hexdigest()
     assert po.json()["source_role"] == "PO" and lpo.json()["source_role"] == "LPO"

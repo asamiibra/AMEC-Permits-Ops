@@ -67,6 +67,9 @@ def test_executed_evidence_service_gate_operations_and_persistence(client):
     activation = client.post(f"/api/admin/contracts/{contract_id}/activate-project", headers=headers("OWNER_SPONSOR", "project-owner"), json={"project_code": f"AMEC-2026-{int(suffix[:3], 16) % 900 + 100:03d}", "start_date": "2026-09-11", "idempotency_key": f"gap-activation:{suffix}"})
     assert activation.status_code == 200, activation.text
     activated_project_id = activation.json()["activation"]["project_id"]
+    for role in ("EXISTING_DRAWINGS", "PROJECT_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID"):
+        dossier = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR", "dossier-owner"), json={"source_role": role, "source_filename": f"{role.lower()}.txt", "content": f"Synthetic {role} for {contract_id}", "reason": "Synthetic Design-entry dossier"})
+        assert dossier.status_code == 200, dossier.text
     service_payload = {"project_id": activated_project_id, "contract_id": contract_id, "contract_revision_id": revision_id, "service_ref": f"DESIGN-{suffix}", "service_offering_code": "DESIGN", "description": "Synthetic gated Design service"}
     service = client.post("/api/handover/service-engagements", headers=headers("OWNER_SPONSOR", "service-owner"), json=service_payload)
     assert service.status_code == 200, service.text

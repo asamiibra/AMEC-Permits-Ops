@@ -28,7 +28,7 @@ from ..services.proposal_final_hardening import hardening_projection, impacted_s
 from ..services.proposal_reference import allocate_proposal_reference
 from ..services.proposals_sor import _safe_filename, ingest_provisional_intake_artifact, read_proposal_source_bytes
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
-from ..services.proposal_commercial_controls import authorize_release, confirm_scope, create_handoff as create_proposal_handoff, record_distribution, record_eligibility, record_technical_assessment, reconcile_lpo, verify_acceptance
+from ..services.proposal_commercial_controls import authorize_release, confirm_scope, create_handoff as create_proposal_handoff, record_distribution, record_eligibility, record_signed_commercial_acceptance, record_technical_assessment, reconcile_lpo, verify_acceptance
 from ..services.owner_decisions import applied_runtime_decision_value, runtime_decision_value
 
 router = APIRouter(prefix="/api/bd/proposals", tags=["bd-proposal-owner-session"])
@@ -946,6 +946,20 @@ def verify_proposal_client_acceptance(proposal_id: str, payload: dict[str, Any],
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_CLIENT_ACCEPTANCE_VERIFIED", entity_type="ProposalAcceptanceVerification", entity_id=row.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "accepted_revision_id": row.accepted_revision_id, "client_response_id": row.client_response_id, "idempotent": idempotent})
     db.commit()
     return _control_result(row, idempotent=idempotent)
+
+
+@router.post("/{proposal_id}/signed-commercial-acceptance")
+def record_signed_commercial_acceptance_route(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    try:
+        result = record_signed_commercial_acceptance(db, proposal_id, payload, actor=_actor(role), correlation_id=request.state.correlation_id)
+    except ValueError as exc:
+        raise domain_error(409, str(exc)) from exc
+    verification = result["acceptance_verification"]
+    lpo = result["lpo_reconciliation"]
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_SIGNED_COMMERCIAL_ACCEPTANCE_RECORDED", entity_type="ProposalAcceptanceVerification", entity_id=verification.id, actor_id=_actor(role), after={"proposal_id": proposal_id, "accepted_revision_id": verification.accepted_revision_id, "acceptance_kind": payload.get("acceptance_kind"), "lpo_reconciliation_id": lpo.id if lpo else None})
+    db.commit()
+    return {"result": "IDEMPOTENT" if result["idempotent"] else "RECORDED", "acceptance_verification": {"id": verification.id, "accepted_revision_id": verification.accepted_revision_id, "evidence_document_version_id": verification.evidence_document_version_id, "evidence_reference": verification.evidence_reference, "status": verification.status}, "lpo_reconciliation": {"id": lpo.id, "result": lpo.result} if lpo else None}
 
 
 @router.post("/{proposal_id}/lpo-reconciliation")

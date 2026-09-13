@@ -26,6 +26,7 @@ from ..models import (
     ProposalScopeConfirmation,
     ProposalServiceEligibility,
     ProposalSourceEvidence,
+    DocumentVersion,
     ProposalStalenessEvent,
     ProposalTechnicalAssessment,
 )
@@ -204,6 +205,41 @@ def verify_acceptance(db: Session, proposal_id: str, payload: dict[str, Any], *,
     db.add(row)
     db.flush()
     return row, False
+
+
+def record_signed_commercial_acceptance(db: Session, proposal_id: str, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    """Record signed Proposal/PO/LPO acceptance through the existing Proposal revision.
+
+    This is a convenience transaction over the existing response, verification,
+    and LPO reconciliation records; it does not create a Contract acceptance
+    or a second commercial truth engine.
+    """
+    proposal = _proposal(db, proposal_id)
+    revision = latest_accepted(db, proposal_id)
+    acceptance_kind = str(payload.get("acceptance_kind") or "").upper()
+    if acceptance_kind not in {"SIGNED_PROPOSAL", "SIGNED_PO", "SIGNED_LPO"}:
+        raise ValueError("SIGNED_COMMERCIAL_ACCEPTANCE_KIND_INVALID")
+    evidence_reference = str(payload.get("evidence_reference") or "").strip()
+    if not evidence_reference or not payload.get("evidence_document_version_id"):
+        raise ValueError("SIGNED_COMMERCIAL_ACCEPTANCE_EVIDENCE_REQUIRED")
+    evidence_document = db.get(DocumentVersion, payload.get("evidence_document_version_id"))
+    linked_source = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal_id, ProposalSourceEvidence.content_hash == (evidence_document.sha256 if evidence_document else ""), ProposalSourceEvidence.status == "CURRENT")) if evidence_document else None
+    if not evidence_document or evidence_document.superseded_by or not linked_source:
+        raise ValueError("SIGNED_COMMERCIAL_ACCEPTANCE_EVIDENCE_LINEAGE_INVALID")
+    key = str(payload.get("idempotency_key") or f"signed-commercial-acceptance:{proposal_id}:{revision.id}:{acceptance_kind}")
+    existing = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal_id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.evidence_reference == evidence_reference))
+    if existing:
+        return {"acceptance_verification": existing, "lpo_reconciliation": db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal_id, ProposalLpoReconciliation.accepted_revision_id == revision.id)), "idempotent": True}
+    response = ProposalClientResponse(proposal_id=proposal_id, accepted_revision_id=revision.id, response_type="ACCEPTED", evidence_reference=evidence_reference, notes=payload.get("notes"), recorded_by=actor, idempotency_key=key)
+    db.add(response)
+    db.flush()
+    verification = ProposalAcceptanceVerification(proposal_id=proposal_id, accepted_revision_id=revision.id, client_response_id=response.id, evidence_reference=evidence_reference, evidence_document_version_id=payload.get("evidence_document_version_id"), verified_by=actor, verification_note=f"{acceptance_kind}; exact accepted Proposal revision", verified_at=_now(), audit_correlation_id=correlation_id)
+    db.add(verification)
+    db.flush()
+    lpo = None
+    if acceptance_kind in {"SIGNED_PO", "SIGNED_LPO"}:
+        lpo, _ = reconcile_lpo(db, proposal_id, {"applies": True, "client_document_version_id": payload.get("commercial_document_version_id") or payload.get("evidence_document_version_id"), "client_artifact_reference": payload.get("commercial_artifact_reference") or evidence_reference, "fields_compared": payload.get("fields_compared") or [], "variances": payload.get("variances") or [], "adjudication_note": payload.get("adjudication_note"), "idempotency_key": f"signed-lpo:{proposal_id}:{revision.id}:{acceptance_kind}"}, actor=actor, correlation_id=correlation_id)
+    return {"acceptance_verification": verification, "lpo_reconciliation": lpo, "idempotent": False}
 
 
 def reconcile_lpo(db: Session, proposal_id: str, payload: dict[str, Any], *, actor: str, correlation_id: str) -> tuple[ProposalLpoReconciliation, bool]:

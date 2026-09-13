@@ -7,6 +7,7 @@ from decimal import Decimal
 import base64
 import binascii
 import hashlib
+import os
 from pathlib import Path
 from typing import Any
 
@@ -259,7 +260,7 @@ def _document_version_for_contract_context(
         "DELIVERABLE": {"LPO", "PO", "CLIENT_DOCUMENT", "COMMERCIAL", "AWARD", "PROPOSAL", "SCOPE"},
         "CLIENT_INPUT": {"LPO", "PO", "CLIENT_DOCUMENT", "CLIENT_INPUT", "PROPOSAL", "SCOPE"},
         "EXECUTED_CONTRACT": {"EXECUTED_CONTRACT"},
-        "EVIDENCE": {"LPO", "PO", "CLIENT_DOCUMENT", "COMMERCIAL", "AWARD", "PROPOSAL"},
+        "EVIDENCE": {"LPO", "PO", "CLIENT_DOCUMENT", "COMMERCIAL", "AWARD", "PROPOSAL", "EXISTING_DRAWINGS", "OLD_DRAWINGS", "PROJECT_SKETCH", "SITE_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID", "OWNER_ID", "OWNER_QID", "ID", "IDENTITY"},
     }[purpose]
     linked = db.scalar(select(ContractAdminEvidence).where(
         ContractAdminEvidence.contract_id == contract.id,
@@ -895,14 +896,45 @@ def _synthetic_document_mode() -> bool:
     return bool(settings.synthetic_only and settings.storage_provider.lower() == "mock")
 
 
+MAX_CONTRACT_UPLOAD_BYTES = 25 * 1024 * 1024
+ALLOWED_CONTRACT_MIME_TYPES = {"application/pdf", "text/plain", "application/octet-stream", "image/png", "image/jpeg", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
+
+
+def _validate_contract_upload(*, filename: str, mime_type: str, content: bytes) -> None:
+    """Apply the provider-neutral pre-persistence upload security boundary."""
+    safe_name = Path(filename or "").name
+    if not safe_name or safe_name != filename or "\x00" in filename or filename in {".", ".."}:
+        raise domain_error(422, "CONTRACT_UPLOAD_FILENAME_INVALID")
+    if len(content) > MAX_CONTRACT_UPLOAD_BYTES:
+        raise domain_error(413, "CONTRACT_UPLOAD_TOO_LARGE", max_bytes=MAX_CONTRACT_UPLOAD_BYTES)
+    normalized_mime = (mime_type or "").split(";", 1)[0].strip().lower()
+    if normalized_mime not in ALLOWED_CONTRACT_MIME_TYPES:
+        raise domain_error(422, "CONTRACT_UPLOAD_MIME_INVALID", mime_type=normalized_mime)
+    if not content:
+        raise domain_error(422, "CONTRACT_DOCUMENT_CONTENT_REQUIRED")
+    magic_ok = (
+        normalized_mime == "application/pdf" and content.startswith(b"%PDF-")
+        or normalized_mime == "image/png" and content.startswith(b"\x89PNG\r\n\x1a\n")
+        or normalized_mime == "image/jpeg" and content.startswith(b"\xff\xd8\xff")
+        or normalized_mime in {"text/plain", "application/octet-stream"}
+        or normalized_mime.endswith("wordprocessingml.document") and content.startswith(b"PK")
+    )
+    if not magic_ok:
+        raise domain_error(422, "CONTRACT_UPLOAD_MAGIC_MISMATCH", mime_type=normalized_mime)
+    settings = get_settings()
+    scanner_ready = bool(os.getenv("CONTRACT_UPLOAD_SCANNER_READY")) or _synthetic_document_mode()
+    if str(settings.app_env).upper() == "PROD" and not scanner_ready:
+        raise domain_error(503, "CONTRACT_UPLOAD_SCANNER_UNAVAILABLE_FAIL_CLOSED")
+
+
 def _record_contract_document_bytes(contract_id: str, *, source_role: str, source_filename: str, mime_type: str, content: bytes, reason: str, commercial_terms: dict[str, Any] | None, request: Request, db: Session, role: Role) -> dict[str, Any]:
     require_capability(role, "CONTRACT_EDIT")
     contract = _contract_or_404(db, contract_id)
     source_role = source_role.upper()
-    if source_role not in {"PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"}:
-        raise domain_error(422, "CONTRACT_DOCUMENT_ROLE_INVALID", allowed=["PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"])
-    if not content:
-        raise domain_error(422, "CONTRACT_DOCUMENT_CONTENT_REQUIRED")
+    allowed_document_roles = {"PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT", "EXISTING_DRAWINGS", "PROJECT_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID"}
+    if source_role not in allowed_document_roles:
+        raise domain_error(422, "CONTRACT_DOCUMENT_ROLE_INVALID", allowed=sorted(allowed_document_roles))
+    _validate_contract_upload(filename=source_filename, mime_type=mime_type, content=content)
     digest = hashlib.sha256(content).hexdigest()
     logical_name = f"contract:{contract.id}:{source_role}"
     document = db.scalar(select(Document).where(Document.project_id.is_(None), Document.logical_name == logical_name))
@@ -967,7 +999,10 @@ def add_contract_document(contract_id: str, payload: ContractDocumentPayload, re
 @router.post("/{contract_id}/documents/upload")
 async def upload_contract_document(contract_id: str, source_role: str = Form(...), reason: str = Form("Owner Contract document evidence"), commercial_terms: str | None = Form(default=None), file: UploadFile = File(...), request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     """Production-scale multipart intake; bytes are hashed and read back without text decoding."""
-    content = await file.read()
+    # The cap prevents an untrusted multipart body from being read without a
+    # bounded memory ceiling. Rejection occurs before any DocumentVersion is
+    # created, and production additionally fails closed without a scanner.
+    content = await file.read(MAX_CONTRACT_UPLOAD_BYTES + 1)
     parsed_terms: dict[str, Any] | None = None
     if commercial_terms:
         try:
