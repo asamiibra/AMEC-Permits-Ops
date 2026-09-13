@@ -8,7 +8,7 @@ test("Owner Dashboard golden paths use the real API and propagate a governed Eng
   const engineeringRef = `E2E-E-${suffix}`;
   const term = `E2E verification term ${suffix}`;
 
-  await page.goto("/dashboard");
+  await page.goto("/content-library");
   await expect(page.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible();
   for (const label of ["Forms", "Reports", "Engineering Works", "Definitions"]) {
     await expect(page.getByRole("heading", { name: label, level: 3 })).toBeVisible();

@@ -1149,7 +1149,172 @@
       "desktop": "required",
       "tablet": "required",
       "mobile": "required"
+    },
+    {
+      "route_id": "CL-ROOT",
+      "route": "/content-library",
+      "persona": "Owner",
+      "internal_role": "SYSTEM_ADMIN",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-ROOT",
+      "route": "/content-library",
+      "persona": "Business Development",
+      "internal_role": "COMMERCIAL_APPROVER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-ROOT",
+      "route": "/content-library",
+      "persona": "Engineering",
+      "internal_role": "RESPONSIBLE_ENGINEER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-FORMS",
+      "route": "/content-library/forms",
+      "persona": "Owner",
+      "internal_role": "SYSTEM_ADMIN",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-FORMS",
+      "route": "/content-library/forms",
+      "persona": "Business Development",
+      "internal_role": "COMMERCIAL_APPROVER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-FORMS",
+      "route": "/content-library/forms",
+      "persona": "Engineering",
+      "internal_role": "RESPONSIBLE_ENGINEER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-REPORTS",
+      "route": "/content-library/reports",
+      "persona": "Owner",
+      "internal_role": "SYSTEM_ADMIN",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-REPORTS",
+      "route": "/content-library/reports",
+      "persona": "Business Development",
+      "internal_role": "COMMERCIAL_APPROVER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-REPORTS",
+      "route": "/content-library/reports",
+      "persona": "Engineering",
+      "internal_role": "RESPONSIBLE_ENGINEER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-ENGINEERING",
+      "route": "/content-library/engineering-works",
+      "persona": "Owner",
+      "internal_role": "SYSTEM_ADMIN",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-ENGINEERING",
+      "route": "/content-library/engineering-works",
+      "persona": "Business Development",
+      "internal_role": "COMMERCIAL_APPROVER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-ENGINEERING",
+      "route": "/content-library/engineering-works",
+      "persona": "Engineering",
+      "internal_role": "RESPONSIBLE_ENGINEER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-DEFINITIONS",
+      "route": "/content-library/definitions",
+      "persona": "Owner",
+      "internal_role": "SYSTEM_ADMIN",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-DEFINITIONS",
+      "route": "/content-library/definitions",
+      "persona": "Business Development",
+      "internal_role": "COMMERCIAL_APPROVER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
+    },
+    {
+      "route_id": "CL-DEFINITIONS",
+      "route": "/content-library/definitions",
+      "persona": "Engineering",
+      "internal_role": "RESPONSIBLE_ENGINEER",
+      "view": "required",
+      "action_authority": "contract-required",
+      "desktop": "required",
+      "tablet": "required",
+      "mobile": "required"
     }
   ],
-  "combination_count": 104
+  "combination_count": 119
 }

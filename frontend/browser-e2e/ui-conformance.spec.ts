@@ -38,10 +38,15 @@ async function fulfillApi(route: any) {
   const pathName = url.pathname;
   const persona = url.searchParams.get("persona") || "OWNER";
   let body: any = {};
-  if (pathName === "/api/projects") body = [project];
+  if (pathName === "/api/master-content/categories") body = [];
+  else if (pathName === "/api/master-content") body = [];
+  else if (pathName === "/api/definitions") body = [];
+  else if (pathName === "/api/dashboard-v2/catalogs") body = { external_bodies: [], jurisdictions: [], service_types: [], lifecycle_phases: [] };
+  else if (pathName === "/api/projects") body = [project];
   else if (pathName === "/api/applications") body = [application];
   else if (pathName === "/api/reconciliation/governance") body = { environment_badge: "SYNTHETIC PROTOTYPE" };
   else if (pathName === "/api/work") body = { summary: { needs_action: 1, waiting_review: 0, blocked: 1, overdue: 0 }, items: [{ id: "work-1", title: "Review Proposal", business_context: "Technical Proposal Preparation requires review.", domain: "proposal", reference: proposal.proposal_id, assigned_team: "Engineering", stage: "Engineering Proposal Preparation", cta_label: "Open Proposal", deep_link: `/proposals/${proposal.id}/preparation`, blocking: true }], unfiltered_visible_count: 1, context_visible_count: 1, recent_changes: [] };
+  else if (pathName === "/api/dashboard-inputs") body = { summary: { confirmed: 1, remaining: 0, technical_remaining: 0, ready: true }, groups: [], items: [] };
   else if (pathName === "/api/proposals-main") body = proposalRegister(persona);
   else if (pathName === `/api/proposals-main/proposals/${proposal.id}`) body = { proposal, readiness: { client_context: true }, fields: { description: proposal.proposal_description, price: proposal.amount, period: "12 months", sow: "Design and engineering services", exclusions: "Not recorded", technical_exclusions: "Not recorded", process_of_work: "Engineering review" }, sources: [{ id: "source-1", artifact_class: "TENDER_DOCUMENT", semantic_class: "TENDER_DOCUMENT", filename: "Tender brief.pdf", version: 1, verification_status: "READ_BACK_VERIFIED", current: true, sor_binding: "Project source", content_hash: "fixture-content-hash" }], contracts: [contract], issues: [], tasks: [{ id: "handoff-1", title: "Engineering preparation", owner_role: "Engineering", status: "READY" }] };
   else if (pathName === `/api/proposals-main/contracts/${contract.id}`) body = { contract, project: { id: project.id, reference: project.project_number, name: project.project_name }, proposal: { id: proposal.id, reference: proposal.proposal_id, title: proposal.proposal_description, status: proposal.proposal_status }, revisions: [{ id: "revision-1", revision_number: 1, status: "CURRENT" }], permits: [], sources: [{ id: "source-2", artifact_class: "CONTRACT_FORM", verification_status: "READ_BACK_VERIFIED", path: "Contract source" }], issues: [], history: [{ id: "audit-1" }], next_action: { label: "Initiate Permit", eligible: true } };

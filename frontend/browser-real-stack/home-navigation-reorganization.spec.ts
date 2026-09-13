@@ -13,11 +13,11 @@ test("Home exposes the seven-stage business flow and cross-functional lanes", as
 });
 
 test("Content Library keeps the old route and the renamed owner-facing identity", async ({ page }) => {
-  await page.goto("/dashboard");
+  await page.goto("/content-library");
   await expect(page.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible();
   await expect(page.getByText("Master Forms, Reports, Engineering Works & Definitions")).toBeVisible();
   await page.goto("/dashboard-v2?source=legacy");
-  await expect(page).toHaveURL(/\/dashboard\?source=legacy$/);
+  await expect(page).toHaveURL(/\/content-library\?source=legacy$/);
   await expect(page.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible();
 });
 

@@ -12,7 +12,7 @@ const screens = [
   { id: "intake-opportunity-1440", route: "/opportunities", width: 1440, height: 1000 },
   { id: "completion-as-built-1440", route: "/completion", width: 1440, height: 1000 },
   { id: "finance-1440", route: "/billing", width: 1440, height: 1000 },
-  { id: "content-library-1440", route: "/dashboard", width: 1440, height: 1000 },
+  { id: "content-library-1440", route: "/content-library", width: 1440, height: 1000 },
   { id: "issues-1440", route: "/issues", width: 1440, height: 1000 },
   { id: "admin-1440", route: "/admin", width: 1440, height: 1000 },
   { id: "operating-guide-1440", route: "/operating-guide", width: 1440, height: 1000 },

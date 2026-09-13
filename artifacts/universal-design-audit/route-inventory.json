@@ -67,8 +67,13 @@
     {"id":"LEGACY-18","route":"/admin/privacy","contract_id":"legacy-admin-family","domain":"administration","roles":["Owner"],"direct":true},
     {"id":"LEGACY-19","route":"/admin/volume","contract_id":"legacy-admin-family","domain":"administration","roles":["Owner"],"direct":true},
     {"id":"LEGACY-20","route":"/admin/inquiries","contract_id":"legacy-admin-family","domain":"administration","roles":["Owner"],"direct":true},
-    {"id":"LEGACY-21","route":"/admin/raid","contract_id":"legacy-admin-family","domain":"administration","roles":["Owner"],"direct":true}
+    {"id":"LEGACY-21","route":"/admin/raid","contract_id":"legacy-admin-family","domain":"administration","roles":["Owner"],"direct":true},
+    {"id":"CL-ROOT","route":"/content-library","aliases":["/dashboard","/dashboard-v2","/library","/master-content"],"contract_id":"content-library","domain":"reference","roles":["Owner","Business Development","Engineering"],"direct":true},
+    {"id":"CL-FORMS","route":"/content-library/forms","contract_id":"content-library","domain":"reference","roles":["Owner","Business Development","Engineering"],"direct":true},
+    {"id":"CL-REPORTS","route":"/content-library/reports","contract_id":"content-library","domain":"reference","roles":["Owner","Business Development","Engineering"],"direct":true},
+    {"id":"CL-ENGINEERING","route":"/content-library/engineering-works","contract_id":"content-library","domain":"reference","roles":["Owner","Business Development","Engineering"],"direct":true},
+    {"id":"CL-DEFINITIONS","route":"/content-library/definitions","contract_id":"content-library","domain":"reference","roles":["Owner","Business Development","Engineering"],"direct":true}
   ],
-  "route_count": 66,
+  "route_count": 71,
   "route_coverage_status": "INVENTORIED_FROM_CURRENT_ROUTER_NAVIGATION_AND_SCREEN_REGISTRY"
 }

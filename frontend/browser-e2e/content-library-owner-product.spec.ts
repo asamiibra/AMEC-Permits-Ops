@@ -71,7 +71,7 @@ test.describe("Owner Content Library product acceptance", () => {
       page.on("request", (request) => {
         if (request.url().includes("/api/retrieval/query")) retrievalRequested = true;
       });
-      await page.goto("/dashboard");
+      await page.goto("/content-library");
       await expect(page.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "content-library");
       for (const heading of ["Forms", "Reports", "Engineering Works", "Definitions"]) {
         await expect(page.getByRole("heading", { name: heading })).toBeVisible();

@@ -304,7 +304,10 @@ def _allocate_reference(db: Session, content_type: str, requested: str | None = 
         raise _error("REFERENCE_SEQUENCE_UNAVAILABLE", 503, content_type=content_type)
     prefix_pattern = re.compile(rf"^{re.escape(sequence.prefix)}-(\d+)$")
     existing_max = 0
-    for ref in db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == content_type)).all():
+    reference_rows = db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == content_type)).all()
+    if content_type == "DEFINITION":
+        reference_rows += db.scalars(select(DefinitionEntry.ref)).all()
+    for ref in reference_rows:
         match = prefix_pattern.match(ref or "")
         if match:
             existing_max = max(existing_max, int(match.group(1)))

@@ -275,6 +275,21 @@ def test_definition_visibility_reference_and_revision_conflicts(client):
     assert current["revision"] == 1
 
 
+def test_definition_generated_reference_accounts_for_seeded_definitions(client):
+    with SessionLocal() as db:
+        existing_refs = {row.ref for row in db.scalars(select(DefinitionEntry)).all() if row.ref}
+        existing_max = max((int(ref.rsplit("-", 1)[-1]) for ref in existing_refs if ref.startswith("D-") and ref.rsplit("-", 1)[-1].isdigit()), default=0)
+    created = client.post(
+        "/api/definitions",
+        json={"term": f"Generated reference {uuid4().hex[:8]}", "description": "Synthetic generated reference proof"},
+        headers=OWNER,
+    )
+    assert created.status_code == 200, created.text
+    assert created.json()["ref"].startswith("D-")
+    assert created.json()["ref"] not in existing_refs
+    assert int(created.json()["ref"].split("-")[-1]) > existing_max
+
+
 def test_source_section_page_ranges_are_pinned_and_validated(client):
     item = _create(client, used_in=["BD"])
     version_id = item["current_version_id"]

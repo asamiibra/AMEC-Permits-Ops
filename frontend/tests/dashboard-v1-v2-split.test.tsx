@@ -45,7 +45,7 @@ describe("Owner content library surface", () => {
     for (const name of ["Forms", "Reports", "Engineering Works", "Definitions"]) {
       expect(screen.getByRole("heading", { name })).toBeVisible();
     }
-    for (const forbidden of ["GOVERNANCE OVERVIEW", "Canonical control plane", "Advanced governance filters", "Content ownership", "SOURCE / VERSION", "Governed discovery", "Purpose bindings"]) {
+    for (const forbidden of ["GOVERNANCE OVERVIEW", "Canonical control plane", "Advanced governance filters", "Content ownership", "SOURCE / VERSION", "Purpose bindings"]) {
       expect(screen.queryByText(forbidden, { exact: false })).not.toBeInTheDocument();
     }
     expect(screen.getByRole("link", { name: "Inputs & Go-Live" })).toHaveAttribute("href", "/dashboard/inputs-go-live");

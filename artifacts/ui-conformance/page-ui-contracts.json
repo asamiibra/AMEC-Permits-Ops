@@ -5135,8 +5135,473 @@
         "COMMERCIAL_APPROVER",
         "SYNTHETIC_STANDIN"
       ]
+    },
+    {
+      "id": "CL-ROOT",
+      "route": "/content-library",
+      "aliases": [
+        "/dashboard",
+        "/dashboard-v2",
+        "/library",
+        "/master-content"
+      ],
+      "business_purpose": "Governed discovery and reuse of canonical Forms, Reports, Engineering Works, and Definitions",
+      "domain": "reference",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Content Library",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_fields": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_actions": [
+        "Open",
+        "Search Content Library",
+        "Inputs & Go-Live"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "CL-FORMS",
+      "route": "/content-library/forms",
+      "aliases": [],
+      "business_purpose": "Governed discovery and reuse of canonical Forms, Reports, Engineering Works, and Definitions",
+      "domain": "reference",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Content Library",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_fields": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_actions": [
+        "Open",
+        "Search Content Library",
+        "Inputs & Go-Live"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "CL-REPORTS",
+      "route": "/content-library/reports",
+      "aliases": [],
+      "business_purpose": "Governed discovery and reuse of canonical Forms, Reports, Engineering Works, and Definitions",
+      "domain": "reference",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Content Library",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_fields": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_actions": [
+        "Open",
+        "Search Content Library",
+        "Inputs & Go-Live"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "CL-ENGINEERING",
+      "route": "/content-library/engineering-works",
+      "aliases": [],
+      "business_purpose": "Governed discovery and reuse of canonical Forms, Reports, Engineering Works, and Definitions",
+      "domain": "reference",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Content Library",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_fields": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_actions": [
+        "Open",
+        "Search Content Library",
+        "Inputs & Go-Live"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
+    },
+    {
+      "id": "CL-DEFINITIONS",
+      "route": "/content-library/definitions",
+      "aliases": [],
+      "business_purpose": "Governed discovery and reuse of canonical Forms, Reports, Engineering Works, and Definitions",
+      "domain": "reference",
+      "allowed_personas": [
+        "Owner",
+        "Business Development",
+        "Engineering"
+      ],
+      "expected_title": "Content Library",
+      "expected_record_identity": [
+        "business reference",
+        "record name",
+        "related record context"
+      ],
+      "expected_stage_status": [
+        "business lifecycle",
+        "workflow stage",
+        "blocking/readiness state"
+      ],
+      "expected_sections": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_fields": [
+        "Forms",
+        "Reports",
+        "Engineering Works",
+        "Definitions",
+        "currentness",
+        "source",
+        "next action"
+      ],
+      "expected_actions": [
+        "Open",
+        "Search Content Library",
+        "Inputs & Go-Live"
+      ],
+      "role_specific_controls": [
+        {
+          "persona": "Owner",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Business Development",
+          "classification": "CONTRACT_REQUIRED"
+        },
+        {
+          "persona": "Engineering",
+          "classification": "CONTRACT_REQUIRED"
+        }
+      ],
+      "expected_empty_state": "truthful empty or filtered-empty state",
+      "expected_loading_state": "loading state with page context",
+      "expected_error_state": "safe error state with retry and page context",
+      "expected_navigation": [
+        "AMEC Work",
+        "Proposals & Contracts",
+        "Issues",
+        "Notifications",
+        "Operating Guide"
+      ],
+      "allowed_permit_terminology": [
+        "downstream Permit handoff only"
+      ],
+      "forbidden_stale_terminology": [
+        "PermitOps",
+        "My Work",
+        "About PermitOps",
+        "Permit-first upstream framing"
+      ],
+      "forbidden_technical_terminology": [
+        "SYSTEM_ADMIN",
+        "DEMO_AS_OPERATOR",
+        "PERSONA_FIXTURE",
+        "CANONICAL_PROJECT_SOR",
+        "READ_BACK_VERIFIED",
+        "WorkflowTask",
+        "NextAction",
+        "ConfigurationArtifact",
+        "ProjectArtifactRecord",
+        "COMMERCIAL_APPROVER",
+        "SYNTHETIC_STANDIN"
+      ]
     }
   ],
-  "contract_count": 66,
+  "contract_count": 71,
   "coverage_rule": "Every material route, alias, persona, state, and viewport resolves to a contract."
 }

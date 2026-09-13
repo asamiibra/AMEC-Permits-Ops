@@ -109,12 +109,13 @@ type BusinessNavItem = {
   label: string;
   icon: IconName;
   path?: string;
-  group: "HOME" | "BUSINESS FLOW";
+  group: "HOME" | "REFERENCE" | "BUSINESS FLOW";
 };
 const businessNav: BusinessNavItem[] = [
   { id: "home", page: "home", label: "Home", icon: "dashboard", path: "/home", group: "HOME" },
   { id: "phase4-review", page: "phase4-review", label: "Evidence Review", icon: "check", path: "/phase4/review", group: "HOME" },
   { id: "phase5-review", page: "phase5-review", label: "Classifier Review", icon: "check", path: "/phase5/review", group: "HOME" },
+  { id: "content-library", page: "dashboard", label: "Content Library", icon: "library", path: "/content-library", group: "REFERENCE" },
   { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
   { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
   { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
@@ -172,7 +173,7 @@ const pageFromPath = () => {
   if (path === "/phase5/review") return "phase5-review";
   if (path === "/dashboard") return "dashboard";
   if (path === "/dashboard-v2") return "dashboard";
-  if (path === "/content-library" || path === "/library" || path === "/master-content") return "dashboard";
+  if (path === "/content-library" || path.startsWith("/content-library/") || path === "/library" || path === "/master-content") return "dashboard";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
@@ -281,9 +282,11 @@ function App() {
   useEffect(() => {
     const pathname = window.location.pathname;
     const target = pathname === "/dashboard-v2"
-      ? "/dashboard"
-      : pathname === "/dashboard-v2/inputs-go-live"
-        ? "/dashboard/inputs-go-live"
+      ? "/content-library"
+        : pathname === "/dashboard-v2/inputs-go-live"
+            ? "/dashboard/inputs-go-live"
+            : ["/dashboard", "/library", "/master-content"].includes(pathname)
+              ? "/content-library"
         : null;
     if (!target) return;
     window.history.replaceState({}, "", `${target}${window.location.search}${window.location.hash}`);
@@ -497,6 +500,7 @@ function App() {
         "home",
         "phase4-review",
         "phase5-review",
+        "content-library",
         "intake-opportunity",
         "contract-mobilization",
         "regulatory-submissions",
@@ -508,6 +512,7 @@ function App() {
         "home",
         "phase4-review",
         "phase5-review",
+        "content-library",
         "design-delivery",
         "regulatory-submissions",
         "source18-committee",
@@ -515,7 +520,7 @@ function App() {
         "completion-as-built",
         "handover-closeout",
       ].includes(item.id);
-    return ["home", "phase4-review", "phase5-review", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
+    return ["home", "phase4-review", "phase5-review", "content-library", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
   });
   const title =
     page === "permit-workspace" && selected
@@ -582,6 +587,12 @@ function App() {
                   <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
                 </button>
               ))}
+              <div className="nav-section-label">REFERENCE</div>
+              {visibleBusinessNav.filter((item) => item.group === "REFERENCE").map((item) => (
+                <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
+                  <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
+                </button>
+              ))}
               <div className="nav-section-label">BUSINESS FLOW</div>
               {visibleBusinessNav.filter((item) => item.group === "BUSINESS FLOW").map((item) => (
                 <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
@@ -620,6 +631,8 @@ function App() {
         <nav aria-label="Primary navigation">
           <div className="nav-section-label">HOME</div>
           {visibleBusinessNav.filter((item) => item.group === "HOME").map((item) => <button key={item.id} aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span></button>)}
+          <div className="nav-section-label">REFERENCE</div>
+          {visibleBusinessNav.filter((item) => item.group === "REFERENCE").map((item) => <button key={item.id} aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span></button>)}
           <div className="nav-section-label">BUSINESS FLOW</div>
           {visibleBusinessNav.filter((item) => item.group === "BUSINESS FLOW").map((item) => <button key={item.id} aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span></button>)}
           {adminRoles.has(role) && (
@@ -680,11 +693,11 @@ function App() {
           <div className="top-actions">
             <div className="header-menu-control">
               <button className="header-control" aria-label="Global search" aria-expanded={searchOpen} onClick={() => { setSearchOpen((value) => !value); setCreateOpen(false); }}>⌕</button>
-              {searchOpen && <div className="header-popover" role="dialog" aria-label="Global search"><b>Global search</b><p>Search is bounded to canonical workspaces. Use the workspace filters or open AMEC Work for a governed action list.</p><a href="/work">Open AMEC Work →</a><a href="/dashboard">Search Content Library →</a></div>}
+              {searchOpen && <div className="header-popover" role="dialog" aria-label="Global search"><b>Global search</b><p>Search is bounded to canonical workspaces. Use the workspace filters or open AMEC Work for a governed action list.</p><a href="/work">Open AMEC Work →</a><a href="/content-library">Search Content Library →</a></div>}
             </div>
             <div className="header-menu-control">
               <button className="header-control" aria-label="Quick create" aria-expanded={createOpen} onClick={() => { setCreateOpen((value) => !value); setSearchOpen(false); }}>＋</button>
-              {createOpen && <div className="header-popover quick-create-popover" role="dialog" aria-label="Quick create"><b>Quick create</b><p>Start only from supported canonical workflows.</p><a href="/proposals/new">New Proposal →</a><a href="/dashboard">Manage Content Library →</a></div>}
+              {createOpen && <div className="header-popover quick-create-popover" role="dialog" aria-label="Quick create"><b>Quick create</b><p>Start only from supported canonical workflows.</p><a href="/proposals/new">New Proposal →</a><a href="/content-library">Manage Content Library →</a></div>}
             </div>
             <NotificationBell role={role} onNavigate={() => navigate("notifications")} />
             <ReadinessDrawer

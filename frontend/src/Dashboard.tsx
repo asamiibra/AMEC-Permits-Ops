@@ -11,6 +11,7 @@ import {
   MODULE_OPTIONS,
   versionLabel,
 } from "./masterContentUi";
+import { Icon } from "./Icon";
 
 type Category = {
   id: string;
@@ -74,11 +75,19 @@ type SaveRequest = { form?: FormData; metadata?: Record<string, unknown> };
 type MasterType = "REPORT" | "ENGINEERING_WORK";
 
 const ownerRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
+type LibraryKey = "overview" | "forms" | "reports" | "engineering-works" | "definitions";
+
+function libraryFromPath(): LibraryKey {
+  const segment = window.location.pathname.split("/")[2];
+  if (segment === "forms" || segment === "reports" || segment === "engineering-works" || segment === "definitions") return segment;
+  return "overview";
+}
 
 export function CurrentDashboard({ role }: { role: string }) {
   const [items, setItems] = useState<MasterItem[]>([]);
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [formCount, setFormCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -101,6 +110,7 @@ export function CurrentDashboard({ role }: { role: string }) {
   const [details, setDetails] = useState<MasterItem | Definition | null>(null);
   const [busy, setBusy] = useState(false);
   const canWrite = ownerRoles.has(role);
+  const activeLibrary = libraryFromPath();
   const filtersActive = Boolean(query || category || status || module);
   const load = async () => {
     setLoading(true);
@@ -114,12 +124,14 @@ export function CurrentDashboard({ role }: { role: string }) {
       if (category) defParams.set("category", category);
       if (status) defParams.set("status", status);
       if (module) defParams.set("module", module);
-      const [master, defs, cats] = await Promise.all([
+      const [master, forms, defs, cats] = await Promise.all([
         api<MasterItem[]>(`/api/master-content?${params}`),
+        api<Array<{ id: string }>>("/api/master-content?content_type=FORM"),
         api<Definition[]>(`/api/definitions?${defParams}`),
         api<Category[]>("/api/master-content/categories"),
       ]);
       setItems(master);
+      setFormCount(forms.length);
       setDefinitions(defs);
       setCategories(cats);
     } catch (err) {
@@ -238,7 +250,19 @@ export function CurrentDashboard({ role }: { role: string }) {
           </a>
         </div>
       </header>
-      <DashboardLibraryNavigation />
+      {activeLibrary === "overview" && <section className="dashboard-v2-overview" aria-labelledby="content-library-overview-heading">
+        <div className="dashboard-v2-overview-heading">
+          <div><span className="eyebrow">GOVERNED DISCOVERY &amp; REUSE</span><h3 id="content-library-overview-heading">One library, four reusable content types</h3><p>Find the current, source-linked content that ProposalOps workflows are allowed to reuse.</p></div>
+          <span className="dashboard-v2-overview-state">Server-provided status and currentness</span>
+        </div>
+        <div className="dashboard-v2-overview-grid">
+          <div className="dashboard-v2-summary-card"><span>Forms</span><strong>{formCount}</strong><small>Reusable forms, including Checklists</small></div>
+          <div className="dashboard-v2-summary-card"><span>Reports</span><strong>{items.filter((item) => item.content_type === "REPORT").length}</strong><small>Reusable report references</small></div>
+          <div className="dashboard-v2-summary-card"><span>Engineering Works</span><strong>{items.filter((item) => item.content_type === "ENGINEERING_WORK").length}</strong><small>Controlled engineering references</small></div>
+          <div className="dashboard-v2-summary-card"><span>Definitions</span><strong>{definitions.length}</strong><small>Shared semantic language</small></div>
+        </div>
+      </section>}
+      <DashboardLibraryNavigation activeLibrary={activeLibrary} />
       <div className="dashboard-source-card" data-testid="dashboard-source-authority-panel">
         <strong>Canonical source records linked</strong>
         <small>MasterContentItem → Document → DocumentVersion</small>
@@ -321,11 +345,11 @@ export function CurrentDashboard({ role }: { role: string }) {
       )}
       {!loading && !error && (
         <>
-          <CanonicalFormsLibrary
+          {(activeLibrary === "overview" || activeLibrary === "forms") && <CanonicalFormsLibrary
             role={role}
             filters={{ q: query, category, status, module }}
-          />
-          <MasterSection
+          />}
+          {(activeLibrary === "overview" || activeLibrary === "reports") && <MasterSection
             type="REPORT"
             items={items.filter((item) => item.content_type === "REPORT")}
             canWrite={canWrite}
@@ -343,8 +367,8 @@ export function CurrentDashboard({ role }: { role: string }) {
                 versions: detail.versions,
               });
             }}
-          />
-          <MasterSection
+          />}
+          {(activeLibrary === "overview" || activeLibrary === "engineering-works") && <MasterSection
             type="ENGINEERING_WORK"
             items={items.filter(
               (item) => item.content_type === "ENGINEERING_WORK",
@@ -364,8 +388,8 @@ export function CurrentDashboard({ role }: { role: string }) {
                 versions: detail.versions,
               });
             }}
-          />
-          <DefinitionSection
+          />}
+          {(activeLibrary === "overview" || activeLibrary === "definitions") && <DefinitionSection
             definitions={definitions}
             canWrite={canWrite}
             filtered={filtersActive}
@@ -381,7 +405,7 @@ export function CurrentDashboard({ role }: { role: string }) {
                 revisions: detail.revisions,
               });
             }}
-          />
+          />}
         </>
       )}
       {editor && (
@@ -411,13 +435,19 @@ export function CurrentDashboard({ role }: { role: string }) {
   );
 }
 
-function DashboardLibraryNavigation() {
+function DashboardLibraryNavigation({ activeLibrary }: { activeLibrary: LibraryKey }) {
+  const links: Array<{ key: LibraryKey; label: string; description: string; href: string }> = [
+    { key: "overview", label: "Overview", description: "See the governed library at a glance.", href: "/content-library" },
+    { key: "forms", label: "Forms", description: "Reusable forms and Checklists.", href: "/content-library/forms" },
+    { key: "reports", label: "Reports", description: "Reusable reports and references.", href: "/content-library/reports" },
+    { key: "engineering-works", label: "Engineering Works", description: "Controlled engineering references.", href: "/content-library/engineering-works" },
+    { key: "definitions", label: "Definitions", description: "Shared business language.", href: "/content-library/definitions" },
+  ];
   return (
-    <nav className="dashboard-v2-library-nav" aria-label="Dashboard master libraries" data-testid="dashboard-library-navigation">
-      <a href="#forms"><span className="eyebrow">CONTENT LIBRARY</span><strong>Forms</strong><small>Reusable forms and templates.</small></a>
-      <a href="#reports"><span className="eyebrow">CONTENT LIBRARY</span><strong>Reports</strong><small>Reusable reports and references.</small></a>
-      <a href="#engineering-works"><span className="eyebrow">CONTENT LIBRARY</span><strong>Engineering Works</strong><small>Controlled engineering references.</small></a>
-      <a href="#definitions"><span className="eyebrow">CONTENT LIBRARY</span><strong>Definitions</strong><small>Shared business language.</small></a>
+    <nav className="dashboard-v2-library-nav" aria-label="Content Library navigation" data-testid="dashboard-library-navigation">
+      {links.map((link) => <a href={link.href} key={link.key} className={activeLibrary === link.key ? "selected" : ""} aria-current={activeLibrary === link.key ? "page" : undefined}>
+        <span className="eyebrow"><Icon name="library" size={14} /> CONTENT LIBRARY</span><strong>{link.label}</strong><small>{link.description}</small>
+      </a>)}
     </nav>
   );
 }
@@ -478,6 +508,7 @@ function MasterSection({
               <tr>
                 <th>S/N</th>
                 <th>Version</th>
+                <th>Status</th>
                 <th>Reference</th>
                 <th>{type === "ENGINEERING_WORK" ? "Document" : "Report"}</th>
                 <th>Category</th>
@@ -488,22 +519,23 @@ function MasterSection({
             <tbody>
               {items.map((item, index) => (
                 <tr key={item.id}>
-                  <td>{item.serial_number || index + 1}</td>
-                  <td>{versionLabel(item.version)}</td>
-                  <td>
+                  <td data-label="S/N">{item.serial_number || index + 1}</td>
+                  <td data-label="Version">{versionLabel(item.version)}</td>
+                  <td data-label="Status"><StatusBadge value={item.version_status} hasVersion={Boolean(item.version)} /></td>
+                  <td data-label="Reference">
                     <code className="content-reference">{item.ref}</code>
                   </td>
-                  <td>
+                  <td data-label={type === "ENGINEERING_WORK" ? "Engineering Work" : "Report"}>
                     <b>{item.title}</b>
                   </td>
-                  <td>{item.category?.label || "Uncategorized"}</td>
-                  <td
+                  <td data-label="Category">{item.category?.label || "Uncategorized"}</td>
+                  <td data-label="Description"
                     className="description-cell"
                     title={item.description || "No description"}
                   >
                     {item.description || "No description"}
                   </td>
-                  <td className="dashboard-actions">
+                  <td data-label="Actions" className="dashboard-actions">
                     <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
@@ -586,6 +618,7 @@ function DefinitionSection({
               <tr>
                 <th>S/N</th>
                 <th>Reference</th>
+                <th>Status</th>
                 <th>Term</th>
                 <th>Category</th>
                 <th>Meaning</th>
@@ -595,23 +628,24 @@ function DefinitionSection({
             <tbody>
               {definitions.map((item, index) => (
                 <tr key={item.id}>
-                  <td>{item.serial_number || index + 1}</td>
-                  <td>
+                  <td data-label="S/N">{item.serial_number || index + 1}</td>
+                  <td data-label="Reference">
                     <code className="content-reference">
                       {item.ref || "Unassigned"}
                     </code>
                   </td>
-                  <td>
+                  <td data-label="Status"><StatusBadge value={item.status} hasVersion={Boolean(item.revision)} /></td>
+                  <td data-label="Term">
                     <b>{item.term}</b>
                   </td>
-                  <td>{item.category || "Uncategorized"}</td>
-                  <td
+                  <td data-label="Category">{item.category || "Uncategorized"}</td>
+                  <td data-label="Meaning"
                     className="description-cell"
                     title={item.description || "No meaning recorded"}
                   >
                     {item.description || "No meaning recorded"}
                   </td>
-                  <td className="dashboard-actions">
+                  <td data-label="Actions" className="dashboard-actions">
                     <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
@@ -1143,7 +1177,7 @@ function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onCl
       {!isDefinition && <div><span>Current source file</span><b>{item.current_source_filename || "Not recorded"}</b></div>}
     </div>
     <p className="detail-description">{item.description || "No description"}</p>
-    <section className="form-governance-section"><h3>{isDefinition ? "Revision History" : "Version History"}</h3>{isDefinition ? ((item.revisions || []).length ? <div className="content-history-list">{(item.revisions || []).map((revision) => <div className="content-history-row" key={revision.id}><b>Revision {revision.revision}</b><span>{revision.status}</span><small>{formatDateTime(revision.changed_at)}</small></div>)}</div> : <p>No previous revisions recorded.</p>) : ((item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name} · {version.status}</span><small>{formatDateTime(version.updated_at)}</small></div>)}</div> : <p>No previous versions recorded.</p>)}</section>
+    <section className="form-governance-section"><h3>{isDefinition ? "Revision History" : "Version History"}</h3>{isDefinition ? ((item.revisions || []).length ? <div className="content-history-list">{(item.revisions || []).map((revision) => <div className="content-history-row" key={revision.id}><b>Revision {revision.revision}</b><StatusBadge value={revision.status} hasVersion /><small>{formatDateTime(revision.changed_at)}</small></div>)}</div> : <p>No previous revisions recorded.</p>) : ((item.versions || []).length ? <div className="content-history-list">{(item.versions || []).map((version) => <div className="content-history-row" key={version.id}><b>Version {version.version}</b><span>{version.file_name}</span><StatusBadge value={version.status} hasVersion /><small>{formatDateTime(version.updated_at)}</small></div>)}</div> : <p>No previous versions recorded.</p>)}</section>
     {!isDefinition && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
   </Drawer>;
 }

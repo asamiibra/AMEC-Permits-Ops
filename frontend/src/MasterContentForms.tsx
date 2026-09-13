@@ -337,24 +337,24 @@ function FormTable({
         <tbody>
           {forms.map((form, index) => (
             <tr key={form.id}>
-              <td>{form.serial_number || index + 1}</td>
-              <td>
+              <td data-label="S/N">{form.serial_number || index + 1}</td>
+              <td data-label="Reference">
                 <code className="content-reference">{form.ref}</code>
               </td>
-              <td>
+              <td data-label="Form">
                 <b>{form.title}</b>
                 <small className="table-subline">Version {form.version || "—"}</small>
               </td>
-              <td>{form.category?.label || "Uncategorized"}</td>
-              <td
+              <td data-label="Category">{form.category?.label || "Uncategorized"}</td>
+              <td data-label="Description"
                 className="description-cell"
                 title={form.description || "No description"}
               >
                 {form.description || "No description"}
               </td>
-              <td><UsedInChips values={form.used_in} /></td>
-              <td><StatusBadge value={form.owner_status || form.version_status} hasVersion={Boolean(form.version)} /></td>
-              <td className="dashboard-actions">
+              <td data-label="Used In"><UsedInChips values={form.used_in} /></td>
+              <td data-label="Status"><StatusBadge value={form.owner_status || form.version_status} hasVersion={Boolean(form.version)} /></td>
+              <td data-label="Actions" className="dashboard-actions">
                 <button className="table-action action-view" onClick={() => onOpen(form)}>Open</button>
                 {canWrite && (
                   <button
