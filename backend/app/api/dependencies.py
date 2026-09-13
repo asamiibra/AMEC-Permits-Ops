@@ -68,6 +68,11 @@ def current_principal(
     auth_mode = settings.auth_mode.upper()
 
     if auth_mode == "DEV_HEADER":
+        if getattr(settings, "app_env", "DEV").upper() not in {"DEV", "TEST"}:
+            raise HTTPException(
+                status_code=500,
+                detail="Development header authentication is disabled outside DEV/TEST",
+            )
         role = _resolve_dev_role(x_dev_role)
         synthetic_user = None
         # Direct unit calls can omit a FastAPI Header dependency and therefore

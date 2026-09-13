@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TimestampMixin, utcnow
@@ -14,6 +14,18 @@ class ScopedCapabilityAssignment(Base, TimestampMixin):
 
     __tablename__ = "scoped_capability_assignments"
     __table_args__ = (
+        CheckConstraint(
+            "office_id IS NOT NULL OR client_account_id IS NOT NULL OR project_id IS NOT NULL",
+            name="ck_scoped_assignment_non_empty_scope",
+        ),
+        CheckConstraint(
+            "effective_to IS NULL OR effective_to >= effective_from",
+            name="ck_scoped_assignment_effective_interval",
+        ),
+        CheckConstraint(
+            "status IN ('ACTIVE', 'REVOKED', 'EXPIRED')",
+            name="ck_scoped_assignment_status",
+        ),
         Index("ix_scoped_capability_assignments_user_capability", "user_id", "capability_code"),
         Index("ix_scoped_capability_assignments_project_status", "project_id", "status"),
         Index("ix_scoped_capability_assignments_client_status", "client_account_id", "status"),

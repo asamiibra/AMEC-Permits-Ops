@@ -258,6 +258,7 @@ class InvoiceNumberingPolicy(Base):
 class FinancialAccountMaster(Base):
     __tablename__ = "financial_account_masters"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    office_id: Mapped[str | None] = mapped_column(ForeignKey("consultancy_offices.id"), index=True)
     legal_entity_party_id: Mapped[str | None] = mapped_column(ForeignKey("parties.id"), index=True)
     legal_entity_ref: Mapped[str] = mapped_column(String(160), nullable=False)
     account_name: Mapped[str] = mapped_column(String(200), nullable=False)

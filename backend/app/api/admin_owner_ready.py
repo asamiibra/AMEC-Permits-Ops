@@ -8,7 +8,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.orm import Session
 
 from ..adapters.excel.adapter import MockExcelAdapter
@@ -251,6 +251,10 @@ def create_capability_assignment(
         raise HTTPException(404, {"code": "ASSIGNMENT_OFFICE_NOT_FOUND"})
     if client_account_id and not db.get(ClientAccount, client_account_id):
         raise HTTPException(404, {"code": "ASSIGNMENT_CLIENT_NOT_FOUND"})
+    if project and client_account_id:
+        linked = db.scalar(select(Contract.id).where(Contract.project_id == project.id, Contract.client_account_id == client_account_id))
+        if not linked:
+            raise HTTPException(422, {"code": "ASSIGNMENT_PROJECT_CLIENT_MISMATCH"})
     reference = str(payload.get("assignment_reference") or "").strip()
     reason = str(payload.get("reason") or "").strip()
     if not reference or not reason:
@@ -259,13 +263,32 @@ def create_capability_assignment(
         if not value:
             return None
         try:
-            return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+            return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
         except ValueError as exc:
             raise HTTPException(422, {"code": "ASSIGNMENT_DATE_INVALID", "field": field}) from exc
+    effective_from = _parse(payload.get("effective_from"), "effective_from") or datetime.now(timezone.utc)
+    effective_to = _parse(payload.get("effective_to"), "effective_to")
+    if effective_to and effective_to < effective_from:
+        raise HTTPException(422, {"code": "ASSIGNMENT_EFFECTIVE_INTERVAL_INVALID"})
+    overlap = db.scalar(select(ScopedCapabilityAssignment).where(
+        ScopedCapabilityAssignment.user_id == user.id,
+        ScopedCapabilityAssignment.capability_code == capability,
+        ScopedCapabilityAssignment.office_id == office_id,
+        ScopedCapabilityAssignment.client_account_id == client_account_id,
+        ScopedCapabilityAssignment.project_id == project_id,
+        ScopedCapabilityAssignment.status == "ACTIVE",
+        ScopedCapabilityAssignment.effective_from <= (effective_to or datetime.max.replace(tzinfo=timezone.utc)),
+        # SQLAlchemy compiles this NULL comparison to IS NULL; retain the
+        # repository's historical null-predicate inventory for this module.
+        or_(ScopedCapabilityAssignment.effective_to == None, ScopedCapabilityAssignment.effective_to >= effective_from),  # noqa: E711
+    ))
+    if overlap:
+        raise HTTPException(409, {"code": "ASSIGNMENT_OVERLAP", "existing_assignment_id": overlap.id})
     item = ScopedCapabilityAssignment(
         user_id=user.id, capability_code=capability, office_id=office_id, client_account_id=client_account_id,
-        project_id=project_id, status="ACTIVE", effective_from=_parse(payload.get("effective_from"), "effective_from") or datetime.now(timezone.utc),
-        effective_to=_parse(payload.get("effective_to"), "effective_to"), assignment_reference=reference, reason=reason,
+        project_id=project_id, status="ACTIVE", effective_from=effective_from,
+        effective_to=effective_to, assignment_reference=reference, reason=reason,
         evidence_reference=str(payload.get("evidence_reference") or "").strip() or None, granted_by=principal.user_id or _role.value,
     )
     db.add(item); db.flush()
@@ -283,7 +306,7 @@ def revoke_capability_assignment(
     _role: Role = Depends(owner_admin),
     principal: AuthenticatedPrincipal = Depends(current_principal),
 ):
-    item = db.get(ScopedCapabilityAssignment, assignment_id)
+    item = db.scalar(select(ScopedCapabilityAssignment).where(ScopedCapabilityAssignment.id == assignment_id).with_for_update())
     if not item:
         raise HTTPException(404, {"code": "ASSIGNMENT_NOT_FOUND"})
     if item.status == "REVOKED":

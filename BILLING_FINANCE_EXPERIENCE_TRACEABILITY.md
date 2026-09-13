@@ -42,10 +42,11 @@ approved policy as unresolved.
 ## Schema and qualification
 
 - The accepted closure migration `billing_finance_experience_closure_v1` remains
-  intact, followed by one forward migration from that head:
-  `scoped_finance_capability_assignment_v1`. It adds only the generic persisted
-  scoped-capability assignment table and does not rewrite V10 or PR #46
-  historical migrations.
+  intact, followed by the persisted assignment migration
+  `scoped_finance_capability_assignment_v1` and the forward production-
+  hardening migration `billing_finance_production_hardening_v1`. The latter
+  binds financial-account masters to canonical office scope; neither migration
+  rewrites V10 or PR #46 historical migrations.
 - Synthetic data only; no production database, credentials, bank account,
   client payment, cheque, receipt, or external AI invocation.
 - Full qualification must be rerun after closure changes; prior PR #46 counts
@@ -82,6 +83,47 @@ Residual implementation evidence from this run:
 
 ## Terminal closure audit disposition
 
+## Production-hardening closure pass
+
+The adversarial pre-implementation ledger is
+`artifacts/production/pr46_production_hardening_validation_ledger.json`.
+It contains 24 closure propositions × 8 evidence lenses = 192 falsifiable
+checks and 30 hostile shortcut attacks, for an exact analytical total of 222
+(the brief's stated minimum of 208 is arithmetically lower than its own
+192 + 30 components).
+
+The code closure pass adds the following controls on this existing PR branch:
+
+- Billing GET/HEAD/direct artifact paths require the existing global role,
+  active persisted `BILLING_VIEW`, and canonical Project/Client/Contract scope;
+  list, report, command-center, evidence, and aggregate queries are filtered
+  in SQL from the effective assignment scope.
+- Target office scope is derived from canonical Project/Contract lineage;
+  actor office is not substituted for a target resource. Assignment rows have
+  database checks for non-empty scope, valid effective intervals, and allowed
+  status values, with service validation for project/client consistency and
+  duplicate active grants.
+- Production header authentication is rejected outside DEV/TEST, payload and
+  `X-Dev-Actor` values are not authoritative in production, and Issue stores
+  Source 13 signer identity/capacity/authority evidence in its immutable source
+  snapshot. Issue and Controls consume the same canonical Source 12 numbering
+  decision-key contract.
+
+Fresh exact-head browser evidence was run after the read-side changes: 53/64
+real-stack tests passed, 10 failed, and 1 was not run. The failures are
+environment/legacy-contract cases (SQLite-vs-Postgres assertions, historical
+dashboard/contract expectations, Administration cleanup timeout, and one
+strict duplicate-text assertion); the Billing detail route itself rendered
+successfully. This is not a full browser qualification pass and the prior
+312/312 crawl remains historical only.
+
+Post-hardening qualification also completed the full backend suite with
+`914 passed, 33 skipped, 4 warnings`, the focused Billing/auth suite with
+`32 passed, 1 warning`, migration-contract checks with `49 passed, 1 warning`,
+frontend Vitest with `117/117`, frontend production build, Python compile, and
+the single Alembic head check. SQL Server/Azure runtime evidence was not
+available in this isolated synthetic environment and remains external.
+
 The scoped Finance authorization seam is implemented on the existing accepted
 branch. `ScopedCapabilityAssignment` is a persisted generic assignment bound to
 the actual User, exact capability code, and one or more explicit office/client/
@@ -101,12 +143,19 @@ seed data contains explicit office-scoped grants solely for the seeded demo
 users. Live route tests prove no-grant denial, wrong-capability denial,
 wrong-project denial, exact project-scope success, and auditable revoke.
 
-The new migration `scoped_finance_capability_assignment_v1` follows
-`billing_finance_experience_closure_v1` and is the sole repository head. The
-existing universal UI closure was not reopened, and no Vercel repair or merge
-to `main` was performed.
+The migrations `scoped_finance_capability_assignment_v1` and
+`billing_finance_production_hardening_v1` follow
+`billing_finance_experience_closure_v1`; `billing_finance_production_hardening_v1`
+is the sole repository head. The existing universal UI closure was not
+reopened, and no Vercel repair or merge to `main` was performed.
 
-`FINAL_RESULT=PR46_BILLING_FINANCE_EXPERIENCE_SCOPED_AUTHORIZATION_CLOSED`
+`PR46_BILLING_PRODUCTION_HARDENING_CODE_CLOSED`
+`BILLING_PRODUCTION_READY=false`
+`BILLING_SQLSERVER_RUNTIME=EXTERNAL_EVIDENCE_REQUIRED`
+`INDEPENDENT_COLD_REVIEW=NOT_PROVEN`
+`REAL_DATA_ACCEPTANCE=EXTERNAL_REQUIRED`
+`UAT=EXTERNAL_REQUIRED`
+`G9=EXTERNAL_REQUIRED`
 
 No Billing V10 reopening, Billing V11 work, merge, deployment, production or
 preproduction access, Azure/Entra/DNS change, real financial-data use, or

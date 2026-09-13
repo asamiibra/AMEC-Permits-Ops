@@ -101,3 +101,26 @@ def test_owner_can_manage_assignment_and_revoke_is_auditable(client):
     )
     assert revoked.status_code == 200, revoked.text
     assert revoked.json()["status"] == "REVOKED"
+
+
+def test_billing_reads_require_active_view_grant_and_canonical_project_scope(client):
+    project_id, other_project_id = _project_ids()
+    user_id = str(uuid4())
+    with SessionLocal() as db:
+        project = db.get(Project, project_id)
+        db.add(User(id=user_id, email=f"read-scoped-{user_id}@amec.synthetic", display_name="Read Scoped Owner", role=Role.OWNER_SPONSOR, office_id=project.office_id))
+        db.add(ScopedCapabilityAssignment(
+            user_id=user_id,
+            capability_code="BILLING_VIEW",
+            project_id=project_id,
+            assignment_reference="SYNTHETIC-READ-PROJECT-SCOPE",
+            reason="Prove direct Billing reads use canonical project scope",
+            granted_by=user_id,
+        ))
+        db.commit()
+
+    allowed = client.get(f"/api/billing/projects/{project_id}/financial-projection", headers=_headers(user_id))
+    assert allowed.status_code == 200, allowed.text
+    denied = client.get(f"/api/billing/projects/{other_project_id}/financial-projection", headers=_headers(user_id))
+    assert denied.status_code == 403
+    assert denied.json()["detail"]["code"] == "SCOPED_FINANCE_CAPABILITY_REQUIRED"

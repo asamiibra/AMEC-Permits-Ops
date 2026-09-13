@@ -17,7 +17,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, select
+from sqlalchemy import false, func, or_, select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import current_user_role
@@ -34,11 +34,17 @@ from ..models import (
     PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, BillingFxRateRecord, ProjectExpectedExpVersion, Role, TemplateDefinition, TemplateVersion,
 )
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
-from ..services.finance_authorization import BillingAuthorizationContext, effective_billing_capabilities, resolve_billing_capability
+from ..services.finance_authorization import (
+    BillingAuthorizationContext,
+    billing_view_authorized,
+    billing_view_scope,
+    effective_billing_capabilities,
+    resolve_billing_capability,
+)
 from .dependencies import AuthenticatedPrincipal, current_principal
 from ..services.owner_decisions import runtime_decision_value
 from ..services.commercial_contract_controls import compose_amec_invoice_reference
-from ..services.source12_finance_controls import production_numbering_gate
+from ..services.source12_finance_controls import canonical_numbering_gate
 from ..config.settings import get_settings
 from ..services.week45 import stable_hash
 
@@ -56,7 +62,23 @@ ELIGIBLE_AMEC_CONTRACT_TYPES = {"AMEC_PROFESSIONAL_SERVICES", "AMEC_SERVICE_CONT
 
 
 def _actor(request: Request, payload: dict[str, Any] | None = None) -> str:
-    return request.headers.get("X-Dev-Actor") or str((payload or {}).get("actor") or "billing-owner")
+    """Return an auditable actor identity, never a client payload in production."""
+    principal = getattr(request.state, "authenticated_principal", None)
+    settings = get_settings()
+    # Synthetic tests may use an explicit actor envelope for fixture clarity;
+    # production and Entra requests always use the authenticated application
+    # user identity. Payload actor is never authoritative.
+    if (
+        settings.auth_mode.upper() == "DEV_HEADER"
+        and settings.app_env.upper() in {"DEV", "TEST"}
+        and settings.synthetic_only
+    ):
+        override = request.headers.get("X-Dev-Actor") or str((payload or {}).get("actor") or "").strip()
+        if override:
+            return override
+    if principal is not None and principal.user_id:
+        return principal.user_id
+    raise HTTPException(401, {"code": "TRUSTED_ACTOR_REQUIRED"})
 
 
 def _corr(request: Request) -> str:
@@ -97,20 +119,93 @@ def _authorize(
     roles: set[Role],
     project_id: str | None = None,
     client_account_id: str | None = None,
+    contract_id: str | None = None,
     office_id: str | None = None,
 ) -> None:
+    request.state.authenticated_principal = principal
+    context = _canonical_billing_context(
+        db,
+        project_id=project_id,
+        client_account_id=client_account_id,
+        contract_id=contract_id,
+    )
+    if office_id and not context.project_id:
+        context = BillingAuthorizationContext(
+            office_id=office_id,
+            client_account_id=context.client_account_id,
+            project_id=context.project_id,
+        )
     resolve_billing_capability(
         db,
         principal,
         capability_code=capability,
         allowed_roles=roles,
-        context=BillingAuthorizationContext(
-            office_id=office_id or principal.office_id,
-            client_account_id=client_account_id,
+        context=context,
+        request=request,
+    )
+
+
+def _canonical_billing_context(
+    db: Session,
+    *,
+    project_id: str | None = None,
+    client_account_id: str | None = None,
+    contract_id: str | None = None,
+) -> BillingAuthorizationContext:
+    """Derive target scope from canonical resources, never from the actor's office."""
+    contract = db.get(Contract, contract_id) if contract_id else None
+    project = db.get(Project, project_id) if project_id else None
+    if contract and project_id and contract.project_id and contract.project_id != project_id:
+        raise HTTPException(403, {"code": "CANONICAL_RESOURCE_SCOPE_MISMATCH"})
+    if contract and client_account_id and contract.client_account_id and contract.client_account_id != client_account_id:
+        raise HTTPException(403, {"code": "CANONICAL_RESOURCE_SCOPE_MISMATCH"})
+    if contract:
+        client_account_id = contract.client_account_id or client_account_id
+        project = project or (db.get(Project, contract.project_id) if contract.project_id else None)
+        project_id = project.id if project else contract.project_id
+    return BillingAuthorizationContext(
+        office_id=project.office_id if project else None,
+        client_account_id=client_account_id,
+        project_id=project_id,
+    )
+
+
+def _authorize_view(
+    db: Session,
+    request: Request,
+    principal: AuthenticatedPrincipal,
+    *,
+    project_id: str | None = None,
+    client_account_id: str | None = None,
+    contract_id: str | None = None,
+) -> None:
+    request.state.authenticated_principal = principal
+    billing_view_authorized(
+        db,
+        principal,
+        context=_canonical_billing_context(
+            db,
             project_id=project_id,
+            client_account_id=client_account_id,
+            contract_id=contract_id,
         ),
         request=request,
     )
+
+
+def _view_scope(db: Session, principal: AuthenticatedPrincipal):
+    return billing_view_scope(db, principal)
+
+
+def _scope_clause(model: Any, scope: Any, *, project: str | None = "project_id", client: str | None = "client_account_id", contract: str | None = "contract_id"):
+    clauses = []
+    if project and scope.project_ids:
+        clauses.append(getattr(model, project).in_(scope.project_ids))
+    if client and scope.client_account_ids:
+        clauses.append(getattr(model, client).in_(scope.client_account_ids))
+    if contract and scope.contract_ids:
+        clauses.append(getattr(model, contract).in_(scope.contract_ids))
+    return or_(*clauses) if clauses else false()
 
 
 def _row(item: Any, *, mask_sensitive: bool = False) -> dict[str, Any] | None:
@@ -418,8 +513,33 @@ def _precheck(db: Session, invoice: Invoice, contract: Contract, revision: Invoi
             overbilling_reasons.append(f"{milestone.id}: committed {committed + current} exceeds {ceiling}")
     checks.append({"code": "MILESTONE_ELIGIBILITY", "status": "PASS" if milestone_ok else "BLOCKED", "reason": "Every linked charge milestone is eligible."})
     checks.append({"code": "OVERBILLING", "status": "PASS" if overbilling_ok else "BLOCKED", "reason": "Milestone invoiceable amounts are checked against accepted/issued totals.", "details": overbilling_reasons})
+    settings = get_settings()
+    numbering = canonical_numbering_gate(lambda key, default=False: runtime_decision_value(db, key, default))
+    checks.append({"code": "NUMBERING_READINESS", "status": "PASS" if settings.synthetic_only or numbering["ready"] else "BLOCKED", "reason": "Invoice numbering uses the canonical Source 12 control contract and remains fail-closed in production."})
+    account_ready = bool(db.scalar(select(FinancialAccountVersion.id).join(FinancialAccountMaster).where(FinancialAccountVersion.currency == (revision.currency or "").upper(), FinancialAccountVersion.status == "ACTIVE", FinancialAccountMaster.status == "ACTIVE")))
+    checks.append({"code": "FINANCIAL_ACCOUNT_CONTROL", "status": "PASS" if account_ready or settings.synthetic_only else "BLOCKED", "reason": "An active legal-entity-bound financial account version is required before Issue."})
     result = "BLOCKED" if any(item["status"] == "BLOCKED" for item in checks) else "NEEDS_REVIEW" if any(item["status"] == "NEEDS_REVIEW" for item in checks) else "PASS"
     return {"result": result, "checks": checks}
+
+
+def _signer_evidence(payload: dict[str, Any]) -> dict[str, Any]:
+    """Require Source 13 signer evidence at the protected Issue boundary."""
+    settings = get_settings()
+    identity = str(payload.get("signer_identity") or "").strip()
+    capacity = str(payload.get("signer_capacity") or "").strip()
+    authority_reference = str(payload.get("signer_authority_reference") or "").strip()
+    evidence_reference = str(payload.get("signer_evidence_reference") or "").strip()
+    if settings.synthetic_only:
+        return {
+            "identity": identity or "SYNTHETIC_SIGNER",
+            "capacity": capacity or "SYNTHETIC_AUTHORIZED_FINANCE_SIGNER",
+            "authority_reference": authority_reference or "SYNTHETIC-SOURCE13-SIGNER",
+            "evidence_reference": evidence_reference or "synthetic://source13/signer-authority",
+            "status": "SYNTHETIC_ONLY",
+        }
+    if not all((identity, capacity, authority_reference, evidence_reference)):
+        raise HTTPException(409, {"code": "SIGNER_AUTHORITY_EVIDENCE_REQUIRED", "source": "SOURCE13"})
+    return {"identity": identity, "capacity": capacity, "authority_reference": authority_reference, "evidence_reference": evidence_reference, "status": "PRODUCTION_EVIDENCED"}
 
 
 def _resolve_account(db: Session, currency: str, as_of: date, version_id: str | None = None) -> FinancialAccountVersion:
@@ -444,9 +564,17 @@ def _mask_account(version: FinancialAccountVersion) -> dict[str, Any]:
 
 
 @router.get("/summary")
-def billing_summary(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def billing_summary(request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    return {"plans": db.query(BillingPlan).count(), "milestones": db.query(BillingMilestone).count(), "invoices": db.query(Invoice).count(), "payment_receipts": db.query(PaymentReceipt).count(), "financial_accounts": db.query(FinancialAccountMaster).count(), "automation_defaults": {"auto_prepare_draft": False, "auto_accept": False, "auto_issue": False, "auto_mark_paid": False}}
+    scope = _view_scope(db, principal)
+    if scope.empty:
+        raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
+    plan_clause = _scope_clause(BillingPlan, scope)
+    invoice_clause = _scope_clause(Invoice, scope)
+    payment_clause = _scope_clause(PaymentReceipt, scope)
+    milestone_clause = _scope_clause(BillingPlanRevision, scope)
+    account_clause = FinancialAccountMaster.office_id.in_(scope.office_ids) if scope.office_ids else false()
+    return {"plans": db.scalar(select(func.count()).select_from(BillingPlan).where(plan_clause)) or 0, "milestones": db.scalar(select(func.count()).select_from(BillingMilestone).join(BillingPlanRevision).where(milestone_clause)) or 0, "invoices": db.scalar(select(func.count()).select_from(Invoice).where(invoice_clause)) or 0, "payment_receipts": db.scalar(select(func.count()).select_from(PaymentReceipt).where(payment_clause)) or 0, "financial_accounts": db.scalar(select(func.count()).select_from(FinancialAccountMaster).where(account_clause)) or 0, "automation_defaults": {"auto_prepare_draft": False, "auto_accept": False, "auto_issue": False, "auto_mark_paid": False}}
 
 
 @router.post("/plans")
@@ -474,11 +602,12 @@ def create_billing_plan(payload: dict[str, Any], request: Request, db: Session =
 
 
 @router.get("/plans/{plan_id}")
-def get_billing_plan(plan_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def get_billing_plan(plan_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     plan = db.get(BillingPlan, plan_id)
     if not plan:
         raise HTTPException(404, {"code": "BILLING_PLAN_NOT_FOUND"})
+    _authorize_view(db, request, principal, project_id=plan.project_id, client_account_id=plan.client_account_id, contract_id=plan.contract_id)
     revision = db.get(BillingPlanRevision, plan.current_revision_id) if plan.current_revision_id else None
     milestones = db.scalars(select(BillingMilestone).where(BillingMilestone.billing_plan_revision_id == (revision.id if revision else "")).order_by(BillingMilestone.sequence)).all()
     revisions = db.scalars(select(BillingPlanRevision).where(BillingPlanRevision.billing_plan_id == plan.id).order_by(BillingPlanRevision.revision_number.desc())).all()
@@ -644,9 +773,12 @@ def _calculate_revision(db: Session, revision: InvoiceRevision) -> InvoiceRevisi
 
 
 @router.get("/invoices")
-def list_invoices(project_id: str | None = None, contract_id: str | None = None, lane: str | None = None, q: str = "", db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_invoices(request: Request, project_id: str | None = None, contract_id: str | None = None, lane: str | None = None, q: str = "", db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    query = select(Invoice).order_by(Invoice.created_at.desc())
+    scope = _view_scope(db, principal)
+    if project_id or contract_id:
+        _authorize_view(db, request, principal, project_id=project_id, contract_id=contract_id)
+    query = select(Invoice).where(_scope_clause(Invoice, scope)).order_by(Invoice.created_at.desc())
     if project_id: query = query.where(Invoice.project_id == project_id)
     if contract_id: query = query.where(Invoice.contract_id == contract_id)
     rows = db.scalars(query).all()
@@ -668,11 +800,12 @@ def list_invoices(project_id: str | None = None, contract_id: str | None = None,
 
 
 @router.get("/projects/{project_id}/financial-projection")
-def project_financial_projection(project_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def project_financial_projection(project_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(404, {"code": "PROJECT_NOT_FOUND"})
+    _authorize_view(db, request, principal, project_id=project.id)
     invoices = db.scalars(select(Invoice).where(Invoice.project_id == project.id).order_by(Invoice.created_at)).all()
     contracts = db.scalars(select(Contract).where((Contract.project_id == project.id) | (Contract.id.in_(select(Invoice.contract_id).where(Invoice.project_id == project.id))))).all()
     contract = contracts[0] if contracts else None
@@ -698,28 +831,36 @@ def project_financial_projection(project_id: str, db: Session = Depends(get_db),
 
 
 @router.get("/offices/{office_id}/invoice-register")
-def office_invoice_register(office_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def office_invoice_register(office_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     if not db.get(ConsultancyOffice, office_id):
         raise HTTPException(404, {"code": "OFFICE_NOT_FOUND"})
-    rows = _office_invoice_projection(db, office_id)
+    scope = _view_scope(db, principal)
+    allowed_projects = {item for item in scope.project_ids if (db.get(Project, item) and db.get(Project, item).office_id == office_id)}
+    if not allowed_projects:
+        raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
+    rows = _office_invoice_projection(db, office_id, scope=scope)
     return {"office_id": office_id, "items": rows, "total": len(rows), "source_of_truth": "CANONICAL_BILLING_EVENTS"}
 
 
 @router.get("/offices/{office_id}/open-receivables")
-def office_open_receivables(office_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def office_open_receivables(office_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     if not db.get(ConsultancyOffice, office_id):
         raise HTTPException(404, {"code": "OFFICE_NOT_FOUND"})
-    rows = _office_invoice_projection(db, office_id, open_only=True)
+    scope = _view_scope(db, principal)
+    if not any(db.get(Project, item) and db.get(Project, item).office_id == office_id for item in scope.project_ids):
+        raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
+    rows = _office_invoice_projection(db, office_id, open_only=True, scope=scope)
     total_open = sum((_d(row.get("outstanding_amount") or 0) for row in rows), Decimal("0"))
     return {"office_id": office_id, "items": rows, "total": len(rows), "aggregate_outstanding_amount": str(_money(total_open)), "source_of_truth": "CANONICAL_BILLING_EVENTS"}
 
 
 @router.get("/invoices/{invoice_id}")
-def get_invoice(invoice_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def get_invoice(invoice_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     invoice, contract, revision, plan_revision, project = _invoice_revision(db, invoice_id)
+    _authorize_view(db, request, principal, project_id=invoice.project_id, client_account_id=invoice.client_account_id, contract_id=invoice.contract_id)
     references = db.scalars(select(InvoiceReference).where(InvoiceReference.invoice_revision_id == revision.id)).all()
     approvals = db.scalars(select(InvoiceApprovalRecord).where(InvoiceApprovalRecord.invoice_revision_id == revision.id)).all()
     issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice.id))
@@ -733,9 +874,10 @@ def get_invoice(invoice_id: str, db: Session = Depends(get_db), role: Role = Dep
 
 
 @router.get("/invoices/{invoice_id}/precheck")
-def invoice_precheck(invoice_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def invoice_precheck(invoice_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     invoice, contract, revision, plan_revision, _project = _invoice_revision(db, invoice_id)
+    _authorize_view(db, request, principal, project_id=invoice.project_id, client_account_id=invoice.client_account_id, contract_id=invoice.contract_id)
     return {**_precheck(db, invoice, contract, revision, plan_revision), "invoice_id": invoice.id, "revision_id": revision.id, "action_boundary": {"accept": "HUMAN_ONLY", "issue": "HUMAN_ONLY", "ai_protected_action_authority": 0}}
 
 
@@ -895,11 +1037,12 @@ def record_invoice_delivery(revision_id: str, payload: dict[str, Any], request: 
 
 
 @router.get("/invoices/{invoice_id}/communications")
-def invoice_communications(invoice_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def invoice_communications(invoice_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     invoice = db.get(Invoice, invoice_id)
     if not invoice:
         raise HTTPException(404, {"code": "INVOICE_NOT_FOUND"})
+    _authorize_view(db, request, principal, project_id=invoice.project_id, client_account_id=invoice.client_account_id, contract_id=invoice.contract_id)
     return {"communication_state": _communication_state(db, invoice.id), "issues": [_row(x) for x in db.scalars(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice.id).order_by(InvoiceIssueEvent.issued_at)).all()], "deliveries": [_row(x) for x in db.scalars(select(InvoiceDeliveryEvent).where(InvoiceDeliveryEvent.invoice_id == invoice.id).order_by(InvoiceDeliveryEvent.delivered_at)).all()], "acknowledgments": [_row(x) for x in db.scalars(select(InvoiceAcknowledgment).where(InvoiceAcknowledgment.invoice_id == invoice.id).order_by(InvoiceAcknowledgment.acknowledged_at)).all()]}
 
 
@@ -960,8 +1103,8 @@ def accept_invoice(revision_id: str, payload: dict[str, Any], request: Request, 
 @router.post("/financial-accounts")
 def create_financial_account(payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, OWNER, "FINANCIAL_ACCOUNT_MANAGE")
-    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_MANAGE", roles=OWNER)
-    item = FinancialAccountMaster(legal_entity_party_id=payload.get("legal_entity_party_id"), legal_entity_ref=str(payload.get("legal_entity_ref") or "").strip(), account_name=str(payload.get("account_name") or "").strip(), status="DRAFT", created_by=_actor(request, payload))
+    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_MANAGE", roles=OWNER, office_id=principal.office_id)
+    item = FinancialAccountMaster(office_id=principal.office_id, legal_entity_party_id=payload.get("legal_entity_party_id"), legal_entity_ref=str(payload.get("legal_entity_ref") or "").strip(), account_name=str(payload.get("account_name") or "").strip(), status="DRAFT", created_by=_actor(request, payload))
     if not item.legal_entity_ref or not item.account_name: raise HTTPException(422, {"code": "LEGAL_ENTITY_AND_ACCOUNT_NAME_REQUIRED"})
     db.add(item); db.flush(); _audit(db, request, "FINANCIAL_ACCOUNT_MASTER_CREATED", "FinancialAccountMaster", item.id, _actor(request, payload), {"legal_entity_ref": item.legal_entity_ref, "status": item.status}); db.commit(); return _row(item)
 
@@ -971,7 +1114,7 @@ def create_financial_account_version(master_id: str, payload: dict[str, Any], re
     _role(role, OWNER, "FINANCIAL_ACCOUNT_MANAGE")
     master = db.get(FinancialAccountMaster, master_id)
     if not master: raise HTTPException(404, {"code": "FINANCIAL_ACCOUNT_MASTER_NOT_FOUND"})
-    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_MANAGE", roles=OWNER)
+    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_MANAGE", roles=OWNER, office_id=principal.office_id)
     version_number = (db.scalar(select(func.max(FinancialAccountVersion.version_number)).where(FinancialAccountVersion.financial_account_master_id == master.id)) or 0) + 1
     item = FinancialAccountVersion(financial_account_master_id=master.id, version_number=version_number, bank_name=str(payload.get("bank_name") or ""), account_name=str(payload.get("account_name") or master.account_name), account_reference=str(payload.get("account_reference") or ""), currency=str(payload.get("currency") or "").upper(), effective_from=_date(payload.get("effective_from") or date.today().isoformat(), field="effective_from"), effective_to=_date(payload["effective_to"], field="effective_to") if payload.get("effective_to") else None, status="DRAFT", payment_instruction_metadata=payload.get("payment_instruction_metadata") or {}, created_by=_actor(request, payload))
     if not item.bank_name or not item.account_reference or not item.currency: raise HTTPException(422, {"code": "FINANCIAL_ACCOUNT_FIELDS_REQUIRED"})
@@ -985,7 +1128,7 @@ def approve_financial_account_version(version_id: str, payload: dict[str, Any], 
     if not item: raise HTTPException(404, {"code": "FINANCIAL_ACCOUNT_VERSION_NOT_FOUND"})
     master = db.get(FinancialAccountMaster, item.financial_account_master_id)
     if not master: raise HTTPException(409, {"code": "FINANCIAL_ACCOUNT_MASTER_NOT_FOUND"})
-    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_APPROVE", roles=OWNER)
+    _authorize(db, request, principal, capability="FINANCIAL_ACCOUNT_APPROVE", roles=OWNER, office_id=principal.office_id)
     item.status = "ACTIVE"; item.approved_by = _actor(request, payload); item.approved_at = datetime.now(timezone.utc); master.status = "ACTIVE"; _audit(db, request, "FINANCIAL_ACCOUNT_VERSION_APPROVED", "FinancialAccountVersion", item.id, _actor(request, payload), {"master_id": master.id, "version_number": item.version_number, "currency": item.currency}); db.commit(); return _mask_account(item)
 
 
@@ -1010,10 +1153,17 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
     issue_event_id = str(uuid4())
     _derive_due_date(revision, event_type="ISSUE", event_id=issue_event_id, event_at=issue_date)
     account = _resolve_account(db, revision.currency or plan_revision.currency, issue_date, payload.get("financial_account_version_id"))
+    account_master = db.get(FinancialAccountMaster, account.financial_account_master_id)
+    expected_legal_entity = str((revision.contract_project_context_snapshot or {}).get("legal_entity_ref") or "").strip()
+    if expected_legal_entity and account_master and account_master.legal_entity_ref != expected_legal_entity:
+        raise HTTPException(409, {"code": "FINANCIAL_ACCOUNT_LEGAL_ENTITY_MISMATCH"})
+    if not get_settings().synthetic_only and not expected_legal_entity:
+        raise HTTPException(409, {"code": "FINANCIAL_ACCOUNT_LEGAL_ENTITY_BINDING_REQUIRED"})
+    signer = _signer_evidence(payload)
     template = select_template(db, payload.get("template_version_id"), "INVOICE")
     official_ref = _allocate_invoice_ref(db, issue_date, _actor(request, payload), contract=contract, revision=revision)
     artifact = render_artifact(db, artifact_type="INVOICE", context_type="INVOICE_REVISION", context_id=revision.id, payload={"invoice_reference": official_ref, "contract_reference": contract.contract_reference, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "project_context": revision.contract_project_context_snapshot or {}, "description": revision.description, "currency": revision.currency, "lines": [_row(x) for x in _lines(db, revision.id)], "gross_charge_total": str(revision.gross_charge_total), "payable_total": str(revision.payable_total), "amount_in_words": revision.amount_in_words, "invoice_date": issue_date.isoformat(), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "financial_account_version_id": account.id, "source_sample_policy": "REFERENCE_ONLY"}, source_revision_ids=[contract.id, revision.controlling_contract_revision_id, plan_revision.id if plan_revision else revision.id], template_version_id=template.id, actor=_actor(request, payload), correlation_id=_corr(request), project_id=project.id if project else None)
-    event = InvoiceIssueEvent(id=issue_event_id, invoice_id=invoice.id, invoice_revision_id=revision.id, official_invoice_ref=official_ref, invoice_date=issue_date, issued_by=_actor(request, payload), idempotency_key=key, template_version_id=template.id, financial_account_version_id=account.id, rendered_artifact_id=artifact.id, source_snapshot={"contract_revision_id": revision.controlling_contract_revision_id, "billing_plan_revision_id": revision.billing_plan_revision_id, "financial_account_version_id": account.id, "template_version_id": template.id, "artifact_id": artifact.id})
+    event = InvoiceIssueEvent(id=issue_event_id, invoice_id=invoice.id, invoice_revision_id=revision.id, official_invoice_ref=official_ref, invoice_date=issue_date, issued_by=_actor(request, payload), idempotency_key=key, template_version_id=template.id, financial_account_version_id=account.id, rendered_artifact_id=artifact.id, source_snapshot={"contract_revision_id": revision.controlling_contract_revision_id, "billing_plan_revision_id": revision.billing_plan_revision_id, "financial_account_version_id": account.id, "financial_account_legal_entity_ref": account_master.legal_entity_ref if account_master else None, "template_version_id": template.id, "artifact_id": artifact.id, "source13_signer_authority": signer})
     db.add(event); db.flush()
     if project:
         db.execute(select(Project).where(Project.id == project.id).with_for_update()).scalar_one()
@@ -1030,11 +1180,7 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
 def _allocate_invoice_ref(db: Session, issue_date: date, actor: str, *, contract: Contract, revision: InvoiceRevision) -> str:
     policy = db.scalar(select(InvoiceNumberingPolicy).where(InvoiceNumberingPolicy.policy_key == "INVOICE" ).with_for_update())
     if not get_settings().synthetic_only:
-        gate = production_numbering_gate(
-            legacy_finance_reconciled=bool(runtime_decision_value(db, "SOURCE12_LEGACY_FINANCE_RECONCILIATION_CAPABILITY", False)),
-            historical_global_sequence_reconciled=bool(runtime_decision_value(db, "HISTORICAL_GLOBAL_SEQUENCE_RECONCILED", False)),
-            next_global_sequence_exactly_derived=bool(runtime_decision_value(db, "NEXT_GLOBAL_SEQUENCE_EXACTLY_DERIVED", False)),
-        )
+        gate = canonical_numbering_gate(lambda key, default=False: runtime_decision_value(db, key, default))
         if not gate["ready"]:
             raise HTTPException(409, {"code": "LEGACY_FINANCE_RECONCILIATION_REQUIRED_BEFORE_PRODUCTION_NUMBERING", "required_controls": gate["controls"]})
     if not policy:
@@ -1271,6 +1417,7 @@ def _payment_projection(db: Session, item: PaymentReceipt) -> dict[str, Any]:
 
 @router.get("/capabilities")
 def billing_capabilities(
+    request: Request,
     project_id: str | None = None,
     client_account_id: str | None = None,
     contract_id: str | None = None,
@@ -1298,8 +1445,12 @@ def billing_capabilities(
         project_id = contract.project_id or project_id
         client_account_id = contract.client_account_id or client_account_id
     project = db.get(Project, project_id) if project_id else None
-    office_id = project.office_id if project else principal.office_id
+    office_id = project.office_id if project else None
     context = BillingAuthorizationContext(office_id=office_id, client_account_id=client_account_id, project_id=project_id)
+    if any((project_id, client_account_id, contract_id, invoice_id, payment_id)):
+        _authorize_view(db, request, principal, project_id=project_id, client_account_id=client_account_id, contract_id=contract_id)
+    elif _view_scope(db, principal).empty:
+        raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
     effective = effective_billing_capabilities(db, principal, context=context)
     return {
         "role": role.value,
@@ -1318,15 +1469,16 @@ def billing_capabilities(
 
 
 @router.get("/command-center")
-def billing_command_center(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def billing_command_center(request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    invoices = db.scalars(select(Invoice).order_by(Invoice.created_at.desc())).all()
+    scope = _view_scope(db, principal)
+    invoices = db.scalars(select(Invoice).where(_scope_clause(Invoice, scope)).order_by(Invoice.created_at.desc())).all()
     invoice_rows: list[dict[str, Any]] = []
     for invoice in invoices:
         projection = _invoice_projection(db, invoice)
         invoice_rows.append({**projection, "context": _billing_context(db, contract_id=invoice.contract_id, project_id=invoice.project_id, client_account_id=invoice.client_account_id)})
-    milestones = [_milestone_projection(db, item) for item in db.scalars(select(BillingMilestone).order_by(BillingMilestone.sequence)).all()]
-    payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc(), PaymentReceipt.recorded_at.desc())).all()]
+    milestones = [_milestone_projection(db, item) for item in db.scalars(select(BillingMilestone).join(BillingPlanRevision).where(_scope_clause(BillingPlanRevision, scope)).order_by(BillingMilestone.sequence)).all()]
+    payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).where(_scope_clause(PaymentReceipt, scope)).order_by(PaymentReceipt.received_date.desc(), PaymentReceipt.recorded_at.desc())).all()]
     open_receivables = [item for item in invoice_rows if _d(item.get("outstanding_amount") or 0) > 0]
     today = date.today()
     work: list[dict[str, Any]] = []
@@ -1367,9 +1519,10 @@ def billing_command_center(db: Session = Depends(get_db), role: Role = Depends(c
 
 
 @router.get("/plans")
-def list_billing_plans(project_id: str | None = None, contract_id: str | None = None, status: str | None = None, billing_mode: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_billing_plans(request: Request, project_id: str | None = None, contract_id: str | None = None, status: str | None = None, billing_mode: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    query = select(BillingPlan).order_by(BillingPlan.created_at.desc())
+    scope = _view_scope(db, principal)
+    query = select(BillingPlan).where(_scope_clause(BillingPlan, scope)).order_by(BillingPlan.created_at.desc())
     if project_id: query = query.where(BillingPlan.project_id == project_id)
     if contract_id: query = query.where(BillingPlan.contract_id == contract_id)
     if status: query = query.where(BillingPlan.status == status.upper())
@@ -1383,9 +1536,10 @@ def list_billing_plans(project_id: str | None = None, contract_id: str | None = 
 
 
 @router.get("/milestones")
-def list_billing_milestones(project_id: str | None = None, contract_id: str | None = None, plan_id: str | None = None, eligibility: str | None = None, invoiceability: str | None = None, billing_mode: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_billing_milestones(request: Request, project_id: str | None = None, contract_id: str | None = None, plan_id: str | None = None, eligibility: str | None = None, invoiceability: str | None = None, billing_mode: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    query = select(BillingMilestone).join(BillingPlanRevision, BillingPlanRevision.id == BillingMilestone.billing_plan_revision_id).order_by(BillingMilestone.sequence)
+    scope = _view_scope(db, principal)
+    query = select(BillingMilestone).join(BillingPlanRevision, BillingPlanRevision.id == BillingMilestone.billing_plan_revision_id).where(_scope_clause(BillingPlanRevision, scope)).order_by(BillingMilestone.sequence)
     if project_id: query = query.where(BillingPlanRevision.project_id == project_id)
     if contract_id: query = query.where(BillingPlanRevision.contract_id == contract_id)
     if plan_id: query = query.where(BillingPlanRevision.billing_plan_id == plan_id)
@@ -1397,9 +1551,10 @@ def list_billing_milestones(project_id: str | None = None, contract_id: str | No
 
 
 @router.get("/payments")
-def list_billing_payments(project_id: str | None = None, contract_id: str | None = None, verification_status: str | None = None, credit_state: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_billing_payments(request: Request, project_id: str | None = None, contract_id: str | None = None, verification_status: str | None = None, credit_state: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "PAYMENT_CREDIT_VIEW")
-    query = select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc(), PaymentReceipt.recorded_at.desc())
+    scope = _view_scope(db, principal)
+    query = select(PaymentReceipt).where(_scope_clause(PaymentReceipt, scope)).order_by(PaymentReceipt.received_date.desc(), PaymentReceipt.recorded_at.desc())
     if project_id: query = query.where(PaymentReceipt.project_id == project_id)
     if contract_id: query = query.where(PaymentReceipt.contract_id == contract_id)
     if verification_status: query = query.where(PaymentReceipt.verification_status == verification_status.upper())
@@ -1409,9 +1564,10 @@ def list_billing_payments(project_id: str | None = None, contract_id: str | None
 
 
 @router.get("/receivables")
-def list_billing_receivables(project_id: str | None = None, state: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_billing_receivables(request: Request, project_id: str | None = None, state: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    query = select(Invoice).where(Invoice.status == "ISSUED").order_by(Invoice.created_at.desc())
+    scope = _view_scope(db, principal)
+    query = select(Invoice).where(Invoice.status == "ISSUED", _scope_clause(Invoice, scope)).order_by(Invoice.created_at.desc())
     if project_id: query = query.where(Invoice.project_id == project_id)
     items = []
     for invoice in db.scalars(query).all():
@@ -1429,16 +1585,17 @@ def list_billing_receivables(project_id: str | None = None, state: str | None = 
 
 
 @router.get("/reports")
-def billing_reports(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def billing_reports(request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    invoices = [_invoice_projection(db, invoice) for invoice in db.scalars(select(Invoice).order_by(Invoice.created_at.desc())).all()]
-    payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).order_by(PaymentReceipt.received_date.desc())).all()]
+    scope = _view_scope(db, principal)
+    invoices = [_invoice_projection(db, invoice) for invoice in db.scalars(select(Invoice).where(_scope_clause(Invoice, scope)).order_by(Invoice.created_at.desc())).all()]
+    payments = [_payment_projection(db, item) for item in db.scalars(select(PaymentReceipt).where(_scope_clause(PaymentReceipt, scope)).order_by(PaymentReceipt.received_date.desc())).all()]
     timezone_name, year_start, year_end = _local_year_bounds()
     ytd = None
     ytd_status = "CONFIGURATION_REQUIRED"
     if year_start and year_end:
-        issued = db.scalars(select(InvoiceIssueEvent).where(InvoiceIssueEvent.issued_at >= year_start, InvoiceIssueEvent.issued_at < year_end)).all()
-        allocations = db.scalars(select(InvoicePaymentAllocation).where(InvoicePaymentAllocation.allocated_at >= year_start, InvoicePaymentAllocation.allocated_at < year_end, InvoicePaymentAllocation.status != "REVERSED")).all()
+        issued = db.scalars(select(InvoiceIssueEvent).join(Invoice, Invoice.id == InvoiceIssueEvent.invoice_id).where(_scope_clause(Invoice, scope), InvoiceIssueEvent.issued_at >= year_start, InvoiceIssueEvent.issued_at < year_end)).all()
+        allocations = db.scalars(select(InvoicePaymentAllocation).join(Invoice, Invoice.id == InvoicePaymentAllocation.invoice_id).where(_scope_clause(Invoice, scope), InvoicePaymentAllocation.allocated_at >= year_start, InvoicePaymentAllocation.allocated_at < year_end, InvoicePaymentAllocation.status != "REVERSED")).all()
         invoiced_total = Decimal("0")
         for event in issued:
             revision = db.get(InvoiceRevision, event.invoice_revision_id)
@@ -1449,9 +1606,10 @@ def billing_reports(db: Session = Depends(get_db), role: Role = Depends(current_
 
 
 @router.get("/evidence")
-def billing_evidence(project_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def billing_evidence(request: Request, project_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    query = select(Document).order_by(Document.updated_at.desc())
+    scope = _view_scope(db, principal)
+    query = select(Document).where(_scope_clause(Document, scope, client=None, contract=None)).order_by(Document.updated_at.desc())
     if project_id:
         query = query.where(Document.project_id == project_id)
     items = []
@@ -1464,23 +1622,25 @@ def billing_evidence(project_id: str | None = None, db: Session = Depends(get_db
 
 
 @router.get("/evidence/{version_id}/open")
-def open_billing_evidence(version_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def open_billing_evidence(version_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     version = db.get(DocumentVersion, version_id)
     document = db.get(Document, version.document_id) if version else None
     if not version or not document:
         raise HTTPException(404, {"code": "BILLING_EVIDENCE_NOT_FOUND"})
+    _authorize_view(db, request, principal, project_id=document.project_id)
     if version.synthetic_content is None:
         raise HTTPException(409, {"code": "EVIDENCE_OPEN_REQUIRES_STORAGE_ROUTE", "source_reference": version.source_path_or_reference})
     return Response(content=version.synthetic_content, media_type=version.mime_type or "application/octet-stream", headers={"Content-Disposition": f'inline; filename="{version.source_filename}"', "X-Document-Version": version.id})
 
 
 @router.get("/supervision-queue")
-def supervision_queue(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def supervision_queue(request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
+    scope = _view_scope(db, principal)
     timezone_name, _, _ = _local_year_bounds()
     items = []
-    for plan in db.scalars(select(BillingPlan).where(BillingPlan.billing_mode == "SUPERVISION_MONTHLY", BillingPlan.status == "ACTIVE")).all():
+    for plan in db.scalars(select(BillingPlan).where(BillingPlan.billing_mode == "SUPERVISION_MONTHLY", BillingPlan.status == "ACTIVE", _scope_clause(BillingPlan, scope))).all():
         if timezone_name and _business_timezone()[1] is not None:
             items.append({"plan_id": plan.id, "project_id": plan.project_id, "contract_id": plan.contract_id, "status": "READY_FOR_REVIEW", "reason": "Previous service period derived for human review.", "autonomous_invoice_issue": False})
         else:
@@ -1510,18 +1670,22 @@ def create_readiness_request(payload: dict[str, Any], request: Request, db: Sess
 
 
 @router.get("/readiness-requests")
-def list_readiness_requests(project_id: str | None = None, milestone_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def list_readiness_requests(request: Request, project_id: str | None = None, milestone_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    query = select(BillingReadinessRequest).order_by(BillingReadinessRequest.requested_at.desc())
+    scope = _view_scope(db, principal)
+    query = select(BillingReadinessRequest).where(_scope_clause(BillingReadinessRequest, scope, client=None, contract=None)).order_by(BillingReadinessRequest.requested_at.desc())
     if project_id: query = query.where(BillingReadinessRequest.project_id == project_id)
     if milestone_id: query = query.where(BillingReadinessRequest.billing_milestone_id == milestone_id)
     return {"items": [_row(item) for item in db.scalars(query).all()], "total": db.scalar(select(func.count()).select_from(query.subquery())) or 0}
 
 
-def _office_invoice_projection(db: Session, office_id: str, *, open_only: bool = False) -> list[dict[str, Any]]:
+def _office_invoice_projection(db: Session, office_id: str, *, open_only: bool = False, scope: Any | None = None) -> list[dict[str, Any]]:
     project_ids = select(Project.id).where(Project.office_id == office_id)
     contract_ids = select(Contract.id).where(Contract.project_id.in_(project_ids))
-    invoices = db.scalars(select(Invoice).where((Invoice.project_id.in_(project_ids)) | (Invoice.contract_id.in_(contract_ids))).order_by(Invoice.created_at.desc())).all()
+    filters = (Invoice.project_id.in_(project_ids)) | (Invoice.contract_id.in_(contract_ids))
+    if scope is not None:
+        filters = filters & _scope_clause(Invoice, scope)
+    invoices = db.scalars(select(Invoice).where(filters).order_by(Invoice.created_at.desc())).all()
     rows = []
     for invoice in invoices:
         row = _invoice_projection(db, invoice)
@@ -1535,9 +1699,10 @@ def _office_invoice_projection(db: Session, office_id: str, *, open_only: bool =
 
 
 @router.get("/invoices/{invoice_id}/receivable")
-def invoice_receivable(invoice_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def invoice_receivable(invoice_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     invoice, _contract, revision, _plan_revision, _project = _invoice_revision(db, invoice_id)
+    _authorize_view(db, request, principal, project_id=invoice.project_id, client_account_id=invoice.client_account_id, contract_id=invoice.contract_id)
     return _receivable(db, invoice, revision)
 
 
@@ -1550,7 +1715,7 @@ def record_payment(payload: dict[str, Any], request: Request, db: Session = Depe
     client_id = str(payload.get("client_account_id") or (invoice.client_account_id if invoice else contract.client_account_id))
     if client_id != contract.client_account_id: raise HTTPException(403, {"code": "PAYMENT_CLIENT_CONTRACT_MISMATCH"})
     payment_project_id = payload["project_id"] if "project_id" in payload else (invoice.project_id if invoice else project.id if project else None); _scope_project(db, payment_project_id, contract, project)
-    _authorize(db, request, principal, capability="PAYMENT_RECORD", roles=PLAN_WRITE, project_id=payment_project_id, client_account_id=client_id)
+    _authorize(db, request, principal, capability="PAYMENT_RECORD", roles=PLAN_WRITE, project_id=payment_project_id, client_account_id=client_id, contract_id=contract.id)
     amount = _money(_d(payload.get("amount"), field="amount")); currency = str(payload.get("currency") or contract.currency or "").upper()
     if amount <= 0 or not currency: raise HTTPException(422, {"code": "PAYMENT_AMOUNT_CURRENCY_REQUIRED"})
     evidence_id = payload.get("evidence_document_version_id")
@@ -1567,29 +1732,32 @@ def record_payment(payload: dict[str, Any], request: Request, db: Session = Depe
 
 
 @router.get("/payments/{payment_id}/unallocated-credit")
-def payment_unallocated_credit(payment_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def payment_unallocated_credit(payment_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "PAYMENT_CREDIT_VIEW")
     item = db.get(PaymentReceipt, payment_id)
     if not item:
         raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
+    _authorize_view(db, request, principal, project_id=item.project_id, client_account_id=item.client_account_id, contract_id=item.contract_id)
     return _payment_credit(db, item)
 
 
 @router.get("/payments/{payment_id}")
-def get_payment(payment_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def get_payment(payment_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "PAYMENT_CREDIT_VIEW")
     item = db.get(PaymentReceipt, payment_id)
     if not item:
         raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
+    _authorize_view(db, request, principal, project_id=item.project_id, client_account_id=item.client_account_id, contract_id=item.contract_id)
     return _payment_projection(db, item)
 
 
 @router.get("/projects/{project_id}/payment-history")
-def project_payment_history(project_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def project_payment_history(project_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(404, {"code": "PROJECT_NOT_FOUND"})
+    _authorize_view(db, request, principal, project_id=project.id)
     payments = db.scalars(select(PaymentReceipt).where(PaymentReceipt.project_id == project_id).order_by(PaymentReceipt.received_date.desc())).all()
     return {"project": _row(project), "items": [_payment_projection(db, item) for item in payments], "total": len(payments), "source_of_truth": "PAYMENT_RECEIPT_VERIFICATION_ALLOCATION_AND_REVERSAL_EVENTS"}
 
@@ -1629,16 +1797,17 @@ def set_expected_exp(project_id: str, payload: dict[str, Any], request: Request,
 
 
 @router.get("/controls")
-def billing_controls(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def billing_controls(request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
-    accounts = db.scalars(select(FinancialAccountMaster).order_by(FinancialAccountMaster.account_name)).all()
-    versions = db.scalars(select(FinancialAccountVersion).order_by(FinancialAccountVersion.created_at.desc())).all()
+    scope = _view_scope(db, principal)
+    if scope.empty:
+        raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
+    account_scope = FinancialAccountMaster.office_id.in_(scope.office_ids) if scope.office_ids else false()
+    accounts = db.scalars(select(FinancialAccountMaster).where(account_scope).order_by(FinancialAccountMaster.account_name)).all()
+    account_ids = [item.id for item in accounts]
+    versions = db.scalars(select(FinancialAccountVersion).where(FinancialAccountVersion.financial_account_master_id.in_(account_ids) if account_ids else false()).order_by(FinancialAccountVersion.created_at.desc())).all()
     policy = db.scalar(select(InvoiceNumberingPolicy).where(InvoiceNumberingPolicy.policy_key == "INVOICE"))
-    numbering_gate = production_numbering_gate(
-        legacy_finance_reconciled=bool(runtime_decision_value(db, "SOURCE12_LEGACY_FINANCE_RECONCILIATION_CAPABILITY", False)),
-        historical_global_sequence_reconciled=bool(runtime_decision_value(db, "SOURCE12_HISTORICAL_GLOBAL_SEQUENCE_RECONCILED", False)),
-        next_global_sequence_exactly_derived=bool(runtime_decision_value(db, "SOURCE12_NEXT_GLOBAL_SEQUENCE_EXACTLY_DERIVED", False)),
-    )
+    numbering_gate = canonical_numbering_gate(lambda key, default=False: runtime_decision_value(db, key, default))
     fx_rates = db.scalars(select(BillingFxRateRecord).order_by(BillingFxRateRecord.source_currency, BillingFxRateRecord.rate_record_version.desc())).all()
     return {
         "financial_account_masters": [_row(item) for item in accounts],
@@ -1651,6 +1820,12 @@ def billing_controls(db: Session = Depends(get_db), role: Role = Depends(current
         "unresolved_owner_decisions": [],
         "ai_canonical_write_authority": 0,
         "ai_protected_action_authority": 0,
+        "authorization_model": "PERSISTED_SCOPED_CAPABILITY_ASSIGNMENTS",
+        "authorization_scope": {
+            "project_ids": sorted(scope.project_ids),
+            "client_account_ids": sorted(scope.client_account_ids),
+            "contract_ids": sorted(scope.contract_ids),
+        },
     }
 
 
@@ -1659,7 +1834,7 @@ def verify_payment(payment_id: str, payload: dict[str, Any], request: Request, d
     _role(role, OWNER, "PAYMENT_VERIFY")
     item = db.get(PaymentReceipt, payment_id)
     if not item: raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
-    _authorize(db, request, principal, capability="PAYMENT_VERIFY", roles=OWNER, project_id=item.project_id, client_account_id=item.client_account_id)
+    _authorize(db, request, principal, capability="PAYMENT_VERIFY", roles=OWNER, project_id=item.project_id, client_account_id=item.client_account_id, contract_id=item.contract_id)
     if item.verification_status == "VERIFIED": return _row(item)
     if item.verification_status == "REVERSED": raise HTTPException(409, {"code": "PAYMENT_REVERSED"})
     _payment_evidence_gate(item)
@@ -1672,7 +1847,7 @@ def allocate_payment(payment_id: str, payload: dict[str, Any], request: Request,
     payment = db.scalar(select(PaymentReceipt).where(PaymentReceipt.id == payment_id).with_for_update())
     invoice = db.scalar(select(Invoice).where(Invoice.id == payload.get("invoice_id")).with_for_update())
     if not payment or not invoice: raise HTTPException(404, {"code": "PAYMENT_OR_INVOICE_NOT_FOUND"})
-    _authorize(db, request, principal, capability="PAYMENT_ALLOCATE", roles=OWNER, project_id=invoice.project_id or payment.project_id, client_account_id=invoice.client_account_id)
+    _authorize(db, request, principal, capability="PAYMENT_ALLOCATE", roles=OWNER, project_id=invoice.project_id or payment.project_id, client_account_id=invoice.client_account_id, contract_id=payment.contract_id)
     if payment.verification_status != "VERIFIED": raise HTTPException(409, {"code": "VERIFIED_PAYMENT_REQUIRED"})
     if invoice.status != "ISSUED": raise HTTPException(409, {"code": "ISSUED_INVOICE_REQUIRED"})
     if payment.client_account_id != invoice.client_account_id:
@@ -1721,7 +1896,7 @@ def reverse_payment(payment_id: str, payload: dict[str, Any], request: Request, 
     payment = db.get(PaymentReceipt, payment_id)
     if not payment:
         raise HTTPException(404, {"code": "PAYMENT_NOT_FOUND"})
-    _authorize(db, request, principal, capability="PAYMENT_REVERSE", roles=OWNER, project_id=payment.project_id, client_account_id=payment.client_account_id)
+    _authorize(db, request, principal, capability="PAYMENT_REVERSE", roles=OWNER, project_id=payment.project_id, client_account_id=payment.client_account_id, contract_id=payment.contract_id)
     key = str(payload.get("idempotency_key") or "").strip()
     reason = str(payload.get("reason") or "").strip()
     if not key:
@@ -1811,10 +1986,11 @@ def record_follow_up(invoice_id: str, payload: dict[str, Any], request: Request,
 
 
 @router.get("/invoices/{invoice_id}/download")
-def download_invoice(invoice_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def download_invoice(invoice_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "INVOICE_EXPORT")
     invoice = db.get(Invoice, invoice_id); issue = db.scalar(select(InvoiceIssueEvent).where(InvoiceIssueEvent.invoice_id == invoice_id)) if invoice else None
     if not invoice: raise HTTPException(404, {"code": "INVOICE_NOT_FOUND"})
     if not issue: raise HTTPException(409, {"code": "ISSUED_INVOICE_ARTIFACT_REQUIRED"})
+    _authorize_view(db, request, principal, project_id=invoice.project_id, client_account_id=invoice.client_account_id, contract_id=invoice.contract_id)
     artifact = db.get(RenderedArtifact, issue.rendered_artifact_id)
     return {"invoice_id": invoice.id, "invoice_reference": issue.official_invoice_ref, "artifact": _row(artifact), "download_policy": "EXACT_ISSUED_ARTIFACT"}

@@ -68,10 +68,10 @@ def _create_version_table(
             )
 
 
-def test_repository_migration_head_is_scoped_finance_authorization_head():
+def test_repository_migration_head_is_billing_production_hardening_head():
     assert (
         database.repository_migration_head()
-        == "scoped_finance_capability_assignment_v1"
+        == "billing_finance_production_hardening_v1"
     )
 
 

@@ -31,6 +31,18 @@ def upgrade() -> None:
         sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.CheckConstraint(
+            "office_id IS NOT NULL OR client_account_id IS NOT NULL OR project_id IS NOT NULL",
+            name="ck_scoped_assignment_non_empty_scope",
+        ),
+        sa.CheckConstraint(
+            "effective_to IS NULL OR effective_to >= effective_from",
+            name="ck_scoped_assignment_effective_interval",
+        ),
+        sa.CheckConstraint(
+            "status IN ('ACTIVE', 'REVOKED', 'EXPIRED')",
+            name="ck_scoped_assignment_status",
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"]),
         sa.ForeignKeyConstraint(["office_id"], ["consultancy_offices.id"]),
         sa.ForeignKeyConstraint(["client_account_id"], ["client_accounts.id"]),
