@@ -49,6 +49,7 @@ from ..services.master_content import (
     CONSUMER_RESOLUTION_MATRIX,
     validate_module_binding,
     validate_internal_template_binding,
+    assert_content_library_authority_write_allowed,
 )
 from ..services.forms_governance import (
     add_provenance,
@@ -61,6 +62,10 @@ from ..services.forms_governance import (
     source_blocker_rollup,
     update_source_section,
     update_governance,
+)
+from ..services.source18_form_projection import (
+    resolve_source18_official_form,
+    source18_official_form_projection,
 )
 
 router = APIRouter(prefix="/api", tags=["master-content"])
@@ -364,6 +369,59 @@ def eligible(use: str = "ENGINEERING_AI", db: Session = Depends(get_db), role: R
     return eligible_master_content(db, use=use, role=role)
 
 
+@router.get("/master-content/official-forms")
+def source18_official_forms(
+    q: str = "",
+    current_only: bool = False,
+    transaction_id: str | None = None,
+    authority_case_id: str | None = None,
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+):
+    """Expose Source18 official forms as a typed read-only Content Library view."""
+    del role  # visibility is inherited from the read-only Source18 projection.
+    rows = source18_official_form_projection(db, include_non_current=not current_only)
+    needle = q.strip().casefold()
+    if transaction_id or authority_case_id:
+        rows = [
+            row for row in rows
+            if (not transaction_id or row["source18"]["transaction_id"] == transaction_id)
+            and (not authority_case_id or row["source18"]["authority_case_id"] == authority_case_id)
+        ]
+    if needle:
+        rows = [
+            row for row in rows
+            if needle in " ".join(str(value or "") for value in (
+                row["title"],
+                row["source18"]["case_reference"],
+                row["authority"]["publisher"],
+                row["authority"]["external_body"],
+                row["authority"]["jurisdiction"],
+                row["authority"]["service_type"],
+                row["authority"]["official_form_number"],
+                row["authority"]["official_form_revision"],
+            )).casefold()
+        ]
+    return {
+        "projection_type": "SOURCE18_OFFICIAL_FORM_READ_ONLY",
+        "authority_owner": "SOURCE18",
+        "read_only": True,
+        "items": rows,
+        "count": len(rows),
+    }
+
+
+@router.get("/master-content/official-forms/resolve")
+def resolve_source18_form(
+    transaction_id: str | None = None,
+    authority_case_id: str | None = None,
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+):
+    del role
+    return resolve_source18_official_form(db, transaction_id=transaction_id, authority_case_id=authority_case_id)
+
+
 @router.post("/master-content/ai-assist")
 def ai_assist_disabled(payload: AIAssistRequest, role: Role = Depends(current_user_role)):
     raise HTTPException(409, {"code": "AI_ASSIST_NOT_ENABLED", "request_type": payload.request_type})
@@ -539,6 +597,7 @@ def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: S
     item = db.get(MasterContentItem, item_id)
     if not item:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    assert_content_library_authority_write_allowed(db, item)
     require_capability(role, _write_capability(item.content_type))
     current = db.scalar(select(DocumentVersion).where(DocumentVersion.id == item.current_document_version_id)) if item.current_document_version_id else None
     if not current:
@@ -582,6 +641,7 @@ def put_module_bindings(item_id: str, payload: list[BindingPayload], request: Re
     item = db.get(MasterContentItem, item_id)
     if not item:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    assert_content_library_authority_write_allowed(db, item)
     seen: dict[tuple[str, str], bool] = {}
     for row in payload:
         module, usage_type = validate_module_binding(content_type=item.content_type, module=row.module, usage_type=row.usage_type)

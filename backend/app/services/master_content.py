@@ -51,6 +51,7 @@ from ..models import (
     WorkflowTask,
     WorkflowTaskStatus,
     LineageEdge,
+    Source18WorkflowTransaction,
 )
 from ..storage.legacy import legacy_synthetic_adapter
 from ..storage.factory import create_binary_store
@@ -189,6 +190,30 @@ def validate_internal_template_binding(db: Session, *, item: MasterContentItem, 
             ownership=profile.content_ownership_class if profile else None,
             restricted_reference_sample=bool(profile and profile.restricted_reference_sample),
             usage_type=usage_type,
+        )
+
+
+def source18_authority_binding(db: Session, item: MasterContentItem) -> Source18WorkflowTransaction | None:
+    """Find a Source18 authority binding without creating a Content Library link."""
+    if not item.current_document_version_id:
+        return None
+    return db.scalar(
+        select(Source18WorkflowTransaction).where(
+            Source18WorkflowTransaction.official_form_version_id == item.current_document_version_id
+        )
+    )
+
+
+def assert_content_library_authority_write_allowed(db: Session, item: MasterContentItem) -> None:
+    """Content Library cannot mutate an item currently owned by Source18."""
+    transaction = source18_authority_binding(db, item)
+    if transaction:
+        raise _error(
+            "SOURCE18_OFFICIAL_FORM_READ_ONLY",
+            409,
+            source18_transaction_id=transaction.id,
+            authority_case_id=transaction.authority_case_id,
+            document_version_id=transaction.official_form_version_id,
         )
 
 
@@ -1527,6 +1552,7 @@ def create_master_content_version(
     item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
     if not item:
         raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
     if item.status != "ACTIVE":
         raise _error("CONTENT_ARCHIVED", 409)
     current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
@@ -1598,6 +1624,7 @@ def archive_master_content(db: Session, *, item_id: str, actor: str, correlation
     item = db.get(MasterContentItem, item_id)
     if not item:
         raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
     item.status = "ARCHIVED"
     current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
     event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=current.id if current else None, new_version_id=current.id if current else item.id, change_type="MASTER_CONTENT_ARCHIVED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"ref": item.ref, "version_number": current.version_number if current else None}, event_type="MASTER_CONTENT_ARCHIVED", content_type=item.content_type, business_ref=item.ref, change_kind="ARCHIVE", change_reason="Owner archived content", materiality="MATERIAL", source_hash=current.sha256 if current else None)

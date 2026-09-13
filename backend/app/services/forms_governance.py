@@ -165,6 +165,8 @@ def governance_projection(db: Session, item: MasterContentItem, *, include_histo
 
 
 def update_governance(db: Session, item: MasterContentItem, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     profile = ensure_profile(db, item)
     before = _profile_dict(profile)
     for key in ("content_ownership_class", "artifact_kind", "publisher_name", "publisher_unit", "jurisdiction_text", "official_form_no", "official_issue_no", "language_profile", "sensitivity_class", "contains_pii", "contains_signature", "contains_stamp", "contains_financial_data", "contains_project_specific_data", "restricted_reference_sample", "currentness_verification_note"):
@@ -183,6 +185,8 @@ def update_governance(db: Session, item: MasterContentItem, payload: dict[str, A
 
 
 def set_currentness(db: Session, item: MasterContentItem, *, action: str, actor: str, note: str | None, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     profile = ensure_profile(db, item)
     action = action.upper()
     if action not in {"VERIFY_CURRENT", "MARK_NOT_CURRENT", "REVOKE"}: raise _deny("CURRENTNESS_ACTION_INVALID")
