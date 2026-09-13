@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from ..audit.service import audit
 from ..models import (
     AuditEvent, AuthorityCase, ClientAccount, ClientContact, ContactPoint, Contract, ContractAdminEvidence, ContractAdminInput,
-    ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm,
+    ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractMilestone,
     ContractReferenceSequence, ContractRevision, ContractTemplateSnapshot, DocumentVersion,
     Finding, LineageEdge, NotificationEvent, Opportunity, Project, ProjectActivation,
     Party, PartyRoleAssignment, ProposalAcceptedRevision, Quotation, QuotationRevision, RegulatoryJourney, ServiceEngagement, WorkflowTask,
@@ -235,7 +235,7 @@ def contract_billing_context(db: Session, contract: Contract, revision_id: str |
     payment_terms, deliverables, client_inputs = _revision_terms(db, revision.id if revision else None)
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id))
     evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == (revision.id if revision else None))).all() if revision else []
-    lpo_evidence = [item for item in evidence if item.source_role in {"LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"}]
+    lpo_evidence = [item for item in evidence if item.source_role in {"PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"}]
     blockers: list[dict[str, str]] = []
     if not revision:
         blockers.append({"code": "CONTRACT_REVISION_REQUIRED", "label": "Current Contract revision"})
@@ -903,6 +903,7 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
     findings = db.scalars(findings_query.order_by(Finding.captured_at.desc())).all()
     notifications = db.scalars(select(NotificationEvent).where(NotificationEvent.contract_id == contract.id).order_by(NotificationEvent.created_at.desc())).all()
     evidence = db.scalars(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id).order_by(ContractAdminEvidence.recorded_at.desc())).all()
+    schedule_milestones = db.scalars(select(ContractMilestone).where(ContractMilestone.contract_id == contract.id, ContractMilestone.contract_revision_id == (revision.id if revision else "")).order_by(ContractMilestone.due_at, ContractMilestone.milestone_reference)).all() if revision else []
     start_prerequisites = contract_start_prerequisites(db, contract)
     readiness_states = contract_readiness_states(db, contract)
     operational_contact_routing = operational_contact_routing_projection(db, contract, project)
@@ -994,6 +995,7 @@ def contract_operations_projection(db: Session, contract: Contract) -> dict[str,
         "mobilization": {"project_activation": "ACTIVE" if activation and project and str(project.status).upper() == "ACTIVE" else "REQUIRED", "service_engagement_count": len(services), "service_engagements": [{"id": item.id, "service_ref": item.service_ref, "status": item.status, "project_id": item.project_id, "contract_revision_id": item.contract_revision_id} for item in services]},
         "controls": {"blockers": blockers, "open_readiness_blockers": readiness_result["blockers"], "open_blocking_findings": [{"id": item.id, "title": item.title, "status": item.status, "severity": item.severity, "assignee_role": item.assignee_role} for item in open_blocking_findings], "open_tasks": [{"id": item.id, "title": item.title, "status": item.status, "priority": item.priority, "owner_role": item.owner_role, "due_at": item.due_at.isoformat() if item.due_at else None, "next_action_code": item.next_action_code} for item in open_tasks], "overdue_task_count": len(overdue_tasks), "required_input_state": "OPEN_REQUIRED_INPUTS" if open_required_inputs else "NO_OPEN_REQUIRED_INPUTS", "required_input_count": len(open_required_inputs), "extension_state": extension_state, "invoice_due_state": billing_state, "earned_not_invoiced_state": "EARNED_BUT_NOT_INVOICED" if earned and not issued_milestones.intersection({item.id for item in earned}) else "NO_EARNED_NOT_INVOICED_SIGNAL", "collection_state": collection_state, "contact_state": "CONTACT_RESOLUTION_REQUIRED" if services and operational_contact_routing["unresolved_purposes"] else "PURPOSE_CONTACT_AVAILABLE"},
         "schedule_state": schedule_state,
+        "schedule_semantics": {"source_of_record": "ContractMilestone", "date_semantics": "EXPLICIT_START_END_DUE_FACTS; NO_ORDINAL_INFERENCE", "items": [{"id": item.id, "reference": item.milestone_reference, "title": item.title, "start_at": item.start_at.isoformat() if item.start_at else None, "end_at": item.end_at.isoformat() if item.end_at else None, "due_at": item.due_at.isoformat() if item.due_at else None, "payment_condition": item.payment_condition, "amount": item.amount_value, "status": item.status} for item in schedule_milestones]},
         "delay_state": "OVERDUE" if overdue_tasks else "NO_OVERDUE_TASKS",
         "risk_state": "BLOCKED" if open_blocking_findings or readiness_result["blockers"] else "NO_BLOCKING_RISK_RECORDED",
         "responsible_action": responsible_action,

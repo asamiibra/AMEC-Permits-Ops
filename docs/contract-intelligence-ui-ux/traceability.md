@@ -1,40 +1,46 @@
-# Contract Intelligence UI/UX atomic traceability
+# Contract Intelligence UI/UX traceability qualification
 
-This ledger keeps one row per preserved Owner Source. The source labels are the
-labels supplied in the Owner Source 1–18 packet; no source-native requirement
-IDs are invented. Historical reconciliation documents are discovery indexes,
-not current PASS/GAP authority. Current implementation and test links below
-are the evidence for this feature branch.
+## Strict qualification
 
-| Owner source | Atomic Contract obligation | Exact preserved trace locator | Current implementation / UI evidence | Test evidence | Result |
-|---|---|---|---|---|---|
-| Source 1 | Start Contract work from governed Proposal truth and preserve the accepted revision. | `docs/contract-page-owner-sketch-delta/01-endpoint-reuse-map.md` — Proposal/Contract reuse map | `backend/app/services/admin_contract_read_model.py`; Overview and Proposal Origin panels | `backend/tests/test_admin_contract_owner_session.py::test_contract_owner_session_pins_exact_accepted_revision_and_template` | PASS |
-| Source 2 | Keep client identity and contact context on canonical Client records, with explicit field lineage. | `docs/contract-page-owner-sketch-delta/02-owner-sketch-traceability.md` — Client fields row | `backend/app/services/admin_contract_read_model.py`; Client & Contacts panel | `backend/tests/test_admin_contract_owner_session.py::test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptance` | PASS |
-| Source 3 | Keep commercial baseline, scope, currency, duration, and close-date facts distinct and editable through a reasoned Contract revision. | `docs/contract-center-final-owner-hardening/09-payment-semantics.md` — Payment Condition / Payment Terms boundary | `backend/app/api/contract_workspace_routers.py`; `ContractRevisionEditor` and `ContractCommitments` | `backend/tests/test_admin_contract_owner_session.py::test_contract_reconciliation_read_model_and_billing_seam` | PASS |
-| Source 4 | Use a controlled Contract Template and preserve its exact version lineage. | `docs/contract-center-final-owner-hardening/04-requiredness-policy-source.md` — governed policy source | `backend/app/services/admin_contract_read_model.py`; Sources and Forms panels | `backend/tests/test_admin_contract_owner_session.py::test_contract_owner_session_pins_exact_accepted_revision_and_template` | PASS |
-| Source 5 | Separate preparer, independent checker, authority review, and acceptance decisions. | `docs/contract-center-final-owner-hardening/05-acceptance-gating.md` — acceptance gate | `backend/app/api/contract_workspace_routers.py`; Review & Acceptance panel | `backend/tests/test_admin_contract_owner_session.py::test_contract_authority_review_does_not_accept_or_activate_and_checker_is_explicit` | PASS |
-| Source 6 | Make the current Contract revision append-only after finalization and expose history. | `docs/contract-page-owner-sketch-delta/07-accept-contract.md` — current-revision acceptance | `backend/app/services/contract_workspace.py`; History panel | `backend/tests/test_admin_contract_owner_session.py::test_contract_owner_session_pins_exact_accepted_revision_and_template` | PASS |
-| Source 7 | Require exact executed/signed evidence tied to the accepted revision. | `docs/contract-page-owner-sketch-delta/04-client-document-lpo.md` — versioned evidence seam | `backend/app/api/contract_workspace_routers.py`; `ContractExecutionHandoff` | `backend/tests/test_admin_contract_owner_session.py::test_contract_execution_distribution_and_operations_handoff_are_distinct_and_persisted` | PASS |
-| Source 8 | Record client-copy distribution as a separate controlled event after executed evidence. | `docs/contract-center-final-owner-hardening/07-final-section-order.md` — execution/distribution boundary | `POST /api/admin/contracts/{id}/client-copy-distribution`; execution panel | `backend/tests/test_admin_contract_owner_session.py::test_contract_execution_distribution_and_operations_handoff_are_distinct_and_persisted` | PASS |
-| Source 9 | Record Operations handoff as a separate controlled event after client distribution. | `docs/contract-center-final-owner-hardening/07-final-section-order.md` — Operations boundary | `POST /api/admin/contracts/{id}/operations-handoff`; execution panel | `backend/tests/test_admin_contract_owner_session.py::test_contract_execution_distribution_and_operations_handoff_are_distinct_and_persisted` | PASS |
-| Source 10 | Reconcile PO/LPO evidence and commercial controls without overwriting Proposal truth. | `docs/contract-page-owner-sketch-delta/04-client-document-lpo.md` — LPO versioning | `ContractSourceIntake`; `ContractRevisionEditor`; source-panel projection | `backend/tests/test_admin_contract_owner_session.py::test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptance` | PASS |
-| Source 11 | Keep known Client inputs/Documents Needed structured and separate from regulatory requirements. | `docs/contract-page-owner-sketch-delta/06-documents-needed-deliverables.md` — Documents Needed row | `ContractCommitments`; `ContractMissingDocumentFollowup` | `backend/tests/test_admin_contract_owner_session.py::test_contract_reconciliation_read_model_and_billing_seam` | PASS |
-| Source 12 | Keep deliverables/contracted works structured and separate from downstream engineering deliverables. | `docs/contract-page-owner-sketch-delta/06-documents-needed-deliverables.md` — Deliverables row | `ContractCommitments`; Contract read model | `backend/tests/test_admin_contract_owner_session.py::test_contract_reconciliation_read_model_and_billing_seam` | PASS |
-| Source 13 | Gate Project Activation explicitly on accepted Contract evidence and required human inputs. | `docs/contract-center-final-owner-hardening/06-project-activation-gating.md` — activation gate | `POST /api/admin/contracts/{id}/activate-project`; Mobilization panel | `backend/tests/test_admin_contract_owner_session.py::test_contract_manual_policy_permissions_and_explicit_project_activation` | PASS |
-| Source 14 | Preserve finance and billing boundaries; Contract acceptance does not create invoices, payments, or milestones. | `docs/contract-center-final-owner-hardening/08-billing-summary.md` — billing boundary | `contract_operations_projection`; Operations & Billing panel | `backend/tests/test_admin_contract_owner_session.py::test_contract_reconciliation_read_model_and_billing_seam` | PASS |
-| Source 15 | Use canonical Forms and authorization projections; reusable Forms remain governed and zero-authority to Intelligence. | `docs/content-library-gap-closure/13-final-acceptance-ledger.md:39` — AT-024 disposition | `CanonicalFormsLibrary`; shared Content Library routes | `backend/tests/test_contract_intelligence.py::test_contract_skill_catalogue_is_governed_and_zero_authority` | PASS |
-| Source 16 | Route operational contacts and missing-document work through owning-domain queues, without external send authority. | `docs/contract-center-final-owner-hardening/07-final-section-order.md` — AMEC Work / Issues / Notifications boundary | Operations projection; `ContractMissingDocumentFollowup`; canonical follow-up endpoint | `backend/tests/test_contract_operational_contacts.py` | PASS |
-| Source 17 | Preserve Engineering Module 1 Contract obligations and expose downstream context through typed projections. | `docs/admin-contract-final-certification/19-cross-module-regression.md` — cross-module regression artifact | `contract_operations_projection`; Service Scope and Operations panels | `backend/tests/test_contract_mobilization_gap_closure.py` | PASS |
-| Source 18 | Preserve Engineering Module 2/current-regulatory obligations and current-form authority at the owning seam. | `docs/content-library-gap-closure/13-final-acceptance-ledger.md:28` — Source18 authority boundary | `CanonicalFormsLibrary`; typed source currentness projection | `backend/tests/test_source15_current_contract_controls.py` | PASS |
+`OWNER_INPUT_REQUIRED`
 
-## AI governance
+The authoritative Owner Source 1–18 workbook/matrix and its 309
+Contract/Mobilization-relevant line locators are not present in this checkout.
+The available brief identifies source slots only as “Source 1” through “Source
+18”; it does not supply source-native names, Owner IDs, row/line locators, or
+the 309-line mapping. Consequently this ledger does not manufacture names,
+IDs, locators, mappings, or PASS results.
 
-The registry is exposed by `GET /api/admin/contracts/{contract_id}/intelligence`.
-Every catalogue entry declares `canonical_write_authority=ZERO`,
-`protected_action_authority=ZERO`, and `human_review_required=true`. With the
-current runtime flags the API returns `DISABLED_BY_POLICY`; it does not create
-content, call an external model, or write a canonical Contract action.
+| Source slot | Authoritative source name | Owner ID / locator | 309-line mapping | Implementation seam | Test seam | Result |
+|---|---|---|---:|---|---|---|
+| Source 1 | Not supplied in checkout | Not supplied | Not verifiable | Proposal → Contract lineage | Contract owner-session tests | OWNER_INPUT_REQUIRED |
+| Source 2 | Not supplied in checkout | Not supplied | Not verifiable | Canonical Client fields / lineage | Contract owner-session tests | OWNER_INPUT_REQUIRED |
+| Source 3 | Not supplied in checkout | Not supplied | Not verifiable | Contract revision and commercial fields | Contract owner-session tests | OWNER_INPUT_REQUIRED |
+| Source 4 | Not supplied in checkout | Not supplied | Not verifiable | Contract Template snapshot | Contract template tests | OWNER_INPUT_REQUIRED |
+| Source 5 | Not supplied in checkout | Not supplied | Not verifiable | Maker/checker/authority/acceptance | Authority-boundary tests | OWNER_INPUT_REQUIRED |
+| Source 6 | Not supplied in checkout | Not supplied | Not verifiable | Immutable revision history | Revision immutability tests | OWNER_INPUT_REQUIRED |
+| Source 7 | Not supplied in checkout | Not supplied | Not verifiable | Executed evidence | Execution-order tests | OWNER_INPUT_REQUIRED |
+| Source 8 | Not supplied in checkout | Not supplied | Not verifiable | Client-copy distribution | Handoff-order tests | OWNER_INPUT_REQUIRED |
+| Source 9 | Not supplied in checkout | Not supplied | Not verifiable | Operations handoff | Handoff-order tests | OWNER_INPUT_REQUIRED |
+| Source 10 | Not supplied in checkout | Not supplied | Not verifiable | PO/LPO reconciliation | PO/LPO exact-version tests | OWNER_INPUT_REQUIRED |
+| Source 11 | Not supplied in checkout | Not supplied | Not verifiable | Structured client inputs | Contract commitment tests | OWNER_INPUT_REQUIRED |
+| Source 12 | Not supplied in checkout | Not supplied | Not verifiable | Structured deliverables | Contract commitment tests | OWNER_INPUT_REQUIRED |
+| Source 13 | Not supplied in checkout | Not supplied | Not verifiable | Explicit Project Activation gate | Activation tests | OWNER_INPUT_REQUIRED |
+| Source 14 | Not supplied in checkout | Not supplied | Not verifiable | Finance/Billing read-only seam | Billing boundary tests | OWNER_INPUT_REQUIRED |
+| Source 15 | Not supplied in checkout | Not supplied | Not verifiable | Canonical Forms projection | Forms/AI governance tests | OWNER_INPUT_REQUIRED |
+| Source 16 | Not supplied in checkout | Not supplied | Not verifiable | Contact routing and missing-document work | Operational contact tests | OWNER_INPUT_REQUIRED |
+| Source 17 | Not supplied in checkout | Not supplied | Not verifiable | Engineering ServiceEngagement context | Mobilization regression tests | OWNER_INPUT_REQUIRED |
+| Source 18 | Not supplied in checkout | Not supplied | Not verifiable | Current-form / regulatory owning seam | Current-control tests | OWNER_INPUT_REQUIRED |
 
-Synology remains a classification/routing hint into canonical DocumentVersion
-lineage. Contract Intelligence never reads a source solely because a browser
-supplied an ID.
+## Code-level evidence that is independently verifiable
+
+The implementation and tests named above are repository evidence for code
+behavior only. They are not a substitute for source-name, Owner-ID, locator,
+scope-cluster, or 309-line traceability evidence. The exact required input is
+the preserved Owner Source 1–18 workbook/matrix (or an export containing the
+same fields: source name, Owner ID, requirement text, Contract/Mobilization
+scope, CM cluster, implementation/UI/API/test/result, and qualification).
+
+AI remains catalogue-only, disabled by policy, and has zero canonical-write or
+protected-action authority. No source-traceability PASS is emitted until the
+authoritative mapping is available and independently reconciled.

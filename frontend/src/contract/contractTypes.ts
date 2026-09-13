@@ -47,7 +47,9 @@ export type ContractData = {
   handoff_evidence?: Record<string, Array<{ id?: string; contract_revision_id?: string; source_reference?: string; status?: string; recorded_by?: string; recorded_at?: string; document_version_id?: string | null; content_hash?: string | null }>>;
   evidence?: Array<Record<string, any>>;
   client_document?: Record<string, any>;
+  po?: Record<string, any>;
   lpo?: Record<string, any>;
+  forms_package?: { items?: Array<Record<string, any>>; applicability_state?: string; automation_authority?: string; note?: string };
   source_panel?: Array<{ key?: string; label?: string; detail?: string; source?: string; open?: string | null; currentness_state?: string; verification_state?: string; classifier_candidate?: string | null; classifier_confidence?: number | null }>;
   payment_terms?: Array<Record<string, any>>;
   deliverables?: Array<Record<string, any>>;

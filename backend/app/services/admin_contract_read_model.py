@@ -7,7 +7,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, ContractTemplateSnapshot, Document, DocumentVersion, Opportunity, ProposalAcceptedRevision, ProposalContactContext
+from ..models import ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, ContractTemplateSnapshot, Document, DocumentVersion, FormAutomationProfile, MasterContentItem, MasterContentModuleBinding, Opportunity, ProposalAcceptedRevision, ProposalContactContext
 from .contract_workspace import contract_billing_context, contract_revision_is_accepted, contract_revision_is_authority_reviewed
 from .owner_decisions import runtime_decision_value
 
@@ -47,6 +47,25 @@ def _client_fields(db: Session, contract: Contract, revision: ContractRevision |
     return {"fields": fields, "canonical_client_id": client.id if client else None, "accepted_revision_id": accepted.id if accepted else None, "proposal_id": proposal.id if proposal else None, "pin_semantic_status": "OWNER_DEFINITION_REQUIRED"}
 
 
+def _contract_forms_package(db: Session, contract: Contract) -> dict[str, Any]:
+    """Project canonical Contract-time Forms without creating a Contract library."""
+    rows = db.scalars(
+        select(MasterContentItem)
+        .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
+        .where(MasterContentItem.content_type == "FORM", MasterContentItem.status == "ACTIVE", MasterContentModuleBinding.module == "CONTRACT", MasterContentModuleBinding.active.is_(True))
+        .order_by(MasterContentItem.ref)
+    ).all()
+    items = []
+    for item in rows:
+        version_id = item.current_document_version_id or (item.document.current_version_id if item.document else None)
+        version = db.get(DocumentVersion, version_id) if version_id else None
+        binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == "CONTRACT", MasterContentModuleBinding.active.is_(True)).order_by(MasterContentModuleBinding.created_at.desc()))
+        usage = str(binding.usage_type).upper() if binding else "AVAILABLE"
+        applicability = "REQUIRED" if usage in {"REQUIRED", "CONTRACT_REQUIRED"} else "OWNER_INPUT_REQUIRED"
+        items.append({"form_id": item.id, "ref": item.ref, "title": item.title, "applicability": applicability, "status": "OWNER_INPUT_REQUIRED" if applicability == "OWNER_INPUT_REQUIRED" else "REQUIRED", "current_document_version_id": version.id if version else None, "current_version": version.version_number if version else None, "current_sha256": version.sha256 if version else None, "prefill_state": "MANUAL_REVIEW_REQUIRED", "draft_state": "NOT_STARTED", "review_state": "PENDING", "signature_state": "HUMAN_SIGNATURE_POLICY_REQUIRED", "delivery_state": "NOT_STARTED", "canonical_library_route": "/admin/forms"})
+    return {"contract_id": contract.id, "source_of_record": "DASHBOARD_MASTER_CONTENT", "items": items, "applicability_state": "OWNER_INPUT_REQUIRED" if any(item["applicability"] == "OWNER_INPUT_REQUIRED" for item in items) or not items else "REQUIRED", "automation_authority": "ZERO", "note": "Contract-time applicability, prefill, review, signature, and delivery remain human-controlled; no universal bundle is inferred."}
+
+
 def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]:
     revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
     terms = db.scalars(select(ContractPaymentTerm).where(ContractPaymentTerm.contract_revision_id == revision.id).order_by(ContractPaymentTerm.sequence)).all() if revision else []
@@ -57,7 +76,7 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
     client_fields = _client_fields(db, contract, revision)
     current_by_role: dict[str, Any] = {}
     for item in evidence:
-        if item.source_role in {"LPO", "CLIENT_DOCUMENT"} and item.source_role not in current_by_role:
+        if item.source_role in {"PO", "LPO", "CLIENT_DOCUMENT"} and item.source_role not in current_by_role:
             current_by_role[item.source_role] = item
     template = db.scalar(select(ContractTemplateSnapshot).where(ContractTemplateSnapshot.contract_id == contract.id).order_by(ContractTemplateSnapshot.captured_at.desc()))
     revisions = db.scalars(select(ContractRevision).where(ContractRevision.contract_id == contract.id).order_by(ContractRevision.revision_number.desc())).all()
@@ -77,12 +96,14 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
         policy = requirement(lpo_policy if role == "LPO" else client_document_policy)
         return {"status": item.status if item else "NOT_RECEIVED", "document": document, "count": sum(1 for row in evidence if row.source_role == role), "requiredness": policy, "history": [{"id": row.id, "status": row.status, "recorded_at": row.recorded_at.isoformat(), "document": _document(db, row.document_version_id)} for row in evidence if row.source_role == role]}
     lpo = panel_document("LPO")
+    po = panel_document("PO")
     client_document = panel_document("CLIENT_DOCUMENT")
     source_panel = [
         {"key": "contract", "label": "Contract", "detail": f"Current Contract Revision {revision.revision_number}" if revision else "Current Contract Revision pending", "source": "ContractRevision", "currentness_state": "CURRENT" if revision else "UNAVAILABLE", "verification_state": "CANONICAL_REVISION" if revision else "UNAVAILABLE", "open": None},
         {"key": "document_list", "label": "Document List", "detail": f"{len(client_inputs)} structured client input(s)", "source": "ContractClientInputRequirement", "currentness_state": "CURRENT", "verification_state": "POLICY_PROJECTION", "open": f"/contract-mobilization/contracts/{contract.id}#contract-commitments"},
         {"key": "proposal", "label": "Accepted Proposal", "detail": f"{proposal.opportunity_reference} · Revision {accepted.revision_number}" if proposal and accepted else "Proposal origin requires reconciliation", "source": "AcceptedProposalRevision", "currentness_state": "CURRENT" if proposal and accepted else "UNAVAILABLE", "verification_state": "ACCEPTED_REVISION" if proposal and accepted else "UNAVAILABLE", "open": f"/opportunities/{proposal.id}" if proposal else None},
         {"key": "lpo", "label": "LPO", "detail": lpo["document"]["filename"] if lpo["document"] else lpo["requiredness"]["label"], "source": "DocumentVersion", "currentness_state": lpo["document"].get("currentness_state", "UNAVAILABLE") if lpo["document"] else "UNAVAILABLE", "verification_state": lpo["document"].get("verification_state", "UNAVAILABLE") if lpo["document"] else "UNAVAILABLE", "open": lpo["document"]["download"] if lpo["document"] else None},
+        {"key": "po", "label": "PO", "detail": po["document"]["filename"] if po["document"] else "Purchase Order evidence not received", "source": "DocumentVersion", "currentness_state": po["document"].get("currentness_state", "UNAVAILABLE") if po["document"] else "UNAVAILABLE", "verification_state": po["document"].get("verification_state", "UNAVAILABLE") if po["document"] else "UNAVAILABLE", "open": po["document"]["download"] if po["document"] else None},
         {"key": "client_document", "label": "Client Document", "detail": client_document["document"]["filename"] if client_document["document"] else client_document["requiredness"]["label"], "source": "DocumentVersion", "currentness_state": client_document["document"].get("currentness_state", "UNAVAILABLE") if client_document["document"] else "UNAVAILABLE", "verification_state": client_document["document"].get("verification_state", "UNAVAILABLE") if client_document["document"] else "UNAVAILABLE", "open": client_document["document"]["download"] if client_document["document"] else None},
         {"key": "contract_template", "label": "Contract Template", "detail": f"Dashboard · v{template.version}" if template else "Not configured", "source": "Dashboard", "currentness_state": "CURRENT" if template else "UNAVAILABLE", "verification_state": "PINNED_TEMPLATE" if template else "UNAVAILABLE", "open": f"/admin/templates" if not template else f"/api/master-content/{template.master_content_id}/download"},
     ]
@@ -98,7 +119,9 @@ def owner_contract_extensions(db: Session, contract: Contract) -> dict[str, Any]
         "client_inputs": [{"id": item.id, "sequence": item.sequence, "input_code": item.input_code, "title": item.title, "description": item.description, "required": item.required, "status": item.status, "source_type": item.source_type, "source_document": _document(db, item.source_document_version_id), "human_verified_by": item.human_verified_by} for item in client_inputs],
         "evidence_detail": [{"id": item.id, "type": item.evidence_type, "source_role": item.source_role, "source_reference": item.source_reference, "document": _document(db, item.document_version_id), "hash": item.content_hash, "status": item.status, "recorded_by": item.recorded_by} for item in evidence],
         "client_document": client_document,
+        "po": po,
         "lpo": lpo,
+        "forms_package": _contract_forms_package(db, contract),
         "client_document_policy": requirement(client_document_policy),
         "origin_state": "ACCEPTED_PROPOSAL" if proposal and accepted else "RECONCILIATION_REQUIRED",
         "documents_needed": [{"id": item.id, "title": item.title, "description": item.description, "required": item.required, "status": item.status, "source_type": item.source_type, "evidence": _document(db, item.source_document_version_id)} for item in client_inputs],

@@ -48,7 +48,7 @@ def record_executed_evidence(client, contract_id: str, actor: str = "synthetic-c
 def clean_owner_fixture():
     yield
     with SessionLocal() as db:
-        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Project Activation Fixture", "Contract Reconciliation Fixture", "Contract Page Owner Sketch Delta Fixture", "Contract Authority Boundary Fixture", "External Construction Agreement Boundary"])).all()
+        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Project Activation Fixture", "Contract Reconciliation Fixture", "Contract Page Owner Sketch Delta Fixture", "Contract Authority Boundary Fixture", "Contract PO LPO Extension Fixture", "External Construction Agreement Boundary"])).all()
         proposal_ids = [item.id for item in proposals]
         contracts = db.query(Contract).filter(Contract.proposal_id.in_(proposal_ids)).all() if proposal_ids else []
         contract_ids = [item.id for item in contracts]
@@ -370,7 +370,7 @@ def test_contract_page_owner_sketch_delta_documents_fields_sources_and_acceptanc
     assert {"client_fields", "field_lineage", "client_document", "lpo", "documents_needed", "deliverable_commitments", "source_panel"} <= set(body)
     assert body["client_fields"]["pin_number"]["display_value"] == "Not configured"
     assert body["client_fields"]["pin_number"]["source"] == "OWNER_DEFINITION_REQUIRED"
-    assert {item["label"] for item in body["source_panel"]} == {"Contract", "Document List", "Accepted Proposal", "LPO", "Client Document", "Contract Template"}
+    assert {item["label"] for item in body["source_panel"]} == {"Contract", "Document List", "Accepted Proposal", "PO", "LPO", "Client Document", "Contract Template"}
 
     client_document = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR"), json={"source_role": "CLIENT_DOCUMENT", "source_filename": "client-document-v1.txt", "content": "client document version one"})
     assert client_document.status_code == 200, client_document.text
@@ -616,6 +616,47 @@ def test_cm_g02_generic_ready_stage_uses_full_authority_readiness_gate(client):
     with SessionLocal() as db:
         row = db.get(Contract, contract_id)
         assert row.stage != "READY" and row.status != "READY"
+
+
+def test_contract_po_lpo_multipart_extension_and_forms_projection(client):
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, "Contract PO LPO Extension Fixture")
+    created = client.post(f"/api/admin/contracts/from-proposal/{proposal_id}", headers=headers("OWNER_SPONSOR"), json={})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    detail = client.get(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR"))
+    assert detail.status_code == 200, detail.text
+    body = detail.json()
+    assert {"po", "lpo", "forms_package"} <= set(body)
+    assert body["forms_package"]["automation_authority"] == "ZERO"
+
+    large_pdf = b"%PDF-1.7\x00" + (b"amec-binary\xff" * 80000)
+    po = client.post(f"/api/admin/contracts/{contract_id}/documents/upload", headers=headers("OWNER_SPONSOR"), data={"source_role": "PO", "reason": "Owner recorded exact purchase order"}, files={"file": ("purchase-order.pdf", large_pdf, "application/pdf")})
+    assert po.status_code == 200, po.text
+    lpo = client.post(f"/api/admin/contracts/{contract_id}/documents/upload", headers=headers("OWNER_SPONSOR"), data={"source_role": "LPO", "reason": "Owner recorded exact letter of purchase order"}, files={"file": ("letter-of-purchase-order.pdf", b"LPO exact bytes", "application/pdf")})
+    assert lpo.status_code == 200, lpo.text
+    assert po.json()["sha256"] == hashlib.sha256(large_pdf).hexdigest()
+    assert po.json()["source_role"] == "PO" and lpo.json()["source_role"] == "LPO"
+    refreshed = client.get(f"/api/admin/contracts/{contract_id}", headers=headers("OWNER_SPONSOR")).json()
+    assert refreshed["po"]["document"]["id"] == po.json()["document_version_id"]
+    assert refreshed["lpo"]["document"]["id"] == lpo.json()["document_version_id"]
+    assert {item["source_role"] for item in refreshed["evidence_detail"]} >= {"PO", "LPO"}
+
+    extension = client.post(f"/api/admin/contracts/{contract_id}/extension-requests", headers=headers("OWNER_SPONSOR"), json={"requested_end_date": "2027-01-31", "source_reference": "owner-file:extension-request-1", "reason": "Owner requests additional delivery time"})
+    assert extension.status_code == 200, extension.text
+    decision = client.post(f"/api/admin/contracts/{contract_id}/extension-decisions", headers={**headers("OWNER_SPONSOR"), "X-Dev-Actor": "extension-authority"}, json={"decision": "APPROVE", "approved_end_date": "2027-01-31", "reason": "Authority reviewed the extension request"})
+    assert decision.status_code == 200, decision.text
+    operations = client.get(f"/api/admin/contracts/{contract_id}/operations", headers=headers("OWNER_SPONSOR"))
+    assert operations.status_code == 200, operations.text
+    extension_rows = operations.json()["contract_clock"]["extension_history"]
+    assert len(extension_rows) == 2
+    assert all(row["metadata"].get("prospective_amendment_required", True) or row["metadata"].get("event") == "REQUESTED" for row in extension_rows)
+    with SessionLocal() as db:
+        contract = db.get(Contract, contract_id)
+        assert contract.expected_close_date is None
+        assert db.query(ContractAdminEvidence).filter(ContractAdminEvidence.contract_id == contract_id, ContractAdminEvidence.source_role == "CONTRACT_EXTENSION").count() == 2
+    denied = client.post(f"/api/admin/contracts/{contract_id}/extension-decisions", headers=headers("BUSINESS_DEVELOPMENT"), json={"decision": "REJECT", "reason": "Unauthorized extension decision"})
+    assert denied.status_code == 403
 
 
 def test_cm_g04_po_evidence_requires_exact_document_version(client):

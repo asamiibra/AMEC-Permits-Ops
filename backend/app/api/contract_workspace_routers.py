@@ -10,7 +10,7 @@ import hashlib
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
 from pydantic import BaseModel, Field
 from sqlalchemy import select, true
 from sqlalchemy.orm import Session
@@ -173,6 +173,18 @@ class ContractHandoffEvidencePayload(BaseModel):
     evidence_reference: str = Field(min_length=1, max_length=600)
     metadata: dict[str, Any] = {}
     reason: str = Field(min_length=3, max_length=1000)
+
+
+class ContractExtensionRequestPayload(BaseModel):
+    requested_end_date: date | None = None
+    reason: str = Field(min_length=3, max_length=1000)
+    source_reference: str = Field(min_length=1, max_length=600)
+
+
+class ContractExtensionDecisionPayload(BaseModel):
+    decision: str = Field(min_length=1, max_length=40)
+    reason: str = Field(min_length=3, max_length=1000)
+    approved_end_date: date | None = None
 
 
 class OperationalContactRoutingPayload(BaseModel):
@@ -829,23 +841,47 @@ def record_operations_handoff(contract_id: str, payload: ContractHandoffEvidence
     return _record_contract_handoff_evidence(contract_id, source_role="OPERATIONS_HANDOFF", payload=payload, request=request, db=db, role=role)
 
 
-@router.post("/{contract_id}/documents")
-def add_contract_document(contract_id: str, payload: ContractDocumentPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    """Register a versioned LPO or Client Document and link it as Contract evidence."""
+@router.post("/{contract_id}/extension-requests")
+def request_contract_extension(contract_id: str, payload: ContractExtensionRequestPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_EDIT")
     contract = _contract_or_404(db, contract_id)
-    source_role = payload.source_role.upper()
-    if source_role not in {"LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"}:
-        raise domain_error(422, "CONTRACT_DOCUMENT_ROLE_INVALID", allowed=["LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"])
-    if payload.content_base64:
-        try:
-            content = base64.b64decode(payload.content_base64, validate=True)
-        except (binascii.Error, ValueError) as exc:
-            raise domain_error(422, "CONTRACT_DOCUMENT_BASE64_INVALID") from exc
-    elif payload.content:
-        content = payload.content.encode("utf-8")
-    else:
-        raise domain_error(422, "CONTRACT_DOCUMENT_CONTENT_REQUIRED")
+    revision_id = contract.current_revision_id
+    actor = _request_actor(request, role)
+    metadata = {"event": "REQUESTED", "requested_end_date": payload.requested_end_date.isoformat() if payload.requested_end_date else None, "reason": payload.reason, "human_action": True, "synthetic_only": _synthetic_document_mode()}
+    evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision_id, evidence_type="CONTRACT_EXTENSION_REQUEST", source_role="CONTRACT_EXTENSION", source_reference=payload.source_reference, status="REQUESTED", recorded_by=actor, metadata_json=metadata)
+    db.add(evidence)
+    audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_EXTENSION_REQUESTED", entity_type="Contract", entity_id=contract.id, actor_id=actor, after={"evidence_id": evidence.id, "requested_end_date": metadata["requested_end_date"]}, metadata={"reason": payload.reason, "prospective_only": True})
+    db.commit()
+    return {"decision": "RECORDED", "extension": {"id": evidence.id, "status": evidence.status, "contract_revision_id": revision_id, "source_reference": evidence.source_reference, "metadata": evidence.metadata_json}, "contract": contract_operations_projection(db, contract)}
+
+
+@router.post("/{contract_id}/extension-decisions")
+def decide_contract_extension(contract_id: str, payload: ContractExtensionDecisionPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_REVIEW_AUTHORITY")
+    contract = _contract_or_404(db, contract_id)
+    decision = payload.decision.strip().upper()
+    if decision not in {"APPROVE", "RETURN", "REJECT"}:
+        raise domain_error(422, "CONTRACT_EXTENSION_DECISION_INVALID", allowed=["APPROVE", "RETURN", "REJECT"])
+    actor = _request_actor(request, role)
+    metadata = {"event": "DECIDED", "decision": decision, "approved_end_date": payload.approved_end_date.isoformat() if payload.approved_end_date else None, "reason": payload.reason, "human_action": True, "synthetic_only": _synthetic_document_mode(), "prospective_amendment_required": decision == "APPROVE"}
+    evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=contract.current_revision_id, evidence_type="CONTRACT_EXTENSION_DECISION", source_role="CONTRACT_EXTENSION", source_reference=f"contract:{contract.id}:extension-decision", status=decision, recorded_by=actor, metadata_json=metadata)
+    db.add(evidence)
+    audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_EXTENSION_DECIDED", entity_type="Contract", entity_id=contract.id, actor_id=actor, after={"evidence_id": evidence.id, "decision": decision, "approved_end_date": metadata["approved_end_date"]}, metadata={"reason": payload.reason, "original_contract_dates_unchanged": True, "prospective_amendment_required": decision == "APPROVE"})
+    db.commit()
+    return {"decision": "RECORDED", "extension": {"id": evidence.id, "status": evidence.status, "contract_revision_id": contract.current_revision_id, "metadata": evidence.metadata_json}, "contract": contract_operations_projection(db, contract)}
+
+
+def _synthetic_document_mode() -> bool:
+    settings = get_settings()
+    return bool(settings.synthetic_only and settings.storage_provider.lower() == "mock")
+
+
+def _record_contract_document_bytes(contract_id: str, *, source_role: str, source_filename: str, mime_type: str, content: bytes, reason: str, commercial_terms: dict[str, Any] | None, request: Request, db: Session, role: Role) -> dict[str, Any]:
+    require_capability(role, "CONTRACT_EDIT")
+    contract = _contract_or_404(db, contract_id)
+    source_role = source_role.upper()
+    if source_role not in {"PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"}:
+        raise domain_error(422, "CONTRACT_DOCUMENT_ROLE_INVALID", allowed=["PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT"])
     if not content:
         raise domain_error(422, "CONTRACT_DOCUMENT_CONTENT_REQUIRED")
     digest = hashlib.sha256(content).hexdigest()
@@ -866,20 +902,20 @@ def add_contract_document(contract_id: str, payload: ContractDocumentPayload, re
                 db,
                 document=document,
                 content=content,
-                filename=payload.source_filename,
-                mime_type=payload.mime_type,
+                filename=source_filename,
+                mime_type=mime_type,
                 target=StorageTarget(store.provider_id, store.config.share, f"contracts/{contract.id}/{source_role.lower()}"),
                 actor=actor_name(role),
                 correlation_id=request.state.correlation_id,
                 idempotency_key=f"contract:{contract.id}:{source_role}:{digest}",
                 source_system="CONTRACT_WORKSPACE",
-                metadata={"contract_id": contract.id, "source_role": source_role, "commercial_terms": payload.commercial_terms},
+                metadata={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "synthetic_only": False},
                 version_number=version_number,
             ).version
         except StorageError as exc:
             raise HTTPException(502, {"code": exc.code.value}) from exc
     else:
-        version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=payload.source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=payload.mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "source_role": source_role, "commercial_terms": payload.commercial_terms, "read_back_verified": True, "synthetic_only": True})
+        version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "read_back_verified": True, "synthetic_only": _synthetic_document_mode()})
         db.add(version)
         db.flush()
     document.current_version_id = version.id
@@ -887,11 +923,40 @@ def add_contract_document(contract_id: str, payload: ContractDocumentPayload, re
         previous.superseded_by = version.id
         previous.approval_state = DocumentApprovalState.SUPERSEDED
     if source_role != "EXECUTED_CONTRACT":
-        evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=contract.current_revision_id, evidence_type=source_role, source_role=source_role, document_version_id=version.id, source_reference=version.source_path_or_reference, content_hash=digest, status="RECEIVED", recorded_by=actor_name(role), metadata_json={"reason": payload.reason, "commercial_terms": payload.commercial_terms, "read_back_verified": True, "synthetic_only": True})
+        evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=contract.current_revision_id, evidence_type=source_role, source_role=source_role, document_version_id=version.id, source_reference=version.source_path_or_reference, content_hash=digest, status="RECEIVED", recorded_by=actor_name(role), metadata_json={"reason": reason, "commercial_terms": commercial_terms, "read_back_verified": True, "synthetic_only": _synthetic_document_mode()})
         db.add(evidence)
-    audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_DOCUMENT_VERSION_RECORDED", entity_type="Contract", entity_id=contract.id, actor_id=actor_name(role), after={"source_role": source_role, "document_id": document.id, "document_version_id": version.id, "version_number": version_number, "sha256": digest, "read_back_verified": True}, metadata={"reason": payload.reason, "version_history_preserved": bool(previous)})
+    audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_DOCUMENT_VERSION_RECORDED", entity_type="Contract", entity_id=contract.id, actor_id=actor_name(role), after={"source_role": source_role, "document_id": document.id, "document_version_id": version.id, "version_number": version_number, "sha256": digest, "read_back_verified": True}, metadata={"reason": reason, "version_history_preserved": bool(previous), "synthetic_only": _synthetic_document_mode()})
     db.commit()
-    return {"status": "RECORDED", "source_role": source_role, "document_id": document.id, "document_version_id": version.id, "version_number": version_number, "sha256": digest, "contract": contract_projection(db, contract)}
+    return {"status": "RECORDED", "source_role": source_role, "document_id": document.id, "document_version_id": version.id, "version_number": version.version_number, "sha256": digest, "source_path_or_reference": version.source_path_or_reference, "synthetic_only": _synthetic_document_mode(), "contract": contract_projection(db, contract)}
+
+
+@router.post("/{contract_id}/documents")
+def add_contract_document(contract_id: str, payload: ContractDocumentPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Compatibility JSON endpoint; new UI uploads use the multipart endpoint."""
+    if payload.content_base64:
+        try:
+            content = base64.b64decode(payload.content_base64, validate=True)
+        except (binascii.Error, ValueError) as exc:
+            raise domain_error(422, "CONTRACT_DOCUMENT_BASE64_INVALID") from exc
+    elif payload.content:
+        content = payload.content.encode("utf-8")
+    else:
+        raise domain_error(422, "CONTRACT_DOCUMENT_CONTENT_REQUIRED")
+    return _record_contract_document_bytes(contract_id, source_role=payload.source_role, source_filename=payload.source_filename, mime_type=payload.mime_type, content=content, reason=payload.reason, commercial_terms=payload.commercial_terms, request=request, db=db, role=role)
+
+
+@router.post("/{contract_id}/documents/upload")
+async def upload_contract_document(contract_id: str, source_role: str = Form(...), reason: str = Form("Owner Contract document evidence"), commercial_terms: str | None = Form(default=None), file: UploadFile = File(...), request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Production-scale multipart intake; bytes are hashed and read back without text decoding."""
+    content = await file.read()
+    parsed_terms: dict[str, Any] | None = None
+    if commercial_terms:
+        try:
+            import json
+            parsed_terms = json.loads(commercial_terms)
+        except (TypeError, ValueError) as exc:
+            raise domain_error(422, "CONTRACT_DOCUMENT_COMMERCIAL_TERMS_INVALID") from exc
+    return _record_contract_document_bytes(contract_id, source_role=source_role, source_filename=file.filename or "contract-document", mime_type=file.content_type or "application/octet-stream", content=content, reason=reason, commercial_terms=parsed_terms, request=request, db=db, role=role)
 
 
 @router.get("/{contract_id}/documents/{version_id}/download")

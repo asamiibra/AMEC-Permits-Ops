@@ -38,6 +38,24 @@ test.describe("Contract Center final Owner hardening", () => {
     await expect(page.locator('.contract-section-nav a[href="#overview"]')).toHaveAttribute("href", "#overview");
     await expect(page.getByRole("button", { name: "+ Add Payment Term", exact: true })).toBeVisible();
     await expect(page.getByRole("textbox", { name: "Payment Term name" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Forms & authorizations", exact: true })).toBeVisible();
+    await expect(page.locator(".contract-document-grid").getByText("Purchase Order", { exact: true })).toBeVisible();
+    await expect(page.locator(".contract-document-grid").getByText("Letter of Purchase Order", { exact: true })).toBeVisible();
+  });
+
+  test("records a real browser multipart source mutation and re-renders the committed state", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    await page.goto("/contract-mobilization");
+    await page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0007" }).getByRole("button", { name: "Open", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Client Document / PO / LPO", exact: true })).toBeVisible({ timeout: 45_000 });
+    const intake = page.locator("label").filter({ hasText: "Select source file" }).last();
+    await page.getByLabel("Source role").selectOption("PO");
+    await intake.locator("input[type=file]").setInputFiles({ name: "browser-purchase-order.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.7\\0browser-po\\xff") });
+    await page.getByRole("button", { name: "Store exact version", exact: true }).click();
+    await expect(page.locator(".contract-message[role=status]").last()).toContainText("PO stored as an exact current DocumentVersion", { timeout: 45_000 });
+    await page.reload();
+    await expect(page.locator(".contract-document-grid").getByText("browser-purchase-order.pdf", { exact: false })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("heading", { name: "Extension request & history", exact: true })).toBeVisible();
   });
 
   test("header next action only focuses its owning panel", async ({ page }) => {
