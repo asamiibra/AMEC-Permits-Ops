@@ -14,6 +14,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import (
+    ClientAccount,
+    ClientContact,
+    DocumentVersion,
     Opportunity,
     ProposalAcceptedRevision,
     ProposalAcceptanceVerification,
@@ -28,7 +31,9 @@ from ..models import (
     ProposalSourceEvidence,
     ProposalStalenessEvent,
     ProposalTechnicalAssessment,
+    ProposalOutputArtifact,
 )
+from .proposal_production_boundary import production_mode, require_canonical_active_client, require_exact_document_version, reject_synthetic_value
 from .proposal_workspace import stable_hash
 
 
@@ -77,7 +82,13 @@ def record_technical_assessment(db: Session, proposal_id: str, payload: dict[str
     evidence_ids = payload.get("evidence_document_version_ids") or []
     if not isinstance(evidence_ids, list):
         raise ValueError("TECHNICAL_ASSESSMENT_EVIDENCE_INVALID")
-    assessment_hash = str(payload.get("assessment_hash") or stable_hash({"proposal_id": proposal_id, "assessment_type": payload.get("assessment_type") or "SITE_TECHNICAL", "status": result, "findings": findings, "assumptions": payload.get("assumptions") or [], "evidence_document_version_ids": evidence_ids}))
+    if production_mode():
+        if result == "PASS" and not evidence_ids:
+            raise ValueError("TECHNICAL_ASSESSMENT_EVIDENCE_REQUIRED")
+        for version_id in evidence_ids:
+            require_exact_document_version(db, str(version_id), code="TECHNICAL_ASSESSMENT_EVIDENCE_REQUIRED")
+        reject_synthetic_value(payload.get("source_lineage"), code="TECHNICAL_ASSESSMENT_EVIDENCE_REQUIRED")
+    assessment_hash = stable_hash({"proposal_id": proposal_id, "assessment_type": payload.get("assessment_type") or "SITE_TECHNICAL", "status": result, "findings": findings, "assumptions": payload.get("assumptions") or [], "evidence_document_version_ids": [str(item) for item in evidence_ids]})
     prior = db.scalar(select(ProposalTechnicalAssessment).where(ProposalTechnicalAssessment.proposal_id == proposal_id).order_by(ProposalTechnicalAssessment.assessed_at.desc()))
     if prior and prior.assessment_hash == assessment_hash:
         return prior
@@ -117,13 +128,23 @@ def confirm_scope(db: Session, proposal_id: str, payload: dict[str, Any], *, act
 
 
 def record_eligibility(db: Session, proposal_id: str, payload: dict[str, Any], *, actor: str) -> ProposalServiceEligibility:
-    _proposal(db, proposal_id)
+    proposal = _proposal(db, proposal_id)
     code = str(payload.get("service_offering_code") or "").strip()
     result = str(payload.get("result") or "").upper()
     if not code:
         raise ValueError("SERVICE_OFFERING_CODE_REQUIRED")
     if result not in {"ELIGIBLE", "NOT_ELIGIBLE", "UNRESOLVED"}:
         raise ValueError("SERVICE_ELIGIBILITY_RESULT_INVALID")
+    if production_mode():
+        if result == "ELIGIBLE":
+            require_canonical_active_client(db, proposal.client_account_id)
+            if not payload.get("professional_party_id"):
+                raise ValueError("ELIGIBILITY_PROFESSIONAL_PARTY_REQUIRED")
+            require_exact_document_version(db, payload.get("evidence_document_version_id"), code="ELIGIBILITY_EVIDENCE_REQUIRED")
+            for field in ("capability_reference", "policy_reference"):
+                if not str(payload.get(field) or "").strip():
+                    raise ValueError(f"ELIGIBILITY_{field.upper()}_REQUIRED")
+            reject_synthetic_value({key: payload.get(key) for key in ("capability_reference", "policy_reference", "decision_note")}, code="ELIGIBILITY_EVIDENCE_REQUIRED")
     row = db.scalar(select(ProposalServiceEligibility).where(ProposalServiceEligibility.proposal_id == proposal_id, ProposalServiceEligibility.service_offering_code == code))
     if not row:
         row = ProposalServiceEligibility(proposal_id=proposal_id, service_offering_code=code, result=result, professional_party_id=payload.get("professional_party_id"), capability_reference=payload.get("capability_reference"), policy_reference=payload.get("policy_reference"), evidence_document_version_id=payload.get("evidence_document_version_id"), decision_note=payload.get("decision_note"), decided_by=actor, decided_at=_now())
@@ -146,6 +167,11 @@ def authorize_release(db: Session, proposal_id: str, payload: dict[str, Any], *,
     active_staleness = db.scalar(select(ProposalStalenessEvent).where(ProposalStalenessEvent.proposal_id == proposal.id, ProposalStalenessEvent.status == "ACTIVE"))
     if active_staleness:
         raise ValueError("STALE_PROPOSAL_REVIEW_REQUIRED")
+    outputs = db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.proposal_id == proposal.id, ProposalOutputArtifact.revision_id == revision.id)).all()
+    if production_mode() and {item.artifact_type for item in outputs} != {"PROPOSAL", "CHECKLIST"}:
+        raise ValueError("PRODUCTION_ARTIFACTS_REQUIRED")
+    if production_mode() and any(item.synthetic_only or not item.document_version_id or not item.storage_reference.startswith("storage://") for item in outputs):
+        raise ValueError("PRODUCTION_ARTIFACTS_REQUIRED")
     eligibility = list(db.scalars(select(ProposalServiceEligibility).where(ProposalServiceEligibility.proposal_id == proposal.id, ProposalServiceEligibility.status == "CURRENT")).all())
     by_code = {row.service_offering_code: row for row in eligibility}
     for code in scope.service_offering_codes:
@@ -166,7 +192,7 @@ def authorize_release(db: Session, proposal_id: str, payload: dict[str, Any], *,
 
 
 def record_distribution(db: Session, proposal_id: str, payload: dict[str, Any], *, actor: str, correlation_id: str) -> tuple[ProposalDistributionEvent, bool]:
-    _proposal(db, proposal_id)
+    proposal = _proposal(db, proposal_id)
     revision = latest_accepted(db, proposal_id)
     release = db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal_id, ProposalCommercialRelease.accepted_revision_id == revision.id, ProposalCommercialRelease.status == "AUTHORIZED"))
     if not release:
@@ -174,21 +200,34 @@ def record_distribution(db: Session, proposal_id: str, payload: dict[str, Any], 
     evidence = str(payload.get("evidence_reference") or "").strip()
     if not evidence:
         raise ValueError("DISTRIBUTION_EVIDENCE_REQUIRED")
+    if production_mode():
+        reject_synthetic_value(evidence, code="DISTRIBUTION_EVIDENCE_REQUIRED")
+        delivery_status = str(payload.get("delivery_status") or "EXTERNAL_EVIDENCE_RECORDED").upper()
+        if delivery_status not in {"DELIVERED", "EXTERNAL_EVIDENCE_RECORDED", "FAILED"}:
+            raise ValueError("DISTRIBUTION_STATUS_INVALID")
+        if delivery_status == "DELIVERED" and not str(payload.get("receipt_reference") or "").strip():
+            raise ValueError("DISTRIBUTION_RECEIPT_REQUIRED")
+    else:
+        delivery_status = str(payload.get("delivery_status") or "EXTERNAL_EVIDENCE_RECORDED").upper()
     key = str(payload.get("idempotency_key") or f"distribution:{proposal_id}:{revision.id}:{payload.get('channel') or 'UNSPECIFIED'}:{evidence}")
     existing = db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.idempotency_key == key))
     if existing:
-        if existing.proposal_id != proposal_id:
+        if existing.proposal_id != proposal_id or existing.accepted_revision_id != revision.id:
+            raise ValueError("IDEMPOTENCY_KEY_SCOPE_MISMATCH")
+        if production_mode() and (payload.get("evidence_document_version_id") or None) != existing.evidence_document_version_id:
             raise ValueError("IDEMPOTENCY_KEY_SCOPE_MISMATCH")
         return existing, True
-    row = ProposalDistributionEvent(proposal_id=proposal_id, accepted_revision_id=revision.id, commercial_release_id=release.id, channel=str(payload.get("channel") or "CLIENT_PORTAL"), recipient_party_id=payload.get("recipient_party_id"), recipient_contact_reference=payload.get("recipient_contact_reference"), evidence_document_version_id=payload.get("evidence_document_version_id"), evidence_reference=evidence, sent_at=_now(), sent_by=actor, audit_correlation_id=correlation_id, idempotency_key=key)
+    row = ProposalDistributionEvent(proposal_id=proposal_id, accepted_revision_id=revision.id, commercial_release_id=release.id, channel=str(payload.get("channel") or "CLIENT_PORTAL"), recipient_party_id=payload.get("recipient_party_id"), recipient_contact_reference=payload.get("recipient_contact_reference"), evidence_document_version_id=payload.get("evidence_document_version_id"), evidence_reference=evidence, delivery_status=delivery_status, receipt_reference=payload.get("receipt_reference"), sent_at=_now(), sent_by=actor, audit_correlation_id=correlation_id, idempotency_key=key)
     db.add(row)
     db.flush()
     return row, False
 
 
 def verify_acceptance(db: Session, proposal_id: str, payload: dict[str, Any], *, actor: str, correlation_id: str) -> tuple[ProposalAcceptanceVerification, bool]:
-    _proposal(db, proposal_id)
+    proposal = _proposal(db, proposal_id)
     revision = latest_accepted(db, proposal_id)
+    if payload.get("accepted_revision_id") and payload.get("accepted_revision_id") != revision.id:
+        raise ValueError("CLIENT_ACCEPTANCE_RESPONSE_REVISION_MISMATCH")
     response = db.get(ProposalClientResponse, payload.get("client_response_id"))
     if not response or response.proposal_id != proposal_id or response.accepted_revision_id != revision.id:
         raise ValueError("CLIENT_ACCEPTANCE_RESPONSE_REVISION_MISMATCH")
@@ -197,10 +236,20 @@ def verify_acceptance(db: Session, proposal_id: str, payload: dict[str, Any], *,
     evidence = str(payload.get("evidence_reference") or response.evidence_reference or "").strip()
     if not evidence:
         raise ValueError("CLIENT_ACCEPTANCE_EVIDENCE_REQUIRED")
+    evidence_version_id = payload.get("evidence_document_version_id") or response.evidence_document_version_id
+    if production_mode():
+        require_canonical_active_client(db, proposal.client_account_id)
+        evidence_version = require_exact_document_version(db, evidence_version_id, code="CLIENT_ACCEPTANCE_DOCUMENT_VERSION_REQUIRED")
+        if response.evidence_document_version_id and response.evidence_document_version_id != evidence_version.id:
+            raise ValueError("CLIENT_ACCEPTANCE_DOCUMENT_VERSION_MISMATCH")
+        reject_synthetic_value(evidence, code="CLIENT_ACCEPTANCE_EVIDENCE_REQUIRED")
+        evidence_hash = evidence_version.sha256
+    else:
+        evidence_hash = None
     existing = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.client_response_id == response.id))
     if existing:
         return existing, True
-    row = ProposalAcceptanceVerification(proposal_id=proposal_id, accepted_revision_id=revision.id, client_response_id=response.id, evidence_reference=evidence, evidence_document_version_id=payload.get("evidence_document_version_id"), verified_by=actor, verification_note=payload.get("verification_note"), verified_at=_now(), audit_correlation_id=correlation_id)
+    row = ProposalAcceptanceVerification(proposal_id=proposal_id, accepted_revision_id=revision.id, client_response_id=response.id, evidence_reference=evidence, evidence_document_version_id=evidence_version_id, evidence_sha256=evidence_hash, verified_by=actor, verification_note=payload.get("verification_note"), verified_at=_now(), audit_correlation_id=correlation_id)
     db.add(row)
     db.flush()
     return row, False
@@ -212,15 +261,33 @@ def reconcile_lpo(db: Session, proposal_id: str, payload: dict[str, Any], *, act
     key = str(payload.get("idempotency_key") or f"lpo:{proposal_id}:{revision.id}")
     existing = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.idempotency_key == key))
     if existing:
+        if existing.proposal_id != proposal_id or existing.accepted_revision_id != revision.id:
+            raise ValueError("IDEMPOTENCY_KEY_SCOPE_MISMATCH")
+        if production_mode() and payload.get("client_document_version_id") != existing.client_document_version_id:
+            raise ValueError("IDEMPOTENCY_KEY_SCOPE_MISMATCH")
         return existing, True
     applies = bool(payload.get("applies", True))
-    variances = payload.get("variances") or []
-    if not isinstance(variances, list):
-        raise ValueError("LPO_VARIANCES_INVALID")
-    if applies and not payload.get("client_artifact_reference") and not payload.get("client_document_version_id"):
-        raise ValueError("LPO_EVIDENCE_REQUIRED")
-    result = "NOT_APPLICABLE" if not applies else "MISMATCH" if variances else "PASS"
-    row = ProposalLpoReconciliation(proposal_id=proposal_id, accepted_revision_id=revision.id, client_document_version_id=payload.get("client_document_version_id"), client_artifact_reference=payload.get("client_artifact_reference"), applies=applies, fields_compared=payload.get("fields_compared") or [], variances=variances, result=result, adjudication_note=payload.get("adjudication_note"), adjudicated_by=actor if payload.get("adjudication_note") else None, adjudicated_at=_now() if payload.get("adjudication_note") else None, compared_by=actor, compared_at=_now(), idempotency_key=key, audit_correlation_id=correlation_id)
+    if production_mode() and applies:
+        version = require_exact_document_version(db, payload.get("client_document_version_id"), code="LPO_EVIDENCE_REQUIRED")
+        lpo_fields = (version.metadata_json or {}).get("lpo_fields")
+        if not isinstance(lpo_fields, dict):
+            raise ValueError("LPO_SOURCE_FIELDS_UNRESOLVED")
+        proposal_fields = revision.snapshot.get("fields", {})
+        compared = {"amount": proposal_fields.get("price"), "currency": proposal_fields.get("currency"), "scope": proposal_fields.get("scope_of_work") or proposal_fields.get("sow")}
+        fields_compared = [field for field in compared if field in lpo_fields]
+        if set(fields_compared) != set(compared):
+            raise ValueError("LPO_SOURCE_FIELDS_UNRESOLVED")
+        variances = [{"field": field, "proposal": compared[field], "lpo": lpo_fields[field]} for field in fields_compared if str(compared[field]).strip() != str(lpo_fields[field]).strip()]
+        result = "MISMATCH" if variances else "PASS"
+    else:
+        variances = payload.get("variances") or []
+        if not isinstance(variances, list):
+            raise ValueError("LPO_VARIANCES_INVALID")
+        if applies and not payload.get("client_artifact_reference") and not payload.get("client_document_version_id"):
+            raise ValueError("LPO_EVIDENCE_REQUIRED")
+        result = "NOT_APPLICABLE" if not applies else "MISMATCH" if variances else "PASS"
+        fields_compared = payload.get("fields_compared") or []
+    row = ProposalLpoReconciliation(proposal_id=proposal_id, accepted_revision_id=revision.id, client_document_version_id=payload.get("client_document_version_id"), client_artifact_reference=payload.get("client_artifact_reference"), applies=applies, fields_compared=fields_compared, variances=variances, result=result, comparator_version="SERVER_LPO_COMPARATOR_V1" if production_mode() else "TEST_PAYLOAD_COMPARATOR", adjudication_note=payload.get("adjudication_note"), adjudicated_by=actor if payload.get("adjudication_note") else None, adjudicated_at=_now() if payload.get("adjudication_note") else None, compared_by=actor, compared_at=_now(), idempotency_key=key, audit_correlation_id=correlation_id)
     db.add(row)
     db.flush()
     return row, False
@@ -235,6 +302,8 @@ def create_handoff(db: Session, proposal_id: str, payload: dict[str, Any], *, ac
     distribution = db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal.id, ProposalDistributionEvent.accepted_revision_id == revision.id))
     if not distribution:
         raise ValueError("DISTRIBUTION_REQUIRED")
+    if production_mode() and distribution.delivery_status == "FAILED":
+        raise ValueError("DISTRIBUTION_FAILED")
     acceptance = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal.id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.status == "VERIFIED"))
     if not acceptance:
         raise ValueError("CLIENT_ACCEPTANCE_VERIFICATION_REQUIRED")
@@ -243,6 +312,8 @@ def create_handoff(db: Session, proposal_id: str, payload: dict[str, Any], *, ac
         raise ValueError("LPO_RECONCILIATION_REQUIRED")
     if lpo.result not in {"PASS", "NOT_APPLICABLE"}:
         raise ValueError("LPO_RECONCILIATION_REQUIRED")
+    if production_mode() and lpo.result == "PASS" and not lpo.client_document_version_id:
+        raise ValueError("LPO_EVIDENCE_REQUIRED")
     key = str(payload.get("idempotency_key") or f"contract-handoff:{proposal.id}:{revision.id}")
     existing = db.scalar(select(ProposalContractHandoff).where(ProposalContractHandoff.idempotency_key == key))
     if existing:

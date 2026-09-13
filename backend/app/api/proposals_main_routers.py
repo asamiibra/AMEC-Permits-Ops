@@ -31,6 +31,7 @@ from ..services.backend_realignment import (
     proposal_sources,
 )
 from ..schemas.proposals_main import ProposalMainResponse
+from ..services.proposal_production_boundary import production_mode, require_canonical_active_client, synthetic_test_mode
 
 router = APIRouter(prefix="/api/proposals-main", tags=["proposals-main"])
 
@@ -57,7 +58,8 @@ def _role_name(role: Role | str) -> str:
 
 
 def _actor_role(role: Role, supplied: str | None) -> str:
-    return supplied or _role_name(role)
+    from ..api.dependencies import authenticated_actor
+    return authenticated_actor() or _role_name(role)
 
 
 def _allowed(action: str, persona: str) -> bool:
@@ -211,7 +213,8 @@ def proposals_main(persona: str = "SYSTEM_ADMIN", view: str = "proposals", db: S
         contract_rows.append({"id": contract.id, "record_type": "CONTRACT", "contract_description": opportunity.title if opportunity else "Contract context pending", "contract_reference": contract.contract_reference, "status": contract.status, "contract_status": contract.status, "related_proposal_id": opportunity.id if opportunity else None, "proposal_id": opportunity.id if opportunity else None, "related_proposal": opportunity.title if opportunity else "—", "project_id": project.id if project else None, "project_reference": project.project_number if project else (opportunity.opportunity_reference if opportunity else "UNRESOLVED"), "project_name": project.project_name if project else "Project context pending", "amount": contract_detail["amount"], "proposal_amount": contract_detail["proposal_amount"], "contract_amount": contract_detail["contract_amount"], "last_activity": contract.updated_at.isoformat(), "end_date": contract.end_date.isoformat() if contract.end_date else None, "permit_count": permit_count, "permit_id": permit_id, "permit_application_id": permit_id, "permit_eligible": bool(project and opportunity), "permit_action_eligible": bool(project and opportunity), "permit_action_label": "Open Permit" if permit_id else "Permit", "permit_action": contract_detail["next_action"], "proposal_status": proposal["proposal_status"] if proposal else None, "next_action": contract_detail["next_action"]})
     kpis = {key: {"label": definition["label"], "count": sum(1 for item in rows if _matches(item, key)) if definition["entity"] == "proposal" else sum(1 for item in contract_rows if (item["status"] in definition["states"])), "states": definition["states"], "entity": definition["entity"]} for key, definition in KPI_DEFINITIONS.items()}
     clients = [{"id": item.id, "reference": item.client_reference, "name": item.display_name, "status": item.status} for item in db.scalars(select(ClientAccount).where(ClientAccount.status == "ACTIVE").order_by(ClientAccount.display_name)).all()]
-    return {"rows": rows if view == "proposals" else contract_rows, "proposals": rows, "contracts": contract_rows, "contract_rows": contract_rows, "view": view, "clients": clients, "kpis": kpis, "filters": [{"key": "ALL", "label": "All", "entity": "both"}, {"key": "NEEDS_ACTION", "label": "Needs Action", "entity": "proposal", "states": ["PROPOSAL_HANDOVER"]}, {"key": "IN_REVIEW", "label": "In Review", "entity": "proposal", "states": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"]}, {"key": "READY_CLOSED", "label": "Ready / Closed", "entity": "both", "states": ["READY", "CLOSED", "ACCEPTED"]}], "filter_predicates": {"proposal": {"ALL": None, "NEEDS_ACTION": ["PROPOSAL_HANDOVER"], "IN_REVIEW": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}, "contract": {"ALL": None, "NEEDS_ACTION": ["CONTRACT_HANDOVER", "DRAFT"], "IN_REVIEW": ["DRAFT", "CONTRACT_IN_PROGRESS", "CONTRACT_HANDOVER"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}}, "persona": _persona_payload(persona), "sor": {"adapter": "MockSynologyAdapter", "template_version": SOR_TEMPLATE_VERSION, "intake_template_version": "SYN-PROPOSAL-INTAKE-1.0", "semantic_destinations": {**{key: value["label"] for key, value in SEMANTIC_FOLDER_CONFIG.items()}, **{key: value["label"] for key, value in INTAKE_SEMANTIC_CONFIG.items()}}, "database_role": "workflow index, metadata, lineage; not document bytes"}, "lineage_model": "ReferenceNumber: Proposal/Opportunity → Quotation → Contract → Project → PermitApplication", "synthetic_only": True}
+    synthetic = synthetic_test_mode()
+    return {"rows": rows if view == "proposals" else contract_rows, "proposals": rows, "contracts": contract_rows, "contract_rows": contract_rows, "view": view, "clients": clients, "kpis": kpis, "filters": [{"key": "ALL", "label": "All", "entity": "both"}, {"key": "NEEDS_ACTION", "label": "Needs Action", "entity": "proposal", "states": ["PROPOSAL_HANDOVER"]}, {"key": "IN_REVIEW", "label": "In Review", "entity": "proposal", "states": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"]}, {"key": "READY_CLOSED", "label": "Ready / Closed", "entity": "both", "states": ["READY", "CLOSED", "ACCEPTED"]}], "filter_predicates": {"proposal": {"ALL": None, "NEEDS_ACTION": ["PROPOSAL_HANDOVER"], "IN_REVIEW": ["IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}, "contract": {"ALL": None, "NEEDS_ACTION": ["CONTRACT_HANDOVER", "DRAFT"], "IN_REVIEW": ["DRAFT", "CONTRACT_IN_PROGRESS", "CONTRACT_HANDOVER"], "READY_CLOSED": ["READY", "CLOSED", "ACCEPTED"]}}, "persona": _persona_payload(persona), "sor": {"adapter": "MockSynologyAdapter" if synthetic else "ConfiguredStorageProvider", "template_version": SOR_TEMPLATE_VERSION if synthetic else "AMEC-PROPOSAL-INTAKE-1.0", "intake_template_version": "SYN-PROPOSAL-INTAKE-1.0" if synthetic else "AMEC-PROPOSAL-INTAKE-1.0", "semantic_destinations": {**{key: value["label"] for key, value in SEMANTIC_FOLDER_CONFIG.items()}, **{key: value["label"] for key, value in INTAKE_SEMANTIC_CONFIG.items()}}, "database_role": "workflow index, metadata, lineage; not document bytes"}, "lineage_model": "ReferenceNumber: Proposal/Opportunity → Quotation → Contract → Project → PermitApplication", "synthetic_only": synthetic}
 
 
 @router.get("/target/{project_id}")
@@ -249,6 +252,7 @@ async def proposals_intake(
 ):
     capability = "EDIT_TECHNICAL" if action == "PROPOSAL_FORM" else "EDIT_COMMERCIAL" if action == "CONTRACT_FORM" else "INTAKE"
     persona = require_capability(role, capability)
+    actor = _actor_role(role, actor)
     content = await file.read()
     if action not in ACTION_CONFIG:
         raise HTTPException(422, "UNSUPPORTED_INTAKE_SOURCE")
@@ -318,7 +322,10 @@ async def proposals_intake(
             office = db.get(ConsultancyOffice, project.office_id) if project else None
             if not office:
                 office = db.scalar(select(ConsultancyOffice).where(ConsultancyOffice.office_code == "QEC-DOHA"))
-            client = db.get(ClientAccount, client_account_id) if client_account_id else db.scalar(select(ClientAccount).where(ClientAccount.status == "ACTIVE").order_by(ClientAccount.created_at))
+            if production_mode():
+                client = require_canonical_active_client(db, client_account_id)
+            else:
+                client = db.get(ClientAccount, client_account_id) if client_account_id else db.scalar(select(ClientAccount).where(ClientAccount.status == "ACTIVE").order_by(ClientAccount.created_at))
             if client_account_id and not client:
                 raise domain_error(404, "CLIENT_NOT_FOUND", client_account_id=client_account_id)
             if not client:
@@ -339,6 +346,8 @@ async def proposals_intake(
     if not opportunity and action in {"PROPOSAL_FORM", "CONTRACT_FORM"}:
         raise domain_error(409, "CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
     if (provisional_source or action == "NEW_PROPOSAL") and not project_id:
+        if production_mode():
+            raise domain_error(503, "PRODUCTION_SOURCE_STORAGE_ROUTE_REQUIRED")
         semantic_class = ACTION_CONFIG[action]["semantic_class"]
         result = ingest_provisional_intake_artifact(db, opportunity=opportunity, semantic_class=semantic_class, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, actor=actor, source_revision=source_revision, idempotency_key=idempotency_key, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"))
         db.commit()

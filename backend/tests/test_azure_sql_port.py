@@ -175,6 +175,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
+        "proposal_production_hardening_v1.py",
     }
     by_revision = {
         re.search(r'^revision = "([^"]+)"$', path.read_text(encoding="utf-8"), re.MULTILINE).group(1): path
@@ -190,6 +191,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "opportunity_proposal_idempotency_v1",
         "billing_module_closure_v8",
         "17c6ebd99c4a",
+        "proposal_production_hardening_v1",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
@@ -218,6 +220,9 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert 'down_revision = "step5_content_azure_sql_v2"' in ledger.read_text(encoding="utf-8")
     assert 'down_revision = "source18_committee_implementation_v1"' in by_revision["opportunity_commercial_controls_v1"].read_text(encoding="utf-8")
     assert 'down_revision = "opportunity_commercial_controls_v1"' in by_revision["opportunity_proposal_idempotency_v1"].read_text(encoding="utf-8")
+    hardening = by_revision["proposal_production_hardening_v1"].read_text(encoding="utf-8")
+    assert 'down_revision = "17c6ebd99c4a"' in hardening
+    assert "Proposal output history or document bytes" in hardening
 
 
 def test_sqlserver_driver_dependency_metadata_consistent():

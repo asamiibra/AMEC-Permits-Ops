@@ -23,11 +23,13 @@ from ..models import (
     ProposalSourceEvidence,
     ProposalNote,
     ProposalIntakeArtifact,
+    DocumentVersion,
 )
 from .master_content import canonical_master_content_candidates, definition_lookup, resolve_master_content_purpose
 from .master_content import definition_projection, governance_projection
 from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
 from .owner_decisions import runtime_decision_value
+from .proposal_production_boundary import synthetic_test_mode
 
 SOURCE_TYPES = ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA")
 SOURCE_TO_SEMANTIC = {
@@ -545,8 +547,8 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "owner_lane": lanes,
         "outputs": {
             "available": bool(current and outputs),
-            "proposal": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "PROPOSAL"), None),
-            "checklist": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "CHECKLIST"), None),
+            "proposal": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "document_version_id": row.document_version_id, "storage_reference": row.storage_reference, "synthetic_only": row.synthetic_only, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "PROPOSAL"), None),
+            "checklist": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "document_version_id": row.document_version_id, "storage_reference": row.storage_reference, "synthetic_only": row.synthetic_only, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "CHECKLIST"), None),
             "pre_accept_message": "Available after human Proposal Accept" if not current else None,
         },
         "current_revision": {
@@ -565,7 +567,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "stage_history": [{"event_type": event.event_type, "occurred_at": event.occurred_at.isoformat(), "actor": event.actor_id, "before": event.before_json, "after": event.after_json, "correlation_id": event.correlation_id} for event in stage_events],
         "ai_assist": validation["ai_assist"],
         "contract_eligible": bool(current and validation["ready"]),
-        "synthetic_only": True,
+        "synthetic_only": synthetic_test_mode(),
     }
 
 
@@ -608,6 +610,51 @@ def output_bytes(revision: ProposalAcceptedRevision, artifact_type: str) -> byte
         body = {"proposal_reference": revision.snapshot.get("proposal_reference"), "revision": revision.revision_number, "checklist": revision.snapshot.get("checklist"), "validation": revision.validation_snapshot, "source_ids": revision.snapshot.get("source_ids", [])}
         title = "AMEC Proposal Checklist"
     return (title + "\n" + json.dumps(body, indent=2, sort_keys=True, default=str) + "\n").encode()
+
+
+def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, artifact_type: str) -> tuple[bytes, dict[str, Any]]:
+    """Render a production output from the exact governed source bytes.
+
+    The initial production renderer deliberately supports text/HTML templates
+    only. Unsupported binary template formats fail closed instead of silently
+    producing a synthetic or corrupted document.
+    """
+    from .master_content import read_master_content_bytes
+
+    artifact_type = artifact_type.upper()
+    source_id = revision.template_version_id if artifact_type == "PROPOSAL" else revision.checklist_version_id
+    source_hash = revision.template_hash if artifact_type == "PROPOSAL" else revision.checklist_hash
+    version = db.get(DocumentVersion, source_id) if source_id else None
+    if not version or not source_hash or version.sha256 != source_hash:
+        raise ValueError("PRODUCTION_TEMPLATE_DOCUMENT_VERSION_REQUIRED")
+    if version.source_path_or_reference.startswith(("synthetic://", "synthetic-db://")):
+        raise ValueError("SYNTHETIC_GOVERNED_SOURCE_FORBIDDEN")
+    content = read_master_content_bytes(db, version)
+    mime = (version.mime_type or "").lower()
+    if not (mime.startswith("text/") or mime in {"application/json", "application/xhtml+xml"}):
+        raise ValueError("PRODUCTION_RENDERER_UNSUPPORTED_TEMPLATE_FORMAT")
+    payload = {
+        "proposal_reference": revision.snapshot.get("proposal_reference"),
+        "accepted_revision_id": revision.id,
+        "revision_number": revision.revision_number,
+        "content_hash": revision.content_hash,
+        "client_account_id": revision.snapshot.get("client_account_id"),
+        "fields": revision.snapshot.get("fields", {}),
+        "source_ids": revision.snapshot.get("source_ids", []),
+    }
+    rendered = content.rstrip() + b"\n\n--- AMEC PRODUCTION DATA ---\n" + json.dumps(payload, indent=2, sort_keys=True, default=str).encode() + b"\n"
+    lineage = {
+        "accepted_revision_id": revision.id,
+        "template_version_id": revision.template_version_id,
+        "template_hash": revision.template_hash,
+        "checklist_version_id": revision.checklist_version_id,
+        "checklist_hash": revision.checklist_hash,
+        "governed_source_document_version_id": version.id,
+        "governed_source_hash": version.sha256,
+        "renderer": "AMEC_GOVERNED_TEXT_RENDERER_V1",
+        "format": "GOVERNED_TEXT",
+    }
+    return rendered, lineage
 
 
 def ensure_owner_settings(db: Session, actor: str = "owner-demo-seed") -> list[ProposalOwnerSetting]:
