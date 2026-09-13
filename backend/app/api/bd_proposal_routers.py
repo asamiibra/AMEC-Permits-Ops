@@ -20,7 +20,7 @@ from ..audit.service import audit
 from ..db import get_db
 from ..models import AssistantHandoff, AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, ExternalBody, Jurisdiction, NotificationEvent, Opportunity, Party, ProposalAcceptedRevision, ProposalAcceptanceVerification, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalContractHandoff, ProposalCommercialRelease, ProposalDistributionEvent, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalLpoReconciliation, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalTechnicalAssessment, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, ServiceType, WorkflowTask, WorkflowTaskStatus
 from ..config.settings import get_settings as app_settings
-from ..services.backend_realignment import domain_error, require_capability
+from ..services.backend_realignment import CAPABILITY_MATRIX, domain_error, persona_for_role, require_capability
 from ..services.master_content import definition_lookup
 from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, owner_lane_definitions, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
@@ -48,6 +48,12 @@ class ProposalFieldsPatch(BaseModel):
     amec_input: dict[str, Any] | None = None
     provenance: dict[str, Any] | None = None
     expected_updated_at: str | None = None
+
+
+class ClientCreate(BaseModel):
+    legal_name: str = Field(min_length=1, max_length=250)
+    display_name: str | None = Field(default=None, max_length=250)
+    client_type: str = "COMPANY"
 
 
 class OwnerSettingsPatch(BaseModel):
@@ -86,6 +92,7 @@ class ProposalRegisterResponse(BaseModel):
     last_activity_source: str
     search_fields: list[str]
     synthetic_only: bool
+    action_capabilities: dict[str, dict[str, Any]] = {}
 
 
 def _actor(role: Role, supplied: str | None = None) -> str:
@@ -103,10 +110,19 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
         raise HTTPException(503, "OFFICE_CONTEXT_REQUIRED")
     client_id = payload.client_account_id
     if not client_id and payload.client_name:
-        client = ClientAccount(client_reference=f"AMEC-SYN-CLIENT-{db.query(ClientAccount).count() + 1:04d}", legal_name=payload.client_name.strip(), display_name=payload.client_name.strip(), client_type="COMPANY", data_classification="SYNTHETIC", status="ACTIVE")
-        db.add(client)
-        db.flush()
-        client_id = client.id
+        client = db.scalar(select(ClientAccount).where(ClientAccount.status == "ACTIVE", ClientAccount.display_name == payload.client_name.strip()))
+        if client:
+            client_id = client.id
+        elif app_settings().app_env.upper() == "TEST" and app_settings().synthetic_only:
+            # Existing regression fixtures are explicitly synthetic. This
+            # fallback is test-only; deployed callers must select a canonical
+            # Client account or use the explicit Client-domain command.
+            client = ClientAccount(client_reference=f"AMEC-SYN-CLIENT-{db.query(ClientAccount).count() + 1:04d}", legal_name=payload.client_name.strip(), display_name=payload.client_name.strip(), client_type="COMPANY", data_classification="SYNTHETIC", status="ACTIVE")
+            db.add(client)
+            db.flush()
+            client_id = client.id
+        else:
+            raise domain_error(422, "CANONICAL_CLIENT_ACCOUNT_REQUIRED", hint="Select an existing Client account before creating a Proposal.")
     reference = allocate_proposal_reference(db)
     fields = {"client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"client_name": "manual", "project_reference": "manual"}}
     fields = {key: value for key, value in fields.items() if value is not None}
@@ -221,7 +237,7 @@ def list_proposals(q: str = "", stage: str | None = None, lane: str | None = Non
     rows, lane_counts = _register_predicate([_list_row(db, item) for item in db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()], q=q, stage=stage, lane=lane, client=client, activity=activity, location=location)
     for row in rows:
         row.pop("_search_text", None)
-    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True}
+    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True, "action_capabilities": {"NEW_PROPOSAL": {"available": "BD_PROPOSAL_WRITE" in CAPABILITY_MATRIX.get(persona_for_role(role), set()), "capability": "BD_PROPOSAL_WRITE"}}}
 
 
 @router.post("")
@@ -230,16 +246,39 @@ def create_proposal(payload: ProposalCreate, request: Request, db: Session = Dep
     if payload.idempotency_key:
         existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
         if existing:
-            return {**proposal_projection(db, existing), "result": "IDEMPOTENT"}
+            return {**proposal_projection(db, existing, role), "result": "IDEMPOTENT"}
     item = _create_proposal_record(payload, request, db, role)
     db.commit()
-    return {**proposal_projection(db, item), "result": "CREATED"}
+    return {**proposal_projection(db, item, role), "result": "CREATED"}
 
 
 @router.get("/master-content")
 def proposal_master_content(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
     return {"proposal_template": master_content_purpose(db, "PROPOSAL_TEMPLATE"), "proposal_checklist": master_content_purpose(db, "PROPOSAL_CHECKLIST"), "definitions": {"lookup": "/api/definitions/lookup/{term}", "truth": "DASHBOARD_DEFINITIONS"}}
+
+
+@router.get("/clients")
+def list_proposal_clients(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Return selectable canonical Client accounts; never creates one."""
+    require_capability(role, "BD_PROPOSAL_READ")
+    return {"items": [{"id": row.id, "reference": row.client_reference, "name": row.display_name, "legal_name": row.legal_name, "status": row.status, "canonical_party_id": row.canonical_party_id} for row in db.scalars(select(ClientAccount).where(ClientAccount.status == "ACTIVE").order_by(ClientAccount.display_name)).all()]}
+
+
+@router.post("/clients")
+def create_proposal_client(payload: ClientCreate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Explicit smallest Client-domain command for a genuinely new client."""
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    display_name = (payload.display_name or payload.legal_name).strip()
+    existing = db.scalar(select(ClientAccount).where(ClientAccount.status == "ACTIVE", ClientAccount.display_name == display_name))
+    if existing:
+        return {"result": "IDEMPOTENT", "client": {"id": existing.id, "reference": existing.client_reference, "name": existing.display_name}}
+    client = ClientAccount(client_reference=f"AMEC-CLIENT-{db.query(ClientAccount).count() + 1:04d}", legal_name=payload.legal_name.strip(), display_name=display_name, client_type=payload.client_type, data_classification="OWNER_ENTERED", status="ACTIVE")
+    db.add(client)
+    db.flush()
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_CLIENT_CREATED_FOR_PROPOSAL_INTAKE", entity_type="ClientAccount", entity_id=client.id, actor_id=_actor(role), after={"display_name": display_name, "explicit_client_command": True})
+    db.commit()
+    return {"result": "CREATED", "client": {"id": client.id, "reference": client.client_reference, "name": client.display_name}}
 
 
 @router.get("/{proposal_id}/configuration")
@@ -256,7 +295,7 @@ def get_proposal(proposal_id: str, db: Session = Depends(get_db), role: Role = D
     item = db.get(Opportunity, proposal_id)
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
-    return proposal_projection(db, item)
+    return proposal_projection(db, item, role)
 
 
 def _proposal_or_404(proposal_id: str, db: Session) -> Opportunity:
@@ -982,22 +1021,23 @@ def download_output(proposal_id: str, artifact_type: str, db: Session = Depends(
 @router.get("/{proposal_id}/handoff/contract")
 def contract_handoff_preview(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
+    proposal = _proposal_or_404(proposal_id, db)
     revision = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id).order_by(ProposalAcceptedRevision.revision_number.desc()))
     if not revision:
-        raise HTTPException(409, "ACCEPTED_REVISION_REQUIRED")
-    blockers: list[str] = []
-    if not db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal_id, ProposalCommercialRelease.accepted_revision_id == revision.id, ProposalCommercialRelease.status == "AUTHORIZED")):
-        blockers.append("COMMERCIAL_RELEASE_REQUIRED")
-    if not db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal_id, ProposalDistributionEvent.accepted_revision_id == revision.id)):
-        blockers.append("DISTRIBUTION_REQUIRED")
-    if not db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal_id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.status == "VERIFIED")):
-        blockers.append("CLIENT_ACCEPTANCE_VERIFICATION_REQUIRED")
+        return {"eligible": False, "blockers": ["ACCEPTED_REVISION_REQUIRED"], "gates": [{"code": "ACCEPTED_REVISION_REQUIRED", "label": "Accepted Proposal revision", "passed": False}], "proposal_id": proposal.id, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
+    release = db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal_id, ProposalCommercialRelease.accepted_revision_id == revision.id, ProposalCommercialRelease.status == "AUTHORIZED"))
+    distribution = db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal_id, ProposalDistributionEvent.accepted_revision_id == revision.id))
+    acceptance = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal_id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.status == "VERIFIED"))
     lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal_id, ProposalLpoReconciliation.accepted_revision_id == revision.id))
-    if not lpo:
-        blockers.append("LPO_RECONCILIATION_REQUIRED")
-    elif lpo.result not in {"PASS", "NOT_APPLICABLE"}:
-        blockers.append("LPO_RECONCILIATION_REQUIRED")
-    return {"eligible": not blockers, "blockers": blockers, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
+    gates = [
+        {"code": "ACCEPTED_REVISION", "label": "Accepted Proposal revision", "passed": True, "revision_id": revision.id},
+        {"code": "COMMERCIAL_RELEASE_REQUIRED", "label": "Commercial release", "passed": bool(release)},
+        {"code": "DISTRIBUTION_REQUIRED", "label": "Distribution evidence", "passed": bool(distribution)},
+        {"code": "CLIENT_ACCEPTANCE_VERIFICATION_REQUIRED", "label": "Verified client acceptance", "passed": bool(acceptance)},
+        {"code": "LPO_RECONCILIATION_REQUIRED", "label": "PO/LPO reconciliation", "passed": bool(lpo and lpo.result in {"PASS", "NOT_APPLICABLE"}), "result": lpo.result if lpo else None},
+    ]
+    blockers = [gate["code"] for gate in gates if not gate["passed"]]
+    return {"eligible": not blockers, "blockers": blockers, "gates": gates, "proposal_id": proposal.id, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
 
 
 @router.post("/{proposal_id}/handoff/contract")

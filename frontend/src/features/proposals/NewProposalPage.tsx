@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../../api";
 import { Icon } from "../../Icon";
 import { proposalHeaders } from "./api";
@@ -11,8 +11,11 @@ export function NewProposalPage({ role, onBack, onCreated }: { role: ProposalRol
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const update = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
+  useEffect(() => { let active = true; api<JsonRecord>("/api/bd/proposals/clients", { headers: proposalHeaders(role) }).then((result) => { if (active && Array.isArray(result.items)) setClients(result.items.filter((item): item is { id: string; name: string } => typeof item === "object" && item !== null && typeof (item as JsonRecord).id === "string" && typeof (item as JsonRecord).name === "string")); }).catch(() => undefined); return () => { active = false; }; }, [role]);
+  const selectedClientId = clients.find((item) => item.name.toLowerCase() === form.client.trim().toLowerCase())?.id;
   const create = async () => {
     if (!form.title.trim() || !form.client.trim()) { setError("Proposal title and Client are required."); return; }
     if (!source) { setError("Choose how this Proposal began."); return; }
@@ -23,10 +26,10 @@ export function NewProposalPage({ role, onBack, onCreated }: { role: ProposalRol
       let result: JsonRecord;
       if (source.acceptsFile && file) {
         const body = new FormData();
-        body.append("proposal_description", form.title.trim()); body.append("project_reference", form.projectReference); body.append("client_name", form.client.trim()); body.append("initial_source_type", source.key); body.append("source_title", form.sourceTitle || file.name); body.append("source_date", form.sourceDate); body.append("source_notes", form.notes); body.append("idempotency_key", idempotency); body.append("file", file);
+        body.append("proposal_description", form.title.trim()); body.append("project_reference", form.projectReference); if (selectedClientId) body.append("client_account_id", selectedClientId); body.append("client_name", form.client.trim()); body.append("initial_source_type", source.key); body.append("source_title", form.sourceTitle || file.name); body.append("source_date", form.sourceDate); body.append("source_notes", form.notes); body.append("idempotency_key", idempotency); body.append("file", file);
         result = await api<JsonRecord>("/api/bd/proposals/intake", { method: "POST", headers: proposalHeaders(role), body });
       } else {
-        result = await api<JsonRecord>("/api/bd/proposals", { method: "POST", headers: { ...proposalHeaders(role), "Content-Type": "application/json" }, body: JSON.stringify({ proposal_description: form.title.trim(), project_reference: form.projectReference || undefined, client_name: form.client.trim(), idempotency_key: idempotency }) });
+        result = await api<JsonRecord>("/api/bd/proposals", { method: "POST", headers: { ...proposalHeaders(role), "Content-Type": "application/json" }, body: JSON.stringify({ proposal_description: form.title.trim(), project_reference: form.projectReference || undefined, client_account_id: selectedClientId, client_name: form.client.trim(), idempotency_key: idempotency }) });
       }
       const id = typeof result.id === "string" ? result.id : typeof result.proposal === "object" && result.proposal && typeof (result.proposal as JsonRecord).id === "string" ? (result.proposal as JsonRecord).id as string : "";
       if (!id) throw new Error("PROPOSAL_CREATE_RESPONSE_INVALID");

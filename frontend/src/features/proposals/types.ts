@@ -44,6 +44,7 @@ export interface ProposalRegisterResponse {
   lane_counts: Record<string, number>;
   lane_options?: Array<{ code: string; label: string }>;
   count: number;
+  action_capabilities?: Record<string, { available?: boolean; capability?: string; reason?: string | null }>;
 }
 
 export interface ProposalDetail {
@@ -83,6 +84,7 @@ export interface ProposalDetail {
   revision_history: JsonRecord[];
   stage_history: JsonRecord[];
   commercial_controls: JsonRecord;
+  action_capabilities?: Record<string, { available?: boolean; capability?: string; reason?: string | null }>;
   stage_gate: JsonRecord;
   contract_eligible?: boolean;
   ai_assist?: JsonRecord;

@@ -1,0 +1,15 @@
+{
+  "document": "P04C hostile gap ledger",
+  "source_frontier": {"source18_remains_current": true, "source19_plus_invented": false},
+  "findings": [
+    {"id": "G-01", "status": "addressed", "area": "intake_contact_site"},
+    {"id": "G-02", "status": "addressed_with_environment_guard", "area": "canonical_client"},
+    {"id": "G-03", "status": "addressed", "area": "technical_assessment"},
+    {"id": "G-04", "status": "addressed", "area": "service_offering"},
+    {"id": "G-05", "status": "addressed", "area": "distribution"},
+    {"id": "G-06", "status": "addressed", "area": "lpo"},
+    {"id": "G-07", "status": "addressed", "area": "capabilities"},
+    {"id": "G-08", "status": "addressed", "area": "handoff_preflight"},
+    {"id": "G-09", "status": "qualification_required", "area": "real_stack"}
+  ]
+}
