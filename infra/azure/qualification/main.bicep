@@ -36,6 +36,9 @@ param sqlAdministratorLogin string
 @description('SQL login required by the control-plane API; must differ from the Entra administrator.')
 param sqlServerAdministratorLogin string = 'proposalops_g6_sqladmin'
 
+@description('Whether to deploy the temporary ACA runtime jobs. Set false when the subscription regional ACA quota is exhausted; SQL/Blob control-plane resources remain isolated.')
+param deployRuntime bool = true
+
 @secure()
 @description('Required by the Azure SQL control-plane API; application URLs remain credentialless.')
 param sqlAdministratorPassword string
@@ -283,7 +286,7 @@ resource defenderForStorageSetting 'Microsoft.Security/defenderForStorageSetting
   }
 }
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = if (deployRuntime) {
   name: acaEnvironmentName
   location: location
   tags: tags
@@ -302,7 +305,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01'
   }
 }
 
-resource runtimeJob 'Microsoft.App/jobs@2024-03-01' = {
+resource runtimeJob 'Microsoft.App/jobs@2024-03-01' = if (deployRuntime) {
   name: 'g6-runtime-${shortId}'
   location: location
   identity: {
@@ -333,7 +336,7 @@ resource runtimeJob 'Microsoft.App/jobs@2024-03-01' = {
   }
 }
 
-resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
+resource migrationJob 'Microsoft.App/jobs@2024-03-01' = if (deployRuntime) {
   name: 'g6-migration-${shortId}'
   location: location
   identity: {
@@ -491,6 +494,6 @@ output runtimeIdentityPrincipalId string = runtimeIdentity.properties.principalI
 output migrationIdentityResourceId string = migrationIdentity.id
 output migrationIdentityClientId string = migrationIdentity.properties.clientId
 output migrationIdentityPrincipalId string = migrationIdentity.properties.principalId
-output runtimeJobResourceId string = runtimeJob.id
-output migrationJobResourceId string = migrationJob.id
+output runtimeJobResourceId string = deployRuntime ? runtimeJob.id : ''
+output migrationJobResourceId string = deployRuntime ? migrationJob.id : ''
 output databaseUrl string = credentiallessDatabaseUrl
