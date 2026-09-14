@@ -209,8 +209,58 @@ def contract_revision_is_authority_reviewed(revision: ContractRevision | None) -
         and review.get("decision") == "APPROVE"
         and review.get("reviewed_by")
         and review.get("reviewed_at")
-        and str(revision.status or "").upper() in {"APPROVED", "FINALIZED"}
     )
+
+
+TIMING_FACT_TYPES = {
+    "CLIENT_ARCHITECTURE_APPROVED",
+    "CONTRACT_DURATION_START",
+    "MUNICIPALITY_WORK_START",
+}
+TIMING_TRANSITIONS = {
+    "COMMERCIAL_START",
+    "PROJECT_ACTIVATION",
+    "DESIGN_START",
+    "CONTRACT_DURATION_START",
+    "MUNICIPALITY_WORK_START",
+}
+
+
+def _timing_requirements(db: Session, contract: Contract, revision: ContractRevision | None) -> dict[str, dict[str, Any]]:
+    """Read only exact, revision-scoped timing clauses; never infer them from services."""
+    requirements: dict[str, dict[str, Any]] = {}
+    if revision:
+        for snapshot in (revision.source_snapshot, revision.commercial_terms_snapshot):
+            entries = snapshot.get("timing_requirements") if isinstance(snapshot, dict) else None
+            if isinstance(entries, dict):
+                entries = list(entries.values())
+            if isinstance(entries, list):
+                for entry in entries:
+                    if isinstance(entry, dict):
+                        fact = str(entry.get("fact") or "").strip().upper()
+                        if fact in TIMING_FACT_TYPES:
+                            requirements[fact] = dict(entry)
+    evidence = _contract_evidence(db, contract.id, revision.id if revision else contract.current_revision_id)
+    for item in evidence:
+        if str(item.source_role or "").upper() != "TIMING_REQUIREMENT":
+            continue
+        entry = (item.metadata_json or {}).get("timing_requirement")
+        if not isinstance(entry, dict):
+            continue
+        fact = str(entry.get("fact") or "").strip().upper()
+        if fact in TIMING_FACT_TYPES:
+            requirements[fact] = dict(entry)
+    for fact, entry in list(requirements.items()):
+        required_for = [str(value).strip().upper() for value in entry.get("required_for", []) if str(value).strip()]
+        # Architecture approval is a contract/service timing fact, never a
+        # blanket Design-start gate.
+        if fact == "CLIENT_ARCHITECTURE_APPROVED":
+            required_for = [value for value in required_for if value != "DESIGN_START"]
+        entry["fact"] = fact
+        entry["required_for"] = [value for value in required_for if value in TIMING_TRANSITIONS]
+        entry["applicable"] = bool(entry.get("applicable")) and bool(entry["required_for"])
+        requirements[fact] = entry
+    return requirements
 
 
 def _document_version_projection(db: Session, document_version_id: str | None) -> dict[str, Any] | None:
@@ -770,10 +820,7 @@ def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, A
     revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
     revision_id = revision.id if revision else None
     evidence = _contract_evidence(db, contract.id, revision_id)
-    service_codes = {
-        str(item.service_offering_code or "").strip().upper()
-        for item in db.scalars(select(ServiceEngagement).where(ServiceEngagement.contract_id == contract.id)).all()
-    }
+    timing_requirements = _timing_requirements(db, contract, revision)
     executed = next((item for item in evidence if str(item.source_role).upper() == "EXECUTED_CONTRACT" and str(item.status).upper() in {"RECORDED", "VERIFIED", "APPROVED"}), None)
     client_copy = next((item for item in evidence if str(item.source_role).upper() == "CLIENT_COPY_DISTRIBUTION" and str(item.status).upper() in {"RECORDED", "VERIFIED", "APPROVED"}), None)
     operations_handoff = next((item for item in evidence if str(item.source_role).upper() == "OPERATIONS_HANDOFF" and str(item.status).upper() in {"RECORDED", "VERIFIED", "APPROVED"}), None)
@@ -832,8 +879,11 @@ def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, A
         if not verified_payments: blockers.append("ADVANCE_VERIFIED_PAYMENT_RECEIPT_REQUIRED")
         if not scoped_allocations: blockers.append("ADVANCE_PAYMENT_ALLOCATION_REQUIRED")
         if not amount_satisfied: blockers.append("ADVANCE_PAYMENT_AMOUNT_INSUFFICIENT")
-    architecture_applicable = bool(service_codes & {"DESIGN", "DESIGN_PERMIT"})
-    municipality_applicable = bool(service_codes & {"PERMIT", "DESIGN_PERMIT", "AUTHORITY", "CIVIL_DEFENSE", "MAINTENANCE_PERMIT"})
+    architecture_requirement = timing_requirements.get("CLIENT_ARCHITECTURE_APPROVED") or {}
+    duration_requirement = timing_requirements.get("CONTRACT_DURATION_START") or {}
+    municipality_requirement = timing_requirements.get("MUNICIPALITY_WORK_START") or {}
+    architecture_applicable = bool(architecture_requirement.get("applicable"))
+    municipality_applicable = bool(municipality_requirement.get("applicable"))
     architecture_approval = next((item for item in evidence if str(item.source_role or "").upper() in {"CLIENT_ARCHITECTURE_APPROVED", "ARCHITECTURE_APPROVED"} and str(item.status).upper() in {"RECORDED", "VERIFIED", "APPROVED"}), None)
     municipality_work_start = next((item for item in evidence if str(item.source_role or "").upper() == "MUNICIPALITY_WORK_START" and str(item.status).upper() in {"RECORDED", "VERIFIED", "APPROVED"}), None)
     duration_start_record = next(
@@ -844,7 +894,7 @@ def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, A
         ),
         None,
     )
-    duration_start_required = any(bool((item.metadata_json or {}).get("duration_start_required")) for item in evidence)
+    duration_start_required = bool(duration_requirement.get("applicable"))
     if duration_start_required and not duration_start_record:
         blockers.append("CONTRACT_DURATION_START_EVIDENCE_REQUIRED")
     if architecture_applicable and not architecture_approval:
@@ -863,9 +913,9 @@ def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, A
         {"fact": "ADVANCE_PAYMENT_RECEIVED", "applicable": applicable, "required_for": ["COMMERCIAL_START", "PROJECT_ACTIVATION"] if applicable else [], "state": "OBSERVED" if payment_received else "MISSING" if applicable else "NOT_APPLICABLE", "source_clause": "PAYMENT_RECEIPT_EXACT_CONTRACT_CURRENCY", "source_document_version_id": payment_received.evidence_document_version_id if payment_received else None, "evidence_ids": [payment_received.id] if payment_received else []},
         {"fact": "ADVANCE_PAYMENT_VERIFIED", "applicable": applicable, "required_for": ["COMMERCIAL_START", "PROJECT_ACTIVATION"] if applicable else [], "state": "VERIFIED" if payment_verified else "UNVERIFIED" if applicable else "NOT_APPLICABLE", "source_clause": "PAYMENT_RECEIPT_VERIFICATION", "source_document_version_id": payment_verified.evidence_document_version_id if payment_verified else None, "evidence_ids": [payment_verified.id] if payment_verified else []},
         {"fact": "ADVANCE_PAYMENT_ALLOCATED", "applicable": applicable, "required_for": ["COMMERCIAL_START", "PROJECT_ACTIVATION"] if applicable else [], "state": "ALLOCATED" if payment_allocated else "UNALLOCATED" if applicable else "NOT_APPLICABLE", "source_clause": "INVOICE_PAYMENT_ALLOCATION_EXACT_CONTRACT_REVISION", "source_document_version_id": None, "evidence_ids": [payment_allocated.id] if payment_allocated else [], "detail": {"invoice_id": payment_allocated.invoice_id if payment_allocated else None}},
-        {"fact": "CLIENT_ARCHITECTURE_APPROVED", "applicable": architecture_applicable, "required_for": ["DESIGN_START"] if architecture_applicable else [], "state": "RECORDED" if architecture_approval else "UNRESOLVED" if architecture_applicable else "NOT_APPLICABLE", "source_clause": "CLIENT_ARCHITECTURE_APPROVAL_EVIDENCE", "source_document_version_id": architecture_approval.document_version_id if architecture_approval else None, "evidence_ids": [architecture_approval.id] if architecture_approval else []},
-        {"fact": "CONTRACT_DURATION_START", "applicable": duration_start_required, "required_for": ["CONTRACT_DURATION_START"] if duration_start_required else [], "state": "RECORDED" if duration_start_record else "UNRESOLVED" if duration_start_required else "NOT_APPLICABLE", "source_clause": "CONTRACT_SPECIFIC_DURATION_START_RECORD", "source_document_version_id": duration_start_record.document_version_id if duration_start_record else None, "evidence_ids": [duration_start_record.id] if duration_start_record else [], "detail": (duration_start_record.metadata_json or {}).get("duration_start_record") if duration_start_record else None},
-        {"fact": "MUNICIPALITY_WORK_START", "applicable": municipality_applicable, "required_for": ["MUNICIPALITY_WORK_START"] if municipality_applicable else [], "state": "RECORDED" if municipality_work_start else "UNRESOLVED" if municipality_applicable else "NOT_APPLICABLE", "source_clause": "MUNICIPALITY_WORK_START_EVIDENCE", "source_document_version_id": municipality_work_start.document_version_id if municipality_work_start else None, "evidence_ids": [municipality_work_start.id] if municipality_work_start else []},
+        {"fact": "CLIENT_ARCHITECTURE_APPROVED", "applicable": architecture_applicable, "required_for": architecture_requirement.get("required_for", []) if architecture_applicable else [], "state": "RECORDED" if architecture_approval else "UNRESOLVED" if architecture_applicable else "NOT_APPLICABLE", "source_clause": architecture_requirement.get("source_clause") or "NO_EXACT_TIMING_CLAUSE", "source_document_version_id": architecture_approval.document_version_id if architecture_approval else architecture_requirement.get("source_document_version_id"), "evidence_ids": [architecture_approval.id] if architecture_approval else [], "policy_version": architecture_requirement.get("policy_version")},
+        {"fact": "CONTRACT_DURATION_START", "applicable": duration_start_required, "required_for": duration_requirement.get("required_for", []) if duration_start_required else [], "state": "RECORDED" if duration_start_record else "UNRESOLVED" if duration_start_required else "NOT_APPLICABLE", "source_clause": duration_requirement.get("source_clause") or "NO_EXACT_TIMING_CLAUSE", "source_document_version_id": duration_start_record.document_version_id if duration_start_record else duration_requirement.get("source_document_version_id"), "evidence_ids": [duration_start_record.id] if duration_start_record else [], "detail": (duration_start_record.metadata_json or {}).get("typed_timing_fact") if duration_start_record else None, "policy_version": duration_requirement.get("policy_version")},
+        {"fact": "MUNICIPALITY_WORK_START", "applicable": municipality_applicable, "required_for": municipality_requirement.get("required_for", []) if municipality_applicable else [], "state": "RECORDED" if municipality_work_start else "UNRESOLVED" if municipality_applicable else "NOT_APPLICABLE", "source_clause": municipality_requirement.get("source_clause") or "NO_EXACT_TIMING_CLAUSE", "source_document_version_id": municipality_work_start.document_version_id if municipality_work_start else municipality_requirement.get("source_document_version_id"), "evidence_ids": [municipality_work_start.id] if municipality_work_start else [], "policy_version": municipality_requirement.get("policy_version")},
         {"fact": "PROJECT_ACTIVATION", "applicable": True, "required_for": [], "state": "RECORDED" if db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id)) else "NOT_RECORDED", "source_clause": "EXPLICIT_OWNER_ACTIVATION", "source_document_version_id": None, "evidence_ids": []},
     ]
     blockers_by_transition = {"COMMERCIAL_START": [], "PROJECT_ACTIVATION": [], "DESIGN_START": [], "CONTRACT_DURATION_START": [], "MUNICIPALITY_WORK_START": []}
@@ -874,11 +924,17 @@ def contract_start_prerequisites(db: Session, contract: Contract) -> dict[str, A
             blockers_by_transition["COMMERCIAL_START"].append(blocker)
             blockers_by_transition["PROJECT_ACTIVATION"].append(blocker)
         elif blocker == "CLIENT_ARCHITECTURE_APPROVAL_REQUIRED":
-            blockers_by_transition["DESIGN_START"].append(blocker)
+            for transition in architecture_requirement.get("required_for", []):
+                if transition in blockers_by_transition:
+                    blockers_by_transition[transition].append(blocker)
         elif blocker == "CONTRACT_DURATION_START_EVIDENCE_REQUIRED":
-            blockers_by_transition["CONTRACT_DURATION_START"].append(blocker)
+            for transition in duration_requirement.get("required_for", []):
+                if transition in blockers_by_transition:
+                    blockers_by_transition[transition].append(blocker)
         elif blocker == "MUNICIPALITY_WORK_START_EVIDENCE_REQUIRED":
-            blockers_by_transition["MUNICIPALITY_WORK_START"].append(blocker)
+            for transition in municipality_requirement.get("required_for", []):
+                if transition in blockers_by_transition:
+                    blockers_by_transition[transition].append(blocker)
         else:
             blockers_by_transition["COMMERCIAL_START"].append(blocker)
     return {
@@ -1210,35 +1266,67 @@ def evaluate_contract_exceptions(db: Session, contract: Contract, *, actor: str,
             conditions.append({"key": "INPUTS:AGED_REQUIRED_DOCUMENTS", "title": "Follow up aged Contract inputs", "description": "Required Contract inputs have remained unresolved under the governed age policy.", "priority": "HIGH", "next_action": "FOLLOW_UP_REQUIRED_INPUTS"})
     if projection["controls"]["earned_not_invoiced_state"] == "EARNED_BUT_NOT_INVOICED":
         conditions.append({"key": "BILLING:EARNED_NOT_INVOICED", "title": "Review earned milestone not invoiced", "description": "A governed billing milestone is earned but has no issued invoice.", "priority": "HIGH", "next_action": "REVIEW_EARNED_MILESTONE"})
-    stage_events = db.scalars(
-        select(AuditEvent)
-        .where(AuditEvent.entity_type == "Contract", AuditEvent.entity_id == contract.id, AuditEvent.event_type == "ADMIN_CONTRACT_STAGE_CHANGED")
-        .order_by(AuditEvent.occurred_at.desc())
-        .limit(20)
-    ).all()
-    for event in stage_events:
-        before_stage = (event.before_json or {}).get("stage")
-        after_stage = (event.after_json or {}).get("stage")
-        if before_stage and after_stage and before_stage != after_stage and after_stage not in {"DRAFT", "CLOSED"}:
-            conditions.append({"key": f"STAGE_TRANSITION:{event.id}", "title": f"Prepare client update for Contract {after_stage.lower()} transition", "description": "A meaningful Contract stage transition requires human preparation of the client update.", "priority": "NORMAL", "next_action": "PREPARE_CLIENT_STAGE_UPDATE"})
-            break
+    project = db.get(Project, contract.project_id) if contract.project_id else None
+    service_ids = set()
+    if project:
+        service_ids = {item.id for item in db.scalars(select(ServiceEngagement).where(ServiceEngagement.contract_id == contract.id)).all()}
+    journey_ids = set()
+    authority_case_ids = set()
+    if project:
+        journey_ids = {item.id for item in db.scalars(select(RegulatoryJourney).where(RegulatoryJourney.project_id == project.id)).all()}
+        authority_case_ids = {item.id for item in db.scalars(select(AuthorityCase).where(AuthorityCase.subject_id == project.id)).all()}
+    source_entity_ids = {contract.id, *(service_ids | journey_ids | authority_case_ids)}
+    if project:
+        source_entity_ids.add(project.id)
+    transition_events = db.scalars(select(AuditEvent).order_by(AuditEvent.occurred_at.desc()).limit(500)).all()
+    transition_event_types = {
+        "ADMIN_CONTRACT_STAGE_CHANGED", "PROJECT_CREATED", "PROJECT_STATUS_CHANGED", "PROJECT_READINESS_CHANGED",
+        "ENGINEERING_REVIEW_STARTED", "ENGINEERING_REVIEW_CATEGORY_CHANGED", "ENGINEERING_DRAWING_REVIEW_PROCEEDED",
+        "AUTHORITY_CASE_CREATED", "AUTHORITY_CASE_CURRENTNESS_RECORDED", "AUTHORITY_CASE_POLICY_BOUND",
+        "REGULATORY_STATE_VERSION_RECORDED", "SERVICE_ENGAGEMENT_CREATED", "SERVICE_ENGAGEMENT_STATUS_CHANGED",
+    }
+    for event in transition_events:
+        after = event.after_json or {}
+        before = event.before_json or {}
+        if event.event_type not in transition_event_types and not str(event.event_type or "").startswith(("PROJECT_", "ENGINEERING_", "AUTHORITY_", "REGULATORY_", "SERVICE_")):
+            continue
+        related = event.entity_id in source_entity_ids or any(after.get(key) == contract.id or (project and after.get(key) == project.id) for key in ("contract_id", "project_id", "journey_id", "case_id"))
+        if not related:
+            continue
+        state_keys = ("stage", "status", "readiness_state", "workflow_stage", "currentness_status", "live_action_eligibility", "action")
+        changed = any(before.get(key) != after.get(key) for key in state_keys if key in before or key in after)
+        created = not before and str(event.event_type or "").endswith("_CREATED")
+        if not (changed or created):
+            continue
+        state = after.get("stage") or after.get("status") or after.get("readiness_state") or after.get("workflow_stage") or "updated"
+        if str(state).upper() in {"DRAFT", "CLOSED"}:
+            continue
+        source = str(event.entity_type or "Source").replace("ProjectEngineeringReview", "Engineering").replace("AuthorityCase", "Authority").replace("ServiceEngagement", "Service")
+        before_state = next((before.get(key) for key in state_keys if before.get(key) is not None), "ABSENT")
+        transition_key = ":".join(str(value).replace(":", "_") for value in (source, event.entity_id, before_state, state))
+        conditions.append({"key": f"STAGE_TRANSITION:{transition_key}", "title": f"Prepare client update for {source} {str(state).lower()} transition", "description": "A meaningful Contract, Project, Service, Engineering, or Authority transition requires human preparation of the client update.", "priority": "NORMAL", "next_action": "PREPARE_CLIENT_STAGE_UPDATE"})
     if projection["controls"]["extension_state"] in {"PRE_EXPIRY_EXTENSION_WARNING", "EXTENSION_REVIEW_REQUIRED"} or (
         projection["dates"]["contract_end"] and projection["dates"].get("contract_end") >= now().date().isoformat() and projection["risk_state"] == "BLOCKED"
     ):
         conditions.append({"key": "SCHEDULE:PRE_EXPIRY_RISK", "title": "Review pre-expiry Contract risk", "description": "Open canonical blockers put the current Contract at risk before its governed end date.", "priority": "HIGH", "next_action": "REVIEW_PRE_EXPIRY_RISK"})
+    conditions = list({item["key"]: item for item in conditions}.values())
     active_condition_keys = {item["key"] for item in conditions}
     existing = db.scalars(select(WorkflowTask).where(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract.id, WorkflowTask.task_type == "CONTRACT_EXCEPTION_REVIEW")).all()
     closed = 0
     for task in existing:
         key = (task.evidence_summary or {}).get("condition_key")
-        if key and key not in active_condition_keys and str(task.status).upper() not in {"COMPLETED", "CANCELLED"}:
+        if key and key not in active_condition_keys and not key.startswith("STAGE_TRANSITION:") and str(task.status).upper() not in {"COMPLETED", "CANCELLED"}:
             task.status = "COMPLETED"
             task.completed_at = now()
             closed += 1
             audit(db, correlation_id=correlation_id, event_type="CONTRACT_EXCEPTION_RESOLVED", entity_type="WorkflowTask", entity_id=task.id, actor_id=actor, after={"condition_key": key, "status": task.status}, metadata={"canonical_truth": True})
     created: list[WorkflowTask] = []
     for condition in conditions:
-        task = next((item for item in existing if (item.evidence_summary or {}).get("condition_key") == condition["key"] and str(item.status).upper() not in {"COMPLETED", "CANCELLED"}), None)
+        # The immutable event key makes a repeated evaluation idempotent even
+        # after a human completes the task. A later source event has a new key
+        # and therefore creates a distinct follow-up while the old task stays
+        # in history.
+        task = next((item for item in existing if (item.evidence_summary or {}).get("condition_key") == condition["key"]), None)
         if task:
             continue
         stable_id = f"contract:{contract.id}:exception:{condition['key']}"

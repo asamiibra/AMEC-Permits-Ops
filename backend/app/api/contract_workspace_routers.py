@@ -25,7 +25,7 @@ from ..models import ClientAccount, ContactPoint, Contract, ContractAdminEvidenc
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.admin_contract_read_model import owner_contract_extensions
 from ..ai.contract_skills import contract_skill_catalogue
-from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, OPERATIONAL_CONTACT_PURPOSES, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, evaluate_contract_exceptions, now, operational_contact_routing_projection, project_activation, readiness, resolve_operational_contact
+from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, OPERATIONAL_CONTACT_PURPOSES, TIMING_FACT_TYPES, TIMING_TRANSITIONS, _timing_requirements, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, evaluate_contract_exceptions, now, operational_contact_routing_projection, project_activation, readiness, resolve_operational_contact
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
 from ..config.settings import get_settings
@@ -95,6 +95,28 @@ class EvidencePayload(BaseModel):
     document_version_id: str | None = None
     content_hash: str | None = Field(default=None, max_length=64)
     metadata: dict[str, Any] = {}
+
+
+class TimingRequirementPayload(BaseModel):
+    fact: str = Field(min_length=1, max_length=80)
+    applicable: bool
+    required_for: list[str] = Field(default_factory=list)
+    source_clause: str = Field(min_length=1, max_length=1000)
+    source_document_version_id: str = Field(min_length=1, max_length=36)
+    policy_version: str = Field(min_length=1, max_length=120)
+    reason: str = Field(min_length=3, max_length=1000)
+
+
+class TimingFactPayload(BaseModel):
+    contract_revision_id: str = Field(min_length=1, max_length=36)
+    effective_date: date
+    trigger_type: str = Field(min_length=1, max_length=120)
+    source_clause: str = Field(min_length=1, max_length=1000)
+    source_reference: str = Field(min_length=1, max_length=600)
+    source_document_version_id: str = Field(min_length=1, max_length=36)
+    approval_evidence: str | None = Field(default=None, max_length=5000)
+    policy_version: str = Field(min_length=1, max_length=120)
+    reason: str = Field(min_length=3, max_length=1000)
 
 
 class ExecutedEvidencePayload(BaseModel):
@@ -263,7 +285,7 @@ def _document_version_for_contract_context(
         "DELIVERABLE": {"LPO", "PO", "CLIENT_DOCUMENT", "COMMERCIAL", "AWARD", "PROPOSAL", "SCOPE"},
         "CLIENT_INPUT": {"LPO", "PO", "CLIENT_DOCUMENT", "CLIENT_INPUT", "PROPOSAL", "SCOPE"},
         "EXECUTED_CONTRACT": {"EXECUTED_CONTRACT"},
-        "EVIDENCE": {"LPO", "PO", "CLIENT_DOCUMENT", "COMMERCIAL", "AWARD", "PROPOSAL", "EXISTING_DRAWINGS", "OLD_DRAWINGS", "PROJECT_SKETCH", "SITE_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID", "OWNER_ID", "OWNER_QID", "ID", "IDENTITY"},
+        "EVIDENCE": {"LPO", "PO", "CLIENT_DOCUMENT", "COMMERCIAL", "AWARD", "PROPOSAL", "ARCHITECTURE", "EXISTING_DRAWINGS", "OLD_DRAWINGS", "PROJECT_SKETCH", "SITE_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID", "OWNER_ID", "OWNER_QID", "ID", "IDENTITY"},
     }[purpose]
     linked = db.scalar(select(ContractAdminEvidence).where(
         ContractAdminEvidence.contract_id == contract.id,
@@ -568,11 +590,13 @@ def decide_contract_authority(contract_id: str, payload: AuthorityPayload, reque
         raise domain_error(409, "CONTRACT_REVISION_REQUIRED")
     decision = payload.decision.upper()
     if decision in {"APPROVE", "AUTHORIZE", "READY"}:
+        # The exact APPROVE snapshot is durable across FINALIZED and
+        # EXECUTED_EVIDENCE_RECORDED; repeated approval must not downgrade it.
+        if contract_revision_is_authority_reviewed(revision):
+            return {"decision": "ALREADY_AUTHORITY_REVIEWED", "revision_id": revision.id, "contract": contract_projection(db, contract)}
         check = readiness(db, contract)
         if not check["ready"]:
             raise domain_error(409, "CONTRACT_AUTHORITY_BLOCKED", blockers=check["blockers"])
-        if contract_revision_is_authority_reviewed(revision):
-            return {"decision": "ALREADY_AUTHORITY_REVIEWED", "revision_id": revision.id, "contract": contract_projection(db, contract)}
         before = {"revision_status": revision.status, "contract_stage": contract.stage, "authority_state": contract.authority_state}
         revision.status = "APPROVED"
         review = {"revision_id": revision.id, "reviewed_by": _request_actor(request, role), "reviewed_at": now().isoformat(), "decision": "APPROVE", "policy_version": "CONTRACT_DURABLE_AUTHORITY_REVIEW_V1", "reason": payload.reason}
@@ -583,6 +607,8 @@ def decide_contract_authority(contract_id: str, payload: AuthorityPayload, reque
         contract.last_activity_at = now()
         audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_AUTHORITY_APPROVED", entity_type="Contract", entity_id=contract.id, actor_id=actor_name(role), before=before, after={"revision_id": revision.id, "revision_status": revision.status, "contract_stage": contract.stage, "legal_execution": False}, metadata={"reason": payload.reason, "human_action": True})
     elif decision in {"RETURN", "REJECT", "NEEDS_ACTION"}:
+        if contract_revision_is_accepted(revision) or contract_revision_is_finalized(revision):
+            raise domain_error(409, "CONTRACT_AUTHORITY_REVIEW_IMMUTABLE", revision_id=revision.id, reason="GOVERNED_AMENDMENT_OR_REOPEN_REQUIRED")
         revision.status = "DRAFT"
         contract.authority_state = "RETURNED_FOR_OWNER_ACTION"
         contract.stage = "NEEDS_ACTION"
@@ -712,6 +738,8 @@ def add_evidence(contract_id: str, payload: EvidencePayload, request: Request, d
     source_role = payload.source_role.upper()
     if source_role == "EXECUTED_CONTRACT":
         raise domain_error(409, "USE_EXECUTED_EVIDENCE_ACTION", contract_id=contract_id)
+    if source_role in TIMING_FACT_TYPES | {"TIMING_REQUIREMENT"}:
+        raise domain_error(409, "USE_TYPED_TIMING_FACT_ACTION", source_role=source_role)
     if source_role in {"LPO", "PO", "CLIENT_DOCUMENT"} and not payload.document_version_id:
         raise domain_error(422, "EXACT_DOCUMENT_VERSION_REQUIRED_FOR_CLIENT_EVIDENCE", source_role=payload.source_role)
     document = _document_version_for_contract_context(db, contract, revision, payload.document_version_id, purpose="EVIDENCE")
@@ -721,6 +749,81 @@ def add_evidence(contract_id: str, payload: EvidencePayload, request: Request, d
     audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_EVIDENCE_RECORDED", entity_type="Contract", entity_id=contract.id, actor_id=actor_name(role), after={"evidence_id": evidence.id, "evidence_type": payload.evidence_type, "source_reference": payload.source_reference})
     db.commit()
     return {"id": evidence.id, "status": evidence.status, "contract_id": contract.id, "source_role": evidence.source_role, "document_version_id": evidence.document_version_id}
+
+
+def _current_contract_revision_for_timing(db: Session, contract: Contract) -> ContractRevision:
+    revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
+    if not revision:
+        raise domain_error(409, "CONTRACT_REVISION_REQUIRED")
+    if contract_revision_is_finalized(revision):
+        raise domain_error(409, "CONTRACT_FINALIZED_REVISION_IMMUTABLE", revision_id=revision.id)
+    return revision
+
+
+def _strict_timing_source(db: Session, contract: Contract, revision: ContractRevision, document_version_id: str) -> DocumentVersion:
+    document = _document_version_for_contract_context(db, contract, revision, document_version_id, purpose="EVIDENCE")
+    if not document:
+        raise domain_error(422, "TIMING_SOURCE_DOCUMENT_REQUIRED")
+    metadata = document.metadata_json if isinstance(document.metadata_json, dict) else {}
+    expected = {"contract_id": contract.id, "client_account_id": contract.client_account_id, "project_id": contract.project_id}
+    for key, value in expected.items():
+        if value and metadata.get(key) != value:
+            raise domain_error(409, "TIMING_SOURCE_LINEAGE_INVALID", reason=f"{key.upper()}_MISMATCH", document_version_id=document.id)
+    return document
+
+
+@router.post("/{contract_id}/timing-requirements")
+def record_timing_requirement(contract_id: str, payload: TimingRequirementPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_EDIT")
+    contract = _contract_or_404(db, contract_id)
+    revision = _current_contract_revision_for_timing(db, contract)
+    fact = payload.fact.strip().upper()
+    required_for = [value.strip().upper() for value in payload.required_for if value.strip()]
+    if fact not in TIMING_FACT_TYPES:
+        raise domain_error(422, "TIMING_FACT_INVALID", allowed=sorted(TIMING_FACT_TYPES))
+    if any(value not in TIMING_TRANSITIONS for value in required_for):
+        raise domain_error(422, "TIMING_TRANSITION_INVALID", allowed=sorted(TIMING_TRANSITIONS))
+    if fact == "CLIENT_ARCHITECTURE_APPROVED" and "DESIGN_START" in required_for:
+        raise domain_error(422, "ARCHITECTURE_CANNOT_GATE_DESIGN_START")
+    document = _strict_timing_source(db, contract, revision, payload.source_document_version_id)
+    existing = _timing_requirements(db, contract, revision).get(fact)
+    if existing and bool(existing.get("applicable")) and payload.applicable:
+        raise domain_error(409, "TIMING_REQUIREMENT_ALREADY_RECORDED", fact=fact)
+    entry = {"fact": fact, "applicable": payload.applicable, "required_for": required_for, "source_clause": payload.source_clause, "source_document_version_id": document.id, "policy_version": payload.policy_version, "recorded_by": actor_name(role), "recorded_at": now().isoformat()}
+    evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision.id, evidence_type="TIMING_REQUIREMENT", source_role="TIMING_REQUIREMENT", document_version_id=document.id, source_reference=document.source_path_or_reference, content_hash=document.sha256, status="RECORDED", recorded_by=_request_actor(request, role), metadata_json={"timing_requirement": entry, "reason": payload.reason})
+    db.add(evidence)
+    audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_TIMING_REQUIREMENT_RECORDED", entity_type="Contract", entity_id=contract.id, actor_id=_request_actor(request, role), after={"fact": fact, "applicable": payload.applicable, "required_for": required_for, "contract_revision_id": revision.id, "document_version_id": document.id}, metadata={"reason": payload.reason, "policy_version": payload.policy_version})
+    db.commit()
+    return {"decision": "RECORDED", "fact": entry, "evidence_id": evidence.id}
+
+
+@router.post("/{contract_id}/timing-facts/{fact_type}")
+def record_timing_fact(contract_id: str, fact_type: str, payload: TimingFactPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "CONTRACT_EDIT")
+    contract = _contract_or_404(db, contract_id)
+    revision = _current_contract_revision_for_timing(db, contract)
+    fact = fact_type.strip().upper()
+    if fact not in TIMING_FACT_TYPES:
+        raise domain_error(422, "TIMING_FACT_INVALID", allowed=sorted(TIMING_FACT_TYPES))
+    if payload.contract_revision_id != revision.id:
+        raise domain_error(409, "TIMING_FACT_REVISION_MISMATCH", expected=revision.id, actual=payload.contract_revision_id)
+    requirement = _timing_requirements(db, contract, revision).get(fact)
+    if not requirement or not requirement.get("applicable"):
+        raise domain_error(409, "TIMING_FACT_NOT_REQUIRED", fact=fact)
+    if payload.source_clause != requirement.get("source_clause") or payload.policy_version != requirement.get("policy_version"):
+        raise domain_error(409, "TIMING_FACT_AUTHORITY_MISMATCH", fact=fact)
+    document = _strict_timing_source(db, contract, revision, payload.source_document_version_id)
+    recorded_at = now()
+    actor = _request_actor(request, role)
+    typed = {"fact": fact, "contract_id": contract.id, "contract_revision_id": revision.id, "effective_date": payload.effective_date.isoformat(), "trigger_type": payload.trigger_type, "source_clause": payload.source_clause, "source_reference": payload.source_reference, "source_document_version_id": document.id, "approval_evidence": payload.approval_evidence, "policy_version": payload.policy_version, "recorded_by": actor, "recorded_at": recorded_at.isoformat()}
+    metadata = {"typed_timing_fact": typed, "reason": payload.reason}
+    if fact == "CONTRACT_DURATION_START":
+        metadata["duration_start_record"] = typed
+    evidence = ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision.id, evidence_type=fact, source_role=fact, document_version_id=document.id, source_reference=payload.source_reference, content_hash=document.sha256, status="RECORDED", recorded_by=actor, recorded_at=recorded_at, metadata_json=metadata)
+    db.add(evidence)
+    audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_TIMING_FACT_RECORDED", entity_type="Contract", entity_id=contract.id, actor_id=actor, after={"fact": fact, "contract_revision_id": revision.id, "evidence_id": evidence.id, "effective_date": typed["effective_date"]}, metadata={"reason": payload.reason, "policy_version": payload.policy_version})
+    db.commit()
+    return {"decision": "RECORDED", "fact": typed, "evidence_id": evidence.id}
 
 
 @router.post("/{contract_id}/executed-evidence")
@@ -943,7 +1046,7 @@ def _record_contract_document_bytes(contract_id: str, *, source_role: str, sourc
     require_capability(role, "CONTRACT_EDIT")
     contract = _contract_or_404(db, contract_id)
     source_role = source_role.upper()
-    allowed_document_roles = {"PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT", "EXISTING_DRAWINGS", "PROJECT_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID"}
+    allowed_document_roles = {"PO", "LPO", "CLIENT_DOCUMENT", "EXECUTED_CONTRACT", "ARCHITECTURE", "EXISTING_DRAWINGS", "PROJECT_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID"}
     if source_role not in allowed_document_roles:
         raise domain_error(422, "CONTRACT_DOCUMENT_ROLE_INVALID", allowed=sorted(allowed_document_roles))
     _validate_contract_upload(filename=source_filename, mime_type=mime_type, content=content)
@@ -979,13 +1082,13 @@ def _record_contract_document_bytes(contract_id: str, *, source_role: str, sourc
                 correlation_id=request.state.correlation_id,
                 idempotency_key=f"contract:{contract.id}:{source_role}:{digest}",
                 source_system="CONTRACT_WORKSPACE",
-                metadata={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "synthetic_only": False, "scanner_state": scan.state, "scanner_provider": scan.provider},
+                metadata={"contract_id": contract.id, "client_account_id": contract.client_account_id, "project_id": contract.project_id, "source_role": source_role, "commercial_terms": commercial_terms, "synthetic_only": False, "scanner_state": scan.state, "scanner_provider": scan.provider},
                 version_number=version_number,
             ).version
         except StorageError as exc:
             raise HTTPException(502, {"code": exc.code.value}) from exc
     else:
-        version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "source_role": source_role, "commercial_terms": commercial_terms, "read_back_verified": True, "synthetic_only": _synthetic_document_mode(), "scanner_state": scan.state, "scanner_provider": scan.provider})
+        version = DocumentVersion(document_id=document.id, version_number=version_number, source_filename=source_filename, source_path_or_reference=f"synthetic://contract/{contract.id}/{source_role.lower()}/v{version_number}", sha256=digest, mime_type=mime_type, file_size=len(content), language="EN", approval_state=DocumentApprovalState.WORKING, source_system="CONTRACT_WORKSPACE", synthetic_content=content, metadata_json={"contract_id": contract.id, "client_account_id": contract.client_account_id, "project_id": contract.project_id, "source_role": source_role, "commercial_terms": commercial_terms, "read_back_verified": True, "synthetic_only": _synthetic_document_mode(), "scanner_state": scan.state, "scanner_provider": scan.provider})
         db.add(version)
         db.flush()
     document.current_version_id = version.id

@@ -93,6 +93,38 @@ def test_executed_evidence_service_gate_operations_and_persistence(client):
     assert body["external_send"] == "HUMAN_CONTROLLED"
 
 
+def test_authority_review_snapshot_survives_acceptance_execution_and_cannot_be_downgraded(client):
+    suffix = uuid4().hex[:8]
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, f"Durable authority review {suffix}")
+    created = client.post("/api/admin/contracts", headers=headers("OWNER_SPONSOR", "durable-maker"), json={"proposal_id": proposal_id})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    record_checker(client, contract_id, actor="durable-checker")
+    approved = record_authority(client, contract_id, actor="durable-authority")
+    revision_id = approved.json()["revision_id"]
+    accepted = client.post(f"/api/admin/contracts/{contract_id}/accept", headers=headers("OWNER_SPONSOR", "durable-authority"), json={"idempotency_key": f"durable-accept:{suffix}"})
+    assert accepted.status_code == 200, accepted.text
+    repeat = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR", "different-authority"), json={"decision": "APPROVE", "reason": "Repeat exact authority review"})
+    assert repeat.status_code == 200 and repeat.json()["decision"] == "ALREADY_AUTHORITY_REVIEWED"
+    assert repeat.json()["contract"]["current_revision"]["status"] == "FINALIZED"
+    uploaded = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR", "durable-authority"), json={"source_role": "EXECUTED_CONTRACT", "source_filename": f"durable-executed-{suffix}.txt", "content": "synthetic executed copy", "reason": "Record exact executed copy"})
+    assert uploaded.status_code == 200, uploaded.text
+    executed = client.post(f"/api/admin/contracts/{contract_id}/executed-evidence", headers=headers("OWNER_SPONSOR", "durable-authority"), json={"document_version_id": uploaded.json()["document_version_id"], "evidence_reference": f"synthetic://durable-executed/{suffix}", "reason": "Record exact executed evidence"})
+    assert executed.status_code == 200, executed.text
+    after_execution = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR", "different-authority"), json={"decision": "APPROVE", "reason": "Repeat after execution"})
+    assert after_execution.status_code == 200 and after_execution.json()["decision"] == "ALREADY_AUTHORITY_REVIEWED"
+    assert after_execution.json()["contract"]["current_revision"]["status"] == "EXECUTED_EVIDENCE_RECORDED"
+    returned = client.post(f"/api/admin/contracts/{contract_id}/authority", headers=headers("OWNER_SPONSOR", "different-authority"), json={"decision": "RETURN", "reason": "Attempt forbidden downgrade"})
+    assert returned.status_code == 409, returned.text
+    assert returned.json()["detail"]["code"] == "CONTRACT_AUTHORITY_REVIEW_IMMUTABLE"
+    with SessionLocal() as db:
+        revision = db.get(ContractRevision, revision_id)
+        assert revision and revision.status == "EXECUTED_EVIDENCE_RECORDED"
+        from backend.app.services.contract_workspace import contract_revision_is_authority_reviewed
+        assert contract_revision_is_authority_reviewed(revision) is True
+
+
 def test_start_prerequisite_facts_are_independent_and_pure_permit_is_not_design(client):
     suffix = uuid4().hex[:8]
     ensure_contract_template(client)
@@ -115,6 +147,36 @@ def test_start_prerequisite_facts_are_independent_and_pure_permit_is_not_design(
         assert design_start_readiness(db, contract, "PERMIT")["result"] == "NOT_APPLICABLE"
 
 
+def test_timing_facts_require_exact_timing_clause_and_typed_action(client):
+    suffix = uuid4().hex[:8]
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, f"Typed timing facts {suffix}")
+    created = client.post("/api/admin/contracts", headers=headers("OWNER_SPONSOR", "timing-maker"), json={"proposal_id": proposal_id})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    generic = client.post(f"/api/admin/contracts/{contract_id}/evidence", headers=headers("OWNER_SPONSOR", "timing-owner"), json={"evidence_type": "CLIENT_ARCHITECTURE_APPROVED", "source_role": "CLIENT_ARCHITECTURE_APPROVED", "source_reference": "synthetic://generic"})
+    assert generic.status_code == 409 and generic.json()["detail"]["code"] == "USE_TYPED_TIMING_FACT_ACTION"
+    no_requirement = client.get(f"/api/admin/contracts/{contract_id}/start-prerequisites", headers=headers("OWNER_SPONSOR"))
+    facts = {item["fact"]: item for item in no_requirement.json()["facts"]}
+    assert facts["CLIENT_ARCHITECTURE_APPROVED"]["state"] == "NOT_APPLICABLE"
+    assert facts["MUNICIPALITY_WORK_START"]["state"] == "NOT_APPLICABLE"
+    uploaded = client.post(f"/api/admin/contracts/{contract_id}/documents", headers=headers("OWNER_SPONSOR", "timing-owner"), json={"source_role": "ARCHITECTURE", "source_filename": f"architecture-clause-{suffix}.txt", "content": "Clause: client architecture approval is required before contract duration start.", "reason": "Upload exact timing clause"})
+    assert uploaded.status_code == 200, uploaded.text
+    source_id = uploaded.json()["document_version_id"]
+    invalid_gate = client.post(f"/api/admin/contracts/{contract_id}/timing-requirements", headers=headers("OWNER_SPONSOR", "timing-owner"), json={"fact": "CLIENT_ARCHITECTURE_APPROVED", "applicable": True, "required_for": ["DESIGN_START"], "source_clause": "CLAUSE-ARCH-1", "source_document_version_id": source_id, "policy_version": "TIMING_POLICY_V1", "reason": "Record clause applicability"})
+    assert invalid_gate.status_code == 422 and invalid_gate.json()["detail"]["code"] == "ARCHITECTURE_CANNOT_GATE_DESIGN_START"
+    requirement = client.post(f"/api/admin/contracts/{contract_id}/timing-requirements", headers=headers("OWNER_SPONSOR", "timing-owner"), json={"fact": "CLIENT_ARCHITECTURE_APPROVED", "applicable": True, "required_for": ["CONTRACT_DURATION_START"], "source_clause": "CLAUSE-ARCH-1", "source_document_version_id": source_id, "policy_version": "TIMING_POLICY_V1", "reason": "Record exact clause applicability"})
+    assert requirement.status_code == 200, requirement.text
+    wrong = client.post(f"/api/admin/contracts/{contract_id}/timing-facts/CLIENT_ARCHITECTURE_APPROVED", headers=headers("OWNER_SPONSOR", "timing-owner"), json={"contract_revision_id": created.json()["current_revision"]["id"], "effective_date": "2026-09-14", "trigger_type": "CLIENT_APPROVAL", "source_clause": "WRONG-CLAUSE", "source_reference": "synthetic://architecture-approval", "source_document_version_id": source_id, "approval_evidence": "Owner recorded exact approval", "policy_version": "TIMING_POLICY_V1", "reason": "Record architecture approval"})
+    assert wrong.status_code == 409 and wrong.json()["detail"]["code"] == "TIMING_FACT_AUTHORITY_MISMATCH"
+    recorded = client.post(f"/api/admin/contracts/{contract_id}/timing-facts/CLIENT_ARCHITECTURE_APPROVED", headers=headers("OWNER_SPONSOR", "timing-owner"), json={"contract_revision_id": created.json()["current_revision"]["id"], "effective_date": "2026-09-14", "trigger_type": "CLIENT_APPROVAL", "source_clause": "CLAUSE-ARCH-1", "source_reference": "synthetic://architecture-approval", "source_document_version_id": source_id, "approval_evidence": "Owner recorded exact approval", "policy_version": "TIMING_POLICY_V1", "reason": "Record architecture approval"})
+    assert recorded.status_code == 200, recorded.text
+    evaluated = client.get(f"/api/admin/contracts/{contract_id}/start-prerequisites", headers=headers("OWNER_SPONSOR"))
+    fact = {item["fact"]: item for item in evaluated.json()["facts"]}["CLIENT_ARCHITECTURE_APPROVED"]
+    assert fact["state"] == "RECORDED" and fact["required_for"] == ["CONTRACT_DURATION_START"]
+    assert "CLIENT_ARCHITECTURE_APPROVAL_REQUIRED" not in evaluated.json()["blockers_by_transition"]["DESIGN_START"]
+
+
 def test_exception_stage_transition_is_idempotent(client):
     suffix = uuid4().hex[:8]
     ensure_contract_template(client)
@@ -134,3 +196,19 @@ def test_exception_stage_transition_is_idempotent(client):
         notifications = db.query(NotificationEvent).filter(NotificationEvent.contract_id == contract_id, NotificationEvent.event_type == "CONTRACT_EXCEPTION_REVIEW_REQUIRED").all()
         assert len(transition_tasks) == 1
         assert len(notifications) == len(tasks)
+        first_transition_id = transition_tasks[0].id
+    later = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR", "exception-owner"), json={"stage": "AUTHORITY_REVIEW", "reason": "Synthetic later Contract stage transition"})
+    assert later.status_code == 200, later.text
+    evaluated = client.post(f"/api/admin/contracts/{contract_id}/evaluate-exceptions", headers=headers("OWNER_SPONSOR", "exception-owner"))
+    assert evaluated.status_code == 200, evaluated.text
+    with SessionLocal() as db:
+        transition_tasks = [item for item in db.query(WorkflowTask).filter(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract_id, WorkflowTask.task_type == "CONTRACT_EXCEPTION_REVIEW").all() if str((item.evidence_summary or {}).get("condition_key", "")).startswith("STAGE_TRANSITION:")]
+        assert len(transition_tasks) == 2
+    completed = client.post(f"/api/tasks/{first_transition_id}/complete", headers=headers("OWNER_SPONSOR"))
+    assert completed.status_code == 200, completed.text
+    repeat_after_completion = client.post(f"/api/admin/contracts/{contract_id}/evaluate-exceptions", headers=headers("OWNER_SPONSOR", "exception-owner"))
+    assert repeat_after_completion.status_code == 200, repeat_after_completion.text
+    with SessionLocal() as db:
+        transition_tasks = [item for item in db.query(WorkflowTask).filter(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract_id, WorkflowTask.task_type == "CONTRACT_EXCEPTION_REVIEW").all() if str((item.evidence_summary or {}).get("condition_key", "")).startswith("STAGE_TRANSITION:")]
+        assert len(transition_tasks) == 2
+        assert any(item.id == first_transition_id and str(item.status).upper() == "COMPLETED" for item in transition_tasks)
