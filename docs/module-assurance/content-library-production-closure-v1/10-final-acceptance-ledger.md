@@ -4,11 +4,12 @@ This ledger records the final closure state before any Owner decision. It does n
 
 | Acceptance item | Result | Evidence |
 |---|---|---|
-| Exact closure head | PASS | `HEAD=ac7f0d00eb61fa4dd631ef3ed032dd233036a7bb`; `TREE=5b9bf4581333ae415449a6e7bcef897c1e27e7b5`; parent `c0d7ad0eab1ac9ee5b7fcf89bc235349f07ac36c` |
+| Code-bearing executable closure head | PASS | `SHA=ac7f0d00eb61fa4dd631ef3ed032dd233036a7bb`; `TREE=5b9bf4581333ae415449a6e7bcef897c1e27e7b5`; parent `c0d7ad0eab1ac9ee5b7fcf89bc235349f07ac36c` |
+| Documentation-only evidence publication tip | PASS | `SHA=a50fff8ed12e8b3434c21e4ae925443bd528d7fb`; `TREE=79e9a6defb0320439185b780fa1c813bb6aa1f5d`; contains no code, migration, workflow, infrastructure, or runtime changes |
 | Focused closure tests | PASS | `15 passed, 1 warning` under synthetic TEST configuration |
 | Complete backend suite | PASS | `912 passed, 18 skipped, 0 failed, 4 warnings`; phase-5 SQL Server runtime ignored because no authorized SQL Server was available |
-| Exact-head PR backend regression | PASS | PR #47 exact-head `backend-regression` check passed |
-| Exact-head PR frontend/migration/security/Samba checks | PASS | `frontend-regression`, `migration-head`, `policy-and-security`, and both `samba-contract` checks passed |
+| Code-bearing-head PR backend regression | PASS | PR #47 `backend-regression` check passed for the code-bearing executable head |
+| Code-bearing-head PR frontend/migration/security/Samba checks | PASS | `frontend-regression`, `migration-head`, `policy-and-security`, and both `samba-contract` checks passed for the code-bearing executable head |
 | Independent cold review A | PASS | Fresh read-only exact-head review; no blocking or unresolved code findings |
 | Independent cold review B | PASS | Fresh read-only exact-head review; no blocking or unresolved code findings |
 | Content Library ownership and authority boundaries | PASS | External official/authority sources remain non-reusable; exact Source18 current version/hash and whole-lineage mutation controls remain enforced |
@@ -25,7 +26,7 @@ This ledger records the final closure state before any Owner decision. It does n
 
 ## Decision
 
-`INDEPENDENT_ACCEPTANCE=PASS` for the bounded implementation/code contract.
+`INDEPENDENT_ACCEPTANCE=PASS` for the bounded implementation/code contract at the code-bearing executable head. The later publication tip is documentation-only.
 
 `READY_FOR_OWNER_MERGE_DECISION=TRUE`.
 
