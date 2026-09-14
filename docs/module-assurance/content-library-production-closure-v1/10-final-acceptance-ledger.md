@@ -4,20 +4,19 @@ This ledger records the final closure state before any Owner decision. It does n
 
 | Acceptance item | Result | Evidence |
 |---|---|---|
-| Code-bearing executable closure head | PASS | `SHA=ac7f0d00eb61fa4dd631ef3ed032dd233036a7bb`; `TREE=5b9bf4581333ae415449a6e7bcef897c1e27e7b5`; parent `c0d7ad0eab1ac9ee5b7fcf89bc235349f07ac36c` |
-| Documentation-only evidence publication tip | PASS | `SHA=a50fff8ed12e8b3434c21e4ae925443bd528d7fb`; `TREE=79e9a6defb0320439185b780fa1c813bb6aa1f5d`; contains no code, migration, workflow, infrastructure, or runtime changes |
-| Focused closure tests | PASS | `15 passed, 1 warning` under synthetic TEST configuration |
-| Complete backend suite | PASS | `912 passed, 18 skipped, 0 failed, 4 warnings`; phase-5 SQL Server runtime ignored because no authorized SQL Server was available |
-| Code-bearing-head PR backend regression | PASS | PR #47 `backend-regression` check passed for the code-bearing executable head |
-| Code-bearing-head PR frontend/migration/security/Samba checks | PASS | `frontend-regression`, `migration-head`, `policy-and-security`, and both `samba-contract` checks passed for the code-bearing executable head |
-| Independent cold review A | PASS | Fresh read-only exact-head review; no blocking or unresolved code findings |
-| Independent cold review B | PASS | Fresh read-only exact-head review; no blocking or unresolved code findings |
+| Code-bearing executable closure head | PASS | PR #47 exact head `SHA=c07285bfb7466ba1fbbf92d5adcd6a6db0cf2b6b`; `TREE=9cf53dce56f97faf17ec4fe1d66b6eb7b687858c`; parent `2b6f04e1df1017d01aa3a677bb42622980de84a9` |
+| Focused closure tests | PASS | `77 passed, 2 skipped, 1 warning` under synthetic TEST configuration; final reconciliation includes trusted actor coverage for reconcile audits |
+| Bounded complete backend suite | EVIDENCE_GAP | `597 passed, 13 skipped` before manual interruption at an unrelated long-running test; not claimed as a complete-suite pass |
+| Required GitHub CI | PASS | On PR #47 head: `backend-regression`, `frontend-regression`, `migration-head`, `policy-and-security`, and both `samba-contract` checks passed in run `34848787864` / associated Samba run |
+| Independent cold review | EVIDENCE_GAP | Delegated read-only reviewer completed without emitting a review result; no independent PASS is claimed for this exact head |
 | Content Library ownership and authority boundaries | PASS | External official/authority sources remain non-reusable; exact Source18 current version/hash and whole-lineage mutation controls remain enforced |
 | Submit/promotion concurrency boundary | PASS | Source18 version then canonical Document rows are locked before validation/mutation in both submit and promotion paths |
 | Migration requirement | NOT_REQUIRED | No new migration was required; no production/preprod database was mutated |
-| Azure SQL qualification | BLOCKED | No authorized isolated Azure SQL environment was available; local rehearsal is limited by the frozen baseline's existing constraint DDL issue |
-| Azure Blob qualification | BLOCKED | No authorized production-shaped Blob environment was available |
-| Production-shaped Entra/managed-identity/malware runtime | BLOCKED | Not exercised; no production or preproduction target was touched |
+| Azure SQL qualification | BLOCKED | Private SQL control plane was created in the isolated qualification group, but ACA regional quota prevented managed-identity migration/runtime execution; no SQL acceptance transaction was proven |
+| Azure Blob qualification | BLOCKED | Private Blob control plane and UAMI role assignments were created, but no workload runtime could execute write/read/restart acceptance |
+| Defender malware qualification | BLOCKED | Qualification resource existed, but subscription `StorageAccounts` pricing was `Free` and Blob on-upload scanning resolved `isEnabled=false`; subscription-wide enablement was outside authorization |
+| Production-shaped Entra/managed-identity runtime | BLOCKED | ACA regional quota (`MaxNumberOfRegionalEnvironmentsInSubExceeded`) prevented runtime execution; no token-authenticated app/UAMI acceptance was proven |
+| Immutable image digest | BLOCKED | No exact immutable runtime/migration image digest was produced by the local build; no digest is claimed |
 | Backend Vercel preview | BLOCKED | Deployment failed; this is separate from the green repository/PR regression checks |
 | G8 | NOT_REQUIRED_BY_GOVERNING_REQUIREMENT | No G8 deployment mutation or release claim is made in this Content Library code-closure run |
 | AT-024 | CONSISTENT_OPTIONAL_FORM | Optional reusable letterhead is modeled under Forms; no separate Letter library/correspondence engine is introduced |
@@ -26,9 +25,9 @@ This ledger records the final closure state before any Owner decision. It does n
 
 ## Decision
 
-`INDEPENDENT_ACCEPTANCE=PASS` for the bounded implementation/code contract at the code-bearing executable head. The later publication tip is documentation-only.
+`IMPLEMENTATION_CODE_CLOSURE=PASS` for the bounded implementation/code contract at the exact head above. `INDEPENDENT_ACCEPTANCE=EVIDENCE_GAP` because no independent reviewer result was emitted for this exact head.
 
-`READY_FOR_OWNER_MERGE_DECISION=TRUE`.
+`READY_FOR_OWNER_MERGE_DECISION=FALSE` while required native Azure qualification and independent acceptance evidence remain incomplete.
 
 `OWNER_MERGE_DECISION_REQUIRED=TRUE`.
 
