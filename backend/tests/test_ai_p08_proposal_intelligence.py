@@ -48,7 +48,7 @@ def test_final_six_proposal_skills_execute_through_shared_runtime(tmp_path):
     with Session(engine) as db:
         office = ConsultancyOffice(id="six-office", office_code="SIX", name_en="SIX", name_ar="SIX")
         user = User(id="six-user", email="six@example.test", display_name="Six", role=Role.SYSTEM_ADMIN, office_id=office.id, active=True)
-        proposal = Opportunity(id="six-proposal", office_id=office.id, opportunity_reference="SIX-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST")
+        proposal = Opportunity(id="six-proposal", office_id=office.id, opportunity_reference="SIX-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST", fixture_classification="SYNTHETIC_OWNER_TEST")
         revision = ProposalAcceptedRevision(id="six-revision", proposal_id=proposal.id, revision_number=1, snapshot={"title": proposal.title}, validation_snapshot={}, content_hash="a" * 64, accepted_by=user.id, status="ACCEPTED")
         db.add_all([office, user, proposal, revision]); db.commit()
         principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.SYSTEM_ADMIN, user_id=user.id, office_id=office.id)
@@ -81,7 +81,7 @@ def test_proposal_analysis_is_module_owned_and_revision_selective(tmp_path):
     with Session(engine) as db:
         office = ConsultancyOffice(id="p08-office", office_code="P08", name_en="P08", name_ar="P08")
         user = User(id="p08-user", email="p08@example.test", display_name="P08", role=Role.SYSTEM_ADMIN, office_id=office.id, active=True)
-        proposal = Opportunity(id="p08-proposal", office_id=office.id, opportunity_reference="P08-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST")
+        proposal = Opportunity(id="p08-proposal", office_id=office.id, opportunity_reference="P08-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST", fixture_classification="SYNTHETIC_OWNER_TEST")
         revision = ProposalAcceptedRevision(id="p08-revision-a", proposal_id=proposal.id, revision_number=1, snapshot={"title": proposal.title}, validation_snapshot={}, content_hash="a" * 64, accepted_by=user.id, status="ACCEPTED")
         db.add_all([office, user, proposal, revision]); db.commit()
         principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.SYSTEM_ADMIN, user_id=user.id, office_id=office.id)
@@ -107,7 +107,7 @@ def test_proposal_review_duplicate_and_conflicting_decision_are_fail_closed(tmp_
     with Session(engine) as db:
         office = ConsultancyOffice(id="p08-office", office_code="P08", name_en="P08", name_ar="P08")
         user = User(id="p08-user", email="p08@example.test", display_name="P08", role=Role.SYSTEM_ADMIN, office_id=office.id, active=True)
-        proposal = Opportunity(id="p08-proposal", office_id=office.id, opportunity_reference="P08-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST")
+        proposal = Opportunity(id="p08-proposal", office_id=office.id, opportunity_reference="P08-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST", fixture_classification="SYNTHETIC_OWNER_TEST")
         revision = ProposalAcceptedRevision(id="p08-revision", proposal_id=proposal.id, revision_number=1, snapshot={"title": proposal.title}, validation_snapshot={}, content_hash="a" * 64, accepted_by=user.id, status="ACCEPTED")
         db.add_all([office, user, proposal, revision]); db.commit()
         principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.SYSTEM_ADMIN, user_id=user.id, office_id=office.id)

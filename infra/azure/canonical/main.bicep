@@ -51,6 +51,9 @@ param workerImage string
 @description('Exact immutable migration image reference, including digest.')
 param migrationImage string
 
+@description('Exact immutable frontend image reference, including digest.')
+param frontendImage string
+
 @description('Optional HTTPS hostname used by Azure Front Door to reach the API origin.')
 param apiOriginHostName string = ''
 
@@ -59,6 +62,38 @@ param edgeCustomDomainName string = ''
 
 @description('Frontend origin allowed by the API CORS policy.')
 param frontendOrigin string
+
+@description('Enable Proposal Intelligence in the production API.')
+param aiFeatureEnabled bool = true
+@description('Enable external inference through the commissioned Azure OpenAI Responses provider.')
+param aiExternalInferenceEnabled bool = true
+@description('Real business content remains forbidden for the Owner-test release.')
+param aiRealContentAllowed bool = false
+@description('Immutable D4 commissioning record identifier.')
+param aiD4CommissioningId string
+@description('Azure OpenAI account resource group containing the commissioned deployment.')
+param aiResourceGroupName string
+@description('Azure OpenAI account containing the commissioned deployment.')
+param aiAccountName string
+@description('Approved Azure OpenAI Responses endpoint.')
+param aiAzureOpenaiEndpoint string
+param aiAzureOpenaiDeployment string = 'd3-gpt54mini-20260317'
+param aiAzureOpenaiExpectedModel string = 'gpt-5.4-mini'
+param aiAzureOpenaiExpectedVersion string = '2026-03-17'
+param aiAzureOpenaiRegion string = 'eastus'
+param aiAzureOpenaiDeploymentType string = 'DataZoneStandard'
+param aiMaxInputTokenUpperBound int = 8192
+param aiMaxOutputTokens int = 1024
+param aiMaxRequestsPerUserPerMinute int = 20
+param aiMaxRequestsPerUserPerHour int = 200
+param aiMaxRequestsPerProjectPerHour int = 500
+param aiMaxRequestsGlobalPerHour int = 5000
+param aiMaxEstimatedCostUsdPerRequest string = '1'
+param aiMaxEstimatedCostUsdPerDay string = '100'
+param aiInputPriceUsdPer1mTokens string = '1'
+param aiOutputPriceUsdPer1mTokens string = '1'
+param aiPricingSourceReference string = 'azure-openai-d3-gpt54mini-20260317'
+param aiD3SyntheticProjectIds string
 
 @description('Entra tenant ID for application and SQL identity binding.')
 param tenantId string
@@ -130,9 +165,11 @@ var apiIdentityName = 'uami-proposalops-api-${resourceNamePrefix}'
 var workerIdentityName = 'uami-proposalops-worker-${resourceNamePrefix}'
 var migrationIdentityName = 'uami-proposalops-migration-${resourceNamePrefix}'
 var sqlIdentityName = 'uami-proposalops-sql-${resourceNamePrefix}'
+var aiIdentityName = 'uami-proposalops-ai-${resourceNamePrefix}'
 var acrPullRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 var keyVaultSecretsUserRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
 var storageBlobDataContributorRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
+var cognitiveServicesOpenAiUserRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
 var frontDoorProfileName = 'afd-proposalops-${resourceNamePrefix}-uaenorth'
 var frontDoorEndpointName = 'afde-proposalops-${resourceNamePrefix}-uaenorth'
 var frontDoorWafPolicyName = 'waf-proposalops-${resourceNamePrefix}'
@@ -140,6 +177,7 @@ var sqlPrivateDnsZoneName = 'privatelink.database.windows.net'
 var keyVaultPrivateDnsZoneName = 'privatelink.vaultcore.azure.net'
 var blobPrivateDnsZoneName = 'privatelink.blob.core.windows.net'
 var resolvedApiOriginHostName = deriveApiOriginHostName ? apiApp.properties.configuration.ingress.fqdn : apiOriginHostName
+
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
@@ -328,6 +366,12 @@ resource sqlIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-3
   tags: tags
 }
 
+resource aiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: aiIdentityName
+  location: location
+  tags: tags
+}
+
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
@@ -420,7 +464,7 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
   location: location
   identity: {
     type: 'UserAssigned'
-    userAssignedIdentities: { '${apiIdentity.id}': {} }
+    userAssignedIdentities: union({ '${apiIdentity.id}': {} }, { '${aiIdentity.id}': {} })
   }
   tags: tags
   properties: {
@@ -467,9 +511,31 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
-          { name: 'AI_FEATURE_ENABLED', value: 'false' }
-          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
-          { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
+          { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
+          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
+          { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
+          { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
+          { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }
+          { name: 'AI_AZURE_OPENAI_EXPECTED_MODEL', value: aiAzureOpenaiExpectedModel }
+          { name: 'AI_AZURE_OPENAI_EXPECTED_VERSION', value: aiAzureOpenaiExpectedVersion }
+          { name: 'AI_AZURE_OPENAI_REGION', value: aiAzureOpenaiRegion }
+          { name: 'AI_AZURE_OPENAI_DEPLOYMENT_TYPE', value: aiAzureOpenaiDeploymentType }
+          { name: 'AI_UAMI_CLIENT_ID', value: aiIdentity.properties.clientId }
+          { name: 'AI_UAMI_PRINCIPAL_ID', value: aiIdentity.properties.principalId }
+          { name: 'AI_AZURE_TENANT_ID', value: tenantId }
+          { name: 'AI_MAX_INPUT_TOKEN_UPPER_BOUND', value: string(aiMaxInputTokenUpperBound) }
+          { name: 'AI_MAX_OUTPUT_TOKENS', value: string(aiMaxOutputTokens) }
+          { name: 'AI_MAX_REQUESTS_PER_USER_PER_MINUTE', value: string(aiMaxRequestsPerUserPerMinute) }
+          { name: 'AI_MAX_REQUESTS_PER_USER_PER_HOUR', value: string(aiMaxRequestsPerUserPerHour) }
+          { name: 'AI_MAX_REQUESTS_PER_PROJECT_PER_HOUR', value: string(aiMaxRequestsPerProjectPerHour) }
+          { name: 'AI_MAX_REQUESTS_GLOBAL_PER_HOUR', value: string(aiMaxRequestsGlobalPerHour) }
+          { name: 'AI_MAX_ESTIMATED_COST_USD_PER_REQUEST', value: string(aiMaxEstimatedCostUsdPerRequest) }
+          { name: 'AI_MAX_ESTIMATED_COST_USD_PER_DAY', value: string(aiMaxEstimatedCostUsdPerDay) }
+          { name: 'AI_INPUT_PRICE_USD_PER_1M_TOKENS', value: string(aiInputPriceUsdPer1mTokens) }
+          { name: 'AI_OUTPUT_PRICE_USD_PER_1M_TOKENS', value: string(aiOutputPriceUsdPer1mTokens) }
+          { name: 'AI_PRICING_SOURCE_REFERENCE', value: aiPricingSourceReference }
+          { name: 'AI_D3_SYNTHETIC_PROJECT_IDS', value: aiD3SyntheticProjectIds }
           { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
         ]
         resources: {
@@ -478,6 +544,37 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
         }
       }]
       scale: { minReplicas: 2, maxReplicas: 10 }
+    }
+  }
+}
+
+resource frontendApp 'Microsoft.App/containerApps@2024-03-01' = {
+  name: 'ca-proposalops-frontend-${resourceNamePrefix}'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: { '${apiIdentity.id}': {} }
+  }
+  tags: tags
+  properties: {
+    managedEnvironmentId: containerAppsEnvironment.id
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        external: true
+        targetPort: 8080
+        transport: 'http'
+        allowInsecure: false
+      }
+      registries: [{ server: acr.properties.loginServer, identity: apiIdentity.id }]
+    }
+    template: {
+      containers: [{
+        name: 'frontend'
+        image: frontendImage
+        resources: { cpu: 1, memory: '1Gi' }
+      }]
+      scale: { minReplicas: 2, maxReplicas: 4 }
     }
   }
 }
@@ -529,9 +626,20 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
-          { name: 'AI_FEATURE_ENABLED', value: 'false' }
-          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
-          { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
+          { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
+          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
+          { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
+          { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
+          { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }
+          { name: 'AI_AZURE_OPENAI_EXPECTED_MODEL', value: aiAzureOpenaiExpectedModel }
+          { name: 'AI_AZURE_OPENAI_EXPECTED_VERSION', value: aiAzureOpenaiExpectedVersion }
+          { name: 'AI_AZURE_OPENAI_REGION', value: aiAzureOpenaiRegion }
+          { name: 'AI_AZURE_OPENAI_DEPLOYMENT_TYPE', value: aiAzureOpenaiDeploymentType }
+          { name: 'AI_UAMI_CLIENT_ID', value: aiIdentity.properties.clientId }
+          { name: 'AI_UAMI_PRINCIPAL_ID', value: aiIdentity.properties.principalId }
+          { name: 'AI_AZURE_TENANT_ID', value: tenantId }
+          { name: 'AI_D3_SYNTHETIC_PROJECT_IDS', value: aiD3SyntheticProjectIds }
         ]
         resources: {
           cpu: 1
@@ -592,9 +700,20 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
-          { name: 'AI_FEATURE_ENABLED', value: 'false' }
-          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
-          { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
+          { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
+          { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
+          { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
+          { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
+          { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }
+          { name: 'AI_AZURE_OPENAI_EXPECTED_MODEL', value: aiAzureOpenaiExpectedModel }
+          { name: 'AI_AZURE_OPENAI_EXPECTED_VERSION', value: aiAzureOpenaiExpectedVersion }
+          { name: 'AI_AZURE_OPENAI_REGION', value: aiAzureOpenaiRegion }
+          { name: 'AI_AZURE_OPENAI_DEPLOYMENT_TYPE', value: aiAzureOpenaiDeploymentType }
+          { name: 'AI_UAMI_CLIENT_ID', value: aiIdentity.properties.clientId }
+          { name: 'AI_UAMI_PRINCIPAL_ID', value: aiIdentity.properties.principalId }
+          { name: 'AI_AZURE_TENANT_ID', value: tenantId }
+          { name: 'AI_D3_SYNTHETIC_PROJECT_IDS', value: aiD3SyntheticProjectIds }
         ]
         resources: {
           cpu: 1
@@ -715,6 +834,31 @@ resource edgeOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = {
   }
 }
 
+resource frontendOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = {
+  name: 'frontend-origin-group'
+  parent: edgeProfile
+  properties: {
+    healthProbeSettings: { probeIntervalInSeconds: 30, probePath: '/health', probeProtocol: 'Https', probeRequestType: 'GET' }
+    loadBalancingSettings: { additionalLatencyInMilliseconds: 0, sampleSize: 4, successfulSamplesRequired: 3 }
+    sessionAffinityState: 'Disabled'
+  }
+}
+
+resource frontendEdgeOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = {
+  name: 'frontend-origin'
+  parent: frontendOriginGroup
+  properties: {
+    enabledState: 'Enabled'
+    enforceCertificateNameCheck: true
+    hostName: frontendApp.properties.configuration.ingress.fqdn
+    httpPort: 80
+    httpsPort: 443
+    originHostHeader: frontendApp.properties.configuration.ingress.fqdn
+    priority: 1
+    weight: 1000
+  }
+}
+
 resource edgeCustomDomain 'Microsoft.Cdn/profiles/customDomains@2024-02-01' = if (!empty(edgeCustomDomainName)) {
   name: 'production-api-domain'
   parent: edgeProfile
@@ -739,6 +883,24 @@ resource edgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
     httpsRedirect: 'Enabled'
     linkToDefaultDomain: 'Enabled'
     originGroup: { id: edgeOriginGroup.id }
+    patternsToMatch: ['/api/*']
+    ruleSets: []
+    supportedProtocols: ['Https']
+  }
+}
+
+resource frontendEdgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
+  name: 'frontend-route'
+  parent: edgeEndpoint
+  dependsOn: [frontendEdgeOrigin]
+  properties: {
+    cacheConfiguration: { compressionSettings: { isCompressionEnabled: true, contentTypesToCompress: ['text/html', 'text/css', 'application/javascript', 'application/json'] }, queryStringCachingBehavior: 'UseQueryString' }
+    customDomains: empty(edgeCustomDomainName) ? [] : [{ id: edgeCustomDomain.id }]
+    enabledState: 'Enabled'
+    forwardingProtocol: 'HttpsOnly'
+    httpsRedirect: 'Enabled'
+    linkToDefaultDomain: 'Enabled'
+    originGroup: { id: frontendOriginGroup.id }
     patternsToMatch: ['/*']
     ruleSets: []
     supportedProtocols: ['Https']
@@ -870,10 +1032,21 @@ resource migrationArtifactWrite 'Microsoft.Authorization/roleAssignments@2022-04
   properties: { principalId: migrationIdentity.properties.principalId, principalType: 'ServicePrincipal', roleDefinitionId: storageBlobDataContributorRoleDefinitionId }
 }
 
+module aiAuthorization './ai-role-assignment.bicep' = {
+  name: 'proposalops-ai-authorization-${resourceNamePrefix}'
+  scope: resourceGroup(aiResourceGroupName)
+  params: {
+    aiAccountName: aiAccountName
+    aiPrincipalId: aiIdentity.properties.principalId
+    roleDefinitionId: cognitiveServicesOpenAiUserRoleDefinitionId
+  }
+}
+
 output canonicalTopology object = {
   region: location
   compute: 'Azure Container Apps'
   api: apiApp.name
+  frontend: frontendApp.name
   worker: workerApp.name
   migrationJob: migrationJob.name
   registry: acr.name
@@ -882,7 +1055,8 @@ output canonicalTopology object = {
   secrets: keyVault.name
   managedArtifactStore: artifactStorage.name
   managedArtifactContainer: artifactContainer.name
-  identities: [apiIdentity.name, workerIdentity.name, migrationIdentity.name, sqlIdentity.name]
+  identities: [apiIdentity.name, workerIdentity.name, migrationIdentity.name, sqlIdentity.name, aiIdentity.name]
+  ai: { endpoint: aiAzureOpenaiEndpoint, deployment: aiAzureOpenaiDeployment, model: aiAzureOpenaiExpectedModel, version: aiAzureOpenaiExpectedVersion, region: aiAzureOpenaiRegion, deploymentType: aiAzureOpenaiDeploymentType, identity: aiIdentity.name, d4CommissioningId: aiD4CommissioningId }
   privateNetwork: vnet.name
   privateEndpoints: [sqlPrivateEndpoint.name, keyVaultPrivateEndpoint.name, artifactStoragePrivateEndpoint.name]
   privateDnsZones: [sqlPrivateDnsZone.name, keyVaultPrivateDnsZone.name, blobPrivateDnsZone.name]

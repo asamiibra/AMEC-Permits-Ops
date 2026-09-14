@@ -68,7 +68,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
         raise _http_error(AIError("AI_EXTERNAL_INFERENCE_REQUIRES_ENTRA", status_code=403))
     if project_id not in settings.ai_d3_project_ids:
         raise _http_error(AIError("AI_D3_SYNTHETIC_PROJECT_NOT_ALLOWED", status_code=403))
-    if not settings.synthetic_only or settings.real_data_allowed or settings.ai_real_content_allowed:
+    if settings.real_data_allowed or settings.ai_real_content_allowed:
         raise _http_error(AIError("AI_REAL_CONTENT_NOT_AUTHORIZED", status_code=403))
     runtime_binding = AIRuntimeBinding.from_settings(settings)
     try:
@@ -121,6 +121,8 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
             COMPATIBILITY_SKILL,
             provider_input=provider_input,
             max_output_tokens=settings.ai_max_output_tokens,
+            context_synthetic_proven=True,
+            context_contains_sensitive_data=False,
         )
         draft = validate_draft(result.payload)
         citation_map = validate_citations(draft, manifest)

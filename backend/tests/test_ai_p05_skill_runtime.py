@@ -145,6 +145,8 @@ def test_gateway_forwards_server_registered_schema_without_client_schema():
         COMPATIBILITY_SKILL,
         provider_input="bounded-p04-projection",
         max_output_tokens=100,
+        context_synthetic_proven=True,
+        context_contains_sensitive_data=False,
     )
     assert captured["request"].schema_name == "technical_methodology_draft"
     assert captured["request"].response_schema is not None

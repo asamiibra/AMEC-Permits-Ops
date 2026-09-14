@@ -21,7 +21,7 @@ def test_runtime_binding_is_distinct_from_historical_d0_target() -> None:
     assert binding.deployment_type == "DataZoneStandard"
 
 
-def test_runtime_binding_rejects_global_or_real_content_configuration() -> None:
+def test_runtime_binding_allows_production_global_mode_when_real_content_is_off() -> None:
     settings = Settings(
         synthetic_only=False,
         ai_azure_openai_endpoint="https://proposalopsd3real20260908.openai.azure.com",
@@ -33,9 +33,6 @@ def test_runtime_binding_rejects_global_or_real_content_configuration() -> None:
     )
     binding = AIRuntimeBinding.from_settings(settings)
 
-    try:
-        binding.validate()
-    except ValueError as exc:
-        assert "synthetic-only" in str(exc)
-    else:
-        raise AssertionError("real-content runtime binding was accepted")
+    binding.validate()
+    assert binding.synthetic_only is False
+    assert binding.real_content_allowed is False

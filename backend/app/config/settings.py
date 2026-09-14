@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     mock_systems_root: str = "./mock-systems"
     synthetic_only: bool = True
     real_data_allowed: bool = False
+    owner_test_mode: bool = False
     auth_mode: str = "DEV_HEADER"
 
     # Microsoft Entra ID configuration for Azure preprod.
@@ -193,8 +194,11 @@ class Settings(BaseSettings):
             return
         if not self.ai_d4_commissioning_id.strip():
             raise ValueError("AI_D4_COMMISSIONING_ID is required when external inference is enabled")
-        if not self.synthetic_only or self.real_data_allowed or self.ai_real_content_allowed:
-            raise ValueError("D4 external inference requires synthetic-only and real-content=false")
+        # Production is a mixed-data environment.  Synthetic safety is an
+        # execution-scoped property proven by the compiled context, not an
+        # environment-wide switch.  Real-data inference remains disabled.
+        if self.real_data_allowed or self.ai_real_content_allowed:
+            raise ValueError("D4 external inference requires real-content=false")
         for setting_name, value in (
             ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
             ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),

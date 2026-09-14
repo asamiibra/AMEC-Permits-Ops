@@ -40,11 +40,7 @@ class ModelGateway:
             raise AIError("AI_EXTERNAL_INFERENCE_DISABLED", status_code=503)
         if not self.settings.ai_d4_commissioning_id.strip():
             raise AIError("AI_D4_COMMISSIONING_REQUIRED", status_code=503)
-        if (
-            not self.settings.synthetic_only
-            or self.settings.real_data_allowed
-            or self.settings.ai_real_content_allowed
-        ):
+        if self.settings.real_data_allowed or self.settings.ai_real_content_allowed:
             raise AIError("AI_REAL_CONTENT_NOT_AUTHORIZED", status_code=403)
         binding = AIRuntimeBinding.from_settings(self.settings)
         try:
@@ -71,8 +67,12 @@ class ModelGateway:
         *,
         provider_input: str,
         max_output_tokens: int,
+        context_synthetic_proven: bool = False,
+        context_contains_sensitive_data: bool = True,
     ) -> AIProviderResult:
         binding = self._validate_runtime_boundary()
+        if not context_synthetic_proven or context_contains_sensitive_data or self.settings.ai_real_content_allowed or self.settings.real_data_allowed:
+            raise AIError("AI_REAL_CONTENT_NOT_AUTHORIZED", status_code=403)
         self._validate_skill_binding(skill, binding)
         if skill.manifest.allowed_tools:
             # P05 establishes a deny-by-default registry.  Function calling is

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 from datetime import datetime, timezone
 from typing import Any
@@ -600,6 +601,7 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
     hardening = hardening_projection(db, proposal, forms_snapshot)
     return {
         "proposal_id": proposal.id,
+        "fixture_classification": proposal.fixture_classification,
         "proposal_reference": proposal.opportunity_reference,
         "title": proposal.title,
         "project_reference": proposal.canonical_project_reference or proposal.provisional_reference,
@@ -647,7 +649,13 @@ def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, art
     version = db.get(DocumentVersion, source_id) if source_id else None
     if not version or not source_hash or version.sha256 != source_hash:
         raise ValueError("PRODUCTION_TEMPLATE_DOCUMENT_VERSION_REQUIRED")
-    if version.source_path_or_reference.startswith(("synthetic://", "synthetic-db://")):
+    fixture_classification = str((revision.snapshot or {}).get("fixture_classification") or "NON_SYNTHETIC")
+    synthetic_owner_test_source = (
+        fixture_classification == "SYNTHETIC_OWNER_TEST"
+        and bool((version.metadata_json or {}).get("synthetic_owner_test_only"))
+        and bool((version.metadata_json or {}).get("not_official_production_content"))
+    )
+    if version.source_path_or_reference.startswith(("synthetic://", "synthetic-db://")) and not synthetic_owner_test_source:
         raise ValueError("SYNTHETIC_GOVERNED_SOURCE_FORBIDDEN")
     content = read_master_content_bytes(db, version)
     mime = (version.mime_type or "").lower()
@@ -682,7 +690,24 @@ def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, art
         template_text = template_text.replace("{{" + key + "}}", value)
     if "{{" in template_text or "}}" in template_text:
         raise ValueError("PRODUCTION_TEMPLATE_UNRESOLVED_PLACEHOLDER")
-    rendered = template_text.encode("utf-8")
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen.canvas import Canvas
+
+    output = io.BytesIO()
+    canvas = Canvas(output, pagesize=A4)
+    width, height = A4
+    cursor_y = height - 54
+    canvas.setTitle(str(revision.snapshot.get("title") or "AMEC Proposal"))
+    canvas.setFont("Helvetica", 10)
+    for line in template_text.splitlines() or [""]:
+        if cursor_y < 48:
+            canvas.showPage()
+            canvas.setFont("Helvetica", 10)
+            cursor_y = height - 54
+        canvas.drawString(48, cursor_y, line[:140])
+        cursor_y -= 14
+    canvas.save()
+    rendered = output.getvalue()
     lineage = {
         "accepted_revision_id": revision.id,
         "template_version_id": revision.template_version_id,
@@ -691,8 +716,10 @@ def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, art
         "checklist_hash": revision.checklist_hash,
         "governed_source_document_version_id": version.id,
         "governed_source_hash": version.sha256,
-        "renderer": "AMEC_GOVERNED_TEXT_MERGE_RENDERER_V2",
-        "format": "GOVERNED_TEXT",
+        "renderer": "AMEC_GOVERNED_PDF_MERGE_RENDERER_V1",
+        "format": "PDF",
+        "content_type": "application/pdf",
+        "owner_test_only": fixture_classification == "SYNTHETIC_OWNER_TEST",
     }
     return rendered, lineage
 

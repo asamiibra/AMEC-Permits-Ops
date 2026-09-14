@@ -34,6 +34,7 @@ from backend.app.models import (
     Opportunity,
     Project,
     ProposalAcceptedRevision,
+    ProposalRevision,
     ProposalLpoReconciliation,
     Role,
     User,
@@ -755,18 +756,33 @@ class GovernedContextCompiler:
             proposal = self.db.get(Opportunity, entity_id)
             if proposal is None:
                 return None
-            accepted = self.db.scalars(select(ProposalAcceptedRevision).where(
+            accepted = self.db.scalar(select(ProposalAcceptedRevision).where(
                 ProposalAcceptedRevision.proposal_id == proposal.id,
                 ProposalAcceptedRevision.status == "ACCEPTED",
-            ).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
-            if len(accepted) != 1:
-                raise IntelligenceContractError("CONTEXT_PROPOSAL_ACCEPTED_REVISION_AMBIGUOUS")
-            revision = accepted[0]
+            ).order_by(ProposalAcceptedRevision.revision_number.desc(), ProposalAcceptedRevision.accepted_at.desc()))
+            working = self.db.scalar(select(ProposalRevision).where(
+                ProposalRevision.proposal_id == proposal.id,
+                ProposalRevision.status == "DRAFT",
+            ).order_by(ProposalRevision.revision_number.desc()))
+            accepted_required = request.skill_manifest.purpose in {
+                "PROPOSAL_LPO_VARIANCE_ANALYSIS",
+                "PROPOSAL_HANDOFF_PREFLIGHT",
+            }
+            if accepted_required and accepted is None:
+                raise IntelligenceContractError("CONTEXT_PROPOSAL_ACCEPTED_REVISION_REQUIRED")
+            if not accepted_required and working is None and accepted is None:
+                # Intake and pre-acceptance skills operate on the current
+                # Proposal working state, which is the immutable intake
+                # projection until a mutable working revision is created.
+                revision_identity = stable_hash({"proposal_id": proposal.id, "proposal_fields": proposal.proposal_fields_json, "updated_at": proposal.updated_at.isoformat()})
+            else:
+                revision_identity = accepted.content_hash if accepted_required and accepted else (working.content_hash if working else accepted.content_hash)
             self._check_project(proposal.project_id, request)
             lpo = self.db.scalar(select(ProposalLpoReconciliation).where(
                 ProposalLpoReconciliation.proposal_id == proposal.id,
-                ProposalLpoReconciliation.accepted_revision_id == revision.id,
+                ProposalLpoReconciliation.accepted_revision_id == accepted.id if accepted else False,
             ).order_by(ProposalLpoReconciliation.compared_at.desc()))
+            synthetic = proposal.fixture_classification == "SYNTHETIC_OWNER_TEST"
             projection = self._safe_projection({
                 "entity_type": "PROPOSAL",
                 "entity_id": proposal.id,
@@ -774,17 +790,21 @@ class GovernedContextCompiler:
                 "title": proposal.title,
                 "status": proposal.status,
                 "project_id": proposal.project_id,
-                "accepted_revision_id": revision.id,
-                "accepted_revision_number": revision.revision_number,
-                "accepted_revision_hash": revision.content_hash,
+                "working_revision_id": working.id if working else None,
+                "working_revision_number": working.revision_number if working else None,
+                "working_revision_hash": working.content_hash if working else None,
+                "accepted_revision_id": accepted.id if accepted else None,
+                "accepted_revision_number": accepted.revision_number if accepted else None,
+                "accepted_revision_hash": accepted.content_hash if accepted else None,
+                "current_revision_identity": revision_identity,
                 "lpo_evidence_id": lpo.id if lpo else None,
                 "lpo_result": lpo.result if lpo else None,
             })
             return _ResolvedSource(
                 "DOMAIN_ENTITY_REVISION", "DOMAIN_ENTITY_REVISION", proposal.id,
-                f"{revision.id}:{revision.revision_number}:{revision.content_hash}",
-                "CANONICAL", "CURRENT", "SYNTHETIC", False, True, projection,
-                {"domain_entity": "PROPOSAL", "accepted_revision_id": revision.id, "accepted_revision_number": revision.revision_number, "accepted_revision_hash": revision.content_hash, "lpo_evidence_id": lpo.id if lpo else None},
+                f"{revision_identity}",
+                "CANONICAL", "CURRENT", "SYNTHETIC" if synthetic else "INTERNAL", False, synthetic, projection,
+                {"domain_entity": "PROPOSAL", "fixture_classification": proposal.fixture_classification, "accepted_revision_required": accepted_required, "working_revision_id": working.id if working else None, "accepted_revision_id": accepted.id if accepted else None, "lpo_evidence_id": lpo.id if lpo else None},
             )
         if entity_type != "PROJECT":
             raise IntelligenceContractError("CONTEXT_DOMAIN_ENTITY_TYPE_UNSUPPORTED")

@@ -226,6 +226,7 @@ def authorize_ai_request(
     target_entity_id: str,
     synthetic_only: bool,
     real_data_allowed: bool,
+    require_environment_synthetic: bool = True,
 ) -> tuple[AIAuthorizationContext, ResolvedAITarget, AIPurposePolicy]:
     purpose = parse_purpose(purpose_value)
     execution_mode = parse_execution_mode(execution_mode_value)
@@ -243,7 +244,7 @@ def authorize_ai_request(
         raise ai_error(403, "AI_PURPOSE_NOT_AUTHORIZED")
     if not all(_has_capability(principal.role, capability) for capability in policy.required_capabilities):
         raise ai_error(403, "AI_PURPOSE_NOT_AUTHORIZED")
-    if not synthetic_only or real_data_allowed:
+    if require_environment_synthetic and (not synthetic_only or real_data_allowed):
         raise ai_error(403, "AI_REAL_CONTENT_NOT_AUTHORIZED")
 
     target = resolve_target(db, target_entity_type, target_entity_id)
