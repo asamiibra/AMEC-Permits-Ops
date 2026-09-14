@@ -51,6 +51,7 @@ from ..services.source18 import (
     staffing_readiness,
     transition,
     transaction_states,
+    lock_source18_official_form_version,
     validate_source18_official_form_version,
     validate_source_currentness,
     validate_submission_preconditions,
@@ -164,10 +165,10 @@ def create_official_form_version(payload: dict[str, Any], request: Request, role
     if not document or str(document.source_system or "").upper() != "SOURCE18" or item.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}:
         raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_READY"})
     prior_current: list[dict[str, Any]] = []
-    # Lock the canonical Source18 version rows for this promotion transaction;
-    # the current document pointer and supersession updates commit together.
-    db.scalars(select(Document).where(Document.source_system == "SOURCE18").with_for_update()).all()
     candidates = db.scalars(select(DocumentVersion).where(DocumentVersion.source_system == "SOURCE18").with_for_update()).all()
+    # Lock versions before canonical documents, matching submit validation;
+    # the current pointer and version metadata update atomically together.
+    db.scalars(select(Document).where(Document.source_system == "SOURCE18").with_for_update()).all()
     for candidate in candidates:
         if str(candidate.source_system or "").upper() != "SOURCE18":
             continue
@@ -433,6 +434,10 @@ def submit_packet(packet_id: str, payload: dict[str, Any], request: Request, rol
     if not tx:
         raise HTTPException(409, {"code": "SOURCE18_TRANSACTION_NOT_FOUND"})
     db.scalar(select(AuthorityCase).where(AuthorityCase.id == tx.authority_case_id).with_for_update())
+    if tx.official_form_version_id:
+        # Acquire the same authoritative Source18 version/document locks used
+        # by validation before any final-submit state mutation.
+        lock_source18_official_form_version(db, tx.official_form_version_id)
     idempotency_key = str(payload.get("idempotency_key") or "").strip()
     if not idempotency_key:
         raise HTTPException(422, {"code": "IDEMPOTENCY_KEY_REQUIRED"})

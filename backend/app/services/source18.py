@@ -117,14 +117,26 @@ def transaction_states(transaction_type: str) -> list[str]:
         raise HTTPException(422, {"code": "SOURCE18_TRANSACTION_TYPE_UNSUPPORTED"}) from exc
 
 
+def lock_source18_official_form_version(db: Session, version_id: str | None) -> tuple[DocumentVersion | None, Document | None]:
+    """Lock the authoritative Source18 version and its canonical document."""
+    if not version_id:
+        return None, None
+    form = db.scalar(select(DocumentVersion).where(DocumentVersion.id == version_id).with_for_update())
+    if not form:
+        return None, None
+    document = db.scalar(select(Document).where(Document.id == form.document_id).with_for_update())
+    return form, document
+
+
 def validate_source18_official_form_version(db: Session, version_id: str | None) -> DocumentVersion:
     """Require an exact, current Source18-owned official-form version."""
     if not version_id:
         raise HTTPException(422, {"code": "SOURCE18_OFFICIAL_FORM_VERSION_REQUIRED"})
-    form = db.get(DocumentVersion, version_id)
+    # Lock version before canonical document, matching the promotion path. This
+    # closes promotion-versus-submit races around the current pointer/metadata.
+    form, document = lock_source18_official_form_version(db, version_id)
     if not form:
         raise HTTPException(422, {"code": "OFFICIAL_FORM_DOCUMENT_VERSION_NOT_FOUND"})
-    document = db.get(Document, form.document_id)
     currentness = str((form.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper()
     if (
         str(form.source_system or "").upper() != "SOURCE18"
