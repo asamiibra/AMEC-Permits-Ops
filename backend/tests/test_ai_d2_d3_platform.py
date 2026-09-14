@@ -77,6 +77,46 @@ def test_provider_request_is_exact_v1_responses_without_tools_or_redirects():
     assert body["text"]["format"]["strict"] is True
 
 
+def test_provider_skips_reasoning_items_before_final_message():
+    class Response:
+        status_code = 200
+
+        def json(self):
+            return {
+                "id": "resp-reasoning-1",
+                "status": "completed",
+                "output": [
+                    {"type": "reasoning", "summary": []},
+                    {
+                        "type": "message",
+                        "content": [
+                            {"type": "output_text", "text": json.dumps(_payload())}
+                        ],
+                    },
+                ],
+                "usage": {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30},
+            }
+
+    class Client:
+        def __init__(self, **kwargs):
+            del kwargs
+        def __enter__(self): return self
+        def __exit__(self, *args): return False
+        def post(self, url, **kwargs):
+            del url, kwargs
+            return Response()
+
+    provider = AzureOpenAIResponsesProvider(
+        _settings(),
+        token_provider=lambda _: "memory-token",
+        http_client_factory=Client,
+    )
+    result = provider.execute_structured(
+        AIProviderRequest(provider_input="static-input", max_output_tokens=6000)
+    )
+    assert result.payload == _payload()
+
+
 def test_structured_output_rejects_missing_section_citation():
     payload = _payload()
     payload["sections"][0]["citation_keys"] = []
