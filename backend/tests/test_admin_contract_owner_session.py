@@ -11,7 +11,7 @@ from backend.app.models import (
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
-    DocumentVersion, MasterContentItem,
+    DocumentVersion, MasterContentItem, MasterContentModuleBinding,
     BillingPlan, BillingPlanRevision, BillingMilestone, BillingMilestoneEligibility,
     Invoice, InvoiceRevision, InvoiceMilestone, InvoiceApproval, InvoiceRequirementDecision,
     InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
@@ -249,6 +249,18 @@ def make_accepted_proposal(client, name="Skyline Factory Industrial"):
         governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
         assert governed.status_code == 200, governed.text
         assert client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": usage}], headers=headers("SYSTEM_ADMIN")).status_code == 200
+        with SessionLocal() as db:
+            competing = db.query(MasterContentModuleBinding).filter(
+                MasterContentModuleBinding.module == "BD",
+                MasterContentModuleBinding.usage_type == usage,
+                MasterContentModuleBinding.active.is_(True),
+                MasterContentModuleBinding.master_content_id != item["id"],
+            ).all()
+            for binding in competing:
+                candidate = db.get(MasterContentItem, binding.master_content_id)
+                if candidate and candidate.status == "ACTIVE":
+                    candidate.status = "ARCHIVED"
+            db.commit()
     created = client.post("/api/bd/proposals", headers=headers("COMMERCIAL_APPROVER"), json={"proposal_description": name, "project_reference": "PRJ-DEMO-001", "client_name": "Skyline Synthetic Client"})
     assert created.status_code == 200, created.text
     proposal_id = created.json()["id"]
