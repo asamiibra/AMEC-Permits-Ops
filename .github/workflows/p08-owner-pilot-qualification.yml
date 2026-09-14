@@ -128,6 +128,36 @@ jobs:
       - run: python -m pip install --disable-pip-version-check -r backend/requirements.txt
       - name: Upgrade exact migration head
         run: alembic upgrade head
+      - name: Bootstrap canonical synthetic anchors
+        run: |
+          set -euo pipefail
+          first="$(python -m backend.app.bootstrap_preprod)"
+          echo "$first"
+          FIRST="$first" python -c 'import json, os; assert json.loads(os.environ["FIRST"])["status"] == "BOOTSTRAPPED"'
+          repeat="$(python -m backend.app.bootstrap_preprod)"
+          echo "$repeat"
+          REPEAT="$repeat" python -c 'import json, os; assert json.loads(os.environ["REPEAT"])["status"] == "ALREADY_BOOTSTRAPPED"'
+      - name: Bind synthetic Owner identity for portability proof
+        run: |
+          python - <<'PY'
+          from sqlalchemy import select
+
+          from backend.app.db import SessionLocal, verify_database_migration_head
+          from backend.app.models import User
+
+          email = "owner@amec.synthetic"
+          object_id = "44444444-4444-4444-8444-444444444444"
+          verify_database_migration_head()
+          with SessionLocal() as db:
+              owner = db.scalar(select(User).where(User.email == email))
+              assert owner is not None and owner.active
+              bound = db.scalars(
+                  select(User).where(User.entra_object_id == object_id)
+              ).all()
+              assert not bound or all(row.id == owner.id for row in bound)
+              owner.entra_object_id = object_id
+              db.commit()
+          PY
       - name: Run PostgreSQL 16 proof
         run: python backend/scripts/batch3a_postgres16_proof.py
 
