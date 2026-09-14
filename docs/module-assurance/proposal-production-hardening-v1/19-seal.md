@@ -2,7 +2,7 @@
 
 The implementation is committed on the existing canonical Proposal branch after protected-main integration. `FINAL_SHA`/`FINAL_TREE` identify the hardening implementation commit; the later evidence-seal commit is recorded in the baseline. This is a production-shaped hardening candidate, not a production authorization: live Entra, DSM/SOR, native SQL runtime, Owner UAT, independent human review, deployment, and real AMEC-data authority remain unresolved.
 
-Final markers are written after the final commit below:
+Final markers below record the hardening implementation identity and the repository/external gate results at seal time:
 
 ```text
 FINAL_RESULT=PROPOSAL_PRODUCTION_HARDENING_BLOCKED
