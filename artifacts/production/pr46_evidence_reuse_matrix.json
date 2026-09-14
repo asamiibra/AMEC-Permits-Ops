@@ -1,0 +1,28 @@
+{
+  "release": "PR46 Billing + Billing Intelligence",
+  "generated_at": "2026-09-14",
+  "entry_pre_ai_head": "31b169e5519d70c9ae34baaeafdd24fe3f074110",
+  "integrated_candidate_head_at_matrix_creation": "14d4077",
+  "pre_ai_native_inventory": {
+    "status": "TARGETED_REPAIR_PASS_FOR_ALL_DEMONSTRATED_FAILURES",
+    "head": "31b169e5519d70c9ae34baaeafdd24fe3f074110",
+    "test_count": 14,
+    "initial_result": {"passed": 12, "failed": 2, "errors": 3},
+    "repair_scope": "test fixtures only; no shared Billing runtime or schema behavior changed",
+    "directly_affected_retry": {"nodes": 5, "passed": 5},
+    "teardown_diagnosis": "G6_TESTCLIENT_DETERMINISTIC_TEARDOWN_DEFECT=DISPROVEN",
+    "harness_patch_required": false,
+    "classification": "REUSABLE_UNCHANGED_SCOPE"
+  },
+  "evidence": [
+    {"id": "G6.4-pre-ai-Billing-lifecycle", "classification": "REUSABLE_UNCHANGED_SCOPE", "reason": "Billing lifecycle implementation and database semantics were not changed by the fixture-only repair."},
+    {"id": "G6.4-pre-ai-scope-algebra", "classification": "REUSABLE_UNCHANGED_SCOPE", "reason": "The repair made SQL Server fixtures referentially valid; it did not change scope algebra."},
+    {"id": "P07-foundation", "classification": "REUSABLE_UNCHANGED_SCOPE", "reason": "Exact accepted P07 seal and shared persistence lineage are retained."},
+    {"id": "migration-graph", "classification": "CAUSALLY_INVALIDATED", "reason": "Billing Intelligence adds shared-policy consumers and closes the P07/Billing heads with a final graph merge."},
+    {"id": "application-startup", "classification": "REQUIRES_TARGETED_REVALIDATION", "reason": "A Billing Intelligence router and registry are mounted."},
+    {"id": "AIWorkProduct-persistence", "classification": "REQUIRES_TARGETED_REVALIDATION", "reason": "Six Billing skills now exercise P07 work-product/citation/dependency persistence."},
+    {"id": "managed-identity-provider-binding", "classification": "REQUIRES_TARGETED_REVALIDATION", "reason": "Final candidate must bind the post-P07 runtime settings; synthetic provider acceptance does not prove Azure reachability."},
+    {"id": "frontend-browser-journey", "classification": "REQUIRES_TARGETED_REVALIDATION", "reason": "The Billing Intelligence surface must be exercised through the final frontend/runtime candidate."}
+  ],
+  "reuse_rule": "Do not rerun the unchanged 14-node pre-AI inventory; final release qualification must bind to the integrated final head and only causally affected scope."
+}

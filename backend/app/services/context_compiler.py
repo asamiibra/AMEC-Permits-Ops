@@ -35,6 +35,11 @@ from backend.app.models import (
     Role,
     User,
     VerifiedAssertion,
+    BillingPlan, BillingPlanRevision, BillingMilestone, BillingReadinessRequest,
+    Invoice, InvoiceRevision, InvoiceDeliveryEvent, InvoiceAcknowledgment,
+    PaymentReceipt, InvoicePaymentAllocation, PaymentReversalEvent,
+    ReceivableFollowUp, ReceivableResolution, Contract, ContractRevision,
+    ContractPaymentTerm,
 )
 from backend.app.services.backend_realignment import CAPABILITY_MATRIX, persona_for_role, require_capability
 from backend.app.services.intelligence_contracts import (
@@ -76,6 +81,7 @@ _CONTEXT_TYPE_ALIASES = {
     "DEFINITIONREVISION": "DEFINITION_REVISION",
     "DOMAINENTITYREVISION": "DOMAIN_ENTITY_REVISION",
     "POLICYVERSION": "POLICY_VERSION",
+    "BILLINGENTITYREVISION": "BILLING_ENTITY_REVISION",
 }
 
 _FORBIDDEN_SELECTOR_KEYS = {
@@ -224,6 +230,7 @@ class GovernedContextCompiler:
         "DEFINITION_REVISION": _MethodResolver("DEFINITION_REVISION", "_resolve_definition_revision"),
         "DOMAIN_ENTITY_REVISION": _MethodResolver("DOMAIN_ENTITY_REVISION", "_resolve_domain_entity_revision"),
         "POLICY_VERSION": _MethodResolver("POLICY_VERSION", "_resolve_policy_version"),
+        "BILLING_ENTITY_REVISION": _MethodResolver("BILLING_ENTITY_REVISION", "_resolve_billing_entity"),
     }
 
     def __init__(self, db: Session):
@@ -770,6 +777,72 @@ class GovernedContextCompiler:
             "POLICY_VERSION", "POLICY_VERSION", policy.id, policy.immutable_hash,
             "CANONICAL", "CURRENT", "INTERNAL", False, False,
             self._safe_projection({"policy_version": version, "policy_id": policy.id, "policy_hash": policy.immutable_hash}), {"policy_version": version, "policy_id": policy.id},
+        )
+
+    def _resolve_billing_entity(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
+        """Resolve one explicit, project-bound Billing projection."""
+        selector = self._validate_selector(source, {"entity_type", "entity_id"})
+        entity_type = str(selector.get("entity_type") or "").upper()
+        entity_id = str(selector.get("entity_id") or "")
+        models = {
+            "BILLING_PLAN": BillingPlan, "BILLING_PLAN_REVISION": BillingPlanRevision,
+            "BILLING_MILESTONE": BillingMilestone, "BILLING_READINESS_REQUEST": BillingReadinessRequest,
+            "INVOICE": Invoice, "INVOICE_REVISION": InvoiceRevision,
+            "INVOICE_DELIVERY": InvoiceDeliveryEvent, "INVOICE_ACKNOWLEDGMENT": InvoiceAcknowledgment,
+            "PAYMENT": PaymentReceipt, "PAYMENT_ALLOCATION": InvoicePaymentAllocation,
+            "PAYMENT_REVERSAL": PaymentReversalEvent, "RECEIVABLE_FOLLOW_UP": ReceivableFollowUp,
+            "RECEIVABLE_RESOLUTION": ReceivableResolution, "CONTRACT": Contract,
+            "CONTRACT_REVISION": ContractRevision, "CONTRACT_PAYMENT_TERM": ContractPaymentTerm,
+        }
+        model = models.get(entity_type)
+        if model is None or not entity_id:
+            raise IntelligenceContractError("CONTEXT_BILLING_ENTITY_UNSUPPORTED")
+        entity = self.db.get(model, entity_id)
+        if entity is None:
+            return None
+        project_id = getattr(entity, "project_id", None)
+        contract_id = getattr(entity, "contract_id", None)
+        if project_id is None and contract_id:
+            contract = self.db.get(Contract, contract_id)
+            project_id = contract.project_id if contract else None
+        invoice_id = getattr(entity, "invoice_id", None)
+        if project_id is None and invoice_id:
+            invoice = self.db.get(Invoice, invoice_id)
+            project_id = invoice.project_id if invoice else None
+        self._check_project(project_id, request)
+
+        def safe(value: Any) -> Any:
+            if value is None or isinstance(value, (str, int, float, bool)):
+                return value
+            if hasattr(value, "isoformat"):
+                return value.isoformat()
+            return str(value)
+
+        fields = {
+            "id", "status", "currency", "amount", "reference", "received_date", "verification_status",
+            "contract_id", "project_id", "client_account_id", "invoice_id", "allocated_amount",
+            "billing_milestone_id", "channel", "delivered_at", "acknowledged_at", "acknowledgment_reference",
+            "invoice_reference", "invoice_date", "due_date", "due_date_status", "service_period", "description",
+            "billing_mode", "trigger_type", "trigger_description", "eligibility_state", "basis_type", "basis_amount",
+            "percentage", "calculated_amount", "remaining_invoiceable_amount", "invoiced_amount", "contract_amount",
+            "payment_condition_text", "contracted_scope_text", "term_text", "label", "fixed_amount", "source_clause",
+            "source_document_version_id", "evidence_document_version_id", "reason", "outcome", "follow_up_date",
+            "next_follow_up_at", "resolution_type", "effective_date", "approval_reference",
+        }
+        projection = {field: safe(getattr(entity, field)) for field in fields if hasattr(entity, field)}
+        projection.update({"entity_type": entity_type, "entity_id": entity.id, "project_id": project_id})
+        projection = self._safe_projection(projection)
+        project = self.db.get(Project, project_id) if project_id else None
+        synthetic = (
+            str(project_id or "").lower().startswith("synthetic-")
+            or str(getattr(entity, "reference", "")).upper().startswith("SYN-")
+            or str(getattr(project, "project_number", "")).upper().startswith(("GHCE-", "SYN-"))
+        )
+        version_hash = stable_hash({"entity_type": entity_type, "entity_id": entity.id, "projection": projection})
+        return _ResolvedSource(
+            "BILLING_ENTITY_REVISION", "BILLING_ENTITY_REVISION", entity.id, version_hash,
+            "CANONICAL", "CURRENT", "SYNTHETIC" if synthetic else "INTERNAL", False, synthetic,
+            projection, {"entity_type": entity_type, "project_id": project_id},
         )
 
 

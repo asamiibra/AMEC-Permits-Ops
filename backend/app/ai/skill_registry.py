@@ -150,7 +150,10 @@ COMPATIBILITY_SKILL = SkillDefinition(
 )
 
 
-SKILL_REGISTRY = SkillRegistry((COMPATIBILITY_SKILL,))
+from .billing_skill_pack import BILLING_SKILLS
+
+
+SKILL_REGISTRY = SkillRegistry((COMPATIBILITY_SKILL, *BILLING_SKILLS))
 
 
 def build_skill_definition(
