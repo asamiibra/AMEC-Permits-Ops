@@ -210,7 +210,10 @@ def authorize_ai_request(
         try:
             billing_view_authorized(
                 db, principal,
-                context=BillingAuthorizationContext(project_id=target.project_id),
+                context=BillingAuthorizationContext(
+                    office_id=db.get(Project, target.project_id).office_id if db.get(Project, target.project_id) else None,
+                    project_id=target.project_id,
+                ),
             )
             billing_authorized = True
         except HTTPException as exc:

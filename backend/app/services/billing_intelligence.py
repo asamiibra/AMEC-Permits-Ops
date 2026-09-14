@@ -83,8 +83,17 @@ def execute_billing_intelligence(
             "ai_uami_principal_id": "00000000-0000-0000-0000-000000000002",
             "ai_azure_tenant_id": "00000000-0000-0000-0000-000000000003",
             "ai_max_output_tokens": 512,
+            "ai_max_input_token_upper_bound": 8192,
+            "ai_max_requests_per_user_per_minute": 100,
+            "ai_max_requests_per_user_per_hour": 1000,
+            "ai_max_requests_per_project_per_hour": 1000,
+            "ai_max_requests_global_per_hour": 10000,
+            "ai_max_estimated_cost_usd_per_request": 1.0,
+            "ai_max_estimated_cost_usd_per_day": 100.0,
+            "ai_input_price_usd_per_1m_tokens": 1.0,
+            "ai_output_price_usd_per_1m_tokens": 1.0,
+            "ai_pricing_source_reference": "BILLING-SYNTHETIC-PRICING",
         })
     return SkillRuntime(dependencies=RuntimeDependencies(session_factory=runtime_session)).execute(
         db, principal, request, settings=runtime_settings, provider=provider,
     )
-
