@@ -97,7 +97,7 @@ describe("MSAL sign out", () => {
 
     expect(msal.instance.logoutRedirect).toHaveBeenCalledWith({
       account: active,
-      postLogoutRedirectUri: `${window.location.origin}/redirect.html`,
+      postLogoutRedirectUri: `${window.location.origin}/`,
     });
   });
 });
@@ -424,7 +424,7 @@ describe(
                 redirectUri:
                   `${window.location.origin}/redirect.html`,
                 postLogoutRedirectUri:
-                  `${window.location.origin}/redirect.html`,
+                  `${window.location.origin}/`,
               }),
             cache: {
               cacheLocation:

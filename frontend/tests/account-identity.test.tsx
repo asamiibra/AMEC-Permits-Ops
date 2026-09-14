@@ -18,6 +18,10 @@ const apiMock = vi.hoisted(() => vi.fn(async () => ({
 vi.mock("../src/api", () => ({ api: apiMock }));
 vi.mock("../src/auth", () => ({
   browserAuthMode: () => "ENTRA",
+  getSignedInAccountIdentity: vi.fn(async () => ({
+    displayName: "Synthetic Owner",
+    preferredUsername: "owner@example.invalid",
+  })),
   signOut: vi.fn(async () => undefined),
 }));
 

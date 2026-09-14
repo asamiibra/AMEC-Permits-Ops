@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { api } from "./api";
+import { ApiError, api } from "./api";
 import { OpportunitiesPage } from "./Opportunities";
 import { ContractMobilizationPage } from "./AdministrationOwner";
 import { CurrentDashboard } from "./Dashboard";
 import { BillingInvoicePage } from "./BillingInvoice";
 import { HomePage } from "./Home";
 import { AmecLogo } from "./AmecLogo";
-import { browserAuthMode, signOut } from "./auth";
+import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
 import { classifyPublicRoute, type PublicPage } from "./domainOwnershipRoutes";
-import { getPrimaryNavigation } from "./featureAvailability";
+import { getPrimaryNavigation, isSupportedShellRole } from "./featureAvailability";
+import { AuthzSurface, type AuthzSurfaceState } from "./AuthFailureSurface";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./admin-owner.css";
@@ -26,7 +27,8 @@ type AuthSession = {
   };
 };
 
-type DemoRole = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
+type DemoRole = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "PROCESS_CHAMPION" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
+type AuthzState = AuthzSurfaceState | "AUTHZ_AUTHORIZED";
 
 export function userInitials(displayName: string | null | undefined, preferredUsername: string | null | undefined): string {
   const name = displayName?.trim();
@@ -61,6 +63,10 @@ export default function App() {
     browserAuthMode() === "DEV_HEADER" ? readDemoRole() : ""
   ));
   const [authSession, setAuthSession] = useState<AuthSession | null>(null);
+  const [accountIdentity, setAccountIdentity] = useState<{ displayName: string | null; preferredUsername: string | null } | null>(null);
+  const [authzState, setAuthzState] = useState<AuthzState>(() => (
+    browserAuthMode() === "DEV_HEADER" ? "AUTHZ_AUTHORIZED" : "AUTHZ_LOADING"
+  ));
 
   useEffect(() => {
     document.documentElement.lang = "en";
@@ -98,14 +104,32 @@ export default function App() {
     sessionStorage.removeItem("proposalops-role");
   }, [role]);
 
-  useEffect(() => {
+  const loadSession = () => {
     if (browserAuthMode() !== "ENTRA") return;
-    api<AuthSession>("/api/auth/session")
+    setAuthzState("AUTHZ_LOADING");
+    void getSignedInAccountIdentity()
+      .then((account) => setAccountIdentity(account))
+      .catch(() => setAccountIdentity(null));
+    void api<AuthSession>("/api/auth/session")
       .then((session) => {
+        if (!session.authenticated || !session.identity.role?.trim()) {
+          throw new ApiError("The AMEC System session did not contain an application role.", 403, "/api/auth/session");
+        }
         setAuthSession(session);
         setRole(session.identity.role);
+        setAuthzState(isSupportedShellRole(session.identity.role) ? "AUTHZ_AUTHORIZED" : "AUTHZ_UNSUPPORTED_ROLE");
       })
-      .catch(() => setAuthSession(null));
+      .catch((error: unknown) => {
+        setAuthSession(null);
+        setAccountIdentity(null);
+        setRole("");
+        const status = error instanceof ApiError ? error.status : 0;
+        setAuthzState(status === 403 ? "AUTHZ_UNMAPPED" : status === 401 ? "AUTHZ_UNAUTHENTICATED" : "AUTHZ_ERROR");
+      });
+  };
+
+  useEffect(() => {
+    loadSession();
   }, []);
 
   useEffect(() => {
@@ -137,8 +161,8 @@ export default function App() {
   const visibleNavigation = getPrimaryNavigation(role);
   const title = visibleNavigation.find((item) => item.page === page)?.label || "Home";
   const moduleRole = role as DemoRole;
-  const displayName = authSession?.identity.display_name?.trim() || "";
-  const preferredUsername = authSession?.identity.preferred_username?.trim() || "";
+  const displayName = authSession?.identity.display_name?.trim() || accountIdentity?.displayName?.trim() || "";
+  const preferredUsername = authSession?.identity.preferred_username?.trim() || accountIdentity?.preferredUsername?.trim() || "";
   const identityLabel = displayName || preferredUsername || (browserAuthMode() === "DEV_HEADER" ? "Local development user" : "Signed-in user");
   const initials = userInitials(displayName, preferredUsername);
 
@@ -153,6 +177,19 @@ export default function App() {
       setSignOutError(error instanceof Error ? error.message : "Sign out could not be completed.");
     }
   };
+
+  if (authzState !== "AUTHZ_AUTHORIZED") {
+    return (
+      <AuthzSurface
+        state={authzState}
+        identity={displayName || preferredUsername || undefined}
+        role={authSession?.identity.role ? roleLabel(authSession.identity.role) : undefined}
+        onRetry={authzState === "AUTHZ_UNMAPPED" || authzState === "AUTHZ_UNSUPPORTED_ROLE" ? undefined : loadSession}
+        onSignOut={authzState === "AUTHZ_UNMAPPED" || authzState === "AUTHZ_UNSUPPORTED_ROLE" ? handleSignOut : undefined}
+        busy={signingOut}
+      />
+    );
+  }
 
   return (
     <div
@@ -174,7 +211,7 @@ export default function App() {
           <span className="dot" />
           <span>AMEC Engineering</span>
           <br />
-          <small>QEC-DOHA · SYNTHETIC DEV</small>
+          <small>QEC-DOHA · SYNTHETIC COMMISSIONING</small>
         </div>
         <nav aria-label="Primary navigation">
           {visibleNavigation.map((item) => (
@@ -228,7 +265,7 @@ export default function App() {
             <button className="mobile-nav-trigger" type="button" aria-label="Open navigation" aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(true)} />
             <AmecLogo size="sm" className="mobile-topbar-amec-logo" />
             <div>
-              <span className="eyebrow">AMEC WORKSPACE</span>
+              <span className="eyebrow">AMEC SYSTEM WORKSPACE</span>
               <h1>{title}</h1>
             </div>
           </div>
@@ -244,8 +281,8 @@ export default function App() {
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
                 >
-                  <option value="SYSTEM_ADMIN">Owner</option>
-                  <option value="COMMERCIAL_APPROVER">Business Development</option>
+                  <option value="SYSTEM_ADMIN">System Admin</option>
+                  <option value="PROCESS_CHAMPION">Business Development</option>
                   <option value="RESPONSIBLE_ENGINEER">Engineering</option>
                 </select>
               </label>

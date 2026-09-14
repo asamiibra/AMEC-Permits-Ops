@@ -1,9 +1,9 @@
-export type DemoRole = "SYSTEM_ADMIN" | "RESPONSIBLE_ENGINEER" | "COMMERCIAL_APPROVER";
+export type DemoRole = "SYSTEM_ADMIN" | "PROCESS_CHAMPION" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
 
 export const DEMO_PERSONAS: Array<{ value: DemoRole; label: string }> = [
-  { value: "SYSTEM_ADMIN", label: "Owner" },
+  { value: "SYSTEM_ADMIN", label: "System Admin" },
+  { value: "PROCESS_CHAMPION", label: "Business Development" },
   { value: "RESPONSIBLE_ENGINEER", label: "Engineering" },
-  { value: "COMMERCIAL_APPROVER", label: "Business Development" },
 ];
 
 const legacyRoleMap: Record<string, DemoRole> = {
@@ -12,9 +12,9 @@ const legacyRoleMap: Record<string, DemoRole> = {
   PORTAL_MAINTAINER: "SYSTEM_ADMIN",
   RESPONSIBLE_ENGINEER: "RESPONSIBLE_ENGINEER",
   AUTHORIZED_ENGINEER: "RESPONSIBLE_ENGINEER",
-  COMMERCIAL_APPROVER: "COMMERCIAL_APPROVER",
-  BD_ASSISTANT: "COMMERCIAL_APPROVER",
-  PERMIT_PREPARER: "COMMERCIAL_APPROVER",
+  COMMERCIAL_APPROVER: "PROCESS_CHAMPION",
+  BD_ASSISTANT: "PROCESS_CHAMPION",
+  PERMIT_PREPARER: "PROCESS_CHAMPION",
   DATA_VERIFIER: "RESPONSIBLE_ENGINEER",
   PACKAGE_APPROVER: "SYSTEM_ADMIN",
   FINAL_SUBMITTER: "SYSTEM_ADMIN",

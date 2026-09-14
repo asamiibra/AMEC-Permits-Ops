@@ -101,7 +101,7 @@ function entraConfiguration() {
       redirectUri:
         redirectBridgeUri,
       postLogoutRedirectUri:
-        redirectBridgeUri,
+        window.location.origin + "/",
     },
     cache: {
       cacheLocation:
@@ -370,6 +370,23 @@ export async function getApiAccessToken(): Promise<string> {
   }
 }
 
+export async function getSignedInAccountIdentity(): Promise<{
+  displayName: string | null;
+  preferredUsername: string | null;
+} | null> {
+  if (browserAuthMode() !== "ENTRA") return null;
+
+  const { tenantId } = entraConfiguration();
+  const client = await initializedMsalClient();
+  const account = activeAccountForTenant(client, tenantId);
+  if (!account) return null;
+
+  return {
+    displayName: account.name || null,
+    preferredUsername: account.username || null,
+  };
+}
+
 /**
  * End the current browser session through the same MSAL client that owns the
  * active account. Application role state is never used as a logout source.
@@ -387,6 +404,6 @@ export async function signOut(): Promise<void> {
 
   await client.logoutRedirect({
     ...(account ? { account } : {}),
-    postLogoutRedirectUri: `${window.location.origin}/redirect.html`,
+    postLogoutRedirectUri: `${window.location.origin}/`,
   });
 }

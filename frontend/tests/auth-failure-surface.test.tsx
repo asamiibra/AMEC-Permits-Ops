@@ -9,7 +9,7 @@ describe("AuthFailureSurface", () => {
     render(<AuthFailureSurface />);
 
     expect(screen.getByRole("alert")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "AMEC System couldn’t start sign-in" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "AMEC System couldn’t verify your session" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Retry sign-in" })).toBeTruthy();
     expect(screen.queryByText(/token|tenant|stack|exception/i)).toBeNull();
 
