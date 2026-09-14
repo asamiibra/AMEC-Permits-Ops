@@ -249,7 +249,7 @@ def _timing_requirements(db: Session, contract: Contract, revision: ContractRevi
             continue
         fact = str(entry.get("fact") or "").strip().upper()
         if fact in TIMING_FACT_TYPES:
-            requirements[fact] = dict(entry)
+            requirements[fact] = {**entry, "source_evidence_id": item.id}
     for fact, entry in list(requirements.items()):
         required_for = [str(value).strip().upper() for value in entry.get("required_for", []) if str(value).strip()]
         # Architecture approval is a contract/service timing fact, never a

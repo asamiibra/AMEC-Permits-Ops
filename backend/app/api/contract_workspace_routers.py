@@ -563,8 +563,11 @@ def stage_contract(contract_id: str, payload: StagePayload, request: Request, db
     contract.authority_state = "OWNER_REVIEWED" if contract.stage in {"AUTHORITY_REVIEW", "READY"} else contract.authority_state
     contract.last_activity_at = now()
     audit(db, correlation_id=request.state.correlation_id, event_type="ADMIN_CONTRACT_STAGE_CHANGED", entity_type="Contract", entity_id=contract.id, actor_id=actor_name(role), before=before, after={"stage": contract.stage, "status": contract.status}, metadata={"reason": payload.reason, "human_action": True})
+    proactive = evaluate_contract_exceptions(db, contract, actor=_request_actor(request, role), correlation_id=request.state.correlation_id) if before["stage"] != contract.stage else {"created": [], "resolved": 0, "active_condition_keys": [], "source_of_record": "WorkflowTask+NotificationEvent+canonical_contract_projection", "external_send": False}
     db.commit()
-    return contract_projection(db, contract)
+    result = contract_projection(db, contract)
+    result["proactive_exceptions"] = proactive
+    return result
 
 
 @router.patch("/{contract_id}/client-fields")
@@ -751,12 +754,22 @@ def add_evidence(contract_id: str, payload: EvidencePayload, request: Request, d
     return {"id": evidence.id, "status": evidence.status, "contract_id": contract.id, "source_role": evidence.source_role, "document_version_id": evidence.document_version_id}
 
 
-def _current_contract_revision_for_timing(db: Session, contract: Contract) -> ContractRevision:
+def _editable_contract_revision_for_timing(db: Session, contract: Contract) -> ContractRevision:
     revision = db.get(ContractRevision, contract.current_revision_id) if contract.current_revision_id else None
     if not revision:
         raise domain_error(409, "CONTRACT_REVISION_REQUIRED")
     if contract_revision_is_finalized(revision):
         raise domain_error(409, "CONTRACT_FINALIZED_REVISION_IMMUTABLE", revision_id=revision.id)
+    return revision
+
+
+def _controlling_contract_revision_for_timing(db: Session, contract: Contract, revision_id: str) -> ContractRevision:
+    """Resolve the exact accepted Contract revision for a downstream timing fact."""
+    revision = db.get(ContractRevision, revision_id)
+    if not revision or revision.contract_id != contract.id or revision.id != contract.current_revision_id:
+        raise domain_error(409, "TIMING_FACT_REVISION_MISMATCH", expected=contract.current_revision_id, actual=revision_id)
+    if not contract_revision_is_accepted(revision):
+        raise domain_error(409, "CONTRACT_ACCEPTANCE_REQUIRED", contract_revision_id=revision.id)
     return revision
 
 
@@ -776,7 +789,7 @@ def _strict_timing_source(db: Session, contract: Contract, revision: ContractRev
 def record_timing_requirement(contract_id: str, payload: TimingRequirementPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_EDIT")
     contract = _contract_or_404(db, contract_id)
-    revision = _current_contract_revision_for_timing(db, contract)
+    revision = _editable_contract_revision_for_timing(db, contract)
     fact = payload.fact.strip().upper()
     required_for = [value.strip().upper() for value in payload.required_for if value.strip()]
     if fact not in TIMING_FACT_TYPES:
@@ -801,21 +814,23 @@ def record_timing_requirement(contract_id: str, payload: TimingRequirementPayloa
 def record_timing_fact(contract_id: str, fact_type: str, payload: TimingFactPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "CONTRACT_EDIT")
     contract = _contract_or_404(db, contract_id)
-    revision = _current_contract_revision_for_timing(db, contract)
+    revision = _controlling_contract_revision_for_timing(db, contract, payload.contract_revision_id)
     fact = fact_type.strip().upper()
     if fact not in TIMING_FACT_TYPES:
         raise domain_error(422, "TIMING_FACT_INVALID", allowed=sorted(TIMING_FACT_TYPES))
-    if payload.contract_revision_id != revision.id:
-        raise domain_error(409, "TIMING_FACT_REVISION_MISMATCH", expected=revision.id, actual=payload.contract_revision_id)
     requirement = _timing_requirements(db, contract, revision).get(fact)
     if not requirement or not requirement.get("applicable"):
         raise domain_error(409, "TIMING_FACT_NOT_REQUIRED", fact=fact)
     if payload.source_clause != requirement.get("source_clause") or payload.policy_version != requirement.get("policy_version"):
         raise domain_error(409, "TIMING_FACT_AUTHORITY_MISMATCH", fact=fact)
+    requirement_document_id = requirement.get("source_document_version_id")
+    if not requirement_document_id:
+        raise domain_error(409, "TIMING_REQUIREMENT_SOURCE_DOCUMENT_REQUIRED", fact=fact)
+    _strict_timing_source(db, contract, revision, requirement_document_id)
     document = _strict_timing_source(db, contract, revision, payload.source_document_version_id)
     recorded_at = now()
     actor = _request_actor(request, role)
-    typed = {"fact": fact, "contract_id": contract.id, "contract_revision_id": revision.id, "effective_date": payload.effective_date.isoformat(), "trigger_type": payload.trigger_type, "source_clause": payload.source_clause, "source_reference": payload.source_reference, "source_document_version_id": document.id, "approval_evidence": payload.approval_evidence, "policy_version": payload.policy_version, "recorded_by": actor, "recorded_at": recorded_at.isoformat()}
+    typed = {"fact": fact, "contract_id": contract.id, "contract_revision_id": revision.id, "effective_date": payload.effective_date.isoformat(), "trigger_type": payload.trigger_type, "source_clause": payload.source_clause, "source_reference": payload.source_reference, "source_document_version_id": document.id, "approval_evidence": payload.approval_evidence, "policy_version": payload.policy_version, "timing_requirement": {"fact": fact, "applicable": bool(requirement.get("applicable")), "required_for": list(requirement.get("required_for") or []), "source_clause": requirement.get("source_clause"), "source_document_version_id": requirement_document_id, "policy_version": requirement.get("policy_version"), "source_evidence_id": requirement.get("source_evidence_id")}, "recorded_by": actor, "recorded_at": recorded_at.isoformat()}
     metadata = {"typed_timing_fact": typed, "reason": payload.reason}
     if fact == "CONTRACT_DURATION_START":
         metadata["duration_start_record"] = typed
